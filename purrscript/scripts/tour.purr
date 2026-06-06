@@ -1,0 +1,54 @@
+# tour.purr — a tour of purrscript's Turing-complete core. 😼
+#
+#   purrc tour.purr -o tour.so && cheatah-runtime tour.so
+
+import io
+
+# --- C-style structs (typed fields) ---
+struct Bar {
+    date: str
+    open: float
+    high: float
+    low: float
+    close: float
+}
+
+# --- functions (recursion works) ---
+fn add(a, b) {
+    return a + b
+}
+
+fn fib(n) {
+    if n < 2 {
+        return n
+    }
+    return fib(n - 1) + fib(n - 2)
+}
+
+# --- variables, operators, for-loops ---
+let total = 0
+for i in range(1, 6) {
+    total = total + i
+}
+io.print("sum 1..5 =", total)
+
+# --- while-loops ---
+let n = 5
+let f = 1
+while n > 1 {
+    f = f * n
+    n = n - 1
+}
+io.print("5! =", f)
+
+# --- calls + recursion ---
+io.print("add(3, 4) =", add(3, 4))
+io.print("fib(10) =", fib(10))
+
+# --- struct construction, field access, if/else ---
+let b = Bar("2024-01-02", 100.0, 105.5, 99.0, 103.25)
+if b.close > b.open {
+    io.print(b.date, "was an up day, close", b.close)
+} else {
+    io.print(b.date, "was a down day")
+}

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Git pre-push hook — runs the QA gate before EVERY push to ANY remote/branch.
+# A non-zero exit aborts the push. Enabled via `git config core.hooksPath .githooks`
+# (run scripts/setup_hooks.sh once). Bypass (discouraged): `git push --no-verify`
+# or `QA_GATE_SKIP=1 git push`.
+set -uo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+exec bash "$repo_root/scripts/qa_gate.sh"

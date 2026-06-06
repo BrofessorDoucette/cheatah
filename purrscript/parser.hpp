@@ -1,0 +1,30 @@
+#pragma once
+
+#include <string_view>
+#include <vector>
+
+#include "ast.hpp"
+#include "lexer.hpp"  // Token, Diagnostic, tokenize
+
+// purrscript parser — tokens -> AST. Recursive descent over the v0 grammar:
+//   program     := (NEWLINE | stmt)*
+//   stmt        := import_stmt | expr_stmt
+//   import_stmt := 'import' dotted ('as' IDENT)?
+//   expr_stmt   := expr
+//   expr        := primary ( '.' IDENT | '(' args ')' )*
+//   primary     := STRING | NUMBER | IDENT | '(' expr ')'
+namespace cheatah::purrscript {
+
+struct ParseResult {
+    Program program;
+    std::vector<Diagnostic> diagnostics;
+    bool ok() const { return diagnostics.empty(); }
+};
+
+// Parse a token stream (as produced by tokenize()).
+ParseResult parse(const std::vector<Token>& tokens);
+
+// Convenience: lex + parse a source buffer (lexer diagnostics are merged in).
+ParseResult parse_source(std::string_view source);
+
+} // namespace cheatah::purrscript

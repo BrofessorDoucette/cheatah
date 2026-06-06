@@ -1,0 +1,16 @@
+# hellomeow.purr — the canonical first purrscript program. 😼
+#
+# It prints "meow" and exits. When you run it, the cheatah runtime hosts it
+# HEADLESSLY: no window, no GPU, no renderer — just the program and the standard
+# library. Numerical analysis, model training, data crunching, scripting: all
+# run headless by default.
+#
+# `import io` is how purrscript pulls in a library: it includes the io module and
+# links it into this program. Nothing is available unless you import it — even
+# print lives in io.
+#
+# Reads like a kitten, runs like hell. 🐆💨🔥
+
+import io
+
+io.print("meow")
