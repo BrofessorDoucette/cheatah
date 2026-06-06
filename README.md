@@ -49,6 +49,101 @@ cheatah hello.so          # run it
   numeric core (`ndarray` + a full numpy-style `linalg`: `matmul`/`solve`/`inv`/
   `det`/`qr`/`svd`/`eig`/`norm`/…).
 
+## The language
+
+cheatah reads like Python, with a C-style `{ }` structure instead of indentation.
+A quick tour — this compiles and runs as-is:
+
+```python
+import io
+import math
+
+# `let` declares a variable; a bare `=` reassigns.
+let total = 0
+for i in range(1, 11) {          # range(stop) or range(start, stop)
+    total = total + i            # 1 + 2 + … + 10  ->  55
+}
+
+# Functions (`fn`), recursion, expressions.
+fn fib(n) {
+    if n < 2 { return n }
+    return fib(n - 1) + fib(n - 2)
+}
+
+if total > 50 {                  # if / else if / else
+    io.print("big", total)
+} else {
+    io.print("small", total)
+}
+
+# Collections: list -> std::vector, dict -> std::unordered_map.
+let xs = [3, 1, 2]
+let weights = {"a": 0.5, "b": 0.5}
+for x in xs { io.print("x =", x) }       # iterate
+io.print(len(xs), xs[0], weights["a"])   # len/hex/ord… are always-available built-ins
+
+# Structs: C-style records with typed fields.
+struct Point { x: float, y: float }
+let p = Point(1.0, 2.0)
+io.print("p:", p.x + p.y)
+
+# Exceptions (message-based).
+try {
+    raise "boom"
+} except e {
+    io.print("caught:", e)
+}
+
+io.print(2 ** 10, math.sqrt(2.0))        # ** is power; math.* for sqrt/sin/…
+io.print("hello" + " " + "world")        # strings are std::string; + concatenates
+io.print("fib(10):", fib(10))
+```
+
+**Features:** `int`/`float`/`str`/`bool`, `let` variables, arithmetic + `**`
+power, comparisons, `and`/`or`/`not`, `if`/`else if`/`else`, `while`, `for … in
+range(…)`, `fn` functions (with recursion), `struct` records, `list`/`dict`/`array`
+collections with indexing and iteration, string concatenation, `try`/`except` +
+`raise`, `import` (with `as` aliases and dotted modules like `os.path`), and
+always-available built-ins (`len`, `ord`, `chr`, `hex`/`oct`/`bin`, …).
+
+### Coming from Python? A few deliberate deviations
+
+| | cheatah | Python |
+|---|---|---|
+| Blocks | braces `{ }` | indentation + `:` |
+| Declare / reassign | `let x = 1` / `x = 2` | `x = 1` / `x = 2` |
+| Function / record | `fn f()` / `struct S` | `def f()` / `class S` |
+| Print & math | `io.print`, `math.sqrt` (imported) | `print`, `math.sqrt` |
+| Booleans | `true` / `false` | `True` / `False` |
+| Power vs. xor | `**` is power, `^` is bitwise-xor | `**`, `^` |
+| Division | `int / int` is integer division | `/` is always float |
+| Types | inferred but **static** (`auto`) | dynamic |
+
+Most Python scripts port with light edits. The full feature mapping, the remaining
+deviations, and the roadmap (comprehensions, classes-with-methods, f-strings,
+slicing, …) live in [compiler/PYTHON.md](compiler/PYTHON.md).
+
+### Escape hatch: raw C++
+
+By default cheatah looks like Python — but when you need the host language
+directly, a **`cpp { … }`** block drops to raw C++ (file scope at the top level
+for `#include`s/helpers/types; inline inside a function, where it can read and
+write cheatah locals):
+
+```python
+import io
+cpp { static long long triple(long long n) { return n * 3; } }   # file scope
+fn demo() {
+    let acc = 0
+    cpp { for (int i = 1; i <= 4; ++i) { acc += i; } }           # inline -> sees `acc`
+    return acc + triple(2)
+}
+io.print(demo())                                                  # 16
+```
+
+It's optional and out of the way — see **Python for people who care about
+performance** below for why this stays "all native."
+
 ## How it works
 
 ```
@@ -113,29 +208,12 @@ STL containers, no boxing, no indirection.
 **Near-raw C++ — the `cpp { … }` escape hatch.** Every construct already lowers
 1:1 to C++ value types (`int` → `long long`, `str` → `std::string`, `list`/`dict`
 → `std::vector`/`std::unordered_map`), so cheatah reads almost like C++. When
-Python-level syntax isn't enough, a **`cpp { … }`** block drops you straight to
-raw C++ — at the **top level** it lands at *file scope* (for `#include`s, helper
-functions, and types); **inside a function** it's emitted *inline*:
-
-```python
-import io
-
-cpp {                                  # file scope — includes, helpers, types
-    static long long triple(long long n) { return n * 3; }
-}
-
-fn demo() {
-    let acc = 0
-    cpp { for (int i = 1; i <= 4; ++i) { acc += i; } }   # inline — sees `acc`
-    return acc + triple(2)             # call C++ from cheatah → 10 + 6
-}
-
-io.print(demo())                       # 16
-```
-
-It's an *optional* escape hatch, kept off the everyday path: the common surface
-stays clean and Python-simple, and you reach for C++ only by choice. By default,
-cheatah looks like Python.
+Python-level syntax isn't enough, a **`cpp { … }`** block drops straight to raw
+C++ — file scope at the top level (for `#include`s, helpers, types), inline inside
+a function (where it can read/write cheatah locals); see **The language → Escape
+hatch** above for an example. It's an *optional* escape hatch, kept off the
+everyday path: the common surface stays clean and Python-simple, and you reach for
+C++ only by choice. By default, cheatah looks like Python.
 
 ## Building
 
