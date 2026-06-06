@@ -4,8 +4,8 @@
 //
 //   cheatah-runtime <program.so>
 //
-// (Headless by default. A program that wants a window calls Runtime::show_window
-// from inside purr_main.)
+// Fully headless. The Runtime is a minimal placeholder for future host services
+// (logging, lifecycle, …) that a program may drive from inside purr_main.
 
 #include <dlfcn.h>
 

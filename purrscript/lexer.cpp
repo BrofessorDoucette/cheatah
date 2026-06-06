@@ -6,45 +6,9 @@
 
 namespace cheatah {
 
-const char* to_string(TokenKind kind) {
-    switch (kind) {
-        case TokenKind::Number:     return "Number";
-        case TokenKind::String:     return "String";
-        case TokenKind::Identifier: return "Identifier";
-        case TokenKind::Keyword:    return "Keyword";
-        case TokenKind::LParen:     return "LParen";
-        case TokenKind::RParen:     return "RParen";
-        case TokenKind::LBrace:     return "LBrace";
-        case TokenKind::RBrace:     return "RBrace";
-        case TokenKind::LBracket:   return "LBracket";
-        case TokenKind::RBracket:   return "RBracket";
-        case TokenKind::Comma:      return "Comma";
-        case TokenKind::Colon:      return "Colon";
-        case TokenKind::Semicolon:  return "Semicolon";
-        case TokenKind::Dot:        return "Dot";
-        case TokenKind::Assign:     return "Assign";
-        case TokenKind::Plus:       return "Plus";
-        case TokenKind::Minus:      return "Minus";
-        case TokenKind::Star:       return "Star";
-        case TokenKind::Slash:      return "Slash";
-        case TokenKind::Caret:      return "Caret";
-        case TokenKind::Power:        return "Power";
-        case TokenKind::EqualEqual:   return "EqualEqual";
-        case TokenKind::BangEqual:    return "BangEqual";
-        case TokenKind::Less:         return "Less";
-        case TokenKind::LessEqual:    return "LessEqual";
-        case TokenKind::Greater:      return "Greater";
-        case TokenKind::GreaterEqual: return "GreaterEqual";
-        case TokenKind::Newline:    return "Newline";
-        case TokenKind::EndOfInput: return "EndOfInput";
-        case TokenKind::Invalid:    return "Invalid";
-    }
-    return "Invalid";
-}
-
 bool is_keyword(std::string_view word) {
-    // General-purpose language keywords (cheatah is no longer plotting-only).
-    // Builtins like print / show / show_window are runtime FUNCTIONS, not keywords.
+    // General-purpose language keywords. Builtins like print and len are runtime
+    // FUNCTIONS provided by the stdlib, not keywords.
     // Sorted for binary_search — keep alphabetical and in sync with README.md.
     static constexpr std::array<std::string_view, 20> kKeywords{
         "and", "as", "else", "except", "false", "fn", "for", "from", "if",
@@ -277,4 +241,4 @@ LexResult tokenize(std::string_view source) {
     return Scanner(source).run();
 }
 
-} // namespace cheatah::plotting::script
+} // namespace cheatah

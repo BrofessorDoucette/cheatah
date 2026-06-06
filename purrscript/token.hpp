@@ -35,9 +35,6 @@ enum class TokenKind {
     Invalid,
 };
 
-// Human-readable name for a kind (for diagnostics / debugging).
-const char* to_string(TokenKind kind);
-
 // 1-based source location, for diagnostics and editor tooling.
 struct SourcePos {
     std::uint32_t line = 1;

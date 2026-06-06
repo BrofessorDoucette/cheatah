@@ -7,8 +7,8 @@
 #   * the standard-library MODULES (io, os, …) — one dual static+shared lib each,
 #     linked into a cheatah executable ONLY when it `import`s them.
 
-# Language toolchain. Stage: lexer only (see README.md). Pure/dependency-free so
-# it unit-tests in isolation.
+# Language toolchain: lexer → parser → codegen (see README.md). Pure/dependency-free
+# so it unit-tests in isolation.
 add_library(cheatah_compiler STATIC
     lexer.cpp
     parser.cpp

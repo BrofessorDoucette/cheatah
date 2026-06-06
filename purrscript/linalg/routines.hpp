@@ -1,8 +1,7 @@
 #pragma once
 
-// cheatah linalg routines — the OUTLINE (declarations only, not yet implemented)
-// of numpy's linear-algebra API, to be built on cheatah's SIMD linalg core +
-// ndarray. Mirrors https://numpy.org/doc/stable/reference/routines.linalg.html.
+// cheatah linalg routines — numpy's linear-algebra API, built on cheatah's SIMD
+// linalg core + ndarray. Mirrors https://numpy.org/doc/stable/reference/routines.linalg.html.
 //
 // They operate on ndarray::NDArray (2-D = matrix, 1-D = vector). Implemented in
 // routines.cpp with SIMD-friendly contiguous loops (the module compiles at
