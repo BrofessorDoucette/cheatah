@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 # cheatah — a fast, Python-like programming language.
 #
 # A .purr source file is compiled by `purrc` into a native loadable module and
-# run by the headless `cheatah-runtime` host. The language transpiles to modern
+# run by the headless `cheatah` host. The language transpiles to modern
 # C++ and is built at -O3 -march=native, so cheatah programs run at optimized
 # native speed. This repository is the language itself: the toolchain (lexer →
 # parser → codegen), the compiler `purrc`, the runtime host, and the standard
@@ -64,7 +64,7 @@ add_subdirectory(stdlib/linalg)
 
 add_subdirectory(compiler)  # language toolchain (cheatah::compiler) + purrc
 add_subdirectory(stdlib)    # the standard-library modules + the unit tests
-add_subdirectory(runtime)   # the headless host (cheatah-runtime)
+add_subdirectory(runtime)   # the headless host (cheatah)
 
 # purrc links the stdlib module archives into every program it compiles, so they
 # must be built whenever purrc is. Wire it here, where purrc (compiler/) and the

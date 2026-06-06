@@ -34,7 +34,7 @@ loadable module that the runtime executable loads and runs.
  │ c++    →  hello.so       (a shared module; links imported stdlib)  │
  └──────────────────────────────────────────────────────────────────┘
     │
-    ▼  cheatah-runtime  (the host — runtime/)
+    ▼  cheatah  (the host — runtime/)
  dlopen("hello.so") → resolve `purr_main` → call it
 ```
 
@@ -42,7 +42,7 @@ loadable module that the runtime executable loads and runs.
   invokes the system C++ compiler (`c++ -std=c++20 -O2 -fPIC -shared`) to build a
   loadable `.so`. The generated translation unit exports
   `extern "C" void purr_main()` — no `main()`.
-- **`cheatah-runtime`** ([`../runtime/`](../runtime/)) validates the module path,
+- **`cheatah`** ([`../runtime/`](../runtime/)) validates the module path,
   `dlopen`s the module, resolves `purr_main`, and calls it. The module statically
   links only the stdlib it imported, so it is self-contained — the host shares no
   state with it.
@@ -51,7 +51,7 @@ loadable module that the runtime executable loads and runs.
 
 ```bash
 purrc hello.purr -o hello.so      # compile
-cheatah-runtime hello.so          # run
+cheatah hello.so          # run
 ```
 
 ### Performance — native, zero-overhead

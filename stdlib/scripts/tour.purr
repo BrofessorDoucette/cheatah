@@ -1,6 +1,6 @@
 # tour.purr — a tour of cheatah's Turing-complete core. 😼
 #
-#   purrc tour.purr -o tour.so && cheatah-runtime tour.so
+#   purrc tour.purr -o tour.so && cheatah tour.so
 
 import io
 

@@ -43,4 +43,8 @@ function(add_cheatah_library NAME)
     set_target_properties(${shared} PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR})
+
+    # Register both artifacts so the `cheatah_stdlib` aggregate target can build
+    # every module's static + shared library in one go.
+    set_property(GLOBAL APPEND PROPERTY CHEATAH_STDLIB_TARGETS ${static} ${shared})
 endfunction()

@@ -1,8 +1,8 @@
-// cheatah-runtime — the host executable that LOADS and RUNS compiled cheatah
+// cheatah — the host executable that LOADS and RUNS compiled cheatah
 // programs. It dlopens a module produced by purrc, resolves its `purr_main`
 // entry point, and calls it.
 //
-//   cheatah-runtime <program.so>
+//   cheatah <program.so>
 //
 // Fully headless: the program is self-contained (it statically links the stdlib
 // modules it imported), so the host just validates, loads, and runs it.
@@ -34,21 +34,21 @@ std::string sanitize_module_path(const std::string& raw) {
     std::error_code ec;
     const std::filesystem::path canonical = std::filesystem::canonical(raw, ec);
     if (ec) {
-        std::cerr << "cheatah-runtime: cannot resolve '" << raw << "': " << ec.message() << "\n";
+        std::cerr << "cheatah: cannot resolve '" << raw << "': " << ec.message() << "\n";
         return {};
     }
     struct stat st {};
     if (::stat(canonical.c_str(), &st) != 0) {
-        std::cerr << "cheatah-runtime: cannot stat '" << canonical.string() << "'\n";
+        std::cerr << "cheatah: cannot stat '" << canonical.string() << "'\n";
         return {};
     }
     if (!S_ISREG(st.st_mode)) {
-        std::cerr << "cheatah-runtime: refusing to load '" << canonical.string()
+        std::cerr << "cheatah: refusing to load '" << canonical.string()
                   << "': not a regular file\n";
         return {};
     }
     if (st.st_mode & S_IWOTH) {
-        std::cerr << "cheatah-runtime: refusing to load world-writable module '"
+        std::cerr << "cheatah: refusing to load world-writable module '"
                   << canonical.string() << "'\n";
         return {};
     }
@@ -58,7 +58,7 @@ std::string sanitize_module_path(const std::string& raw) {
                      magic[0] == 0x7f && magic[1] == 'E' && magic[2] == 'L' && magic[3] == 'F';
     if (f) std::fclose(f);
     if (!elf) {
-        std::cerr << "cheatah-runtime: refusing to load '" << canonical.string()
+        std::cerr << "cheatah: refusing to load '" << canonical.string()
                   << "': not an ELF shared object\n";
         return {};
     }
@@ -71,13 +71,13 @@ int main(int argc, char** argv) {
     if (argc >= 2) {
         const std::string a = argv[1];
         if (a == "--version" || a == "-v") {
-            std::cout << "cheatah-runtime " << cheatah::version() << "\n";
+            std::cout << "cheatah " << cheatah::version() << "\n";
             return 0;
         }
     }
     if (argc < 2) {
-        std::cerr << "usage: cheatah-runtime <program.so>\n"
-                     "       cheatah-runtime --version\n";
+        std::cerr << "usage: cheatah <program.so>\n"
+                     "       cheatah --version\n";
         return 2;
     }
     const std::string module_path = sanitize_module_path(argv[1]);
@@ -87,14 +87,14 @@ int main(int argc, char** argv) {
 
     void* handle = dlopen(module_path.c_str(), RTLD_NOW | RTLD_LOCAL);
     if (handle == nullptr) {
-        std::cerr << "cheatah-runtime: cannot load '" << module_path << "': " << dlerror() << "\n";
+        std::cerr << "cheatah: cannot load '" << module_path << "': " << dlerror() << "\n";
         return 1;
     }
 
     dlerror();  // clear any stale error
     auto purr_main = reinterpret_cast<PurrMain>(dlsym(handle, "purr_main"));
     if (const char* err = dlerror()) {
-        std::cerr << "cheatah-runtime: '" << module_path << "' has no purr_main: " << err << "\n";
+        std::cerr << "cheatah: '" << module_path << "' has no purr_main: " << err << "\n";
         dlclose(handle);
         return 1;
     }
@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
     try {
         purr_main();  // run the program
     } catch (const std::exception& e) {
-        std::cerr << "cheatah-runtime: program error: " << e.what() << "\n";
+        std::cerr << "cheatah: program error: " << e.what() << "\n";
         rc = 1;
     }
 

@@ -4,7 +4,7 @@
 
 **cheatah** is a small, Python-like programming language that compiles to native
 machine code. You write `.purr` source files, compile them with `purrc`, and run
-them on the headless `cheatah-runtime` host. Because cheatah transpiles to modern
+them on the headless `cheatah` host. Because cheatah transpiles to modern
 C++ and is built at `-O3 -march=native`, your programs run at **optimized native
 speed** — a recursive `fib(35)` runs at parity with hand-written C++.
 
@@ -22,7 +22,7 @@ io.print("fib(30) =", fib(30))
 
 ```bash
 purrc hello.purr -o hello.so      # compile to a native module
-cheatah-runtime hello.so          # run it
+cheatah hello.so          # run it
 ```
 
 ---
@@ -56,7 +56,7 @@ cheatah-runtime hello.so          # run it
     ▼  purrc  (lexer → parser → codegen → C++ → .so)
  hello.so   (exports  extern "C" void purr_main())
     │
-    ▼  cheatah-runtime
+    ▼  cheatah
  dlopen("hello.so") → resolve purr_main → call it
 ```
 
@@ -64,7 +64,7 @@ cheatah-runtime hello.so          # run it
   → codegen ([compiler/](compiler/)), then invokes the system C++ compiler to
   build a loadable module. The generated translation unit exports `purr_main` — no
   `main()`.
-- **`cheatah-runtime`** ([runtime/](runtime/)) is the fully headless host: it
+- **`cheatah`** ([runtime/](runtime/)) is the fully headless host: it
   validates the module path, `dlopen`s the module, resolves `purr_main`, and calls
   it. A compiled program is self-contained — it statically links the stdlib it
   imported — so the host needs no shared state with it.
@@ -79,7 +79,7 @@ cheatah uses CMake (≥ 3.24) with Ninja presets. You need a C++20 compiler.
 
 ```bash
 cmake --preset debug          # configure
-cmake --build --preset debug  # build purrc + cheatah-runtime + stdlib
+cmake --build --preset debug  # build purrc + cheatah + stdlib
 ctest --preset debug          # run the test suite
 ```
 
@@ -93,7 +93,7 @@ gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
 |------|------|
 | [compiler/](compiler/) | the language toolchain (lexer/parser/codegen) and the `purrc` compiler ([purrc.cpp](compiler/purrc.cpp)) |
 | [stdlib/](stdlib/) | the standard-library modules and the unit tests |
-| [runtime/](runtime/) | `cheatah-runtime`, the headless host |
+| [runtime/](runtime/) | `cheatah`, the headless host |
 | [tests/](tests/) | unit, integration (purrc → runtime), and benchmark suites |
 | [cmake/](cmake/) | the `add_cheatah_library` helper |
 | [scripts/](scripts/) | the QA gate and git-hook setup |
