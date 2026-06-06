@@ -15,15 +15,15 @@ target_compile_definitions(cheatah_purrc_tests PRIVATE
 add_dependencies(cheatah_purrc_tests
     purrc
     cheatah-runtime
-    cheatah_purrscript_builtins_static
-    cheatah_purrscript_io_static
-    cheatah_purrscript_os_static
-    cheatah_purrscript_string_static
-    cheatah_purrscript_math_static
-    cheatah_purrscript_time_static
-    cheatah_purrscript_datetime_static
-    cheatah_purrscript_random_static
-    cheatah_purrscript_statistics_static
-    cheatah_purrscript_hashlib_static)
+    cheatah_builtins_static
+    cheatah_io_static
+    cheatah_os_static
+    cheatah_string_static
+    cheatah_math_static
+    cheatah_time_static
+    cheatah_datetime_static
+    cheatah_random_static
+    cheatah_statistics_static
+    cheatah_hashlib_static)
 
 gtest_discover_tests(cheatah_purrc_tests TEST_PREFIX "purrc:")

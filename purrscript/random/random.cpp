@@ -2,7 +2,7 @@
 
 #include <random>
 
-namespace cheatah::purrscript::random {
+namespace cheatah::random {
 
 namespace {
 std::mt19937_64& engine() {
@@ -20,4 +20,4 @@ long long randint(long long a, long long b) {
 }
 double gauss(double mu, double sigma) { return std::normal_distribution<double>(mu, sigma)(engine()); }
 
-} // namespace cheatah::purrscript::random
+} // namespace cheatah::random

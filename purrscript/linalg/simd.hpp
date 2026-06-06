@@ -9,7 +9,7 @@
 // helpers expose what the *current build* can dispatch to, so callers, tests,
 // and benchmarks can record the hardware-acceleration tier a result was
 // produced on. The actual kernels live in the typed primitives (vector.hpp, …).
-namespace cheatah::purrscript::linalg {
+namespace cheatah::linalg {
 
 // Human-readable list of SIMD instruction sets this build targets, e.g.
 // "AVX2;FMA" on a modern x86-64 build, "NEON" on ARM, or "scalar" when no
@@ -21,4 +21,4 @@ std::string simd_features();
 // 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512). Useful for sizing blocked kernels.
 int simd_lane_doubles() noexcept;
 
-} // namespace cheatah::purrscript::linalg
+} // namespace cheatah::linalg

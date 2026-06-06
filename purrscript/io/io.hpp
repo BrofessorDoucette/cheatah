@@ -1,10 +1,10 @@
 #pragma once
 
-// purrscript io — Python-like input/output. Mirrors
+// cheatah io — Python-like input/output. Mirrors
 // https://docs.python.org/3/tutorial/inputoutput.html.
 //
-// One of purrscript's standard-library MODULES. `import io` in a .purr program
-// includes this header AND links the io library (libcheatah_purrscript_io); a
+// One of cheatah's standard-library MODULES. `import io` in a .purr program
+// includes this header AND links the io library (libcheatah_io); a
 // program that doesn't import io neither sees nor links it. Templated entry points
 // live here (they monomorphize at the call site → tight machine code); the
 // non-template symbols are compiled into the library.
@@ -17,7 +17,7 @@
 #include <string_view>
 #include <vector>
 
-namespace cheatah::purrscript::io {
+namespace cheatah::io {
 
 // Streamable<T>: T can be written to a std::ostream — the ONLY thing str(),
 // print(), format() and File::write() actually need. Naming the requirement turns
@@ -113,4 +113,4 @@ private:
 // open(path, mode="r"): Python open() — returns a File.
 File open(const std::string& path, std::string_view mode = "r");
 
-} // namespace cheatah::purrscript::io
+} // namespace cheatah::io

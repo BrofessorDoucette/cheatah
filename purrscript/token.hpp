@@ -4,9 +4,9 @@
 #include <string>
 #include <string_view>
 
-// purrscript tokens — the output of the lexer and the input to the (future)
+// cheatah tokens — the output of the lexer and the input to the (future)
 // parser. See README.md for the language's lexical structure.
-namespace cheatah::purrscript {
+namespace cheatah {
 
 enum class TokenKind {
     // Literals.
@@ -50,4 +50,4 @@ struct Token {
     SourcePos pos;      // position of the lexeme's first character
 };
 
-} // namespace cheatah::purrscript
+} // namespace cheatah

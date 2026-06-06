@@ -95,7 +95,7 @@ gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
 | [purrc/](purrc/) | `purrc`, the compiler |
 | [runtime/](runtime/) | `cheatah-runtime`, the headless host |
 | [tests/](tests/) | unit, integration (purrc → runtime), and benchmark suites |
-| [cmake/](cmake/) | the `add_purrscript_library` helper |
+| [cmake/](cmake/) | the `add_cheatah_library` helper |
 | [scripts/](scripts/) | the QA gate and git-hook setup |
 
 ## License

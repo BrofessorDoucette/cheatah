@@ -1,6 +1,6 @@
 #pragma once
 
-// purrscript linalg routines — the OUTLINE (declarations only, not yet implemented)
+// cheatah linalg routines — the OUTLINE (declarations only, not yet implemented)
 // of numpy's linear-algebra API, to be built on cheatah's SIMD linalg core +
 // ndarray. Mirrors https://numpy.org/doc/stable/reference/routines.linalg.html.
 //
@@ -11,7 +11,7 @@
 
 #include "ndarray.hpp"
 
-namespace cheatah::purrscript::linalg {
+namespace cheatah::linalg {
 
 using ndarray::NDArray;
 
@@ -53,4 +53,4 @@ NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solut
 NDArray inv(const NDArray& a);
 NDArray pinv(const NDArray& a);                           // Moore–Penrose pseudo-inverse
 
-} // namespace cheatah::purrscript::linalg
+} // namespace cheatah::linalg

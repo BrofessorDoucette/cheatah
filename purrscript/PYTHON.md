@@ -1,8 +1,8 @@
-# purrscript ↔ Python
+# cheatah ↔ Python
 
-A living document of **what Python features purrscript supports** and the **small
+A living document of **what Python features cheatah supports** and the **small
 set of deliberate deviations** from Python syntax (chosen for simplicity and for a
-clean, fast compile to C++). Goal: **most Python scripts port to purrscript with
+clean, fast compile to C++). Goal: **most Python scripts port to cheatah with
 light edits.** Update this as the language grows.
 
 > TL;DR of the deviations: **blocks use `{ }` not indentation**; **`let`** declares
@@ -14,7 +14,7 @@ light edits.** Update this as the language grows.
 
 ## ✅ Supported (and how it maps to Python)
 
-| Feature | purrscript | Python |
+| Feature | cheatah | Python |
 |---|---|---|
 | Comments | `# …` or `// …` | `# …` |
 | Int / float / str / bool | `42`, `3.14`, `"hi"`, `true`/`false` | same, but `True`/`False` |
@@ -51,7 +51,7 @@ True / False are written **lowercase** (`true` / `false`).
 
 1. **Blocks use braces `{ }`, not indentation + colons.**
    ```python
-   # purrscript                # Python
+   # cheatah                # Python
    if x > 0 {                  if x > 0:
        f()                         f()
    }
@@ -67,7 +67,7 @@ True / False are written **lowercase** (`true` / `false`).
 
 4. **`struct` instead of `class` (data classes only, for now).**
    ```python
-   # purrscript                       # Python
+   # cheatah                       # Python
    struct Bar {                       @dataclass
        date: str                      class Bar:
        close: float                       date: str
@@ -116,14 +116,14 @@ f-strings & rich string formatting (use `io.format`); slicing (`a[1:3]`); empty
 container literals; tuples/unpacking; `with` statements; generators/`yield`;
 keyword/default arguments; `lambda`.
 
-These are tracked toward the goal of frictionless Python → purrscript porting.
+These are tracked toward the goal of frictionless Python → cheatah porting.
 
 ---
 
 ## A ported example
 
 ```python
-# Python                                # purrscript
+# Python                                # cheatah
 def fib(n):                             fn fib(n) {
     if n < 2:                               if n < 2 { return n }
         return n                            return fib(n-1) + fib(n-2)

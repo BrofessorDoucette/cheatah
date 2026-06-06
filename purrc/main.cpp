@@ -1,4 +1,4 @@
-// purrc — the purrscript compiler.
+// purrc — the cheatah compiler.
 //
 // Compiles a .purr program into a loadable module that the cheatah runtime runs:
 //   purrc <input.purr> [-o <output>]
@@ -23,20 +23,20 @@
 #include "codegen.hpp"
 #include "parser.hpp"
 
-#ifndef PURRSCRIPT_ROOT
-#define PURRSCRIPT_ROOT ""
+#ifndef CHEATAH_ROOT
+#define CHEATAH_ROOT ""
 #endif
-#ifndef PURRSCRIPT_RUNTIME_INCLUDE
-#define PURRSCRIPT_RUNTIME_INCLUDE ""
+#ifndef CHEATAH_RUNTIME_INCLUDE
+#define CHEATAH_RUNTIME_INCLUDE ""
 #endif
-#ifndef PURRSCRIPT_LIB_DIR
-#define PURRSCRIPT_LIB_DIR ""
+#ifndef CHEATAH_LIB_DIR
+#define CHEATAH_LIB_DIR ""
 #endif
-#ifndef PURRSCRIPT_CXX
-#define PURRSCRIPT_CXX "c++"
+#ifndef CHEATAH_CXX
+#define CHEATAH_CXX "c++"
 #endif
 
-using namespace cheatah::purrscript;
+using namespace cheatah;
 
 namespace {
 
@@ -153,16 +153,16 @@ int main(int argc, char** argv) {
     // -march=native unlocks the host's SIMD; -w because generated code legitimately
     // has redundant parens (the language guarantees correctness).
     std::vector<std::string> args = {
-        PURRSCRIPT_CXX, "-std=c++20", "-O3", "-march=native", "-DNDEBUG",
+        CHEATAH_CXX, "-std=c++20", "-O3", "-march=native", "-DNDEBUG",
         "-fno-semantic-interposition", "-fPIC", "-shared", "-pthread", "-w",
-        std::string("-I") + PURRSCRIPT_RUNTIME_INCLUDE,
+        std::string("-I") + CHEATAH_RUNTIME_INCLUDE,
     };
     for (const std::string& m : modules) {
-        args.push_back(std::string("-I") + PURRSCRIPT_ROOT + "/" + m);
+        args.push_back(std::string("-I") + CHEATAH_ROOT + "/" + m);
     }
     args.push_back(gen_path);
     for (const std::string& m : modules) {
-        args.push_back(std::string(PURRSCRIPT_LIB_DIR) + "/libcheatah_purrscript_" + m + ".a");
+        args.push_back(std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a");
     }
     // -shared leaves the Runtime symbols undefined; they resolve from the
     // cheatah-runtime host at dlopen time.

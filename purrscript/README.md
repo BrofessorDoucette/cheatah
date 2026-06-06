@@ -1,6 +1,6 @@
-# purrscript
+# cheatah
 
-> 🐆💨🔥 **Reads like a kitten, runs like hell.** purrscript is built to be as
+> 🐆💨🔥 **Reads like a kitten, runs like hell.** cheatah is built to be as
 > readable as Python *and* as fast as hand-tuned native code — so when you hit
 > run, you'd better **runnn like hell** to keep up. 😼⚡
 
@@ -20,7 +20,7 @@ It is **Turing-complete**: variables, full expressions/operators, `if`/`else`,
 
 ## How the compiler & runtime work
 
-purrscript is **compiled, not interpreted**. A `.purr` file becomes a native
+cheatah is **compiled, not interpreted**. A `.purr` file becomes a native
 loadable module that the runtime executable loads and runs.
 
 ```
@@ -55,10 +55,10 @@ cheatah-runtime hello.so          # run
 ```
 
 ### Performance — native, zero-overhead
-purrscript **transpiles to C++** and is compiled by clang at full optimization, so
+cheatah **transpiles to C++** and is compiled by clang at full optimization, so
 there is **no interpreter, VM, or boxing** — the machine code is exactly what the
 C++ compiler emits for equivalent code. Measured: a recursive `fib(35)` in
-purrscript runs **at parity with hand-written C++** compiled by the same compiler.
+cheatah runs **at parity with hand-written C++** compiled by the same compiler.
 
 What makes it C++-fast:
 - **`-O3 -march=native -DNDEBUG -fno-semantic-interposition`** — full optimization
@@ -174,14 +174,14 @@ linking** the corresponding library. Nothing is available unless imported (even
 imported it** (static for production, shared for fast iteration).
 
 ```python
-import io                  # include <io.hpp> + link libcheatah_purrscript_io
+import io                  # include <io.hpp> + link libcheatah_io
 import os.path as p        # dotted module + alias
 io.print("meow")
 ```
 
 ## Standard library
-Each module is its **own dual static + shared library** (`add_purrscript_library`
-in [`../cmake/PurrscriptLibrary.cmake`](../cmake/PurrscriptLibrary.cmake)).
+Each module is its **own dual static + shared library** (`add_cheatah_library`
+in [`../cmake/CheatahLibrary.cmake`](../cmake/CheatahLibrary.cmake)).
 Templated entry points (constrained with C++20 **concepts** for clear errors) live
 in headers; non-template symbols compile into the library.
 

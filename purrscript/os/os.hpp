@@ -1,10 +1,10 @@
 #pragma once
 
-// purrscript os — Python-like operating-system interface. Mirrors a practical
+// cheatah os — Python-like operating-system interface. Mirrors a practical
 // subset of https://docs.python.org/3/library/os.html (built on std::filesystem).
 //
-// One of purrscript's standard-library MODULES. `import os` includes this header
-// AND links the os library (libcheatah_purrscript_os). Templated entry points
+// One of cheatah's standard-library MODULES. `import os` includes this header
+// AND links the os library (libcheatah_os). Templated entry points
 // (e.g. os.path.join) live here; the rest is compiled into the library.
 #include <cstdint>
 #include <filesystem>
@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-namespace cheatah::purrscript::os {
+namespace cheatah::os {
 
 // StringLike<T>: a std::string can be constructed from T — exactly what
 // os.path.join() does (std::string(part)). Naming it yields a clear "constraint
@@ -62,4 +62,4 @@ std::uintmax_t getsize(const std::string& p);
 std::pair<std::string, std::string> splitext(const std::string& p);
 
 } // namespace path
-} // namespace cheatah::purrscript::os
+} // namespace cheatah::os

@@ -12,7 +12,7 @@
 // the general real spectrum). Hot loops are contiguous so -O3 -march=native
 // auto-vectorizes them (SIMD). NDArray is double-only, so eig returns REAL
 // eigenvalues and throws if a complex pair is detected.
-namespace cheatah::purrscript::linalg {
+namespace cheatah::linalg {
 
 using ndarray::NDArray;
 
@@ -652,4 +652,4 @@ NDArray eigvals(const NDArray& a) {
     return make_vector(std::move(vals));
 }
 
-} // namespace cheatah::purrscript::linalg
+} // namespace cheatah::linalg

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace cheatah::purrscript::ndarray {
+namespace cheatah::ndarray {
 
 namespace {
 
@@ -220,4 +220,4 @@ std::string to_string(const NDArray& a) {
     return out;
 }
 
-} // namespace cheatah::purrscript::ndarray
+} // namespace cheatah::ndarray

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace cheatah::purrscript::hashlib {
+namespace cheatah::hashlib {
 
 namespace {
 
@@ -74,4 +74,4 @@ std::string sha256(std::string_view data) {
     return out;
 }
 
-} // namespace cheatah::purrscript::hashlib
+} // namespace cheatah::hashlib

@@ -5,9 +5,9 @@
 
 #include <gtest/gtest.h>
 
-namespace str = cheatah::purrscript::string;
+namespace str = cheatah::string;
 
-TEST(PurrscriptString, Case) {
+TEST(CheatahString, Case) {
     EXPECT_EQ(str::upper("meow"), "MEOW");
     EXPECT_EQ(str::lower("MeOw"), "meow");
     EXPECT_EQ(str::capitalize("hello world"), "Hello world");
@@ -15,13 +15,13 @@ TEST(PurrscriptString, Case) {
     EXPECT_EQ(str::swapcase("Meow"), "mEOW");
 }
 
-TEST(PurrscriptString, Trimming) {
+TEST(CheatahString, Trimming) {
     EXPECT_EQ(str::strip("  meow \t"), "meow");
     EXPECT_EQ(str::lstrip("xxmeow", "x"), "meow");
     EXPECT_EQ(str::rstrip("meowyy", "y"), "meow");
 }
 
-TEST(PurrscriptString, SearchAndTest) {
+TEST(CheatahString, SearchAndTest) {
     EXPECT_TRUE(str::startswith("meow", "me"));
     EXPECT_TRUE(str::endswith("meow", "ow"));
     EXPECT_TRUE(str::contains("meow", "eo"));
@@ -31,7 +31,7 @@ TEST(PurrscriptString, SearchAndTest) {
     EXPECT_EQ(str::count("meow meow meow", "meow"), 3);
 }
 
-TEST(PurrscriptString, Transform) {
+TEST(CheatahString, Transform) {
     EXPECT_EQ(str::replace("meow meow", "e", "3"), "m3ow m3ow");
     EXPECT_EQ(str::split("a,b,c", ","), (std::vector<std::string>{"a", "b", "c"}));
     EXPECT_EQ(str::split("  a   b "), (std::vector<std::string>{"a", "b"}));
@@ -41,7 +41,7 @@ TEST(PurrscriptString, Transform) {
     EXPECT_EQ(str::join(", ", std::vector<const char*>{"x", "y"}), "x, y");  // any string-like elem
 }
 
-TEST(PurrscriptString, Padding) {
+TEST(CheatahString, Padding) {
     EXPECT_EQ(str::ljust("cat", 5), "cat  ");
     EXPECT_EQ(str::rjust("cat", 5), "  cat");
     EXPECT_EQ(str::center("cat", 9, "*"), "***cat***");
@@ -49,7 +49,7 @@ TEST(PurrscriptString, Padding) {
     EXPECT_EQ(str::zfill("-42", 5), "-0042");
 }
 
-TEST(PurrscriptString, Classification) {
+TEST(CheatahString, Classification) {
     EXPECT_TRUE(str::isdigit("123"));
     EXPECT_FALSE(str::isdigit("12a"));
     EXPECT_FALSE(str::isdigit(""));

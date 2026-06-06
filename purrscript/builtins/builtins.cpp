@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace cheatah::purrscript::builtins {
+namespace cheatah::builtins {
 
 std::size_t len(std::string_view s) { return s.size(); }
 
@@ -61,4 +61,4 @@ double to_float(long long x) { return static_cast<double>(x); }
 
 std::size_t hash(std::string_view s) { return std::hash<std::string_view>{}(s); }
 
-} // namespace cheatah::purrscript::builtins
+} // namespace cheatah::builtins

@@ -1,6 +1,6 @@
 #pragma once
 
-// purrscript builtins — Python's built-in functions that are ALWAYS available
+// cheatah builtins — Python's built-in functions that are ALWAYS available
 // (no import), mirroring https://docs.python.org/3/library/functions.html.
 //
 // This is the non-math subset (length, character/representation conversions,
@@ -14,7 +14,7 @@
 #include <string_view>
 #include <type_traits>
 
-namespace cheatah::purrscript::builtins {
+namespace cheatah::builtins {
 
 // Sized<C>: C reports a .size() — strings and STL containers (list/dict/array).
 template <typename C>
@@ -54,4 +54,4 @@ std::size_t hash(std::string_view s);
 template <typename T>
 std::size_t hash(const T& x) { return std::hash<T>{}(x); }
 
-} // namespace cheatah::purrscript::builtins
+} // namespace cheatah::builtins

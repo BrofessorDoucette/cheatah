@@ -1,6 +1,6 @@
 #include "simd.hpp"
 
-namespace cheatah::purrscript::linalg {
+namespace cheatah::linalg {
 
 std::string simd_features() {
     std::string features;
@@ -48,4 +48,4 @@ int simd_lane_doubles() noexcept {
 #endif
 }
 
-} // namespace cheatah::purrscript::linalg
+} // namespace cheatah::linalg

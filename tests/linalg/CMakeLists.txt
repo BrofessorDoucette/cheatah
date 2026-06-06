@@ -7,7 +7,7 @@ add_executable(cheatah_linalg_tests
 )
 
 target_link_libraries(cheatah_linalg_tests PRIVATE
-    cheatah::purrscript_linalg_static
+    cheatah::linalg_static
     GTest::gmock_main
 )
 

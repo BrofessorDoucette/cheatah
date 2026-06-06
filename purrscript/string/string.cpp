@@ -2,7 +2,7 @@
 
 #include <cctype>
 
-namespace cheatah::purrscript::string {
+namespace cheatah::string {
 
 namespace {
 char up(char c) { return static_cast<char>(std::toupper(static_cast<unsigned char>(c))); }
@@ -213,4 +213,4 @@ bool islower(std::string_view s) {
     return has;
 }
 
-} // namespace cheatah::purrscript::string
+} // namespace cheatah::string

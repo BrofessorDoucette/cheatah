@@ -1,6 +1,6 @@
 #include "math.hpp"
 
-namespace cheatah::purrscript::math {
+namespace cheatah::math {
 
 double sqrt(double x) { return std::sqrt(x); }
 double cbrt(double x) { return std::cbrt(x); }
@@ -45,4 +45,4 @@ long long factorial(long long n) {
     return r;
 }
 
-} // namespace cheatah::purrscript::math
+} // namespace cheatah::math

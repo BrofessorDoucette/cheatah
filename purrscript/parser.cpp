@@ -1,6 +1,6 @@
 #include "parser.hpp"
 
-namespace cheatah::purrscript {
+namespace cheatah {
 
 namespace {
 
@@ -619,4 +619,4 @@ ParseResult parse_source(std::string_view source) {
     return r;
 }
 
-} // namespace cheatah::purrscript
+} // namespace cheatah

@@ -1,19 +1,19 @@
 #pragma once
 
-// purrscript string — common text operations + the Python `string` module
+// cheatah string — common text operations + the Python `string` module
 // constants. Mirrors https://docs.python.org/3/library/string.html plus the
 // everyday str methods Python exposes (split/join/strip/replace/...), surfaced as
 // free functions so a .purr program writes string.upper("meow").
 //
 // A standard-library MODULE: `import string` includes this header and links the
-// string library (libcheatah_purrscript_string). Constants are header-only; the
+// string library (libcheatah_string). Constants are header-only; the
 // operations are compiled into the library; `join` is templated (header).
 #include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
 
-namespace cheatah::purrscript::string {
+namespace cheatah::string {
 
 // ---- constants (Python `string` module) ----
 inline constexpr std::string_view ascii_lowercase = "abcdefghijklmnopqrstuvwxyz";
@@ -88,4 +88,4 @@ bool isspace(std::string_view s);
 bool isupper(std::string_view s);
 bool islower(std::string_view s);
 
-} // namespace cheatah::purrscript::string
+} // namespace cheatah::string

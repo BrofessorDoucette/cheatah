@@ -5,12 +5,12 @@
 #include <set>
 #include <sstream>
 
-namespace cheatah::purrscript {
+namespace cheatah {
 
 namespace {
 
 // Bare names that are Python built-ins (always available, no import) -> their C++
-// symbol in cheatah::purrscript::builtins. Keyword-named conversions map specially.
+// symbol in cheatah::builtins. Keyword-named conversions map specially.
 std::optional<std::string> builtin_cpp_name(const std::string& name) {
     static const std::map<std::string, std::string> kBuiltins = {
         {"len", "len"},   {"ord", "ord"},   {"chr", "chr"},     {"hex", "hex"},
@@ -19,7 +19,7 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
     };
     const auto it = kBuiltins.find(name);
     if (it == kBuiltins.end()) return std::nullopt;
-    return "cheatah::purrscript::builtins::" + it->second;
+    return "cheatah::builtins::" + it->second;
 }
 
 std::string cpp_string_literal(const std::string& s) {
@@ -38,7 +38,7 @@ std::string cpp_string_literal(const std::string& s) {
     return out;
 }
 
-// purrscript type -> C++ type. Primitives, containers (STL), and struct names.
+// cheatah type -> C++ type. Primitives, containers (STL), and struct names.
 std::string map_type(const TypeRef& t) {
     if (t.name == "int") return "long long";
     if (t.name == "float") return "double";
@@ -236,7 +236,7 @@ private:
     }
 
     std::string module_namespace(const std::vector<std::string>& segs) const {
-        std::string ns = "cheatah::purrscript";
+        std::string ns = "cheatah";
         for (const std::string& s : segs) ns += "::" + s;
         return ns;
     }
@@ -265,7 +265,7 @@ private:
                 return "std::string(" + cpp_string_literal(static_cast<const StringLit&>(e).value) +
                        ")";
             case ExprKind::NumberLit: {
-                // purrscript `int` is 64-bit; integer literals -> long long (so a
+                // cheatah `int` is 64-bit; integer literals -> long long (so a
                 // list[int] literal deduces vector<long long>). Floats stay double.
                 const auto& n = static_cast<const NumberLit&>(e);
                 const bool is_float = n.text.find('.') != std::string::npos ||
@@ -357,4 +357,4 @@ private:
 
 CodegenResult codegen(const Program& program) { return Codegen().run(program); }
 
-} // namespace cheatah::purrscript
+} // namespace cheatah

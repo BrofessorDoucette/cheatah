@@ -7,12 +7,12 @@
 
 #include <gtest/gtest.h>
 
-namespace dt = cheatah::purrscript::datetime;
-namespace rnd = cheatah::purrscript::random;
-namespace stats = cheatah::purrscript::statistics;
-namespace hl = cheatah::purrscript::hashlib;
+namespace dt = cheatah::datetime;
+namespace rnd = cheatah::random;
+namespace stats = cheatah::statistics;
+namespace hl = cheatah::hashlib;
 
-TEST(PurrscriptDatetime, ComponentsAndFormat) {
+TEST(CheatahDatetime, ComponentsAndFormat) {
     // 2021-01-01 00:00:00 UTC = 1609459200. Use a fixed epoch via format/components.
     const double e = 1609459200.0;
     // Components are local-time, so just assert sane ranges + format round-trip shape.
@@ -24,7 +24,7 @@ TEST(PurrscriptDatetime, ComponentsAndFormat) {
     EXPECT_EQ(dt::now().size(), 19u);  // "YYYY-MM-DD HH:MM:SS"
 }
 
-TEST(PurrscriptRandom, Ranges) {
+TEST(CheatahRandom, Ranges) {
     rnd::seed(42);
     for (int i = 0; i < 50; ++i) {
         const double r = rnd::random();
@@ -43,7 +43,7 @@ TEST(PurrscriptRandom, Ranges) {
     EXPECT_EQ(rnd::choice(std::vector<int>{99, 99, 99}), 99);
 }
 
-TEST(PurrscriptStatistics, DescriptiveStats) {
+TEST(CheatahStatistics, DescriptiveStats) {
     const std::vector<double> d{2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0};
     EXPECT_DOUBLE_EQ(stats::mean(d), 5.0);
     EXPECT_DOUBLE_EQ(stats::pvariance(d), 4.0);  // population variance = 4
@@ -53,7 +53,7 @@ TEST(PurrscriptStatistics, DescriptiveStats) {
     EXPECT_EQ(stats::count(d), 8u);
 }
 
-TEST(PurrscriptHashlib, Sha256KnownVectors) {
+TEST(CheatahHashlib, Sha256KnownVectors) {
     EXPECT_EQ(hl::sha256(""),
               "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
     EXPECT_EQ(hl::sha256("abc"),

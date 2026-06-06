@@ -4,9 +4,9 @@
 
 #include <gtest/gtest.h>
 
-namespace nd = cheatah::purrscript::ndarray;
+namespace nd = cheatah::ndarray;
 
-TEST(PurrscriptNDArray, ShapeFactoriesAndReductions) {
+TEST(CheatahNDArray, ShapeFactoriesAndReductions) {
     const nd::NDArray z = nd::zeros({2, 3});
     EXPECT_EQ(nd::shape_of(z), (std::vector<long long>{2, 3}));
     EXPECT_EQ(nd::size_of(z), 6);
@@ -21,7 +21,7 @@ TEST(PurrscriptNDArray, ShapeFactoriesAndReductions) {
     EXPECT_DOUBLE_EQ(nd::get(a, {2}), 3.0);
 }
 
-TEST(PurrscriptNDArray, BroadcastShapeRules) {
+TEST(CheatahNDArray, BroadcastShapeRules) {
     // (3,1) + (1,4) -> (3,4)
     EXPECT_EQ(nd::broadcast_shapes({3, 1}, {1, 4}), (std::vector<std::size_t>{3, 4}));
     // (2,3) + (3,) -> (2,3)   (trailing alignment)
@@ -32,7 +32,7 @@ TEST(PurrscriptNDArray, BroadcastShapeRules) {
     EXPECT_THROW(nd::broadcast_shapes({3}, {4}), std::exception);
 }
 
-TEST(PurrscriptNDArray, BroadcastingAdd) {
+TEST(CheatahNDArray, BroadcastingAdd) {
     // column (3,1) + row (1,3) -> (3,3) outer sum
     nd::NDArray col = nd::reshape(nd::array({0.0, 10.0, 20.0}), {3, 1});
     nd::NDArray row = nd::reshape(nd::array({1.0, 2.0, 3.0}), {1, 3});
@@ -44,7 +44,7 @@ TEST(PurrscriptNDArray, BroadcastingAdd) {
     EXPECT_EQ(nd::to_string(nd::add(nd::array({1.0, 2.0}), nd::scalar(10.0))), "[11, 12]");
 }
 
-TEST(PurrscriptNDArray, ElementwiseAndScalarBroadcast) {
+TEST(CheatahNDArray, ElementwiseAndScalarBroadcast) {
     nd::NDArray a = nd::array({2.0, 4.0, 6.0});
     EXPECT_DOUBLE_EQ(nd::sum(nd::mul(a, nd::scalar(0.5))), 6.0);   // (1+2+3)
     EXPECT_DOUBLE_EQ(nd::get(nd::sub(a, nd::scalar(1.0)), {2}), 5.0);

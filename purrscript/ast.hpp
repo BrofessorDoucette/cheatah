@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-// purrscript AST — the parser's output and the codegen's input. Each node carries
+// cheatah AST — the parser's output and the codegen's input. Each node carries
 // a `kind` tag so the codegen dispatches with a switch + static_cast (no RTTI /
 // dynamic_cast). Memory is owned through unique_ptr throughout (no raw owning
 // pointers).
-namespace cheatah::purrscript {
+namespace cheatah {
 
 // ---- Expressions ----
 enum class ExprKind {
@@ -193,4 +193,4 @@ struct Program {
     std::vector<StmtPtr> body;
 };
 
-} // namespace cheatah::purrscript
+} // namespace cheatah

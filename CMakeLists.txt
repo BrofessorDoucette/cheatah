@@ -56,7 +56,7 @@ endif()
 
 # ---- The language ----------------------------------------------------------
 # Helper that builds each stdlib module as a dual static+shared library.
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PurrscriptLibrary.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahLibrary.cmake)
 
 # Numeric core: ndarray must be built before linalg (linalg links it).
 add_subdirectory(purrscript/ndarray)

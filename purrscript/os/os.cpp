@@ -5,9 +5,9 @@
 
 #include <unistd.h>  // getpid
 
-// Compiled (non-template) symbols of the os module. Linked into a purrscript
+// Compiled (non-template) symbols of the os module. Linked into a cheatah
 // executable only when the program `import os`s.
-namespace cheatah::purrscript::os {
+namespace cheatah::os {
 
 namespace fs = std::filesystem;
 
@@ -60,4 +60,4 @@ std::pair<std::string, std::string> splitext(const std::string& p) {
 }
 
 } // namespace path
-} // namespace cheatah::purrscript::os
+} // namespace cheatah::os

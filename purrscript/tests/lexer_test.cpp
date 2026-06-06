@@ -4,10 +4,10 @@
 
 #include <gtest/gtest.h>
 
-using cheatah::purrscript::Diagnostic;
-using cheatah::purrscript::LexResult;
-using cheatah::purrscript::TokenKind;
-using cheatah::purrscript::tokenize;
+using cheatah::Diagnostic;
+using cheatah::LexResult;
+using cheatah::TokenKind;
+using cheatah::tokenize;
 
 namespace {
 
@@ -25,20 +25,20 @@ std::vector<TokenKind> kinds(const LexResult& r) {
 
 } // namespace
 
-TEST(PurrscriptLexer, EmptyInputIsJustEndOfInput) {
+TEST(CheatahLexer, EmptyInputIsJustEndOfInput) {
     const LexResult r = tokenize("");
     ASSERT_EQ(r.tokens.size(), 1u);
     EXPECT_EQ(r.tokens.front().kind, TokenKind::EndOfInput);
     EXPECT_TRUE(r.ok());
 }
 
-TEST(PurrscriptLexer, AlwaysTerminatedByEndOfInput) {
+TEST(CheatahLexer, AlwaysTerminatedByEndOfInput) {
     const LexResult r = tokenize("let x = 1");
     ASSERT_FALSE(r.tokens.empty());
     EXPECT_EQ(r.tokens.back().kind, TokenKind::EndOfInput);
 }
 
-TEST(PurrscriptLexer, ClassifiesKeywordsVsIdentifiers) {
+TEST(CheatahLexer, ClassifiesKeywordsVsIdentifiers) {
     // `let` and `fn` are keywords; `meow` and `print` are identifiers (print is a
     // runtime builtin function, not a language keyword).
     const LexResult r = tokenize("let meow = fn");
@@ -53,7 +53,7 @@ TEST(PurrscriptLexer, ClassifiesKeywordsVsIdentifiers) {
     EXPECT_EQ(r.tokens[1].text, "meow");
 }
 
-TEST(PurrscriptLexer, PrintIsAnIdentifierNotAKeyword) {
+TEST(CheatahLexer, PrintIsAnIdentifierNotAKeyword) {
     const LexResult r = tokenize("print(\"meow\")");
     EXPECT_TRUE(r.ok());
     EXPECT_EQ(kinds(r), (std::vector<TokenKind>{
@@ -65,7 +65,7 @@ TEST(PurrscriptLexer, PrintIsAnIdentifierNotAKeyword) {
     EXPECT_EQ(r.tokens[2].text, "meow");
 }
 
-TEST(PurrscriptLexer, ImportKeywords) {
+TEST(CheatahLexer, ImportKeywords) {
     // `from`, `import`, `as` are keywords; the module/name/alias are identifiers.
     const LexResult r = tokenize("from io import print as p");
     EXPECT_TRUE(r.ok());
@@ -79,7 +79,7 @@ TEST(PurrscriptLexer, ImportKeywords) {
                         }));
 }
 
-TEST(PurrscriptLexer, ScansNumbersIncludingFloatAndExponent) {
+TEST(CheatahLexer, ScansNumbersIncludingFloatAndExponent) {
     const LexResult r = tokenize("1 3.14 4.20 1e-3 2.5E6");
     EXPECT_TRUE(r.ok());
     for (int i = 0; i < 5; ++i) {
@@ -90,14 +90,14 @@ TEST(PurrscriptLexer, ScansNumbersIncludingFloatAndExponent) {
     EXPECT_EQ(r.tokens[4].text, "2.5E6");
 }
 
-TEST(PurrscriptLexer, DecodesStringEscapes) {
+TEST(CheatahLexer, DecodesStringEscapes) {
     const LexResult r = tokenize(R"("meow\n\"purr\"")");
     EXPECT_TRUE(r.ok());
     ASSERT_EQ(r.tokens.front().kind, TokenKind::String);
     EXPECT_EQ(r.tokens.front().text, "meow\n\"purr\"");
 }
 
-TEST(PurrscriptLexer, LexesDotForMemberAccess) {
+TEST(CheatahLexer, LexesDotForMemberAccess) {
     const LexResult r = tokenize("io.print");
     EXPECT_TRUE(r.ok());
     EXPECT_EQ(kinds(r), (std::vector<TokenKind>{
@@ -107,7 +107,7 @@ TEST(PurrscriptLexer, LexesDotForMemberAccess) {
                         }));
 }
 
-TEST(PurrscriptLexer, SkipsHashAndSlashComments) {
+TEST(CheatahLexer, SkipsHashAndSlashComments) {
     const LexResult r = tokenize("let a = 1  # trailing\n// whole line\nreturn");
     EXPECT_TRUE(r.ok());
     EXPECT_EQ(kinds(r), (std::vector<TokenKind>{
@@ -121,7 +121,7 @@ TEST(PurrscriptLexer, SkipsHashAndSlashComments) {
                         }));
 }
 
-TEST(PurrscriptLexer, LexesPunctuationAndOperators) {
+TEST(CheatahLexer, LexesPunctuationAndOperators) {
     const LexResult r = tokenize("(){}[],:;+-*/^");
     EXPECT_TRUE(r.ok());
     EXPECT_EQ(kinds(r), (std::vector<TokenKind>{
@@ -134,7 +134,7 @@ TEST(PurrscriptLexer, LexesPunctuationAndOperators) {
                         }));
 }
 
-TEST(PurrscriptLexer, TracksLineAndColumn) {
+TEST(CheatahLexer, TracksLineAndColumn) {
     const LexResult r = tokenize("let\n  x");
     EXPECT_EQ(r.tokens[0].pos.line, 1u);
     EXPECT_EQ(r.tokens[0].pos.column, 1u);
@@ -144,14 +144,14 @@ TEST(PurrscriptLexer, TracksLineAndColumn) {
     EXPECT_EQ(x.pos.column, 3u);
 }
 
-TEST(PurrscriptLexer, ReportsUnterminatedString) {
+TEST(CheatahLexer, ReportsUnterminatedString) {
     const LexResult r = tokenize("\"oops");
     EXPECT_FALSE(r.ok());
     ASSERT_EQ(r.diagnostics.size(), 1u);
     EXPECT_NE(r.diagnostics.front().message.find("unterminated"), std::string::npos);
 }
 
-TEST(PurrscriptLexer, RecoversAfterStrayCharacterAndKeepsScanning) {
+TEST(CheatahLexer, RecoversAfterStrayCharacterAndKeepsScanning) {
     const LexResult r = tokenize("a ? b");
     EXPECT_FALSE(r.ok());
     EXPECT_EQ(r.diagnostics.size(), 1u);

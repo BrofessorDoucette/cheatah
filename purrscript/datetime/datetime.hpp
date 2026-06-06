@@ -1,13 +1,13 @@
 #pragma once
 
-// purrscript datetime — practical date/time helpers over epoch seconds, mirroring
+// cheatah datetime — practical date/time helpers over epoch seconds, mirroring
 // the useful core of https://docs.python.org/3/library/datetime.html. Times are
 // represented as epoch seconds (double, from `time`/`timestamp`); formatting and
 // component extraction use the C library calendar.
 #include <string>
 #include <string_view>
 
-namespace cheatah::purrscript::datetime {
+namespace cheatah::datetime {
 
 double timestamp();                  // current time, epoch seconds
 std::string now();                   // local  "YYYY-MM-DD HH:MM:SS"
@@ -26,4 +26,4 @@ int minute(double epoch);   // 0..59
 int second(double epoch);   // 0..60
 int weekday(double epoch);  // Monday=0 .. Sunday=6 (Python convention)
 
-} // namespace cheatah::purrscript::datetime
+} // namespace cheatah::datetime

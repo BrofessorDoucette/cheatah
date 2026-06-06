@@ -2,11 +2,11 @@
 
 #include <stdexcept>
 
-namespace cheatah::purrscript::linalg {
+namespace cheatah::linalg {
 
 double dot(std::span<const double> a, std::span<const double> b) {
     if (a.size() != b.size()) {
-        throw std::invalid_argument("cheatah::purrscript::linalg::dot: operands differ in length");
+        throw std::invalid_argument("cheatah::linalg::dot: operands differ in length");
     }
     // Straight reference loop for now. With -march=native (Release) the compiler
     // auto-vectorizes this; hand-written intrinsics / GPU kernels land later
@@ -18,4 +18,4 @@ double dot(std::span<const double> a, std::span<const double> b) {
     return acc;
 }
 
-} // namespace cheatah::purrscript::linalg
+} // namespace cheatah::linalg

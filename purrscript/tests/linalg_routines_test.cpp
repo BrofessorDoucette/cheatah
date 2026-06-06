@@ -6,8 +6,8 @@
 
 #include <gtest/gtest.h>
 
-namespace nd = cheatah::purrscript::ndarray;
-namespace la = cheatah::purrscript::linalg;
+namespace nd = cheatah::ndarray;
+namespace la = cheatah::linalg;
 
 namespace {
 nd::NDArray mat(std::size_t r, std::size_t c, std::vector<double> data) {

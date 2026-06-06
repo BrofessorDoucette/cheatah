@@ -4,7 +4,7 @@
 #include <ctime>
 #include <thread>
 
-namespace cheatah::purrscript::time {
+namespace cheatah::time {
 
 namespace {
 using std::chrono::duration;
@@ -34,4 +34,4 @@ double process_time() { return static_cast<double>(std::clock()) / CLOCKS_PER_SE
 
 void sleep(double seconds) { std::this_thread::sleep_for(duration<double>(seconds)); }
 
-} // namespace cheatah::purrscript::time
+} // namespace cheatah::time

@@ -6,14 +6,14 @@
 #include "ast.hpp"
 #include "lexer.hpp"  // Token, Diagnostic, tokenize
 
-// purrscript parser — tokens -> AST. Recursive descent over the v0 grammar:
+// cheatah parser — tokens -> AST. Recursive descent over the v0 grammar:
 //   program     := (NEWLINE | stmt)*
 //   stmt        := import_stmt | expr_stmt
 //   import_stmt := 'import' dotted ('as' IDENT)?
 //   expr_stmt   := expr
 //   expr        := primary ( '.' IDENT | '(' args ')' )*
 //   primary     := STRING | NUMBER | IDENT | '(' expr ')'
-namespace cheatah::purrscript {
+namespace cheatah {
 
 struct ParseResult {
     Program program;
@@ -27,4 +27,4 @@ ParseResult parse(const std::vector<Token>& tokens);
 // Convenience: lex + parse a source buffer (lexer diagnostics are merged in).
 ParseResult parse_source(std::string_view source);
 
-} // namespace cheatah::purrscript
+} // namespace cheatah

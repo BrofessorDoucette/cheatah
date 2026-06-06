@@ -3,9 +3,9 @@
 
 #include <gtest/gtest.h>
 
-using namespace cheatah::purrscript;
+using namespace cheatah;
 
-TEST(PurrscriptParser, ParsesImportAndModuleCall) {
+TEST(CheatahParser, ParsesImportAndModuleCall) {
     const ParseResult r = parse_source("import io\nio.print(\"meow\")\n");
     ASSERT_TRUE(r.ok()) << (r.diagnostics.empty() ? "" : r.diagnostics.front().message);
     ASSERT_EQ(r.program.body.size(), 2u);
@@ -33,7 +33,7 @@ TEST(PurrscriptParser, ParsesImportAndModuleCall) {
     EXPECT_EQ(obj->name, "io");
 }
 
-TEST(PurrscriptParser, ImportWithDottedModuleAndAlias) {
+TEST(CheatahParser, ImportWithDottedModuleAndAlias) {
     const ParseResult r = parse_source("import os.path as p\n");
     ASSERT_TRUE(r.ok());
     ASSERT_EQ(r.program.body.size(), 1u);
@@ -45,12 +45,12 @@ TEST(PurrscriptParser, ImportWithDottedModuleAndAlias) {
     EXPECT_EQ(imp->alias, "p");
 }
 
-TEST(PurrscriptParser, ReportsErrorOnMissingModuleName) {
+TEST(CheatahParser, ReportsErrorOnMissingModuleName) {
     const ParseResult r = parse_source("import\n");
     EXPECT_FALSE(r.ok());
 }
 
-TEST(PurrscriptParser, ParsesStructWithTypedFields) {
+TEST(CheatahParser, ParsesStructWithTypedFields) {
     const ParseResult r = parse_source("struct Bar {\ndate: str\nclose: float\n}\n");
     ASSERT_TRUE(r.ok()) << (r.diagnostics.empty() ? "" : r.diagnostics.front().message);
     ASSERT_EQ(r.program.body.size(), 1u);
@@ -64,7 +64,7 @@ TEST(PurrscriptParser, ParsesStructWithTypedFields) {
     EXPECT_EQ(sd->fields[1].type.name, "float");
 }
 
-TEST(PurrscriptParser, ParsesFunctionWithParamsAndReturn) {
+TEST(CheatahParser, ParsesFunctionWithParamsAndReturn) {
     const ParseResult r = parse_source("fn add(a, b) {\nreturn a + b\n}\n");
     ASSERT_TRUE(r.ok());
     ASSERT_EQ(r.program.body.size(), 1u);
@@ -81,7 +81,7 @@ TEST(PurrscriptParser, ParsesFunctionWithParamsAndReturn) {
     EXPECT_EQ(bin->op, "+");
 }
 
-TEST(PurrscriptParser, ParsesLetWhileForIfWithOperators) {
+TEST(CheatahParser, ParsesLetWhileForIfWithOperators) {
     const ParseResult r = parse_source(
         "let n = 0\nwhile n < 10 {\nn = n + 1\n}\nfor i in range(3) {\nn = n * 2\n}\n"
         "if n >= 5 and n != 7 {\nn = 0\n}\n");
@@ -93,7 +93,7 @@ TEST(PurrscriptParser, ParsesLetWhileForIfWithOperators) {
     EXPECT_NE(dynamic_cast<If*>(r.program.body[3].get()), nullptr);
 }
 
-TEST(PurrscriptParser, OperatorPrecedence) {
+TEST(CheatahParser, OperatorPrecedence) {
     // 1 + 2 * 3  ->  (1 + (2 * 3))
     const ParseResult r = parse_source("let x = 1 + 2 * 3\n");
     ASSERT_TRUE(r.ok());

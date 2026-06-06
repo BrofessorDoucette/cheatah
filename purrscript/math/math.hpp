@@ -1,6 +1,6 @@
 #pragma once
 
-// purrscript math — mathematical utilities. Mirrors Python's `math` module plus
+// cheatah math — mathematical utilities. Mirrors Python's `math` module plus
 // the math-related built-ins (abs/min/max/round/pow), gathered here per the
 // project's structure: `import math` to use them.
 //
@@ -10,7 +10,7 @@
 #include <cmath>
 #include <limits>
 
-namespace cheatah::purrscript::math {
+namespace cheatah::math {
 
 // ---- constants ----
 inline constexpr double pi = 3.14159265358979323846;
@@ -69,4 +69,4 @@ bool isfinite(double x);
 long long gcd(long long a, long long b);
 long long factorial(long long n);
 
-} // namespace cheatah::purrscript::math
+} // namespace cheatah::math

@@ -1,8 +1,8 @@
 #include "io.hpp"
 
-// Compiled (non-template) symbols of the io module. Linked into a purrscript
+// Compiled (non-template) symbols of the io module. Linked into a cheatah
 // executable only when the program `import io`s.
-namespace cheatah::purrscript::io {
+namespace cheatah::io {
 
 std::string str(const std::string& value) { return value; }
 std::string str(bool b) { return b ? "True" : "False"; }
@@ -71,4 +71,4 @@ std::ios::openmode File::translate_mode(std::string_view mode) {
 
 File open(const std::string& path, std::string_view mode) { return File(path, mode); }
 
-} // namespace cheatah::purrscript::io
+} // namespace cheatah::io

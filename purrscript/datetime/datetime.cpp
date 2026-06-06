@@ -3,7 +3,7 @@
 #include <chrono>
 #include <ctime>
 
-namespace cheatah::purrscript::datetime {
+namespace cheatah::datetime {
 
 namespace {
 std::tm local_tm(double epoch) {
@@ -44,4 +44,4 @@ int minute(double e) { return local_tm(e).tm_min; }
 int second(double e) { return local_tm(e).tm_sec; }
 int weekday(double e) { return (local_tm(e).tm_wday + 6) % 7; }  // Sun=0 -> Mon=0
 
-} // namespace cheatah::purrscript::datetime
+} // namespace cheatah::datetime

@@ -1,4 +1,4 @@
-// cheatah-runtime — the host executable that LOADS and RUNS compiled purrscript
+// cheatah-runtime — the host executable that LOADS and RUNS compiled cheatah
 // programs. It dlopens a module produced by purrc, resolves its `purr_main`
 // entry point, and calls it with a live Runtime the program drives.
 //

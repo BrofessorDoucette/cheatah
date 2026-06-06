@@ -1,6 +1,6 @@
 #pragma once
 
-// purrscript statistics — descriptive statistics over numeric sequences, mirroring
+// cheatah statistics — descriptive statistics over numeric sequences, mirroring
 // https://docs.python.org/3/library/statistics.html. Templated over any range of
 // numbers (constrained by the NumericRange concept for clear errors). Header-only.
 #include <algorithm>
@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace cheatah::purrscript::statistics {
+namespace cheatah::statistics {
 
 // NumericRange<R>: an iterable of arithmetic values (list[float], array[int], …).
 template <typename R>
@@ -82,4 +82,4 @@ double median(const R& data) {
     return (n % 2 == 1) ? v[n / 2] : (v[n / 2 - 1] + v[n / 2]) / 2.0;
 }
 
-} // namespace cheatah::purrscript::statistics
+} // namespace cheatah::statistics

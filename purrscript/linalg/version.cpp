@@ -1,6 +1,6 @@
 #include "version.hpp"
 
-namespace cheatah::purrscript::linalg {
+namespace cheatah::linalg {
 
 const char* version() noexcept {
 #ifdef CHEATAH_LINALG_VERSION
@@ -10,4 +10,4 @@ const char* version() noexcept {
 #endif
 }
 
-} // namespace cheatah::purrscript::linalg
+} // namespace cheatah::linalg

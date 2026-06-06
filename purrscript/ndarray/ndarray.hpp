@@ -1,6 +1,6 @@
 #pragma once
 
-// purrscript ndarray — our own numpy-flavored N-dimensional array (of doubles),
+// cheatah ndarray — our own numpy-flavored N-dimensional array (of doubles),
 // with NumPy broadcasting. See numpy.org/doc/stable/user/basics.broadcasting.html.
 //
 // Design (the "pointers + a bit of thinking"): the elements live in a shared
@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-namespace cheatah::purrscript::ndarray {
+namespace cheatah::ndarray {
 
 class NDArray {
 public:
@@ -44,7 +44,7 @@ std::vector<std::size_t> broadcast_shapes(const std::vector<std::size_t>& a,
 // A zero-copy view of `a` stretched to `target` (size-1 / missing dims get stride 0).
 NDArray broadcast_to(const NDArray& a, const std::vector<std::size_t>& target);
 
-// ---- factories (shapes arrive from purrscript as list[int]) ----
+// ---- factories (shapes arrive from cheatah as list[int]) ----
 NDArray array(const std::vector<double>& values);  // 1-D from a list[float]
 NDArray scalar(double value);                      // 0-D (broadcasts to anything)
 NDArray zeros(const std::vector<long long>& shape);
@@ -67,4 +67,4 @@ std::vector<long long> shape_of(const NDArray& a);
 long long size_of(const NDArray& a);
 std::string to_string(const NDArray& a);  // e.g. "[[1, 2], [3, 4]]"
 
-} // namespace cheatah::purrscript::ndarray
+} // namespace cheatah::ndarray

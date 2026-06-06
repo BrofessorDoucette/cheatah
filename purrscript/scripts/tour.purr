@@ -1,4 +1,4 @@
-# tour.purr — a tour of purrscript's Turing-complete core. 😼
+# tour.purr — a tour of cheatah's Turing-complete core. 😼
 #
 #   purrc tour.purr -o tour.so && cheatah-runtime tour.so
 

@@ -11,6 +11,6 @@ add_executable(cheatah_benchmarks
 )
 
 target_link_libraries(cheatah_benchmarks PRIVATE
-    cheatah::purrscript_linalg_static
+    cheatah::linalg_static
     benchmark::benchmark_main
 )

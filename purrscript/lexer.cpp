@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cctype>
 
-namespace cheatah::purrscript {
+namespace cheatah {
 
 const char* to_string(TokenKind kind) {
     switch (kind) {
@@ -43,7 +43,7 @@ const char* to_string(TokenKind kind) {
 }
 
 bool is_keyword(std::string_view word) {
-    // General-purpose language keywords (purrscript is no longer plotting-only).
+    // General-purpose language keywords (cheatah is no longer plotting-only).
     // Builtins like print / show / show_window are runtime FUNCTIONS, not keywords.
     // Sorted for binary_search — keep alphabetical and in sync with README.md.
     static constexpr std::array<std::string_view, 20> kKeywords{

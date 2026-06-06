@@ -1,11 +1,11 @@
-# purrscript unit tests, co-located with the language. Covers the lexer and the
+# cheatah unit tests, co-located with the language. Covers the lexer and the
 # io / os standard-library modules.
 #
-# Linking the io/os module libs here just EXERCISES them; a real purrscript
+# Linking the io/os module libs here just EXERCISES them; a real cheatah
 # executable links only the modules it imports.
 include(GoogleTest)
 
-add_executable(cheatah_purrscript_tests
+add_executable(cheatah_tests
     lexer_test.cpp
     parser_test.cpp
     codegen_test.cpp
@@ -20,21 +20,21 @@ add_executable(cheatah_purrscript_tests
     linalg_routines_test.cpp
 )
 
-target_link_libraries(cheatah_purrscript_tests PRIVATE
-    cheatah::purrscript
-    cheatah::purrscript_io_static
-    cheatah::purrscript_os_static
-    cheatah::purrscript_string_static
-    cheatah::purrscript_builtins_static
-    cheatah::purrscript_math_static
-    cheatah::purrscript_time_static
-    cheatah::purrscript_datetime_static
-    cheatah::purrscript_random_static
-    cheatah::purrscript_statistics_static
-    cheatah::purrscript_hashlib_static
-    cheatah::purrscript_ndarray_static
-    cheatah::purrscript_linalg_static
+target_link_libraries(cheatah_tests PRIVATE
+    cheatah::compiler
+    cheatah::io_static
+    cheatah::os_static
+    cheatah::string_static
+    cheatah::builtins_static
+    cheatah::math_static
+    cheatah::time_static
+    cheatah::datetime_static
+    cheatah::random_static
+    cheatah::statistics_static
+    cheatah::hashlib_static
+    cheatah::ndarray_static
+    cheatah::linalg_static
     GTest::gmock_main
 )
 
-gtest_discover_tests(cheatah_purrscript_tests TEST_PREFIX "purrscript:")
+gtest_discover_tests(cheatah_tests TEST_PREFIX "cheatah:")

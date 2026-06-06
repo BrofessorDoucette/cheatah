@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-namespace io = cheatah::purrscript::io;
+namespace io = cheatah::io;
 
 // The io concept must accept exactly what the templates already take (streamable
 // types) and reject the rest, so a bad call gives a clear diagnostic.
@@ -17,7 +17,7 @@ static_assert(io::Streamable<std::string>);
 static_assert(io::Streamable<const char*>);
 static_assert(!io::Streamable<std::vector<int>>);
 
-TEST(PurrscriptIo, PrintWritesSpaceSeparatedLine) {
+TEST(CheatahIo, PrintWritesSpaceSeparatedLine) {
     std::ostringstream cap;
     std::streambuf* old = std::cout.rdbuf(cap.rdbuf());
     io::print("meow", 42, "purr");
@@ -25,7 +25,7 @@ TEST(PurrscriptIo, PrintWritesSpaceSeparatedLine) {
     EXPECT_EQ(cap.str(), "meow 42 purr\n");
 }
 
-TEST(PurrscriptIo, PrintNoArgsIsJustNewline) {
+TEST(CheatahIo, PrintNoArgsIsJustNewline) {
     std::ostringstream cap;
     std::streambuf* old = std::cout.rdbuf(cap.rdbuf());
     io::print();
@@ -33,25 +33,25 @@ TEST(PurrscriptIo, PrintNoArgsIsJustNewline) {
     EXPECT_EQ(cap.str(), "\n");
 }
 
-TEST(PurrscriptIo, StrFormatsPythonStyle) {
+TEST(CheatahIo, StrFormatsPythonStyle) {
     EXPECT_EQ(io::str(42), "42");
     EXPECT_EQ(io::str(true), "True");
     EXPECT_EQ(io::str(false), "False");
     EXPECT_EQ(io::str(std::string("meow")), "meow");
 }
 
-TEST(PurrscriptIo, ReprQuotesStrings) {
+TEST(CheatahIo, ReprQuotesStrings) {
     EXPECT_EQ(io::repr(std::string("meow")), "'meow'");
     EXPECT_EQ(io::repr("purr"), "'purr'");
     EXPECT_EQ(io::repr(42), "42");
 }
 
-TEST(PurrscriptIo, FormatSubstitutesBraces) {
+TEST(CheatahIo, FormatSubstitutesBraces) {
     EXPECT_EQ(io::format("{} ate {} fish", "cat", 3), "cat ate 3 fish");
     EXPECT_EQ(io::format("no slots here", 1, 2), "no slots here");
 }
 
-TEST(PurrscriptIo, FileWriteThenReadWhole) {
+TEST(CheatahIo, FileWriteThenReadWhole) {
     const std::string path = "purr_io_whole_tmp.txt";
     {
         io::File f = io::open(path, "w");
@@ -64,7 +64,7 @@ TEST(PurrscriptIo, FileWriteThenReadWhole) {
     std::filesystem::remove(path);
 }
 
-TEST(PurrscriptIo, FileReadlineThenReadlines) {
+TEST(CheatahIo, FileReadlineThenReadlines) {
     const std::string path = "purr_io_lines_tmp.txt";
     {
         io::File f = io::open(path, "w");
@@ -81,7 +81,7 @@ TEST(PurrscriptIo, FileReadlineThenReadlines) {
     std::filesystem::remove(path);
 }
 
-TEST(PurrscriptIo, FileAppendMode) {
+TEST(CheatahIo, FileAppendMode) {
     const std::string path = "purr_io_append_tmp.txt";
     {
         io::File f = io::open(path, "w");
