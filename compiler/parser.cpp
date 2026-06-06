@@ -69,6 +69,7 @@ private:
     }
 
     StmtPtr parse_stmt() {
+        if (check(TokenKind::CppBlock)) return std::make_unique<RawCpp>(advance().text);
         if (check_kw("import")) return parse_import();
         if (check_kw("struct")) return parse_struct();
         if (check_kw("fn")) return parse_fn();

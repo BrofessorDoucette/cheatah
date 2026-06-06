@@ -141,8 +141,76 @@ private:
             advance();
         }
         std::string_view word = src_.substr(begin, pos_ - begin);
+        // Raw C++ escape hatch: `cpp {` (brace on the same line) captures its body
+        // VERBATIM — the body is C++, not cheatah, so the lexer must not tokenize it.
+        // Elsewhere `cpp` is an ordinary identifier.
+        if (word == "cpp" && next_inline_nonspace_is('{')) {
+            while (peek() == ' ' || peek() == '\t' || peek() == '\r') advance();
+            advance();  // consume the opening '{'
+            scan_cpp_block(start);
+            return;
+        }
         push(is_keyword(word) ? TokenKind::Keyword : TokenKind::Identifier,
              std::string(word), start);
+    }
+
+    // Is the next non-(space/tab/cr) character (on this line) `target`?
+    bool next_inline_nonspace_is(char target) const {
+        std::size_t j = pos_;
+        while (j < src_.size() && (src_[j] == ' ' || src_[j] == '\t' || src_[j] == '\r')) ++j;
+        return j < src_.size() && src_[j] == target;
+    }
+
+    // Capture a `cpp { … }` body verbatim. `pos_` is just past the opening '{'.
+    // Tracks brace depth while skipping over C++ string/char literals and comments
+    // so braces inside them don't miscount. Emits one CppBlock token (text = body).
+    void scan_cpp_block(SourcePos start) {
+        const std::size_t begin = pos_;  // first char after '{'
+        int depth = 1;
+        while (!at_end()) {
+            const char c = peek();
+            if (c == '"' || c == '\'') { skip_cpp_literal(c); continue; }
+            if (c == '/' && peek_next() == '/') {
+                while (!at_end() && peek() != '\n') advance();
+                continue;
+            }
+            if (c == '/' && peek_next() == '*') {
+                advance(); advance();
+                while (!at_end() && !(peek() == '*' && peek_next() == '/')) advance();
+                if (!at_end()) { advance(); advance(); }
+                continue;
+            }
+            if (c == '{') { ++depth; advance(); continue; }
+            if (c == '}') {
+                --depth;
+                if (depth == 0) {
+                    std::string body(src_.substr(begin, pos_ - begin));
+                    advance();  // consume the closing '}'
+                    push(TokenKind::CppBlock, std::move(body), start);
+                    return;
+                }
+                advance();
+                continue;
+            }
+            advance();
+        }
+        error("unterminated 'cpp { … }' block", start);
+        push(TokenKind::Invalid, std::string(src_.substr(begin, pos_ - begin)), start);
+    }
+
+    // Skip a C++ string ("...") or char ('...') literal, honoring backslash escapes.
+    void skip_cpp_literal(char quote) {
+        advance();  // opening quote
+        while (!at_end() && peek() != quote) {
+            if (peek() == '\\') {
+                advance();
+                if (!at_end()) advance();
+                continue;
+            }
+            if (peek() == '\n') return;  // bail on a newline (avoid runaway on a stray quote)
+            advance();
+        }
+        if (!at_end()) advance();  // closing quote
     }
 
     void scan_string(SourcePos start) {

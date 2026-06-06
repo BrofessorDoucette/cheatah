@@ -81,6 +81,15 @@ public:
         }
         os << "\n";
 
+        // Raw C++ escape hatch: top-level `cpp { … }` blocks are emitted at FILE
+        // SCOPE (before structs/functions), so they can carry #includes, helper
+        // functions, and types the rest of the program can use.
+        for (const StmtPtr& s : prog.body) {
+            if (s->kind == StmtKind::RawCpp) {
+                os << static_cast<const RawCpp&>(*s).code << "\n";
+            }
+        }
+
         // Struct definitions, then function definitions, at file scope.
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::StructDef) gen_struct(os, static_cast<const StructDef&>(*s));
@@ -93,8 +102,8 @@ public:
         os << "extern \"C\" void purr_main() {\n";
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::Import || s->kind == StmtKind::StructDef ||
-                s->kind == StmtKind::FnDef) {
-                continue;  // emitted above (imports -> includes)
+                s->kind == StmtKind::FnDef || s->kind == StmtKind::RawCpp) {
+                continue;  // emitted above (imports -> includes; top-level cpp -> file scope)
             }
             gen_stmt(os, *s, "    ");
         }
@@ -193,6 +202,11 @@ private:
                 return;
             case StmtKind::ExprStmt:
                 os << indent << gen_expr(*static_cast<const ExprStmt&>(s).expr) << ";\n";
+                return;
+            case StmtKind::RawCpp:
+                // A `cpp { … }` block inside a function/block: emit its body inline,
+                // verbatim, at this point in the enclosing scope.
+                os << static_cast<const RawCpp&>(s).code << "\n";
                 return;
             case StmtKind::Import:
             case StmtKind::StructDef:

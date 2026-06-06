@@ -14,6 +14,7 @@ enum class TokenKind {
     String,      // "text" (Token::text holds the DECODED value, escapes resolved)
     Identifier,  // foo, spot, K_1
     Keyword,     // a reserved word (see is_keyword)
+    CppBlock,    // raw C++ from a `cpp { … }` escape hatch (text = the verbatim body)
 
     // Punctuation.
     LParen, RParen,      // ( )

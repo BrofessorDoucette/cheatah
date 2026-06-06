@@ -201,6 +201,48 @@ in headers; non-template symbols compile into the library.
 - **`datetime`**, **`random`**, **`statistics`**, **`hashlib`** — dates/epochs,
   Mersenne-Twister RNG, summary statistics, and a self-contained SHA-256.
 
+## Escape hatch: raw C++ (`cpp { … }`)
+By default cheatah looks like Python. When you need the full power of the host
+language, a **`cpp { … }`** block drops to **raw C++**, emitted verbatim:
+
+```python
+import io
+
+cpp {                                  # TOP LEVEL → file scope
+    #include <numeric>                 # add headers, helper functions, types
+    static long long sum_to(long long n) {
+        long long s = 0;
+        for (long long i = 1; i <= n; ++i) s += i;
+        return s;
+    }
+}
+
+fn run() {
+    let total = 0
+    cpp {                              # INSIDE a function → emitted inline
+        total = sum_to(100);           # raw C++ can read/write cheatah locals
+    }
+    return total
+}
+
+io.print(run())                        # 5050
+```
+
+- **Placement is the rule:** a `cpp` block at the **program top level** is emitted
+  at **file scope** (so it can hold `#include`s, free functions, and types the rest
+  of the program calls); a `cpp` block **inside a function or block** is emitted
+  **inline** at that point and can read/write the surrounding cheatah variables.
+- The block body is captured **verbatim** — the brace matcher understands C++
+  string/char literals and `//` / `/* */` comments, so braces inside them don't
+  confuse it. (Exotic cases — digit separators like `1'000`, or raw string literals
+  `R"(...)"` containing unbalanced braces — can; wrap or avoid those.)
+- `cpp` is only special immediately before `{` on the same line; elsewhere it's an
+  ordinary identifier.
+
+The standard library already includes `<array> <cmath> <memory> <stdexcept>
+<string> <unordered_map> <utility> <vector>` plus `builtins.hpp` and every module
+you `import`, so a lot of raw C++ needs no extra `#include` at all.
+
 ## Lexical structure
 - **Comments:** `# …` or `// …` to end of line.
 - **Keywords:** `and as else false fn for from if import in let not or return

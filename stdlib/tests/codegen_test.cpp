@@ -136,3 +136,26 @@ TEST(CheatahCodegen, EscapesStringLiterals) {
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "\"a\\tb\""));  // tab stays escaped in the literal
 }
+
+TEST(CheatahCodegen, CppBlockTopLevelIsFileScopeNestedIsInline) {
+    const ParseResult pr = parse_source(
+        "cpp {\nstatic int helper() { return 7; }\n}\n"
+        "fn f() {\ncpp { int x = 1; }\n}\n");
+    ASSERT_TRUE(pr.ok()) << (pr.diagnostics.empty() ? "" : pr.diagnostics.front().message);
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    // Raw bodies are emitted verbatim.
+    EXPECT_TRUE(contains(cg.source, "static int helper() { return 7; }"));
+    EXPECT_TRUE(contains(cg.source, "int x = 1;"));
+    // The top-level block lands at FILE SCOPE — before purr_main.
+    const auto helper_pos = cg.source.find("static int helper()");
+    const auto main_pos = cg.source.find("purr_main");
+    ASSERT_NE(helper_pos, std::string::npos);
+    ASSERT_NE(main_pos, std::string::npos);
+    EXPECT_LT(helper_pos, main_pos);
+    // The nested block lands INSIDE the function f().
+    const auto f_pos = cg.source.find("auto f(");
+    const auto inline_pos = cg.source.find("int x = 1;");
+    ASSERT_NE(f_pos, std::string::npos);
+    EXPECT_GT(inline_pos, f_pos);
+}

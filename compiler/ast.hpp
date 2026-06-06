@@ -90,7 +90,7 @@ struct Binary : Expr {  // lhs op rhs  (op is the C++ operator: "+","==","&&", �
 
 // ---- Statements ----
 enum class StmtKind {
-    Import, ExprStmt, Let, Assign, If, While, For, Return, Try, Raise, StructDef, FnDef,
+    Import, ExprStmt, Let, Assign, If, While, For, Return, Try, Raise, StructDef, FnDef, RawCpp,
 };
 
 struct Stmt {
@@ -187,6 +187,14 @@ struct FnDef : Stmt {  // fn <name>(<params>) { … }  (untyped params -> auto)
     std::vector<std::string> params;
     Block body;
     FnDef() : Stmt(StmtKind::FnDef) {}
+};
+
+// Raw C++ escape hatch: `cpp { … }`. `code` is the verbatim body. Emitted at FILE
+// SCOPE when written at the program top level (so it can carry #includes, helper
+// functions, and types); emitted INLINE when written inside a function or block.
+struct RawCpp : Stmt {
+    std::string code;
+    explicit RawCpp(std::string c) : Stmt(StmtKind::RawCpp), code(std::move(c)) {}
 };
 
 struct Program {

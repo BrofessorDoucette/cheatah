@@ -142,3 +142,34 @@ TEST(PurrcPipeline, CompilesAndRunsTryExceptRaise) {
     EXPECT_EQ(rc, 0);
     EXPECT_EQ(out, "caught: boom\nafter\n");
 }
+
+TEST(PurrcPipeline, CompilesAndRunsCppEscapeHatch) {
+    const std::string tmp = PURR_TEST_TMP;
+    const std::string purr = tmp + "/cpp_it.purr";
+    const std::string mod = tmp + "/cpp_it.so";
+
+    {
+        std::ofstream f(purr);
+        f << "import io\n";
+        f << "cpp {\n";                                            // top-level -> file scope
+        f << "static long long triple(long long n) { return n * 3; }\n";
+        f << "}\n";
+        f << "fn demo() {\n";
+        f << "  let acc = 0\n";
+        f << "  cpp {\n";                                          // nested -> inline
+        f << "    for (int i = 1; i <= 4; ++i) { acc += i; }\n";   // 1+2+3+4 = 10
+        f << "  }\n";
+        f << "  return acc + triple(2)\n";                         // 10 + 6 = 16
+        f << "}\n";
+        f << "io.print(\"cpp escape hatch:\", demo())\n";
+    }
+
+    const std::string compile =
+        std::string(PURRC_PATH) + " \"" + purr + "\" -o \"" + mod + "\"";
+    ASSERT_EQ(std::system(compile.c_str()), 0) << "purrc failed to compile the program";
+
+    int rc = -1;
+    const std::string out = run_capture(std::string(CHEATAH_RUNTIME_PATH) + " \"" + mod + "\"", rc);
+    EXPECT_EQ(rc, 0);
+    EXPECT_EQ(out, "cpp escape hatch: 16\n");
+}
