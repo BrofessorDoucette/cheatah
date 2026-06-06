@@ -62,8 +62,26 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahLibrary.cmake)
 add_subdirectory(stdlib/ndarray)
 add_subdirectory(stdlib/linalg)
 
-add_subdirectory(stdlib)   # toolchain, stdlib modules, and the purrc compiler
-add_subdirectory(runtime)      # the headless host (cheatah-runtime)
+add_subdirectory(compiler)  # language toolchain (cheatah::compiler) + purrc
+add_subdirectory(stdlib)    # the standard-library modules + the unit tests
+add_subdirectory(runtime)   # the headless host (cheatah-runtime)
+
+# purrc links the stdlib module archives into every program it compiles, so they
+# must be built whenever purrc is. Wire it here, where purrc (compiler/) and the
+# module targets (stdlib/) both exist.
+add_dependencies(purrc
+    cheatah_builtins_static
+    cheatah_io_static
+    cheatah_os_static
+    cheatah_string_static
+    cheatah_math_static
+    cheatah_time_static
+    cheatah_datetime_static
+    cheatah_random_static
+    cheatah_statistics_static
+    cheatah_hashlib_static
+    cheatah_ndarray_static
+    cheatah_linalg_static)
 
 if(CHEATAH_BUILD_TESTS)
     add_subdirectory(tests)
