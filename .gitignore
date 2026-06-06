@@ -70,3 +70,7 @@ Testing/
 
 # Local reference material (copyrighted books, papers — never commit)
 books/
+
+# Editor / IDE
+.vscode/
+.idea/
