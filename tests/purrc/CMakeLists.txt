@@ -2,6 +2,7 @@
 # purrc compiles a .purr to a loadable module, cheatah loads and runs it.
 add_executable(cheatah_purrc_tests
     compile_run_test.cpp
+    stdlib_e2e_test.cpp
 )
 target_link_libraries(cheatah_purrc_tests PRIVATE GTest::gmock_main)
 
@@ -24,6 +25,8 @@ add_dependencies(cheatah_purrc_tests
     cheatah_datetime_static
     cheatah_random_static
     cheatah_statistics_static
-    cheatah_hashlib_static)
+    cheatah_hashlib_static
+    cheatah_ndarray_static
+    cheatah_linalg_static)
 
 gtest_discover_tests(cheatah_purrc_tests TEST_PREFIX "purrc:")
