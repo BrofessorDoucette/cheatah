@@ -1,8 +1,8 @@
 # cheatah
 
-> 🐆💨🔥 **Reads like a kitten, runs like hell.** cheatah is built to be as
-> readable as Python *and* as fast as hand-tuned native code — so when you hit
-> run, you'd better **runnn like hell** to keep up. 😼⚡
+> 🐆💨🔥 **Programs so fast they purrrrrrrrrrrrr like a kitten.** cheatah is built
+> to be as readable as Python *and* as fast as hand-tuned native code — so when you
+> hit run, your programs **purrrrrrrrrrrrr**. 😼⚡
 
 cheatah is a small, **Python-like** language (`.purr`) with a **C-style `struct`
 vibe**, that **compiles to native machine code** and is hosted by the **cheatah

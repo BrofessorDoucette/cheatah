@@ -9,7 +9,7 @@
 # links it into this program. Nothing is available unless you import it — even
 # print lives in io.
 #
-# Reads like a kitten, runs like hell. 🐆💨🔥
+# Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆💨🔥
 
 import io
 
