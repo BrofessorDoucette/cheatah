@@ -59,10 +59,10 @@ endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahLibrary.cmake)
 
 # Numeric core: ndarray must be built before linalg (linalg links it).
-add_subdirectory(purrscript/ndarray)
-add_subdirectory(purrscript/linalg)
+add_subdirectory(stdlib/ndarray)
+add_subdirectory(stdlib/linalg)
 
-add_subdirectory(purrscript)   # toolchain, stdlib modules, and the purrc compiler
+add_subdirectory(stdlib)   # toolchain, stdlib modules, and the purrc compiler
 add_subdirectory(runtime)      # the headless host (cheatah-runtime)
 
 if(CHEATAH_BUILD_TESTS)

@@ -60,8 +60,8 @@ cheatah-runtime hello.so          # run it
  dlopen("hello.so") → resolve purr_main → call it with a live Runtime
 ```
 
-- **`purrc`** ([purrscript/purrc.cpp](purrscript/purrc.cpp)) drives lexer → parser
-  → codegen ([purrscript/](purrscript/)), then invokes the system C++ compiler to
+- **`purrc`** ([stdlib/purrc.cpp](stdlib/purrc.cpp)) drives lexer → parser
+  → codegen ([stdlib/](stdlib/)), then invokes the system C++ compiler to
   build a loadable module. The generated translation unit exports `purr_main` — no
   `main()`.
 - **`cheatah-runtime`** ([runtime/](runtime/)) is the fully headless host: it
@@ -69,8 +69,8 @@ cheatah-runtime hello.so          # run it
   the standard library are provided by external modules a program imports, not by
   the language core.
 
-See [purrscript/README.md](purrscript/README.md) for the full language reference
-and [purrscript/PYTHON.md](purrscript/PYTHON.md) for Python coverage and the
+See [stdlib/README.md](stdlib/README.md) for the full language reference
+and [stdlib/PYTHON.md](stdlib/PYTHON.md) for Python coverage and the
 deliberate syntax deviations.
 
 ## Building
@@ -91,7 +91,7 @@ gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
 
 | Path | What |
 |------|------|
-| [purrscript/](purrscript/) | the language toolchain (lexer/parser/codegen), the `purrc` compiler ([purrc.cpp](purrscript/purrc.cpp)), and the standard-library modules |
+| [stdlib/](stdlib/) | the language toolchain (lexer/parser/codegen), the `purrc` compiler ([purrc.cpp](stdlib/purrc.cpp)), and the standard-library modules |
 | [runtime/](runtime/) | `cheatah-runtime`, the headless host |
 | [tests/](tests/) | unit, integration (purrc → runtime), and benchmark suites |
 | [cmake/](cmake/) | the `add_cheatah_library` helper |

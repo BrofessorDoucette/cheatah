@@ -42,7 +42,7 @@ add_executable(purrc purrc.cpp)
 target_link_libraries(purrc PRIVATE cheatah::compiler)
 
 target_compile_definitions(purrc PRIVATE
-    CHEATAH_ROOT="${PROJECT_SOURCE_DIR}/purrscript"
+    CHEATAH_ROOT="${PROJECT_SOURCE_DIR}/stdlib"
     CHEATAH_RUNTIME_INCLUDE="${PROJECT_SOURCE_DIR}/runtime"
     CHEATAH_LIB_DIR="${CMAKE_BINARY_DIR}/lib"
     CHEATAH_CXX="${CMAKE_CXX_COMPILER}")

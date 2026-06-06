@@ -13,7 +13,7 @@
 # Produces targets:
 #   cheatah::<name>_static   ->  libcheatah_<name>.a
 #   cheatah::<name>_shared   ->  libcheatah_<name>.so
-include_guard(GLOBAL)  # may be included from both the root and purrscript/
+include_guard(GLOBAL)  # may be included from both the root and stdlib/
 
 function(add_cheatah_library NAME)
     cmake_parse_arguments(PL "" "" "SOURCES" ${ARGN})

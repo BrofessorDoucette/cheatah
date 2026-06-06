@@ -26,7 +26,7 @@ loadable module that the runtime executable loads and runs.
 ```
  hello.purr
     │
-    ▼  purrc  (the compiler — purrscript/{lexer,parser,codegen} driven by purrc.cpp)
+    ▼  purrc  (the compiler — stdlib/{lexer,parser,codegen} driven by purrc.cpp)
  ┌──────────────────────────────────────────────────────────────────┐
  │ lexer  →  tokens                                                   │
  │ parser →  AST            (recursive descent, operator precedence)  │
