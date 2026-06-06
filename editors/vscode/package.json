@@ -1,8 +1,8 @@
 {
   "name": "cheatah",
   "displayName": "cheatah",
-  "description": "Syntax highlighting and language configuration for the cheatah language (.purr).",
-  "version": "0.1.0",
+  "description": "Syntax highlighting, language configuration, and a file icon theme for the cheatah language (.purr).",
+  "version": "0.1.1",
   "publisher": "cheatah-lang",
   "license": "MIT",
   "engines": { "vscode": "^1.70.0" },
@@ -10,6 +10,13 @@
   "keywords": ["cheatah", "purr", "edsl", "c++"],
   "icon": "icons/cheatah.png",
   "contributes": {
+    "iconThemes": [
+      {
+        "id": "cheatah",
+        "label": "cheatah (Seti + cheetah)",
+        "path": "./fileicons/cheatah-icon-theme.json"
+      }
+    ],
     "languages": [
       {
         "id": "cheatah",

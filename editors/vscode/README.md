@@ -9,6 +9,11 @@ language (`.purr`).
 - **The `cpp { … }` escape hatch is highlighted as real C++** — the block body uses
   VS Code's built-in C/C++ grammar (`source.cpp`), with balanced-brace tracking.
 - Bracket matching, auto-closing pairs, and comment toggling for `.purr`.
+- **A cheetah 🐆 file icon for `.purr`** via the bundled **"cheatah (Seti + cheetah)"**
+  file icon theme. VS Code's default *Seti* theme overrides per-language icons, so to
+  see the cheetah pick it explicitly: **`Preferences: File Icon Theme` → "cheatah
+  (Seti + cheetah)"**. It's the full Seti icon set (vendored from microsoft/vscode,
+  MIT) with `.purr` mapped to the cheetah — every other file keeps its Seti icon.
 
 ## Install
 
