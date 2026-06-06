@@ -3,10 +3,7 @@
 # static+shared library; the routines operate on ndarray, so we link it.
 #
 # Compiled at -O3 -march=native so the contiguous hot loops AUTO-VECTORIZE (SIMD).
-add_cheatah_library(linalg SOURCES version.cpp simd.cpp vector.cpp routines.cpp)
-
-target_compile_definitions(cheatah_linalg_obj PRIVATE
-    CHEATAH_LINALG_VERSION="${PROJECT_VERSION}")
+add_cheatah_library(linalg SOURCES simd.cpp routines.cpp)
 
 # The routines use ndarray::NDArray (must be defined before linalg in the build).
 target_link_libraries(cheatah_linalg_obj PUBLIC cheatah::ndarray_static)

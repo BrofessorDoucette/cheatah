@@ -4,6 +4,17 @@
 # it. A .purr program is lexed/parsed/codegen'd to C++ here, then purrc shells out
 # to the C++ backend to build a loadable module the cheatah runtime runs.
 
+# cheatah::version() — the single source of truth for the version string, built
+# from the CMake PROJECT_VERSION. A tiny standalone lib so BOTH purrc and the
+# cheatah runtime can report `--version` from the same string, without the runtime
+# pulling in the whole toolchain.
+add_library(cheatah_version STATIC version.cpp)
+add_library(cheatah::version ALIAS cheatah_version)
+target_include_directories(cheatah_version PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_features(cheatah_version PUBLIC cxx_std_20)
+set_target_properties(cheatah_version PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(cheatah_version PRIVATE CHEATAH_VERSION="${PROJECT_VERSION}")
+
 # Language toolchain: lexer → parser → codegen. Pure/dependency-free so it
 # unit-tests in isolation; its public include dir carries token/ast/lexer/parser/
 # codegen headers.
@@ -24,7 +35,7 @@ set_target_properties(cheatah_compiler PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # NB: CHEATAH_ROOT points at stdlib/ — purrc resolves `import <m>` to that module's
 # header and the libcheatah_<m> archive built from there.
 add_executable(purrc purrc.cpp)
-target_link_libraries(purrc PRIVATE cheatah::compiler)
+target_link_libraries(purrc PRIVATE cheatah::compiler cheatah::version)
 
 target_compile_definitions(purrc PRIVATE
     CHEATAH_ROOT="${PROJECT_SOURCE_DIR}/stdlib"

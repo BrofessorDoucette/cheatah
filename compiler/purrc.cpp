@@ -22,6 +22,7 @@
 
 #include "codegen.hpp"
 #include "parser.hpp"
+#include "version.hpp"
 
 #ifndef CHEATAH_ROOT
 #define CHEATAH_ROOT ""
@@ -78,14 +79,18 @@ int main(int argc, char** argv) {
     std::string output;
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
-        if (a == "-o" && i + 1 < argc) {
+        if (a == "--version" || a == "-v") {
+            std::cout << "cheatah purrc " << version() << "\n";
+            return 0;
+        } else if (a == "-o" && i + 1 < argc) {
             output = argv[++i];
         } else if (input.empty()) {
             input = a;
         }
     }
     if (input.empty()) {
-        std::cerr << "usage: purrc <input.purr> [-o <output>]\n";
+        std::cerr << "usage: purrc <input.purr> [-o <output>]\n"
+                     "       purrc --version\n";
         return 2;
     }
     if (output.empty()) {

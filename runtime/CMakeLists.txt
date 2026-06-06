@@ -12,5 +12,7 @@ target_compile_features(cheatah_runtime PUBLIC cxx_std_20)
 set_target_properties(cheatah_runtime PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(cheatah-runtime main.cpp)
-target_link_libraries(cheatah-runtime PRIVATE cheatah::runtime ${CMAKE_DL_LIBS})
+# cheatah::version (defined in compiler/, added before this dir) gives the runtime
+# the SAME version string purrc reports, with no duplication.
+target_link_libraries(cheatah-runtime PRIVATE cheatah::runtime cheatah::version ${CMAKE_DL_LIBS})
 set_target_properties(cheatah-runtime PROPERTIES ENABLE_EXPORTS ON)

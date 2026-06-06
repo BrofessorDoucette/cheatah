@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 
 #include "runtime.hpp"
+#include "version.hpp"
 
 namespace {
 
@@ -68,8 +69,16 @@ std::string sanitize_module_path(const std::string& raw) {
 } // namespace
 
 int main(int argc, char** argv) {
+    if (argc >= 2) {
+        const std::string a = argv[1];
+        if (a == "--version" || a == "-v") {
+            std::cout << "cheatah-runtime " << cheatah::version() << "\n";
+            return 0;
+        }
+    }
     if (argc < 2) {
-        std::cerr << "usage: cheatah-runtime <program.so>\n";
+        std::cerr << "usage: cheatah-runtime <program.so>\n"
+                     "       cheatah-runtime --version\n";
         return 2;
     }
     const std::string module_path = sanitize_module_path(argv[1]);

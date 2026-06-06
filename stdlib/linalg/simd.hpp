@@ -8,7 +8,7 @@
 // performance-critical kernels behind cheatah's optimization problems. These
 // helpers expose what the *current build* can dispatch to, so callers, tests,
 // and benchmarks can record the hardware-acceleration tier a result was
-// produced on. The actual kernels live in the typed primitives (vector.hpp, …).
+// produced on. The actual kernels live in the routines (routines.hpp).
 namespace cheatah::linalg {
 
 // Human-readable list of SIMD instruction sets this build targets, e.g.
