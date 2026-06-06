@@ -1,0 +1,5 @@
+# Highlight cheatah sources (.purr) as Python on github.com (and count them in the
+# repo's language stats) until cheatah is recognized by github-linguist. cheatah's
+# Python-like surface (# comments, let/fn, strings, numbers) renders cleanly there.
+# A proper cheatah grammar for editors lives in editors/vscode/.
+*.purr linguist-language=Python

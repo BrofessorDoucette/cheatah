@@ -1,0 +1,31 @@
+{
+  "name": "cheatah",
+  "displayName": "cheatah",
+  "description": "Syntax highlighting and language configuration for the cheatah language (.purr).",
+  "version": "0.1.0",
+  "publisher": "cheatah-lang",
+  "license": "MIT",
+  "engines": { "vscode": "^1.70.0" },
+  "categories": ["Programming Languages"],
+  "keywords": ["cheatah", "purr", "edsl", "c++"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "cheatah",
+        "aliases": ["cheatah", "purr"],
+        "extensions": [".purr"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cheatah",
+        "scopeName": "source.cheatah",
+        "path": "./syntaxes/cheatah.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.cpp.cheatah": "cpp"
+        }
+      }
+    ]
+  }
+}

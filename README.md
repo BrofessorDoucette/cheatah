@@ -245,6 +245,7 @@ gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
 | [runtime/](runtime/) | `cheatah`, the headless host |
 | [tests/](tests/) | unit, integration (purrc → runtime), and benchmark suites |
 | [cmake/](cmake/) | the `add_cheatah_library` helper |
+| [editors/](editors/) | editor support — a VS Code extension + TextMate grammar (highlights `.purr`, incl. embedded C++ in `cpp { … }`) |
 | [scripts/](scripts/) | the QA gate and git-hook setup |
 
 ## License

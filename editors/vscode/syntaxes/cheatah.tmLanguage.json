@@ -1,0 +1,131 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "cheatah",
+  "scopeName": "source.cheatah",
+  "fileTypes": ["purr"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#cpp-block" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#declaration" },
+    { "include": "#constants" },
+    { "include": "#types" },
+    { "include": "#builtins" },
+    { "include": "#function-call" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.number-sign.cheatah", "match": "#.*$" },
+        { "name": "comment.line.double-slash.cheatah", "match": "//.*$" }
+      ]
+    },
+
+    "cpp-block": {
+      "comment": "Raw C++ escape hatch: `cpp { … }`. The body is highlighted as C++ (source.cpp), with balanced-brace tracking so the closing brace is matched correctly.",
+      "begin": "(?<![\\w.])(cpp)[ \\t]*(\\{)",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.cpp.cheatah" },
+        "2": { "name": "punctuation.section.embedded.begin.cheatah" }
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.embedded.end.cheatah" }
+      },
+      "name": "meta.embedded.block.cpp.cheatah",
+      "patterns": [
+        { "include": "#cpp-braces" },
+        { "include": "source.cpp" }
+      ]
+    },
+    "cpp-braces": {
+      "comment": "Consume a balanced { … } region inside a cpp block so inner braces don't end the block early.",
+      "begin": "\\{",
+      "end": "\\}",
+      "patterns": [
+        { "include": "#cpp-braces" },
+        { "include": "source.cpp" }
+      ]
+    },
+
+    "strings": {
+      "name": "string.quoted.double.cheatah",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        { "name": "constant.character.escape.cheatah", "match": "\\\\." }
+      ]
+    },
+
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.float.cheatah", "match": "\\b[0-9]+\\.[0-9]+([eE][+-]?[0-9]+)?\\b" },
+        { "name": "constant.numeric.float.cheatah", "match": "\\b[0-9]+[eE][+-]?[0-9]+\\b" },
+        { "name": "constant.numeric.integer.cheatah", "match": "\\b[0-9]+\\b" }
+      ]
+    },
+
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.control.cheatah", "match": "\\b(if|else|while|for|in|return|try|except|raise)\\b" },
+        { "name": "keyword.control.import.cheatah", "match": "\\b(import|from|as)\\b" },
+        { "name": "keyword.operator.logical.cheatah", "match": "\\b(and|or|not)\\b" }
+      ]
+    },
+
+    "declaration": {
+      "patterns": [
+        {
+          "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.function.cheatah" },
+            "2": { "name": "entity.name.function.cheatah" }
+          }
+        },
+        {
+          "match": "\\b(struct)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.struct.cheatah" },
+            "2": { "name": "entity.name.type.cheatah" }
+          }
+        },
+        { "name": "storage.type.cheatah", "match": "\\b(let)\\b" }
+      ]
+    },
+
+    "constants": {
+      "patterns": [
+        { "name": "constant.language.boolean.cheatah", "match": "\\b(true|false)\\b" }
+      ]
+    },
+
+    "types": {
+      "patterns": [
+        { "name": "support.type.cheatah", "match": "\\b(int|float|str|bool|list|dict|array)\\b" }
+      ]
+    },
+
+    "builtins": {
+      "patterns": [
+        { "name": "support.function.builtin.cheatah", "match": "\\b(len|ord|chr|hex|oct|bin|ascii|hash|range|input)\\b" }
+      ]
+    },
+
+    "function-call": {
+      "comment": "An identifier immediately followed by `(` is a call.",
+      "name": "entity.name.function.call.cheatah",
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()"
+    },
+
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.arithmetic.cheatah", "match": "\\*\\*|[+\\-*/^]" },
+        { "name": "keyword.operator.comparison.cheatah", "match": "==|!=|<=|>=|<|>" },
+        { "name": "keyword.operator.assignment.cheatah", "match": "=" }
+      ]
+    }
+  }
+}
