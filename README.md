@@ -1,6 +1,6 @@
 # cheatah 🐆
 
-> **Programs so fast they purrrrrrrrrrrrr like a kitten.**
+> **Programs so fast they purrrrrrrrrrrrr like a kitten.** 🐱
 
 **cheatah** is a small, Python-like programming language that compiles to native
 machine code — **Python for people who care about performance**. You write `.purr` source files,

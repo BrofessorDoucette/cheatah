@@ -1,6 +1,6 @@
 # cheatah
 
-> 🐆💨🔥 **Programs so fast they purrrrrrrrrrrrr like a kitten.** cheatah is built
+> 🐆💨🔥 **Programs so fast they purrrrrrrrrrrrr like a kitten.** 🐱 cheatah is built
 > to be as readable as Python *and* as fast as hand-tuned native code — so when you
 > hit run, your programs **purrrrrrrrrrrrr**. 😼⚡
 
