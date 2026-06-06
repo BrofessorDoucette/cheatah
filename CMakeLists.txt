@@ -62,9 +62,8 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahLibrary.cmake)
 add_subdirectory(purrscript/ndarray)
 add_subdirectory(purrscript/linalg)
 
-add_subdirectory(purrscript)   # toolchain + the rest of the stdlib modules
+add_subdirectory(purrscript)   # toolchain, stdlib modules, and the purrc compiler
 add_subdirectory(runtime)      # the headless host (cheatah-runtime)
-add_subdirectory(purrc)        # the compiler
 
 if(CHEATAH_BUILD_TESTS)
     add_subdirectory(tests)

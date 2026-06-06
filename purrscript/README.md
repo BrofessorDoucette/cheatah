@@ -26,7 +26,7 @@ loadable module that the runtime executable loads and runs.
 ```
  hello.purr
     │
-    ▼  purrc  (the compiler — purrscript/{lexer,parser,codegen} + purrc/)
+    ▼  purrc  (the compiler — purrscript/{lexer,parser,codegen} driven by purrc.cpp)
  ┌──────────────────────────────────────────────────────────────────┐
  │ lexer  →  tokens                                                   │
  │ parser →  AST            (recursive descent, operator precedence)  │
@@ -38,7 +38,7 @@ loadable module that the runtime executable loads and runs.
  dlopen("hello.so") → resolve `purr_main` → call it with a live Runtime
 ```
 
-- **`purrc`** ([`../purrc/`](../purrc/)) drives lexer → parser → codegen, then
+- **`purrc`** ([`purrc.cpp`](purrc.cpp)) drives lexer → parser → codegen, then
   invokes the system C++ compiler (`c++ -std=c++20 -O2 -fPIC -shared`) to build a
   loadable `.so`. The generated translation unit exports
   `extern "C" void purr_main(cheatah::runtime::Runtime&)` — no `main()`.

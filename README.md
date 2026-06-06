@@ -60,9 +60,9 @@ cheatah-runtime hello.so          # run it
  dlopen("hello.so") → resolve purr_main → call it with a live Runtime
 ```
 
-- **`purrc`** ([purrc/](purrc/)) drives lexer → parser → codegen
-  ([purrscript/](purrscript/)), then invokes the system C++ compiler to build a
-  loadable module. The generated translation unit exports `purr_main` — no
+- **`purrc`** ([purrscript/purrc.cpp](purrscript/purrc.cpp)) drives lexer → parser
+  → codegen ([purrscript/](purrscript/)), then invokes the system C++ compiler to
+  build a loadable module. The generated translation unit exports `purr_main` — no
   `main()`.
 - **`cheatah-runtime`** ([runtime/](runtime/)) is the fully headless host: it
   `dlopen`s the module, resolves `purr_main`, and calls it. Capabilities beyond
@@ -91,8 +91,7 @@ gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
 
 | Path | What |
 |------|------|
-| [purrscript/](purrscript/) | the language toolchain (lexer/parser/codegen) and the standard-library modules |
-| [purrc/](purrc/) | `purrc`, the compiler |
+| [purrscript/](purrscript/) | the language toolchain (lexer/parser/codegen), the `purrc` compiler ([purrc.cpp](purrscript/purrc.cpp)), and the standard-library modules |
 | [runtime/](runtime/) | `cheatah-runtime`, the headless host |
 | [tests/](tests/) | unit, integration (purrc → runtime), and benchmark suites |
 | [cmake/](cmake/) | the `add_cheatah_library` helper |
