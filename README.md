@@ -54,10 +54,10 @@ cheatah-runtime hello.so          # run it
  hello.purr
     │
     ▼  purrc  (lexer → parser → codegen → C++ → .so)
- hello.so   (exports  extern "C" void purr_main(cheatah::runtime::Runtime&))
+ hello.so   (exports  extern "C" void purr_main())
     │
     ▼  cheatah-runtime
- dlopen("hello.so") → resolve purr_main → call it with a live Runtime
+ dlopen("hello.so") → resolve purr_main → call it
 ```
 
 - **`purrc`** ([compiler/purrc.cpp](compiler/purrc.cpp)) drives lexer → parser
@@ -65,9 +65,9 @@ cheatah-runtime hello.so          # run it
   build a loadable module. The generated translation unit exports `purr_main` — no
   `main()`.
 - **`cheatah-runtime`** ([runtime/](runtime/)) is the fully headless host: it
-  `dlopen`s the module, resolves `purr_main`, and calls it. Capabilities beyond
-  the standard library are provided by external modules a program imports, not by
-  the language core.
+  validates the module path, `dlopen`s the module, resolves `purr_main`, and calls
+  it. A compiled program is self-contained — it statically links the stdlib it
+  imported — so the host needs no shared state with it.
 
 See [stdlib/README.md](stdlib/README.md) for the full language reference
 and [compiler/PYTHON.md](compiler/PYTHON.md) for Python coverage and the

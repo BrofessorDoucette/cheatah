@@ -31,15 +31,14 @@ set_target_properties(cheatah_compiler PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # ---- purrc: the cheatah compiler executable ----
 # Drives the toolchain, then invokes the C++ backend. The paths it needs (stdlib
-# module headers/libs, the runtime header, the C++ compiler) are injected here.
-# NB: CHEATAH_ROOT points at stdlib/ — purrc resolves `import <m>` to that module's
-# header and the libcheatah_<m> archive built from there.
+# module headers/libs, the C++ compiler) are injected here. NB: CHEATAH_ROOT points
+# at stdlib/ — purrc resolves `import <m>` to that module's header and the
+# libcheatah_<m> archive built from there.
 add_executable(purrc purrc.cpp)
 target_link_libraries(purrc PRIVATE cheatah::compiler cheatah::version)
 
 target_compile_definitions(purrc PRIVATE
     CHEATAH_ROOT="${PROJECT_SOURCE_DIR}/stdlib"
-    CHEATAH_RUNTIME_INCLUDE="${PROJECT_SOURCE_DIR}/runtime"
     CHEATAH_LIB_DIR="${CMAKE_BINARY_DIR}/lib"
     CHEATAH_CXX="${CMAKE_CXX_COMPILER}")
 

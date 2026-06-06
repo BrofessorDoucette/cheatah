@@ -30,22 +30,22 @@ loadable module that the runtime executable loads and runs.
  ┌──────────────────────────────────────────────────────────────────┐
  │ lexer  →  tokens                                                   │
  │ parser →  AST            (recursive descent, operator precedence)  │
- │ codegen → C++ source     (exports `extern "C" purr_main(Runtime&)`)│
+ │ codegen → C++ source     (exports `extern "C" purr_main()`)        │
  │ c++    →  hello.so       (a shared module; links imported stdlib)  │
  └──────────────────────────────────────────────────────────────────┘
     │
     ▼  cheatah-runtime  (the host — runtime/)
- dlopen("hello.so") → resolve `purr_main` → call it with a live Runtime
+ dlopen("hello.so") → resolve `purr_main` → call it
 ```
 
 - **`purrc`** ([`purrc.cpp`](../compiler/purrc.cpp)) drives lexer → parser → codegen, then
   invokes the system C++ compiler (`c++ -std=c++20 -O2 -fPIC -shared`) to build a
   loadable `.so`. The generated translation unit exports
-  `extern "C" void purr_main(cheatah::runtime::Runtime&)` — no `main()`.
-- **`cheatah-runtime`** ([`../runtime/`](../runtime/)) `dlopen`s the module,
-  resolves `purr_main`, and calls it with a live `Runtime`. The host is built with
-  exported symbols so the module resolves `Runtime`'s symbols from it; the module
-  links only the stdlib it imported.
+  `extern "C" void purr_main()` — no `main()`.
+- **`cheatah-runtime`** ([`../runtime/`](../runtime/)) validates the module path,
+  `dlopen`s the module, resolves `purr_main`, and calls it. The module statically
+  links only the stdlib it imported, so it is self-contained — the host shares no
+  state with it.
 - **Memory safety:** generated code uses value types, STL containers, and smart
   pointers (no raw `new`/`delete`); the AST is owned through `unique_ptr`.
 

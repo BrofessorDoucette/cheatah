@@ -7,8 +7,8 @@
 
 // cheatah codegen — AST -> C++ source for a loadable program module.
 //
-// The emitted translation unit exports `extern "C" void purr_main(Runtime&)`,
-// which the cheatah runtime dlopens and calls. Imports become #includes; module
+// The emitted translation unit exports `extern "C" void purr_main()`, which the
+// cheatah runtime dlopens and calls. Imports become #includes; module
 // calls (io.print) become namespace-qualified calls (cheatah::io::
 // print). `modules` lists the imported module roots so purrc knows which stdlib
 // libraries to link.

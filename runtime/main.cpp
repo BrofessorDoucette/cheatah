@@ -1,11 +1,11 @@
 // cheatah-runtime — the host executable that LOADS and RUNS compiled cheatah
 // programs. It dlopens a module produced by purrc, resolves its `purr_main`
-// entry point, and calls it with a live Runtime the program drives.
+// entry point, and calls it.
 //
 //   cheatah-runtime <program.so>
 //
-// Fully headless. The Runtime is a minimal placeholder for future host services
-// (logging, lifecycle, …) that a program may drive from inside purr_main.
+// Fully headless: the program is self-contained (it statically links the stdlib
+// modules it imported), so the host just validates, loads, and runs it.
 
 #include <dlfcn.h>
 
@@ -18,12 +18,11 @@
 
 #include <sys/stat.h>
 
-#include "runtime.hpp"
 #include "version.hpp"
 
 namespace {
 
-using PurrMain = void (*)(cheatah::runtime::Runtime&);
+using PurrMain = void (*)();
 
 // Validate a module path before we hand it to dlopen() — which executes native
 // code in-process. We can't make loading "safe" (it runs code by design), but we
@@ -102,8 +101,7 @@ int main(int argc, char** argv) {
 
     int rc = 0;
     try {
-        cheatah::runtime::Runtime rt;
-        purr_main(rt);  // the program runs and instructs the runtime
+        purr_main();  // run the program
     } catch (const std::exception& e) {
         std::cerr << "cheatah-runtime: program error: " << e.what() << "\n";
         rc = 1;

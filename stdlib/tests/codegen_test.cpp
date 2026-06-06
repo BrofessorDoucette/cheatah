@@ -19,9 +19,8 @@ TEST(CheatahCodegen, EmitsPurrMainWithNamespaceQualifiedCall) {
 
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "#include \"runtime.hpp\""));
     EXPECT_TRUE(contains(cg.source, "#include \"io.hpp\""));
-    EXPECT_TRUE(contains(cg.source, "extern \"C\" void purr_main(cheatah::runtime::Runtime&"));
+    EXPECT_TRUE(contains(cg.source, "extern \"C\" void purr_main()"));
     EXPECT_TRUE(contains(cg.source, "cheatah::io::print(std::string(\"meow\"));"));
 
     ASSERT_EQ(cg.modules.size(), 1u);

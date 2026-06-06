@@ -4,9 +4,8 @@
 //   purrc <input.purr> [-o <output>]
 //
 // Pipeline: read -> lex -> parse -> codegen C++ -> invoke the C++ backend to build
-// a shared module (exporting purr_main). The module links the stdlib libraries the
-// program imported (static); the Runtime symbols stay undefined and resolve from
-// the cheatah-runtime host at load time.
+// a shared module (exporting purr_main()). The module statically links the stdlib
+// libraries the program imported, so it is self-contained when the runtime loads it.
 
 #include <cstdlib>
 #include <fstream>
@@ -26,9 +25,6 @@
 
 #ifndef CHEATAH_ROOT
 #define CHEATAH_ROOT ""
-#endif
-#ifndef CHEATAH_RUNTIME_INCLUDE
-#define CHEATAH_RUNTIME_INCLUDE ""
 #endif
 #ifndef CHEATAH_LIB_DIR
 #define CHEATAH_LIB_DIR ""
@@ -160,7 +156,6 @@ int main(int argc, char** argv) {
     std::vector<std::string> args = {
         CHEATAH_CXX, "-std=c++20", "-O3", "-march=native", "-DNDEBUG",
         "-fno-semantic-interposition", "-fPIC", "-shared", "-pthread", "-w",
-        std::string("-I") + CHEATAH_RUNTIME_INCLUDE,
     };
     for (const std::string& m : modules) {
         args.push_back(std::string("-I") + CHEATAH_ROOT + "/" + m);
@@ -169,8 +164,6 @@ int main(int argc, char** argv) {
     for (const std::string& m : modules) {
         args.push_back(std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a");
     }
-    // -shared leaves the Runtime symbols undefined; they resolve from the
-    // cheatah-runtime host at dlopen time.
     args.push_back("-o");
     args.push_back(output);
 
