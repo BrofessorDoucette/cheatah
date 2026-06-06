@@ -238,6 +238,11 @@ io.print(run())                        # 5050
   `R"(...)"` containing unbalanced braces — can; wrap or avoid those.)
 - `cpp` is only special immediately before `{` on the same line; elsewhere it's an
   ordinary identifier.
+- ⚠️ **Memory safety is not guaranteed inside `cpp { … }`.** Ordinary cheatah code
+  is memory-safe (value types, STL containers, smart pointers — no raw
+  `new`/`delete`), but a raw-C++ block is emitted verbatim and is **not** sandboxed
+  or checked: raw pointers, unchecked indexing, lifetimes, and undefined behavior
+  are your responsibility, exactly as in C++.
 
 The standard library already includes `<array> <cmath> <memory> <stdexcept>
 <string> <unordered_map> <utility> <vector>` plus `builtins.hpp` and every module

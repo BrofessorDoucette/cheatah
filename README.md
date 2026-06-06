@@ -40,7 +40,8 @@ cheatah hello.so          # run it
   freely; ints are 64-bit, strings are `std::string`, `list`/`dict` are
   `std::vector`/`std::unordered_map`. Hot numeric loops auto-vectorize (SIMD).
 - **Memory-safe codegen.** Generated code uses value types, STL containers, and
-  smart pointers — no raw `new`/`delete`.
+  smart pointers — no raw `new`/`delete`. (The sole exception is whatever you write
+  inside a raw `cpp { … }` escape hatch — that's on you.)
 - **Headless and dependency-free.** The language core and runtime have **no
   external dependencies**; the only third-party code is GoogleTest/Google
   Benchmark, used by the test suite alone.
@@ -140,6 +141,12 @@ fn demo() {
 }
 io.print(demo())                                                  # 16
 ```
+
+> ⚠️ **Memory safety is not guaranteed inside `cpp { … }`.** Ordinary cheatah code
+> is memory-safe (value types, STL containers, smart pointers — no raw
+> `new`/`delete`), but a raw-C++ block bypasses those guarantees and is **not**
+> sandboxed or checked. Raw pointers, unchecked indexing, lifetimes, and undefined
+> behavior are your responsibility there — exactly as in C++.
 
 It's optional and out of the way — see **Python for people who care about
 performance** below for why this stays "all native."
