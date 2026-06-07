@@ -96,7 +96,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2a49e436b18ed2c84ee0c6c06f677a89" id="r_a2a49e436b18ed2c84ee0c6c06f677a89"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a2a49e436b18ed2c84ee0c6c06f677a89">File</a> (const File &amp;)=delete</td></tr>
 <tr class="memitem:a07e02667599bc3745b09bdcdceca051a" id="r_a07e02667599bc3745b09bdcdceca051a"><td class="memItemLeft"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a07e02667599bc3745b09bdcdceca051a">operator=</a> (const <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;)=delete</td></tr>
 <tr class="memitem:a2f67c23e42644b2b1f93d022ee8743da" id="r_a2f67c23e42644b2b1f93d022ee8743da"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a2f67c23e42644b2b1f93d022ee8743da">File</a> (File &amp;&amp;)=default</td></tr>
+<tr class="memdesc:a2f67c23e42644b2b1f93d022ee8743da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move-construct, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed).  <br /></td></tr>
 <tr class="memitem:a8c293be37ac4635d8a4666cfecf03d6b" id="r_a8c293be37ac4635d8a4666cfecf03d6b"><td class="memItemLeft"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a8c293be37ac4635d8a4666cfecf03d6b">operator=</a> (<a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&amp;)=default</td></tr>
+<tr class="memdesc:a8c293be37ac4635d8a4666cfecf03d6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move-assign, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed).  <br /></td></tr>
 <tr class="memitem:aef228566630dd43ee216ae263ea802b4" id="r_aef228566630dd43ee216ae263ea802b4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#aef228566630dd43ee216ae263ea802b4">~File</a> ()</td></tr>
 <tr class="memdesc:aef228566630dd43ee216ae263ea802b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the stream if still open.  <br /></td></tr>
 <tr class="memitem:aa05a743c57cad1b944aa3a54b88af8d4" id="r_aa05a743c57cad1b944aa3a54b88af8d4"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa05a743c57cad1b944aa3a54b88af8d4">open</a> (const std::string &amp;path, std::string_view mode)</td></tr>
@@ -119,7 +121,7 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>A Python-like file object over <span class="tt">std::fstream</span>. </p>
 <p>RAII closes on scope exit — the C++ analog of <span class="tt">with open(...) as f:</span>. Move-only (copying a file handle is meaningless), like Python file objects. </p>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00154">154</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00164">164</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 </div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a839f833ef4d63c44d17fd646723a83ef" name="a839f833ef4d63c44d17fd646723a83ef"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a839f833ef4d63c44d17fd646723a83ef">&#9670;&#160;</a></span>File() <span class="overload">[1/4]</span></h2>
@@ -256,6 +258,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Move-construct, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed). </p>
+
 <p class="reference">References <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File()</a>.</p>
 <div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
 <div id="dynsection-3-summary" class="dynsummary" style="display:block;">
@@ -353,6 +357,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Move-assign, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed). </p>
+<dl class="section return"><dt>Returns</dt><dd>reference to this <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>. </dd></dl>
 
 <p class="reference">References <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File()</a>.</p>
 <div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
@@ -568,7 +575,7 @@ template&lt;Streamable T&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(output length); writes straight to the stream buffer, no heap of our own. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000051">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00233">233</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00248">248</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 </div>
 </div>

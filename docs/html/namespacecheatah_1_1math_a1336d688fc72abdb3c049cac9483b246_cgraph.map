@@ -1,5 +1,5 @@
 <map id="cheatah::math::max" name="cheatah::math::max">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,159,31"/>
+<area shape="rect" id="Node000001" title="Largest of three&#45;or&#45;more values (folds the extra args onto the two&#45;argument overload)." alt="" coords="5,5,159,31"/>
 <area shape="rect" id="Node000002" href="$namespacecheatah_1_1math.html#ab303bcdceabcf36f6f8e13042e303718" title="Largest of two&#45;or&#45;more values (variadic; the overloads chain to fold extra args)." alt="" coords="207,5,360,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,15,193,15,193,21,159,21"/>
 </map>

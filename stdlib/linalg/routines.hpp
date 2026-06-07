@@ -27,7 +27,12 @@
 
 namespace cheatah::linalg {
 
+// The routines operate on cheatah::ndarray::NDArray, re-exported unqualified for brevity in the
+// signatures below. The directive below hides this re-export from Doxygen so it does not emit a
+// phantom duplicate cheatah::linalg::NDArray class in the namespace/XML structure.
+/// \cond INTERNAL
 using ndarray::NDArray;
+/// \endcond
 
 // ---- Matrix and vector products ----
 /**
@@ -101,7 +106,10 @@ NDArray kron(const NDArray& a, const NDArray& b);
  */
 NDArray cholesky(const NDArray& a);                       // lower-triangular L (A = L Lᵀ)
 /** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */
-struct QR { NDArray q; NDArray r; };
+struct QR {
+    NDArray q;  ///< Orthonormal columns, m×n (the Q in A = Q·R).
+    NDArray r;  ///< Upper-triangular factor, n×n (the R in A = Q·R).
+};
 /**
  * Reduced QR via Householder reflections (requires rows ≥ cols).
  * @param a m×n matrix.
@@ -111,7 +119,11 @@ struct QR { NDArray q; NDArray r; };
  */
 QR qr(const NDArray& a);
 /** Result of svd(): A = u·diag(s)·vh. */
-struct SVD { NDArray u; NDArray s; NDArray vh; };
+struct SVD {
+    NDArray u;   ///< Left singular vectors, m×n.
+    NDArray s;   ///< Singular values in descending order (length n).
+    NDArray vh;  ///< Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).
+};
 /**
  * Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).
  * @param a m×n matrix.
@@ -123,7 +135,10 @@ SVD svd(const NDArray& a);
 
 // ---- Matrix eigenvalues ----
 /** Result of eig() / eigh(): column j of vectors is the eigenvector for values[j]. */
-struct Eig { NDArray values; NDArray vectors; };
+struct Eig {
+    NDArray values;   ///< Eigenvalues (length n).
+    NDArray vectors;  ///< Eigenvectors as columns: column j matches values[j] (empty if not computed).
+};
 /**
  * Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).
  * @param a square matrix.
@@ -192,7 +207,10 @@ double det(const NDArray& a);
  */
 long long matrix_rank(const NDArray& a);
 /** Result of slogdet(): det(A) = sign·exp(logabsdet). */
-struct SLogDet { double sign; double logabsdet; };
+struct SLogDet {
+    double sign;       ///< Sign of the determinant (−1, 0, or +1).
+    double logabsdet;  ///< Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).
+};
 /**
  * Sign and log|det| via LU (overflow-safe determinant).
  * @param a square matrix.

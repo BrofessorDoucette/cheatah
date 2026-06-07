@@ -111,10 +111,17 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Base case of the recursive formatter: emit the remainder of <code class="param">fmt</code> verbatim. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname"><a class="el" href="namespacecheatah_1_1os.html">os</a></td><td>destination stream. </td></tr>
+    <tr><td class="paramname">fmt</td><td>remaining format text (no placeholders left to fill). </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00014">14</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00133">cheatah::io::format()</a>, and <a class="el" href="io_8hpp_source.html#l00112">format_into()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00143">cheatah::io::format()</a>, and <a class="el" href="io_8hpp_source.html#l00122">format_into()</a>.</p>
 <div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
@@ -156,8 +163,17 @@ template&lt;Streamable T, typename... Rest&gt; </div>
 </div><div class="memdoc">
 
 <p>Recursive step: write text up to the next <span class="tt">{}</span>, substitute <code class="param">arg</code>, recurse on the rest. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname"><a class="el" href="namespacecheatah_1_1os.html">os</a></td><td>destination stream. </td></tr>
+    <tr><td class="paramname">fmt</td><td>remaining format text. </td></tr>
+    <tr><td class="paramname">arg</td><td>value substituted at the next <span class="tt">{}</span> placeholder. </td></tr>
+    <tr><td class="paramname">rest</td><td>values for the remaining placeholders. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00112">112</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00122">122</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00014">format_into()</a>.</p>
 <div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>

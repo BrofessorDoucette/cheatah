@@ -86,23 +86,20 @@ $(function(){initNavTree('structcheatah_1_1linalg_1_1SVD.html','','structcheatah
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="routines_8hpp_source.html">routines.hpp</a>&gt;</code></p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Collaboration diagram for cheatah::linalg::SVD:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="structcheatah_1_1linalg_1_1SVD__coll__graph.svg" width="206" height="172"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a1e8de6f3a0b6c6850f7504ad9c321520" id="r_a1e8de6f3a0b6c6850f7504ad9c321520"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a1e8de6f3a0b6c6850f7504ad9c321520">u</a></td></tr>
-<tr class="memitem:a331cb2e38eac9f312659248dabb55b40" id="r_a331cb2e38eac9f312659248dabb55b40"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a331cb2e38eac9f312659248dabb55b40">s</a></td></tr>
-<tr class="memitem:ab1904075439b30a69b6c8c333e5fcba1" id="r_ab1904075439b30a69b6c8c333e5fcba1"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#ab1904075439b30a69b6c8c333e5fcba1">vh</a></td></tr>
+<tr class="memitem:a1e8de6f3a0b6c6850f7504ad9c321520" id="r_a1e8de6f3a0b6c6850f7504ad9c321520"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a1e8de6f3a0b6c6850f7504ad9c321520">u</a></td></tr>
+<tr class="memdesc:a1e8de6f3a0b6c6850f7504ad9c321520"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left singular vectors, m×n.  <br /></td></tr>
+<tr class="memitem:a331cb2e38eac9f312659248dabb55b40" id="r_a331cb2e38eac9f312659248dabb55b40"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a331cb2e38eac9f312659248dabb55b40">s</a></td></tr>
+<tr class="memdesc:a331cb2e38eac9f312659248dabb55b40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Singular values in descending order (length n).  <br /></td></tr>
+<tr class="memitem:ab1904075439b30a69b6c8c333e5fcba1" id="r_ab1904075439b30a69b6c8c333e5fcba1"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#ab1904075439b30a69b6c8c333e5fcba1">vh</a></td></tr>
+<tr class="memdesc:ab1904075439b30a69b6c8c333e5fcba1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Result of <a class="el" href="namespacecheatah_1_1linalg.html#aca03d8bcbabadeb0f4aee077e65e48d0" title="Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).">svd()</a>: A = u·diag(s)·vh. </p>
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00114">114</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00122">122</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a1e8de6f3a0b6c6850f7504ad9c321520" name="a1e8de6f3a0b6c6850f7504ad9c321520"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1e8de6f3a0b6c6850f7504ad9c321520">&#9670;&#160;</a></span>u</h2>
@@ -111,12 +108,14 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::SVD::u</td>
+          <td class="memname">NDArray cheatah::linalg::SVD::u</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00114">114</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p>Left singular vectors, m×n. </p>
+
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00123">123</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 
 </div>
 </div>
@@ -127,12 +126,14 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::SVD::s</td>
+          <td class="memname">NDArray cheatah::linalg::SVD::s</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00114">114</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p>Singular values in descending order (length n). </p>
+
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00124">124</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 
 </div>
 </div>
@@ -143,12 +144,14 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::SVD::vh</td>
+          <td class="memname">NDArray cheatah::linalg::SVD::vh</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00114">114</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p>Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ). </p>
+
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00125">125</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 
 </div>
 </div>

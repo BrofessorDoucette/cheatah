@@ -1,17 +1,15 @@
 <map id="cheatah::ndarray::NDArray::ndim" name="cheatah::ndarray::NDArray::ndim">
-<area shape="rect" id="Node000001" title="The number of dimensions (rank)." alt="" coords="500,122,695,162"/>
+<area shape="rect" id="Node000001" title="The number of dimensions (rank)." alt="" coords="500,97,695,137"/>
 <area shape="rect" id="Node000002" href="$namespacecheatah_1_1ndarray.html#af3054f485e7082dc20e22f26c8cba362" title="A zero&#45;copy view of a stretched to target (size&#45;1 / missing dims get stride 0)." alt="" coords="229,5,452,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="561,116,511,78,451,44,418,33,420,28,453,40,514,74,565,111"/>
-<area shape="rect" id="Node000003" href="$namespacecheatah_1_1linalg.html#afe04c01bb9160f60115734737a890f53" title="Norm: L2 for vectors, Frobenius for matrices." alt="" coords="261,55,421,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="530,120,451,94,406,83,408,78,453,89,532,115"/>
-<area shape="rect" id="Node000004" href="$namespacecheatah_1_1ndarray.html#a1a7555532cd64d3801dfb571f94fed3b" title="Reshape a to shape (same element count)." alt="" coords="245,104,436,129"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="486,134,436,129,436,123,487,128"/>
-<area shape="rect" id="Node000005" href="$namespacecheatah_1_1ndarray.html#a5ecc75969da04a455e7a89a32cbe2352" title="The shape as signed dims." alt="" coords="241,153,440,179"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="487,155,441,159,440,154,486,150"/>
-<area shape="rect" id="Node000006" href="$namespacecheatah_1_1ndarray.html#a3fc7e58a79593ffd0446bdc1de869f1e" title="Sum of all elements." alt="" coords="257,203,424,228"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="528,169,453,193,403,205,402,200,451,187,526,164"/>
-<area shape="rect" id="Node000008" href="$namespacecheatah_1_1ndarray.html#aa4c21ed00e8ef67406221c3d0dd29594" title="Render as a nested&#45;bracket string, e.g." alt="" coords="265,253,417,293"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="562,173,512,208,453,242,418,256,416,251,451,237,509,204,559,168"/>
-<area shape="rect" id="Node000007" href="$namespacecheatah_1_1ndarray.html#a54d1a3c8c622bac7fa431b75d47ae8ab" title="Mean of all elements (0 for an empty array)." alt="" coords="5,203,181,228"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="243,218,182,218,182,213,243,213"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="550,92,503,67,451,45,413,33,415,28,453,39,506,62,553,87"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1ndarray.html#a1a7555532cd64d3801dfb571f94fed3b" title="Reshape a to shape (same element count)." alt="" coords="245,55,436,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="486,98,407,83,408,77,487,93"/>
+<area shape="rect" id="Node000004" href="$namespacecheatah_1_1ndarray.html#a5ecc75969da04a455e7a89a32cbe2352" title="The shape as signed dims." alt="" coords="241,104,440,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,119,440,119,440,114,487,114"/>
+<area shape="rect" id="Node000005" href="$namespacecheatah_1_1ndarray.html#a3fc7e58a79593ffd0446bdc1de869f1e" title="Sum of all elements." alt="" coords="257,153,424,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="487,140,408,156,407,151,486,135"/>
+<area shape="rect" id="Node000007" href="$namespacecheatah_1_1ndarray.html#aa4c21ed00e8ef67406221c3d0dd29594" title="Render as a nested&#45;bracket string, e.g." alt="" coords="265,203,417,243"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="550,146,453,192,416,206,414,201,451,188,548,141"/>
+<area shape="rect" id="Node000006" href="$namespacecheatah_1_1ndarray.html#a54d1a3c8c622bac7fa431b75d47ae8ab" title="Mean of all elements (0 for an empty array)." alt="" coords="5,153,181,179"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="243,169,182,169,182,163,243,163"/>
 </map>

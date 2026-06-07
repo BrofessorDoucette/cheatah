@@ -7,7 +7,6 @@ var namespacecheatah_1_1linalg =
     [ "SVD", "structcheatah_1_1linalg_1_1SVD.html", "structcheatah_1_1linalg_1_1SVD" ],
     [ "Eig", "structcheatah_1_1linalg_1_1Eig.html", "structcheatah_1_1linalg_1_1Eig" ],
     [ "SLogDet", "structcheatah_1_1linalg_1_1SLogDet.html", "structcheatah_1_1linalg_1_1SLogDet" ],
-    [ "NDArray", "classcheatah_1_1linalg_1_1NDArray.html", "classcheatah_1_1linalg_1_1NDArray" ],
     [ "dot", "namespacecheatah_1_1linalg.html#af622dbc275fbbb5c07221ab4be2c8e1c", null ],
     [ "vdot", "namespacecheatah_1_1linalg.html#aeb4d9c3e5d41a7afe29f1bb5b60d6a76", null ],
     [ "inner", "namespacecheatah_1_1linalg.html#a5c35a832b1c73bdf5cabfed648a308fc", null ],

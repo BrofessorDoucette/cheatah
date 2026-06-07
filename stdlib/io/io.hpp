@@ -105,9 +105,19 @@ std::string repr(const std::string& value);
 std::string repr(const char* value);
 
 namespace detail {
-/// Base case of the recursive formatter: emit the remainder of @p fmt verbatim.
+/**
+ * Base case of the recursive formatter: emit the remainder of @p fmt verbatim.
+ * @param os destination stream.
+ * @param fmt remaining format text (no placeholders left to fill).
+ */
 void format_into(std::ostringstream& os, std::string_view fmt);
-/// Recursive step: write text up to the next `{}`, substitute @p arg, recurse on the rest.
+/**
+ * Recursive step: write text up to the next `{}`, substitute @p arg, recurse on the rest.
+ * @param os destination stream.
+ * @param fmt remaining format text.
+ * @param arg value substituted at the next `{}` placeholder.
+ * @param rest values for the remaining placeholders.
+ */
 template <Streamable T, typename... Rest>
 void format_into(std::ostringstream& os, std::string_view fmt, const T& arg, const Rest&... rest) {
     const std::size_t brace = fmt.find("{}");
@@ -169,7 +179,12 @@ public:
     File(const std::string& path, std::string_view mode);
     File(const File&) = delete;
     File& operator=(const File&) = delete;
+    /** Move-construct, taking over the other handle (the moved-from File becomes closed). */
     File(File&&) = default;
+    /**
+     * Move-assign, taking over the other handle (the moved-from File becomes closed).
+     * @return reference to this File.
+     */
     File& operator=(File&&) = default;
     /**
      * Close the stream if still open.

@@ -47,6 +47,13 @@ T abs(T x) { return x < T{} ? -x : x; }
  */
 template <typename T>
 const T& min(const T& a, const T& b) { return (b < a) ? b : a; }
+/**
+ * Smallest of three-or-more values (folds the extra args onto the two-argument overload).
+ * @param a,b the first two values.
+ * @param rest the remaining values (`operator<` required).
+ * @return a reference to the minimum.
+ * @test CheatahMath.BuiltinLikeOps
+ */
 template <typename T, typename... Rest>
 const T& min(const T& a, const T& b, const Rest&... rest) { return min(min(a, b), rest...); }
 
@@ -59,6 +66,13 @@ const T& min(const T& a, const T& b, const Rest&... rest) { return min(min(a, b)
  */
 template <typename T>
 const T& max(const T& a, const T& b) { return (a < b) ? b : a; }
+/**
+ * Largest of three-or-more values (folds the extra args onto the two-argument overload).
+ * @param a,b the first two values.
+ * @param rest the remaining values (`operator<` required).
+ * @return a reference to the maximum.
+ * @test CheatahMath.BuiltinLikeOps
+ */
 template <typename T, typename... Rest>
 const T& max(const T& a, const T& b, const Rest&... rest) { return max(max(a, b), rest...); }
 

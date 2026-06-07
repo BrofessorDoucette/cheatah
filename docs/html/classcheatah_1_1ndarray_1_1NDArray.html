@@ -133,7 +133,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Construct an empty 0-d array with a fresh empty buffer. </p>
 <dl class="section note"><dt>Note</dt><dd>O(1); allocates the empty shared buffer. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000130">Test</a></b></dt><dd>CheatahNDArray.ToStringScalar </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000132">Test</a></b></dt><dd>CheatahNDArray.ToStringScalar </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00090">90</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -175,7 +175,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;) of <span class="tt">product(shape)</span> elements; throws if the shape overflows size_t. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000131">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000133">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00092">92</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -229,7 +229,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); shares <code class="param">data</code>, no element copy. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000132">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000134">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00098">98</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -270,7 +270,7 @@ Public Member Functions</h2></td></tr>
 <p>The shape (dimensions). </p>
 <dl class="section return"><dt>Returns</dt><dd>reference to the shape vector. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000133">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000135">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00070">70</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
@@ -310,7 +310,7 @@ Public Member Functions</h2></td></tr>
 <p>The element strides. </p>
 <dl class="section return"><dt>Returns</dt><dd>reference to the strides vector. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000134">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000136">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00077">77</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
@@ -350,16 +350,16 @@ Public Member Functions</h2></td></tr>
 <p>The number of dimensions (rank). </p>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt"><a class="el" href="#aad1a34c9ab0e62679bd257c907abb463" title="The shape (dimensions).">shape()</a>.<a class="el" href="#a7a5f0833389fe35f0cbbf311a9898851" title="The element count (product of dims; 1 for a 0-d scalar).">size()</a></span>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000135">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000137">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00084">84</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, <a class="el" href="routines_8cpp_source.html#l00402">cheatah::linalg::norm()</a>, <a class="el" href="ndarray_8cpp_source.html#l00181">cheatah::ndarray::reshape()</a>, <a class="el" href="ndarray_8cpp_source.html#l00225">cheatah::ndarray::shape_of()</a>, <a class="el" href="ndarray_8cpp_source.html#l00210">cheatah::ndarray::sum()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00232">cheatah::ndarray::to_string()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, <a class="el" href="ndarray_8cpp_source.html#l00181">cheatah::ndarray::reshape()</a>, <a class="el" href="ndarray_8cpp_source.html#l00225">cheatah::ndarray::shape_of()</a>, <a class="el" href="ndarray_8cpp_source.html#l00210">cheatah::ndarray::sum()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00232">cheatah::ndarray::to_string()</a>.</p>
 <div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
 <div id="dynsection-4-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1ndarray_1_1NDArray_a09704c044d8abf1eadf1e47e203a18ec_icgraph.svg" width="700" height="299"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1ndarray_1_1NDArray_a09704c044d8abf1eadf1e47e203a18ec_icgraph.svg" width="700" height="250"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -382,7 +382,7 @@ Public Member Functions</h2></td></tr>
 <p>The element count (product of dims; 1 for a 0-d scalar). </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of elements. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); no heap; throws on size overflow. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000136">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000138">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00103">103</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -420,7 +420,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the element value. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); no heap; bounds-checks rank and range, throwing on a bad index. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000137">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000139">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00105">105</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -460,7 +460,7 @@ Public Member Functions</h2></td></tr>
 <p>The shared backing buffer. </p>
 <dl class="section return"><dt>Returns</dt><dd>reference to the element buffer shared_ptr. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000138">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000140">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00108">108</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
@@ -500,7 +500,7 @@ Public Member Functions</h2></td></tr>
 <p>The flat offset into the buffer where this view starts. </p>
 <dl class="section return"><dt>Returns</dt><dd>the offset. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000139">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000141">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00115">115</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 

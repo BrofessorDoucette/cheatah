@@ -38,7 +38,7 @@
 <!-- Node3 -->
 <g id="Node000003" class="node">
 <title>Node3</title>
-<g id="a_Node000003"><a xlink:href="classcheatah_1_1io_1_1File.html#a2f67c23e42644b2b1f93d022ee8743da" target="_top" xlink:title=" ">
+<g id="a_Node000003"><a xlink:href="classcheatah_1_1io_1_1File.html#a2f67c23e42644b2b1f93d022ee8743da" target="_top" xlink:title="Move&#45;construct, taking over the other handle (the moved&#45;from File becomes closed).">
 <polygon fill="white" stroke="#666666" points="117,-115.5 0,-115.5 0,-96.5 117,-96.5 117,-115.5"/>
 <text text-anchor="middle" x="58.5" y="-103.5" font-family="Helvetica,sans-Serif" font-size="10.00">cheatah::io::File::File</text>
 </a>
@@ -75,7 +75,7 @@
 <!-- Node5 -->
 <g id="Node000005" class="node">
 <title>Node5</title>
-<g id="a_Node000005"><a xlink:href="classcheatah_1_1io_1_1File.html#a8c293be37ac4635d8a4666cfecf03d6b" target="_top" xlink:title=" ">
+<g id="a_Node000005"><a xlink:href="classcheatah_1_1io_1_1File.html#a8c293be37ac4635d8a4666cfecf03d6b" target="_top" xlink:title="Move&#45;assign, taking over the other handle (the moved&#45;from File becomes closed).">
 <polygon fill="white" stroke="#666666" points="108.5,-30 8.5,-30 8.5,0 108.5,0 108.5,-30"/>
 <text text-anchor="start" x="16.5" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">cheatah::io::File::</text>
 <text text-anchor="middle" x="58.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">operator=</text>

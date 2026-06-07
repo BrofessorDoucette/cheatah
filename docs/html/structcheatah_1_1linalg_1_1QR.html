@@ -86,22 +86,18 @@ $(function(){initNavTree('structcheatah_1_1linalg_1_1QR.html','','structcheatah_
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="routines_8hpp_source.html">routines.hpp</a>&gt;</code></p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Collaboration diagram for cheatah::linalg::QR:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="structcheatah_1_1linalg_1_1QR__coll__graph.svg" width="206" height="152"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a4ccef2cfd828b50a0b78cbf4a0093539" id="r_a4ccef2cfd828b50a0b78cbf4a0093539"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a4ccef2cfd828b50a0b78cbf4a0093539">q</a></td></tr>
-<tr class="memitem:aad7ea88b04a6be05583b6bfc90c62c3e" id="r_aad7ea88b04a6be05583b6bfc90c62c3e"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aad7ea88b04a6be05583b6bfc90c62c3e">r</a></td></tr>
+<tr class="memitem:a4ccef2cfd828b50a0b78cbf4a0093539" id="r_a4ccef2cfd828b50a0b78cbf4a0093539"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a4ccef2cfd828b50a0b78cbf4a0093539">q</a></td></tr>
+<tr class="memdesc:a4ccef2cfd828b50a0b78cbf4a0093539"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orthonormal columns, m×n (the Q in A = Q·R).  <br /></td></tr>
+<tr class="memitem:aad7ea88b04a6be05583b6bfc90c62c3e" id="r_aad7ea88b04a6be05583b6bfc90c62c3e"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#aad7ea88b04a6be05583b6bfc90c62c3e">r</a></td></tr>
+<tr class="memdesc:aad7ea88b04a6be05583b6bfc90c62c3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Upper-triangular factor, n×n (the R in A = Q·R).  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Result of <a class="el" href="namespacecheatah_1_1linalg.html#a5e67bd5371c2380dc4e4896b93006769" title="Reduced QR via Householder reflections (requires rows ≥ cols).">qr()</a>: A = q·r with orthonormal q and upper-triangular r. </p>
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00104">104</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00109">109</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a4ccef2cfd828b50a0b78cbf4a0093539" name="a4ccef2cfd828b50a0b78cbf4a0093539"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4ccef2cfd828b50a0b78cbf4a0093539">&#9670;&#160;</a></span>q</h2>
@@ -110,12 +106,14 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::QR::q</td>
+          <td class="memname">NDArray cheatah::linalg::QR::q</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00104">104</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p>Orthonormal columns, m×n (the Q in A = Q·R). </p>
+
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00110">110</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 
 </div>
 </div>
@@ -126,12 +124,14 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::QR::r</td>
+          <td class="memname">NDArray cheatah::linalg::QR::r</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00104">104</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
+<p>Upper-triangular factor, n×n (the R in A = Q·R). </p>
+
+<p class="definition">Definition at line <a class="el" href="routines_8hpp_source.html#l00111">111</a> of file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 
 </div>
 </div>

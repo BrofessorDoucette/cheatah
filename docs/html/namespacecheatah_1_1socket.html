@@ -132,7 +132,7 @@ Functions</h2></td></tr>
 <p>Create an IPv4 TCP socket. </p>
 <dl class="section return"><dt>Returns</dt><dd>the new fd, or -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000177">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000179">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00037">37</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -170,7 +170,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000178">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000180">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00041">41</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -219,7 +219,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) + resolution; no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000179">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000181">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00046">46</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -262,7 +262,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000180">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000182">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00053">53</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -311,7 +311,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) + DNS; no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000181">Test</a></b></dt><dd>CheatahSocket.ConnectRefused </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000183">Test</a></b></dt><dd>CheatahSocket.ConnectRefused </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00057">57</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -349,7 +349,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the connected client fd, or -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) syscall (blocks until a client arrives); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000172">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000174">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00064">64</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -379,7 +379,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the port, or -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) syscall; no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000182">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000184">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00068">68</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -414,7 +414,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>bytes actually sent, or -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap (<span class="tt">MSG_NOSIGNAL</span>, so a broken pipe never raises <span class="tt">SIGPIPE</span>). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000174">Test</a></b></dt><dd>CheatahSocket.Sendall </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000176">Test</a></b></dt><dd>CheatahSocket.Sendall </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00077">77</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -457,7 +457,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000175">Test</a></b></dt><dd>CheatahSocket.Sendall </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000177">Test</a></b></dt><dd>CheatahSocket.Sendall </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00081">81</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -500,7 +500,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the bytes read (binary-safe), or "" on EOF/error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(<code class="param">bufsize</code>); allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000173">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000175">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00091">91</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -546,7 +546,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) syscall; no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000176">Test</a></b></dt><dd>CheatahSocket.BadFd </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000178">Test</a></b></dt><dd>CheatahSocket.BadFd </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00100">100</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -595,7 +595,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the listening fd, or -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) (a few syscalls); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000170">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000172">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00104">104</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -638,7 +638,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the connected fd, or -1 on error. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) + DNS resolution; no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000171">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000173">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00116">116</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 
@@ -670,7 +670,7 @@ Functions</h2></td></tr>
 <p>The message for the current <span class="tt">errno</span>. </p>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">strerror(errno)</span>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000183">Test</a></b></dt><dd>CheatahSocket.ConnectRefused </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000185">Test</a></b></dt><dd>CheatahSocket.ConnectRefused </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00125">125</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
 

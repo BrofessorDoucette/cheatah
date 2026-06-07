@@ -14,7 +14,9 @@
 // eigenvalues and throws if a complex pair is detected.
 namespace cheatah::linalg {
 
+/// \cond INTERNAL
 using ndarray::NDArray;
+/// \endcond
 
 namespace {
 
