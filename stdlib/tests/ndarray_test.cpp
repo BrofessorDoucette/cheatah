@@ -65,3 +65,31 @@ TEST(CheatahNDArray, ElementwiseAndScalarBroadcast) {
     EXPECT_DOUBLE_EQ(nd::get(nd::sub(a, nd::scalar(1.0)), {2}), 5.0);
     EXPECT_DOUBLE_EQ(nd::get(nd::divide(a, nd::scalar(2.0)), {1}), 2.0);
 }
+
+TEST(CheatahNDArray, Arange) {
+    const nd::NDArray a = nd::arange(0.0, 5.0, 1.0);  // [0,1,2,3,4]
+    EXPECT_EQ(nd::size_of(a), 5);
+    EXPECT_DOUBLE_EQ(nd::get(a, {0}), 0.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {4}), 4.0);
+    const nd::NDArray b = nd::arange(3.0, 0.0, -1.0);  // [3,2,1]
+    EXPECT_EQ(nd::size_of(b), 3);
+    EXPECT_THROW(nd::arange(0.0, 5.0, 0.0), std::runtime_error);  // zero step
+}
+
+TEST(CheatahNDArray, ReshapeSizeMismatchThrows) {
+    EXPECT_THROW(nd::reshape(nd::array({1.0, 2.0, 3.0}), {2, 2}), std::runtime_error);
+}
+
+TEST(CheatahNDArray, ToStringScalar) {
+    EXPECT_EQ(nd::to_string(nd::scalar(42.0)), "42");
+}
+
+TEST(CheatahNDArray, BroadcastTo) {
+    const nd::NDArray row = nd::array({1.0, 2.0, 3.0});   // shape {3}
+    const nd::NDArray b = nd::broadcast_to(row, {2, 3});  // stretch to 2x3
+    EXPECT_DOUBLE_EQ(nd::get(b, {0, 2}), 3.0);
+    EXPECT_DOUBLE_EQ(nd::get(b, {1, 0}), 1.0);
+    const nd::NDArray m = nd::reshape(nd::array({1.0, 2.0, 3.0, 4.0}), {2, 2});
+    EXPECT_THROW(nd::broadcast_to(m, {4}), std::runtime_error);    // can't broadcast to fewer dims
+    EXPECT_THROW(nd::broadcast_to(row, {2, 4}), std::runtime_error);  // {3} not broadcastable to last dim 4
+}

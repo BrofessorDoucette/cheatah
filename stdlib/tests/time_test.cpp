@@ -21,3 +21,10 @@ TEST(CheatahTime, WallClockIsRecent) {
 TEST(CheatahTime, ProcessTimeNonNegative) {
     EXPECT_GE(t::process_time(), 0.0);
 }
+
+TEST(CheatahTime, PerfCounterAdvances) {
+    const double a = t::perf_counter();
+    t::sleep(0.005);
+    EXPECT_GE(t::perf_counter(), a);
+    EXPECT_GE(t::perf_counter_ns(), 0);
+}

@@ -97,3 +97,21 @@ TEST(CheatahIo, FileAppendMode) {
     }
     std::filesystem::remove(path);
 }
+
+TEST(CheatahIo, FileIsOpenAndClose) {
+    const std::string path = "purr_io_isopen_tmp.txt";
+    io::File f = io::open(path, "w");
+    EXPECT_TRUE(f.is_open());
+    f.write("x");
+    f.close();
+    EXPECT_FALSE(f.is_open());
+    std::filesystem::remove(path);
+}
+
+TEST(CheatahIo, InputReadsALine) {
+    std::istringstream fake("hello world\nsecond\n");
+    std::streambuf* saved = std::cin.rdbuf(fake.rdbuf());  // feed stdin
+    EXPECT_EQ(io::input("prompt> "), "hello world");
+    EXPECT_EQ(io::input(), "second");
+    std::cin.rdbuf(saved);  // restore
+}

@@ -38,3 +38,8 @@ TEST(CheatahBuiltins, Ascii) {
 TEST(CheatahBuiltins, Hash) {
     EXPECT_EQ(b::hash(std::string_view("meow")), b::hash(std::string_view("meow")));
 }
+
+TEST(CheatahBuiltins, ToFloatFromInt) {
+    EXPECT_DOUBLE_EQ(b::to_float(7LL), 7.0);
+    EXPECT_DOUBLE_EQ(b::to_float(-3LL), -3.0);
+}

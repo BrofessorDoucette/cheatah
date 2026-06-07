@@ -29,6 +29,41 @@ TEST(CheatahMath, ScalarFunctions) {
     EXPECT_NEAR(m::degrees(m::pi), 180.0, 1e-9);
 }
 
+TEST(CheatahMath, TranscendentalAndRounding) {
+    EXPECT_DOUBLE_EQ(m::cbrt(27.0), 3.0);
+    EXPECT_DOUBLE_EQ(m::fabs(-3.5), 3.5);
+    EXPECT_DOUBLE_EQ(m::trunc(2.9), 2.0);
+    EXPECT_DOUBLE_EQ(m::trunc(-2.9), -2.0);
+    EXPECT_NEAR(m::exp(0.0), 1.0, 1e-12);
+    EXPECT_NEAR(m::exp(1.0), m::e, 1e-12);
+    EXPECT_NEAR(m::log(m::e), 1.0, 1e-12);
+    EXPECT_NEAR(m::log10(1000.0), 3.0, 1e-12);
+    EXPECT_NEAR(m::fmod(7.0, 3.0), 1.0, 1e-12);
+    EXPECT_DOUBLE_EQ(m::copysign(3.0, -1.0), -3.0);
+    EXPECT_NEAR(m::radians(180.0), m::pi, 1e-12);
+}
+
+TEST(CheatahMath, Trigonometry) {
+    EXPECT_NEAR(m::sin(0.0), 0.0, 1e-12);
+    EXPECT_NEAR(m::sin(m::pi / 2), 1.0, 1e-12);
+    EXPECT_NEAR(m::cos(0.0), 1.0, 1e-12);
+    EXPECT_NEAR(m::tan(0.0), 0.0, 1e-12);
+    EXPECT_NEAR(m::asin(1.0), m::pi / 2, 1e-12);
+    EXPECT_NEAR(m::acos(1.0), 0.0, 1e-12);
+    EXPECT_NEAR(m::atan(1.0), m::pi / 4, 1e-12);
+    EXPECT_NEAR(m::atan2(1.0, 1.0), m::pi / 4, 1e-12);
+}
+
+TEST(CheatahMath, IsFiniteIsNanIsInf) {
+    EXPECT_TRUE(m::isfinite(1.0));
+    EXPECT_FALSE(m::isfinite(m::inf));
+    EXPECT_FALSE(m::isfinite(m::nan));
+    EXPECT_TRUE(m::isinf(m::inf));
+    EXPECT_FALSE(m::isinf(1.0));
+    EXPECT_TRUE(m::isnan(m::nan));
+    EXPECT_FALSE(m::isnan(1.0));
+}
+
 TEST(CheatahMath, Integer) {
     EXPECT_EQ(m::gcd(54, 24), 6);
     EXPECT_EQ(m::factorial(5), 120);

@@ -58,3 +58,12 @@ TEST(CheatahString, Classification) {
     EXPECT_TRUE(str::islower("meow"));
     EXPECT_FALSE(str::isupper("Meow"));
 }
+
+TEST(CheatahString, ClassificationAlnumAndSpace) {
+    EXPECT_TRUE(str::isalnum("abc123"));
+    EXPECT_FALSE(str::isalnum("abc 123"));
+    EXPECT_FALSE(str::isalnum(""));  // empty → false
+    EXPECT_TRUE(str::isspace("  \t\n"));
+    EXPECT_FALSE(str::isspace("a b"));
+    EXPECT_FALSE(str::isspace(""));
+}

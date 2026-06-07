@@ -1,6 +1,7 @@
 #include "ndarray.hpp"
 #include "routines.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -80,4 +81,68 @@ TEST(LinalgRoutines, NormAndRank) {
     EXPECT_TRUE(close(la::norm(nd::array({3, 4})), 5.0));        // L2
     EXPECT_EQ(la::matrix_rank(mat(2, 2, {1, 2, 2, 4})), 1);      // rank-deficient
     EXPECT_EQ(la::matrix_rank(mat(2, 2, {1, 0, 0, 1})), 2);
+}
+
+TEST(LinalgRoutines, VdotInnerOuterKron) {
+    const nd::NDArray a = nd::array({1, 2, 3});
+    const nd::NDArray b = nd::array({4, 5, 6});
+    EXPECT_DOUBLE_EQ(la::vdot(a, b), 32.0);   // 4+10+18
+    EXPECT_DOUBLE_EQ(la::inner(a, b), 32.0);
+    const nd::NDArray o = la::outer(nd::array({1, 2}), nd::array({3, 4}));  // [[3,4],[6,8]]
+    EXPECT_DOUBLE_EQ(nd::get(o, {0, 0}), 3.0);
+    EXPECT_DOUBLE_EQ(nd::get(o, {1, 1}), 8.0);
+    const nd::NDArray k = la::kron(mat(2, 2, {1, 0, 0, 1}), mat(2, 2, {1, 2, 3, 4}));  // I⊗B
+    EXPECT_DOUBLE_EQ(nd::get(k, {0, 0}), 1.0);
+    EXPECT_DOUBLE_EQ(nd::get(k, {0, 1}), 2.0);
+    EXPECT_DOUBLE_EQ(nd::get(k, {2, 2}), 1.0);  // second diagonal block
+    EXPECT_DOUBLE_EQ(nd::get(k, {3, 3}), 4.0);
+}
+
+TEST(LinalgRoutines, MatrixPower) {
+    const nd::NDArray A = mat(2, 2, {2, 0, 0, 3});
+    const nd::NDArray A0 = la::matrix_power(A, 0);  // identity
+    EXPECT_TRUE(close(nd::get(A0, {0, 0}), 1.0));
+    EXPECT_TRUE(close(nd::get(A0, {1, 1}), 1.0));
+    const nd::NDArray A3 = la::matrix_power(A, 3);  // diag(8, 27)
+    EXPECT_TRUE(close(nd::get(A3, {0, 0}), 8.0));
+    EXPECT_TRUE(close(nd::get(A3, {1, 1}), 27.0));
+    const nd::NDArray Am1 = la::matrix_power(A, -1);  // diag(1/2, 1/3)
+    EXPECT_TRUE(close(nd::get(Am1, {0, 0}), 0.5));
+    EXPECT_TRUE(close(nd::get(Am1, {1, 1}), 1.0 / 3.0));
+}
+
+TEST(LinalgRoutines, SlogdetAndCond) {
+    const la::SLogDet sd = la::slogdet(mat(2, 2, {4, 3, 6, 3}));  // det = -6
+    EXPECT_TRUE(close(sd.sign, -1.0));
+    EXPECT_TRUE(close(sd.logabsdet, std::log(6.0), 1e-9));
+    EXPECT_TRUE(close(la::cond(mat(2, 2, {2, 0, 0, 2})), 1.0, 1e-6));  // well-conditioned
+}
+
+TEST(LinalgRoutines, Lstsq) {
+    // lstsq(a, b) = pinv(a) · b and takes a 2-D b (column vector). On a square
+    // system, least-squares == solve.
+    const nd::NDArray A = mat(2, 2, {4, 3, 6, 3});
+    const nd::NDArray x = la::lstsq(A, mat(2, 1, {10, 12}));  // -> [[1], [2]]
+    EXPECT_TRUE(close(nd::get(x, {0, 0}), 1.0, 1e-6));
+    EXPECT_TRUE(close(nd::get(x, {1, 0}), 2.0, 1e-6));
+}
+
+TEST(LinalgRoutines, EigvalshSymmetric) {
+    const nd::NDArray w = la::eigvalsh(mat(2, 2, {2, 1, 1, 2}));  // eigenvalues 1, 3
+    const double v0 = nd::get(w, {0}), v1 = nd::get(w, {1});
+    EXPECT_TRUE(close(std::min(v0, v1), 1.0, 1e-6));
+    EXPECT_TRUE(close(std::max(v0, v1), 3.0, 1e-6));
+}
+
+TEST(LinalgRoutines, GeneralEig) {
+    // Non-symmetric (upper-triangular) [[2,1],[0,3]] -> eigenvalues 2, 3.
+    const la::Eig e = la::eig(mat(2, 2, {2, 1, 0, 3}));
+    const double a = nd::get(e.values, {0}), b = nd::get(e.values, {1});
+    EXPECT_TRUE(close(std::min(a, b), 2.0, 1e-6));
+    EXPECT_TRUE(close(std::max(a, b), 3.0, 1e-6));
+    // eigvals on the same non-symmetric matrix exercises the general path too.
+    const nd::NDArray ev = la::eigvals(mat(2, 2, {2, 1, 0, 3}));
+    const double c = nd::get(ev, {0}), d = nd::get(ev, {1});
+    EXPECT_TRUE(close(std::min(c, d), 2.0, 1e-6));
+    EXPECT_TRUE(close(std::max(c, d), 3.0, 1e-6));
 }
