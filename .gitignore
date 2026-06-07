@@ -77,3 +77,6 @@ books/
 
 # Doxygen XML — intermediate build artifact for the docs generator
 docs/xml/
+
+# Release packaging artifacts (uploaded to GitHub Releases, not committed)
+dist/

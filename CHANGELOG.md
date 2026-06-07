@@ -3,6 +3,48 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.2.0-alpha — networking, a bespoke docs site, and a three-tier test system
+
+Second pre-alpha. The language core is unchanged; this release adds **networking**
+to the standard library, replaces the documentation pipeline with our **own
+site generator**, and builds out a **three-tier, per-function test system** behind
+a stricter QA gate.
+
+### Standard library
+- **New `socket` module** — a thin, memory-safe BSD-socket wrapper
+  (`tcp_listen`/`tcp_connect`/`accept`/`send`/`sendall`/`recv`/`bind`/`listen`/
+  `connect`/`close`/`local_port`/`last_error`, …). `import socket`.
+- A **pure-cheatah docs server** (`scripts/serve-docs.purr`) written entirely in
+  `.purr` on top of `socket` — no `cpp { }`, no raw pointers — that serves the
+  generated site over HTTP. Proof that real programs can be written in cheatah.
+
+### Documentation
+- **Bespoke documentation site.** Doxygen is now used *only* as the C++ parser
+  (it emits XML); our own generator (`docs/gen/generate.py`) renders a modern
+  static site — left module sidebar, client-side symbol search, a source browser,
+  a light/dark toggle, cache-busted assets, and accessible (WCAG 2.1 AA) contrast.
+  Replaces doxygen-awesome entirely.
+- **Structured doc tags.** The old combined `@note` is split into `@complexity`
+  (Big-O) and `@alloc` (heap behavior); every function also links **three test
+  kinds** — `@test` (unit), `@crtest` (compile-run), `@systest` (system) — straight
+  to their source. **100% Javadoc coverage** of the public stdlib, plus a
+  behavioral description for ~190 functions.
+
+### Testing
+- **Three-tier, per-function tests:** a C++ **unit** test and a **compile-run**
+  test (compile a `.purr` calling the function, run it on the runtime, assert exact
+  stdout) for every function; a **comprehensive per-module system** test that
+  exercises *every* function of its module; and six **cross-module system apps**
+  (GradeReport, LinearSolve, EventLog, Integrity, MonteCarlo, NetworkRoundtrip)
+  that only pass if many modules cooperate.
+
+### Quality & security
+- The QA gate now **hard-fails** below **100% unit-test line+function coverage** and
+  below **100% Javadoc coverage**. ASan/UBSan + Valgrind run across all test tiers.
+- The ~200-test per-function compile-run battery is **opt-in** (`QA_GATE_FULL_CR=1`)
+  so the default gate stays fast.
+- On a passing push to `main`, the docs site is **auto-regenerated**.
+
 ## v0.1.0-prealpha — first pre-alpha
 
 The first tagged pre-alpha of the cheatah language: it compiles and runs, with a
