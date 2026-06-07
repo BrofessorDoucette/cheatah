@@ -93,6 +93,25 @@ TEST(CheatahParser, ParsesLetWhileForIfWithOperators) {
     EXPECT_NE(dynamic_cast<If*>(r.program.body[3].get()), nullptr);
 }
 
+TEST(CheatahParser, SemicolonsSeparateAndTerminateStatements) {
+    // `;` separates statements on a line and may terminate one; never required.
+    const ParseResult r = parse_source("let a = 1; let b = 2;\nlet c = 3\n");
+    ASSERT_TRUE(r.ok()) << (r.diagnostics.empty() ? "" : r.diagnostics.front().message);
+    ASSERT_EQ(r.program.body.size(), 3u);
+    EXPECT_NE(dynamic_cast<Let*>(r.program.body[0].get()), nullptr);
+    EXPECT_NE(dynamic_cast<Let*>(r.program.body[1].get()), nullptr);
+    EXPECT_NE(dynamic_cast<Let*>(r.program.body[2].get()), nullptr);
+}
+
+TEST(CheatahParser, SemicolonSeparatesStructFields) {
+    const ParseResult r = parse_source("struct P { x: int; y: int }\n");
+    ASSERT_TRUE(r.ok()) << (r.diagnostics.empty() ? "" : r.diagnostics.front().message);
+    ASSERT_EQ(r.program.body.size(), 1u);
+    auto* sd = dynamic_cast<StructDef*>(r.program.body[0].get());
+    ASSERT_NE(sd, nullptr);
+    EXPECT_EQ(sd->fields.size(), 2u);
+}
+
 TEST(CheatahParser, OperatorPrecedence) {
     // 1 + 2 * 3  ->  (1 + (2 * 3))
     const ParseResult r = parse_source("let x = 1 + 2 * 3\n");

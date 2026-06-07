@@ -32,22 +32,31 @@ private:
     void skip_newlines() {
         while (check(TokenKind::Newline)) advance();
     }
-    void synchronize() {  // recover to the next line / block boundary
-        while (!at_end() && !check(TokenKind::Newline) && !check(TokenKind::RBrace)) advance();
+    // Statement separators: newlines and (optional) semicolons. A `;` lets you put
+    // several statements on one line or end one C-style; it is never required. (Only
+    // used where statements live — list/dict literals still separate with commas.)
+    void skip_separators() {
+        while (check(TokenKind::Newline) || check(TokenKind::Semicolon)) advance();
+    }
+    void synchronize() {  // recover to the next statement / block boundary
+        while (!at_end() && !check(TokenKind::Newline) && !check(TokenKind::Semicolon) &&
+               !check(TokenKind::RBrace))
+            advance();
     }
 
     // ---- statement lists / blocks ----
     Block parse_stmts(bool in_block) {
         Block body;
-        skip_newlines();
+        skip_separators();
         while (!at_end() && !(in_block && check(TokenKind::RBrace))) {
             StmtPtr s = parse_stmt();
             if (s) body.push_back(std::move(s));
-            if (!at_end() && !check(TokenKind::Newline) && !check(TokenKind::RBrace)) {
-                error("expected end of line after statement");
+            if (!at_end() && !check(TokenKind::Newline) && !check(TokenKind::Semicolon) &&
+                !check(TokenKind::RBrace)) {
+                error("expected a newline or ';' after the statement");
                 synchronize();
             }
-            skip_newlines();
+            skip_separators();
         }
         return body;
     }
@@ -128,12 +137,12 @@ private:
             return nullptr;
         }
         advance();  // {
-        skip_newlines();
+        skip_separators();
         while (!at_end() && !check(TokenKind::RBrace)) {
             if (!check(TokenKind::Identifier)) {
                 error("expected a field name");
                 synchronize();
-                skip_newlines();
+                skip_separators();
                 continue;
             }
             Field f;
@@ -141,20 +150,20 @@ private:
             if (!check(TokenKind::Colon)) {
                 error("expected ':' after field name");
                 synchronize();
-                skip_newlines();
+                skip_separators();
                 continue;
             }
             advance();  // :
             if (!check(TokenKind::Identifier)) {
                 error("expected a field type");
                 synchronize();
-                skip_newlines();
+                skip_separators();
                 continue;
             }
             f.type = parse_type();
             s->fields.push_back(std::move(f));
-            if (check(TokenKind::Comma)) advance();
-            skip_newlines();
+            if (check(TokenKind::Comma) || check(TokenKind::Semicolon)) advance();
+            skip_separators();
         }
         if (!check(TokenKind::RBrace)) {
             error("expected '}' to close struct");
@@ -286,7 +295,8 @@ private:
     StmtPtr parse_return() {
         advance();  // return
         auto n = std::make_unique<Return>();
-        if (!check(TokenKind::Newline) && !check(TokenKind::RBrace) && !at_end()) {
+        if (!check(TokenKind::Newline) && !check(TokenKind::Semicolon) &&
+            !check(TokenKind::RBrace) && !at_end()) {
             n->value = parse_expr();
         }
         return n;

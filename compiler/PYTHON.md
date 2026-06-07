@@ -100,7 +100,10 @@ True / False are written **lowercase** (`true` / `false`).
    re-typing (`x = 1; x = "s"` won't work).
 
 10. **No indentation significance.** Newlines separate statements; `{ }` groups
-    them. Indentation is purely cosmetic.
+    them. Indentation is purely cosmetic. A **`;`** is an *optional* statement
+    separator/terminator (`let a = 1; let b = 2`, a trailing `x = x + 1;`, or to
+    separate `struct` fields) — handy if you're used to Python's `;` or C++'s, but
+    never required.
 
 11. **Exceptions are message-based & catch-all.** `try { … } except e { … }`
     catches any error and binds `e` to the **message string** (not an exception

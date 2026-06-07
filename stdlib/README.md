@@ -253,7 +253,9 @@ you `import`, so a lot of raw C++ needs no extra `#include` at all.
 - **Keywords:** `and as else false fn for from if import in let not or return
   struct true while`.
 - **Operators/punctuation:** `+ - * / ^ = == != < <= > >= ( ) { } [ ] , : ; .`
-- **Newlines** separate statements; brace `{ }` blocks group them.
+- **Newlines** separate statements; brace `{ }` blocks group them. A **`;`** is an
+  *optional* statement separator/terminator — `let a = 1; let b = 2` or a trailing
+  `x = x + 1;` both work (and `;` may separate `struct` fields). It's never required.
 
 The lexer/parser never throw: errors become `Diagnostic`s (with line/column) and
 parsing recovers, so one pass surfaces every error.

@@ -143,6 +143,31 @@ TEST(PurrcPipeline, CompilesAndRunsTryExceptRaise) {
     EXPECT_EQ(out, "caught: boom\nafter\n");
 }
 
+TEST(PurrcPipeline, CompilesAndRunsSemicolons) {
+    const std::string tmp = PURR_TEST_TMP;
+    const std::string purr = tmp + "/semi_it.purr";
+    const std::string mod = tmp + "/semi_it.so";
+
+    {
+        std::ofstream f(purr);
+        f << "import io\n";
+        f << "let a = 1; let b = 2;\n";                 // separator + terminator on one line
+        f << "fn add(x, y) { return x + y; }\n";        // ; inside a function body
+        f << "struct P { x: int; y: int }\n";           // ; as struct field separator
+        f << "let p = P(3, 4)\n";
+        f << "io.print(a, b, add(p.x, p.y));\n";        // 1 2 7
+    }
+
+    const std::string compile =
+        std::string(PURRC_PATH) + " \"" + purr + "\" -o \"" + mod + "\"";
+    ASSERT_EQ(std::system(compile.c_str()), 0) << "purrc failed to compile the program";
+
+    int rc = -1;
+    const std::string out = run_capture(std::string(CHEATAH_RUNTIME_PATH) + " \"" + mod + "\"", rc);
+    EXPECT_EQ(rc, 0);
+    EXPECT_EQ(out, "1 2 7\n");
+}
+
 TEST(PurrcPipeline, CompilesAndRunsCppEscapeHatch) {
     const std::string tmp = PURR_TEST_TMP;
     const std::string purr = tmp + "/cpp_it.purr";
