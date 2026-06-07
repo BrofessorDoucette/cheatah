@@ -127,7 +127,8 @@ Functions</h2></td></tr>
 
 <p>Current time. </p>
 <dl class="section return"><dt>Returns</dt><dd>seconds since the Unix epoch (<span class="tt">system_clock</span>). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000018">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000018">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000018">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00022">22</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -159,7 +160,8 @@ Functions</h2></td></tr>
 
 <p>Current local time as <span class="tt">"YYYY-MM-DD HH:MM:SS"</span>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; allocates the result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000019">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000019">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000019">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00026">26</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -191,7 +193,8 @@ Functions</h2></td></tr>
 
 <p>Current UTC time as <span class="tt">"YYYY-MM-DDTHH:MM:SSZ"</span>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; allocates the result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000020">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000020">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000020">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00027">27</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -223,7 +226,8 @@ Functions</h2></td></tr>
 
 <p>Current local date as <span class="tt">"YYYY-MM-DD"</span>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; allocates the result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000021">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000021">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000021">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00033">33</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -266,7 +270,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; allocates a temporary <span class="tt">std::string</span> for <code class="param">fmt</code> plus the result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000022">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000022">Allocation</a></b></dt><dd>allocates a temporary <span class="tt">std::string</span> for <code class="param">fmt</code> plus the result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000022">Test</a></b></dt><dd>CheatahDatetime.Format </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00035">35</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -296,7 +301,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the 4-digit year. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000023">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000023">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000023">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00039">39</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -326,7 +332,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the month, 1..12. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000024">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000024">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000024">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00040">40</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -356,7 +363,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the day, 1..31. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000025">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000025">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000025">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00041">41</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -386,7 +394,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the hour, 0..23. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000026">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000026">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000026">Test</a></b></dt><dd>CheatahDatetime.TimeOfDayComponents </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00042">42</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -416,7 +425,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the minute, 0..59. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000027">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000027">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000027">Test</a></b></dt><dd>CheatahDatetime.TimeOfDayComponents </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00043">43</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -446,7 +456,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the second, 0..60 (leap). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000028">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000028">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000028">Test</a></b></dt><dd>CheatahDatetime.TimeOfDayComponents </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00044">44</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
@@ -476,7 +487,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Monday=0 .. Sunday=6 (Python convention). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000029">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000029">Allocation</a></b></dt><dd>none. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000029">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00045">45</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>

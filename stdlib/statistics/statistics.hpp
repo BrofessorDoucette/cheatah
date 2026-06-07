@@ -33,7 +33,8 @@ concept NumericRange =
  * Sum of the elements.
  * @param data the numeric range.
  * @return Σ@p data as `double`.
- * @note O(n) single pass; no heap.
+ * @complexity O(n) single pass.
+ * @alloc none.
  * @test CheatahStatistics.SumCountMean
  */
 template <NumericRange R>
@@ -47,7 +48,8 @@ double sum(const R& data) {
  * Element count.
  * @param data the numeric range.
  * @return the number of elements.
- * @note O(n) single pass; no heap.
+ * @complexity O(n) single pass.
+ * @alloc none.
  * @test CheatahStatistics.SumCountMean
  */
 template <NumericRange R>
@@ -64,7 +66,8 @@ std::size_t count(const R& data) {
  * Arithmetic mean.
  * @param data the numeric range.
  * @return the mean, or 0.0 if empty.
- * @note O(n) (two passes: count + sum); no heap.
+ * @complexity O(n) (two passes: count + sum).
+ * @alloc none.
  * @test CheatahStatistics.SumCountMean
  */
 template <NumericRange R>
@@ -77,7 +80,8 @@ double mean(const R& data) {
  * Population variance (divide by N).
  * @param data the numeric range.
  * @return the variance, or 0.0 if empty.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahStatistics.PopulationVarianceAndStdev
  */
 template <NumericRange R>
@@ -96,7 +100,8 @@ double pvariance(const R& data) {
  * Population standard deviation.
  * @param data the numeric range.
  * @return √pvariance(@p data).
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahStatistics.PopulationVarianceAndStdev
  */
 template <NumericRange R>
@@ -106,7 +111,8 @@ double pstdev(const R& data) { return std::sqrt(pvariance(data)); }
  * Sample variance (divide by N−1).
  * @param data the numeric range.
  * @return the variance, or 0.0 if fewer than 2 elements.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahStatistics.SampleVarianceAndStdev
  */
 template <NumericRange R>
@@ -125,7 +131,8 @@ double variance(const R& data) {
  * Sample standard deviation.
  * @param data the numeric range.
  * @return √variance(@p data).
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahStatistics.SampleVarianceAndStdev
  */
 template <NumericRange R>
@@ -135,8 +142,8 @@ double stdev(const R& data) { return std::sqrt(variance(data)); }
  * Median (mean of the two middle values when the count is even).
  * @param data the numeric range.
  * @return the median, or 0.0 if empty.
- * @note O(n log n) — copies the elements into a vector and sorts; allocates a temporary
- *   `std::vector<double>`.
+ * @complexity O(n log n) — copies the elements into a vector and sorts.
+ * @alloc allocates a temporary `std::vector<double>`.
  * @test CheatahStatistics.MedianOddAndEven
  */
 template <NumericRange R>

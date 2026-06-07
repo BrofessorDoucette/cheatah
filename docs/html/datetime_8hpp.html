@@ -137,7 +137,9 @@ Functions</h2></td></tr>
 <div class="textblock"><p>cheatah <span class="tt">datetime</span> — practical date/time helpers over epoch seconds, mirroring the useful core of Python's <span class="tt">datetime</span> module. </p>
 <p>Times are epoch seconds (<span class="tt">double</span>, from <span class="tt">time</span>/<span class="tt">timestamp</span>); formatting and component extraction use the C library calendar (local time, except <span class="tt">utcnow</span>). <span class="tt">import datetime</span> to use it.</p>
 <p>Unit tests: <span class="tt">stdlib/tests/datetime_test.cpp</span>; the suite runs under AddressSanitizer (the <span class="tt">asan</span> preset) and Valgrind (<span class="tt">security/run-valgrind.sh</span>) on every QA-gate run.</p>
-<p>Doc convention (see also the other stdlib headers): each function notes its runtime complexity, whether it touches the heap, and the </p><dl class="test"><dt><b><a class="el" href="test.html#_test000017">Test</a></b></dt><dd>that covers it. </dd></dl>
+<p>Doc convention (see also the other stdlib headers): each function documents its runtime complexity with </p><dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000017">Complexity</a></b></dt><dd>, its heap allocation with </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000017">Allocation</a></b></dt><dd>, and the </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000017">Test</a></b></dt><dd>that covers it. </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="datetime_8hpp_source.html">datetime.hpp</a>.</p>
 </div></div><!-- contents -->

@@ -32,6 +32,11 @@ CSS_MAP = {
     "#c0c0da": "#d3e0c0",  # dl.test text -> warm light
     "#163750": "#211c16",  # dl.todo background blue -> warm dark
     "#dcf0fa": "#efe2c9",  # dl.todo text blue-white -> warm
+    # navtree.css stock blues (nav backgrounds, borders, selection).
+    "#1d2a43": "#211c16",
+    "#283a5d": "#2a241b",
+    "#4665a2": "#9a7c4f",
+    "#101826": "#16130f",
 }
 
 def recolor(text, mapping):
@@ -69,13 +74,14 @@ def main():
         if n:
             svg.write_text(new)
             total += n
-    css = HTML / "doxygen.css"
-    if css.exists():
-        text = css.read_text()
-        new, n = recolor(text, CSS_MAP)
-        if n:
-            css.write_text(new)
-            total += n
+    for name in ("doxygen.css", "navtree.css", "tabs.css"):
+        css = HTML / name
+        if css.exists():
+            text = css.read_text()
+            new, n = recolor(text, CSS_MAP)
+            if n:
+                css.write_text(new)
+                total += n
     comments = 0
     for html in HTML.glob("*.html"):
         text = html.read_text()

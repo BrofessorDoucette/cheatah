@@ -126,7 +126,9 @@ Functions</h2></td></tr>
 <div class="textblock"><p>cheatah <span class="tt">random</span> — pseudo-random numbers, mirroring the core of Python's <span class="tt">random</span> module. </p>
 <p>Backed by a seedable Mersenne Twister (<span class="tt">std::mt19937_64</span>); <span class="tt">gauss</span> gives normal deviates for Monte Carlo. <span class="tt">import random</span> to use it.</p>
 <p>Unit tests: <span class="tt">stdlib/tests/random_test.cpp</span>; the suite runs under AddressSanitizer (the <span class="tt">asan</span> preset) and Valgrind (<span class="tt">security/run-valgrind.sh</span>) on every QA-gate run.</p>
-<p>Doc convention (see also the other stdlib headers): each function notes its runtime complexity, whether it touches the heap, and the </p><dl class="test"><dt><b><a class="el" href="test.html#_test000165">Test</a></b></dt><dd>that covers it. </dd></dl>
+<p>Doc convention (see also the other stdlib headers): each function documents its runtime complexity with </p><dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000162">Complexity</a></b></dt><dd>, its heap allocation with </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000162">Allocation</a></b></dt><dd>, and the </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000166">Test</a></b></dt><dd>that covers it. </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="random_8hpp_source.html">random.hpp</a>.</p>
 </div></div><!-- contents -->

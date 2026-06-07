@@ -38,7 +38,8 @@ concept Streamable = requires(std::ostream& os, const T& value) {
  * Python `str()`: stringify any streamable value.
  * @param value the value to render.
  * @return @p value formatted as text.
- * @note O(n) in the output length; allocates the result string (via an ostringstream).
+ * @complexity O(n) in the output length.
+ * @alloc allocates the result string (via an ostringstream).
  * @test CheatahIo.StrFormatsPythonStyle
  */
 template <Streamable T>
@@ -51,7 +52,8 @@ std::string str(const T& value) {
  * `str()` for a `std::string` — identity overload.
  * @param value the string.
  * @return a copy of @p value.
- * @note O(n); allocates the result copy.
+ * @complexity O(n).
+ * @alloc allocates the result copy.
  * @test CheatahIo.StrFormatsPythonStyle
  */
 std::string str(const std::string& value);
@@ -59,7 +61,8 @@ std::string str(const std::string& value);
  * `str()` for a bool — Python spelling.
  * @param b the boolean.
  * @return `"True"` or `"False"`.
- * @note O(1); allocates the small result string.
+ * @complexity O(1).
+ * @alloc allocates the small result string.
  * @test CheatahIo.StrFormatsPythonStyle
  */
 std::string str(bool b);
@@ -67,8 +70,9 @@ std::string str(bool b);
 /**
  * Python `print(*args)`: space-separated, newline-terminated, to stdout (sep=' ', end='\n').
  * @param args zero or more streamable values.
- * @note O(total output length); each arg is routed through str() so values format the Python
- *   way (e.g. bool → True/False), allocating temporary strings.
+ * @complexity O(total output length).
+ * @alloc each arg is routed through str() so values format the Python way (e.g. bool →
+ *   True/False), allocating temporary strings.
  * @test CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline
  */
 template <Streamable... Args>
@@ -82,7 +86,8 @@ void print(const Args&... args) {
  * Python `repr()` for a generic value — same as str() for non-strings.
  * @param value the value to render.
  * @return @p value formatted as text.
- * @note O(n); allocates the result string.
+ * @complexity O(n).
+ * @alloc allocates the result string.
  * @test CheatahIo.ReprQuotesStrings
  */
 template <Streamable T>
@@ -91,7 +96,8 @@ std::string repr(const T& value) { return str(value); }
  * `repr()` for a `std::string` — quoted (Python repr).
  * @param value the string.
  * @return @p value wrapped in single quotes.
- * @note O(n); allocates the result string.
+ * @complexity O(n).
+ * @alloc allocates the result string.
  * @test CheatahIo.ReprQuotesStrings
  */
 std::string repr(const std::string& value);
@@ -99,7 +105,8 @@ std::string repr(const std::string& value);
  * `repr()` for a C string — quoted (Python repr).
  * @param value the C string.
  * @return @p value wrapped in single quotes.
- * @note O(n); allocates the result string.
+ * @complexity O(n).
+ * @alloc allocates the result string.
  * @test CheatahIo.ReprQuotesStrings
  */
 std::string repr(const char* value);
@@ -136,7 +143,8 @@ void format_into(std::ostringstream& os, std::string_view fmt, const T& arg, con
  * @param args values substituted left-to-right (extras dropped, missing placeholders left
  *   as-is).
  * @return the formatted string.
- * @note O(len(fmt) + total arg output); allocates the result string (via an ostringstream).
+ * @complexity O(len(fmt) + total arg output).
+ * @alloc allocates the result string (via an ostringstream).
  * @test CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs
  */
 template <Streamable... Args>
@@ -150,7 +158,8 @@ std::string format(std::string_view fmt, const Args&... args) {
  * Python `input(prompt="")`: write @p prompt, read one line from stdin.
  * @param prompt text shown before reading (no newline added).
  * @return the line read, with the trailing newline stripped.
- * @note O(line length); allocates the returned string.
+ * @complexity O(line length).
+ * @alloc allocates the returned string.
  * @test CheatahIo.InputReadsALine
  */
 std::string input(std::string_view prompt = "");
@@ -165,7 +174,8 @@ class File {
 public:
     /**
      * Construct a closed file (no stream attached).
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
      */
     File() = default;
@@ -173,7 +183,8 @@ public:
      * Open @p path in @p mode (the open() free function's workhorse).
      * @param path filesystem path.
      * @param mode Python-style mode (`r`/`w`/`a`, optional `+`/`b`).
-     * @note O(1) plus the OS open; no heap of our own.
+     * @complexity O(1) plus the OS open.
+     * @alloc none.
      * @test CheatahIo.FileWriteThenReadWhole
      */
     File(const std::string& path, std::string_view mode);
@@ -188,7 +199,8 @@ public:
     File& operator=(File&&) = default;
     /**
      * Close the stream if still open.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
      */
     ~File();
@@ -197,20 +209,23 @@ public:
      * (Re)open @p path in @p mode.
      * @param path filesystem path.
      * @param mode Python-style mode string.
-     * @note O(1) plus the OS open; no heap.
+     * @complexity O(1) plus the OS open.
+     * @alloc none.
      * @test CheatahIo.FileWriteThenReadWhole
      */
     void open(const std::string& path, std::string_view mode);
     /**
      * Is the underlying stream open?
      * @return true iff a file is attached and open.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
      */
     bool is_open() const;
     /**
      * Close the underlying stream (no-op if already closed).
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
      */
     void close();
@@ -218,22 +233,24 @@ public:
     /**
      * Read the whole remaining file.
      * @return the remaining bytes as one string.
-     * @note O(n) in bytes read; allocates the returned string (buffered through a
-     *   stringstream).
+     * @complexity O(n) in bytes read.
+     * @alloc allocates the returned string (buffered through a stringstream).
      * @test CheatahIo.FileWriteThenReadWhole
      */
     std::string read();                    // whole remaining file
     /**
      * Read the next line.
      * @return the line with its newline stripped; `""` at EOF.
-     * @note O(line length); allocates the returned string.
+     * @complexity O(line length).
+     * @alloc allocates the returned string.
      * @test CheatahIo.FileReadlineThenReadlines
      */
     std::string readline();                // next line, no newline; "" at EOF
     /**
      * Read all remaining lines.
      * @return a vector of lines (newlines stripped).
-     * @note O(n) in bytes; allocates the vector and each line string.
+     * @complexity O(n) in bytes.
+     * @alloc allocates the vector and each line string.
      * @test CheatahIo.FileReadlineThenReadlines
      */
     std::vector<std::string> readlines();   // all remaining lines
@@ -241,7 +258,8 @@ public:
     /**
      * Write a streamable value to the file.
      * @param value any streamable value.
-     * @note O(output length); writes straight to the stream buffer, no heap of our own.
+     * @complexity O(output length).
+     * @alloc none (writes straight to the stream buffer).
      * @test CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode
      */
     template <Streamable T>
@@ -258,7 +276,8 @@ private:
  * @param path filesystem path.
  * @param mode Python-style mode string.
  * @return an open File (move-returned).
- * @note O(1) plus the OS open; constructs a File, no heap of our own.
+ * @complexity O(1) plus the OS open.
+ * @alloc constructs a File; no heap of our own.
  * @test CheatahIo.FileWriteThenReadWhole
  */
 File open(const std::string& path, std::string_view mode = "r");
@@ -268,7 +287,8 @@ File open(const std::string& path, std::string_view mode = "r");
  *   NULs).
  * @param path filesystem path.
  * @return the file's contents, or "" if it cannot be opened.
- * @note O(file size); allocates the returned string.
+ * @complexity O(file size).
+ * @alloc allocates the returned string.
  * @test CheatahIo.ReadFileWholeAndBinary
  */
 std::string read_file(const std::string& path);

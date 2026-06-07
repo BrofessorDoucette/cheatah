@@ -38,8 +38,8 @@ h1.groupheader {
 h2.groupheader {
 	box-shadow: 12px 0 black,
 		   -12px 0 black,
-		    12px 1px #1D2A43,
-		   -12px 1px #1D2A43;
+		    12px 1px #211c16,
+		   -12px 1px #211c16;
 	color: #d6ad73;
 	font-size: 150%;
 	font-weight: normal;
@@ -52,8 +52,8 @@ h2.groupheader {
 td h2.groupheader {
 	box-shadow: 13px 0 black,
 		   -13px 0 black,
-		    13px 1px #1D2A43,
-		   -13px 1px #1D2A43;
+		    13px 1px #211c16,
+		   -13px 1px #211c16;
 }
 
 h3.groupheader {
@@ -133,7 +133,7 @@ div.navtab {
 	padding-right: 6px;
 	text-align: right;
 	line-height: 110%;
-	background-color: #101826;
+	background-color: #16130f;
 }
 
 div.navtab table {
@@ -149,7 +149,7 @@ td.navtabHL {
 	padding-right: 6px;
 	padding-left: 6px;
 	border-radius: 0 6px 6px 0;
-	background-color: #1D2A43;
+	background-color: #211c16;
 }
 
 div.qindex{
@@ -540,8 +540,8 @@ div.classindex span.ai {
 div.groupHeader {
 	box-shadow: 13px 0 black,
 	           -13px 0 black,
-	            13px 1px #1D2A43,
-	           -13px 1px #1D2A43;
+	            13px 1px #211c16,
+	           -13px 1px #211c16;
 	color: #d6ad73;
 	font-size: 110%;
 	font-weight: 500;
@@ -662,8 +662,8 @@ span.vhdllogic {
 }
 
 blockquote {
-	background-color: #101826;
-	border-left: 2px solid #283A5D;
+	background-color: #16130f;
+	border-left: 2px solid #2a241b;
 	margin: 0 24px 0 4px;
 	padding: 0 12px 0 16px;
 }
@@ -677,11 +677,11 @@ td.tiny {
 .dirtab {
 	padding: 4px;
 	border-collapse: collapse;
-	border: 1px solid #283A5D;
+	border: 1px solid #2a241b;
 }
 
 th.dirtab {
-	background-color: #283A5D;
+	background-color: #2a241b;
 	color: #C4CFE5;
 	font-weight: bold;
 }
@@ -693,8 +693,8 @@ hr {
 	height: 1px;
 	box-shadow: 13px 0 black,
 		   -13px 0 black,
-		    13px 1px #1D2A43,
-		   -13px 1px #1D2A43;
+		    13px 1px #211c16,
+		   -13px 1px #211c16;
 }
 
 hr.footer {
@@ -1031,10 +1031,10 @@ span.mlabels {
 
 span.mlabel {
 	background-color: #354C7B;
-	border-top:1px solid #4665A2;
-	border-left:1px solid #4665A2;
-	border-right:1px solid #283A5D;
-	border-bottom:1px solid #283A5D;
+	border-top:1px solid #9a7c4f;
+	border-left:1px solid #9a7c4f;
+	border-right:1px solid #2a241b;
+	border-bottom:1px solid #2a241b;
 	text-shadow: none;
 	color: #CCCCCC;
 	margin-right: 4px;
@@ -1117,7 +1117,7 @@ div.directory {
 }
 
 .arrow {
-	color: #101826;
+	color: #16130f;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
@@ -1138,8 +1138,8 @@ span.arrowhead {
 	display: inline-block;
 	width: 5px;
 	height: 5px;
-	border-right: 2px solid #4665A2;
-	border-bottom: 2px solid #4665A2;
+	border-right: 2px solid #9a7c4f;
+	border-bottom: 2px solid #9a7c4f;
 	transform: rotate(-45deg);
 	transition: transform 0.3s ease;
 }
@@ -1210,7 +1210,7 @@ span.arrowhead.opened {
 	left: -1px;
 	width: 16px;
 	height: 7px;
-	background-color: #4665A2;
+	background-color: #9a7c4f;
 	border: 1px solid #C4CFE5;
 	border-radius: 7px 7px 2px 2px;
 	transform-origin: top left;
@@ -1306,12 +1306,12 @@ table.doxtable {
 }
 
 table.doxtable td, table.doxtable th {
-	border: 1px solid #283A5D;
+	border: 1px solid #2a241b;
 	padding: 3px 7px 2px;
 }
 
 table.doxtable th {
-	background-color: #283A5D;
+	background-color: #2a241b;
 	color: #C4CFE5;
 	font-size: 110%;
 	padding-bottom: 4px;
@@ -1380,7 +1380,7 @@ table.fieldtable {
 div.req_title {
         text-decoration-line: underline;
         text-decoration-style: solid;
-        text-decoration-color: #283A5D;
+        text-decoration-color: #2a241b;
         text-decoration-thickness: 1px;
         font-weight: bold;
 }
@@ -1488,7 +1488,7 @@ div.missing_verifies {
 
 #nav-path li.navelem:hover,
 #nav-path li.navelem:hover:after {
-	background-color: #1D2A43;
+	background-color: #211c16;
 }
 
 /* ---------------------- */
@@ -2068,7 +2068,7 @@ table.markdownTable {
 }
 
 table.markdownTable td, table.markdownTable th {
-	border: 1px solid #283A5D;
+	border: 1px solid #2a241b;
 	padding: 3px 7px 2px;
 }
 
@@ -2076,7 +2076,7 @@ table.markdownTable tr {
 }
 
 th.markdownTableHeadLeft, th.markdownTableHeadRight, th.markdownTableHeadCenter, th.markdownTableHeadNone {
-	background-color: #283A5D;
+	background-color: #2a241b;
 	color: #C4CFE5;
 	font-size: 110%;
 	padding-bottom: 4px;

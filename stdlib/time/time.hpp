@@ -11,8 +11,9 @@
  * AddressSanitizer (the `asan` preset) and Valgrind
  * (`security/run-valgrind.sh`) on every QA-gate run.
  *
- * Doc convention (see also the other stdlib headers): each function notes its
- * runtime complexity, whether it touches the heap, and the @test that covers it.
+ * Doc convention (see also the other stdlib headers): each function documents
+ * its runtime complexity with @complexity, its heap allocation with @alloc, and
+ * the @test that covers it.
  */
 #include <cstdint>
 
@@ -21,14 +22,16 @@ namespace cheatah::time {
 /**
  * Wall-clock time.
  * @return seconds since the Unix epoch (`system_clock`).
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.WallClockIsRecent
  */
 double time();
 /**
  * Wall-clock time.
  * @return nanoseconds since the Unix epoch (`system_clock`).
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.WallClockIsRecent
  */
 long long time_ns();
@@ -36,14 +39,16 @@ long long time_ns();
 /**
  * Monotonic clock; never runs backwards.
  * @return seconds from `steady_clock`.
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
  */
 double monotonic();
 /**
  * Monotonic clock; never runs backwards.
  * @return nanoseconds from `steady_clock`.
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
  */
 long long monotonic_ns();
@@ -51,14 +56,16 @@ long long monotonic_ns();
 /**
  * Highest-resolution monotonic counter.
  * @return seconds from `steady_clock`.
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.PerfCounterAdvances
  */
 double perf_counter();
 /**
  * Highest-resolution monotonic counter.
  * @return nanoseconds from `steady_clock`.
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
  */
 long long perf_counter_ns();
@@ -66,7 +73,8 @@ long long perf_counter_ns();
 /**
  * CPU time consumed by this process.
  * @return seconds of CPU time (`std::clock`).
- * @note O(1) time; no heap.
+ * @complexity O(1) time.
+ * @alloc none.
  * @test CheatahTime.ProcessTimeNonNegative
  */
 double process_time();
@@ -74,7 +82,8 @@ double process_time();
 /**
  * Suspend the calling thread.
  * @param seconds duration to sleep (fractional).
- * @note O(1) plus the sleep wait; no heap.
+ * @complexity O(1) plus the sleep wait.
+ * @alloc none.
  * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
  */
 void sleep(double seconds);

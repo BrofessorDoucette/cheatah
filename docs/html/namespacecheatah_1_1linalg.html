@@ -180,7 +180,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); copies both operands into scratch O(n), returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000052">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000052">Allocation</a></b></dt><dd>copies both operands into scratch O(n); returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000052">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00331">331</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -222,7 +223,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); scratch O(n), returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000053">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000053">Allocation</a></b></dt><dd>scratch O(n); returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000053">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00339">339</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -264,7 +266,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); scratch O(n), returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000054">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000054">Allocation</a></b></dt><dd>scratch O(n); returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000054">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00340">340</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -307,7 +310,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>n×m matrix aᵢbⱼ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n·m); allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000055">Complexity</a></b></dt><dd>O(n·m). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000055">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000055">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00342">342</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -342,7 +346,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>m×p product. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new NDArray result (plus scratch copies of <code class="param">a</code> and <code class="param">b</code>). </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000056">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000056">Allocation</a></b></dt><dd>allocates a new NDArray result (plus scratch copies of <code class="param">a</code> and <code class="param">b</code>). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000056">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00351">351</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -385,7 +390,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Aⁿ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³·log|n|) by binary exponentiation; allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000057">Complexity</a></b></dt><dd>O(n³·log|n|) by binary exponentiation. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000057">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000057">Test</a></b></dt><dd>LinalgRoutines.MatrixPower </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00365">365</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -428,7 +434,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>(m·p)×(k·q) block product. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n⁴) in the output area; allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000058">Complexity</a></b></dt><dd>O(n⁴) in the output area. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000058">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000058">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00382">382</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -458,7 +465,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Σ aᵢᵢ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) summation, but copies the matrix into scratch O(n²) first; returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000071">Complexity</a></b></dt><dd>O(n) summation. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000071">Allocation</a></b></dt><dd>copies the matrix into scratch O(n²) first; returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000071">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00396">396</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -488,7 +496,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>√Σ xᵢ². </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) for vectors / O(n²) for matrices; copies into scratch, returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000066">Complexity</a></b></dt><dd>O(n) for vectors / O(n²) for matrices. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000066">Allocation</a></b></dt><dd>copies into scratch; returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000066">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00404">404</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -523,7 +532,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>solution x. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000072">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000072">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000072">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00419">419</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -553,7 +563,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>det(A). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates scratch O(n²) for the factorization, returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000068">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000068">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization; returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000068">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00431">431</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -583,7 +594,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html" title="SLogDet">SLogDet</a>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates scratch O(n²) for the factorization (the struct members are plain doubles). </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000070">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000070">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization (the struct members are plain doubles). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000070">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00441">441</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -613,7 +625,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A⁻¹. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000074">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000074">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000074">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00455">455</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -656,7 +669,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>minimizing x. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000073">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000073">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000073">Test</a></b></dt><dd>LinalgRoutines.Lstsq </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00470">470</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -694,7 +708,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>lower-triangular L with A = L·Lᵀ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000059">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000059">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000059">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00475">475</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -724,7 +739,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="QR">QR</a> with q (m×n, orthonormal cols) and r (n×n, upper-triangular). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates both members. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000060">Complexity</a></b></dt><dd>O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000060">Allocation</a></b></dt><dd>allocates both members. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000060">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00496">496</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -754,7 +770,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="SVD">SVD</a> with u (m×n), s (descending singular values), vh (n×n = Vᵀ). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates all members. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000061">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000061">Allocation</a></b></dt><dd>allocates all members. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000061">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00536">536</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -784,7 +801,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>n×m pseudo-inverse. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000075">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000075">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000075">Test</a></b></dt><dd>LinalgRoutines.PinvCondRankOnWideMatrix </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00548">548</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -822,7 +840,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>condition number. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates scratch O(n²) for the factorization, returns a double. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000067">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000067">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization; returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000067">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00581">581</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -852,7 +871,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>rank. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates scratch O(n²) for the factorization. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000069">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000069">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000069">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00597">597</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -882,7 +902,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> with descending values and matching eigenvectors. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates both members. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000064">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000064">Allocation</a></b></dt><dd>allocates both members. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000064">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00618">618</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -920,7 +941,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000065">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000065">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000065">Test</a></b></dt><dd>LinalgRoutines.EigvalshSymmetric </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00626">626</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -950,7 +972,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> (vectors empty unless <code class="param">a</code> is symmetric). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via Hessenberg + shifted <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a>; allocates both members. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000062">Complexity</a></b></dt><dd>iterative O(n³) via Hessenberg + shifted <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a>. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000062">Allocation</a></b></dt><dd>allocates both members. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000062">Test</a></b></dt><dd>LinalgRoutines.GeneralEig </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00634">634</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -988,7 +1011,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates a new NDArray result. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000063">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000063">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000063">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00644">644</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
@@ -1052,7 +1076,8 @@ Functions</h2></td></tr>
 
 <p>Width, in <span class="tt">double</span>s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512). </p>
 <dl class="section return"><dt>Returns</dt><dd>lane width. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); no heap. Useful for sizing blocked kernels. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000076">Complexity</a></b></dt><dd>O(1). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000076">Allocation</a></b></dt><dd>none. Useful for sizing blocked kernels. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000077">Test</a></b></dt><dd>LinalgSmoke.SimdFeaturesReported </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="simd_8cpp_source.html#l00045">45</a> of file <a class="el" href="simd_8cpp_source.html">simd.cpp</a>.</p>

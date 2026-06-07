@@ -27,7 +27,8 @@ std::string simd_features();
  * Width, in `double`s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4
  *   = AVX, 8 = AVX-512).
  * @return lane width.
- * @note O(1); no heap. Useful for sizing blocked kernels.
+ * @complexity O(1).
+ * @alloc none. Useful for sizing blocked kernels.
  * @test LinalgSmoke.SimdFeaturesReported
  */
 int simd_lane_doubles() noexcept;

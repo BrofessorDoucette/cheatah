@@ -282,15 +282,28 @@ dl.note dt { color: var(--primary-color) !important; }
 #page-nav, .page-nav-panel, #page-nav-resize-handle,
 #page-nav-tree, #page-nav-contents { display: none !important; }
 
-/* ---- @test admonition: the theme's sage/olive ("verified"), not Doxygen blue ---- */
-dl.test {
-    background: var(--invariant-color) !important;
-    border-left: 8px solid var(--invariant-color-dark) !important;
-    color: var(--invariant-color-darker) !important;
+/* ---- Structured doc tags (@complexity, @alloc, @test): neutral, low-saturation
+ *      warm-gray boxes distinguished only by a subtle border hue — no bright accents. */
+dl.complexity, dl.alloc, dl.test {
+    background: #232019 !important;
+    color: #c9c1b2 !important;
 }
-dl.test dt { color: var(--invariant-color-dark) !important; }
-dl.test a, dl.test dt a, dl.test a.el, dl.test a.el:visited { color: #c8dca6 !important; }
-dl.test .tt { background-color: #1b2016 !important; }
+dl.complexity { border-left: 8px solid #8f897c !important; }   /* warm gray */
+dl.complexity dt { color: #c4bdae !important; }
+dl.alloc { border-left: 8px solid #9a8f7e !important; }        /* taupe */
+dl.alloc dt { color: #c8bda9 !important; }
+dl.test { border-left: 8px solid #898c88 !important; }         /* cool-neutral gray */
+dl.test dt { color: #bcbfb7 !important; }
+dl.complexity a, dl.alloc a, dl.test a,
+dl.complexity a.el, dl.alloc a.el, dl.test a.el { color: var(--primary-color) !important; }
+dl.complexity .tt, dl.alloc .tt, dl.test .tt { background-color: #1b1813 !important; }
+
+/* ---- Nav-tree expand/collapse arrows: neutral grey (was inheriting a stock blue) ---- */
+#nav-tree .arrow { color: #8c867a; }
+
+/* ---- Remove the empty main-nav bar's gap under the title block ---- */
+#main-nav:empty { display: none !important; }
+#titlearea { padding-bottom: 0 !important; }
 
 /* ---- Homepage Doxygen credit (deliberate, small, muted) ---- */
 .cheetah-colophon {

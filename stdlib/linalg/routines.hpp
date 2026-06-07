@@ -39,7 +39,8 @@ using ndarray::NDArray;
  * Dot product: 1-D inner product (vectors flattened).
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
- * @note O(n); copies both operands into scratch O(n), returns a double.
+ * @complexity O(n).
+ * @alloc copies both operands into scratch O(n); returns a double.
  * @test LinalgRoutines.ProductsAndTrace
  */
 double dot(const NDArray& a, const NDArray& b);          // 1-D dot / 2-D matmul
@@ -47,7 +48,8 @@ double dot(const NDArray& a, const NDArray& b);          // 1-D dot / 2-D matmul
  * Vector dot product (alias of @ref dot; flattens N×1/1×N).
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
- * @note O(n); scratch O(n), returns a double.
+ * @complexity O(n).
+ * @alloc scratch O(n); returns a double.
  * @test LinalgRoutines.VdotInnerOuterKron
  */
 double vdot(const NDArray& a, const NDArray& b);
@@ -55,7 +57,8 @@ double vdot(const NDArray& a, const NDArray& b);
  * Inner product of two vectors (alias of @ref dot).
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
- * @note O(n); scratch O(n), returns a double.
+ * @complexity O(n).
+ * @alloc scratch O(n); returns a double.
  * @test LinalgRoutines.VdotInnerOuterKron
  */
 double inner(const NDArray& a, const NDArray& b);
@@ -64,7 +67,8 @@ double inner(const NDArray& a, const NDArray& b);
  * @param a length-n vector.
  * @param b length-m vector.
  * @return n×m matrix aᵢbⱼ.
- * @note O(n·m); allocates a new NDArray result.
+ * @complexity O(n·m).
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.VdotInnerOuterKron
  */
 NDArray outer(const NDArray& a, const NDArray& b);
@@ -73,7 +77,8 @@ NDArray outer(const NDArray& a, const NDArray& b);
  * @param a m×k matrix.
  * @param b k×p matrix.
  * @return m×p product.
- * @note O(n³); allocates a new NDArray result (plus scratch copies of @p a and @p b).
+ * @complexity O(n³).
+ * @alloc allocates a new NDArray result (plus scratch copies of @p a and @p b).
  * @test LinalgRoutines.ProductsAndTrace
  */
 NDArray matmul(const NDArray& a, const NDArray& b);
@@ -82,7 +87,8 @@ NDArray matmul(const NDArray& a, const NDArray& b);
  * @param a square matrix.
  * @param n exponent.
  * @return Aⁿ.
- * @note O(n³·log|n|) by binary exponentiation; allocates a new NDArray result.
+ * @complexity O(n³·log|n|) by binary exponentiation.
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.MatrixPower
  */
 NDArray matrix_power(const NDArray& a, long long n);
@@ -91,7 +97,8 @@ NDArray matrix_power(const NDArray& a, long long n);
  * @param a m×k matrix.
  * @param b p×q matrix.
  * @return (m·p)×(k·q) block product.
- * @note O(n⁴) in the output area; allocates a new NDArray result.
+ * @complexity O(n⁴) in the output area.
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.VdotInnerOuterKron
  */
 NDArray kron(const NDArray& a, const NDArray& b);
@@ -101,7 +108,8 @@ NDArray kron(const NDArray& a, const NDArray& b);
  * Cholesky factor of a symmetric positive-definite matrix (throws otherwise).
  * @param a square SPD matrix.
  * @return lower-triangular L with A = L·Lᵀ.
- * @note O(n³); allocates a new NDArray result.
+ * @complexity O(n³).
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.CholeskyAndQR
  */
 NDArray cholesky(const NDArray& a);                       // lower-triangular L (A = L Lᵀ)
@@ -114,7 +122,8 @@ struct QR {
  * Reduced QR via Householder reflections (requires rows ≥ cols).
  * @param a m×n matrix.
  * @return @ref QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).
- * @note O(n³); allocates both members.
+ * @complexity O(n³).
+ * @alloc allocates both members.
  * @test LinalgRoutines.CholeskyAndQR
  */
 QR qr(const NDArray& a);
@@ -128,7 +137,8 @@ struct SVD {
  * Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).
  * @param a m×n matrix.
  * @return @ref SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).
- * @note iterative O(n³); allocates all members.
+ * @complexity iterative O(n³).
+ * @alloc allocates all members.
  * @test LinalgRoutines.SvdAndEigh
  */
 SVD svd(const NDArray& a);
@@ -143,7 +153,8 @@ struct Eig {
  * Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).
  * @param a square matrix.
  * @return @ref Eig (vectors empty unless @p a is symmetric).
- * @note iterative O(n³) via Hessenberg + shifted QR; allocates both members.
+ * @complexity iterative O(n³) via Hessenberg + shifted QR.
+ * @alloc allocates both members.
  * @test LinalgRoutines.GeneralEig
  */
 Eig eig(const NDArray& a);                                // general square matrix
@@ -151,7 +162,8 @@ Eig eig(const NDArray& a);                                // general square matr
  * Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).
  * @param a square matrix.
  * @return length-n vector of eigenvalues.
- * @note iterative O(n³); allocates a new NDArray result.
+ * @complexity iterative O(n³).
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.SvdAndEigh
  */
 NDArray eigvals(const NDArray& a);
@@ -159,7 +171,8 @@ NDArray eigvals(const NDArray& a);
  * Eigen-decomposition of a symmetric matrix (cyclic Jacobi).
  * @param a square symmetric matrix.
  * @return @ref Eig with descending values and matching eigenvectors.
- * @note iterative O(n³); allocates both members.
+ * @complexity iterative O(n³).
+ * @alloc allocates both members.
  * @test LinalgRoutines.SvdAndEigh
  */
 Eig eigh(const NDArray& a);                               // symmetric / Hermitian
@@ -167,7 +180,8 @@ Eig eigh(const NDArray& a);                               // symmetric / Hermiti
  * Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).
  * @param a square symmetric matrix.
  * @return length-n vector of eigenvalues.
- * @note iterative O(n³); allocates a new NDArray result.
+ * @complexity iterative O(n³).
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.EigvalshSymmetric
  */
 NDArray eigvalsh(const NDArray& a);
@@ -177,7 +191,8 @@ NDArray eigvalsh(const NDArray& a);
  * Norm: L2 for vectors, Frobenius for matrices.
  * @param a vector or matrix.
  * @return √Σ xᵢ².
- * @note O(n) for vectors / O(n²) for matrices; copies into scratch, returns a double.
+ * @complexity O(n) for vectors / O(n²) for matrices.
+ * @alloc copies into scratch; returns a double.
  * @test LinalgRoutines.NormAndRank
  */
 double norm(const NDArray& a);                            // default: Frobenius / L2
@@ -185,8 +200,8 @@ double norm(const NDArray& a);                            // default: Frobenius 
  * 2-norm condition number σ_max/σ_min (∞ if singular).
  * @param a matrix.
  * @return condition number.
- * @note iterative O(n³) via SVD; allocates scratch O(n²) for the factorization, returns a
- *   double.
+ * @complexity iterative O(n³) via SVD.
+ * @alloc allocates scratch O(n²) for the factorization; returns a double.
  * @test LinalgRoutines.SlogdetAndCond
  */
 double cond(const NDArray& a);
@@ -194,7 +209,8 @@ double cond(const NDArray& a);
  * Determinant via LU with partial pivoting.
  * @param a square matrix.
  * @return det(A).
- * @note O(n³); allocates scratch O(n²) for the factorization, returns a double.
+ * @complexity O(n³).
+ * @alloc allocates scratch O(n²) for the factorization; returns a double.
  * @test LinalgRoutines.SolveDetInv
  */
 double det(const NDArray& a);
@@ -202,7 +218,8 @@ double det(const NDArray& a);
  * Numerical rank from SVD singular-value thresholding.
  * @param a matrix.
  * @return rank.
- * @note iterative O(n³) via SVD; allocates scratch O(n²) for the factorization.
+ * @complexity iterative O(n³) via SVD.
+ * @alloc allocates scratch O(n²) for the factorization.
  * @test LinalgRoutines.NormAndRank
  */
 long long matrix_rank(const NDArray& a);
@@ -215,8 +232,8 @@ struct SLogDet {
  * Sign and log|det| via LU (overflow-safe determinant).
  * @param a square matrix.
  * @return @ref SLogDet.
- * @note O(n³); allocates scratch O(n²) for the factorization (the struct members are plain
- *   doubles).
+ * @complexity O(n³).
+ * @alloc allocates scratch O(n²) for the factorization (the struct members are plain doubles).
  * @test LinalgRoutines.SlogdetAndCond
  */
 SLogDet slogdet(const NDArray& a);
@@ -224,7 +241,8 @@ SLogDet slogdet(const NDArray& a);
  * Trace: sum of the main diagonal.
  * @param a matrix.
  * @return Σ aᵢᵢ.
- * @note O(n) summation, but copies the matrix into scratch O(n²) first; returns a double.
+ * @complexity O(n) summation.
+ * @alloc copies the matrix into scratch O(n²) first; returns a double.
  * @test LinalgRoutines.ProductsAndTrace
  */
 double trace(const NDArray& a);
@@ -235,7 +253,8 @@ double trace(const NDArray& a);
  * @param a square coefficient matrix.
  * @param b right-hand-side vector.
  * @return solution x.
- * @note O(n³); allocates a new NDArray result.
+ * @complexity O(n³).
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.SolveDetInv
  */
 NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
@@ -244,7 +263,8 @@ NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
  * @param a m×n matrix.
  * @param b right-hand side.
  * @return minimizing x.
- * @note iterative O(n³) via SVD; allocates a new NDArray result.
+ * @complexity iterative O(n³) via SVD.
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.Lstsq
  */
 NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solution
@@ -252,7 +272,8 @@ NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solut
  * Matrix inverse via LU with partial pivoting.
  * @param a square matrix.
  * @return A⁻¹.
- * @note O(n³); allocates a new NDArray result.
+ * @complexity O(n³).
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.SolveDetInv
  */
 NDArray inv(const NDArray& a);
@@ -260,7 +281,8 @@ NDArray inv(const NDArray& a);
  * Moore–Penrose pseudo-inverse via SVD (any shape).
  * @param a m×n matrix.
  * @return n×m pseudo-inverse.
- * @note iterative O(n³) via SVD; allocates a new NDArray result.
+ * @complexity iterative O(n³) via SVD.
+ * @alloc allocates a new NDArray result.
  * @test LinalgRoutines.PinvCondRankOnWideMatrix
  */
 NDArray pinv(const NDArray& a);                           // Moore–Penrose pseudo-inverse

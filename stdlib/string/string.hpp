@@ -37,7 +37,8 @@ inline constexpr std::string_view whitespace = " \t\n\r\f\v";             ///< A
  * Uppercase.
  * @param s input.
  * @return @p s uppercased.
- * @note O(n); allocates the result.
+ * @complexity O(n).
+ * @alloc allocates the result.
  * @test CheatahString.Case
  */
 std::string upper(std::string_view s);
@@ -45,7 +46,8 @@ std::string upper(std::string_view s);
  * Lowercase.
  * @param s input.
  * @return @p s lowercased.
- * @note O(n); allocates the result.
+ * @complexity O(n).
+ * @alloc allocates the result.
  * @test CheatahString.Case
  */
 std::string lower(std::string_view s);
@@ -53,7 +55,8 @@ std::string lower(std::string_view s);
  * Capitalize: first char upper, rest lower.
  * @param s input.
  * @return capitalized @p s.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Case
  */
 std::string capitalize(std::string_view s);
@@ -61,7 +64,8 @@ std::string capitalize(std::string_view s);
  * Title-case each word.
  * @param s input.
  * @return title-cased @p s.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Case
  */
 std::string title(std::string_view s);
@@ -69,7 +73,8 @@ std::string title(std::string_view s);
  * Swap the case of each letter.
  * @param s input.
  * @return case-swapped @p s.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Case
  */
 std::string swapcase(std::string_view s);
@@ -80,7 +85,8 @@ std::string swapcase(std::string_view s);
  * @param s input.
  * @param chars cut set.
  * @return trimmed @p s.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Trimming
  */
 std::string strip(std::string_view s, std::string_view chars = whitespace);
@@ -89,7 +95,8 @@ std::string strip(std::string_view s, std::string_view chars = whitespace);
  * @param s input.
  * @param chars cut set.
  * @return left-trimmed @p s.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Trimming
  */
 std::string lstrip(std::string_view s, std::string_view chars = whitespace);
@@ -98,7 +105,8 @@ std::string lstrip(std::string_view s, std::string_view chars = whitespace);
  * @param s input.
  * @param chars cut set.
  * @return right-trimmed @p s.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Trimming
  */
 std::string rstrip(std::string_view s, std::string_view chars = whitespace);
@@ -109,7 +117,8 @@ std::string rstrip(std::string_view s, std::string_view chars = whitespace);
  * @param s input.
  * @param prefix sought prefix.
  * @return true iff @p s starts with @p prefix.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.SearchAndTest
  */
 bool startswith(std::string_view s, std::string_view prefix);
@@ -118,7 +127,8 @@ bool startswith(std::string_view s, std::string_view prefix);
  * @param s input.
  * @param suffix sought suffix.
  * @return true iff @p s ends with @p suffix.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.SearchAndTest
  */
 bool endswith(std::string_view s, std::string_view suffix);
@@ -127,7 +137,8 @@ bool endswith(std::string_view s, std::string_view suffix);
  * @param s input.
  * @param sub needle.
  * @return true iff @p sub occurs in @p s.
- * @note O(n·m); no heap.
+ * @complexity O(n·m).
+ * @alloc none.
  * @test CheatahString.SearchAndTest
  */
 bool contains(std::string_view s, std::string_view sub);
@@ -136,7 +147,8 @@ bool contains(std::string_view s, std::string_view sub);
  * @param s input.
  * @param sub needle.
  * @return index, or -1.
- * @note O(n·m); no heap.
+ * @complexity O(n·m).
+ * @alloc none.
  * @test CheatahString.SearchAndTest
  */
 long find(std::string_view s, std::string_view sub);
@@ -145,7 +157,8 @@ long find(std::string_view s, std::string_view sub);
  * @param s input.
  * @param sub needle.
  * @return index, or -1.
- * @note O(n·m); no heap.
+ * @complexity O(n·m).
+ * @alloc none.
  * @test CheatahString.SearchAndTest
  */
 long rfind(std::string_view s, std::string_view sub);
@@ -154,7 +167,8 @@ long rfind(std::string_view s, std::string_view sub);
  * @param s input.
  * @param sub needle.
  * @return occurrence count.
- * @note O(n·m); no heap.
+ * @complexity O(n·m).
+ * @alloc none.
  * @test CheatahString.SearchAndTest
  */
 long count(std::string_view s, std::string_view sub);
@@ -165,7 +179,8 @@ long count(std::string_view s, std::string_view sub);
  * @param s input.
  * @param from,to needle/replacement.
  * @return new string.
- * @note O(n·m); allocates.
+ * @complexity O(n·m).
+ * @alloc allocates.
  * @test CheatahString.Transform
  */
 std::string replace(std::string_view s, std::string_view from, std::string_view to);
@@ -174,7 +189,8 @@ std::string replace(std::string_view s, std::string_view from, std::string_view 
  * @param s input.
  * @param sep separator (empty → the whole string as one part).
  * @return the parts.
- * @note O(n); allocates a vector of strings.
+ * @complexity O(n).
+ * @alloc allocates a vector of strings.
  * @test CheatahString.Transform, CheatahString.SplitEmptySeparator
  */
 std::vector<std::string> split(std::string_view s, std::string_view sep);
@@ -182,7 +198,8 @@ std::vector<std::string> split(std::string_view s, std::string_view sep);
  * Split on runs of whitespace.
  * @param s input.
  * @return the non-empty parts.
- * @note O(n); allocates a vector of strings.
+ * @complexity O(n).
+ * @alloc allocates a vector of strings.
  * @test CheatahString.Transform
  */
 std::vector<std::string> split(std::string_view s);
@@ -190,7 +207,8 @@ std::vector<std::string> split(std::string_view s);
  * Split into lines.
  * @param s input.
  * @return the lines (newlines removed).
- * @note O(n); allocates a vector of strings.
+ * @complexity O(n).
+ * @alloc allocates a vector of strings.
  * @test CheatahString.Transform
  */
 std::vector<std::string> splitlines(std::string_view s);
@@ -198,7 +216,8 @@ std::vector<std::string> splitlines(std::string_view s);
  * Python `string.capwords`: split on whitespace, capitalize, re-join with spaces.
  * @param s input.
  * @return the result.
- * @note O(n); allocates.
+ * @complexity O(n).
+ * @alloc allocates.
  * @test CheatahString.Transform
  */
 std::string capwords(std::string_view s);
@@ -212,7 +231,8 @@ concept StringViewable = requires(const T& v) { std::string_view(v); };
  * @param sep separator.
  * @param parts any range of string-like values.
  * @return the joined string.
- * @note O(total length); allocates the result.
+ * @complexity O(total length).
+ * @alloc allocates the result.
  * @test CheatahString.Transform
  */
 template <std::ranges::input_range Range>
@@ -237,7 +257,8 @@ std::string join(std::string_view sep, const Range& parts) {
  * @param width target.
  * @param fill pad char.
  * @return padded @p s (or @p s if already ≥ width).
- * @note O(width); allocates.
+ * @complexity O(width).
+ * @alloc allocates.
  * @test CheatahString.Padding
  */
 std::string ljust(std::string_view s, std::size_t width, std::string_view fill = " ");
@@ -247,7 +268,8 @@ std::string ljust(std::string_view s, std::size_t width, std::string_view fill =
  * @param width target.
  * @param fill pad char.
  * @return padded @p s.
- * @note O(width); allocates.
+ * @complexity O(width).
+ * @alloc allocates.
  * @test CheatahString.Padding
  */
 std::string rjust(std::string_view s, std::size_t width, std::string_view fill = " ");
@@ -257,7 +279,8 @@ std::string rjust(std::string_view s, std::size_t width, std::string_view fill =
  * @param width target.
  * @param fill pad char.
  * @return padded @p s.
- * @note O(width); allocates.
+ * @complexity O(width).
+ * @alloc allocates.
  * @test CheatahString.Padding
  */
 std::string center(std::string_view s, std::size_t width, std::string_view fill = " ");
@@ -266,7 +289,8 @@ std::string center(std::string_view s, std::size_t width, std::string_view fill 
  * @param s input.
  * @param width target.
  * @return `'0'`-padded @p s.
- * @note O(width); allocates.
+ * @complexity O(width).
+ * @alloc allocates.
  * @test CheatahString.Padding
  */
 std::string zfill(std::string_view s, std::size_t width);
@@ -276,7 +300,8 @@ std::string zfill(std::string_view s, std::size_t width);
  * All digits?
  * @param s input.
  * @return true iff non-empty and all `0–9`.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.Classification
  */
 bool isdigit(std::string_view s);
@@ -284,7 +309,8 @@ bool isdigit(std::string_view s);
  * All letters?
  * @param s input.
  * @return true iff non-empty and all alphabetic.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.Classification
  */
 bool isalpha(std::string_view s);
@@ -292,7 +318,8 @@ bool isalpha(std::string_view s);
  * All alphanumeric?
  * @param s input.
  * @return true iff non-empty and all letters/digits.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.ClassificationAlnumAndSpace
  */
 bool isalnum(std::string_view s);
@@ -300,7 +327,8 @@ bool isalnum(std::string_view s);
  * All whitespace?
  * @param s input.
  * @return true iff non-empty and all whitespace.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.ClassificationAlnumAndSpace
  */
 bool isspace(std::string_view s);
@@ -308,7 +336,8 @@ bool isspace(std::string_view s);
  * All uppercase?
  * @param s input.
  * @return true iff non-empty and has no lowercase.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.Classification
  */
 bool isupper(std::string_view s);
@@ -316,7 +345,8 @@ bool isupper(std::string_view s);
  * All lowercase?
  * @param s input.
  * @return true iff non-empty and has no uppercase.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.Classification
  */
 bool islower(std::string_view s);

@@ -200,7 +200,9 @@ Variables</h2></td></tr>
 <div class="textblock"><p>cheatah <span class="tt">math</span> — scalar math: Python's <span class="tt">math</span> module plus the <span class="tt">abs</span>/<span class="tt">min</span>/<span class="tt">max</span>/<span class="tt">pow</span> built-ins. </p>
 <p><span class="tt">import math</span> to use it.</p>
 <p>Every function here is <b>pure and allocation-free</b> (operates on <span class="tt">double</span> / <span class="tt">long long</span> by value). Unit tests: <span class="tt">stdlib/tests/math_test.cpp</span>. The whole suite runs under AddressSanitizer (the <span class="tt">asan</span> preset) and Valgrind (<span class="tt">security/run-valgrind.sh</span>) on every QA-gate run.</p>
-<p>Doc convention (see also the other stdlib headers): each function's <span class="tt">@note</span> states its runtime complexity (Big-O) and whether it touches the heap, and <span class="tt">@test</span> links the unit test that covers it. </p>
+<p>Doc convention (see also the other stdlib headers): each function documents its runtime complexity with </p><dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000077">Complexity</a></b></dt><dd>, its heap allocation with </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000077">Allocation</a></b></dt><dd>, and the </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000079">Test</a></b></dt><dd>that covers it. </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
 </div></div><!-- contents -->

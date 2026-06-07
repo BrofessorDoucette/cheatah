@@ -122,241 +122,263 @@ $(function(){initNavTree('routines_8hpp_source.html','',''); });
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment"> * Dot product: 1-D inner product (vectors flattened).</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment"> * @param a,b same-length vectors.</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment"> * @return Σ aᵢbᵢ.</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment"> * @note O(n); copies both operands into scratch O(n), returns a double.</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment"> * @test LinalgRoutines.ProductsAndTrace</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#af622dbc275fbbb5c07221ab4be2c8e1c">dot</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);          <span class="comment">// 1-D dot / 2-D matmul</span><span class="comment"></span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment"> * Vector dot product (alias of @ref dot; flattens N×1/1×N).</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment"> * @param a,b same-length vectors.</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment"> * @return Σ aᵢbᵢ.</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment"> * @note O(n); scratch O(n), returns a double.</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aeb4d9c3e5d41a7afe29f1bb5b60d6a76">vdot</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment"> * Inner product of two vectors (alias of @ref dot).</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment"> * @param a,b same-length vectors.</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment"> * @return Σ aᵢbᵢ.</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment"> * @note O(n); scratch O(n), returns a double.</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a5c35a832b1c73bdf5cabfed648a308fc">inner</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="comment"> * Outer product of two vectors.</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="comment"> * @param a length-n vector.</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="comment"> * @param b length-m vector.</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="comment"> * @return n×m matrix aᵢbⱼ.</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="comment"> * @note O(n·m); allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a4851eb5e22a572a07ef8fa421ca3bfcb">outer</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment"> * Matrix multiply.</span></div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="comment"> * @param a m×k matrix.</span></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="comment"> * @param b k×p matrix.</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="comment"> * @return m×p product.</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="comment"> * @note O(n³); allocates a new NDArray result (plus scratch copies of @p a and @p b).</span></div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="comment"> * @test LinalgRoutines.ProductsAndTrace</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a2c4edb6bbbbab3ee899b7a33d19311ea">matmul</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment"> * Integer matrix power Aⁿ (negative n via @ref inv).</span></div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="comment"> * @param a square matrix.</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="comment"> * @param n exponent.</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="comment"> * @return Aⁿ.</span></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="comment"> * @note O(n³·log|n|) by binary exponentiation; allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="comment"> * @test LinalgRoutines.MatrixPower</span></div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ade89164399c44e04d11ceabf70dd7b0f">matrix_power</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keywordtype">long</span> <span class="keywordtype">long</span> n);<span class="comment"></span></div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="comment"> * Kronecker product.</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="comment"> * @param a m×k matrix.</span></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="comment"> * @param b p×q matrix.</span></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="comment"> * @return (m·p)×(k·q) block product.</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment"> * @note O(n⁴) in the output area; allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#afcf3b262470f233b669d00f86bcbc442">kron</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="comment">// ---- Decompositions ----</span><span class="comment"></span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="comment"> * Cholesky factor of a symmetric positive-definite matrix (throws otherwise).</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment"> * @param a square SPD matrix.</span></div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="comment"> * @return lower-triangular L with A = L·Lᵀ.</span></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="comment"> * @note O(n³); allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="comment"> * @test LinalgRoutines.CholeskyAndQR</span></div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a90da5609fdd9efb08b97dd3c0ed98d41">cholesky</a>(<span class="keyword">const</span> NDArray&amp; a);                       <span class="comment">// lower-triangular L (A = L Lᵀ)</span><span class="comment"></span></div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">/** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */</span></div>
-<div class="foldopen" id="foldopen00109" data-start="{" data-end="};">
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1QR.html">  109</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1QR.html">QR</a> {</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1QR.html#a4ccef2cfd828b50a0b78cbf4a0093539">  110</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1QR.html#a4ccef2cfd828b50a0b78cbf4a0093539">q</a>;  <span class="comment">///&lt; Orthonormal columns, m×n (the Q in A = Q·R).</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1QR.html#aad7ea88b04a6be05583b6bfc90c62c3e">  111</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1QR.html#aad7ea88b04a6be05583b6bfc90c62c3e">r</a>;  <span class="comment">///&lt; Upper-triangular factor, n×n (the R in A = Q·R).</span></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>};<span class="comment"></span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment"> * @complexity O(n).</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment"> * @alloc copies both operands into scratch O(n); returns a double.</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment"> * @test LinalgRoutines.ProductsAndTrace</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#af622dbc275fbbb5c07221ab4be2c8e1c">dot</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);          <span class="comment">// 1-D dot / 2-D matmul</span><span class="comment"></span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment"> * Vector dot product (alias of @ref dot; flattens N×1/1×N).</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment"> * @param a,b same-length vectors.</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment"> * @return Σ aᵢbᵢ.</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment"> * @complexity O(n).</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment"> * @alloc scratch O(n); returns a double.</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aeb4d9c3e5d41a7afe29f1bb5b60d6a76">vdot</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment"> * Inner product of two vectors (alias of @ref dot).</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment"> * @param a,b same-length vectors.</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="comment"> * @return Σ aᵢbᵢ.</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment"> * @complexity O(n).</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="comment"> * @alloc scratch O(n); returns a double.</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a5c35a832b1c73bdf5cabfed648a308fc">inner</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="comment"> * Outer product of two vectors.</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="comment"> * @param a length-n vector.</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="comment"> * @param b length-m vector.</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="comment"> * @return n×m matrix aᵢbⱼ.</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="comment"> * @complexity O(n·m).</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a4851eb5e22a572a07ef8fa421ca3bfcb">outer</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="comment"> * Matrix multiply.</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="comment"> * @param a m×k matrix.</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment"> * @param b k×p matrix.</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment"> * @return m×p product.</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment"> * @alloc allocates a new NDArray result (plus scratch copies of @p a and @p b).</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="comment"> * @test LinalgRoutines.ProductsAndTrace</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a2c4edb6bbbbab3ee899b7a33d19311ea">matmul</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);<span class="comment"></span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="comment"> * Integer matrix power Aⁿ (negative n via @ref inv).</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="comment"> * @param a square matrix.</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="comment"> * @param n exponent.</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="comment"> * @return Aⁿ.</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="comment"> * @complexity O(n³·log|n|) by binary exponentiation.</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="comment"> * @test LinalgRoutines.MatrixPower</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ade89164399c44e04d11ceabf70dd7b0f">matrix_power</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keywordtype">long</span> <span class="keywordtype">long</span> n);<span class="comment"></span></div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="comment"> * Kronecker product.</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="comment"> * @param a m×k matrix.</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="comment"> * @param b p×q matrix.</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="comment"> * @return (m·p)×(k·q) block product.</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="comment"> * @complexity O(n⁴) in the output area.</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment"> * @test LinalgRoutines.VdotInnerOuterKron</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#afcf3b262470f233b669d00f86bcbc442">kron</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="comment">// ---- Decompositions ----</span><span class="comment"></span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment"> * Cholesky factor of a symmetric positive-definite matrix (throws otherwise).</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="comment"> * @param a square SPD matrix.</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="comment"> * @return lower-triangular L with A = L·Lᵀ.</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="comment"> * @test LinalgRoutines.CholeskyAndQR</span></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a90da5609fdd9efb08b97dd3c0ed98d41">cholesky</a>(<span class="keyword">const</span> NDArray&amp; a);                       <span class="comment">// lower-triangular L (A = L Lᵀ)</span><span class="comment"></span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="comment">/** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */</span></div>
+<div class="foldopen" id="foldopen00117" data-start="{" data-end="};">
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1QR.html">  117</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1QR.html">QR</a> {</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1QR.html#a4ccef2cfd828b50a0b78cbf4a0093539">  118</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1QR.html#a4ccef2cfd828b50a0b78cbf4a0093539">q</a>;  <span class="comment">///&lt; Orthonormal columns, m×n (the Q in A = Q·R).</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1QR.html#aad7ea88b04a6be05583b6bfc90c62c3e">  119</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1QR.html#aad7ea88b04a6be05583b6bfc90c62c3e">r</a>;  <span class="comment">///&lt; Upper-triangular factor, n×n (the R in A = Q·R).</span></div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>};<span class="comment"></span></div>
 </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="comment"> * Reduced QR via Householder reflections (requires rows ≥ cols).</span></div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="comment"> * @param a m×n matrix.</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="comment"> * @return @ref QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).</span></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="comment"> * @note O(n³); allocates both members.</span></div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="comment"> * @test LinalgRoutines.CholeskyAndQR</span></div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1QR.html">QR</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a5e67bd5371c2380dc4e4896b93006769">qr</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="comment">/** Result of svd(): A = u·diag(s)·vh. */</span></div>
-<div class="foldopen" id="foldopen00122" data-start="{" data-end="};">
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html">  122</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> {</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html#a1e8de6f3a0b6c6850f7504ad9c321520">  123</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SVD.html#a1e8de6f3a0b6c6850f7504ad9c321520">u</a>;   <span class="comment">///&lt; Left singular vectors, m×n.</span></div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html#a331cb2e38eac9f312659248dabb55b40">  124</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SVD.html#a331cb2e38eac9f312659248dabb55b40">s</a>;   <span class="comment">///&lt; Singular values in descending order (length n).</span></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html#ab1904075439b30a69b6c8c333e5fcba1">  125</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SVD.html#ab1904075439b30a69b6c8c333e5fcba1">vh</a>;  <span class="comment">///&lt; Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).</span></div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>};<span class="comment"></span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="comment"> * Reduced QR via Householder reflections (requires rows ≥ cols).</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><span class="comment"> * @param a m×n matrix.</span></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="comment"> * @return @ref QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="comment"> * @alloc allocates both members.</span></div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="comment"> * @test LinalgRoutines.CholeskyAndQR</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1QR.html">QR</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a5e67bd5371c2380dc4e4896b93006769">qr</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="comment">/** Result of svd(): A = u·diag(s)·vh. */</span></div>
+<div class="foldopen" id="foldopen00131" data-start="{" data-end="};">
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html">  131</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> {</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html#a1e8de6f3a0b6c6850f7504ad9c321520">  132</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SVD.html#a1e8de6f3a0b6c6850f7504ad9c321520">u</a>;   <span class="comment">///&lt; Left singular vectors, m×n.</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html#a331cb2e38eac9f312659248dabb55b40">  133</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SVD.html#a331cb2e38eac9f312659248dabb55b40">s</a>;   <span class="comment">///&lt; Singular values in descending order (length n).</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SVD.html#ab1904075439b30a69b6c8c333e5fcba1">  134</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SVD.html#ab1904075439b30a69b6c8c333e5fcba1">vh</a>;  <span class="comment">///&lt; Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>};<span class="comment"></span></div>
 </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span><span class="comment"> * Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).</span></div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="comment"> * @param a m×n matrix.</span></div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="comment"> * @return @ref SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="comment"> * @note iterative O(n³); allocates all members.</span></div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="comment"> * @test LinalgRoutines.SvdAndEigh</span></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aca03d8bcbabadeb0f4aee077e65e48d0">svd</a>(<span class="keyword">const</span> NDArray&amp; a);</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="comment">// ---- Matrix eigenvalues ----</span><span class="comment"></span></div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="comment">/** Result of eig() / eigh(): column j of vectors is the eigenvector for values[j]. */</span></div>
-<div class="foldopen" id="foldopen00138" data-start="{" data-end="};">
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1Eig.html">  138</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> {</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1Eig.html#a9eee0f9c5866fe132ab74f7db5ebfcb2">  139</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1Eig.html#a9eee0f9c5866fe132ab74f7db5ebfcb2">values</a>;   <span class="comment">///&lt; Eigenvalues (length n).</span></div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1Eig.html#a8c7284864d38244c05ef483d329b6e60">  140</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1Eig.html#a8c7284864d38244c05ef483d329b6e60">vectors</a>;  <span class="comment">///&lt; Eigenvectors as columns: column j matches values[j] (empty if not computed).</span></div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>};<span class="comment"></span></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="comment"> * Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="comment"> * @param a m×n matrix.</span></div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="comment"> * @return @ref SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span><span class="comment"> * @complexity iterative O(n³).</span></div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="comment"> * @alloc allocates all members.</span></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span><span class="comment"> * @test LinalgRoutines.SvdAndEigh</span></div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aca03d8bcbabadeb0f4aee077e65e48d0">svd</a>(<span class="keyword">const</span> NDArray&amp; a);</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="comment">// ---- Matrix eigenvalues ----</span><span class="comment"></span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="comment">/** Result of eig() / eigh(): column j of vectors is the eigenvector for values[j]. */</span></div>
+<div class="foldopen" id="foldopen00148" data-start="{" data-end="};">
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1Eig.html">  148</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> {</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1Eig.html#a9eee0f9c5866fe132ab74f7db5ebfcb2">  149</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1Eig.html#a9eee0f9c5866fe132ab74f7db5ebfcb2">values</a>;   <span class="comment">///&lt; Eigenvalues (length n).</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1Eig.html#a8c7284864d38244c05ef483d329b6e60">  150</a></span>    NDArray <a class="code hl_variable" href="structcheatah_1_1linalg_1_1Eig.html#a8c7284864d38244c05ef483d329b6e60">vectors</a>;  <span class="comment">///&lt; Eigenvectors as columns: column j matches values[j] (empty if not computed).</span></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>};<span class="comment"></span></div>
 </div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="comment"> * Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).</span></div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="comment"> * @param a square matrix.</span></div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="comment"> * @return @ref Eig (vectors empty unless @p a is symmetric).</span></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="comment"> * @note iterative O(n³) via Hessenberg + shifted QR; allocates both members.</span></div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="comment"> * @test LinalgRoutines.GeneralEig</span></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ae6ac46aea9b8353893aaa9da852ca673">eig</a>(<span class="keyword">const</span> NDArray&amp; a);                                <span class="comment">// general square matrix</span><span class="comment"></span></div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="comment"> * Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span><span class="comment"> * @param a square matrix.</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="comment"> * @return length-n vector of eigenvalues.</span></div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="comment"> * @note iterative O(n³); allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="comment"> * @test LinalgRoutines.SvdAndEigh</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ae38fa57d37ed5c742bc4faf782b6e6ad">eigvals</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="comment"> * Eigen-decomposition of a symmetric matrix (cyclic Jacobi).</span></div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><span class="comment"> * @param a square symmetric matrix.</span></div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span><span class="comment"> * @return @ref Eig with descending values and matching eigenvectors.</span></div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="comment"> * @note iterative O(n³); allocates both members.</span></div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="comment"> * @test LinalgRoutines.SvdAndEigh</span></div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a73d032676733f00ec8c5ceabc60cd4be">eigh</a>(<span class="keyword">const</span> NDArray&amp; a);                               <span class="comment">// symmetric / Hermitian</span><span class="comment"></span></div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="comment"> * Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).</span></div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span><span class="comment"> * @param a square symmetric matrix.</span></div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="comment"> * @return length-n vector of eigenvalues.</span></div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="comment"> * @note iterative O(n³); allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="comment"> * @test LinalgRoutines.EigvalshSymmetric</span></div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a8623020f326ce35d1e24600ab44ddb73">eigvalsh</a>(<span class="keyword">const</span> NDArray&amp; a);</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="comment">// ---- Norms and other numbers ----</span><span class="comment"></span></div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span><span class="comment"> * Norm: L2 for vectors, Frobenius for matrices.</span></div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="comment"> * @param a vector or matrix.</span></div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="comment"> * @return √Σ xᵢ².</span></div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="comment"> * @note O(n) for vectors / O(n²) for matrices; copies into scratch, returns a double.</span></div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="comment"> * @test LinalgRoutines.NormAndRank</span></div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#afe04c01bb9160f60115734737a890f53">norm</a>(<span class="keyword">const</span> NDArray&amp; a);                            <span class="comment">// default: Frobenius / L2</span><span class="comment"></span></div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="comment"> * 2-norm condition number σ_max/σ_min (∞ if singular).</span></div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="comment"> * @param a matrix.</span></div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="comment"> * @return condition number.</span></div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="comment"> * @note iterative O(n³) via SVD; allocates scratch O(n²) for the factorization, returns a</span></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="comment"> *   double.</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="comment"> * @test LinalgRoutines.SlogdetAndCond</span></div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a1a87733ea05b83ae7e5bc18c619ee0b0">cond</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="comment"> * Determinant via LU with partial pivoting.</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="comment"> * @param a square matrix.</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="comment"> * @return det(A).</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="comment"> * @note O(n³); allocates scratch O(n²) for the factorization, returns a double.</span></div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="comment"> * @test LinalgRoutines.SolveDetInv</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aedffc527790c80f83676088b55b57ff4">det</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="comment"> * Numerical rank from SVD singular-value thresholding.</span></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="comment"> * @param a matrix.</span></div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="comment"> * @return rank.</span></div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="comment"> * @note iterative O(n³) via SVD; allocates scratch O(n²) for the factorization.</span></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="comment"> * @test LinalgRoutines.NormAndRank</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">matrix_rank</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="comment">/** Result of slogdet(): det(A) = sign·exp(logabsdet). */</span></div>
-<div class="foldopen" id="foldopen00210" data-start="{" data-end="};">
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SLogDet.html">  210</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> {</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SLogDet.html#aaa63981fd8e2a20e1ea57fa3b2b1dcb8">  211</a></span>    <span class="keywordtype">double</span> <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SLogDet.html#aaa63981fd8e2a20e1ea57fa3b2b1dcb8">sign</a>;       <span class="comment">///&lt; Sign of the determinant (−1, 0, or +1).</span></div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SLogDet.html#a131f04085b54ff26be08eec6af6a8d5f">  212</a></span>    <span class="keywordtype">double</span> <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SLogDet.html#a131f04085b54ff26be08eec6af6a8d5f">logabsdet</a>;  <span class="comment">///&lt; Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).</span></div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>};<span class="comment"></span></div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="comment"> * Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="comment"> * @param a square matrix.</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="comment"> * @return @ref Eig (vectors empty unless @p a is symmetric).</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="comment"> * @complexity iterative O(n³) via Hessenberg + shifted QR.</span></div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span><span class="comment"> * @alloc allocates both members.</span></div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="comment"> * @test LinalgRoutines.GeneralEig</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ae6ac46aea9b8353893aaa9da852ca673">eig</a>(<span class="keyword">const</span> NDArray&amp; a);                                <span class="comment">// general square matrix</span><span class="comment"></span></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="comment"> * Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).</span></div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="comment"> * @param a square matrix.</span></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="comment"> * @return length-n vector of eigenvalues.</span></div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="comment"> * @complexity iterative O(n³).</span></div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="comment"> * @test LinalgRoutines.SvdAndEigh</span></div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ae38fa57d37ed5c742bc4faf782b6e6ad">eigvals</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="comment"> * Eigen-decomposition of a symmetric matrix (cyclic Jacobi).</span></div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="comment"> * @param a square symmetric matrix.</span></div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="comment"> * @return @ref Eig with descending values and matching eigenvectors.</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="comment"> * @complexity iterative O(n³).</span></div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="comment"> * @alloc allocates both members.</span></div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="comment"> * @test LinalgRoutines.SvdAndEigh</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a73d032676733f00ec8c5ceabc60cd4be">eigh</a>(<span class="keyword">const</span> NDArray&amp; a);                               <span class="comment">// symmetric / Hermitian</span><span class="comment"></span></div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="comment"> * Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).</span></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="comment"> * @param a square symmetric matrix.</span></div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="comment"> * @return length-n vector of eigenvalues.</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span><span class="comment"> * @complexity iterative O(n³).</span></div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="comment"> * @test LinalgRoutines.EigvalshSymmetric</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a8623020f326ce35d1e24600ab44ddb73">eigvalsh</a>(<span class="keyword">const</span> NDArray&amp; a);</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="comment">// ---- Norms and other numbers ----</span><span class="comment"></span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="comment"> * Norm: L2 for vectors, Frobenius for matrices.</span></div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="comment"> * @param a vector or matrix.</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="comment"> * @return √Σ xᵢ².</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="comment"> * @complexity O(n) for vectors / O(n²) for matrices.</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="comment"> * @alloc copies into scratch; returns a double.</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="comment"> * @test LinalgRoutines.NormAndRank</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#afe04c01bb9160f60115734737a890f53">norm</a>(<span class="keyword">const</span> NDArray&amp; a);                            <span class="comment">// default: Frobenius / L2</span><span class="comment"></span></div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="comment"> * 2-norm condition number σ_max/σ_min (∞ if singular).</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="comment"> * @param a matrix.</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="comment"> * @return condition number.</span></div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="comment"> * @complexity iterative O(n³) via SVD.</span></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="comment"> * @alloc allocates scratch O(n²) for the factorization; returns a double.</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="comment"> * @test LinalgRoutines.SlogdetAndCond</span></div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a1a87733ea05b83ae7e5bc18c619ee0b0">cond</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="comment"> * Determinant via LU with partial pivoting.</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="comment"> * @param a square matrix.</span></div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="comment"> * @return det(A).</span></div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="comment"> * @alloc allocates scratch O(n²) for the factorization; returns a double.</span></div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="comment"> * @test LinalgRoutines.SolveDetInv</span></div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aedffc527790c80f83676088b55b57ff4">det</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="comment"> * Numerical rank from SVD singular-value thresholding.</span></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="comment"> * @param a matrix.</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="comment"> * @return rank.</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="comment"> * @complexity iterative O(n³) via SVD.</span></div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="comment"> * @alloc allocates scratch O(n²) for the factorization.</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="comment"> * @test LinalgRoutines.NormAndRank</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">matrix_rank</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="comment">/** Result of slogdet(): det(A) = sign·exp(logabsdet). */</span></div>
+<div class="foldopen" id="foldopen00227" data-start="{" data-end="};">
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SLogDet.html">  227</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> {</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SLogDet.html#aaa63981fd8e2a20e1ea57fa3b2b1dcb8">  228</a></span>    <span class="keywordtype">double</span> <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SLogDet.html#aaa63981fd8e2a20e1ea57fa3b2b1dcb8">sign</a>;       <span class="comment">///&lt; Sign of the determinant (−1, 0, or +1).</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno"><a class="line" href="structcheatah_1_1linalg_1_1SLogDet.html#a131f04085b54ff26be08eec6af6a8d5f">  229</a></span>    <span class="keywordtype">double</span> <a class="code hl_variable" href="structcheatah_1_1linalg_1_1SLogDet.html#a131f04085b54ff26be08eec6af6a8d5f">logabsdet</a>;  <span class="comment">///&lt; Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).</span></div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>};<span class="comment"></span></div>
 </div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="comment"> * Sign and log|det| via LU (overflow-safe determinant).</span></div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="comment"> * @param a square matrix.</span></div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="comment"> * @return @ref SLogDet.</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="comment"> * @note O(n³); allocates scratch O(n²) for the factorization (the struct members are plain</span></div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="comment"> *   doubles).</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="comment"> * @test LinalgRoutines.SlogdetAndCond</span></div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a3d6e14b9367c2c90aad441fe00fa0789">slogdet</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="comment"> * Trace: sum of the main diagonal.</span></div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="comment"> * @param a matrix.</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="comment"> * @return Σ aᵢᵢ.</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span><span class="comment"> * @note O(n) summation, but copies the matrix into scratch O(n²) first; returns a double.</span></div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="comment"> * @test LinalgRoutines.ProductsAndTrace</span></div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a74d99618b24abcef74c90b11380ac7be">trace</a>(<span class="keyword">const</span> NDArray&amp; a);</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="comment">// ---- Solving equations and inverting matrices ----</span><span class="comment"></span></div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="comment"> * Solve A·x = b via LU with partial pivoting.</span></div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="comment"> * @param a square coefficient matrix.</span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="comment"> * @param b right-hand-side vector.</span></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="comment"> * @return solution x.</span></div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="comment"> * @note O(n³); allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="comment"> * @test LinalgRoutines.SolveDetInv</span></div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aa66920736e4d6190b9310fcf14d8dc3b">solve</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);        <span class="comment">// A x = b</span><span class="comment"></span></div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="comment"> * Least-squares solution min‖A·x − b‖ (computed as @ref pinv (a)·b).</span></div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="comment"> * @param a m×n matrix.</span></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="comment"> * @param b right-hand side.</span></div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="comment"> * @return minimizing x.</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="comment"> * @note iterative O(n³) via SVD; allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="comment"> * @test LinalgRoutines.Lstsq</span></div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aae0fffb18efd5f74174b2fd0632d41dd">lstsq</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);        <span class="comment">// least-squares solution</span><span class="comment"></span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="comment"> * Sign and log|det| via LU (overflow-safe determinant).</span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="comment"> * @param a square matrix.</span></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="comment"> * @return @ref SLogDet.</span></div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="comment"> * @alloc allocates scratch O(n²) for the factorization (the struct members are plain doubles).</span></div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="comment"> * @test LinalgRoutines.SlogdetAndCond</span></div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><a class="code hl_struct" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a3d6e14b9367c2c90aad441fe00fa0789">slogdet</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="comment"> * Trace: sum of the main diagonal.</span></div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="comment"> * @param a matrix.</span></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="comment"> * @return Σ aᵢᵢ.</span></div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="comment"> * @complexity O(n) summation.</span></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="comment"> * @alloc copies the matrix into scratch O(n²) first; returns a double.</span></div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="comment"> * @test LinalgRoutines.ProductsAndTrace</span></div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a74d99618b24abcef74c90b11380ac7be">trace</a>(<span class="keyword">const</span> NDArray&amp; a);</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="comment">// ---- Solving equations and inverting matrices ----</span><span class="comment"></span></div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="comment"> * Matrix inverse via LU with partial pivoting.</span></div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="comment"> * @param a square matrix.</span></div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="comment"> * @return A⁻¹.</span></div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="comment"> * @note O(n³); allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="comment"> * @test LinalgRoutines.SolveDetInv</span></div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="comment"> * Moore–Penrose pseudo-inverse via SVD (any shape).</span></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="comment"> * @param a m×n matrix.</span></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="comment"> * @return n×m pseudo-inverse.</span></div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="comment"> * @note iterative O(n³) via SVD; allocates a new NDArray result.</span></div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="comment"> * @test LinalgRoutines.PinvCondRankOnWideMatrix</span></div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a15954951259f3da0e9cd986637238593">pinv</a>(<span class="keyword">const</span> NDArray&amp; a);                           <span class="comment">// Moore–Penrose pseudo-inverse</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>} <span class="comment">// namespace cheatah::linalg</span></div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="comment"> * Solve A·x = b via LU with partial pivoting.</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="comment"> * @param a square coefficient matrix.</span></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="comment"> * @param b right-hand-side vector.</span></div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="comment"> * @return solution x.</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="comment"> * @test LinalgRoutines.SolveDetInv</span></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aa66920736e4d6190b9310fcf14d8dc3b">solve</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);        <span class="comment">// A x = b</span><span class="comment"></span></div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="comment"> * Least-squares solution min‖A·x − b‖ (computed as @ref pinv (a)·b).</span></div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="comment"> * @param a m×n matrix.</span></div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="comment"> * @param b right-hand side.</span></div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="comment"> * @return minimizing x.</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="comment"> * @complexity iterative O(n³) via SVD.</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="comment"> * @test LinalgRoutines.Lstsq</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#aae0fffb18efd5f74174b2fd0632d41dd">lstsq</a>(<span class="keyword">const</span> NDArray&amp; a, <span class="keyword">const</span> NDArray&amp; b);        <span class="comment">// least-squares solution</span><span class="comment"></span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="comment"> * Matrix inverse via LU with partial pivoting.</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="comment"> * @param a square matrix.</span></div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="comment"> * @return A⁻¹.</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="comment"> * @complexity O(n³).</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="comment"> * @test LinalgRoutines.SolveDetInv</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a>(<span class="keyword">const</span> NDArray&amp; a);<span class="comment"></span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="comment"> * Moore–Penrose pseudo-inverse via SVD (any shape).</span></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="comment"> * @param a m×n matrix.</span></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="comment"> * @return n×m pseudo-inverse.</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="comment"> * @complexity iterative O(n³) via SVD.</span></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="comment"> * @alloc allocates a new NDArray result.</span></div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="comment"> * @test LinalgRoutines.PinvCondRankOnWideMatrix</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>NDArray <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a15954951259f3da0e9cd986637238593">pinv</a>(<span class="keyword">const</span> NDArray&amp; a);                           <span class="comment">// Moore–Penrose pseudo-inverse</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>} <span class="comment">// namespace cheatah::linalg</span></div>
 <div class="ttc" id="anamespacecheatah_1_1linalg_html"><div class="ttname"><a href="namespacecheatah_1_1linalg.html">cheatah::linalg</a></div><div class="ttdef"><b>Definition</b> <a href="routines_8cpp_source.html#l00015">routines.cpp:15</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1linalg_html_a15954951259f3da0e9cd986637238593"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#a15954951259f3da0e9cd986637238593">cheatah::linalg::pinv</a></div><div class="ttdeci">NDArray pinv(const NDArray &amp;a)</div><div class="ttdoc">Moore–Penrose pseudo-inverse via SVD (any shape).</div><div class="ttdef"><b>Definition</b> <a href="routines_8cpp_source.html#l00548">routines.cpp:548</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1linalg_html_a1a87733ea05b83ae7e5bc18c619ee0b0"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#a1a87733ea05b83ae7e5bc18c619ee0b0">cheatah::linalg::cond</a></div><div class="ttdeci">double cond(const NDArray &amp;a)</div><div class="ttdoc">2-norm condition number σ_max/σ_min (∞ if singular).</div><div class="ttdef"><b>Definition</b> <a href="routines_8cpp_source.html#l00581">routines.cpp:581</a></div></div>
@@ -383,19 +405,19 @@ $(function(){initNavTree('routines_8hpp_source.html','',''); });
 <div class="ttc" id="anamespacecheatah_1_1linalg_html_afcf3b262470f233b669d00f86bcbc442"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#afcf3b262470f233b669d00f86bcbc442">cheatah::linalg::kron</a></div><div class="ttdeci">NDArray kron(const NDArray &amp;a, const NDArray &amp;b)</div><div class="ttdoc">Kronecker product.</div><div class="ttdef"><b>Definition</b> <a href="routines_8cpp_source.html#l00382">routines.cpp:382</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1linalg_html_afe04c01bb9160f60115734737a890f53"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#afe04c01bb9160f60115734737a890f53">cheatah::linalg::norm</a></div><div class="ttdeci">double norm(const NDArray &amp;a)</div><div class="ttdoc">Norm: L2 for vectors, Frobenius for matrices.</div><div class="ttdef"><b>Definition</b> <a href="routines_8cpp_source.html#l00404">routines.cpp:404</a></div></div>
 <div class="ttc" id="andarray_8hpp_html"><div class="ttname"><a href="ndarray_8hpp.html">ndarray.hpp</a></div><div class="ttdoc">cheatah ndarray — our own numpy-flavored N-dimensional array (of doubles) with NumPy broadcasting,...</div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1Eig_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1Eig.html">cheatah::linalg::Eig</a></div><div class="ttdoc">Result of eig() / eigh(): column j of vectors is the eigenvector for values[j].</div><div class="ttdef"><b>Definition</b> <a href="#l00138">routines.hpp:138</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1Eig_html_a8c7284864d38244c05ef483d329b6e60"><div class="ttname"><a href="structcheatah_1_1linalg_1_1Eig.html#a8c7284864d38244c05ef483d329b6e60">cheatah::linalg::Eig::vectors</a></div><div class="ttdeci">NDArray vectors</div><div class="ttdoc">Eigenvectors as columns: column j matches values[j] (empty if not computed).</div><div class="ttdef"><b>Definition</b> <a href="#l00140">routines.hpp:140</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1Eig_html_a9eee0f9c5866fe132ab74f7db5ebfcb2"><div class="ttname"><a href="structcheatah_1_1linalg_1_1Eig.html#a9eee0f9c5866fe132ab74f7db5ebfcb2">cheatah::linalg::Eig::values</a></div><div class="ttdeci">NDArray values</div><div class="ttdoc">Eigenvalues (length n).</div><div class="ttdef"><b>Definition</b> <a href="#l00139">routines.hpp:139</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1QR_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1QR.html">cheatah::linalg::QR</a></div><div class="ttdoc">Result of qr(): A = q·r with orthonormal q and upper-triangular r.</div><div class="ttdef"><b>Definition</b> <a href="#l00109">routines.hpp:109</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1QR_html_a4ccef2cfd828b50a0b78cbf4a0093539"><div class="ttname"><a href="structcheatah_1_1linalg_1_1QR.html#a4ccef2cfd828b50a0b78cbf4a0093539">cheatah::linalg::QR::q</a></div><div class="ttdeci">NDArray q</div><div class="ttdoc">Orthonormal columns, m×n (the Q in A = Q·R).</div><div class="ttdef"><b>Definition</b> <a href="#l00110">routines.hpp:110</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1QR_html_aad7ea88b04a6be05583b6bfc90c62c3e"><div class="ttname"><a href="structcheatah_1_1linalg_1_1QR.html#aad7ea88b04a6be05583b6bfc90c62c3e">cheatah::linalg::QR::r</a></div><div class="ttdeci">NDArray r</div><div class="ttdoc">Upper-triangular factor, n×n (the R in A = Q·R).</div><div class="ttdef"><b>Definition</b> <a href="#l00111">routines.hpp:111</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SLogDet_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SLogDet.html">cheatah::linalg::SLogDet</a></div><div class="ttdoc">Result of slogdet(): det(A) = sign·exp(logabsdet).</div><div class="ttdef"><b>Definition</b> <a href="#l00210">routines.hpp:210</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SLogDet_html_a131f04085b54ff26be08eec6af6a8d5f"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SLogDet.html#a131f04085b54ff26be08eec6af6a8d5f">cheatah::linalg::SLogDet::logabsdet</a></div><div class="ttdeci">double logabsdet</div><div class="ttdoc">Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).</div><div class="ttdef"><b>Definition</b> <a href="#l00212">routines.hpp:212</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SLogDet_html_aaa63981fd8e2a20e1ea57fa3b2b1dcb8"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SLogDet.html#aaa63981fd8e2a20e1ea57fa3b2b1dcb8">cheatah::linalg::SLogDet::sign</a></div><div class="ttdeci">double sign</div><div class="ttdoc">Sign of the determinant (−1, 0, or +1).</div><div class="ttdef"><b>Definition</b> <a href="#l00211">routines.hpp:211</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html">cheatah::linalg::SVD</a></div><div class="ttdoc">Result of svd(): A = u·diag(s)·vh.</div><div class="ttdef"><b>Definition</b> <a href="#l00122">routines.hpp:122</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html_a1e8de6f3a0b6c6850f7504ad9c321520"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html#a1e8de6f3a0b6c6850f7504ad9c321520">cheatah::linalg::SVD::u</a></div><div class="ttdeci">NDArray u</div><div class="ttdoc">Left singular vectors, m×n.</div><div class="ttdef"><b>Definition</b> <a href="#l00123">routines.hpp:123</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html_a331cb2e38eac9f312659248dabb55b40"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html#a331cb2e38eac9f312659248dabb55b40">cheatah::linalg::SVD::s</a></div><div class="ttdeci">NDArray s</div><div class="ttdoc">Singular values in descending order (length n).</div><div class="ttdef"><b>Definition</b> <a href="#l00124">routines.hpp:124</a></div></div>
-<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html_ab1904075439b30a69b6c8c333e5fcba1"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html#ab1904075439b30a69b6c8c333e5fcba1">cheatah::linalg::SVD::vh</a></div><div class="ttdeci">NDArray vh</div><div class="ttdoc">Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).</div><div class="ttdef"><b>Definition</b> <a href="#l00125">routines.hpp:125</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1Eig_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1Eig.html">cheatah::linalg::Eig</a></div><div class="ttdoc">Result of eig() / eigh(): column j of vectors is the eigenvector for values[j].</div><div class="ttdef"><b>Definition</b> <a href="#l00148">routines.hpp:148</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1Eig_html_a8c7284864d38244c05ef483d329b6e60"><div class="ttname"><a href="structcheatah_1_1linalg_1_1Eig.html#a8c7284864d38244c05ef483d329b6e60">cheatah::linalg::Eig::vectors</a></div><div class="ttdeci">NDArray vectors</div><div class="ttdoc">Eigenvectors as columns: column j matches values[j] (empty if not computed).</div><div class="ttdef"><b>Definition</b> <a href="#l00150">routines.hpp:150</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1Eig_html_a9eee0f9c5866fe132ab74f7db5ebfcb2"><div class="ttname"><a href="structcheatah_1_1linalg_1_1Eig.html#a9eee0f9c5866fe132ab74f7db5ebfcb2">cheatah::linalg::Eig::values</a></div><div class="ttdeci">NDArray values</div><div class="ttdoc">Eigenvalues (length n).</div><div class="ttdef"><b>Definition</b> <a href="#l00149">routines.hpp:149</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1QR_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1QR.html">cheatah::linalg::QR</a></div><div class="ttdoc">Result of qr(): A = q·r with orthonormal q and upper-triangular r.</div><div class="ttdef"><b>Definition</b> <a href="#l00117">routines.hpp:117</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1QR_html_a4ccef2cfd828b50a0b78cbf4a0093539"><div class="ttname"><a href="structcheatah_1_1linalg_1_1QR.html#a4ccef2cfd828b50a0b78cbf4a0093539">cheatah::linalg::QR::q</a></div><div class="ttdeci">NDArray q</div><div class="ttdoc">Orthonormal columns, m×n (the Q in A = Q·R).</div><div class="ttdef"><b>Definition</b> <a href="#l00118">routines.hpp:118</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1QR_html_aad7ea88b04a6be05583b6bfc90c62c3e"><div class="ttname"><a href="structcheatah_1_1linalg_1_1QR.html#aad7ea88b04a6be05583b6bfc90c62c3e">cheatah::linalg::QR::r</a></div><div class="ttdeci">NDArray r</div><div class="ttdoc">Upper-triangular factor, n×n (the R in A = Q·R).</div><div class="ttdef"><b>Definition</b> <a href="#l00119">routines.hpp:119</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SLogDet_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SLogDet.html">cheatah::linalg::SLogDet</a></div><div class="ttdoc">Result of slogdet(): det(A) = sign·exp(logabsdet).</div><div class="ttdef"><b>Definition</b> <a href="#l00227">routines.hpp:227</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SLogDet_html_a131f04085b54ff26be08eec6af6a8d5f"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SLogDet.html#a131f04085b54ff26be08eec6af6a8d5f">cheatah::linalg::SLogDet::logabsdet</a></div><div class="ttdeci">double logabsdet</div><div class="ttdoc">Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).</div><div class="ttdef"><b>Definition</b> <a href="#l00229">routines.hpp:229</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SLogDet_html_aaa63981fd8e2a20e1ea57fa3b2b1dcb8"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SLogDet.html#aaa63981fd8e2a20e1ea57fa3b2b1dcb8">cheatah::linalg::SLogDet::sign</a></div><div class="ttdeci">double sign</div><div class="ttdoc">Sign of the determinant (−1, 0, or +1).</div><div class="ttdef"><b>Definition</b> <a href="#l00228">routines.hpp:228</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html">cheatah::linalg::SVD</a></div><div class="ttdoc">Result of svd(): A = u·diag(s)·vh.</div><div class="ttdef"><b>Definition</b> <a href="#l00131">routines.hpp:131</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html_a1e8de6f3a0b6c6850f7504ad9c321520"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html#a1e8de6f3a0b6c6850f7504ad9c321520">cheatah::linalg::SVD::u</a></div><div class="ttdeci">NDArray u</div><div class="ttdoc">Left singular vectors, m×n.</div><div class="ttdef"><b>Definition</b> <a href="#l00132">routines.hpp:132</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html_a331cb2e38eac9f312659248dabb55b40"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html#a331cb2e38eac9f312659248dabb55b40">cheatah::linalg::SVD::s</a></div><div class="ttdeci">NDArray s</div><div class="ttdoc">Singular values in descending order (length n).</div><div class="ttdef"><b>Definition</b> <a href="#l00133">routines.hpp:133</a></div></div>
+<div class="ttc" id="astructcheatah_1_1linalg_1_1SVD_html_ab1904075439b30a69b6c8c333e5fcba1"><div class="ttname"><a href="structcheatah_1_1linalg_1_1SVD.html#ab1904075439b30a69b6c8c333e5fcba1">cheatah::linalg::SVD::vh</a></div><div class="ttdeci">NDArray vh</div><div class="ttdoc">Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).</div><div class="ttdef"><b>Definition</b> <a href="#l00134">routines.hpp:134</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

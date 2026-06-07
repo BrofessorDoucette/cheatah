@@ -33,7 +33,8 @@ namespace cheatah::socket {
  * @param port TCP port (0 = let the OS pick — read it back with local_port()).
  * @param backlog pending-connection queue length.
  * @return the listening fd, or -1 on error.
- * @note O(1) (a few syscalls); no heap.
+ * @complexity O(1) (a few syscalls).
+ * @alloc none.
  * @test CheatahSocket.Loopback
  */
 long long tcp_listen(const std::string& host, long long port, long long backlog);
@@ -43,7 +44,8 @@ long long tcp_listen(const std::string& host, long long port, long long backlog)
  * @param host destination host (name or IP).
  * @param port destination port.
  * @return the connected fd, or -1 on error.
- * @note O(1) + DNS resolution; no heap.
+ * @complexity O(1) + DNS resolution.
+ * @alloc none.
  * @test CheatahSocket.Loopback
  */
 long long tcp_connect(const std::string& host, long long port);
@@ -54,7 +56,8 @@ long long tcp_connect(const std::string& host, long long port);
  * Accept one pending connection.
  * @param fd a listening fd.
  * @return the connected client fd, or -1 on error.
- * @note O(1) syscall (blocks until a client arrives); no heap.
+ * @complexity O(1) syscall (blocks until a client arrives).
+ * @alloc none.
  * @test CheatahSocket.Loopback
  */
 long long accept(long long fd);
@@ -64,7 +67,8 @@ long long accept(long long fd);
  * @param fd a connected fd.
  * @param bufsize maximum bytes to read.
  * @return the bytes read (binary-safe), or "" on EOF/error.
- * @note O(@p bufsize); allocates the returned string.
+ * @complexity O(@p bufsize).
+ * @alloc allocates the returned string.
  * @test CheatahSocket.Loopback
  */
 std::string recv(long long fd, long long bufsize);
@@ -74,7 +78,8 @@ std::string recv(long long fd, long long bufsize);
  * @param fd a connected fd.
  * @param data bytes to send.
  * @return bytes actually sent, or -1 on error.
- * @note O(n); no heap (`MSG_NOSIGNAL`, so a broken pipe never raises `SIGPIPE`).
+ * @complexity O(n).
+ * @alloc none (`MSG_NOSIGNAL`, so a broken pipe never raises `SIGPIPE`).
  * @test CheatahSocket.Sendall
  */
 long long send(long long fd, const std::string& data);
@@ -84,7 +89,8 @@ long long send(long long fd, const std::string& data);
  * @param fd a connected fd.
  * @param data bytes to send.
  * @return 0 on success, -1 on error.
- * @note O(n); no heap.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahSocket.Sendall
  */
 long long sendall(long long fd, const std::string& data);
@@ -93,7 +99,8 @@ long long sendall(long long fd, const std::string& data);
  * Close a socket.
  * @param fd the fd to close.
  * @return 0 on success, -1 on error.
- * @note O(1) syscall; no heap.
+ * @complexity O(1) syscall.
+ * @alloc none.
  * @test CheatahSocket.BadFd
  */
 long long close(long long fd);
@@ -103,7 +110,8 @@ long long close(long long fd);
 /**
  * Create an IPv4 TCP socket.
  * @return the new fd, or -1 on error.
- * @note O(1); no heap.
+ * @complexity O(1).
+ * @alloc none.
  * @test CheatahSocket.ListenLowLevel
  */
 long long socket();
@@ -112,7 +120,8 @@ long long socket();
  * Enable `SO_REUSEADDR` on @p fd.
  * @param fd the socket.
  * @return 0 on success, -1 on error.
- * @note O(1); no heap.
+ * @complexity O(1).
+ * @alloc none.
  * @test CheatahSocket.ListenLowLevel
  */
 long long set_reuseaddr(long long fd);
@@ -123,7 +132,8 @@ long long set_reuseaddr(long long fd);
  * @param host interface to bind.
  * @param port TCP port (0 = OS-assigned).
  * @return 0 on success, -1 on error.
- * @note O(1) + resolution; no heap.
+ * @complexity O(1) + resolution.
+ * @alloc none.
  * @test CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure
  */
 long long bind(long long fd, const std::string& host, long long port);
@@ -133,7 +143,8 @@ long long bind(long long fd, const std::string& host, long long port);
  * @param fd the socket.
  * @param backlog queue length.
  * @return 0 on success, -1 on error.
- * @note O(1); no heap.
+ * @complexity O(1).
+ * @alloc none.
  * @test CheatahSocket.ListenLowLevel
  */
 long long listen(long long fd, long long backlog);
@@ -144,7 +155,8 @@ long long listen(long long fd, long long backlog);
  * @param host destination.
  * @param port destination port.
  * @return 0 on success, -1 on error.
- * @note O(1) + DNS; no heap.
+ * @complexity O(1) + DNS.
+ * @alloc none.
  * @test CheatahSocket.ConnectRefused
  */
 long long connect(long long fd, const std::string& host, long long port);
@@ -153,7 +165,8 @@ long long connect(long long fd, const std::string& host, long long port);
  * The local TCP port @p fd is bound to (useful after binding to port 0).
  * @param fd a bound socket.
  * @return the port, or -1 on error.
- * @note O(1) syscall; no heap.
+ * @complexity O(1) syscall.
+ * @alloc none.
  * @test CheatahSocket.Loopback
  */
 long long local_port(long long fd);
@@ -161,7 +174,8 @@ long long local_port(long long fd);
 /**
  * The message for the current `errno`.
  * @return `strerror(errno)`.
- * @note O(1); allocates the returned string.
+ * @complexity O(1).
+ * @alloc allocates the returned string.
  * @test CheatahSocket.ConnectRefused
  */
 std::string last_error();

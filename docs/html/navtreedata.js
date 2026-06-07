@@ -26,6 +26,8 @@ var NAVTREE =
 [
   [ "cheatah", "index.html", [
     [ "cheatah 🐆 standard library", "index.html", "index" ],
+    [ "Complexity", "complexity.html", null ],
+    [ "Allocation", "alloc.html", null ],
     [ "Test List", "test.html", null ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -53,8 +55,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html",
-"namespacecheatah_1_1os.html#a6093cccd561d1ff5f68acea6ecbcfe94"
+"alloc.html",
+"namespacecheatah_1_1os.html#a0eedb385c33a9d7b4fc8d0ae5c180f2f"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

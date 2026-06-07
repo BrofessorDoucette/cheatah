@@ -36,7 +36,8 @@ class NDArray {
 public:
     /**
      * Construct an empty 0-d array with a fresh empty buffer.
-     * @note O(1); allocates the empty shared buffer.
+     * @complexity O(1).
+     * @alloc allocates the empty shared buffer.
      * @test CheatahNDArray.ToStringScalar
      */
     NDArray();
@@ -44,7 +45,8 @@ public:
      * Construct a contiguous array of @p shape filled with @p fill.
      * @param shape the dimensions.
      * @param fill value for every element.
-     * @note O(size); allocates a new NDArray buffer (shared_ptr<vector<double>>) of
+     * @complexity O(size).
+     * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>) of
      *   `product(shape)` elements; throws if the shape overflows size_t.
      * @test CheatahNDArray.ShapeFactoriesAndReductions
      */
@@ -55,7 +57,8 @@ public:
      * @param shape the dimensions.
      * @param strides element strides per dimension.
      * @param offset starting flat offset into @p data.
-     * @note O(1); shares @p data, no element copy.
+     * @complexity O(1).
+     * @alloc shares @p data, no element copy.
      * @test CheatahNDArray.BroadcastTo
      */
     NDArray(std::shared_ptr<std::vector<double>> data, std::vector<std::size_t> shape,
@@ -64,28 +67,32 @@ public:
     /**
      * The shape (dimensions).
      * @return reference to the shape vector.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahNDArray.ShapeFactoriesAndReductions
      */
     const std::vector<std::size_t>& shape() const { return shape_; }
     /**
      * The element strides.
      * @return reference to the strides vector.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahNDArray.BroadcastTo
      */
     const std::vector<std::ptrdiff_t>& strides() const { return strides_; }
     /**
      * The number of dimensions (rank).
      * @return `shape().size()`.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahNDArray.BroadcastingAdd
      */
     std::size_t ndim() const { return shape_.size(); }
     /**
      * The element count (product of dims; 1 for a 0-d scalar).
      * @return the number of elements.
-     * @note O(ndim); no heap; throws on size overflow.
+     * @complexity O(ndim).
+     * @alloc none; throws on size overflow.
      * @test CheatahNDArray.ShapeFactoriesAndReductions
      */
     std::size_t size() const;  // product of dims (1 for a 0-d scalar)
@@ -94,7 +101,8 @@ public:
      * Read one element by multi-index (via strides).
      * @param index one coordinate per dimension.
      * @return the element value.
-     * @note O(ndim); no heap; bounds-checks rank and range, throwing on a bad index.
+     * @complexity O(ndim).
+     * @alloc none; bounds-checks rank and range, throwing on a bad index.
      * @test CheatahNDArray.ShapeFactoriesAndReductions,
      *   CheatahNDArray.RejectsMaliciousShapesAndIndices
      */
@@ -102,14 +110,16 @@ public:
     /**
      * The shared backing buffer.
      * @return reference to the element buffer shared_ptr.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahNDArray.BroadcastingAdd
      */
     const std::shared_ptr<std::vector<double>>& buffer() const { return data_; }
     /**
      * The flat offset into the buffer where this view starts.
      * @return the offset.
-     * @note O(1); no heap.
+     * @complexity O(1).
+     * @alloc none.
      * @test CheatahNDArray.BroadcastTo
      */
     std::size_t offset() const { return offset_; }
@@ -126,7 +136,8 @@ private:
  * @param a first shape.
  * @param b second shape.
  * @return the broadcast shape (trailing-aligned).
- * @note O(max(ndim)); allocates the small result vector; throws if the shapes are incompatible.
+ * @complexity O(max(ndim)).
+ * @alloc allocates the small result vector; throws if the shapes are incompatible.
  * @test CheatahNDArray.BroadcastShapeRules
  */
 std::vector<std::size_t> broadcast_shapes(const std::vector<std::size_t>& a,
@@ -136,7 +147,8 @@ std::vector<std::size_t> broadcast_shapes(const std::vector<std::size_t>& a,
  * @param a source array.
  * @param target the shape to stretch to.
  * @return a VIEW sharing @p a's buffer (no element copy).
- * @note O(target ndim); allocates only the small strides vector for the view, not the data;
+ * @complexity O(target ndim).
+ * @alloc allocates only the small strides vector for the view, not the data;
  *   throws if @p a is not broadcastable to @p target.
  * @test CheatahNDArray.BroadcastTo
  */
@@ -147,7 +159,8 @@ NDArray broadcast_to(const NDArray& a, const std::vector<std::size_t>& target);
  * 1-D array from a list of values.
  * @param values the elements.
  * @return a contiguous 1-D NDArray.
- * @note O(n); allocates a new NDArray buffer (shared_ptr<vector<double>>).
+ * @complexity O(n).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>).
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  */
 NDArray array(const std::vector<double>& values);  // 1-D from a list[float]
@@ -155,7 +168,8 @@ NDArray array(const std::vector<double>& values);  // 1-D from a list[float]
  * 0-D scalar array (broadcasts to anything).
  * @param value the single element.
  * @return a 0-d NDArray.
- * @note O(1); allocates a new NDArray buffer holding one element.
+ * @complexity O(1).
+ * @alloc allocates a new NDArray buffer holding one element.
  * @test CheatahNDArray.ElementwiseAndScalarBroadcast, CheatahNDArray.ToStringScalar
  */
 NDArray scalar(double value);                      // 0-D (broadcasts to anything)
@@ -163,7 +177,8 @@ NDArray scalar(double value);                      // 0-D (broadcasts to anythin
  * Array of @p shape filled with 0.
  * @param shape the dimensions (rejects negatives).
  * @return a zero-filled NDArray.
- * @note O(size); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws on
+ * @complexity O(size).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws on
  *   negative or overflowing dims.
  * @test CheatahNDArray.ShapeFactoriesAndReductions,
  *   CheatahNDArray.RejectsMaliciousShapesAndIndices
@@ -173,7 +188,8 @@ NDArray zeros(const std::vector<long long>& shape);
  * Array of @p shape filled with 1.
  * @param shape the dimensions (rejects negatives).
  * @return a one-filled NDArray.
- * @note O(size); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws on
+ * @complexity O(size).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws on
  *   negative or overflowing dims.
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  */
@@ -183,7 +199,8 @@ NDArray ones(const std::vector<long long>& shape);
  * @param shape the dimensions (rejects negatives).
  * @param value the fill value.
  * @return a filled NDArray.
- * @note O(size); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws on
+ * @complexity O(size).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws on
  *   negative or overflowing dims.
  * @test CheatahNDArray.RejectsMaliciousShapesAndIndices
  */
@@ -194,7 +211,8 @@ NDArray full(const std::vector<long long>& shape, double value);
  * @param stop exclusive bound.
  * @param step increment (non-zero).
  * @return a 1-D NDArray of the generated values.
- * @note O(count) where count = number of steps; allocates a new NDArray buffer
+ * @complexity O(count) where count = number of steps.
+ * @alloc allocates a new NDArray buffer
  *   (shared_ptr<vector<double>>); throws if @p step is zero.
  * @test CheatahNDArray.Arange
  */
@@ -204,7 +222,8 @@ NDArray arange(double start, double stop, double step);
  * @param a source array.
  * @param shape the new dimensions (rejects negatives).
  * @return a new contiguous NDArray with the data laid out in C-order.
- * @note O(size); flattens through views and allocates a new NDArray buffer
+ * @complexity O(size).
+ * @alloc flattens through views and allocates a new NDArray buffer
  *   (shared_ptr<vector<double>>); throws on size mismatch or negative dims.
  * @test CheatahNDArray.BroadcastingAdd, CheatahNDArray.ReshapeSizeMismatchThrows
  */
@@ -216,7 +235,8 @@ NDArray reshape(const NDArray& a, const std::vector<long long>& shape);
  * @param a first operand.
  * @param b second operand.
  * @return `a + b` broadcast to their common shape.
- * @note O(size of result); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
+ * @complexity O(size of result).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
  *   if shapes don't broadcast.
  * @test CheatahNDArray.BroadcastingAdd
  */
@@ -226,7 +246,8 @@ NDArray add(const NDArray& a, const NDArray& b);
  * @param a first operand.
  * @param b second operand.
  * @return `a - b` broadcast to their common shape.
- * @note O(size of result); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
+ * @complexity O(size of result).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
  *   if shapes don't broadcast.
  * @test CheatahNDArray.ElementwiseAndScalarBroadcast
  */
@@ -236,7 +257,8 @@ NDArray sub(const NDArray& a, const NDArray& b);
  * @param a first operand.
  * @param b second operand.
  * @return `a * b` broadcast to their common shape.
- * @note O(size of result); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
+ * @complexity O(size of result).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
  *   if shapes don't broadcast.
  * @test CheatahNDArray.ElementwiseAndScalarBroadcast
  */
@@ -246,7 +268,8 @@ NDArray mul(const NDArray& a, const NDArray& b);
  * @param a numerator.
  * @param b denominator.
  * @return `a / b` broadcast to their common shape.
- * @note O(size of result); allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
+ * @complexity O(size of result).
+ * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>); throws
  *   if shapes don't broadcast.
  * @test CheatahNDArray.ElementwiseAndScalarBroadcast
  */
@@ -257,7 +280,8 @@ NDArray divide(const NDArray& a, const NDArray& b);
  * Sum of all elements.
  * @param a the array.
  * @return the total.
- * @note O(size); no heap.
+ * @complexity O(size).
+ * @alloc none.
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  */
 double sum(const NDArray& a);
@@ -265,7 +289,8 @@ double sum(const NDArray& a);
  * Mean of all elements (0 for an empty array).
  * @param a the array.
  * @return the average.
- * @note O(size); no heap.
+ * @complexity O(size).
+ * @alloc none.
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  */
 double mean(const NDArray& a);
@@ -274,7 +299,8 @@ double mean(const NDArray& a);
  * @param a the array.
  * @param index one coordinate per dimension (rejects negatives).
  * @return the element value.
- * @note O(ndim); no heap; bounds-checks rank/range and throws on a bad index.
+ * @complexity O(ndim).
+ * @alloc none; bounds-checks rank/range and throws on a bad index.
  * @test CheatahNDArray.ShapeFactoriesAndReductions,
  *   CheatahNDArray.RejectsMaliciousShapesAndIndices
  */
@@ -283,7 +309,8 @@ double get(const NDArray& a, const std::vector<long long>& index);
  * The shape as signed dims.
  * @param a the array.
  * @return a vector of the dimensions.
- * @note O(ndim); allocates a small vector.
+ * @complexity O(ndim).
+ * @alloc allocates a small vector.
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  */
 std::vector<long long> shape_of(const NDArray& a);
@@ -291,7 +318,8 @@ std::vector<long long> shape_of(const NDArray& a);
  * The element count as a signed value.
  * @param a the array.
  * @return the number of elements.
- * @note O(ndim); no heap.
+ * @complexity O(ndim).
+ * @alloc none.
  * @test CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.Arange
  */
 long long size_of(const NDArray& a);
@@ -299,7 +327,8 @@ long long size_of(const NDArray& a);
  * Render as a nested-bracket string, e.g. `"[[1, 2], [3, 4]]"`.
  * @param a the array.
  * @return the textual representation.
- * @note O(size); allocates the result string.
+ * @complexity O(size).
+ * @alloc allocates the result string.
  * @test CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd
  */
 std::string to_string(const NDArray& a);  // e.g. "[[1, 2], [3, 4]]"

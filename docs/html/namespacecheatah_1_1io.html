@@ -150,12 +150,13 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a copy of <code class="param">value</code>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result copy. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000032">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000032">Allocation</a></b></dt><dd>allocates the result copy. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000032">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00007">7</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00075">print()</a>, and <a class="el" href="io_8hpp_source.html#l00089">repr()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00079">print()</a>, and <a class="el" href="io_8hpp_source.html#l00094">repr()</a>.</p>
 <div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
@@ -188,7 +189,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">"True"</span> or <span class="tt">"False"</span>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); allocates the small result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000033">Complexity</a></b></dt><dd>O(1). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000033">Allocation</a></b></dt><dd>allocates the small result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000033">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00008">8</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
@@ -218,7 +220,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000036">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000036">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000036">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00010">10</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
@@ -248,7 +251,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000037">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000037">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000037">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00011">11</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
@@ -278,7 +282,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the line read, with the trailing newline stripped. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(line length); allocates the returned string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000039">Complexity</a></b></dt><dd>O(line length). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000039">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000039">Test</a></b></dt><dd>CheatahIo.InputReadsALine </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00019">19</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
@@ -313,7 +318,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>an open <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> (move-returned). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) plus the OS open; constructs a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>, no heap of our own. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000040">Complexity</a></b></dt><dd>O(1) plus the OS open. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000040">Allocation</a></b></dt><dd>constructs a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>; no heap of our own. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000040">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00072">72</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
@@ -343,7 +349,8 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the file's contents, or "" if it cannot be opened. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(file size); allocates the returned string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000041">Complexity</a></b></dt><dd>O(file size). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000041">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000041">Test</a></b></dt><dd>CheatahIo.ReadFileWholeAndBinary </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00074">74</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
@@ -375,10 +382,11 @@ template&lt;Streamable T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> formatted as text. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) in the output length; allocates the result string (via an ostringstream). </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000031">Complexity</a></b></dt><dd>O(n) in the output length. </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000031">Allocation</a></b></dt><dd>allocates the result string (via an ostringstream). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000031">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00045">45</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00046">46</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 </div>
 </div>
@@ -407,10 +415,11 @@ template&lt;Streamable... Args&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>O(total output length); each arg is routed through <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000034">Complexity</a></b></dt><dd>O(total output length). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000034">Allocation</a></b></dt><dd>each arg is routed through <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000034">Test</a></b></dt><dd>CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00075">75</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00079">79</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
 <div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
@@ -447,10 +456,11 @@ template&lt;Streamable T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> formatted as text. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000035">Complexity</a></b></dt><dd>O(n). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000035">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000035">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00089">89</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00094">94</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
 <div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
@@ -492,10 +502,11 @@ template&lt;Streamable... Args&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(len(fmt) + total arg output); allocates the result string (via an ostringstream). </dd></dl>
+<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000038">Complexity</a></b></dt><dd>O(len(fmt) + total arg output). </dd></dl>
+<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000038">Allocation</a></b></dt><dd>allocates the result string (via an ostringstream). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000038">Test</a></b></dt><dd>CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00143">143</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00151">151</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00014">cheatah::io::detail::format_into()</a>.</p>
 <div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>

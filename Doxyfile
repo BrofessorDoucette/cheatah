@@ -21,6 +21,11 @@ TOC_INCLUDE_HEADINGS   = 5
 AUTOLINK_SUPPORT       = YES
 TAB_SIZE               = 4
 
+# Custom doc tags: split the old combined @note into structured, separately
+# styled sections (see docs/theme/cheetah.css for their colors).
+ALIASES                = "complexity=\xrefitem complexity \"Complexity\" \"Complexity\""
+ALIASES               += "alloc=\xrefitem alloc \"Allocation\" \"Allocation\""
+
 #---------------------------------------------------------------------------
 # Build / extraction
 #---------------------------------------------------------------------------

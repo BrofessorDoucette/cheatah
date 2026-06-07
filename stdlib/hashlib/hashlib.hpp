@@ -21,8 +21,8 @@ namespace cheatah::hashlib {
  * @param data the bytes to hash (an embedded NUL is part of the input, since the length is
  *   carried).
  * @return a 64-char lowercase hex digest.
- * @note O(n) in the input length; allocates the 64-char result string and a padded message
- *   buffer internally.
+ * @complexity O(n) in the input length.
+ * @alloc allocates the 64-char result string and a padded message buffer internally.
  * @test CheatahHashlib.KnownVectors, CheatahHashlib.DigestShape,
  *   CheatahHashlib.EmbeddedNulIsHashed
  */
