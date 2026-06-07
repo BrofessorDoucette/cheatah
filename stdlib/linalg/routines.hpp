@@ -28,8 +28,8 @@
 namespace cheatah::linalg {
 
 // The routines operate on cheatah::ndarray::NDArray, re-exported unqualified for brevity in the
-// signatures below. The directive below hides this re-export from Doxygen so it does not emit a
-// phantom duplicate cheatah::linalg::NDArray class in the namespace/XML structure.
+// signatures below. The directive below hides this re-export from the API doc generator so it
+// does not emit a phantom duplicate cheatah::linalg::NDArray class in the namespace/XML structure.
 /// \cond INTERNAL
 using ndarray::NDArray;
 /// \endcond

@@ -40,7 +40,7 @@ h2.groupheader {
 		   -12px 0 black,
 		    12px 1px #1D2A43,
 		   -12px 1px #1D2A43;
-	color: #90A5CE;
+	color: #d6ad73;
 	font-size: 150%;
 	font-weight: normal;
 	margin-top: 1.75em;
@@ -215,13 +215,13 @@ dt.alphachar{
 /* @group Link Styling */
 
 a {
-	color: #90A5CE;
+	color: #d6ad73;
 	font-weight: normal;
 	text-decoration: none;
 }
 
 .contents a:visited {
-	color: #90A5CE;
+	color: #d6ad73;
 }
 
 span.label a:hover {
@@ -237,11 +237,11 @@ a.elRef {
 }
 
 a.el, a.el:visited, a.code, a.code:visited, a.line, a.line:visited {
-	color: #90A5CE;
+	color: #d6ad73;
 }
 
 a.codeRef, a.codeRef:visited, a.lineRef, a.lineRef:visited {
-	color: #A3B4D7;
+	color: #cdb083;
 }
 
 a.code.hl_class { /* style for links to class names in code snippets */ }
@@ -542,7 +542,7 @@ div.groupHeader {
 	           -13px 0 black,
 	            13px 1px #1D2A43,
 	           -13px 1px #1D2A43;
-	color: #90A5CE;
+	color: #d6ad73;
 	font-size: 110%;
 	font-weight: 500;
 	margin-left: 0px;
@@ -1113,7 +1113,7 @@ div.directory {
 	cursor: pointer;
 	padding-left: 2px;
 	padding-right: 2px;
-	color: #90A5CE;
+	color: #d6ad73;
 }
 
 .arrow {
@@ -1460,7 +1460,7 @@ div.missing_verifies {
 .navpath li.navelem a {
 	text-shadow: none;
 	display: inline-block;
-	color: #90A5CE;
+	color: #d6ad73;
 	position: relative;
 	top: 0px;
 	height: 30px;
@@ -1593,9 +1593,9 @@ dl.note .tt, dl.remark .tt {
 }
 
 dl.todo {
-	background: #163750;
+	background: #211c16;
 	border-left: 8px solid #d6ad73;
-	color: #dcf0fa;
+	color: #efe2c9;
 }
 
 dl.todo dt {
@@ -1603,21 +1603,21 @@ dl.todo dt {
 }
 
 dl.todo .tt {
-	background-color: hsl(from #163750 h s calc(l + 5));
+	background-color: hsl(from #211c16 h s calc(l + 5));
 }
 
 dl.test {
-	background: #121258;
-	border-left: 8px solid #4242cf;
-	color: #c0c0da;
+	background: #232a1d;
+	border-left: 8px solid #93b06f;
+	color: #d3e0c0;
 }
 
 dl.test dt {
-	color: #4242cf;
+	color: #93b06f;
 }
 
 dl.test .tt {
-	background-color: hsl(from #121258 h s calc(l + 5));
+	background-color: hsl(from #232a1d h s calc(l + 5));
 }
 
 dl.bug dt a {
@@ -1769,7 +1769,7 @@ dl.citelist {
 }
 
 dl.citelist dt {
-	color:#90A5CE;
+	color:#d6ad73;
 	float:left;
 	font-weight:bold;
 	margin-right:10px;
@@ -1804,7 +1804,7 @@ div.toc li {
 
 div.toc h3 {
 	font: bold 12px/1.2 Verdana,'DejaVu Sans',Geneva,sans-serif;
-	color: #A3B4D7;
+	color: #cdb083;
 	border-bottom: 0 none;
 	margin: 0;
 }

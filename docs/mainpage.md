@@ -47,3 +47,5 @@ reference, or start from a module's header (e.g. `math.hpp`, `linalg/routines.hp
 ---
 
 <div class="cheetah-slogan">🐆 Built for speed. Guarded for safety. 🐱</div>
+
+<p class="cheetah-colophon">Reference site generated with <a href="https://www.doxygen.org/">Doxygen</a> and <a href="https://github.com/jothepro/doxygen-awesome-css">doxygen-awesome-css</a>.</p>

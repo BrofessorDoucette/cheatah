@@ -12,7 +12,16 @@
  * In-text links underlined (1.4.1); visible tan focus ring (2.4.7 / 1.4.11).
  */
 
-html {
+/*
+ * Apply the earthy palette in light AND dark. doxygen-awesome defines its dark
+ * variables under `html:not(.light-mode)` (in a prefers-color-scheme media query)
+ * and `html.dark-mode` — both specificity (0,1,1), which outranks a plain `html`
+ * (0,0,1). Matching that specificity here (and loading after doxygen-awesome) lets
+ * cheatah's theme win in every mode, instead of falling back to the stock theme.
+ */
+html,
+html:not(.light-mode),
+html.dark-mode {
     /* ---- Warm tan / clay accents (earthy, not neon) ---- */
     --primary-color:          #d6ad73;   /* warm goldenrod-tan */
     --primary-dark-color:      #e7c897;   /* lighter tan for hover/visited */
@@ -264,3 +273,61 @@ dl.note dt { color: var(--primary-color) !important; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-light-color); }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/* ============================================================================
+ * Modern pass — declutter + refine toward a contemporary 2026 reference look.
+ * ==========================================================================*/
+
+/* ---- Remove the right-hand page-navigation panel (Doxygen's on-page outline) ---- */
+#page-nav, .page-nav-panel, #page-nav-resize-handle,
+#page-nav-tree, #page-nav-contents { display: none !important; }
+
+/* ---- @test admonition: the theme's sage/olive ("verified"), not Doxygen blue ---- */
+dl.test {
+    background: var(--invariant-color) !important;
+    border-left: 8px solid var(--invariant-color-dark) !important;
+    color: var(--invariant-color-darker) !important;
+}
+dl.test dt { color: var(--invariant-color-dark) !important; }
+dl.test a, dl.test dt a, dl.test a.el, dl.test a.el:visited { color: #c8dca6 !important; }
+dl.test .tt { background-color: #1b2016 !important; }
+
+/* ---- Homepage Doxygen credit (deliberate, small, muted) ---- */
+.cheetah-colophon {
+    max-width: var(--content-maxwidth); margin: 2.6em auto .4em; text-align: center;
+    font-family: var(--font-family); font-size: .82rem;
+    color: var(--page-secondary-foreground-color); opacity: .8;
+}
+.cheetah-colophon a {
+    color: var(--page-secondary-foreground-color);
+    text-decoration: underline; text-decoration-color: var(--separator-color); text-underline-offset: 2px;
+}
+.cheetah-colophon a:hover { color: var(--primary-color); text-decoration-color: var(--primary-color); }
+
+/* ---- Reading rhythm: a touch more air for a modern feel ---- */
+.textblock, .memdoc, dl.params dd, .contents li { line-height: 1.72; }
+.contents h1, .contents h2, .contents h3 { letter-spacing: -.012em; }
+html { scroll-behavior: smooth; }
+
+/* ---- Code fragments: softer, self-contained cards ---- */
+div.fragment, pre.fragment {
+    border: 1px solid var(--separator-color);
+    border-radius: 12px;
+    box-shadow: 0 12px 34px -26px rgba(0,0,0,.85);
+}
+
+/* ---- Member entries & declaration tables: rounded, hairline-framed ---- */
+.memitem {
+    border: 1px solid var(--separator-color);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 14px 40px -30px rgba(0,0,0,.9);
+}
+table.memberdecls, table.directory, .contents table.doxtable {
+    border-radius: 12px; overflow: hidden; border: 1px solid var(--separator-color);
+}
+
+/* ---- Inline symbol/code links: tan, never the stock blue ---- */
+a.el, a.el:visited, a.elRef, a.code, a.code:visited, a.codeRef {
+    color: var(--primary-color);
+}
+a.el:hover, a.code:hover { color: var(--primary-dark-color); }
