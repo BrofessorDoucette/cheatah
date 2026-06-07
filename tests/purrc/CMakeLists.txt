@@ -3,6 +3,7 @@
 add_executable(cheatah_purrc_tests
     compile_run_test.cpp
     stdlib_e2e_test.cpp
+    linalg_lsq_e2e_test.cpp
 )
 target_link_libraries(cheatah_purrc_tests PRIVATE GTest::gmock_main)
 
