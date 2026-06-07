@@ -1,0 +1,8 @@
+# Valgrind memcheck suppressions for cheatah.
+#
+# Keep this file MINIMAL — only suppress confirmed false positives from the C/C++
+# runtime or test framework (e.g. one-time "still reachable" allocations), never
+# real cheatah leaks. Add entries with `--gen-suppressions=all` output and a
+# comment explaining why each is safe.
+#
+# (none yet — the unit tests run clean.)

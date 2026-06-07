@@ -15,7 +15,10 @@ add_executable(cheatah_tests
     builtins_test.cpp
     math_test.cpp
     time_test.cpp
-    modules2_test.cpp
+    datetime_test.cpp
+    random_test.cpp
+    statistics_test.cpp
+    hashlib_test.cpp
     ndarray_test.cpp
     linalg_routines_test.cpp
 )
