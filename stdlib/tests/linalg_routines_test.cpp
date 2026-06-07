@@ -146,3 +146,38 @@ TEST(LinalgRoutines, GeneralEig) {
     EXPECT_TRUE(close(std::min(c, d), 2.0, 1e-6));
     EXPECT_TRUE(close(std::max(c, d), 3.0, 1e-6));
 }
+
+// ---- targeted tests for the deep numerical branches ----
+
+namespace {
+std::vector<double> sorted3(const nd::NDArray& v) {
+    std::vector<double> s{nd::get(v, {0}), nd::get(v, {1}), nd::get(v, {2})};
+    std::sort(s.begin(), s.end());
+    return s;
+}
+}  // namespace
+
+TEST(LinalgRoutines, VdotInnerAcceptTwoDimVectors) {
+    // A 2-D Nx1 / 1xN is treated as a flat vector by vdot/inner.
+    EXPECT_DOUBLE_EQ(la::vdot(mat(3, 1, {1, 2, 3}), mat(3, 1, {4, 5, 6})), 32.0);
+    EXPECT_DOUBLE_EQ(la::inner(mat(1, 3, {1, 2, 3}), mat(1, 3, {4, 5, 6})), 32.0);
+}
+
+TEST(LinalgRoutines, DetRequiresPivot) {
+    EXPECT_TRUE(close(la::det(mat(2, 2, {0, 1, 1, 0})), -1.0));  // forces an LU row swap
+}
+
+TEST(LinalgRoutines, Eigvalsh3x3Dense) {
+    // [[2,1,1],[1,2,1],[1,1,2]] = I + ones -> eigenvalues 4, 1, 1 (Jacobi rotations).
+    const std::vector<double> v = sorted3(la::eigvalsh(mat(3, 3, {2, 1, 1, 1, 2, 1, 1, 1, 2})));
+    EXPECT_TRUE(close(v[0], 1.0, 1e-6));
+    EXPECT_TRUE(close(v[1], 1.0, 1e-6));
+    EXPECT_TRUE(close(v[2], 4.0, 1e-6));
+}
+
+TEST(LinalgRoutines, GeneralEigvals3x3Dense) {
+    // Same dense matrix through the general (Hessenberg + shifted-QR) path.
+    const std::vector<double> v = sorted3(la::eigvals(mat(3, 3, {2, 1, 1, 1, 2, 1, 1, 1, 2})));
+    EXPECT_TRUE(close(v[0], 1.0, 1e-6));
+    EXPECT_TRUE(close(v[2], 4.0, 1e-6));
+}
