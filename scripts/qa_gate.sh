@@ -7,13 +7,16 @@
 #   1. Configure (debug for tests, release for benchmarks).
 #   2. Build (debug).
 #   3. Unit test suite (hard gate) — ctest.
-#   4. Benchmarks: build optimized + run a smoke pass (hard gate that they
+#   4. AddressSanitizer + UBSan: build + run the whole suite under sanitizers
+#      (hard gate) — catches memory errors and undefined behavior.
+#   5. Benchmarks: build optimized + run a smoke pass (hard gate that they
 #      build & run; perf-regression gating comes once we archive history).
 #
 # This is intentionally lean for the scaffolding stage. As the language grows we
 # layer on more rigor (benchmark regression vs archived history, etc.).
 #
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
+#       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
 #       QA_BENCH_MIN_TIME         benchmark min time per case (default 0.05s)
 set -uo pipefail
 
@@ -42,7 +45,20 @@ cmake --build --preset debug >/tmp/cheatah_build_debug.log 2>&1 || { tail -30 /t
 bold "Running unit test suite…"
 ctest --preset debug --output-on-failure || fail "unit tests"
 
-# 4. Benchmarks: build optimized + smoke run (hard gate) ---------------------
+# 4. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
+if [ "${QA_GATE_SKIP_ASAN:-0}" = "1" ]; then
+    bold "Skipping sanitizer stage (QA_GATE_SKIP_ASAN=1)."
+else
+    bold "Configuring + building (ASan + UBSan)…"
+    cmake --preset asan        >/tmp/cheatah_cfg_asan.log   2>&1 || { tail -20 /tmp/cheatah_cfg_asan.log;   fail "configure (asan)"; }
+    cmake --build --preset asan >/tmp/cheatah_build_asan.log 2>&1 || { tail -30 /tmp/cheatah_build_asan.log; fail "asan build"; }
+    bold "Running unit test suite under ASan + UBSan…"
+    UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1" \
+    ASAN_OPTIONS="detect_leaks=1:abort_on_error=1" \
+        ctest --preset asan --output-on-failure || fail "sanitizer (ASan/UBSan) tests"
+fi
+
+# 5. Benchmarks: build optimized + smoke run (hard gate) ---------------------
 bold "Building benchmarks (release)…"
 cmake --build --preset release-benchmarks >/tmp/cheatah_build_bench.log 2>&1 || { tail -30 /tmp/cheatah_build_bench.log; fail "release benchmark build"; }
 

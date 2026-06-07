@@ -32,6 +32,18 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # ---- Options ---------------------------------------------------------------
 option(CHEATAH_BUILD_TESTS      "Build the unit/integration test suites" ON)
 option(CHEATAH_BUILD_BENCHMARKS "Build Google Benchmark micro-benchmarks" OFF)
+option(CHEATAH_SANITIZE         "Build with AddressSanitizer + UndefinedBehaviorSanitizer" OFF)
+
+# ---- Sanitizers (opt-in; applied to everything built here, incl. gtest) -----
+# ASan catches memory errors (OOB, use-after-free, leaks); UBSan catches undefined
+# behavior. Applied globally and to linking so the runtimes are present. Use the
+# `asan` preset (configure+build+test) or -DCHEATAH_SANITIZE=ON. The QA gate runs
+# the test suite under these.
+if(CHEATAH_SANITIZE)
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer
+                        -fno-sanitize-recover=all -g)
+    add_link_options(-fsanitize=address,undefined)
+endif()
 
 # ---- Third-party (test/benchmark only; the language itself has no deps) -----
 include(FetchContent)

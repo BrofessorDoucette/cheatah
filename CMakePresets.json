@@ -22,11 +22,24 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CHEATAH_BUILD_BENCHMARKS": "ON"
       }
+    },
+    {
+      "name": "asan",
+      "displayName": "ASan + UBSan (Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/asan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CHEATAH_SANITIZE": "ON",
+        "CHEATAH_BUILD_BENCHMARKS": "OFF"
+      }
     }
   ],
   "buildPresets": [
     { "name": "debug", "configurePreset": "debug" },
     { "name": "release", "configurePreset": "release" },
+    { "name": "asan", "configurePreset": "asan" },
     {
       "name": "release-benchmarks",
       "displayName": "Build benchmarks only (Release)",
@@ -38,6 +51,11 @@
     {
       "name": "debug",
       "configurePreset": "debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
       "output": { "outputOnFailure": true }
     }
   ]
