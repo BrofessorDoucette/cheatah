@@ -1,5 +1,0 @@
-<map id="cheatah::linalg::pinv" name="cheatah::linalg::pinv">
-<area shape="rect" id="Node000001" title="Moore–Penrose pseudo&#45;inverse via SVD (any shape)." alt="" coords="211,5,365,31"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1linalg.html#aae0fffb18efd5f74174b2fd0632d41dd" title="Least&#45;squares solution min‖A·x − b‖ (computed as pinv (a)·b)." alt="" coords="5,5,163,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,21,163,21,163,15,197,15"/>
-</map>

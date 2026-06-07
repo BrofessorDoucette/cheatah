@@ -1,7 +1,0 @@
-<map id="cheatah::linalg::dot" name="cheatah::linalg::dot">
-<area shape="rect" id="Node000001" title="Dot product: 1&#45;D inner product (vectors flattened)." alt="" coords="212,31,359,56"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1linalg.html#a5c35a832b1c73bdf5cabfed648a308fc" title="Inner product of two vectors (alias of dot)." alt="" coords="5,5,164,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,35,164,31,164,25,199,30"/>
-<area shape="rect" id="Node000003" href="$namespacecheatah_1_1linalg.html#aeb4d9c3e5d41a7afe29f1bb5b60d6a76" title="Vector dot product (alias of dot; flattens N×1/1×N)." alt="" coords="7,55,162,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,56,163,61,162,55,198,51"/>
-</map>

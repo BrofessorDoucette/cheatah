@@ -1,329 +1,100 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::time Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>time · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>time</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1time_1a89f0d465fd0d0866202907e1a24ef38d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">time</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L17" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a89f0d465fd0d0866202907e1a24ef38d" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Wall-clock time. </p>
+  <div class="member-body"><p>Returns fractional seconds since the Unix epoch (1970-01-01 UTC) from the system clock; because it follows real time, it can jump forward or backward when the clock is adjusted (NTP, manual changes) and is not suitable for measuring elapsed intervals.</p><div class="ret"><span class="ret-h">Returns</span> <p>seconds since the Unix epoch (<code>system_clock</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L16"><code>CheatahTime.WallClockIsRecent</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L11"><code>TimeCompileRun.Time</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1a94c74361b883bc740274549ad244aca9">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">time_ns</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L18" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a94c74361b883bc740274549ad244aca9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Wall-clock time. </p>
+  <div class="member-body"><p>Same wall clock as <code><a href="namespacecheatah_1_1time.html">time</a></code> but returned as an integer count of nanoseconds since the Unix epoch, avoiding the precision loss of <code>double</code> seconds; it shares the same caveat that the system clock can be stepped backward.</p><div class="ret"><span class="ret-h">Returns</span> <p>nanoseconds since the Unix epoch (<code>system_clock</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L16"><code>CheatahTime.WallClockIsRecent</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L18"><code>TimeCompileRun.TimeNs</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1a6ebb3e75e2532b7a3b35643881523042">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">monotonic</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L22" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a6ebb3e75e2532b7a3b35643881523042" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Monotonic clock; never runs backwards. </p>
+  <div class="member-body"><p>Returns fractional seconds from <code>steady_clock</code>, which advances steadily and is immune to system-clock adjustments, making it the right choice for timing intervals; its zero point is unspecified, so only differences are meaningful.</p><div class="ret"><span class="ret-h">Returns</span> <p>seconds from <code>steady_clock</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L7"><code>CheatahTime.MonotonicClocksAdvanceAcrossSleep</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L25"><code>TimeCompileRun.Monotonic</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1a3a9135be5790da4412bab13e87b8b7de">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">monotonic_ns</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L23" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a3a9135be5790da4412bab13e87b8b7de" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Monotonic clock; never runs backwards. </p>
+  <div class="member-body"><p>Same monotonic <code>steady_clock</code> as <code><a href="namespacecheatah_1_1time.html#namespacecheatah_1_1time_1a6ebb3e75e2532b7a3b35643881523042">monotonic</a></code> but as an integer nanosecond count, preserving full precision; only differences between readings have a defined meaning.</p><div class="ret"><span class="ret-h">Returns</span> <p>nanoseconds from <code>steady_clock</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L7"><code>CheatahTime.MonotonicClocksAdvanceAcrossSleep</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L32"><code>TimeCompileRun.MonotonicNs</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1aac0af5664b94744d1bcfaef00466f318">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">perf_counter</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L28" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1aac0af5664b94744d1bcfaef00466f318" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Highest-resolution monotonic counter. </p>
+  <div class="member-body"><p>Intended as the finest-grained clock for benchmarking; in this build it is backed by the same <code>steady_clock</code> as <code><a href="namespacecheatah_1_1time.html#namespacecheatah_1_1time_1a6ebb3e75e2532b7a3b35643881523042">monotonic</a></code>, so it is monotonic with an unspecified origin and should be used only for elapsed-time measurements.</p><div class="ret"><span class="ret-h">Returns</span> <p>seconds from <code>steady_clock</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L25"><code>CheatahTime.PerfCounterAdvances</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L39"><code>TimeCompileRun.PerfCounter</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1a1831115f4e68883a73652b216f64da65">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">perf_counter_ns</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a1831115f4e68883a73652b216f64da65" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Highest-resolution monotonic counter. </p>
+  <div class="member-body"><p>Nanosecond-precision form of <code><a href="namespacecheatah_1_1time.html#namespacecheatah_1_1time_1aac0af5664b94744d1bcfaef00466f318">perf_counter</a></code>, backed by <code>steady_clock</code>; like the other monotonic readings, only the difference between two calls is meaningful.</p><div class="ret"><span class="ret-h">Returns</span> <p>nanoseconds from <code>steady_clock</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L7"><code>CheatahTime.MonotonicClocksAdvanceAcrossSleep</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L46"><code>TimeCompileRun.PerfCounterNs</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1a94aeef18a2da0c3fe7b21dd48e10ec0d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">process_time</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L33" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a94aeef18a2da0c3fe7b21dd48e10ec0d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">CPU time consumed by this process. </p>
+  <div class="member-body"><p>Returns processor time used by the program (via <code>std::clock</code> / <code>CLOCKS_PER_SEC</code>), not wall-clock time, so it excludes time spent sleeping or blocked and may grow faster than real time across multiple threads.</p><div class="ret"><span class="ret-h">Returns</span> <p>seconds of CPU time (<code>std::clock</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L21"><code>CheatahTime.ProcessTimeNonNegative</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L53"><code>TimeCompileRun.ProcessTime</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1time_1a571a9a99c976adbb23173290852f80de">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">sleep</span>(double seconds)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_time_time_cpp.html#L35" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1time_1a571a9a99c976adbb23173290852f80de" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Suspend the calling thread. </p>
+  <div class="member-body"><p>Blocks the current thread for at least <code>seconds</code> (fractional values are honored); the OS may sleep slightly longer due to scheduling, and a non-positive duration returns essentially immediately.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>seconds</code></td><td class="pdesc"><p>duration to sleep (fractional).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus the sleep wait.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_time_test_cpp.html#L7"><code>CheatahTime.MonotonicClocksAdvanceAcrossSleep</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_time_cr_test_cpp.html#L60"><code>TimeCompileRun.Sleep</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_time_sys_test_cpp.html#L17"><code>StdlibE2E.Time</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1time_1a89f0d465fd0d0866202907e1a24ef38d">time</a></li><li><a href="#namespacecheatah_1_1time_1a94c74361b883bc740274549ad244aca9">time_ns</a></li><li><a href="#namespacecheatah_1_1time_1a6ebb3e75e2532b7a3b35643881523042">monotonic</a></li><li><a href="#namespacecheatah_1_1time_1a3a9135be5790da4412bab13e87b8b7de">monotonic_ns</a></li><li><a href="#namespacecheatah_1_1time_1aac0af5664b94744d1bcfaef00466f318">perf_counter</a></li><li><a href="#namespacecheatah_1_1time_1a1831115f4e68883a73652b216f64da65">perf_counter_ns</a></li><li><a href="#namespacecheatah_1_1time_1a94aeef18a2da0c3fe7b21dd48e10ec0d">process_time</a></li><li><a href="#namespacecheatah_1_1time_1a571a9a99c976adbb23173290852f80de">sleep</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1time.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::time Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a89f0d465fd0d0866202907e1a24ef38d" id="r_a89f0d465fd0d0866202907e1a24ef38d"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a89f0d465fd0d0866202907e1a24ef38d">time</a> ()</td></tr>
-<tr class="memdesc:a89f0d465fd0d0866202907e1a24ef38d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wall-clock time.  <br /></td></tr>
-<tr class="memitem:a94c74361b883bc740274549ad244aca9" id="r_a94c74361b883bc740274549ad244aca9"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a94c74361b883bc740274549ad244aca9">time_ns</a> ()</td></tr>
-<tr class="memdesc:a94c74361b883bc740274549ad244aca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wall-clock time.  <br /></td></tr>
-<tr class="memitem:a6ebb3e75e2532b7a3b35643881523042" id="r_a6ebb3e75e2532b7a3b35643881523042"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a6ebb3e75e2532b7a3b35643881523042">monotonic</a> ()</td></tr>
-<tr class="memdesc:a6ebb3e75e2532b7a3b35643881523042"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monotonic clock; never runs backwards.  <br /></td></tr>
-<tr class="memitem:a3a9135be5790da4412bab13e87b8b7de" id="r_a3a9135be5790da4412bab13e87b8b7de"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a3a9135be5790da4412bab13e87b8b7de">monotonic_ns</a> ()</td></tr>
-<tr class="memdesc:a3a9135be5790da4412bab13e87b8b7de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monotonic clock; never runs backwards.  <br /></td></tr>
-<tr class="memitem:aac0af5664b94744d1bcfaef00466f318" id="r_aac0af5664b94744d1bcfaef00466f318"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aac0af5664b94744d1bcfaef00466f318">perf_counter</a> ()</td></tr>
-<tr class="memdesc:aac0af5664b94744d1bcfaef00466f318"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highest-resolution monotonic counter.  <br /></td></tr>
-<tr class="memitem:a1831115f4e68883a73652b216f64da65" id="r_a1831115f4e68883a73652b216f64da65"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a1831115f4e68883a73652b216f64da65">perf_counter_ns</a> ()</td></tr>
-<tr class="memdesc:a1831115f4e68883a73652b216f64da65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highest-resolution monotonic counter.  <br /></td></tr>
-<tr class="memitem:a94aeef18a2da0c3fe7b21dd48e10ec0d" id="r_a94aeef18a2da0c3fe7b21dd48e10ec0d"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a94aeef18a2da0c3fe7b21dd48e10ec0d">process_time</a> ()</td></tr>
-<tr class="memdesc:a94aeef18a2da0c3fe7b21dd48e10ec0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">CPU time consumed by this process.  <br /></td></tr>
-<tr class="memitem:a571a9a99c976adbb23173290852f80de" id="r_a571a9a99c976adbb23173290852f80de"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a571a9a99c976adbb23173290852f80de">sleep</a> (double seconds)</td></tr>
-<tr class="memdesc:a571a9a99c976adbb23173290852f80de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suspend the calling thread.  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a89f0d465fd0d0866202907e1a24ef38d" name="a89f0d465fd0d0866202907e1a24ef38d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89f0d465fd0d0866202907e1a24ef38d">&#9670;&#160;</a></span>time()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::time::time </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Wall-clock time. </p>
-<dl class="section return"><dt>Returns</dt><dd>seconds since the Unix epoch (<span class="tt">system_clock</span>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000222">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000222">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000226">Test</a></b></dt><dd>CheatahTime.WallClockIsRecent </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00017">17</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a94c74361b883bc740274549ad244aca9" name="a94c74361b883bc740274549ad244aca9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a94c74361b883bc740274549ad244aca9">&#9670;&#160;</a></span>time_ns()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::time::time_ns </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Wall-clock time. </p>
-<dl class="section return"><dt>Returns</dt><dd>nanoseconds since the Unix epoch (<span class="tt">system_clock</span>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000223">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000223">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000227">Test</a></b></dt><dd>CheatahTime.WallClockIsRecent </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00018">18</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a6ebb3e75e2532b7a3b35643881523042" name="a6ebb3e75e2532b7a3b35643881523042"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6ebb3e75e2532b7a3b35643881523042">&#9670;&#160;</a></span>monotonic()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::time::monotonic </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Monotonic clock; never runs backwards. </p>
-<dl class="section return"><dt>Returns</dt><dd>seconds from <span class="tt">steady_clock</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000224">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000224">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000228">Test</a></b></dt><dd>CheatahTime.MonotonicClocksAdvanceAcrossSleep </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00022">22</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a3a9135be5790da4412bab13e87b8b7de" name="a3a9135be5790da4412bab13e87b8b7de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a9135be5790da4412bab13e87b8b7de">&#9670;&#160;</a></span>monotonic_ns()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::time::monotonic_ns </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Monotonic clock; never runs backwards. </p>
-<dl class="section return"><dt>Returns</dt><dd>nanoseconds from <span class="tt">steady_clock</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000225">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000225">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000229">Test</a></b></dt><dd>CheatahTime.MonotonicClocksAdvanceAcrossSleep </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00023">23</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aac0af5664b94744d1bcfaef00466f318" name="aac0af5664b94744d1bcfaef00466f318"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac0af5664b94744d1bcfaef00466f318">&#9670;&#160;</a></span>perf_counter()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::time::perf_counter </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Highest-resolution monotonic counter. </p>
-<dl class="section return"><dt>Returns</dt><dd>seconds from <span class="tt">steady_clock</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000226">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000226">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000230">Test</a></b></dt><dd>CheatahTime.PerfCounterAdvances </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00028">28</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a1831115f4e68883a73652b216f64da65" name="a1831115f4e68883a73652b216f64da65"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1831115f4e68883a73652b216f64da65">&#9670;&#160;</a></span>perf_counter_ns()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::time::perf_counter_ns </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Highest-resolution monotonic counter. </p>
-<dl class="section return"><dt>Returns</dt><dd>nanoseconds from <span class="tt">steady_clock</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000227">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000227">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000231">Test</a></b></dt><dd>CheatahTime.MonotonicClocksAdvanceAcrossSleep </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00029">29</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a94aeef18a2da0c3fe7b21dd48e10ec0d" name="a94aeef18a2da0c3fe7b21dd48e10ec0d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a94aeef18a2da0c3fe7b21dd48e10ec0d">&#9670;&#160;</a></span>process_time()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::time::process_time </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>CPU time consumed by this process. </p>
-<dl class="section return"><dt>Returns</dt><dd>seconds of CPU time (<span class="tt">std::clock</span>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000228">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000228">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000232">Test</a></b></dt><dd>CheatahTime.ProcessTimeNonNegative </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00033">33</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a571a9a99c976adbb23173290852f80de" name="a571a9a99c976adbb23173290852f80de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a571a9a99c976adbb23173290852f80de">&#9670;&#160;</a></span>sleep()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void cheatah::time::sleep </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>seconds</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Suspend the calling thread. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">seconds</td><td>duration to sleep (fractional). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000229">Complexity</a></b></dt><dd>O(1) plus the sleep wait. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000229">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000233">Test</a></b></dt><dd>CheatahTime.MonotonicClocksAdvanceAcrossSleep </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="time_8cpp_source.html#l00035">35</a> of file <a class="el" href="time_8cpp_source.html">time.cpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Build the cheatah docs site: run Doxygen, then recolor the residual blues to the
-# warm earthy theme. Output: docs/html/ (serve it with the VS Code "Open docs in
-# browser" task, or scripts/serve-docs.purr).
+# Build the cheatah docs site. Doxygen is used ONLY as the C++ parser: it emits
+# XML (docs/xml), and our own generator (docs/gen/generate.py) renders the modern
+# site into docs/html. Serve it with the VS Code "Open docs in browser" task or
+# scripts/serve-docs.purr.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -11,8 +12,11 @@ if ! command -v "$DOXYGEN" >/dev/null 2>&1; then
     DOXYGEN="$HOME/Tools/doxygen-1.16.1/bin/doxygen"
 fi
 
-echo "[docs] doxygen…"
+echo "[docs] doxygen (XML)…"
 "$DOXYGEN" Doxyfile
-echo "[docs] postprocess (recolor)…"
-python3 docs/postprocess.py
+
+echo "[docs] generating site (docs/gen/generate.py)…"
+rm -rf docs/html
+python3 docs/gen/generate.py
+
 echo "[docs] done -> docs/html/index.html"

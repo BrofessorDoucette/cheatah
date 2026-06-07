@@ -1,615 +1,164 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::io::File Class Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>io::File · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>io::File</code></h1>
+  <p class="lede">A Python-like file object over <code>std::fstream</code>. </p>
+</div>
+<div class="overview"><p>RAII closes on scope exit — the C++ analog of <code>with open(...) as f:</code>. Move-only (copying a file handle is meaningless), like Python file objects.</p></div>
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1io_1_1File_1a839f833ef4d63c44d17fd646723a83ef">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">File</span>()=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L231" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a839f833ef4d63c44d17fd646723a83ef" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Construct a closed file (no stream attached). </p>
+  <div class="member-body"><p>Leaves the underlying stream default-constructed and unopened, so <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">is_open()</a> is false until a later <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1aa05a743c57cad1b944aa3a54b88af8d4">open()</a>; read/write calls on it are no-ops that fail silently.</p><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L101"><code>CheatahIo.FileIsOpenAndClose</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L73"><code>IoCompileRun.IsOpenAndClose</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a03c58f18fbd4d1383d039473bff57ce4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">File</span>(const std::string &amp;path, std::string_view mode)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L28" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a03c58f18fbd4d1383d039473bff57ce4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open <code>path</code> in <code>mode</code> (the <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1aa05a743c57cad1b944aa3a54b88af8d4">open()</a> free function&#x27;s workhorse). </p>
+  <div class="member-body"><p>Translates the Python mode and opens the stream; failure (e.g. missing file in <code>r</code>) is not thrown — it leaves <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">is_open()</a> false, so callers should check before using it.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>path</code></td><td class="pdesc"><p>filesystem path.</p></td></tr><tr><td class="pname"><code>mode</code></td><td class="pdesc"><p>Python-style mode (<code>r</code>/<code>w</code>/<code>a</code>, optional <code>+</code>/<code>b</code>).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus the OS open.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L54"><code>CheatahIo.FileWriteThenReadWhole</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L38"><code>IoCompileRun.OpenWriteRead</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a2a49e436b18ed2c84ee0c6c06f677a89">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">File</span>(const File &amp;)=delete</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L246" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a2a49e436b18ed2c84ee0c6c06f677a89" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a07e02667599bc3745b09bdcdceca051a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;</span> <span class="mname">operator=</span>(const File &amp;)=delete</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L247" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a07e02667599bc3745b09bdcdceca051a" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a2f67c23e42644b2b1f93d022ee8743da">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">File</span>(File &amp;&amp;)=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L249" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a2f67c23e42644b2b1f93d022ee8743da" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Move-construct, taking over the other handle (the moved-from <a href="classcheatah_1_1io_1_1File.html">File</a> becomes closed). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a8c293be37ac4635d8a4666cfecf03d6b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;</span> <span class="mname">operator=</span>(File &amp;&amp;)=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L254" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a8c293be37ac4635d8a4666cfecf03d6b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Move-assign, taking over the other handle (the moved-from <a href="classcheatah_1_1io_1_1File.html">File</a> becomes closed). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>reference to this <a href="classcheatah_1_1io_1_1File.html">File</a>.</p></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1aef228566630dd43ee216ae263ea802b4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">~File</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L29" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1aef228566630dd43ee216ae263ea802b4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the stream if still open. </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L101"><code>CheatahIo.FileIsOpenAndClose</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L73"><code>IoCompileRun.IsOpenAndClose</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1aa05a743c57cad1b944aa3a54b88af8d4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">open</span>(const std::string &amp;path, std::string_view mode)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L31" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1aa05a743c57cad1b944aa3a54b88af8d4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">(Re)open <code>path</code> in <code>mode</code>. </p>
+  <div class="member-body"><p>Opens the stream on <code>path</code>; it does not first close an already-open handle, so reuse this on a closed <a href="classcheatah_1_1io_1_1File.html">File</a>. Mode follows Python: <code>r</code> read, <code>w</code> truncate-write, <code>a</code> append, <code>+</code> adds the opposite direction, <code>b</code> binary; an unrecognized/empty mode defaults to <code>r</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>path</code></td><td class="pdesc"><p>filesystem path.</p></td></tr><tr><td class="pname"><code>mode</code></td><td class="pdesc"><p>Python-style mode string.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus the OS open.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L54"><code>CheatahIo.FileWriteThenReadWhole</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L38"><code>IoCompileRun.OpenWriteRead</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">is_open</span>() const</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L34" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Is the underlying stream open? </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>true iff a file is attached and open.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L101"><code>CheatahIo.FileIsOpenAndClose</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L73"><code>IoCompileRun.IsOpenAndClose</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a96f0322180230753cd79d47bcd170615">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">close</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L35" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a96f0322180230753cd79d47bcd170615" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the underlying stream (no-op if already closed). </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L101"><code>CheatahIo.FileIsOpenAndClose</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L73"><code>IoCompileRun.IsOpenAndClose</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1af8515d8f0e1e89c5f7a222099ff82277">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">read</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L41" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1af8515d8f0e1e89c5f7a222099ff82277" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Read the whole remaining file. </p>
+  <div class="member-body"><p>Drains the stream buffer from the current position to EOF in one shot, so a prior <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1aae245627480a697f322a3d95e7702e03">readline()</a>/read() returns only what is left; returns &quot;&quot; at EOF or on a closed file.</p><div class="ret"><span class="ret-h">Returns</span> <p>the remaining bytes as one string.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in bytes read.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string (buffered through a stringstream).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L54"><code>CheatahIo.FileWriteThenReadWhole</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L38"><code>IoCompileRun.OpenWriteRead</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1aae245627480a697f322a3d95e7702e03">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">readline</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L46" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1aae245627480a697f322a3d95e7702e03" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Read the next line. </p>
+  <div class="member-body"><p>Consumes through the next <code>\n</code> (which is discarded). Because both a genuine empty line and EOF yield &quot;&quot;, the return value alone cannot distinguish them — check <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">is_open()</a>/EOF separately if that matters.</p><div class="ret"><span class="ret-h">Returns</span> <p>the line with its newline stripped; <code>&quot;&quot;</code> at EOF.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(line length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L67"><code>CheatahIo.FileReadlineThenReadlines</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L49"><code>IoCompileRun.Readline</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a35449102fbc2a90b44017faf753aebd2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::string &gt;</span> <span class="mname">readlines</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L51" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a35449102fbc2a90b44017faf753aebd2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Read all remaining lines. </p>
+  <div class="member-body"><p>Repeatedly getlines from the current position until EOF, pushing each newline-stripped line; returns an empty vector at EOF, and a trailing newline does not produce a final empty element.</p><div class="ret"><span class="ret-h">Returns</span> <p>a vector of lines (newlines stripped).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in bytes.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the vector and each line string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L67"><code>CheatahIo.FileReadlineThenReadlines</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L61"><code>IoCompileRun.Readlines</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1a02922756d08bc9f7461590191dcac459">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">write</span>(const T &amp;value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L356" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a02922756d08bc9f7461590191dcac459" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Write a streamable value to the file. </p>
+  <div class="member-body"><p>Streams <code>value</code> through <code>operator&lt;&lt;</code> exactly as written — no separator and no trailing newline are added (unlike <a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1a797b0d86b7c7aec8fbb68b9e53b53c6a">print()</a>), so the caller supplies any <code>\n</code>; data may stay buffered until the stream is flushed or the <a href="classcheatah_1_1io_1_1File.html">File</a> is closed.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>any streamable value.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(output length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none (writes straight to the stream buffer).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L54"><code>CheatahIo.FileWriteThenReadWhole</code></a> <a href="src_stdlib_tests_io_test_cpp.html#L84"><code>CheatahIo.FileAppendMode</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L38"><code>IoCompileRun.OpenWriteRead</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1io_1_1File_1abd3397b8b74bf635fd06f6383ca8150f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">std::ios::openmode</span> <span class="mname">translate_mode</span>(std::string_view mode)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L60" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1abd3397b8b74bf635fd06f6383ca8150f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Map a Python mode string (<code>r</code>/<code>w</code>/<code>a</code>, optional <code>+</code>/<code>b</code>) to <code>std::ios::openmode</code>. </p>
+  <div class="member-body"></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1io_1_1File_1a39f04f74a3dffc8a1c8d5193d2949a43">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::fstream</span> <span class="mname">stream_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L361" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1a39f04f74a3dffc8a1c8d5193d2949a43" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1io_1_1File_1a839f833ef4d63c44d17fd646723a83ef">File</a></li><li><a href="#classcheatah_1_1io_1_1File_1a03c58f18fbd4d1383d039473bff57ce4">File</a></li><li><a href="#classcheatah_1_1io_1_1File_1a2a49e436b18ed2c84ee0c6c06f677a89">File</a></li><li><a href="#classcheatah_1_1io_1_1File_1a07e02667599bc3745b09bdcdceca051a">operator=</a></li><li><a href="#classcheatah_1_1io_1_1File_1a2f67c23e42644b2b1f93d022ee8743da">File</a></li><li><a href="#classcheatah_1_1io_1_1File_1a8c293be37ac4635d8a4666cfecf03d6b">operator=</a></li><li><a href="#classcheatah_1_1io_1_1File_1aef228566630dd43ee216ae263ea802b4">~File</a></li><li><a href="#classcheatah_1_1io_1_1File_1aa05a743c57cad1b944aa3a54b88af8d4">open</a></li><li><a href="#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">is_open</a></li><li><a href="#classcheatah_1_1io_1_1File_1a96f0322180230753cd79d47bcd170615">close</a></li><li><a href="#classcheatah_1_1io_1_1File_1af8515d8f0e1e89c5f7a222099ff82277">read</a></li><li><a href="#classcheatah_1_1io_1_1File_1aae245627480a697f322a3d95e7702e03">readline</a></li><li><a href="#classcheatah_1_1io_1_1File_1a35449102fbc2a90b44017faf753aebd2">readlines</a></li><li><a href="#classcheatah_1_1io_1_1File_1a02922756d08bc9f7461590191dcac459">write</a></li><li><a href="#classcheatah_1_1io_1_1File_1abd3397b8b74bf635fd06f6383ca8150f">translate_mode</a></li><li><a href="#classcheatah_1_1io_1_1File_1a39f04f74a3dffc8a1c8d5193d2949a43">stream_</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('classcheatah_1_1io_1_1File.html','','classcheatah_1_1io_1_1File-members'); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::io::File Class Reference</div></div>
-</div><!--header-->
-<div class="contents">
-
-<p>A Python-like file object over <span class="tt">std::fstream</span>.  
- <a href="#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="io_8hpp_source.html">io.hpp</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr class="memitem:a839f833ef4d63c44d17fd646723a83ef" id="r_a839f833ef4d63c44d17fd646723a83ef"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> ()=default</td></tr>
-<tr class="memdesc:a839f833ef4d63c44d17fd646723a83ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a closed file (no stream attached).  <br /></td></tr>
-<tr class="memitem:a03c58f18fbd4d1383d039473bff57ce4" id="r_a03c58f18fbd4d1383d039473bff57ce4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a03c58f18fbd4d1383d039473bff57ce4">File</a> (const std::string &amp;path, std::string_view mode)</td></tr>
-<tr class="memdesc:a03c58f18fbd4d1383d039473bff57ce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open <code class="param">path</code> in <code class="param">mode</code> (the <a class="el" href="#aa05a743c57cad1b944aa3a54b88af8d4" title="(Re)open path in mode.">open()</a> free function's workhorse).  <br /></td></tr>
-<tr class="memitem:a2a49e436b18ed2c84ee0c6c06f677a89" id="r_a2a49e436b18ed2c84ee0c6c06f677a89"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a2a49e436b18ed2c84ee0c6c06f677a89">File</a> (const File &amp;)=delete</td></tr>
-<tr class="memitem:a07e02667599bc3745b09bdcdceca051a" id="r_a07e02667599bc3745b09bdcdceca051a"><td class="memItemLeft"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a07e02667599bc3745b09bdcdceca051a">operator=</a> (const <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;)=delete</td></tr>
-<tr class="memitem:a2f67c23e42644b2b1f93d022ee8743da" id="r_a2f67c23e42644b2b1f93d022ee8743da"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a2f67c23e42644b2b1f93d022ee8743da">File</a> (File &amp;&amp;)=default</td></tr>
-<tr class="memdesc:a2f67c23e42644b2b1f93d022ee8743da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move-construct, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed).  <br /></td></tr>
-<tr class="memitem:a8c293be37ac4635d8a4666cfecf03d6b" id="r_a8c293be37ac4635d8a4666cfecf03d6b"><td class="memItemLeft"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a8c293be37ac4635d8a4666cfecf03d6b">operator=</a> (<a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&amp;)=default</td></tr>
-<tr class="memdesc:a8c293be37ac4635d8a4666cfecf03d6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move-assign, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed).  <br /></td></tr>
-<tr class="memitem:aef228566630dd43ee216ae263ea802b4" id="r_aef228566630dd43ee216ae263ea802b4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#aef228566630dd43ee216ae263ea802b4">~File</a> ()</td></tr>
-<tr class="memdesc:aef228566630dd43ee216ae263ea802b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the stream if still open.  <br /></td></tr>
-<tr class="memitem:aa05a743c57cad1b944aa3a54b88af8d4" id="r_aa05a743c57cad1b944aa3a54b88af8d4"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa05a743c57cad1b944aa3a54b88af8d4">open</a> (const std::string &amp;path, std::string_view mode)</td></tr>
-<tr class="memdesc:aa05a743c57cad1b944aa3a54b88af8d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">(Re)open <code class="param">path</code> in <code class="param">mode</code>.  <br /></td></tr>
-<tr class="memitem:a3f4cea89434579d2139345bea086217f" id="r_a3f4cea89434579d2139345bea086217f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a3f4cea89434579d2139345bea086217f">is_open</a> () const</td></tr>
-<tr class="memdesc:a3f4cea89434579d2139345bea086217f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is the underlying stream open?  <br /></td></tr>
-<tr class="memitem:a96f0322180230753cd79d47bcd170615" id="r_a96f0322180230753cd79d47bcd170615"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a96f0322180230753cd79d47bcd170615">close</a> ()</td></tr>
-<tr class="memdesc:a96f0322180230753cd79d47bcd170615"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the underlying stream (no-op if already closed).  <br /></td></tr>
-<tr class="memitem:af8515d8f0e1e89c5f7a222099ff82277" id="r_af8515d8f0e1e89c5f7a222099ff82277"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#af8515d8f0e1e89c5f7a222099ff82277">read</a> ()</td></tr>
-<tr class="memdesc:af8515d8f0e1e89c5f7a222099ff82277"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the whole remaining file.  <br /></td></tr>
-<tr class="memitem:aae245627480a697f322a3d95e7702e03" id="r_aae245627480a697f322a3d95e7702e03"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aae245627480a697f322a3d95e7702e03">readline</a> ()</td></tr>
-<tr class="memdesc:aae245627480a697f322a3d95e7702e03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the next line.  <br /></td></tr>
-<tr class="memitem:a35449102fbc2a90b44017faf753aebd2" id="r_a35449102fbc2a90b44017faf753aebd2"><td class="memItemLeft">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a35449102fbc2a90b44017faf753aebd2">readlines</a> ()</td></tr>
-<tr class="memdesc:a35449102fbc2a90b44017faf753aebd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read all remaining lines.  <br /></td></tr>
-<tr class="memitem:a02922756d08bc9f7461590191dcac459" id="r_a02922756d08bc9f7461590191dcac459"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
-<tr class="memitem:a02922756d08bc9f7461590191dcac459 template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a02922756d08bc9f7461590191dcac459">write</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:a02922756d08bc9f7461590191dcac459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a streamable value to the file.  <br /></td></tr>
-</table>
-<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A Python-like file object over <span class="tt">std::fstream</span>. </p>
-<p>RAII closes on scope exit — the C++ analog of <span class="tt">with open(...) as f:</span>. Move-only (copying a file handle is meaningless), like Python file objects. </p>
-
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00173">173</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a839f833ef4d63c44d17fd646723a83ef" name="a839f833ef4d63c44d17fd646723a83ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a839f833ef4d63c44d17fd646723a83ef">&#9670;&#160;</a></span>File() <span class="overload">[1/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cheatah::io::File::File </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Construct a closed file (no stream attached). </p>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000042">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000042">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000042">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
-
-<p class="reference">Referenced by <a class="el" href="#a2a49e436b18ed2c84ee0c6c06f677a89">File()</a>, <a class="el" href="#a2f67c23e42644b2b1f93d022ee8743da">File()</a>, <a class="el" href="#a07e02667599bc3745b09bdcdceca051a">operator=()</a>, and <a class="el" href="#a8c293be37ac4635d8a4666cfecf03d6b">operator=()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a839f833ef4d63c44d17fd646723a83ef_icgraph.svg" width="371" height="215"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a03c58f18fbd4d1383d039473bff57ce4" name="a03c58f18fbd4d1383d039473bff57ce4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a03c58f18fbd4d1383d039473bff57ce4">&#9670;&#160;</a></span>File() <span class="overload">[2/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">cheatah::io::File::File </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>mode</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Open <code class="param">path</code> in <code class="param">mode</code> (the <a class="el" href="#aa05a743c57cad1b944aa3a54b88af8d4" title="(Re)open path in mode.">open()</a> free function's workhorse). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>filesystem path. </td></tr>
-    <tr><td class="paramname">mode</td><td>Python-style mode (<span class="tt">r</span>/<span class="tt">w</span>/<span class="tt">a</span>, optional <span class="tt">+</span>/<span class="tt">b</span>). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000043">Complexity</a></b></dt><dd>O(1) plus the OS open. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000043">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000043">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00028">28</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="io_8cpp_source.html#l00031">open()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a03c58f18fbd4d1383d039473bff57ce4_cgraph.svg" width="380" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a2a49e436b18ed2c84ee0c6c06f677a89" name="a2a49e436b18ed2c84ee0c6c06f677a89"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a49e436b18ed2c84ee0c6c06f677a89">&#9670;&#160;</a></span>File() <span class="overload">[3/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cheatah::io::File::File </td>
-          <td>(</td>
-          <td class="paramtype">const File &amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel delete">delete</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="reference">References <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File()</a>.</p>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a2a49e436b18ed2c84ee0c6c06f677a89_cgraph.svg" width="371" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a2f67c23e42644b2b1f93d022ee8743da" name="a2f67c23e42644b2b1f93d022ee8743da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f67c23e42644b2b1f93d022ee8743da">&#9670;&#160;</a></span>File() <span class="overload">[4/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cheatah::io::File::File </td>
-          <td>(</td>
-          <td class="paramtype">File &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Move-construct, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed). </p>
-
-<p class="reference">References <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a2f67c23e42644b2b1f93d022ee8743da_cgraph.svg" width="371" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aef228566630dd43ee216ae263ea802b4" name="aef228566630dd43ee216ae263ea802b4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aef228566630dd43ee216ae263ea802b4">&#9670;&#160;</a></span>~File()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">cheatah::io::File::~File </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Close the stream if still open. </p>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000044">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000044">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000044">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00029">29</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="io_8cpp_source.html#l00035">close()</a>.</p>
-<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_aef228566630dd43ee216ae263ea802b4_cgraph.svg" width="326" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
-<a id="a07e02667599bc3745b09bdcdceca051a" name="a07e02667599bc3745b09bdcdceca051a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a07e02667599bc3745b09bdcdceca051a">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp; cheatah::io::File::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel delete">delete</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="reference">References <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File()</a>.</p>
-<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a07e02667599bc3745b09bdcdceca051a_cgraph.svg" width="348" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a8c293be37ac4635d8a4666cfecf03d6b" name="a8c293be37ac4635d8a4666cfecf03d6b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c293be37ac4635d8a4666cfecf03d6b">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp; cheatah::io::File::operator= </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File</a> &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Move-assign, taking over the other handle (the moved-from <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> becomes closed). </p>
-<dl class="section return"><dt>Returns</dt><dd>reference to this <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>. </dd></dl>
-
-<p class="reference">References <a class="el" href="#a839f833ef4d63c44d17fd646723a83ef">File()</a>.</p>
-<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a8c293be37ac4635d8a4666cfecf03d6b_cgraph.svg" width="348" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aa05a743c57cad1b944aa3a54b88af8d4" name="aa05a743c57cad1b944aa3a54b88af8d4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa05a743c57cad1b944aa3a54b88af8d4">&#9670;&#160;</a></span>open()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void cheatah::io::File::open </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>mode</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>(Re)open <code class="param">path</code> in <code class="param">mode</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>filesystem path. </td></tr>
-    <tr><td class="paramname">mode</td><td>Python-style mode string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000045">Complexity</a></b></dt><dd>O(1) plus the OS open. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000045">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000045">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00031">31</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="io_8cpp_source.html#l00028">File()</a>.</p>
-<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_aa05a743c57cad1b944aa3a54b88af8d4_icgraph.svg" width="380" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a3f4cea89434579d2139345bea086217f" name="a3f4cea89434579d2139345bea086217f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3f4cea89434579d2139345bea086217f">&#9670;&#160;</a></span>is_open()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::io::File::is_open </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Is the underlying stream open? </p>
-<dl class="section return"><dt>Returns</dt><dd>true iff a file is attached and open. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000046">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000046">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000046">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00034">34</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a96f0322180230753cd79d47bcd170615" name="a96f0322180230753cd79d47bcd170615"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a96f0322180230753cd79d47bcd170615">&#9670;&#160;</a></span>close()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void cheatah::io::File::close </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Close the underlying stream (no-op if already closed). </p>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000047">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000047">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000047">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00035">35</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="io_8cpp_source.html#l00029">~File()</a>.</p>
-<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classcheatah_1_1io_1_1File_a96f0322180230753cd79d47bcd170615_icgraph.svg" width="326" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="af8515d8f0e1e89c5f7a222099ff82277" name="af8515d8f0e1e89c5f7a222099ff82277"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af8515d8f0e1e89c5f7a222099ff82277">&#9670;&#160;</a></span>read()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::File::read </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Read the whole remaining file. </p>
-<dl class="section return"><dt>Returns</dt><dd>the remaining bytes as one string. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000048">Complexity</a></b></dt><dd>O(n) in bytes read. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000048">Allocation</a></b></dt><dd>allocates the returned string (buffered through a stringstream). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000048">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00041">41</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aae245627480a697f322a3d95e7702e03" name="aae245627480a697f322a3d95e7702e03"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae245627480a697f322a3d95e7702e03">&#9670;&#160;</a></span>readline()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::File::readline </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Read the next line. </p>
-<dl class="section return"><dt>Returns</dt><dd>the line with its newline stripped; <span class="tt">""</span> at EOF. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000049">Complexity</a></b></dt><dd>O(line length). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000049">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000049">Test</a></b></dt><dd>CheatahIo.FileReadlineThenReadlines </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00046">46</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a35449102fbc2a90b44017faf753aebd2" name="a35449102fbc2a90b44017faf753aebd2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a35449102fbc2a90b44017faf753aebd2">&#9670;&#160;</a></span>readlines()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt; std::string &gt; cheatah::io::File::readlines </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Read all remaining lines. </p>
-<dl class="section return"><dt>Returns</dt><dd>a vector of lines (newlines stripped). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000050">Complexity</a></b></dt><dd>O(n) in bytes. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000050">Allocation</a></b></dt><dd>allocates the vector and each line string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000050">Test</a></b></dt><dd>CheatahIo.FileReadlineThenReadlines </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00051">51</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a02922756d08bc9f7461590191dcac459" name="a02922756d08bc9f7461590191dcac459"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a02922756d08bc9f7461590191dcac459">&#9670;&#160;</a></span>write()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Streamable T&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void cheatah::io::File::write </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Write a streamable value to the file. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>any streamable value. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000051">Complexity</a></b></dt><dd>O(output length). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000051">Allocation</a></b></dt><dd>none (writes straight to the stream buffer). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000051">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00266">266</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>stdlib/io/<a class="el" href="io_8hpp_source.html">io.hpp</a></li>
-<li>stdlib/io/<a class="el" href="io_8cpp_source.html">io.cpp</a></li>
-</ul>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

@@ -74,3 +74,6 @@ books/
 # Editor / IDE
 .vscode/
 .idea/
+
+# Doxygen XML — intermediate build artifact for the docs generator
+docs/xml/

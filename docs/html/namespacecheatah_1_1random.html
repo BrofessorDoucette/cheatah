@@ -1,331 +1,84 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::random Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>random · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>random</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1random_1a1edc81cc859779ed2967f782d6121f59">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">seed</span>(unsigned long long s)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_random_random_cpp.html#L14" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1random_1a1edc81cc859779ed2967f782d6121f59" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Seed the shared engine, making the stream reproducible. </p>
+  <div class="member-body"><p>Reseeds the single process-wide Mersenne Twister; all <code><a href="namespacecheatah_1_1random.html">random</a></code>/<code><a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1a2baa7c7eee111295c7ff9a2112f604a9">uniform</a></code>/ <code><a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e">randint</a></code>/<code><a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1aca6f93bfb58d2df356576abedeef72ca">gauss</a></code>/<code><a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1aefcc34e321f7fb9345877073ae182c08">choice</a></code> calls draw from it, so two runs seeded with the same value produce identical sequences. Until <code><a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1a1edc81cc859779ed2967f782d6121f59">seed</a></code> is called the engine is seeded non-deterministically from <code>std::random_device</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>s</code></td><td class="pdesc"><p>the seed.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_random_test_cpp.html#L46"><code>CheatahRandom.SeedMakesTheStreamReproducible</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_random_cr_test_cpp.html#L13"><code>RandomCompileRun.Seed</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_random_sys_test_cpp.html#L15"><code>StdlibE2E.Random</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1random_1a61e342e7efad99a3ca414567988c3282">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">random</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_random_random_cpp.html#L16" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1random_1a61e342e7efad99a3ca414567988c3282" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Uniform random double. </p>
+  <div class="member-body"><p>Draws from the shared engine with a uniform real distribution over the half-open unit interval, so 0.0 can occur but 1.0 cannot.</p><div class="ret"><span class="ret-h">Returns</span> <p>a value in [0, 1).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_random_test_cpp.html#L10"><code>CheatahRandom.RandomInUnitInterval</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_random_cr_test_cpp.html#L25"><code>RandomCompileRun.Random</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_random_sys_test_cpp.html#L15"><code>StdlibE2E.Random</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1random_1a2baa7c7eee111295c7ff9a2112f604a9">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">uniform</span>(double a, double b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_random_random_cpp.html#L17" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1random_1a2baa7c7eee111295c7ff9a2112f604a9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Uniform random double in a range. </p>
+  <div class="member-body"><p>Scales a uniform real distribution to span the given bounds; the caller is expected to pass <code>a</code> ≤ <code>b</code> (the bounds are not reordered or validated).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>the bounds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a value in [<code>a</code>, <code>b</code>].</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_random_test_cpp.html#L19"><code>CheatahRandom.UniformInRange</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_random_cr_test_cpp.html#L35"><code>RandomCompileRun.Uniform</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_random_sys_test_cpp.html#L15"><code>StdlibE2E.Random</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">randint</span>(long long a, long long b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_random_random_cpp.html#L18" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Uniform random integer. </p>
+  <div class="member-body"><p>Returns each integer in the closed range with equal probability; both <code>a</code> and <code>b</code> are attainable, and <code>a</code> == <code>b</code> always yields that value.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>inclusive bounds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an integer in [<code>a</code>, <code>b</code>].</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_random_test_cpp.html#L28"><code>CheatahRandom.RandintInclusiveRange</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_random_cr_test_cpp.html#L47"><code>RandomCompileRun.Randint</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_random_sys_test_cpp.html#L15"><code>StdlibE2E.Random</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1random_1aca6f93bfb58d2df356576abedeef72ca">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">gauss</span>(double mu, double sigma)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_random_random_cpp.html#L21" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1random_1aca6f93bfb58d2df356576abedeef72ca" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Normal (Gaussian) deviate. </p>
+  <div class="member-body"><p>Samples the normal distribution N(<code>mu</code>, <code>sigma²</code>) from the shared engine; the result is unbounded and can fall on either side of the mean.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>mu</code></td><td class="pdesc"><p>mean.</p></td></tr><tr><td class="pname"><code>sigma</code></td><td class="pdesc"><p>standard deviation.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a normal sample.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_random_test_cpp.html#L38"><code>CheatahRandom.GaussIsFiniteAndReproducible</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_random_cr_test_cpp.html#L56"><code>RandomCompileRun.Gauss</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_random_sys_test_cpp.html#L15"><code>StdlibE2E.Random</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1random_1aefcc34e321f7fb9345877073ae182c08">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::ranges::range_value_t&lt; R &gt;</span> <span class="mname">choice</span>(const R &amp;seq)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_random_random_hpp.html#L110" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1random_1aefcc34e321f7fb9345877073ae182c08" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Random element of a random-access sequence (list/array). </p>
+  <div class="member-body"><p>Picks a uniformly random index in [0, size) via <a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e">randint</a> and returns a copy of that element. The sequence must be non-empty — an empty <code>seq</code> passes an inverted range to <a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e">randint</a>, which is undefined.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>seq</code></td><td class="pdesc"><p>the sequence to pick from (must be non-empty).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of a uniformly chosen element.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none (copies one element; via <a href="namespacecheatah_1_1random.html#namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e">randint</a>).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_random_test_cpp.html#L57"><code>CheatahRandom.Choice</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_random_cr_test_cpp.html#L68"><code>RandomCompileRun.Choice</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_random_sys_test_cpp.html#L15"><code>StdlibE2E.Random</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1random_1a1edc81cc859779ed2967f782d6121f59">seed</a></li><li><a href="#namespacecheatah_1_1random_1a61e342e7efad99a3ca414567988c3282">random</a></li><li><a href="#namespacecheatah_1_1random_1a2baa7c7eee111295c7ff9a2112f604a9">uniform</a></li><li><a href="#namespacecheatah_1_1random_1ad224634d97d4db14584c3af60a09179e">randint</a></li><li><a href="#namespacecheatah_1_1random_1aca6f93bfb58d2df356576abedeef72ca">gauss</a></li><li><a href="#namespacecheatah_1_1random_1aefcc34e321f7fb9345877073ae182c08">choice</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1random.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::random Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a1edc81cc859779ed2967f782d6121f59" id="r_a1edc81cc859779ed2967f782d6121f59"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1edc81cc859779ed2967f782d6121f59">seed</a> (unsigned long long s)</td></tr>
-<tr class="memdesc:a1edc81cc859779ed2967f782d6121f59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Seed the shared engine, making the stream reproducible.  <br /></td></tr>
-<tr class="memitem:a61e342e7efad99a3ca414567988c3282" id="r_a61e342e7efad99a3ca414567988c3282"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a61e342e7efad99a3ca414567988c3282">random</a> ()</td></tr>
-<tr class="memdesc:a61e342e7efad99a3ca414567988c3282"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uniform random double.  <br /></td></tr>
-<tr class="memitem:a2baa7c7eee111295c7ff9a2112f604a9" id="r_a2baa7c7eee111295c7ff9a2112f604a9"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a2baa7c7eee111295c7ff9a2112f604a9">uniform</a> (double a, double b)</td></tr>
-<tr class="memdesc:a2baa7c7eee111295c7ff9a2112f604a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uniform random double in a range.  <br /></td></tr>
-<tr class="memitem:ad224634d97d4db14584c3af60a09179e" id="r_ad224634d97d4db14584c3af60a09179e"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#ad224634d97d4db14584c3af60a09179e">randint</a> (long long a, long long b)</td></tr>
-<tr class="memdesc:ad224634d97d4db14584c3af60a09179e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uniform random integer.  <br /></td></tr>
-<tr class="memitem:aca6f93bfb58d2df356576abedeef72ca" id="r_aca6f93bfb58d2df356576abedeef72ca"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aca6f93bfb58d2df356576abedeef72ca">gauss</a> (double mu, double sigma)</td></tr>
-<tr class="memdesc:aca6f93bfb58d2df356576abedeef72ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normal (Gaussian) deviate.  <br /></td></tr>
-<tr class="memitem:aefcc34e321f7fb9345877073ae182c08" id="r_aefcc34e321f7fb9345877073ae182c08"><td class="memTemplParams" colspan="2">template&lt;std::ranges::random_access_range R&gt; </td></tr>
-<tr class="memitem:aefcc34e321f7fb9345877073ae182c08 template"><td class="memItemLeft">std::ranges::range_value_t&lt; R &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aefcc34e321f7fb9345877073ae182c08">choice</a> (const R &amp;seq)</td></tr>
-<tr class="memdesc:aefcc34e321f7fb9345877073ae182c08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Random element of a random-access sequence (list/array).  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a1edc81cc859779ed2967f782d6121f59" name="a1edc81cc859779ed2967f782d6121f59"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1edc81cc859779ed2967f782d6121f59">&#9670;&#160;</a></span>seed()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void cheatah::random::seed </td>
-          <td>(</td>
-          <td class="paramtype">unsigned long long</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Seed the shared engine, making the stream reproducible. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>the seed. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000163">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000163">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000167">Test</a></b></dt><dd>CheatahRandom.SeedMakesTheStreamReproducible </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00014">14</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a61e342e7efad99a3ca414567988c3282" name="a61e342e7efad99a3ca414567988c3282"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a61e342e7efad99a3ca414567988c3282">&#9670;&#160;</a></span>random()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::random::random </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Uniform random double. </p>
-<dl class="section return"><dt>Returns</dt><dd>a value in [0, 1). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000164">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000164">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000168">Test</a></b></dt><dd>CheatahRandom.RandomInUnitInterval </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00016">16</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2baa7c7eee111295c7ff9a2112f604a9" name="a2baa7c7eee111295c7ff9a2112f604a9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2baa7c7eee111295c7ff9a2112f604a9">&#9670;&#160;</a></span>uniform()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::random::uniform </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Uniform random double in a range. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>the bounds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a value in [<code class="param">a</code>, <code class="param">b</code>]. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000165">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000165">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000169">Test</a></b></dt><dd>CheatahRandom.UniformInRange </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00017">17</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ad224634d97d4db14584c3af60a09179e" name="ad224634d97d4db14584c3af60a09179e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad224634d97d4db14584c3af60a09179e">&#9670;&#160;</a></span>randint()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::random::randint </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Uniform random integer. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>inclusive bounds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>an integer in [<code class="param">a</code>, <code class="param">b</code>]. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000166">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000166">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000170">Test</a></b></dt><dd>CheatahRandom.RandintInclusiveRange </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00018">18</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="random_8hpp_source.html#l00077">choice()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1random_ad224634d97d4db14584c3af60a09179e_icgraph.svg" width="428" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aca6f93bfb58d2df356576abedeef72ca" name="aca6f93bfb58d2df356576abedeef72ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca6f93bfb58d2df356576abedeef72ca">&#9670;&#160;</a></span>gauss()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::random::gauss </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>mu</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>sigma</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Normal (Gaussian) deviate. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">mu</td><td>mean. </td></tr>
-    <tr><td class="paramname">sigma</td><td>standard deviation. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a normal sample. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000167">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000167">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000171">Test</a></b></dt><dd>CheatahRandom.GaussIsFiniteAndReproducible </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00021">21</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aefcc34e321f7fb9345877073ae182c08" name="aefcc34e321f7fb9345877073ae182c08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aefcc34e321f7fb9345877073ae182c08">&#9670;&#160;</a></span>choice()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::ranges::random_access_range R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::ranges::range_value_t&lt; R &gt; cheatah::random::choice </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>seq</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Random element of a random-access sequence (list/array). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">seq</td><td>the sequence to pick from (must be non-empty). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a copy of a uniformly chosen element. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000168">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000168">Allocation</a></b></dt><dd>none (copies one element; via <a class="el" href="#ad224634d97d4db14584c3af60a09179e" title="randint">randint</a>). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000172">Test</a></b></dt><dd>CheatahRandom.Choice </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="random_8hpp_source.html#l00077">77</a> of file <a class="el" href="random_8hpp_source.html">random.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="random_8cpp_source.html#l00018">randint()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1random_aefcc34e321f7fb9345877073ae182c08_cgraph.svg" width="428" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

@@ -25,6 +25,9 @@ TAB_SIZE               = 4
 # styled sections (see docs/theme/cheetah.css for their colors).
 ALIASES                = "complexity=\xrefitem complexity \"Complexity\" \"Complexity\""
 ALIASES               += "alloc=\xrefitem alloc \"Allocation\" \"Allocation\""
+# Three test kinds, all shown per function and linked to their source by the generator.
+ALIASES               += "crtest=\xrefitem crtest \"Compile-run test\" \"Compile-run test\""
+ALIASES               += "systest=\xrefitem systest \"System test\" \"System test\""
 
 #---------------------------------------------------------------------------
 # Build / extraction
@@ -73,9 +76,13 @@ REFERENCES_RELATION    = YES
 REFERENCES_LINK_SOURCE = YES
 
 #---------------------------------------------------------------------------
-# HTML output + doxygen-awesome-css theme (fixed dark cheetah palette, no toggle)
+# Output: Doxygen is used ONLY as the C++ parser — it emits XML, and our own
+# generator (docs/gen/generate.py) renders the site into docs/html. No Doxygen HTML.
 #---------------------------------------------------------------------------
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = NO
 GENERATE_LATEX         = NO
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
@@ -100,7 +107,7 @@ HTML_EXTRA_FILES       = docs/theme/doxygen-awesome-fragment-copy-button.js \
 # Diagrams — Graphviz dot (inheritance, collaboration, include, call/caller,
 # hierarchy, directory). Rendered as SVG; dark-aware because HTML_COLORSTYLE=DARK.
 #---------------------------------------------------------------------------
-HAVE_DOT               = YES
+HAVE_DOT               = NO
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = NO
 DOT_GRAPH_MAX_NODES    = 50

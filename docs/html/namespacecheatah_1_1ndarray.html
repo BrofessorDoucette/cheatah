@@ -1,900 +1,188 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::ndarray Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>ndarray · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>ndarray</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1ndarray_1aa32f6a17651505adc1f9d29b401aa126">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::size_t &gt;</span> <span class="mname">broadcast_shapes</span>(const std::vector&lt; std::size_t &gt; &amp;a, const std::vector&lt; std::size_t &gt; &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L119" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1aa32f6a17651505adc1f9d29b401aa126" aria-label="permalink">#</a></span>
   </div>
-</div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1ndarray.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::ndarray Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:NDArray" id="r_NDArray"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.  <a href="classcheatah_1_1ndarray_1_1NDArray.html#details">More...</a><br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:aa32f6a17651505adc1f9d29b401aa126" id="r_aa32f6a17651505adc1f9d29b401aa126"><td class="memItemLeft">std::vector&lt; std::size_t &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aa32f6a17651505adc1f9d29b401aa126">broadcast_shapes</a> (const std::vector&lt; std::size_t &gt; &amp;a, const std::vector&lt; std::size_t &gt; &amp;b)</td></tr>
-<tr class="memdesc:aa32f6a17651505adc1f9d29b401aa126"><td class="mdescLeft">&#160;</td><td class="mdescRight">The broadcast result shape of two shapes (NumPy rules).  <br /></td></tr>
-<tr class="memitem:af3054f485e7082dc20e22f26c8cba362" id="r_af3054f485e7082dc20e22f26c8cba362"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#af3054f485e7082dc20e22f26c8cba362">broadcast_to</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const std::vector&lt; std::size_t &gt; &amp;target)</td></tr>
-<tr class="memdesc:af3054f485e7082dc20e22f26c8cba362"><td class="mdescLeft">&#160;</td><td class="mdescRight">A zero-copy view of <code class="param">a</code> stretched to <code class="param">target</code> (size-1 / missing dims get stride 0).  <br /></td></tr>
-<tr class="memitem:a21a5e63a10cd44d3d699f33a75a564ac" id="r_a21a5e63a10cd44d3d699f33a75a564ac"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a21a5e63a10cd44d3d699f33a75a564ac">array</a> (const std::vector&lt; double &gt; &amp;values)</td></tr>
-<tr class="memdesc:a21a5e63a10cd44d3d699f33a75a564ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">1-D array from a list of values.  <br /></td></tr>
-<tr class="memitem:a565074f9054d8cf73b55d076b1f5d8c2" id="r_a565074f9054d8cf73b55d076b1f5d8c2"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a565074f9054d8cf73b55d076b1f5d8c2">scalar</a> (double value)</td></tr>
-<tr class="memdesc:a565074f9054d8cf73b55d076b1f5d8c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">0-D scalar array (broadcasts to anything).  <br /></td></tr>
-<tr class="memitem:a9766d9295a8ef186f7189ca28279e576" id="r_a9766d9295a8ef186f7189ca28279e576"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a9766d9295a8ef186f7189ca28279e576">zeros</a> (const std::vector&lt; long long &gt; &amp;shape)</td></tr>
-<tr class="memdesc:a9766d9295a8ef186f7189ca28279e576"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array of <code class="param">shape</code> filled with 0.  <br /></td></tr>
-<tr class="memitem:a227d5bda54a6f968d2589bcbccf74a68" id="r_a227d5bda54a6f968d2589bcbccf74a68"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a227d5bda54a6f968d2589bcbccf74a68">ones</a> (const std::vector&lt; long long &gt; &amp;shape)</td></tr>
-<tr class="memdesc:a227d5bda54a6f968d2589bcbccf74a68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array of <code class="param">shape</code> filled with 1.  <br /></td></tr>
-<tr class="memitem:aa249af73655ad3832412190665afb31d" id="r_aa249af73655ad3832412190665afb31d"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa249af73655ad3832412190665afb31d">full</a> (const std::vector&lt; long long &gt; &amp;shape, double value)</td></tr>
-<tr class="memdesc:aa249af73655ad3832412190665afb31d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array of <code class="param">shape</code> filled with <code class="param">value</code>.  <br /></td></tr>
-<tr class="memitem:a7bbc058aba8db2b8f75967348173319d" id="r_a7bbc058aba8db2b8f75967348173319d"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a7bbc058aba8db2b8f75967348173319d">arange</a> (double start, double stop, double step)</td></tr>
-<tr class="memdesc:a7bbc058aba8db2b8f75967348173319d"><td class="mdescLeft">&#160;</td><td class="mdescRight">1-D range <span class="tt">[start, stop)</span> stepping by <code class="param">step</code> (Python <span class="tt">range</span>-like).  <br /></td></tr>
-<tr class="memitem:a1a7555532cd64d3801dfb571f94fed3b" id="r_a1a7555532cd64d3801dfb571f94fed3b"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a1a7555532cd64d3801dfb571f94fed3b">reshape</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const std::vector&lt; long long &gt; &amp;shape)</td></tr>
-<tr class="memdesc:a1a7555532cd64d3801dfb571f94fed3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reshape <code class="param">a</code> to <code class="param">shape</code> (same element count).  <br /></td></tr>
-<tr class="memitem:ad8ee3cac9aee97fa50de8e26bcf6af7c" id="r_ad8ee3cac9aee97fa50de8e26bcf6af7c"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#ad8ee3cac9aee97fa50de8e26bcf6af7c">add</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
-<tr class="memdesc:ad8ee3cac9aee97fa50de8e26bcf6af7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element-wise add with broadcasting.  <br /></td></tr>
-<tr class="memitem:a2c6efc14872c11a009505a014138a508" id="r_a2c6efc14872c11a009505a014138a508"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a2c6efc14872c11a009505a014138a508">sub</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
-<tr class="memdesc:a2c6efc14872c11a009505a014138a508"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element-wise subtract with broadcasting.  <br /></td></tr>
-<tr class="memitem:aa3963c65659cc36c609c2d75d7ddb1b1" id="r_aa3963c65659cc36c609c2d75d7ddb1b1"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa3963c65659cc36c609c2d75d7ddb1b1">mul</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
-<tr class="memdesc:aa3963c65659cc36c609c2d75d7ddb1b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element-wise multiply with broadcasting.  <br /></td></tr>
-<tr class="memitem:a68be874288321590e276c0e908232116" id="r_a68be874288321590e276c0e908232116"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a68be874288321590e276c0e908232116">divide</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
-<tr class="memdesc:a68be874288321590e276c0e908232116"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element-wise divide with broadcasting.  <br /></td></tr>
-<tr class="memitem:a3fc7e58a79593ffd0446bdc1de869f1e" id="r_a3fc7e58a79593ffd0446bdc1de869f1e"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a3fc7e58a79593ffd0446bdc1de869f1e">sum</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a3fc7e58a79593ffd0446bdc1de869f1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sum of all elements.  <br /></td></tr>
-<tr class="memitem:a54d1a3c8c622bac7fa431b75d47ae8ab" id="r_a54d1a3c8c622bac7fa431b75d47ae8ab"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a54d1a3c8c622bac7fa431b75d47ae8ab">mean</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a54d1a3c8c622bac7fa431b75d47ae8ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mean of all elements (0 for an empty array).  <br /></td></tr>
-<tr class="memitem:aa36e827b43482683b94b6b08b3c89e4d" id="r_aa36e827b43482683b94b6b08b3c89e4d"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aa36e827b43482683b94b6b08b3c89e4d">get</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const std::vector&lt; long long &gt; &amp;index)</td></tr>
-<tr class="memdesc:aa36e827b43482683b94b6b08b3c89e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one element by signed multi-index.  <br /></td></tr>
-<tr class="memitem:a5ecc75969da04a455e7a89a32cbe2352" id="r_a5ecc75969da04a455e7a89a32cbe2352"><td class="memItemLeft">std::vector&lt; long long &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a5ecc75969da04a455e7a89a32cbe2352">shape_of</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a5ecc75969da04a455e7a89a32cbe2352"><td class="mdescLeft">&#160;</td><td class="mdescRight">The shape as signed dims.  <br /></td></tr>
-<tr class="memitem:acb44fb58ea77e7951a35708b39f3a7d5" id="r_acb44fb58ea77e7951a35708b39f3a7d5"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#acb44fb58ea77e7951a35708b39f3a7d5">size_of</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:acb44fb58ea77e7951a35708b39f3a7d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">The element count as a signed value.  <br /></td></tr>
-<tr class="memitem:aa4c21ed00e8ef67406221c3d0dd29594" id="r_aa4c21ed00e8ef67406221c3d0dd29594"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa4c21ed00e8ef67406221c3d0dd29594">to_string</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:aa4c21ed00e8ef67406221c3d0dd29594"><td class="mdescLeft">&#160;</td><td class="mdescRight">Render as a nested-bracket string, e.g.  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="aa32f6a17651505adc1f9d29b401aa126" name="aa32f6a17651505adc1f9d29b401aa126"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa32f6a17651505adc1f9d29b401aa126">&#9670;&#160;</a></span>broadcast_shapes()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt; std::size_t &gt; cheatah::ndarray::broadcast_shapes </td>
-          <td>(</td>
-          <td class="paramtype">const std::vector&lt; std::size_t &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; std::size_t &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The broadcast result shape of two shapes (NumPy rules). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>first shape. </td></tr>
-    <tr><td class="paramname">b</td><td>second shape. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the broadcast shape (trailing-aligned). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000110">Complexity</a></b></dt><dd>O(max(ndim)). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000110">Allocation</a></b></dt><dd>allocates the small result vector; throws if the shapes are incompatible. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000114">Test</a></b></dt><dd>CheatahNDArray.BroadcastShapeRules </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00119">119</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="af3054f485e7082dc20e22f26c8cba362" name="af3054f485e7082dc20e22f26c8cba362"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af3054f485e7082dc20e22f26c8cba362">&#9670;&#160;</a></span>broadcast_to()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::broadcast_to </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; std::size_t &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>target</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A zero-copy view of <code class="param">a</code> stretched to <code class="param">target</code> (size-1 / missing dims get stride 0). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>source array. </td></tr>
-    <tr><td class="paramname">target</td><td>the shape to stretch to. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a VIEW sharing <code class="param">a's</code> buffer (no element copy). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000111">Complexity</a></b></dt><dd>O(target ndim). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000111">Allocation</a></b></dt><dd>allocates only the small strides vector for the view, not the data; throws if <code class="param">a</code> is not broadcastable to <code class="param">target</code>. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000115">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00138">138</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00117">cheatah::ndarray::NDArray::buffer()</a>, <a class="el" href="ndarray_8hpp_source.html#l00090">cheatah::ndarray::NDArray::ndim()</a>, <a class="el" href="ndarray_8hpp_source.html#l00125">cheatah::ndarray::NDArray::offset()</a>, <a class="el" href="ndarray_8hpp_source.html#l00074">cheatah::ndarray::NDArray::shape()</a>, <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00082">cheatah::ndarray::NDArray::strides()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_af3054f485e7082dc20e22f26c8cba362_cgraph.svg" width="476" height="371"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a21a5e63a10cd44d3d699f33a75a564ac" name="a21a5e63a10cd44d3d699f33a75a564ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a21a5e63a10cd44d3d699f33a75a564ac">&#9670;&#160;</a></span>array()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::array </td>
-          <td>(</td>
-          <td class="paramtype">const std::vector&lt; double &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>values</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>1-D array from a list of values. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">values</td><td>the elements. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a contiguous 1-D <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000112">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000112">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000116">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00156">156</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00117">cheatah::ndarray::NDArray::buffer()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00174">arange()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a21a5e63a10cd44d3d699f33a75a564ac_cgraph.svg" width="427" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a21a5e63a10cd44d3d699f33a75a564ac_icgraph.svg" width="416" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a565074f9054d8cf73b55d076b1f5d8c2" name="a565074f9054d8cf73b55d076b1f5d8c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a565074f9054d8cf73b55d076b1f5d8c2">&#9670;&#160;</a></span>scalar()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::scalar </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>0-D scalar array (broadcasts to anything). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the single element. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a 0-d <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000113">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000113">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer holding one element. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000117">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast, CheatahNDArray.ToStringScalar </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00162">162</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00117">cheatah::ndarray::NDArray::buffer()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a565074f9054d8cf73b55d076b1f5d8c2_cgraph.svg" width="432" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a9766d9295a8ef186f7189ca28279e576" name="a9766d9295a8ef186f7189ca28279e576"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9766d9295a8ef186f7189ca28279e576">&#9670;&#160;</a></span>zeros()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::zeros </td>
-          <td>(</td>
-          <td class="paramtype">const std::vector&lt; long long &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>shape</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Array of <code class="param">shape</code> filled with 0. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">shape</td><td>the dimensions (rejects negatives). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a zero-filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000114">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000114">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000118">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00168">168</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a227d5bda54a6f968d2589bcbccf74a68" name="a227d5bda54a6f968d2589bcbccf74a68"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a227d5bda54a6f968d2589bcbccf74a68">&#9670;&#160;</a></span>ones()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::ones </td>
-          <td>(</td>
-          <td class="paramtype">const std::vector&lt; long long &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>shape</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Array of <code class="param">shape</code> filled with 1. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">shape</td><td>the dimensions (rejects negatives). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a one-filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000115">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000115">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000119">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00169">169</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aa249af73655ad3832412190665afb31d" name="aa249af73655ad3832412190665afb31d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa249af73655ad3832412190665afb31d">&#9670;&#160;</a></span>full()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::full </td>
-          <td>(</td>
-          <td class="paramtype">const std::vector&lt; long long &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>shape</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Array of <code class="param">shape</code> filled with <code class="param">value</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">shape</td><td>the dimensions (rejects negatives). </td></tr>
-    <tr><td class="paramname">value</td><td>the fill value. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000116">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000116">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000120">Test</a></b></dt><dd>CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00170">170</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a7bbc058aba8db2b8f75967348173319d" name="a7bbc058aba8db2b8f75967348173319d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7bbc058aba8db2b8f75967348173319d">&#9670;&#160;</a></span>arange()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::arange </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>start</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>stop</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>step</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>1-D range <span class="tt">[start, stop)</span> stepping by <code class="param">step</code> (Python <span class="tt">range</span>-like). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">start</td><td>first value. </td></tr>
-    <tr><td class="paramname">stop</td><td>exclusive bound. </td></tr>
-    <tr><td class="paramname">step</td><td>increment (non-zero). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a 1-D <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> of the generated values. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000117">Complexity</a></b></dt><dd>O(count) where count = number of steps. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000117">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if <code class="param">step</code> is zero. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000121">Test</a></b></dt><dd>CheatahNDArray.Arange </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00174">174</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00156">array()</a>.</p>
-<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a7bbc058aba8db2b8f75967348173319d_cgraph.svg" width="659" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a1a7555532cd64d3801dfb571f94fed3b" name="a1a7555532cd64d3801dfb571f94fed3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a7555532cd64d3801dfb571f94fed3b">&#9670;&#160;</a></span>reshape()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::reshape </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; long long &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>shape</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Reshape <code class="param">a</code> to <code class="param">shape</code> (same element count). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>source array. </td></tr>
-    <tr><td class="paramname">shape</td><td>the new dimensions (rejects negatives). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a new contiguous <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> with the data laid out in C-order. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000118">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000118">Allocation</a></b></dt><dd>flattens through views and allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on size mismatch or negative dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000122">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd, CheatahNDArray.ReshapeSizeMismatchThrows </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00181">181</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>, <a class="el" href="ndarray_8hpp_source.html#l00117">cheatah::ndarray::NDArray::buffer()</a>, <a class="el" href="ndarray_8hpp_source.html#l00090">cheatah::ndarray::NDArray::ndim()</a>, <a class="el" href="ndarray_8hpp_source.html#l00074">cheatah::ndarray::NDArray::shape()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>.</p>
-<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a1a7555532cd64d3801dfb571f94fed3b_cgraph.svg" width="464" height="294"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ad8ee3cac9aee97fa50de8e26bcf6af7c" name="ad8ee3cac9aee97fa50de8e26bcf6af7c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8ee3cac9aee97fa50de8e26bcf6af7c">&#9670;&#160;</a></span>add()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::add </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Element-wise add with broadcasting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>first operand. </td></tr>
-    <tr><td class="paramname">b</td><td>second operand. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">a + b</span> broadcast to their common shape. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000119">Complexity</a></b></dt><dd>O(size of result). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000119">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000123">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00197">197</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2c6efc14872c11a009505a014138a508" name="a2c6efc14872c11a009505a014138a508"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c6efc14872c11a009505a014138a508">&#9670;&#160;</a></span>sub()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::sub </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Element-wise subtract with broadcasting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>first operand. </td></tr>
-    <tr><td class="paramname">b</td><td>second operand. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">a - b</span> broadcast to their common shape. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000120">Complexity</a></b></dt><dd>O(size of result). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000120">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000124">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00200">200</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aa3963c65659cc36c609c2d75d7ddb1b1" name="aa3963c65659cc36c609c2d75d7ddb1b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3963c65659cc36c609c2d75d7ddb1b1">&#9670;&#160;</a></span>mul()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::mul </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Element-wise multiply with broadcasting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>first operand. </td></tr>
-    <tr><td class="paramname">b</td><td>second operand. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">a * b</span> broadcast to their common shape. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000121">Complexity</a></b></dt><dd>O(size of result). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000121">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000125">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00203">203</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a68be874288321590e276c0e908232116" name="a68be874288321590e276c0e908232116"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68be874288321590e276c0e908232116">&#9670;&#160;</a></span>divide()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::ndarray::divide </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Element-wise divide with broadcasting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>numerator. </td></tr>
-    <tr><td class="paramname">b</td><td>denominator. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">a / b</span> broadcast to their common shape. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000122">Complexity</a></b></dt><dd>O(size of result). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000122">Allocation</a></b></dt><dd>allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000126">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00206">206</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a3fc7e58a79593ffd0446bdc1de869f1e" name="a3fc7e58a79593ffd0446bdc1de869f1e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fc7e58a79593ffd0446bdc1de869f1e">&#9670;&#160;</a></span>sum()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::ndarray::sum </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sum of all elements. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>the array. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the total. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000123">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000123">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000127">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00210">210</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>, <a class="el" href="ndarray_8hpp_source.html#l00090">cheatah::ndarray::NDArray::ndim()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00074">cheatah::ndarray::NDArray::shape()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00218">mean()</a>.</p>
-<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a3fc7e58a79593ffd0446bdc1de869f1e_cgraph.svg" width="440" height="166"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a3fc7e58a79593ffd0446bdc1de869f1e_icgraph.svg" width="402" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a54d1a3c8c622bac7fa431b75d47ae8ab" name="a54d1a3c8c622bac7fa431b75d47ae8ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54d1a3c8c622bac7fa431b75d47ae8ab">&#9670;&#160;</a></span>mean()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::ndarray::mean </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Mean of all elements (0 for an empty array). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>the array. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the average. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000124">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000124">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000128">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00218">218</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00210">sum()</a>.</p>
-<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a54d1a3c8c622bac7fa431b75d47ae8ab_cgraph.svg" width="692" height="172"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aa36e827b43482683b94b6b08b3c89e4d" name="aa36e827b43482683b94b6b08b3c89e4d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa36e827b43482683b94b6b08b3c89e4d">&#9670;&#160;</a></span>get()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::ndarray::get </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; long long &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>index</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Read one element by signed multi-index. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>the array. </td></tr>
-    <tr><td class="paramname">index</td><td>one coordinate per dimension (rejects negatives). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the element value. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000125">Complexity</a></b></dt><dd>O(ndim). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000125">Allocation</a></b></dt><dd>none; bounds-checks rank/range and throws on a bad index. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000129">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00223">223</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>.</p>
-<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-9-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_aa36e827b43482683b94b6b08b3c89e4d_cgraph.svg" width="434" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a5ecc75969da04a455e7a89a32cbe2352" name="a5ecc75969da04a455e7a89a32cbe2352"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5ecc75969da04a455e7a89a32cbe2352">&#9670;&#160;</a></span>shape_of()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt; long long &gt; cheatah::ndarray::shape_of </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The shape as signed dims. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>the array. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a vector of the dimensions. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000126">Complexity</a></b></dt><dd>O(ndim). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000126">Allocation</a></b></dt><dd>allocates a small vector. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000130">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00225">225</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00090">cheatah::ndarray::NDArray::ndim()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00074">cheatah::ndarray::NDArray::shape()</a>.</p>
-<div id="dynsection-10" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-10-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-10-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a5ecc75969da04a455e7a89a32cbe2352_cgraph.svg" width="452" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="acb44fb58ea77e7951a35708b39f3a7d5" name="acb44fb58ea77e7951a35708b39f3a7d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acb44fb58ea77e7951a35708b39f3a7d5">&#9670;&#160;</a></span>size_of()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::ndarray::size_of </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The element count as a signed value. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>the array. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the number of elements. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000127">Complexity</a></b></dt><dd>O(ndim). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000127">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000131">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.Arange </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00230">230</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>.</p>
-<div id="dynsection-11" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-11-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-11-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_acb44fb58ea77e7951a35708b39f3a7d5_cgraph.svg" width="439" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aa4c21ed00e8ef67406221c3d0dd29594" name="aa4c21ed00e8ef67406221c3d0dd29594"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa4c21ed00e8ef67406221c3d0dd29594">&#9670;&#160;</a></span>to_string()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::ndarray::to_string </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Render as a nested-bracket string, e.g. </p>
-<p><span class="tt">"[[1, 2], [3, 4]]"</span>. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>the array. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the textual representation. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000128">Complexity</a></b></dt><dd>O(size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000128">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000132">Test</a></b></dt><dd>CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00232">232</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00090">cheatah::ndarray::NDArray::ndim()</a>.</p>
-<div id="dynsection-12" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-12-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-12-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_aa4c21ed00e8ef67406221c3d0dd29594_cgraph.svg" width="426" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+  <p class="member-brief">The broadcast result shape of two shapes (NumPy rules). </p>
+  <div class="member-body"><p>Aligns the shapes from the trailing (rightmost) dimension, treating missing leading dims as 1; each output dim is the non-1 input dim, and two unequal dims that are both not 1 are incompatible and throw.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>first shape.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>second shape.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the broadcast shape (trailing-aligned).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(max(ndim)).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the small result vector; throws if the shapes are incompatible.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L39"><code>CheatahNDArray.BroadcastShapeRules</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1af3054f485e7082dc20e22f26c8cba362">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">broadcast_to</span>(const NDArray &amp;a, const std::vector&lt; std::size_t &gt; &amp;target)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L138" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1af3054f485e7082dc20e22f26c8cba362" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A zero-copy view of <code>a</code> stretched to <code>target</code> (size-1 / missing dims get stride 0). </p>
+  <div class="member-body"><p>Right-aligns <code>a&#x27;s</code> dims under <code>target</code>, keeping the original stride where dims match and using stride 0 where a size-1 (or missing leading) dim is stretched; throws if <code>a</code> has more dims than <code>target</code> or a non-1 dim doesn&#x27;t match the target.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>source array.</p></td></tr><tr><td class="pname"><code>target</code></td><td class="pdesc"><p>the shape to stretch to.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a VIEW sharing <code>a&#x27;s</code> buffer (no element copy).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(target ndim).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates only the small strides vector for the view, not the data; throws if <code>a</code> is not broadcastable to <code>target</code>.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L87"><code>CheatahNDArray.BroadcastTo</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a21a5e63a10cd44d3d699f33a75a564ac">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">array</span>(const std::vector&lt; double &gt; &amp;values)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L156" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a21a5e63a10cd44d3d699f33a75a564ac" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">1-D array from a list of values. </p>
+  <div class="member-body"><p>Creates a contiguous array of shape <code>[values.size()]</code> and copies the values into its buffer in order; an empty list yields a 1-D array of length 0.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>values</code></td><td class="pdesc"><p>the elements.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a contiguous 1-D <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L14"><code>NdarrayCompileRun.Array</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a565074f9054d8cf73b55d076b1f5d8c2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">scalar</span>(double value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L162" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a565074f9054d8cf73b55d076b1f5d8c2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">0-D scalar array (broadcasts to anything). </p>
+  <div class="member-body"><p>Produces an empty-shape array whose buffer holds the single <code>value</code>; because it has no dimensions it broadcasts against any shape under NumPy rules.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the single element.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a 0-d <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer holding one element.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L62"><code>CheatahNDArray.ElementwiseAndScalarBroadcast</code></a> <a href="src_stdlib_tests_ndarray_test_cpp.html#L83"><code>CheatahNDArray.ToStringScalar</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L21"><code>NdarrayCompileRun.Scalar</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a9766d9295a8ef186f7189ca28279e576">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">zeros</span>(const std::vector&lt; long long &gt; &amp;shape)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L168" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a9766d9295a8ef186f7189ca28279e576" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Array of <code>shape</code> filled with 0. </p>
+  <div class="member-body"><p>Converts the signed dims to sizes (throwing on any negative) and builds a fresh contiguous array filled with 0.0.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>the dimensions (rejects negatives).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a zero-filled <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a> <a href="src_stdlib_tests_ndarray_test_cpp.html#L13"><code>CheatahNDArray.RejectsMaliciousShapesAndIndices</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L28"><code>NdarrayCompileRun.Zeros</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a227d5bda54a6f968d2589bcbccf74a68">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">ones</span>(const std::vector&lt; long long &gt; &amp;shape)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L169" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a227d5bda54a6f968d2589bcbccf74a68" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Array of <code>shape</code> filled with 1. </p>
+  <div class="member-body"><p>Converts the signed dims to sizes (throwing on any negative) and builds a fresh contiguous array filled with 1.0.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>the dimensions (rejects negatives).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a one-filled <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L35"><code>NdarrayCompileRun.Ones</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1aa249af73655ad3832412190665afb31d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">full</span>(const std::vector&lt; long long &gt; &amp;shape, double value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L170" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1aa249af73655ad3832412190665afb31d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Array of <code>shape</code> filled with <code>value</code>. </p>
+  <div class="member-body"><p>Converts the signed dims to sizes (throwing on any negative) and builds a fresh contiguous array with every element set to <code>value</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>the dimensions (rejects negatives).</p></td></tr><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the fill value.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a filled <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L13"><code>CheatahNDArray.RejectsMaliciousShapesAndIndices</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L42"><code>NdarrayCompileRun.Full</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a7bbc058aba8db2b8f75967348173319d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">arange</span>(double start, double stop, double step)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L174" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a7bbc058aba8db2b8f75967348173319d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">1-D range <code>[start, stop)</code> stepping by <code>step</code> (Python <code>range</code>-like). </p>
+  <div class="member-body"><p>Accumulates values from <code>start</code>, advancing by <code>step</code> while below <code>stop</code> (or above it when <code>step</code> is negative), so a step pointing away from <code>stop</code> yields an empty array; throws when <code>step</code> is zero. Uses floating-point accumulation, so rounding may affect the final count.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>start</code></td><td class="pdesc"><p>first value.</p></td></tr><tr><td class="pname"><code>stop</code></td><td class="pdesc"><p>exclusive bound.</p></td></tr><tr><td class="pname"><code>step</code></td><td class="pdesc"><p>increment (non-zero).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a 1-D <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> of the generated values.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(count) where count = number of steps.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if <code>step</code> is zero.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L69"><code>CheatahNDArray.Arange</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L49"><code>NdarrayCompileRun.Arange</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a1a7555532cd64d3801dfb571f94fed3b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">reshape</span>(const NDArray &amp;a, const std::vector&lt; long long &gt; &amp;shape)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L181" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a1a7555532cd64d3801dfb571f94fed3b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Reshape <code>a</code> to <code>shape</code> (same element count). </p>
+  <div class="member-body"><p>Reads <code>a&#x27;s</code> elements in C-order (so it works through arbitrary views/broadcasts) into a brand-new contiguous buffer with the requested shape, i.e. it copies rather than aliasing; throws if the new size differs from <code>a&#x27;s</code> or any dim is negative.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>source array.</p></td></tr><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>the new dimensions (rejects negatives).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a new contiguous <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> with the data laid out in C-order.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>flattens through views and allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on size mismatch or negative dims.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L50"><code>CheatahNDArray.BroadcastingAdd</code></a> <a href="src_stdlib_tests_ndarray_test_cpp.html#L79"><code>CheatahNDArray.ReshapeSizeMismatchThrows</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L56"><code>NdarrayCompileRun.Reshape</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1ad8ee3cac9aee97fa50de8e26bcf6af7c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">add</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L197" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1ad8ee3cac9aee97fa50de8e26bcf6af7c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Element-wise add with broadcasting. </p>
+  <div class="member-body"><p>Broadcasts both operands to their common shape, then writes <code>av + bv</code> into a new contiguous result; throws if the shapes are not broadcast-compatible.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>first operand.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>second operand.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>a + b</code> broadcast to their common shape.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size of result).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don&#x27;t broadcast.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L50"><code>CheatahNDArray.BroadcastingAdd</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L63"><code>NdarrayCompileRun.Add</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a2c6efc14872c11a009505a014138a508">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">sub</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L200" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a2c6efc14872c11a009505a014138a508" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Element-wise subtract with broadcasting. </p>
+  <div class="member-body"><p>Broadcasts both operands to their common shape, then writes <code>av - bv</code> into a new contiguous result; throws if the shapes are not broadcast-compatible.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>first operand.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>second operand.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>a - b</code> broadcast to their common shape.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size of result).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don&#x27;t broadcast.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L62"><code>CheatahNDArray.ElementwiseAndScalarBroadcast</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L70"><code>NdarrayCompileRun.Sub</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1aa3963c65659cc36c609c2d75d7ddb1b1">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">mul</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L203" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1aa3963c65659cc36c609c2d75d7ddb1b1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Element-wise multiply with broadcasting. </p>
+  <div class="member-body"><p>Broadcasts both operands to their common shape, then writes <code>av * bv</code> into a new contiguous result; throws if the shapes are not broadcast-compatible.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>first operand.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>second operand.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>a * b</code> broadcast to their common shape.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size of result).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don&#x27;t broadcast.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L62"><code>CheatahNDArray.ElementwiseAndScalarBroadcast</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L77"><code>NdarrayCompileRun.Mul</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a68be874288321590e276c0e908232116">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a></span> <span class="mname">divide</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L206" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a68be874288321590e276c0e908232116" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Element-wise divide with broadcasting. </p>
+  <div class="member-body"><p>Broadcasts both operands to their common shape, then writes <code>av / bv</code> into a new contiguous result; throws if the shapes are not broadcast-compatible. Division by zero follows IEEE-754 double semantics (yields inf or nan), not an exception.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>numerator.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>denominator.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>a / b</code> broadcast to their common shape.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size of result).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new <a href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don&#x27;t broadcast.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L62"><code>CheatahNDArray.ElementwiseAndScalarBroadcast</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L84"><code>NdarrayCompileRun.Divide</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a3fc7e58a79593ffd0446bdc1de869f1e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sum</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L210" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a3fc7e58a79593ffd0446bdc1de869f1e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sum of all elements. </p>
+  <div class="member-body"><p>Adds every element across all axes (a full reduction to a scalar, not a per-axis sum), walking the array in C-order so views are handled correctly; an empty array sums to 0.0.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>the array.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the total.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L91"><code>NdarrayCompileRun.Sum</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a54d1a3c8c622bac7fa431b75d47ae8ab">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">mean</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L218" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a54d1a3c8c622bac7fa431b75d47ae8ab" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Mean of all elements (0 for an empty array). </p>
+  <div class="member-body"><p>A full reduction across all axes: divides the total <a href="namespacecheatah_1_1ndarray.html#namespacecheatah_1_1ndarray_1a3fc7e58a79593ffd0446bdc1de869f1e">sum</a> by the element count; returns 0.0 (rather than dividing by zero) when the array is empty.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>the array.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the average.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L98"><code>NdarrayCompileRun.Mean</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1aa36e827b43482683b94b6b08b3c89e4d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">get</span>(const NDArray &amp;a, const std::vector&lt; long long &gt; &amp;index)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L223" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1aa36e827b43482683b94b6b08b3c89e4d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Read one element by signed multi-index. </p>
+  <div class="member-body"><p>The cheatah-facing wrapper over <a href="classcheatah_1_1ndarray_1_1NDArray.html#classcheatah_1_1ndarray_1_1NDArray_1a53e11f7cbec52980a12486d279adc348">NDArray::at</a> that converts the signed coordinates to sizes (throwing on any negative) before the rank/range-checked stride lookup.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>the array.</p></td></tr><tr><td class="pname"><code>index</code></td><td class="pdesc"><p>one coordinate per dimension (rejects negatives).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the element value.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ndim).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none; bounds-checks rank/range and throws on a bad index.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a> <a href="src_stdlib_tests_ndarray_test_cpp.html#L13"><code>CheatahNDArray.RejectsMaliciousShapesAndIndices</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L105"><code>NdarrayCompileRun.Get</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1a5ecc75969da04a455e7a89a32cbe2352">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; long long &gt;</span> <span class="mname">shape_of</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L225" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1a5ecc75969da04a455e7a89a32cbe2352" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The shape as signed dims. </p>
+  <div class="member-body"><p>The cheatah-facing view of the shape: copies the unsigned dimensions into a <code>long long</code> vector (cheatah integers are signed); a 0-d array yields an empty list.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>the array.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a vector of the dimensions.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ndim).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a small vector.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L112"><code>NdarrayCompileRun.ShapeOf</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1acb44fb58ea77e7951a35708b39f3a7d5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">size_of</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L230" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1acb44fb58ea77e7951a35708b39f3a7d5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The element count as a signed value. </p>
+  <div class="member-body"><p>The cheatah-facing form of <a href="classcheatah_1_1ndarray_1_1NDArray.html#classcheatah_1_1ndarray_1_1NDArray_1a7a5f0833389fe35f0cbbf311a9898851">NDArray::size</a>, returning the overflow-checked product of the dims as a signed <code>long long</code> (1 for a 0-d array).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>the array.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the number of elements.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ndim).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L24"><code>CheatahNDArray.ShapeFactoriesAndReductions</code></a> <a href="src_stdlib_tests_ndarray_test_cpp.html#L69"><code>CheatahNDArray.Arange</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L120"><code>NdarrayCompileRun.SizeOf</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1ndarray_1aa4c21ed00e8ef67406221c3d0dd29594">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">to_string</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_ndarray_ndarray_cpp.html#L232" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ndarray_1aa4c21ed00e8ef67406221c3d0dd29594" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Render as a nested-bracket string, e.g. </p>
+  <div class="member-body"><p><code>&quot;[[1, 2], [3, 4]]&quot;</code>.</p><p>Recurses dimension by dimension, wrapping each axis in <code>[</code>...<code>]</code> and joining siblings with <code>&quot;, &quot;</code>, formatting each double with the default <code>ostream</code> precision; a 0-d scalar renders as the bare number with no brackets.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>the array.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the textual representation.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_ndarray_test_cpp.html#L83"><code>CheatahNDArray.ToStringScalar</code></a> <a href="src_stdlib_tests_ndarray_test_cpp.html#L50"><code>CheatahNDArray.BroadcastingAdd</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_cr_test_cpp.html#L127"><code>NdarrayCompileRun.ToString</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_ndarray_sys_test_cpp.html#L18"><code>StdlibE2E.Ndarray</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1ndarray_1aa32f6a17651505adc1f9d29b401aa126">broadcast_shapes</a></li><li><a href="#namespacecheatah_1_1ndarray_1af3054f485e7082dc20e22f26c8cba362">broadcast_to</a></li><li><a href="#namespacecheatah_1_1ndarray_1a21a5e63a10cd44d3d699f33a75a564ac">array</a></li><li><a href="#namespacecheatah_1_1ndarray_1a565074f9054d8cf73b55d076b1f5d8c2">scalar</a></li><li><a href="#namespacecheatah_1_1ndarray_1a9766d9295a8ef186f7189ca28279e576">zeros</a></li><li><a href="#namespacecheatah_1_1ndarray_1a227d5bda54a6f968d2589bcbccf74a68">ones</a></li><li><a href="#namespacecheatah_1_1ndarray_1aa249af73655ad3832412190665afb31d">full</a></li><li><a href="#namespacecheatah_1_1ndarray_1a7bbc058aba8db2b8f75967348173319d">arange</a></li><li><a href="#namespacecheatah_1_1ndarray_1a1a7555532cd64d3801dfb571f94fed3b">reshape</a></li><li><a href="#namespacecheatah_1_1ndarray_1ad8ee3cac9aee97fa50de8e26bcf6af7c">add</a></li><li><a href="#namespacecheatah_1_1ndarray_1a2c6efc14872c11a009505a014138a508">sub</a></li><li><a href="#namespacecheatah_1_1ndarray_1aa3963c65659cc36c609c2d75d7ddb1b1">mul</a></li><li><a href="#namespacecheatah_1_1ndarray_1a68be874288321590e276c0e908232116">divide</a></li><li><a href="#namespacecheatah_1_1ndarray_1a3fc7e58a79593ffd0446bdc1de869f1e">sum</a></li><li><a href="#namespacecheatah_1_1ndarray_1a54d1a3c8c622bac7fa431b75d47ae8ab">mean</a></li><li><a href="#namespacecheatah_1_1ndarray_1aa36e827b43482683b94b6b08b3c89e4d">get</a></li><li><a href="#namespacecheatah_1_1ndarray_1a5ecc75969da04a455e7a89a32cbe2352">shape_of</a></li><li><a href="#namespacecheatah_1_1ndarray_1acb44fb58ea77e7951a35708b39f3a7d5">size_of</a></li><li><a href="#namespacecheatah_1_1ndarray_1aa4c21ed00e8ef67406221c3d0dd29594">to_string</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

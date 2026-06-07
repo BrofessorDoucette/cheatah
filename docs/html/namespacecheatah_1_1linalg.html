@@ -1,1106 +1,244 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::linalg Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>linalg · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>linalg</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dot</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L331" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c" aria-label="permalink">#</a></span>
   </div>
-</div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1linalg.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::linalg Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr class="memitem:detail" id="r_detail"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1linalg_1_1detail.html">detail</a></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:QR" id="r_QR"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structcheatah_1_1linalg_1_1QR.html">QR</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of <a class="el" href="#a5e67bd5371c2380dc4e4896b93006769" title="Reduced QR via Householder reflections (requires rows ≥ cols).">qr()</a>: A = q·r with orthonormal q and upper-triangular r.  <a href="structcheatah_1_1linalg_1_1QR.html#details">More...</a><br /></td></tr>
-<tr class="memitem:SVD" id="r_SVD"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of <a class="el" href="#aca03d8bcbabadeb0f4aee077e65e48d0" title="Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).">svd()</a>: A = u·diag(s)·vh.  <a href="structcheatah_1_1linalg_1_1SVD.html#details">More...</a><br /></td></tr>
-<tr class="memitem:Eig" id="r_Eig"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of <a class="el" href="#ae6ac46aea9b8353893aaa9da852ca673" title="Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).">eig()</a> / <a class="el" href="#a73d032676733f00ec8c5ceabc60cd4be" title="Eigen-decomposition of a symmetric matrix (cyclic Jacobi).">eigh()</a>: column j of vectors is the eigenvector for values[j].  <a href="structcheatah_1_1linalg_1_1Eig.html#details">More...</a><br /></td></tr>
-<tr class="memitem:SLogDet" id="r_SLogDet"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of <a class="el" href="#a3d6e14b9367c2c90aad441fe00fa0789" title="Sign and log|det| via LU (overflow-safe determinant).">slogdet()</a>: det(A) = sign·exp(logabsdet).  <a href="structcheatah_1_1linalg_1_1SLogDet.html#details">More...</a><br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:af622dbc275fbbb5c07221ab4be2c8e1c" id="r_af622dbc275fbbb5c07221ab4be2c8e1c"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#af622dbc275fbbb5c07221ab4be2c8e1c">dot</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:af622dbc275fbbb5c07221ab4be2c8e1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dot product: 1-D inner product (vectors flattened).  <br /></td></tr>
-<tr class="memitem:aeb4d9c3e5d41a7afe29f1bb5b60d6a76" id="r_aeb4d9c3e5d41a7afe29f1bb5b60d6a76"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aeb4d9c3e5d41a7afe29f1bb5b60d6a76">vdot</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:aeb4d9c3e5d41a7afe29f1bb5b60d6a76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector dot product (alias of <a class="el" href="#af622dbc275fbbb5c07221ab4be2c8e1c" title="dot">dot</a>; flattens N×1/1×N).  <br /></td></tr>
-<tr class="memitem:a5c35a832b1c73bdf5cabfed648a308fc" id="r_a5c35a832b1c73bdf5cabfed648a308fc"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a5c35a832b1c73bdf5cabfed648a308fc">inner</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:a5c35a832b1c73bdf5cabfed648a308fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inner product of two vectors (alias of <a class="el" href="#af622dbc275fbbb5c07221ab4be2c8e1c" title="dot">dot</a>).  <br /></td></tr>
-<tr class="memitem:a4851eb5e22a572a07ef8fa421ca3bfcb" id="r_a4851eb5e22a572a07ef8fa421ca3bfcb"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a4851eb5e22a572a07ef8fa421ca3bfcb">outer</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:a4851eb5e22a572a07ef8fa421ca3bfcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Outer product of two vectors.  <br /></td></tr>
-<tr class="memitem:a2c4edb6bbbbab3ee899b7a33d19311ea" id="r_a2c4edb6bbbbab3ee899b7a33d19311ea"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a2c4edb6bbbbab3ee899b7a33d19311ea">matmul</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:a2c4edb6bbbbab3ee899b7a33d19311ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix multiply.  <br /></td></tr>
-<tr class="memitem:ade89164399c44e04d11ceabf70dd7b0f" id="r_ade89164399c44e04d11ceabf70dd7b0f"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#ade89164399c44e04d11ceabf70dd7b0f">matrix_power</a> (const NDArray &amp;a, long long n)</td></tr>
-<tr class="memdesc:ade89164399c44e04d11ceabf70dd7b0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integer matrix power Aⁿ (negative n via <a class="el" href="#ac8e9b02dfce2845e7c41922bc5c3ce3a" title="inv">inv</a>).  <br /></td></tr>
-<tr class="memitem:afcf3b262470f233b669d00f86bcbc442" id="r_afcf3b262470f233b669d00f86bcbc442"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#afcf3b262470f233b669d00f86bcbc442">kron</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:afcf3b262470f233b669d00f86bcbc442"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kronecker product.  <br /></td></tr>
-<tr class="memitem:a74d99618b24abcef74c90b11380ac7be" id="r_a74d99618b24abcef74c90b11380ac7be"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a74d99618b24abcef74c90b11380ac7be">trace</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a74d99618b24abcef74c90b11380ac7be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trace: sum of the main diagonal.  <br /></td></tr>
-<tr class="memitem:afe04c01bb9160f60115734737a890f53" id="r_afe04c01bb9160f60115734737a890f53"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#afe04c01bb9160f60115734737a890f53">norm</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:afe04c01bb9160f60115734737a890f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Norm: L2 for vectors, Frobenius for matrices.  <br /></td></tr>
-<tr class="memitem:aa66920736e4d6190b9310fcf14d8dc3b" id="r_aa66920736e4d6190b9310fcf14d8dc3b"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#aa66920736e4d6190b9310fcf14d8dc3b">solve</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:aa66920736e4d6190b9310fcf14d8dc3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve A·x = b via LU with partial pivoting.  <br /></td></tr>
-<tr class="memitem:aedffc527790c80f83676088b55b57ff4" id="r_aedffc527790c80f83676088b55b57ff4"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aedffc527790c80f83676088b55b57ff4">det</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:aedffc527790c80f83676088b55b57ff4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determinant via LU with partial pivoting.  <br /></td></tr>
-<tr class="memitem:a3d6e14b9367c2c90aad441fe00fa0789" id="r_a3d6e14b9367c2c90aad441fe00fa0789"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a>&#160;</td><td class="memItemRight"><a class="el" href="#a3d6e14b9367c2c90aad441fe00fa0789">slogdet</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a3d6e14b9367c2c90aad441fe00fa0789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign and log|det| via LU (overflow-safe determinant).  <br /></td></tr>
-<tr class="memitem:ac8e9b02dfce2845e7c41922bc5c3ce3a" id="r_ac8e9b02dfce2845e7c41922bc5c3ce3a"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:ac8e9b02dfce2845e7c41922bc5c3ce3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix inverse via LU with partial pivoting.  <br /></td></tr>
-<tr class="memitem:aae0fffb18efd5f74174b2fd0632d41dd" id="r_aae0fffb18efd5f74174b2fd0632d41dd"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#aae0fffb18efd5f74174b2fd0632d41dd">lstsq</a> (const NDArray &amp;a, const NDArray &amp;b)</td></tr>
-<tr class="memdesc:aae0fffb18efd5f74174b2fd0632d41dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Least-squares solution min‖A·x − b‖ (computed as <a class="el" href="#a15954951259f3da0e9cd986637238593" title="pinv">pinv</a> (a)·b).  <br /></td></tr>
-<tr class="memitem:a90da5609fdd9efb08b97dd3c0ed98d41" id="r_a90da5609fdd9efb08b97dd3c0ed98d41"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a90da5609fdd9efb08b97dd3c0ed98d41">cholesky</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a90da5609fdd9efb08b97dd3c0ed98d41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cholesky factor of a symmetric positive-definite matrix (throws otherwise).  <br /></td></tr>
-<tr class="memitem:a5e67bd5371c2380dc4e4896b93006769" id="r_a5e67bd5371c2380dc4e4896b93006769"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1QR.html">QR</a>&#160;</td><td class="memItemRight"><a class="el" href="#a5e67bd5371c2380dc4e4896b93006769">qr</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a5e67bd5371c2380dc4e4896b93006769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reduced <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a> via Householder reflections (requires rows ≥ cols).  <br /></td></tr>
-<tr class="memitem:aca03d8bcbabadeb0f4aee077e65e48d0" id="r_aca03d8bcbabadeb0f4aee077e65e48d0"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a>&#160;</td><td class="memItemRight"><a class="el" href="#aca03d8bcbabadeb0f4aee077e65e48d0">svd</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:aca03d8bcbabadeb0f4aee077e65e48d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).  <br /></td></tr>
-<tr class="memitem:a15954951259f3da0e9cd986637238593" id="r_a15954951259f3da0e9cd986637238593"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a15954951259f3da0e9cd986637238593">pinv</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a15954951259f3da0e9cd986637238593"><td class="mdescLeft">&#160;</td><td class="mdescRight">Moore–Penrose pseudo-inverse via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> (any shape).  <br /></td></tr>
-<tr class="memitem:a1a87733ea05b83ae7e5bc18c619ee0b0" id="r_a1a87733ea05b83ae7e5bc18c619ee0b0"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a1a87733ea05b83ae7e5bc18c619ee0b0">cond</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a1a87733ea05b83ae7e5bc18c619ee0b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">2-norm condition number σ_max/σ_min (∞ if singular).  <br /></td></tr>
-<tr class="memitem:a28ceb7f1c8e368fb6f07cf5a92a4c6f0" id="r_a28ceb7f1c8e368fb6f07cf5a92a4c6f0"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">matrix_rank</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a28ceb7f1c8e368fb6f07cf5a92a4c6f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Numerical rank from <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> singular-value thresholding.  <br /></td></tr>
-<tr class="memitem:a73d032676733f00ec8c5ceabc60cd4be" id="r_a73d032676733f00ec8c5ceabc60cd4be"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a>&#160;</td><td class="memItemRight"><a class="el" href="#a73d032676733f00ec8c5ceabc60cd4be">eigh</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a73d032676733f00ec8c5ceabc60cd4be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigen-decomposition of a symmetric matrix (cyclic Jacobi).  <br /></td></tr>
-<tr class="memitem:a8623020f326ce35d1e24600ab44ddb73" id="r_a8623020f326ce35d1e24600ab44ddb73"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#a8623020f326ce35d1e24600ab44ddb73">eigvalsh</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:a8623020f326ce35d1e24600ab44ddb73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).  <br /></td></tr>
-<tr class="memitem:ae6ac46aea9b8353893aaa9da852ca673" id="r_ae6ac46aea9b8353893aaa9da852ca673"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a>&#160;</td><td class="memItemRight"><a class="el" href="#ae6ac46aea9b8353893aaa9da852ca673">eig</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:ae6ac46aea9b8353893aaa9da852ca673"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).  <br /></td></tr>
-<tr class="memitem:ae38fa57d37ed5c742bc4faf782b6e6ad" id="r_ae38fa57d37ed5c742bc4faf782b6e6ad"><td class="memItemLeft">NDArray&#160;</td><td class="memItemRight"><a class="el" href="#ae38fa57d37ed5c742bc4faf782b6e6ad">eigvals</a> (const NDArray &amp;a)</td></tr>
-<tr class="memdesc:ae38fa57d37ed5c742bc4faf782b6e6ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).  <br /></td></tr>
-<tr class="memitem:a2d288f8d35786438554abc6009432919" id="r_a2d288f8d35786438554abc6009432919"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a2d288f8d35786438554abc6009432919">simd_features</a> ()</td></tr>
-<tr class="memdesc:a2d288f8d35786438554abc6009432919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instruction sets this build targets, e.g.  <br /></td></tr>
-<tr class="memitem:af680e44741ec4db0de052c87c7423fc3" id="r_af680e44741ec4db0de052c87c7423fc3"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#af680e44741ec4db0de052c87c7423fc3">simd_lane_doubles</a> () noexcept</td></tr>
-<tr class="memdesc:af680e44741ec4db0de052c87c7423fc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Width, in <span class="tt">double</span>s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512).  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="af622dbc275fbbb5c07221ab4be2c8e1c" name="af622dbc275fbbb5c07221ab4be2c8e1c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af622dbc275fbbb5c07221ab4be2c8e1c">&#9670;&#160;</a></span>dot()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::dot </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Dot product: 1-D inner product (vectors flattened). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>same-length vectors. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000052">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000052">Allocation</a></b></dt><dd>copies both operands into scratch O(n); returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000052">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00331">331</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00340">inner()</a>, and <a class="el" href="routines_8cpp_source.html#l00339">vdot()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_af622dbc275fbbb5c07221ab4be2c8e1c_icgraph.svg" width="364" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aeb4d9c3e5d41a7afe29f1bb5b60d6a76" name="aeb4d9c3e5d41a7afe29f1bb5b60d6a76"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeb4d9c3e5d41a7afe29f1bb5b60d6a76">&#9670;&#160;</a></span>vdot()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::vdot </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Vector dot product (alias of <a class="el" href="#af622dbc275fbbb5c07221ab4be2c8e1c" title="dot">dot</a>; flattens N×1/1×N). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>same-length vectors. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000053">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000053">Allocation</a></b></dt><dd>scratch O(n); returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000053">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00339">339</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00331">dot()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_aeb4d9c3e5d41a7afe29f1bb5b60d6a76_cgraph.svg" width="360" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a5c35a832b1c73bdf5cabfed648a308fc" name="a5c35a832b1c73bdf5cabfed648a308fc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5c35a832b1c73bdf5cabfed648a308fc">&#9670;&#160;</a></span>inner()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::inner </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Inner product of two vectors (alias of <a class="el" href="#af622dbc275fbbb5c07221ab4be2c8e1c" title="dot">dot</a>). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>same-length vectors. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000054">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000054">Allocation</a></b></dt><dd>scratch O(n); returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000054">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00340">340</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00331">dot()</a>.</p>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a5c35a832b1c73bdf5cabfed648a308fc_cgraph.svg" width="364" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a4851eb5e22a572a07ef8fa421ca3bfcb" name="a4851eb5e22a572a07ef8fa421ca3bfcb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4851eb5e22a572a07ef8fa421ca3bfcb">&#9670;&#160;</a></span>outer()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::outer </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Outer product of two vectors. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>length-n vector. </td></tr>
-    <tr><td class="paramname">b</td><td>length-m vector. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>n×m matrix aᵢbⱼ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000055">Complexity</a></b></dt><dd>O(n·m). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000055">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000055">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00342">342</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2c4edb6bbbbab3ee899b7a33d19311ea" name="a2c4edb6bbbbab3ee899b7a33d19311ea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c4edb6bbbbab3ee899b7a33d19311ea">&#9670;&#160;</a></span>matmul()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::matmul </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix multiply. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×k matrix. </td></tr>
-    <tr><td class="paramname">b</td><td>k×p matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>m×p product. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000056">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000056">Allocation</a></b></dt><dd>allocates a new NDArray result (plus scratch copies of <code class="param">a</code> and <code class="param">b</code>). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000056">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00351">351</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00470">lstsq()</a>, and <a class="el" href="routines_8cpp_source.html#l00365">matrix_power()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a2c4edb6bbbbab3ee899b7a33d19311ea_icgraph.svg" width="406" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ade89164399c44e04d11ceabf70dd7b0f" name="ade89164399c44e04d11ceabf70dd7b0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ade89164399c44e04d11ceabf70dd7b0f">&#9670;&#160;</a></span>matrix_power()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::matrix_power </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>n</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Integer matrix power Aⁿ (negative n via <a class="el" href="#ac8e9b02dfce2845e7c41922bc5c3ce3a" title="inv">inv</a>). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-    <tr><td class="paramname">n</td><td>exponent. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Aⁿ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000057">Complexity</a></b></dt><dd>O(n³·log|n|) by binary exponentiation. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000057">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000057">Test</a></b></dt><dd>LinalgRoutines.MatrixPower </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00365">365</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00455">inv()</a>, and <a class="el" href="routines_8cpp_source.html#l00351">matmul()</a>.</p>
-<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_ade89164399c44e04d11ceabf70dd7b0f_cgraph.svg" width="406" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="afcf3b262470f233b669d00f86bcbc442" name="afcf3b262470f233b669d00f86bcbc442"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afcf3b262470f233b669d00f86bcbc442">&#9670;&#160;</a></span>kron()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::kron </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Kronecker product. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×k matrix. </td></tr>
-    <tr><td class="paramname">b</td><td>p×q matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>(m·p)×(k·q) block product. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000058">Complexity</a></b></dt><dd>O(n⁴) in the output area. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000058">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000058">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00382">382</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a74d99618b24abcef74c90b11380ac7be" name="a74d99618b24abcef74c90b11380ac7be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74d99618b24abcef74c90b11380ac7be">&#9670;&#160;</a></span>trace()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::trace </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Trace: sum of the main diagonal. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Σ aᵢᵢ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000071">Complexity</a></b></dt><dd>O(n) summation. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000071">Allocation</a></b></dt><dd>copies the matrix into scratch O(n²) first; returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000071">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00396">396</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="afe04c01bb9160f60115734737a890f53" name="afe04c01bb9160f60115734737a890f53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afe04c01bb9160f60115734737a890f53">&#9670;&#160;</a></span>norm()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::norm </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Norm: L2 for vectors, Frobenius for matrices. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>vector or matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>√Σ xᵢ². </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000066">Complexity</a></b></dt><dd>O(n) for vectors / O(n²) for matrices. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000066">Allocation</a></b></dt><dd>copies into scratch; returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000066">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00404">404</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aa66920736e4d6190b9310fcf14d8dc3b" name="aa66920736e4d6190b9310fcf14d8dc3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa66920736e4d6190b9310fcf14d8dc3b">&#9670;&#160;</a></span>solve()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::solve </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Solve A·x = b via LU with partial pivoting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square coefficient matrix. </td></tr>
-    <tr><td class="paramname">b</td><td>right-hand-side vector. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>solution x. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000072">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000072">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000072">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00419">419</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aedffc527790c80f83676088b55b57ff4" name="aedffc527790c80f83676088b55b57ff4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aedffc527790c80f83676088b55b57ff4">&#9670;&#160;</a></span>det()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::det </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Determinant via LU with partial pivoting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>det(A). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000068">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000068">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization; returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000068">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00431">431</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a3d6e14b9367c2c90aad441fe00fa0789" name="a3d6e14b9367c2c90aad441fe00fa0789"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d6e14b9367c2c90aad441fe00fa0789">&#9670;&#160;</a></span>slogdet()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> cheatah::linalg::slogdet </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sign and log|det| via LU (overflow-safe determinant). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html" title="SLogDet">SLogDet</a>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000070">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000070">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization (the struct members are plain doubles). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000070">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00441">441</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ac8e9b02dfce2845e7c41922bc5c3ce3a" name="ac8e9b02dfce2845e7c41922bc5c3ce3a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8e9b02dfce2845e7c41922bc5c3ce3a">&#9670;&#160;</a></span>inv()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::inv </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix inverse via LU with partial pivoting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A⁻¹. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000074">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000074">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000074">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00455">455</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00365">matrix_power()</a>.</p>
-<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_ac8e9b02dfce2845e7c41922bc5c3ce3a_icgraph.svg" width="375" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aae0fffb18efd5f74174b2fd0632d41dd" name="aae0fffb18efd5f74174b2fd0632d41dd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae0fffb18efd5f74174b2fd0632d41dd">&#9670;&#160;</a></span>lstsq()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::lstsq </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Least-squares solution min‖A·x − b‖ (computed as <a class="el" href="#a15954951259f3da0e9cd986637238593" title="pinv">pinv</a> (a)·b). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
-    <tr><td class="paramname">b</td><td>right-hand side. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>minimizing x. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000073">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000073">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000073">Test</a></b></dt><dd>LinalgRoutines.Lstsq </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00470">470</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00351">matmul()</a>, and <a class="el" href="routines_8cpp_source.html#l00548">pinv()</a>.</p>
-<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_aae0fffb18efd5f74174b2fd0632d41dd_cgraph.svg" width="394" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a90da5609fdd9efb08b97dd3c0ed98d41" name="a90da5609fdd9efb08b97dd3c0ed98d41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90da5609fdd9efb08b97dd3c0ed98d41">&#9670;&#160;</a></span>cholesky()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::cholesky </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Cholesky factor of a symmetric positive-definite matrix (throws otherwise). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square SPD matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>lower-triangular L with A = L·Lᵀ. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000059">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000059">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000059">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00475">475</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a5e67bd5371c2380dc4e4896b93006769" name="a5e67bd5371c2380dc4e4896b93006769"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5e67bd5371c2380dc4e4896b93006769">&#9670;&#160;</a></span>qr()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1QR.html">QR</a> cheatah::linalg::qr </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Reduced <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a> via Householder reflections (requires rows ≥ cols). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="QR">QR</a> with q (m×n, orthonormal cols) and r (n×n, upper-triangular). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000060">Complexity</a></b></dt><dd>O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000060">Allocation</a></b></dt><dd>allocates both members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000060">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00496">496</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aca03d8bcbabadeb0f4aee077e65e48d0" name="aca03d8bcbabadeb0f4aee077e65e48d0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca03d8bcbabadeb0f4aee077e65e48d0">&#9670;&#160;</a></span>svd()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> cheatah::linalg::svd </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Singular value decomposition (one-sided Jacobi; requires rows ≥ cols). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="SVD">SVD</a> with u (m×n), s (descending singular values), vh (n×n = Vᵀ). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000061">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000061">Allocation</a></b></dt><dd>allocates all members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000061">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00536">536</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a15954951259f3da0e9cd986637238593" name="a15954951259f3da0e9cd986637238593"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15954951259f3da0e9cd986637238593">&#9670;&#160;</a></span>pinv()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::pinv </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Moore–Penrose pseudo-inverse via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> (any shape). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>n×m pseudo-inverse. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000075">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000075">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000075">Test</a></b></dt><dd>LinalgRoutines.PinvCondRankOnWideMatrix </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00548">548</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00470">lstsq()</a>.</p>
-<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a15954951259f3da0e9cd986637238593_icgraph.svg" width="371" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a1a87733ea05b83ae7e5bc18c619ee0b0" name="a1a87733ea05b83ae7e5bc18c619ee0b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a87733ea05b83ae7e5bc18c619ee0b0">&#9670;&#160;</a></span>cond()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::cond </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>2-norm condition number σ_max/σ_min (∞ if singular). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>condition number. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000067">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000067">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization; returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000067">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00581">581</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a28ceb7f1c8e368fb6f07cf5a92a4c6f0" name="a28ceb7f1c8e368fb6f07cf5a92a4c6f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">&#9670;&#160;</a></span>matrix_rank()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::linalg::matrix_rank </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Numerical rank from <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> singular-value thresholding. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>rank. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000069">Complexity</a></b></dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000069">Allocation</a></b></dt><dd>allocates scratch O(n²) for the factorization. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000069">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00597">597</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a73d032676733f00ec8c5ceabc60cd4be" name="a73d032676733f00ec8c5ceabc60cd4be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73d032676733f00ec8c5ceabc60cd4be">&#9670;&#160;</a></span>eigh()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> cheatah::linalg::eigh </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigen-decomposition of a symmetric matrix (cyclic Jacobi). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square symmetric matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> with descending values and matching eigenvectors. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000064">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000064">Allocation</a></b></dt><dd>allocates both members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000064">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00618">618</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00634">eig()</a>.</p>
-<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a73d032676733f00ec8c5ceabc60cd4be_icgraph.svg" width="360" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a8623020f326ce35d1e24600ab44ddb73" name="a8623020f326ce35d1e24600ab44ddb73"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8623020f326ce35d1e24600ab44ddb73">&#9670;&#160;</a></span>eigvalsh()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::eigvalsh </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigenvalues of a symmetric matrix, descending (cyclic Jacobi). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square symmetric matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000065">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000065">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000065">Test</a></b></dt><dd>LinalgRoutines.EigvalshSymmetric </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00626">626</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ae6ac46aea9b8353893aaa9da852ca673" name="ae6ac46aea9b8353893aaa9da852ca673"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae6ac46aea9b8353893aaa9da852ca673">&#9670;&#160;</a></span>eig()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> cheatah::linalg::eig </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> (vectors empty unless <code class="param">a</code> is symmetric). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000062">Complexity</a></b></dt><dd>iterative O(n³) via Hessenberg + shifted <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a>. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000062">Allocation</a></b></dt><dd>allocates both members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000062">Test</a></b></dt><dd>LinalgRoutines.GeneralEig </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00634">634</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00618">eigh()</a>.</p>
-<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-9-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_ae6ac46aea9b8353893aaa9da852ca673_cgraph.svg" width="360" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ae38fa57d37ed5c742bc4faf782b6e6ad" name="ae38fa57d37ed5c742bc4faf782b6e6ad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae38fa57d37ed5c742bc4faf782b6e6ad">&#9670;&#160;</a></span>eigvals()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">NDArray cheatah::linalg::eigvals </td>
-          <td>(</td>
-          <td class="paramtype">const NDArray &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigenvalues of a general square matrix, descending (real only; throws on complex pairs). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000063">Complexity</a></b></dt><dd>iterative O(n³). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000063">Allocation</a></b></dt><dd>allocates a new NDArray result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000063">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00644">644</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2d288f8d35786438554abc6009432919" name="a2d288f8d35786438554abc6009432919"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d288f8d35786438554abc6009432919">&#9670;&#160;</a></span>simd_features()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::linalg::simd_features </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Instruction sets this build targets, e.g. </p>
-<p>"AVX2;FMA" (x86-64), "NEON" (ARM), or "scalar". </p><dl class="section return"><dt>Returns</dt><dd><span class="tt">;</span>-separated feature list. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); reflects compile-time target flags (e.g. -march=native), not a runtime CPUID probe. Allocates the returned std::string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000076">Test</a></b></dt><dd>LinalgSmoke.SimdFeaturesReported </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="simd_8cpp_source.html#l00014">14</a> of file <a class="el" href="simd_8cpp_source.html">simd.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="simd_8cpp_source.html#l00008">cheatah::linalg::detail::scalar_if_empty()</a>.</p>
-<div id="dynsection-10" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-10-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-10-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a2d288f8d35786438554abc6009432919_cgraph.svg" width="380" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="af680e44741ec4db0de052c87c7423fc3" name="af680e44741ec4db0de052c87c7423fc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af680e44741ec4db0de052c87c7423fc3">&#9670;&#160;</a></span>simd_lane_doubles()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::linalg::simd_lane_doubles </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Width, in <span class="tt">double</span>s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512). </p>
-<dl class="section return"><dt>Returns</dt><dd>lane width. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000076">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000076">Allocation</a></b></dt><dd>none. Useful for sizing blocked kernels. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000077">Test</a></b></dt><dd>LinalgSmoke.SimdFeaturesReported </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="simd_8cpp_source.html#l00045">45</a> of file <a class="el" href="simd_8cpp_source.html">simd.cpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+  <p class="member-brief">Dot product: 1-D inner product (vectors flattened). </p>
+  <div class="member-body"><p>Flattens each operand to a vector (1-D, or 2-D with a size-1 row/column) and sums the elementwise products; throws if either is not vector-shaped or the lengths differ.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>same-length vectors.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Σ aᵢbᵢ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>copies both operands into scratch O(n); returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L21"><code>LinalgRoutines.ProductsAndTrace</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L13"><code>LinalgCompileRun.Dot</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1aeb4d9c3e5d41a7afe29f1bb5b60d6a76">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">vdot</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L339" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1aeb4d9c3e5d41a7afe29f1bb5b60d6a76" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Vector dot product (alias of <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">dot</a>; flattens N×1/1×N). </p>
+  <div class="member-body"><p>Delegates directly to <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">dot</a>; since NDArray is real-valued there is no conjugation, so this is identical to <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">dot</a> and <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1a5c35a832b1c73bdf5cabfed648a308fc">inner</a>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>same-length vectors.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Σ aᵢbᵢ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>scratch O(n); returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L87"><code>LinalgRoutines.VdotInnerOuterKron</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L21"><code>LinalgCompileRun.Vdot</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a5c35a832b1c73bdf5cabfed648a308fc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">inner</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L340" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a5c35a832b1c73bdf5cabfed648a308fc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Inner product of two vectors (alias of <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">dot</a>). </p>
+  <div class="member-body"><p>Delegates directly to <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">dot</a>, so the same vector-shape and equal-length requirements apply.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>same-length vectors.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Σ aᵢbᵢ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>scratch O(n); returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L87"><code>LinalgRoutines.VdotInnerOuterKron</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L29"><code>LinalgCompileRun.Inner</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a4851eb5e22a572a07ef8fa421ca3bfcb">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">outer</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L342" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a4851eb5e22a572a07ef8fa421ca3bfcb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Outer product of two vectors. </p>
+  <div class="member-body"><p>Flattens both operands to vectors and forms the full rank-1 matrix; any pair of vector lengths is accepted (no matching constraint).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>length-n vector.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>length-m vector.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>n×m matrix aᵢbⱼ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n·m).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L87"><code>LinalgRoutines.VdotInnerOuterKron</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L37"><code>LinalgCompileRun.Outer</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a2c4edb6bbbbab3ee899b7a33d19311ea">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">matmul</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L351" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a2c4edb6bbbbab3ee899b7a33d19311ea" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Matrix multiply. </p>
+  <div class="member-body"><p>Requires both operands to be 2-D with matching inner dimensions (a&#x27;s cols == b&#x27;s rows), throwing on a mismatch or a non-2-D input; the inner loop runs in ikj order so the contiguous accumulation auto-vectorizes.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>m×k matrix.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>k×p matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>m×p product.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result (plus scratch copies of <code>a</code> and <code>b</code>).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L21"><code>LinalgRoutines.ProductsAndTrace</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L45"><code>LinalgCompileRun.Matmul</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1ade89164399c44e04d11ceabf70dd7b0f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">matrix_power</span>(const NDArray &amp;a, long long n)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L365" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1ade89164399c44e04d11ceabf70dd7b0f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Integer matrix power Aⁿ (negative n via <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a>). </p>
+  <div class="member-body"><p>Requires a square matrix (throws otherwise); n == 0 returns the identity, and negative n first inverts <code>a</code> via <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a> (so it inherits <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a>&#x27;s singular-matrix behavior) before raising to |n|.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square matrix.</p></td></tr><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>exponent.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Aⁿ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³·log|n|) by binary exponentiation.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L102"><code>LinalgRoutines.MatrixPower</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L55"><code>LinalgCompileRun.MatrixPower</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1afcf3b262470f233b669d00f86bcbc442">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">kron</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L382" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1afcf3b262470f233b669d00f86bcbc442" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Kronecker product. </p>
+  <div class="member-body"><p>Requires both operands to be 2-D (throws otherwise) and replaces each entry of <code>a</code> with that scalar times the whole of <code>b</code>, giving the (m·p)×(k·q) block matrix; no dimension matching is needed.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>m×k matrix.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>p×q matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>(m·p)×(k·q) block product.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n⁴) in the output area.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L87"><code>LinalgRoutines.VdotInnerOuterKron</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L64"><code>LinalgCompileRun.Kron</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a74d99618b24abcef74c90b11380ac7be">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">trace</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L396" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a74d99618b24abcef74c90b11380ac7be" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Trace: sum of the main diagonal. </p>
+  <div class="member-body"><p>Sums the diagonal entries up to min(rows, cols), so it also works on non-square matrices; requires a 2-D input (throws otherwise).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Σ aᵢᵢ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) summation.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>copies the matrix into scratch O(n²) first; returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L21"><code>LinalgRoutines.ProductsAndTrace</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L196"><code>LinalgCompileRun.Trace</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1afe04c01bb9160f60115734737a890f53">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">norm</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L404" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1afe04c01bb9160f60115734737a890f53" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Norm: L2 for vectors, Frobenius for matrices. </p>
+  <div class="member-body"><p>Dispatches on rank: 1-D (or lower) inputs get the Euclidean L2 norm, 2-D inputs the Frobenius norm; either way it is the square root of the sum of squared entries.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>vector or matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>√Σ xᵢ².</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) for vectors / O(n²) for matrices.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>copies into scratch; returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L81"><code>LinalgRoutines.NormAndRank</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L149"><code>LinalgCompileRun.Norm</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1aa66920736e4d6190b9310fcf14d8dc3b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">solve</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L419" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1aa66920736e4d6190b9310fcf14d8dc3b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Solve A·x = b via LU with partial pivoting. </p>
+  <div class="member-body"><p>Factorizes <code>a</code> once then does forward/back substitution against <code>b</code>; requires <code>a</code> square and <code>b</code> a vector of matching length (throws otherwise). A singular <code>a</code> does not throw but yields a garbage/overflowing solution (pivots are nudged off zero rather than detected).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square coefficient matrix.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>right-hand-side vector.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>solution x.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L32"><code>LinalgRoutines.SolveDetInv</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L207"><code>LinalgCompileRun.Solve</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1aedffc527790c80f83676088b55b57ff4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">det</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L431" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1aedffc527790c80f83676088b55b57ff4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Determinant via LU with partial pivoting. </p>
+  <div class="member-body"><p>Computes the product of the LU pivots times the permutation sign; requires a square matrix (throws otherwise). A singular matrix yields a determinant of (or extremely near) zero rather than an error.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>det(A).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates scratch O(n²) for the factorization; returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L32"><code>LinalgRoutines.SolveDetInv</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L166"><code>LinalgCompileRun.Det</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a3d6e14b9367c2c90aad441fe00fa0789">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">SLogDet</span> <span class="mname">slogdet</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L441" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a3d6e14b9367c2c90aad441fe00fa0789" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sign and log|det| via LU (overflow-safe determinant). </p>
+  <div class="member-body"><p>Sums the logs of the absolute LU pivots (avoiding the over/underflow of a raw product) and tracks the sign from the pivot signs and permutation parity; requires a square matrix (throws otherwise). A singular matrix gives a hugely negative logabsdet rather than −infinity, since a zero pivot is nudged to a tiny value during factorization.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>SLogDet.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates scratch O(n²) for the factorization (the struct members are plain doubles).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L115"><code>LinalgRoutines.SlogdetAndCond</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L185"><code>LinalgCompileRun.Slogdet</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1ac8e9b02dfce2845e7c41922bc5c3ce3a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">inv</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L455" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1ac8e9b02dfce2845e7c41922bc5c3ce3a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Matrix inverse via LU with partial pivoting. </p>
+  <div class="member-body"><p>Factorizes <code>a</code> once and back-solves against each identity column; requires a square matrix (throws otherwise). A singular <code>a</code> does not throw but produces garbage/overflowing entries since zero pivots are nudged rather than detected.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>A⁻¹.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L32"><code>LinalgRoutines.SolveDetInv</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L228"><code>LinalgCompileRun.Inv</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1aae0fffb18efd5f74174b2fd0632d41dd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">lstsq</span>(const NDArray &amp;a, const NDArray &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L470" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1aae0fffb18efd5f74174b2fd0632d41dd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Least-squares solution min‖A·x − b‖ (computed as <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1a15954951259f3da0e9cd986637238593">pinv</a> (a)·b). </p>
+  <div class="member-body"><p>Forms the Moore–Penrose pseudo-inverse via SVD and multiplies it by <code>b</code>, so it handles over- and under-determined systems and returns the minimum-norm solution for rank-deficient <code>a</code>; <code>b</code> must be conformable for the <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1a2c4edb6bbbbab3ee899b7a33d19311ea">matmul</a> step.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>m×n matrix.</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>right-hand side.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>minimizing x.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³) via SVD.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L122"><code>LinalgRoutines.Lstsq</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L217"><code>LinalgCompileRun.Lstsq</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a90da5609fdd9efb08b97dd3c0ed98d41">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">cholesky</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L475" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a90da5609fdd9efb08b97dd3c0ed98d41" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Cholesky factor of a symmetric positive-definite matrix (throws otherwise). </p>
+  <div class="member-body"><p>Requires a square matrix and computes L column by column reading only the lower triangle of <code>a</code>; if any pivot (the diagonal under the square root) is non-positive it throws &quot;matrix is not positive-definite&quot;, which also catches non-SPD or non-symmetric input.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square SPD matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>lower-triangular L with A = L·Lᵀ.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L45"><code>LinalgRoutines.CholeskyAndQR</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L76"><code>LinalgCompileRun.Cholesky</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a5e67bd5371c2380dc4e4896b93006769">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">QR</span> <span class="mname">qr</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L496" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a5e67bd5371c2380dc4e4896b93006769" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Reduced QR via Householder reflections (requires rows ≥ cols). </p>
+  <div class="member-body"><p>Applies successive Householder reflectors to triangularize <code>a</code>, returning the thin/reduced factors; throws &quot;qr requires rows &gt;= cols&quot; for wide matrices. Rank-deficient columns (zero pivot norm) are skipped, leaving the corresponding R entries zero.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>m×n matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates both members.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L45"><code>LinalgRoutines.CholeskyAndQR</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L85"><code>LinalgCompileRun.Qr</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1aca03d8bcbabadeb0f4aee077e65e48d0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">SVD</span> <span class="mname">svd</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L536" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1aca03d8bcbabadeb0f4aee077e65e48d0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Singular value decomposition (one-sided Jacobi; requires rows ≥ cols). </p>
+  <div class="member-body"><p>Iterates one-sided Jacobi rotations (capped at 80 sweeps) to orthogonalize the columns, then normalizes them into u and sorts the singular values descending; throws &quot;svd requires rows &gt;= cols&quot; for wide matrices (transpose first). Exact zero singular values yield a zero u column.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>m×n matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates all members.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L64"><code>LinalgRoutines.SvdAndEigh</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L97"><code>LinalgCompileRun.Svd</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a15954951259f3da0e9cd986637238593">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">pinv</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L548" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a15954951259f3da0e9cd986637238593" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Moore–Penrose pseudo-inverse via SVD (any shape). </p>
+  <div class="member-body"><p>Computes V·diag(1/σ)·Uᵀ from a Jacobi SVD, transposing wide matrices internally so any shape works; singular values at or below a size-scaled tolerance are dropped (treated as zero) so it stays well-defined for rank-deficient input.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>m×n matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>n×m pseudo-inverse.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³) via SVD.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L210"><code>LinalgRoutines.PinvCondRankOnWideMatrix</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L237"><code>LinalgCompileRun.Pinv</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a1a87733ea05b83ae7e5bc18c619ee0b0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">cond</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L581" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a1a87733ea05b83ae7e5bc18c619ee0b0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">2-norm condition number σ_max/σ_min (∞ if singular). </p>
+  <div class="member-body"><p>Takes the ratio of largest to smallest singular value from a Jacobi SVD (transposing internally for wide matrices); returns +infinity when the smallest singular value is exactly zero (singular/rank-deficient).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>condition number.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³) via SVD.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates scratch O(n²) for the factorization; returns a double.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L115"><code>LinalgRoutines.SlogdetAndCond</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L157"><code>LinalgCompileRun.Cond</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a28ceb7f1c8e368fb6f07cf5a92a4c6f0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">matrix_rank</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L597" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a28ceb7f1c8e368fb6f07cf5a92a4c6f0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Numerical rank from SVD singular-value thresholding. </p>
+  <div class="member-body"><p>Counts singular values above a tolerance scaled by the largest singular value and the matrix size (the standard numpy-style threshold); accepts any shape, transposing wide matrices internally.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>rank.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³) via SVD.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates scratch O(n²) for the factorization.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L81"><code>LinalgRoutines.NormAndRank</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L175"><code>LinalgCompileRun.MatrixRank</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a73d032676733f00ec8c5ceabc60cd4be">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">Eig</span> <span class="mname">eigh</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L618" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a73d032676733f00ec8c5ceabc60cd4be" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Eigen-decomposition of a symmetric matrix (cyclic Jacobi). </p>
+  <div class="member-body"><p>Runs cyclic Jacobi (capped at 100 sweeps) to diagonalize <code>a</code>, returning real eigenvalues sorted descending with matching eigenvector columns; it reads the full matrix and assumes symmetry rather than checking it, so asymmetric input yields meaningless results. Throws on a non-square matrix.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square symmetric matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Eig with descending values and matching eigenvectors.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates both members.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L64"><code>LinalgRoutines.SvdAndEigh</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L128"><code>LinalgCompileRun.Eigh</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a8623020f326ce35d1e24600ab44ddb73">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">eigvalsh</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L626" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a8623020f326ce35d1e24600ab44ddb73" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Eigenvalues of a symmetric matrix, descending (cyclic Jacobi). </p>
+  <div class="member-body"><p>Same cyclic-Jacobi diagonalization as <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1a73d032676733f00ec8c5ceabc60cd4be">eigh</a> but discards the eigenvectors; assumes (does not verify) symmetry and throws on a non-square matrix.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square symmetric matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>length-n vector of eigenvalues.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L131"><code>LinalgRoutines.EigvalshSymmetric</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L138"><code>LinalgCompileRun.Eigvalsh</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1ae6ac46aea9b8353893aaa9da852ca673">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">Eig</span> <span class="mname">eig</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L634" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1ae6ac46aea9b8353893aaa9da852ca673" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs). </p>
+  <div class="member-body"><p>For a symmetric <code>a</code> it delegates to <a href="namespacecheatah_1_1linalg.html#namespacecheatah_1_1linalg_1a73d032676733f00ec8c5ceabc60cd4be">eigh</a> (returning eigenvectors too); otherwise it uses Hessenberg reduction + shifted QR for the eigenvalues only, returning empty vectors. Throws on a complex conjugate pair, on a non-square matrix, or if the QR iteration fails to converge.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Eig (vectors empty unless <code>a</code> is symmetric).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³) via Hessenberg + shifted QR.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates both members.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L138"><code>LinalgRoutines.GeneralEig</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L109"><code>LinalgCompileRun.Eig</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1ae38fa57d37ed5c742bc4faf782b6e6ad">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">NDArray</span> <span class="mname">eigvals</span>(const NDArray &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_routines_cpp.html#L644" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1ae38fa57d37ed5c742bc4faf782b6e6ad" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Eigenvalues of a general square matrix, descending (real only; throws on complex pairs). </p>
+  <div class="member-body"><p>Routes symmetric input through cyclic Jacobi and everything else through Hessenberg + shifted QR, then sorts the result descending. Throws on a complex conjugate pair, a non-square matrix, or non-convergence of the QR iteration.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>square matrix.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>length-n vector of eigenvalues.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>iterative O(n³).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a new NDArray result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_linalg_routines_test_cpp.html#L64"><code>LinalgRoutines.SvdAndEigh</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_linalg_cr_test_cpp.html#L119"><code>LinalgCompileRun.Eigvals</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_linalg_sys_test_cpp.html#L18"><code>StdlibE2E.Linalg</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1a2d288f8d35786438554abc6009432919">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">simd_features</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_simd_cpp.html#L14" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1a2d288f8d35786438554abc6009432919" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Instruction sets this build targets, e.g. </p>
+  <div class="member-body"><p>&quot;AVX2;FMA&quot; (x86-64), &quot;NEON&quot; (ARM), or &quot;scalar&quot;.</p><div class="ret"><span class="ret-h">Returns</span> <p><code>;</code>-separated feature list.</p></div><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>O(1); reflects compile-time target flags (e.g. -march=native), not a runtime CPUID probe. Allocates the returned std::string.</p></div></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>LinalgSmoke.SimdFeaturesReported</code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1linalg_1af680e44741ec4db0de052c87c7423fc3">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">simd_lane_doubles</span>() noexcept</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_linalg_simd_cpp.html#L45" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1linalg_1af680e44741ec4db0de052c87c7423fc3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Width, in <code>double</code>s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>lane width.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none. Useful for sizing blocked kernels.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>LinalgSmoke.SimdFeaturesReported</code></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1linalg_1af622dbc275fbbb5c07221ab4be2c8e1c">dot</a></li><li><a href="#namespacecheatah_1_1linalg_1aeb4d9c3e5d41a7afe29f1bb5b60d6a76">vdot</a></li><li><a href="#namespacecheatah_1_1linalg_1a5c35a832b1c73bdf5cabfed648a308fc">inner</a></li><li><a href="#namespacecheatah_1_1linalg_1a4851eb5e22a572a07ef8fa421ca3bfcb">outer</a></li><li><a href="#namespacecheatah_1_1linalg_1a2c4edb6bbbbab3ee899b7a33d19311ea">matmul</a></li><li><a href="#namespacecheatah_1_1linalg_1ade89164399c44e04d11ceabf70dd7b0f">matrix_power</a></li><li><a href="#namespacecheatah_1_1linalg_1afcf3b262470f233b669d00f86bcbc442">kron</a></li><li><a href="#namespacecheatah_1_1linalg_1a74d99618b24abcef74c90b11380ac7be">trace</a></li><li><a href="#namespacecheatah_1_1linalg_1afe04c01bb9160f60115734737a890f53">norm</a></li><li><a href="#namespacecheatah_1_1linalg_1aa66920736e4d6190b9310fcf14d8dc3b">solve</a></li><li><a href="#namespacecheatah_1_1linalg_1aedffc527790c80f83676088b55b57ff4">det</a></li><li><a href="#namespacecheatah_1_1linalg_1a3d6e14b9367c2c90aad441fe00fa0789">slogdet</a></li><li><a href="#namespacecheatah_1_1linalg_1ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a></li><li><a href="#namespacecheatah_1_1linalg_1aae0fffb18efd5f74174b2fd0632d41dd">lstsq</a></li><li><a href="#namespacecheatah_1_1linalg_1a90da5609fdd9efb08b97dd3c0ed98d41">cholesky</a></li><li><a href="#namespacecheatah_1_1linalg_1a5e67bd5371c2380dc4e4896b93006769">qr</a></li><li><a href="#namespacecheatah_1_1linalg_1aca03d8bcbabadeb0f4aee077e65e48d0">svd</a></li><li><a href="#namespacecheatah_1_1linalg_1a15954951259f3da0e9cd986637238593">pinv</a></li><li><a href="#namespacecheatah_1_1linalg_1a1a87733ea05b83ae7e5bc18c619ee0b0">cond</a></li><li><a href="#namespacecheatah_1_1linalg_1a28ceb7f1c8e368fb6f07cf5a92a4c6f0">matrix_rank</a></li><li><a href="#namespacecheatah_1_1linalg_1a73d032676733f00ec8c5ceabc60cd4be">eigh</a></li><li><a href="#namespacecheatah_1_1linalg_1a8623020f326ce35d1e24600ab44ddb73">eigvalsh</a></li><li><a href="#namespacecheatah_1_1linalg_1ae6ac46aea9b8353893aaa9da852ca673">eig</a></li><li><a href="#namespacecheatah_1_1linalg_1ae38fa57d37ed5c742bc4faf782b6e6ad">eigvals</a></li><li><a href="#namespacecheatah_1_1linalg_1a2d288f8d35786438554abc6009432919">simd_features</a></li><li><a href="#namespacecheatah_1_1linalg_1af680e44741ec4db0de052c87c7423fc3">simd_lane_doubles</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

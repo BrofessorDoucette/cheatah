@@ -1,517 +1,132 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::datetime Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>datetime · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>datetime</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1datetime_1aa3e6dd0afd8f9b5ac3789b9c7dd50f20">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">timestamp</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L22" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1aa3e6dd0afd8f9b5ac3789b9c7dd50f20" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Current time. </p>
+  <div class="member-body"><p>Reads the wall clock and returns fractional seconds since the Unix epoch (1970-01-01 UTC); the value tracks real time and can jump if the system clock is adjusted (NTP, manual changes).</p><div class="ret"><span class="ret-h">Returns</span> <p>seconds since the Unix epoch (<code>system_clock</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L54"><code>CheatahDatetime.NowTodayUtcnowTimestamp</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L14"><code>DatetimeCompileRun.Timestamp</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a42701f6b1618a5240aec5c266884837f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">now</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L26" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a42701f6b1618a5240aec5c266884837f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Current local time as <code>&quot;YYYY-MM-DD HH:MM:SS&quot;</code>. </p>
+  <div class="member-body"><p>Formats the current epoch in the host&#x27;s local timezone (subject to DST), so the result differs from <code><a href="namespacecheatah_1_1datetime.html#namespacecheatah_1_1datetime_1ab6f45f1675fe8f0b7c6ce9e1c86e257b">utcnow</a></code> by the local UTC offset.</p><div class="ret"><span class="ret-h">Returns</span> <p>the formatted string.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L54"><code>CheatahDatetime.NowTodayUtcnowTimestamp</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L21"><code>DatetimeCompileRun.Now</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1ab6f45f1675fe8f0b7c6ce9e1c86e257b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">utcnow</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L27" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1ab6f45f1675fe8f0b7c6ce9e1c86e257b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Current UTC time as <code>&quot;YYYY-MM-DDTHH:MM:SSZ&quot;</code>. </p>
+  <div class="member-body"><p>Formats the current epoch in UTC (never local time) using ISO 8601 with a <code>T</code> separator and trailing <code>Z</code>, independent of the host timezone.</p><div class="ret"><span class="ret-h">Returns</span> <p>the formatted string.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L54"><code>CheatahDatetime.NowTodayUtcnowTimestamp</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L29"><code>DatetimeCompileRun.Utcnow</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a678c694cb63c9b3f8f766814d452a1f5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">today</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L33" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a678c694cb63c9b3f8f766814d452a1f5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Current local date as <code>&quot;YYYY-MM-DD&quot;</code>. </p>
+  <div class="member-body"><p>Formats just the calendar date of the current epoch in the host&#x27;s local timezone; near midnight this may differ by a day from the UTC date.</p><div class="ret"><span class="ret-h">Returns</span> <p>the formatted string.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L54"><code>CheatahDatetime.NowTodayUtcnowTimestamp</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L37"><code>DatetimeCompileRun.Today</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a59115aa2f09ab3a2e9daf2bc874f6a7b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">format</span>(double epoch, std::string_view fmt)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L35" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a59115aa2f09ab3a2e9daf2bc874f6a7b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">strftime-style formatting of an epoch in local time (e.g. </p>
+  <div class="member-body"><p><code>fmt</code> = <code>&quot;Y-m-d&quot;</code>).</p><p>Converts <code>epoch</code> to local time and expands C <code>strftime</code> format codes (<code>Y</code>, <code>m</code>, <code>d</code>, <code>H</code>, etc.); the output is truncated to a 128-byte internal buffer, so very long expansions are cut short.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr><tr><td class="pname"><code>fmt</code></td><td class="pdesc"><p>a strftime format string.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the formatted string.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a temporary <code>std::string</code> for <code>fmt</code> plus the result.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L47"><code>CheatahDatetime.Format</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L45"><code>DatetimeCompileRun.Format</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1ac2e22b15e45e6c4bf6d5e69cd8b80b83">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">year</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L39" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1ac2e22b15e45e6c4bf6d5e69cd8b80b83" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time year. </p>
+  <div class="member-body"><p>Converts <code>epoch</code> to the host&#x27;s local timezone and returns the calendar year; the fractional part of <code>epoch</code> is truncated toward the epoch.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the 4-digit year.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L19"><code>CheatahDatetime.ComponentsOfKnownEpoch</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L52"><code>DatetimeCompileRun.Year</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a3a79333bf6773e124a4cbaa4012510e8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">month</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L40" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a3a79333bf6773e124a4cbaa4012510e8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time month. </p>
+  <div class="member-body"><p>Returns the calendar month of <code>epoch</code> in the host&#x27;s local timezone, already shifted to a 1-based value (January is 1, not the C <code>tm_mon</code> 0).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the month, 1..12.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L19"><code>CheatahDatetime.ComponentsOfKnownEpoch</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L59"><code>DatetimeCompileRun.Month</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a456e75ef50eff2fc10fe449d5dde70f2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">day</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L41" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a456e75ef50eff2fc10fe449d5dde70f2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time day of month. </p>
+  <div class="member-body"><p>Returns the day-of-month of <code>epoch</code> in the host&#x27;s local timezone; this is the calendar day, not the day-of-year or weekday.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the day, 1..31.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L19"><code>CheatahDatetime.ComponentsOfKnownEpoch</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L66"><code>DatetimeCompileRun.Day</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a0004897cfa7c8d2c9042df93c4e7819f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">hour</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L42" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a0004897cfa7c8d2c9042df93c4e7819f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time hour. </p>
+  <div class="member-body"><p>Returns the hour of <code>epoch</code> in the host&#x27;s local timezone on a 24-hour clock, so DST transitions can make hours repeat or be skipped.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the hour, 0..23.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L39"><code>CheatahDatetime.TimeOfDayComponents</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L73"><code>DatetimeCompileRun.Hour</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1abf347c5708ea05ef109fbd79645726c3">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">minute</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L43" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1abf347c5708ea05ef109fbd79645726c3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time minute. </p>
+  <div class="member-body"><p>Returns the minute-within-the-hour of <code>epoch</code> in the host&#x27;s local timezone.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the minute, 0..59.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L39"><code>CheatahDatetime.TimeOfDayComponents</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L80"><code>DatetimeCompileRun.Minute</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1a8611ea8f500fe732262b82785f8a7c17">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">second</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L44" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1a8611ea8f500fe732262b82785f8a7c17" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time second. </p>
+  <div class="member-body"><p>Returns the whole second-within-the-minute of <code>epoch</code> (the fractional part of <code>epoch</code> is discarded); the value can reach 60 to represent a leap second.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the second, 0..60 (leap).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L39"><code>CheatahDatetime.TimeOfDayComponents</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L87"><code>DatetimeCompileRun.Second</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1datetime_1ab5741bd0dca96e528d14e53e4b183aaf">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">weekday</span>(double epoch)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_datetime_datetime_cpp.html#L45" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1datetime_1ab5741bd0dca96e528d14e53e4b183aaf" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Local-time weekday. </p>
+  <div class="member-body"><p>Returns the day of the week for <code>epoch</code> in the host&#x27;s local timezone, remapped from the C <code>tm_wday</code> (Sunday=0) to Python&#x27;s Monday=0 convention.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>epoch seconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Monday=0 .. Sunday=6 (Python convention).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_datetime_test_cpp.html#L19"><code>CheatahDatetime.ComponentsOfKnownEpoch</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_datetime_cr_test_cpp.html#L94"><code>DatetimeCompileRun.Weekday</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_datetime_sys_test_cpp.html#L16"><code>StdlibE2E.Datetime</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1datetime_1aa3e6dd0afd8f9b5ac3789b9c7dd50f20">timestamp</a></li><li><a href="#namespacecheatah_1_1datetime_1a42701f6b1618a5240aec5c266884837f">now</a></li><li><a href="#namespacecheatah_1_1datetime_1ab6f45f1675fe8f0b7c6ce9e1c86e257b">utcnow</a></li><li><a href="#namespacecheatah_1_1datetime_1a678c694cb63c9b3f8f766814d452a1f5">today</a></li><li><a href="#namespacecheatah_1_1datetime_1a59115aa2f09ab3a2e9daf2bc874f6a7b">format</a></li><li><a href="#namespacecheatah_1_1datetime_1ac2e22b15e45e6c4bf6d5e69cd8b80b83">year</a></li><li><a href="#namespacecheatah_1_1datetime_1a3a79333bf6773e124a4cbaa4012510e8">month</a></li><li><a href="#namespacecheatah_1_1datetime_1a456e75ef50eff2fc10fe449d5dde70f2">day</a></li><li><a href="#namespacecheatah_1_1datetime_1a0004897cfa7c8d2c9042df93c4e7819f">hour</a></li><li><a href="#namespacecheatah_1_1datetime_1abf347c5708ea05ef109fbd79645726c3">minute</a></li><li><a href="#namespacecheatah_1_1datetime_1a8611ea8f500fe732262b82785f8a7c17">second</a></li><li><a href="#namespacecheatah_1_1datetime_1ab5741bd0dca96e528d14e53e4b183aaf">weekday</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1datetime.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::datetime Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:aa3e6dd0afd8f9b5ac3789b9c7dd50f20" id="r_aa3e6dd0afd8f9b5ac3789b9c7dd50f20"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aa3e6dd0afd8f9b5ac3789b9c7dd50f20">timestamp</a> ()</td></tr>
-<tr class="memdesc:aa3e6dd0afd8f9b5ac3789b9c7dd50f20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current time.  <br /></td></tr>
-<tr class="memitem:a42701f6b1618a5240aec5c266884837f" id="r_a42701f6b1618a5240aec5c266884837f"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a42701f6b1618a5240aec5c266884837f">now</a> ()</td></tr>
-<tr class="memdesc:a42701f6b1618a5240aec5c266884837f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current local time as <span class="tt">"YYYY-MM-DD HH:MM:SS"</span>.  <br /></td></tr>
-<tr class="memitem:ab6f45f1675fe8f0b7c6ce9e1c86e257b" id="r_ab6f45f1675fe8f0b7c6ce9e1c86e257b"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ab6f45f1675fe8f0b7c6ce9e1c86e257b">utcnow</a> ()</td></tr>
-<tr class="memdesc:ab6f45f1675fe8f0b7c6ce9e1c86e257b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current UTC time as <span class="tt">"YYYY-MM-DDTHH:MM:SSZ"</span>.  <br /></td></tr>
-<tr class="memitem:a678c694cb63c9b3f8f766814d452a1f5" id="r_a678c694cb63c9b3f8f766814d452a1f5"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a678c694cb63c9b3f8f766814d452a1f5">today</a> ()</td></tr>
-<tr class="memdesc:a678c694cb63c9b3f8f766814d452a1f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current local date as <span class="tt">"YYYY-MM-DD"</span>.  <br /></td></tr>
-<tr class="memitem:a59115aa2f09ab3a2e9daf2bc874f6a7b" id="r_a59115aa2f09ab3a2e9daf2bc874f6a7b"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a59115aa2f09ab3a2e9daf2bc874f6a7b">format</a> (double epoch, std::string_view fmt)</td></tr>
-<tr class="memdesc:a59115aa2f09ab3a2e9daf2bc874f6a7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">strftime-style formatting of an epoch in local time (e.g.  <br /></td></tr>
-<tr class="memitem:ac2e22b15e45e6c4bf6d5e69cd8b80b83" id="r_ac2e22b15e45e6c4bf6d5e69cd8b80b83"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#ac2e22b15e45e6c4bf6d5e69cd8b80b83">year</a> (double epoch)</td></tr>
-<tr class="memdesc:ac2e22b15e45e6c4bf6d5e69cd8b80b83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time year.  <br /></td></tr>
-<tr class="memitem:a3a79333bf6773e124a4cbaa4012510e8" id="r_a3a79333bf6773e124a4cbaa4012510e8"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a3a79333bf6773e124a4cbaa4012510e8">month</a> (double epoch)</td></tr>
-<tr class="memdesc:a3a79333bf6773e124a4cbaa4012510e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time month.  <br /></td></tr>
-<tr class="memitem:a456e75ef50eff2fc10fe449d5dde70f2" id="r_a456e75ef50eff2fc10fe449d5dde70f2"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a456e75ef50eff2fc10fe449d5dde70f2">day</a> (double epoch)</td></tr>
-<tr class="memdesc:a456e75ef50eff2fc10fe449d5dde70f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time day of month.  <br /></td></tr>
-<tr class="memitem:a0004897cfa7c8d2c9042df93c4e7819f" id="r_a0004897cfa7c8d2c9042df93c4e7819f"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a0004897cfa7c8d2c9042df93c4e7819f">hour</a> (double epoch)</td></tr>
-<tr class="memdesc:a0004897cfa7c8d2c9042df93c4e7819f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time hour.  <br /></td></tr>
-<tr class="memitem:abf347c5708ea05ef109fbd79645726c3" id="r_abf347c5708ea05ef109fbd79645726c3"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#abf347c5708ea05ef109fbd79645726c3">minute</a> (double epoch)</td></tr>
-<tr class="memdesc:abf347c5708ea05ef109fbd79645726c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time minute.  <br /></td></tr>
-<tr class="memitem:a8611ea8f500fe732262b82785f8a7c17" id="r_a8611ea8f500fe732262b82785f8a7c17"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a8611ea8f500fe732262b82785f8a7c17">second</a> (double epoch)</td></tr>
-<tr class="memdesc:a8611ea8f500fe732262b82785f8a7c17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time second.  <br /></td></tr>
-<tr class="memitem:ab5741bd0dca96e528d14e53e4b183aaf" id="r_ab5741bd0dca96e528d14e53e4b183aaf"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#ab5741bd0dca96e528d14e53e4b183aaf">weekday</a> (double epoch)</td></tr>
-<tr class="memdesc:ab5741bd0dca96e528d14e53e4b183aaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local-time weekday.  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="aa3e6dd0afd8f9b5ac3789b9c7dd50f20" name="aa3e6dd0afd8f9b5ac3789b9c7dd50f20"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3e6dd0afd8f9b5ac3789b9c7dd50f20">&#9670;&#160;</a></span>timestamp()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::datetime::timestamp </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Current time. </p>
-<dl class="section return"><dt>Returns</dt><dd>seconds since the Unix epoch (<span class="tt">system_clock</span>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000018">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000018">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000018">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00022">22</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="datetime_8cpp_source.html#l00026">now()</a>, <a class="el" href="datetime_8cpp_source.html#l00033">today()</a>, and <a class="el" href="datetime_8cpp_source.html#l00027">utcnow()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1datetime_aa3e6dd0afd8f9b5ac3789b9c7dd50f20_icgraph.svg" width="384" height="166"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a42701f6b1618a5240aec5c266884837f" name="a42701f6b1618a5240aec5c266884837f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42701f6b1618a5240aec5c266884837f">&#9670;&#160;</a></span>now()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::datetime::now </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Current local time as <span class="tt">"YYYY-MM-DD HH:MM:SS"</span>. </p>
-<dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000019">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000019">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000019">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00026">26</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="datetime_8cpp_source.html#l00022">timestamp()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1datetime_a42701f6b1618a5240aec5c266884837f_cgraph.svg" width="384" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ab6f45f1675fe8f0b7c6ce9e1c86e257b" name="ab6f45f1675fe8f0b7c6ce9e1c86e257b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6f45f1675fe8f0b7c6ce9e1c86e257b">&#9670;&#160;</a></span>utcnow()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::datetime::utcnow </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Current UTC time as <span class="tt">"YYYY-MM-DDTHH:MM:SSZ"</span>. </p>
-<dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000020">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000020">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000020">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00027">27</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="datetime_8cpp_source.html#l00022">timestamp()</a>.</p>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1datetime_ab6f45f1675fe8f0b7c6ce9e1c86e257b_cgraph.svg" width="358" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a678c694cb63c9b3f8f766814d452a1f5" name="a678c694cb63c9b3f8f766814d452a1f5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a678c694cb63c9b3f8f766814d452a1f5">&#9670;&#160;</a></span>today()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::datetime::today </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Current local date as <span class="tt">"YYYY-MM-DD"</span>. </p>
-<dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000021">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000021">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000021">Test</a></b></dt><dd>CheatahDatetime.NowTodayUtcnowTimestamp </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00033">33</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="datetime_8cpp_source.html#l00022">timestamp()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1datetime_a678c694cb63c9b3f8f766814d452a1f5_cgraph.svg" width="358" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a59115aa2f09ab3a2e9daf2bc874f6a7b" name="a59115aa2f09ab3a2e9daf2bc874f6a7b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a59115aa2f09ab3a2e9daf2bc874f6a7b">&#9670;&#160;</a></span>format()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::datetime::format </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>fmt</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>strftime-style formatting of an epoch in local time (e.g. </p>
-<p><code class="param">fmt</code> = <span class="tt">"Y-m-d"</span>). </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-    <tr><td class="paramname">fmt</td><td>a strftime format string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000022">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000022">Allocation</a></b></dt><dd>allocates a temporary <span class="tt">std::string</span> for <code class="param">fmt</code> plus the result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000022">Test</a></b></dt><dd>CheatahDatetime.Format </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00035">35</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ac2e22b15e45e6c4bf6d5e69cd8b80b83" name="ac2e22b15e45e6c4bf6d5e69cd8b80b83"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac2e22b15e45e6c4bf6d5e69cd8b80b83">&#9670;&#160;</a></span>year()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::year </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time year. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the 4-digit year. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000023">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000023">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000023">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00039">39</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a3a79333bf6773e124a4cbaa4012510e8" name="a3a79333bf6773e124a4cbaa4012510e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a79333bf6773e124a4cbaa4012510e8">&#9670;&#160;</a></span>month()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::month </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time month. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the month, 1..12. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000024">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000024">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000024">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00040">40</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a456e75ef50eff2fc10fe449d5dde70f2" name="a456e75ef50eff2fc10fe449d5dde70f2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a456e75ef50eff2fc10fe449d5dde70f2">&#9670;&#160;</a></span>day()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::day </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time day of month. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the day, 1..31. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000025">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000025">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000025">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00041">41</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a0004897cfa7c8d2c9042df93c4e7819f" name="a0004897cfa7c8d2c9042df93c4e7819f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0004897cfa7c8d2c9042df93c4e7819f">&#9670;&#160;</a></span>hour()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::hour </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time hour. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the hour, 0..23. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000026">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000026">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000026">Test</a></b></dt><dd>CheatahDatetime.TimeOfDayComponents </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00042">42</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="abf347c5708ea05ef109fbd79645726c3" name="abf347c5708ea05ef109fbd79645726c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abf347c5708ea05ef109fbd79645726c3">&#9670;&#160;</a></span>minute()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::minute </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time minute. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the minute, 0..59. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000027">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000027">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000027">Test</a></b></dt><dd>CheatahDatetime.TimeOfDayComponents </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00043">43</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a8611ea8f500fe732262b82785f8a7c17" name="a8611ea8f500fe732262b82785f8a7c17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8611ea8f500fe732262b82785f8a7c17">&#9670;&#160;</a></span>second()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::second </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time second. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the second, 0..60 (leap). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000028">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000028">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000028">Test</a></b></dt><dd>CheatahDatetime.TimeOfDayComponents </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00044">44</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ab5741bd0dca96e528d14e53e4b183aaf" name="ab5741bd0dca96e528d14e53e4b183aaf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab5741bd0dca96e528d14e53e4b183aaf">&#9670;&#160;</a></span>weekday()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int cheatah::datetime::weekday </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epoch</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Local-time weekday. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">epoch</td><td>epoch seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Monday=0 .. Sunday=6 (Python convention). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000029">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000029">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000029">Test</a></b></dt><dd>CheatahDatetime.ComponentsOfKnownEpoch </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="datetime_8cpp_source.html#l00045">45</a> of file <a class="el" href="datetime_8cpp_source.html">datetime.cpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

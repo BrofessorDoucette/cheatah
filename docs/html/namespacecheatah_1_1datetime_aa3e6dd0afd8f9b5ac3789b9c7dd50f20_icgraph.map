@@ -1,9 +1,0 @@
-<map id="cheatah::datetime::timestamp" name="cheatah::datetime::timestamp">
-<area shape="rect" id="Node000001" title="Current time." alt="" coords="229,55,379,95"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1datetime.html#a42701f6b1618a5240aec5c266884837f" title="Current local time as &quot;YYYY&#45;MM&#45;DD HH:MM:SS&quot;." alt="" coords="5,5,181,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,54,140,33,142,28,218,49"/>
-<area shape="rect" id="Node000003" href="$namespacecheatah_1_1datetime.html#a678c694cb63c9b3f8f766814d452a1f5" title="Current local date as &quot;YYYY&#45;MM&#45;DD&quot;." alt="" coords="19,55,168,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,78,168,78,168,73,215,73"/>
-<area shape="rect" id="Node000004" href="$namespacecheatah_1_1datetime.html#ab6f45f1675fe8f0b7c6ce9e1c86e257b" title="Current UTC time as &quot;YYYY&#45;MM&#45;DDTHH:MM:SSZ&quot;." alt="" coords="19,119,168,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,102,160,122,159,117,224,97"/>
-</map>

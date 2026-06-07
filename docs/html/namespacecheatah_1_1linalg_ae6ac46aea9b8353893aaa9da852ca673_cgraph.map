@@ -1,5 +1,0 @@
-<map id="cheatah::linalg::eig" name="cheatah::linalg::eig">
-<area shape="rect" id="Node000001" title="Eigen&#45;decomposition of a general square matrix (real spectrum only; throws on complex pairs)." alt="" coords="5,5,152,31"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1linalg.html#a73d032676733f00ec8c5ceabc60cd4be" title="Eigen&#45;decomposition of a symmetric matrix (cyclic Jacobi)." alt="" coords="200,5,355,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,15,186,15,186,21,152,21"/>
-</map>

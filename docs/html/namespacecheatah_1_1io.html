@@ -1,540 +1,125 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::io Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>io · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>io</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">str</span>(const std::string &amp;value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L7" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief"><code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str()</a></code> for a <code>std::string</code> — identity overload. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the string.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>value</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result copy.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L36"><code>CheatahIo.StrFormatsPythonStyle</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L14"><code>IoCompileRun.Str</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1ab47c30312ae96bbb5d61d65177e3075e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">str</span>(bool b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L8" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1ab47c30312ae96bbb5d61d65177e3075e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str()</a></code> for a bool — Python spelling. </p>
+  <div class="member-body"><p>Overrides the default streaming of a bool (<code>1</code>/<code>0</code>) to emit Python&#x27;s capitalized <code>True</code>/<code>False</code> instead.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>the boolean.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>&quot;True&quot;</code> or <code>&quot;False&quot;</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the small result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L36"><code>CheatahIo.StrFormatsPythonStyle</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L14"><code>IoCompileRun.Str</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1ad7f55404376630a2fa5bd56b20b2efe5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">repr</span>(const std::string &amp;value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L10" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1ad7f55404376630a2fa5bd56b20b2efe5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1ad7f55404376630a2fa5bd56b20b2efe5">repr()</a></code> for a <code>std::string</code> — quoted (Python repr). </p>
+  <div class="member-body"><p>Wraps the text in single quotes but does not escape embedded quotes, backslashes, or control characters, so the result is not a faithful round-trip of Python&#x27;s repr.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the string.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>value</code> wrapped in single quotes.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L43"><code>CheatahIo.ReprQuotesStrings</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L20"><code>IoCompileRun.Repr</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1a7acfd3543261ed05c8b4cc2bb222b51a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">repr</span>(const char *value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L11" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1a7acfd3543261ed05c8b4cc2bb222b51a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1ad7f55404376630a2fa5bd56b20b2efe5">repr()</a></code> for a C string — quoted (Python repr). </p>
+  <div class="member-body"><p>Copies the NUL-terminated input into a <code>std::string</code> and wraps it in single quotes; like the string overload it performs no escaping, and <code>value</code> must not be null.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the C string.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>value</code> wrapped in single quotes.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L43"><code>CheatahIo.ReprQuotesStrings</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L20"><code>IoCompileRun.Repr</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1aecad87986d545617e47eda139f27c2c6">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">input</span>(std::string_view prompt=&quot;&quot;)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L19" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1aecad87986d545617e47eda139f27c2c6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Python <code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aecad87986d545617e47eda139f27c2c6">input</a>(prompt=&quot;&quot;)</code>: write <code>prompt</code>, read one line from stdin. </p>
+  <div class="member-body"><p>Writes (and flushes) <code>prompt</code> only when non-empty, then reads one line via getline; at EOF or on a blank line it returns an empty string rather than signaling end-of-input.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>prompt</code></td><td class="pdesc"><p>text shown before reading (no newline added).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the line read, with the trailing newline stripped.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(line length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L111"><code>CheatahIo.InputReadsALine</code></a></span></div><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>No compile-run test: <a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aecad87986d545617e47eda139f27c2c6">io.input</a> reads stdin, which the e2e harness does not feed, so it is intentionally skipped in tests/purrc/io_cr_test.cpp.</p></div></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1a32e500d7d08f83fda13aa1ea2366ad88">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1io_1_1File.html">File</a></span> <span class="mname">open</span>(const std::string &amp;path, std::string_view mode=&quot;r&quot;)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L72" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1a32e500d7d08f83fda13aa1ea2366ad88" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Python <code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1a32e500d7d08f83fda13aa1ea2366ad88">open</a>(path, mode=&quot;r&quot;)</code> — construct and return a <a href="classcheatah_1_1io_1_1File.html">File</a>. </p>
+  <div class="member-body"><p>Constructs a <a href="classcheatah_1_1io_1_1File.html">File</a> on <code>path</code> (defaulting to read mode) and returns it by move; as with the <a href="classcheatah_1_1io_1_1File.html">File</a> constructor a failed open does not throw, so check is_open() on the result.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>path</code></td><td class="pdesc"><p>filesystem path.</p></td></tr><tr><td class="pname"><code>mode</code></td><td class="pdesc"><p>Python-style mode string.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an open <a href="classcheatah_1_1io_1_1File.html">File</a> (move-returned).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus the OS open.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>constructs a <a href="classcheatah_1_1io_1_1File.html">File</a>; no heap of our own.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L54"><code>CheatahIo.FileWriteThenReadWhole</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L38"><code>IoCompileRun.OpenWriteRead</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1a89fd1df08ae448fb628d8a34239fe0bc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">read_file</span>(const std::string &amp;path)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L74" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1a89fd1df08ae448fb628d8a34239fe0bc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Read a whole file into a string in one call (binary-safe — preserves every byte, including NULs). </p>
+  <div class="member-body"><p>Opens <code>path</code> in binary mode and slurps the entire buffer in one read; an empty return is ambiguous between a missing/unopenable file and a genuinely empty file.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>path</code></td><td class="pdesc"><p>filesystem path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the file&#x27;s contents, or &quot;&quot; if it cannot be opened.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(file size).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L125"><code>CheatahIo.ReadFileWholeAndBinary</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L83"><code>IoCompileRun.ReadFile</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1ad01c2dd31b9a428f1c4ac129968ae9ff">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">str</span>(const T &amp;value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L51" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1ad01c2dd31b9a428f1c4ac129968ae9ff" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Python <code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str()</a></code>: stringify any streamable value. </p>
+  <div class="member-body"><p>Renders <code>value</code> via its <code>operator&lt;&lt;</code> into a fresh <code>ostringstream</code>, so the result matches whatever that stream insertion produces (e.g. default float precision).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the value to render.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>value</code> formatted as text.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the output length.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string (via an ostringstream).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L36"><code>CheatahIo.StrFormatsPythonStyle</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L14"><code>IoCompileRun.Str</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1a797b0d86b7c7aec8fbb68b9e53b53c6a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">print</span>(const Args &amp;... args)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L96" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1a797b0d86b7c7aec8fbb68b9e53b53c6a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Python <code>print(*args)</code>: space-separated, newline-terminated, to stdout (sep=&#x27; &#x27;, end=&#x27;<br>
+&#x27;). </p>
+  <div class="member-body"><p>Inserts a single space between consecutive arguments (none before the first) and always ends with a trailing <code>\n</code>; with no arguments it writes just that newline (blank line).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>args</code></td><td class="pdesc"><p>zero or more streamable values.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(total output length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>each arg is routed through <a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L20"><code>CheatahIo.PrintWritesSpaceSeparatedLine</code></a> <a href="src_stdlib_tests_io_test_cpp.html#L28"><code>CheatahIo.PrintNoArgsIsJustNewline</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L26"><code>IoCompileRun.Print</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1aea5137e3c9c915c88d0f0886d6266572">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">repr</span>(const T &amp;value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L116" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1aea5137e3c9c915c88d0f0886d6266572" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Python <code><a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1ad7f55404376630a2fa5bd56b20b2efe5">repr()</a></code> for a generic value — same as <a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str()</a> for non-strings. </p>
+  <div class="member-body"><p>Forwards directly to <a href="namespacecheatah_1_1io.html#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str()</a>, so non-string values get no extra quoting or escaping; only the string overloads below add the surrounding quotes.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the value to render.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>value</code> formatted as text.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L43"><code>CheatahIo.ReprQuotesStrings</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L20"><code>IoCompileRun.Repr</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1io_1aa2a59474b36f5e824c5297716d2970c3">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">format</span>(std::string_view fmt, const Args &amp;... args)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_hpp.html#L190" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1io_1aa2a59474b36f5e824c5297716d2970c3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sequential <code>{}</code> substitution — the common case of Python&#x27;s str.format() / f-strings. </p>
+  <div class="member-body"><p>Replaces each <code>{}</code> left-to-right with the corresponding argument (streamed via its <code>operator&lt;&lt;</code>); surplus arguments are silently dropped, and any <code>{}</code> left without an argument is emitted literally rather than raising. Does not support indexed or named fields (<code>{0}</code>, <code>{name}</code>) or escaped braces (<code>{{</code>).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fmt</code></td><td class="pdesc"><p>format string with <code>{}</code> placeholders.</p></td></tr><tr><td class="pname"><code>args</code></td><td class="pdesc"><p>values substituted left-to-right (extras dropped, missing placeholders left as-is).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the formatted string.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(len(fmt) + total arg output).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string (via an ostringstream).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L49"><code>CheatahIo.FormatSubstitutesBraces</code></a> <a href="src_stdlib_tests_io_test_cpp.html#L119"><code>CheatahIo.FormatMultiArgAndExtraArgs</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L32"><code>IoCompileRun.Format</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1io_1aa2b498516ecd4652c1f0995bcf7df062">str</a></li><li><a href="#namespacecheatah_1_1io_1ab47c30312ae96bbb5d61d65177e3075e">str</a></li><li><a href="#namespacecheatah_1_1io_1ad7f55404376630a2fa5bd56b20b2efe5">repr</a></li><li><a href="#namespacecheatah_1_1io_1a7acfd3543261ed05c8b4cc2bb222b51a">repr</a></li><li><a href="#namespacecheatah_1_1io_1aecad87986d545617e47eda139f27c2c6">input</a></li><li><a href="#namespacecheatah_1_1io_1a32e500d7d08f83fda13aa1ea2366ad88">open</a></li><li><a href="#namespacecheatah_1_1io_1a89fd1df08ae448fb628d8a34239fe0bc">read_file</a></li><li><a href="#namespacecheatah_1_1io_1ad01c2dd31b9a428f1c4ac129968ae9ff">str</a></li><li><a href="#namespacecheatah_1_1io_1a797b0d86b7c7aec8fbb68b9e53b53c6a">print</a></li><li><a href="#namespacecheatah_1_1io_1aea5137e3c9c915c88d0f0886d6266572">repr</a></li><li><a href="#namespacecheatah_1_1io_1aa2a59474b36f5e824c5297716d2970c3">format</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1io.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::io Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr class="memitem:detail" id="r_detail"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io_1_1detail.html">detail</a></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:File" id="r_File"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A Python-like file object over <span class="tt">std::fstream</span>.  <a href="classcheatah_1_1io_1_1File.html#details">More...</a><br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-concepts" class="groupheader"><a id="concepts" name="concepts"></a>
-Concepts</h2></td></tr>
-<tr class="memitem:Streamable" id="r_Streamable"><td class="memItemLeft">concept &#160;</td><td class="memItemRight"><a class="el" href="conceptcheatah_1_1io_1_1Streamable.html">Streamable</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Streamable&lt;T&gt;: T can be written to a <span class="tt">std::ostream</span> — the ONLY thing str(), print(), format() and File::write() actually need. <br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:aa2b498516ecd4652c1f0995bcf7df062" id="r_aa2b498516ecd4652c1f0995bcf7df062"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062">str</a> (const std::string &amp;value)</td></tr>
-<tr class="memdesc:aa2b498516ecd4652c1f0995bcf7df062"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a <span class="tt">std::string</span> — identity overload.  <br /></td></tr>
-<tr class="memitem:ab47c30312ae96bbb5d61d65177e3075e" id="r_ab47c30312ae96bbb5d61d65177e3075e"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ab47c30312ae96bbb5d61d65177e3075e">str</a> (bool b)</td></tr>
-<tr class="memdesc:ab47c30312ae96bbb5d61d65177e3075e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a bool — Python spelling.  <br /></td></tr>
-<tr class="memitem:ad7f55404376630a2fa5bd56b20b2efe5" id="r_ad7f55404376630a2fa5bd56b20b2efe5"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5">repr</a> (const std::string &amp;value)</td></tr>
-<tr class="memdesc:ad7f55404376630a2fa5bd56b20b2efe5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr).  <br /></td></tr>
-<tr class="memitem:a7acfd3543261ed05c8b4cc2bb222b51a" id="r_a7acfd3543261ed05c8b4cc2bb222b51a"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a7acfd3543261ed05c8b4cc2bb222b51a">repr</a> (const char *value)</td></tr>
-<tr class="memdesc:a7acfd3543261ed05c8b4cc2bb222b51a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a C string — quoted (Python repr).  <br /></td></tr>
-<tr class="memitem:aecad87986d545617e47eda139f27c2c6" id="r_aecad87986d545617e47eda139f27c2c6"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aecad87986d545617e47eda139f27c2c6">input</a> (std::string_view prompt=&quot;&quot;)</td></tr>
-<tr class="memdesc:aecad87986d545617e47eda139f27c2c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin.  <br /></td></tr>
-<tr class="memitem:a32e500d7d08f83fda13aa1ea2366ad88" id="r_a32e500d7d08f83fda13aa1ea2366ad88"><td class="memItemLeft"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a>&#160;</td><td class="memItemRight"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88">open</a> (const std::string &amp;path, std::string_view mode=&quot;r&quot;)</td></tr>
-<tr class="memdesc:a32e500d7d08f83fda13aa1ea2366ad88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>.  <br /></td></tr>
-<tr class="memitem:a89fd1df08ae448fb628d8a34239fe0bc" id="r_a89fd1df08ae448fb628d8a34239fe0bc"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a89fd1df08ae448fb628d8a34239fe0bc">read_file</a> (const std::string &amp;path)</td></tr>
-<tr class="memdesc:a89fd1df08ae448fb628d8a34239fe0bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a whole file into a string in one call (binary-safe — preserves every byte, including NULs).  <br /></td></tr>
-<tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff" id="r_ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
-<tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff">str</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span>: stringify any streamable value.  <br /></td></tr>
-<tr class="memitem:a797b0d86b7c7aec8fbb68b9e53b53c6a" id="r_a797b0d86b7c7aec8fbb68b9e53b53c6a"><td class="memTemplParams" colspan="2">template&lt;Streamable... Args&gt; </td></tr>
-<tr class="memitem:a797b0d86b7c7aec8fbb68b9e53b53c6a template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a797b0d86b7c7aec8fbb68b9e53b53c6a">print</a> (const Args &amp;... args)</td></tr>
-<tr class="memdesc:a797b0d86b7c7aec8fbb68b9e53b53c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt">print(*args)</span>: space-separated, newline-terminated, to stdout (sep=' ', end='<br  />
-').  <br /></td></tr>
-<tr class="memitem:aea5137e3c9c915c88d0f0886d6266572" id="r_aea5137e3c9c915c88d0f0886d6266572"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
-<tr class="memitem:aea5137e3c9c915c88d0f0886d6266572 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572">repr</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:aea5137e3c9c915c88d0f0886d6266572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a generic value — same as <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> for non-strings.  <br /></td></tr>
-<tr class="memitem:aa2a59474b36f5e824c5297716d2970c3" id="r_aa2a59474b36f5e824c5297716d2970c3"><td class="memTemplParams" colspan="2">template&lt;Streamable... Args&gt; </td></tr>
-<tr class="memitem:aa2a59474b36f5e824c5297716d2970c3 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa2a59474b36f5e824c5297716d2970c3">format</a> (std::string_view fmt, const Args &amp;... args)</td></tr>
-<tr class="memdesc:aa2a59474b36f5e824c5297716d2970c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequential <span class="tt">{}</span> substitution — the common case of Python's str.format() / f-strings.  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="aa2b498516ecd4652c1f0995bcf7df062" name="aa2b498516ecd4652c1f0995bcf7df062"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2b498516ecd4652c1f0995bcf7df062">&#9670;&#160;</a></span>str() <span class="overload">[1/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::str </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a <span class="tt">std::string</span> — identity overload. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a copy of <code class="param">value</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000032">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000032">Allocation</a></b></dt><dd>allocates the result copy. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000032">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00007">7</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00079">print()</a>, and <a class="el" href="io_8hpp_source.html#l00094">repr()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_aa2b498516ecd4652c1f0995bcf7df062_icgraph.svg" width="310" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ab47c30312ae96bbb5d61d65177e3075e" name="ab47c30312ae96bbb5d61d65177e3075e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab47c30312ae96bbb5d61d65177e3075e">&#9670;&#160;</a></span>str() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::str </td>
-          <td>(</td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>b</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a bool — Python spelling. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">b</td><td>the boolean. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">"True"</span> or <span class="tt">"False"</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000033">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000033">Allocation</a></b></dt><dd>allocates the small result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000033">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00008">8</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ad7f55404376630a2fa5bd56b20b2efe5" name="ad7f55404376630a2fa5bd56b20b2efe5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad7f55404376630a2fa5bd56b20b2efe5">&#9670;&#160;</a></span>repr() <span class="overload">[1/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::repr </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000036">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000036">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000036">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00010">10</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a7acfd3543261ed05c8b4cc2bb222b51a" name="a7acfd3543261ed05c8b4cc2bb222b51a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7acfd3543261ed05c8b4cc2bb222b51a">&#9670;&#160;</a></span>repr() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::repr </td>
-          <td>(</td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a C string — quoted (Python repr). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the C string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000037">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000037">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000037">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00011">11</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aecad87986d545617e47eda139f27c2c6" name="aecad87986d545617e47eda139f27c2c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aecad87986d545617e47eda139f27c2c6">&#9670;&#160;</a></span>input()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::input </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>prompt</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">prompt</td><td>text shown before reading (no newline added). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the line read, with the trailing newline stripped. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000039">Complexity</a></b></dt><dd>O(line length). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000039">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000039">Test</a></b></dt><dd>CheatahIo.InputReadsALine </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00019">19</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a32e500d7d08f83fda13aa1ea2366ad88" name="a32e500d7d08f83fda13aa1ea2366ad88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32e500d7d08f83fda13aa1ea2366ad88">&#9670;&#160;</a></span>open()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a> cheatah::io::open </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>mode</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;r&quot;</span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>filesystem path. </td></tr>
-    <tr><td class="paramname">mode</td><td>Python-style mode string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>an open <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> (move-returned). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000040">Complexity</a></b></dt><dd>O(1) plus the OS open. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000040">Allocation</a></b></dt><dd>constructs a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>; no heap of our own. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000040">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00072">72</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a89fd1df08ae448fb628d8a34239fe0bc" name="a89fd1df08ae448fb628d8a34239fe0bc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89fd1df08ae448fb628d8a34239fe0bc">&#9670;&#160;</a></span>read_file()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::read_file </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Read a whole file into a string in one call (binary-safe — preserves every byte, including NULs). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>filesystem path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the file's contents, or "" if it cannot be opened. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000041">Complexity</a></b></dt><dd>O(file size). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000041">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000041">Test</a></b></dt><dd>CheatahIo.ReadFileWholeAndBinary </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00074">74</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ad01c2dd31b9a428f1c4ac129968ae9ff" name="ad01c2dd31b9a428f1c4ac129968ae9ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad01c2dd31b9a428f1c4ac129968ae9ff">&#9670;&#160;</a></span>str() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Streamable T&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::str </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span>: stringify any streamable value. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the value to render. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> formatted as text. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000031">Complexity</a></b></dt><dd>O(n) in the output length. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000031">Allocation</a></b></dt><dd>allocates the result string (via an ostringstream). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000031">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00046">46</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-
-</div>
-</div>
-<a id="a797b0d86b7c7aec8fbb68b9e53b53c6a" name="a797b0d86b7c7aec8fbb68b9e53b53c6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a797b0d86b7c7aec8fbb68b9e53b53c6a">&#9670;&#160;</a></span>print()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Streamable... Args&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void cheatah::io::print </td>
-          <td>(</td>
-          <td class="paramtype">const Args &amp;...</td>          <td class="paramname"><span class="paramname"><em>args</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt">print(*args)</span>: space-separated, newline-terminated, to stdout (sep=' ', end='<br  />
-'). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">args</td><td>zero or more streamable values. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000034">Complexity</a></b></dt><dd>O(total output length). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000034">Allocation</a></b></dt><dd>each arg is routed through <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000034">Test</a></b></dt><dd>CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00079">79</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_a797b0d86b7c7aec8fbb68b9e53b53c6a_cgraph.svg" width="310" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aea5137e3c9c915c88d0f0886d6266572" name="aea5137e3c9c915c88d0f0886d6266572"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aea5137e3c9c915c88d0f0886d6266572">&#9670;&#160;</a></span>repr() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Streamable T&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::repr </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a generic value — same as <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> for non-strings. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the value to render. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> formatted as text. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000035">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000035">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000035">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00094">94</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_aea5137e3c9c915c88d0f0886d6266572_cgraph.svg" width="306" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aa2a59474b36f5e824c5297716d2970c3" name="aa2a59474b36f5e824c5297716d2970c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2a59474b36f5e824c5297716d2970c3">&#9670;&#160;</a></span>format()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Streamable... Args&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::format </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>fmt</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Args &amp;...</td>          <td class="paramname"><span class="paramname"><em>args</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sequential <span class="tt">{}</span> substitution — the common case of Python's str.format() / f-strings. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fmt</td><td>format string with <span class="tt">{}</span> placeholders. </td></tr>
-    <tr><td class="paramname">args</td><td>values substituted left-to-right (extras dropped, missing placeholders left as-is). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the formatted string. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000038">Complexity</a></b></dt><dd>O(len(fmt) + total arg output). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000038">Allocation</a></b></dt><dd>allocates the result string (via an ostringstream). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000038">Test</a></b></dt><dd>CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00151">151</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="io_8cpp_source.html#l00014">cheatah::io::detail::format_into()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_aa2a59474b36f5e824c5297716d2970c3_cgraph.svg" width="344" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

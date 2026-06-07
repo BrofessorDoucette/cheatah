@@ -1,7 +1,0 @@
-<map id="cheatah::string::strip" name="cheatah::string::strip">
-<area shape="rect" id="Node000001" title="Strip leading+trailing chars." alt="" coords="5,31,161,56"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1string.html#aba7aad6dfc4a8c8a6eb753d87d303751" title="Strip leading chars." alt="" coords="210,5,370,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,31,196,27,197,32,162,36"/>
-<area shape="rect" id="Node000003" href="$namespacecheatah_1_1string.html#a1dac2078baadf219b65aefb760740805" title="Strip trailing chars." alt="" coords="209,55,371,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,50,196,54,195,59,161,55"/>
-</map>

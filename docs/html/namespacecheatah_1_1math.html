@@ -1,1524 +1,348 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::math Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>math · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>math</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1math_1a470ae22922df69a8a110843a9ef34c85">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sqrt</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L5" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a470ae22922df69a8a110843a9ef34c85" aria-label="permalink">#</a></span>
   </div>
-</div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1math.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::math Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a470ae22922df69a8a110843a9ef34c85" id="r_a470ae22922df69a8a110843a9ef34c85"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a470ae22922df69a8a110843a9ef34c85">sqrt</a> (double x)</td></tr>
-<tr class="memdesc:a470ae22922df69a8a110843a9ef34c85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Square root.  <br /></td></tr>
-<tr class="memitem:acf5e751b993fb85beedce282cdc988a2" id="r_acf5e751b993fb85beedce282cdc988a2"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#acf5e751b993fb85beedce282cdc988a2">cbrt</a> (double x)</td></tr>
-<tr class="memdesc:acf5e751b993fb85beedce282cdc988a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cube root.  <br /></td></tr>
-<tr class="memitem:a2e4a468ffbc683e35885421132629372" id="r_a2e4a468ffbc683e35885421132629372"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a2e4a468ffbc683e35885421132629372">fabs</a> (double x)</td></tr>
-<tr class="memdesc:a2e4a468ffbc683e35885421132629372"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute value of a double.  <br /></td></tr>
-<tr class="memitem:a56e8ee2a6e47933e90a559467f364343" id="r_a56e8ee2a6e47933e90a559467f364343"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a56e8ee2a6e47933e90a559467f364343">floor</a> (double x)</td></tr>
-<tr class="memdesc:a56e8ee2a6e47933e90a559467f364343"><td class="mdescLeft">&#160;</td><td class="mdescRight">Round toward −∞.  <br /></td></tr>
-<tr class="memitem:aeb76dd72cb27a47848921684c5e54712" id="r_aeb76dd72cb27a47848921684c5e54712"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aeb76dd72cb27a47848921684c5e54712">ceil</a> (double x)</td></tr>
-<tr class="memdesc:aeb76dd72cb27a47848921684c5e54712"><td class="mdescLeft">&#160;</td><td class="mdescRight">Round toward +∞.  <br /></td></tr>
-<tr class="memitem:aca5a34ad1fd8fe6d931d5a91e6ecb66e" id="r_aca5a34ad1fd8fe6d931d5a91e6ecb66e"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aca5a34ad1fd8fe6d931d5a91e6ecb66e">trunc</a> (double x)</td></tr>
-<tr class="memdesc:aca5a34ad1fd8fe6d931d5a91e6ecb66e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Round toward zero.  <br /></td></tr>
-<tr class="memitem:abeac6418aa8c3831730485b1dd454e62" id="r_abeac6418aa8c3831730485b1dd454e62"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#abeac6418aa8c3831730485b1dd454e62">round</a> (double x)</td></tr>
-<tr class="memdesc:abeac6418aa8c3831730485b1dd454e62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Round to nearest (half away from zero).  <br /></td></tr>
-<tr class="memitem:abb1b103ca142d71d3ee23917d15ddd66" id="r_abb1b103ca142d71d3ee23917d15ddd66"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#abb1b103ca142d71d3ee23917d15ddd66">exp</a> (double x)</td></tr>
-<tr class="memdesc:abb1b103ca142d71d3ee23917d15ddd66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exponential.  <br /></td></tr>
-<tr class="memitem:a6a1b99a10f60eb660642d260e51407c9" id="r_a6a1b99a10f60eb660642d260e51407c9"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a6a1b99a10f60eb660642d260e51407c9">log</a> (double x)</td></tr>
-<tr class="memdesc:a6a1b99a10f60eb660642d260e51407c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Natural logarithm.  <br /></td></tr>
-<tr class="memitem:a1efa7f3917be4ac18af05d159254f492" id="r_a1efa7f3917be4ac18af05d159254f492"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a1efa7f3917be4ac18af05d159254f492">log2</a> (double x)</td></tr>
-<tr class="memdesc:a1efa7f3917be4ac18af05d159254f492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base-2 logarithm.  <br /></td></tr>
-<tr class="memitem:a4649180e276e5ffe461847c24217de96" id="r_a4649180e276e5ffe461847c24217de96"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a4649180e276e5ffe461847c24217de96">log10</a> (double x)</td></tr>
-<tr class="memdesc:a4649180e276e5ffe461847c24217de96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base-10 logarithm.  <br /></td></tr>
-<tr class="memitem:aec7cb43d04c1b67badac5c7442e32314" id="r_aec7cb43d04c1b67badac5c7442e32314"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aec7cb43d04c1b67badac5c7442e32314">sin</a> (double x)</td></tr>
-<tr class="memdesc:aec7cb43d04c1b67badac5c7442e32314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sine.  <br /></td></tr>
-<tr class="memitem:a68c4b1de38fbbac641000f39ef2f6045" id="r_a68c4b1de38fbbac641000f39ef2f6045"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a68c4b1de38fbbac641000f39ef2f6045">cos</a> (double x)</td></tr>
-<tr class="memdesc:a68c4b1de38fbbac641000f39ef2f6045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cosine.  <br /></td></tr>
-<tr class="memitem:a4f766eb9cbf288eaad21b62a92d45394" id="r_a4f766eb9cbf288eaad21b62a92d45394"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a4f766eb9cbf288eaad21b62a92d45394">tan</a> (double x)</td></tr>
-<tr class="memdesc:a4f766eb9cbf288eaad21b62a92d45394"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tangent.  <br /></td></tr>
-<tr class="memitem:a1f6837d3f9aac1399ff923def0981fba" id="r_a1f6837d3f9aac1399ff923def0981fba"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a1f6837d3f9aac1399ff923def0981fba">asin</a> (double x)</td></tr>
-<tr class="memdesc:a1f6837d3f9aac1399ff923def0981fba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arcsine.  <br /></td></tr>
-<tr class="memitem:a4b757a9cb52f12076b23b483f6337654" id="r_a4b757a9cb52f12076b23b483f6337654"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a4b757a9cb52f12076b23b483f6337654">acos</a> (double x)</td></tr>
-<tr class="memdesc:a4b757a9cb52f12076b23b483f6337654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arccosine.  <br /></td></tr>
-<tr class="memitem:afd3f237be14489b8a26573989e801139" id="r_afd3f237be14489b8a26573989e801139"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#afd3f237be14489b8a26573989e801139">atan</a> (double x)</td></tr>
-<tr class="memdesc:afd3f237be14489b8a26573989e801139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arctangent.  <br /></td></tr>
-<tr class="memitem:ab54826f981dd3e0c28e7fb0b36e52073" id="r_ab54826f981dd3e0c28e7fb0b36e52073"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#ab54826f981dd3e0c28e7fb0b36e52073">atan2</a> (double y, double x)</td></tr>
-<tr class="memdesc:ab54826f981dd3e0c28e7fb0b36e52073"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-argument arctangent.  <br /></td></tr>
-<tr class="memitem:aa0e683d538326558e72c58d1d390c5c8" id="r_aa0e683d538326558e72c58d1d390c5c8"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aa0e683d538326558e72c58d1d390c5c8">hypot</a> (double x, double y)</td></tr>
-<tr class="memdesc:aa0e683d538326558e72c58d1d390c5c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hypotenuse.  <br /></td></tr>
-<tr class="memitem:a3c02cdc26f105130e0e38702d861c5cd" id="r_a3c02cdc26f105130e0e38702d861c5cd"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a3c02cdc26f105130e0e38702d861c5cd">fmod</a> (double x, double y)</td></tr>
-<tr class="memdesc:a3c02cdc26f105130e0e38702d861c5cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Floating-point remainder.  <br /></td></tr>
-<tr class="memitem:a0702be74f5473e45602554b01e681440" id="r_a0702be74f5473e45602554b01e681440"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a0702be74f5473e45602554b01e681440">copysign</a> (double x, double y)</td></tr>
-<tr class="memdesc:a0702be74f5473e45602554b01e681440"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy sign.  <br /></td></tr>
-<tr class="memitem:a52057ffbf09ce4dcc7361edfca574c8a" id="r_a52057ffbf09ce4dcc7361edfca574c8a"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a52057ffbf09ce4dcc7361edfca574c8a">degrees</a> (double <a class="el" href="#a215f044460829a2f7c9b1b5cb90fea3e">radians</a>)</td></tr>
-<tr class="memdesc:a52057ffbf09ce4dcc7361edfca574c8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Radians → degrees.  <br /></td></tr>
-<tr class="memitem:a215f044460829a2f7c9b1b5cb90fea3e" id="r_a215f044460829a2f7c9b1b5cb90fea3e"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a215f044460829a2f7c9b1b5cb90fea3e">radians</a> (double <a class="el" href="#a52057ffbf09ce4dcc7361edfca574c8a">degrees</a>)</td></tr>
-<tr class="memdesc:a215f044460829a2f7c9b1b5cb90fea3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Degrees → radians.  <br /></td></tr>
-<tr class="memitem:a4696847a3a6cc104c4154c03d2acea27" id="r_a4696847a3a6cc104c4154c03d2acea27"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a4696847a3a6cc104c4154c03d2acea27">isnan</a> (double x)</td></tr>
-<tr class="memdesc:a4696847a3a6cc104c4154c03d2acea27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is NaN?  <br /></td></tr>
-<tr class="memitem:a4c88d12074e513cfd5ef4040e7db4e17" id="r_a4c88d12074e513cfd5ef4040e7db4e17"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a4c88d12074e513cfd5ef4040e7db4e17">isinf</a> (double x)</td></tr>
-<tr class="memdesc:a4c88d12074e513cfd5ef4040e7db4e17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is infinite?  <br /></td></tr>
-<tr class="memitem:a63b72edf970d874839fddefe4cedc5ee" id="r_a63b72edf970d874839fddefe4cedc5ee"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a63b72edf970d874839fddefe4cedc5ee">isfinite</a> (double x)</td></tr>
-<tr class="memdesc:a63b72edf970d874839fddefe4cedc5ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is finite?  <br /></td></tr>
-<tr class="memitem:ad7d3f308bdf01aa893f1e2fa74b0f3ce" id="r_ad7d3f308bdf01aa893f1e2fa74b0f3ce"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#ad7d3f308bdf01aa893f1e2fa74b0f3ce">gcd</a> (long long a, long long b)</td></tr>
-<tr class="memdesc:ad7d3f308bdf01aa893f1e2fa74b0f3ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Greatest common divisor.  <br /></td></tr>
-<tr class="memitem:a84609784f47a6373ab8a38bad6c8ce7a" id="r_a84609784f47a6373ab8a38bad6c8ce7a"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a84609784f47a6373ab8a38bad6c8ce7a">factorial</a> (long long n)</td></tr>
-<tr class="memdesc:a84609784f47a6373ab8a38bad6c8ce7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factorial.  <br /></td></tr>
-<tr class="memitem:a2df6931141ffacc1a6ef083dc34cc9e7" id="r_a2df6931141ffacc1a6ef083dc34cc9e7"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:a2df6931141ffacc1a6ef083dc34cc9e7 template"><td class="memItemLeft">T&#160;</td><td class="memItemRight"><a class="el" href="#a2df6931141ffacc1a6ef083dc34cc9e7">abs</a> (T x)</td></tr>
-<tr class="memdesc:a2df6931141ffacc1a6ef083dc34cc9e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute value.  <br /></td></tr>
-<tr class="memitem:af226e29104b09a0a117be99bdb0c93c2" id="r_af226e29104b09a0a117be99bdb0c93c2"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:af226e29104b09a0a117be99bdb0c93c2 template"><td class="memItemLeft">const T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#af226e29104b09a0a117be99bdb0c93c2">min</a> (const T &amp;a, const T &amp;b)</td></tr>
-<tr class="memdesc:af226e29104b09a0a117be99bdb0c93c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Smallest of two-or-more values (variadic; the overloads chain to fold extra args).  <br /></td></tr>
-<tr class="memitem:af9d5c9d455b7e5c741564891ea28bca2" id="r_af9d5c9d455b7e5c741564891ea28bca2"><td class="memTemplParams" colspan="2">template&lt;typename T, typename... Rest&gt; </td></tr>
-<tr class="memitem:af9d5c9d455b7e5c741564891ea28bca2 template"><td class="memItemLeft">const T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#af9d5c9d455b7e5c741564891ea28bca2">min</a> (const T &amp;a, const T &amp;b, const Rest &amp;... rest)</td></tr>
-<tr class="memdesc:af9d5c9d455b7e5c741564891ea28bca2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Smallest of three-or-more values (folds the extra args onto the two-argument overload).  <br /></td></tr>
-<tr class="memitem:ab303bcdceabcf36f6f8e13042e303718" id="r_ab303bcdceabcf36f6f8e13042e303718"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:ab303bcdceabcf36f6f8e13042e303718 template"><td class="memItemLeft">const T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ab303bcdceabcf36f6f8e13042e303718">max</a> (const T &amp;a, const T &amp;b)</td></tr>
-<tr class="memdesc:ab303bcdceabcf36f6f8e13042e303718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest of two-or-more values (variadic; the overloads chain to fold extra args).  <br /></td></tr>
-<tr class="memitem:a1336d688fc72abdb3c049cac9483b246" id="r_a1336d688fc72abdb3c049cac9483b246"><td class="memTemplParams" colspan="2">template&lt;typename T, typename... Rest&gt; </td></tr>
-<tr class="memitem:a1336d688fc72abdb3c049cac9483b246 template"><td class="memItemLeft">const T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a1336d688fc72abdb3c049cac9483b246">max</a> (const T &amp;a, const T &amp;b, const Rest &amp;... rest)</td></tr>
-<tr class="memdesc:a1336d688fc72abdb3c049cac9483b246"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest of three-or-more values (folds the extra args onto the two-argument overload).  <br /></td></tr>
-<tr class="memitem:ae8cb45974306f18d03275039e17145ff" id="r_ae8cb45974306f18d03275039e17145ff"><td class="memTemplParams" colspan="2">template&lt;typename Base, typename Exp&gt; </td></tr>
-<tr class="memitem:ae8cb45974306f18d03275039e17145ff template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#ae8cb45974306f18d03275039e17145ff">pow</a> (Base base, Exp <a class="el" href="#abb1b103ca142d71d3ee23917d15ddd66">exp</a>)</td></tr>
-<tr class="memdesc:ae8cb45974306f18d03275039e17145ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Power.  <br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a0bcf9b701c447229c61f296b0d12cda0" id="r_a0bcf9b701c447229c61f296b0d12cda0"><td class="memItemLeft">constexpr double&#160;</td><td class="memItemRight"><a class="el" href="#a0bcf9b701c447229c61f296b0d12cda0">pi</a> = 3.14159265358979323846</td></tr>
-<tr class="memdesc:a0bcf9b701c447229c61f296b0d12cda0"><td class="mdescLeft">&#160;</td><td class="mdescRight">π.  <br /></td></tr>
-<tr class="memitem:ab2747f587c788907bbe5b778da6afe77" id="r_ab2747f587c788907bbe5b778da6afe77"><td class="memItemLeft">constexpr double&#160;</td><td class="memItemRight"><a class="el" href="#ab2747f587c788907bbe5b778da6afe77">e</a> = 2.71828182845904523536</td></tr>
-<tr class="memdesc:ab2747f587c788907bbe5b778da6afe77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Euler's number e.  <br /></td></tr>
-<tr class="memitem:abdf8a53675f214130af3e807412a43ff" id="r_abdf8a53675f214130af3e807412a43ff"><td class="memItemLeft">constexpr double&#160;</td><td class="memItemRight"><a class="el" href="#abdf8a53675f214130af3e807412a43ff">tau</a> = 2.0 * <a class="el" href="#a0bcf9b701c447229c61f296b0d12cda0">pi</a></td></tr>
-<tr class="memdesc:abdf8a53675f214130af3e807412a43ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">τ = 2π.  <br /></td></tr>
-<tr class="memitem:ab4d959cc5df775cd03e291175fce35df" id="r_ab4d959cc5df775cd03e291175fce35df"><td class="memItemLeft">constexpr double&#160;</td><td class="memItemRight"><a class="el" href="#ab4d959cc5df775cd03e291175fce35df">inf</a> = std::numeric_limits&lt;double&gt;::infinity()</td></tr>
-<tr class="memdesc:ab4d959cc5df775cd03e291175fce35df"><td class="mdescLeft">&#160;</td><td class="mdescRight">+∞.  <br /></td></tr>
-<tr class="memitem:af09016b3dc8f87eaffa5047a694e59ef" id="r_af09016b3dc8f87eaffa5047a694e59ef"><td class="memItemLeft">constexpr double&#160;</td><td class="memItemRight"><a class="el" href="#af09016b3dc8f87eaffa5047a694e59ef">nan</a> = std::numeric_limits&lt;double&gt;::quiet_NaN()</td></tr>
-<tr class="memdesc:af09016b3dc8f87eaffa5047a694e59ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">quiet NaN.  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a470ae22922df69a8a110843a9ef34c85" name="a470ae22922df69a8a110843a9ef34c85"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a470ae22922df69a8a110843a9ef34c85">&#9670;&#160;</a></span>sqrt()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::sqrt </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Square root. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>radicand (NaN if <code class="param">x</code> &lt; 0). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>√<code class="param">x</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000082">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000082">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000086">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00005">5</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="acf5e751b993fb85beedce282cdc988a2" name="acf5e751b993fb85beedce282cdc988a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acf5e751b993fb85beedce282cdc988a2">&#9670;&#160;</a></span>cbrt()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::cbrt </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Cube root. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>∛<code class="param">x</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000083">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000083">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000087">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00006">6</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2e4a468ffbc683e35885421132629372" name="a2e4a468ffbc683e35885421132629372"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e4a468ffbc683e35885421132629372">&#9670;&#160;</a></span>fabs()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::fabs </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Absolute value of a double. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>|<code class="param">x|</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000084">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000084">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000088">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00007">7</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a56e8ee2a6e47933e90a559467f364343" name="a56e8ee2a6e47933e90a559467f364343"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a56e8ee2a6e47933e90a559467f364343">&#9670;&#160;</a></span>floor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::floor </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Round toward −∞. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>⌊<code class="param">x⌋</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000085">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000085">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000089">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00008">8</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aeb76dd72cb27a47848921684c5e54712" name="aeb76dd72cb27a47848921684c5e54712"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeb76dd72cb27a47848921684c5e54712">&#9670;&#160;</a></span>ceil()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::ceil </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Round toward +∞. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>⌈<code class="param">x⌉</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000086">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000086">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000090">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00009">9</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aca5a34ad1fd8fe6d931d5a91e6ecb66e" name="aca5a34ad1fd8fe6d931d5a91e6ecb66e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca5a34ad1fd8fe6d931d5a91e6ecb66e">&#9670;&#160;</a></span>trunc()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::trunc </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Round toward zero. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">x</code> with the fraction dropped. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000087">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000087">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000091">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00010">10</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="abeac6418aa8c3831730485b1dd454e62" name="abeac6418aa8c3831730485b1dd454e62"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abeac6418aa8c3831730485b1dd454e62">&#9670;&#160;</a></span>round()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::round </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Round to nearest (half away from zero). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>rounded <code class="param">x</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000088">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000088">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000092">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00011">11</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="abb1b103ca142d71d3ee23917d15ddd66" name="abb1b103ca142d71d3ee23917d15ddd66"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abb1b103ca142d71d3ee23917d15ddd66">&#9670;&#160;</a></span>exp()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::exp </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Exponential. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>e^<code class="param">x</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000089">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000089">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000093">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00012">12</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="math_8hpp_source.html#l00092">pow()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_abb1b103ca142d71d3ee23917d15ddd66_icgraph.svg" width="358" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a6a1b99a10f60eb660642d260e51407c9" name="a6a1b99a10f60eb660642d260e51407c9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a1b99a10f60eb660642d260e51407c9">&#9670;&#160;</a></span>log()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::log </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Natural logarithm. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>&gt; 0. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>ln(<code class="param">x</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000090">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000090">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000094">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00013">13</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a1efa7f3917be4ac18af05d159254f492" name="a1efa7f3917be4ac18af05d159254f492"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1efa7f3917be4ac18af05d159254f492">&#9670;&#160;</a></span>log2()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::log2 </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Base-2 logarithm. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>&gt; 0. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>log₂(<code class="param">x</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000091">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000091">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000095">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00014">14</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a4649180e276e5ffe461847c24217de96" name="a4649180e276e5ffe461847c24217de96"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4649180e276e5ffe461847c24217de96">&#9670;&#160;</a></span>log10()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::log10 </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Base-10 logarithm. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>&gt; 0. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>log₁₀(<code class="param">x</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000092">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000092">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000096">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00015">15</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aec7cb43d04c1b67badac5c7442e32314" name="aec7cb43d04c1b67badac5c7442e32314"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec7cb43d04c1b67badac5c7442e32314">&#9670;&#160;</a></span>sin()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::sin </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sine. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>radians. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>sin(<code class="param">x</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000093">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000093">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000097">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00016">16</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a68c4b1de38fbbac641000f39ef2f6045" name="a68c4b1de38fbbac641000f39ef2f6045"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68c4b1de38fbbac641000f39ef2f6045">&#9670;&#160;</a></span>cos()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::cos </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Cosine. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>radians. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>cos(<code class="param">x</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000094">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000094">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000098">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00017">17</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a4f766eb9cbf288eaad21b62a92d45394" name="a4f766eb9cbf288eaad21b62a92d45394"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f766eb9cbf288eaad21b62a92d45394">&#9670;&#160;</a></span>tan()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::tan </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Tangent. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>radians. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>tan(<code class="param">x</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000095">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000095">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000099">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00018">18</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a1f6837d3f9aac1399ff923def0981fba" name="a1f6837d3f9aac1399ff923def0981fba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1f6837d3f9aac1399ff923def0981fba">&#9670;&#160;</a></span>asin()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::asin </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Arcsine. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>in [−1, 1]. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>asin(<code class="param">x</code>) in radians. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000096">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000096">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000100">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00019">19</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a4b757a9cb52f12076b23b483f6337654" name="a4b757a9cb52f12076b23b483f6337654"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4b757a9cb52f12076b23b483f6337654">&#9670;&#160;</a></span>acos()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::acos </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Arccosine. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>in [−1, 1]. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>acos(<code class="param">x</code>) in radians. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000097">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000097">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000101">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00020">20</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="afd3f237be14489b8a26573989e801139" name="afd3f237be14489b8a26573989e801139"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd3f237be14489b8a26573989e801139">&#9670;&#160;</a></span>atan()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::atan </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Arctangent. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>atan(<code class="param">x</code>) in radians. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000098">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000098">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000102">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00021">21</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ab54826f981dd3e0c28e7fb0b36e52073" name="ab54826f981dd3e0c28e7fb0b36e52073"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab54826f981dd3e0c28e7fb0b36e52073">&#9670;&#160;</a></span>atan2()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::atan2 </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>y</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Two-argument arctangent. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">y,x</td><td>the coordinates. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>atan2(<code class="param">y</code>, <code class="param">x</code>) in radians. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000099">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000099">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000103">Test</a></b></dt><dd>CheatahMath.Trigonometry </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00022">22</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aa0e683d538326558e72c58d1d390c5c8" name="aa0e683d538326558e72c58d1d390c5c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa0e683d538326558e72c58d1d390c5c8">&#9670;&#160;</a></span>hypot()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::hypot </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Hypotenuse. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x,y</td><td>the legs. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>√(<code class="param">x²+<code class="param">y²</code>)</code> without overflow. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000100">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000100">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000104">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00023">23</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a3c02cdc26f105130e0e38702d861c5cd" name="a3c02cdc26f105130e0e38702d861c5cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c02cdc26f105130e0e38702d861c5cd">&#9670;&#160;</a></span>fmod()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::fmod </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Floating-point remainder. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x,y</td><td>dividend, divisor. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">x</code> mod <code class="param">y</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000101">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000101">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000105">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00024">24</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a0702be74f5473e45602554b01e681440" name="a0702be74f5473e45602554b01e681440"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0702be74f5473e45602554b01e681440">&#9670;&#160;</a></span>copysign()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::copysign </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Copy sign. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>magnitude source, </td></tr>
-    <tr><td class="paramname">y</td><td>sign source. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>|<code class="param">x|</code> with <code class="param">y's</code> sign. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000102">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000102">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000106">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00025">25</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a52057ffbf09ce4dcc7361edfca574c8a" name="a52057ffbf09ce4dcc7361edfca574c8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a52057ffbf09ce4dcc7361edfca574c8a">&#9670;&#160;</a></span>degrees()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::degrees </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>radians</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Radians → degrees. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname"><a class="el" href="#a215f044460829a2f7c9b1b5cb90fea3e" title="Degrees → radians.">radians</a></td><td>angle in radians. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the angle in degrees. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000103">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000103">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000107">Test</a></b></dt><dd>CheatahMath.ScalarFunctions </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00026">26</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="math_8hpp_source.html#l00023">pi</a>, and <a class="el" href="math_8cpp_source.html#l00027">radians()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="math_8cpp_source.html#l00027">radians()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_a52057ffbf09ce4dcc7361edfca574c8a_cgraph.svg" width="407" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_a52057ffbf09ce4dcc7361edfca574c8a_icgraph.svg" width="407" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a215f044460829a2f7c9b1b5cb90fea3e" name="a215f044460829a2f7c9b1b5cb90fea3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a215f044460829a2f7c9b1b5cb90fea3e">&#9670;&#160;</a></span>radians()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::radians </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>degrees</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Degrees → radians. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname"><a class="el" href="#a52057ffbf09ce4dcc7361edfca574c8a" title="Radians → degrees.">degrees</a></td><td>angle in degrees. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the angle in radians. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000104">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000104">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000108">Test</a></b></dt><dd>CheatahMath.TranscendentalAndRounding </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00027">27</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="math_8cpp_source.html#l00026">degrees()</a>, and <a class="el" href="math_8hpp_source.html#l00023">pi</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="math_8cpp_source.html#l00026">degrees()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_a215f044460829a2f7c9b1b5cb90fea3e_cgraph.svg" width="407" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_a215f044460829a2f7c9b1b5cb90fea3e_icgraph.svg" width="407" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a4696847a3a6cc104c4154c03d2acea27" name="a4696847a3a6cc104c4154c03d2acea27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4696847a3a6cc104c4154c03d2acea27">&#9670;&#160;</a></span>isnan()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::math::isnan </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Is NaN? </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">x</code> is NaN. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000105">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000105">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000109">Test</a></b></dt><dd>CheatahMath.IsFiniteIsNanIsInf </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00028">28</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a4c88d12074e513cfd5ef4040e7db4e17" name="a4c88d12074e513cfd5ef4040e7db4e17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4c88d12074e513cfd5ef4040e7db4e17">&#9670;&#160;</a></span>isinf()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::math::isinf </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Is infinite? </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">x</code> is ±∞. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000106">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000106">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000110">Test</a></b></dt><dd>CheatahMath.IsFiniteIsNanIsInf </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00029">29</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a63b72edf970d874839fddefe4cedc5ee" name="a63b72edf970d874839fddefe4cedc5ee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a63b72edf970d874839fddefe4cedc5ee">&#9670;&#160;</a></span>isfinite()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::math::isfinite </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Is finite? </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any real. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">x</code> is neither NaN nor ±∞. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000107">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000107">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000111">Test</a></b></dt><dd>CheatahMath.IsFiniteIsNanIsInf </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00030">30</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ad7d3f308bdf01aa893f1e2fa74b0f3ce" name="ad7d3f308bdf01aa893f1e2fa74b0f3ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad7d3f308bdf01aa893f1e2fa74b0f3ce">&#9670;&#160;</a></span>gcd()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::math::gcd </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Greatest common divisor. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>integers. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>gcd(|<code class="param">a|</code>, |<code class="param">b|</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000108">Complexity</a></b></dt><dd>O(log min(a,b)) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000108">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000112">Test</a></b></dt><dd>CheatahMath.Integer </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00032">32</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a84609784f47a6373ab8a38bad6c8ce7a" name="a84609784f47a6373ab8a38bad6c8ce7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a84609784f47a6373ab8a38bad6c8ce7a">&#9670;&#160;</a></span>factorial()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::math::factorial </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>n</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Factorial. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">n</td><td>≥ 0 (small; overflows <span class="tt">long long</span> past 20!). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">n!</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000109">Complexity</a></b></dt><dd>O(<code class="param">n</code>) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000109">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000113">Test</a></b></dt><dd>CheatahMath.Integer </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8cpp_source.html#l00042">42</a> of file <a class="el" href="math_8cpp_source.html">math.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2df6931141ffacc1a6ef083dc34cc9e7" name="a2df6931141ffacc1a6ef083dc34cc9e7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2df6931141ffacc1a6ef083dc34cc9e7">&#9670;&#160;</a></span>abs()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">T cheatah::math::abs </td>
-          <td>(</td>
-          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Absolute value. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>any signed value. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>|<code class="param">x|</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000078">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000078">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000080">Test</a></b></dt><dd>CheatahMath.BuiltinLikeOps </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00040">40</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-</div>
-</div>
-<a id="af226e29104b09a0a117be99bdb0c93c2" name="af226e29104b09a0a117be99bdb0c93c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af226e29104b09a0a117be99bdb0c93c2">&#9670;&#160;</a></span>min() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const T &amp; cheatah::math::min </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Smallest of two-or-more values (variadic; the overloads chain to fold extra args). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>the values to compare (<span class="tt">operator&lt;</span> required). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a reference to the minimum. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000079">Complexity</a></b></dt><dd>O(n) in the argument count. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000079">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000081">Test</a></b></dt><dd>CheatahMath.BuiltinLikeOps </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00051">51</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="math_8hpp_source.html#l00060">min()</a>.</p>
-<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_af226e29104b09a0a117be99bdb0c93c2_icgraph.svg" width="358" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="af9d5c9d455b7e5c741564891ea28bca2" name="af9d5c9d455b7e5c741564891ea28bca2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af9d5c9d455b7e5c741564891ea28bca2">&#9670;&#160;</a></span>min() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T, typename... Rest&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const T &amp; cheatah::math::min </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Rest &amp;...</td>          <td class="paramname"><span class="paramname"><em>rest</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Smallest of three-or-more values (folds the extra args onto the two-argument overload). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>the first two values. </td></tr>
-    <tr><td class="paramname">rest</td><td>the remaining values (<span class="tt">operator&lt;</span> required). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a reference to the minimum. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000082">Test</a></b></dt><dd>CheatahMath.BuiltinLikeOps </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00060">60</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="math_8hpp_source.html#l00051">min()</a>.</p>
-<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_af9d5c9d455b7e5c741564891ea28bca2_cgraph.svg" width="358" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ab303bcdceabcf36f6f8e13042e303718" name="ab303bcdceabcf36f6f8e13042e303718"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab303bcdceabcf36f6f8e13042e303718">&#9670;&#160;</a></span>max() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const T &amp; cheatah::math::max </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Largest of two-or-more values (variadic; the overloads chain to fold extra args). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>the values to compare (<span class="tt">operator&lt;</span> required). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a reference to the maximum. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000080">Complexity</a></b></dt><dd>O(n) in the argument count. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000080">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000083">Test</a></b></dt><dd>CheatahMath.BuiltinLikeOps </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00071">71</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="math_8hpp_source.html#l00080">max()</a>.</p>
-<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_ab303bcdceabcf36f6f8e13042e303718_icgraph.svg" width="366" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a1336d688fc72abdb3c049cac9483b246" name="a1336d688fc72abdb3c049cac9483b246"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1336d688fc72abdb3c049cac9483b246">&#9670;&#160;</a></span>max() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T, typename... Rest&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const T &amp; cheatah::math::max </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Rest &amp;...</td>          <td class="paramname"><span class="paramname"><em>rest</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Largest of three-or-more values (folds the extra args onto the two-argument overload). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a,b</td><td>the first two values. </td></tr>
-    <tr><td class="paramname">rest</td><td>the remaining values (<span class="tt">operator&lt;</span> required). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a reference to the maximum. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000084">Test</a></b></dt><dd>CheatahMath.BuiltinLikeOps </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00080">80</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="math_8hpp_source.html#l00071">max()</a>.</p>
-<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_a1336d688fc72abdb3c049cac9483b246_cgraph.svg" width="366" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ae8cb45974306f18d03275039e17145ff" name="ae8cb45974306f18d03275039e17145ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8cb45974306f18d03275039e17145ff">&#9670;&#160;</a></span>pow()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Base, typename Exp&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::pow </td>
-          <td>(</td>
-          <td class="paramtype">Base</td>          <td class="paramname"><span class="paramname"><em>base</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Exp</td>          <td class="paramname"><span class="paramname"><em>exp</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Power. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">base</td><td>the base. </td></tr>
-    <tr><td class="paramname"><a class="el" href="#abb1b103ca142d71d3ee23917d15ddd66" title="Exponential.">exp</a></td><td>the exponent. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">base</code> raised to <code class="param">exp</code> (computed as <span class="tt">double</span>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000081">Complexity</a></b></dt><dd>O(1) time. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000081">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000085">Test</a></b></dt><dd>CheatahMath.BuiltinLikeOps </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00092">92</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="math_8cpp_source.html#l00012">exp()</a>.</p>
-<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-9-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1math_ae8cb45974306f18d03275039e17145ff_cgraph.svg" width="358" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Variable Documentation</h2>
-<a id="a0bcf9b701c447229c61f296b0d12cda0" name="a0bcf9b701c447229c61f296b0d12cda0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0bcf9b701c447229c61f296b0d12cda0">&#9670;&#160;</a></span>pi</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::pi = 3.14159265358979323846</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel constexpr">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>π. </p>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00023">23</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="math_8cpp_source.html#l00026">degrees()</a>, and <a class="el" href="math_8cpp_source.html#l00027">radians()</a>.</p>
-
-</div>
-</div>
-<a id="ab2747f587c788907bbe5b778da6afe77" name="ab2747f587c788907bbe5b778da6afe77"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab2747f587c788907bbe5b778da6afe77">&#9670;&#160;</a></span>e</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::e = 2.71828182845904523536</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel constexpr">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Euler's number e. </p>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00024">24</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-</div>
-</div>
-<a id="abdf8a53675f214130af3e807412a43ff" name="abdf8a53675f214130af3e807412a43ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abdf8a53675f214130af3e807412a43ff">&#9670;&#160;</a></span>tau</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::tau = 2.0 * <a class="el" href="#a0bcf9b701c447229c61f296b0d12cda0">pi</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel constexpr">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>τ = 2π. </p>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00025">25</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-</div>
-</div>
-<a id="ab4d959cc5df775cd03e291175fce35df" name="ab4d959cc5df775cd03e291175fce35df"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4d959cc5df775cd03e291175fce35df">&#9670;&#160;</a></span>inf</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::inf = std::numeric_limits&lt;double&gt;::infinity()</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel constexpr">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>+∞. </p>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00026">26</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-</div>
-</div>
-<a id="af09016b3dc8f87eaffa5047a694e59ef" name="af09016b3dc8f87eaffa5047a694e59ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af09016b3dc8f87eaffa5047a694e59ef">&#9670;&#160;</a></span>nan</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::math::nan = std::numeric_limits&lt;double&gt;::quiet_NaN()</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel constexpr">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>quiet NaN. </p>
-
-<p class="definition">Definition at line <a class="el" href="math_8hpp_source.html#l00027">27</a> of file <a class="el" href="math_8hpp_source.html">math.hpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+  <p class="member-brief">Square root. </p>
+  <div class="member-body"><p>Returns NaN (rather than throwing) for a negative radicand; <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1a470ae22922df69a8a110843a9ef34c85">sqrt</a>(-0.0)</code> is <code>-0.0</code> and <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1a470ae22922df69a8a110843a9ef34c85">sqrt</a>(+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a>)</code> is <code>+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>radicand (NaN if <code>x</code> &lt; 0).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>√<code>x</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L8"><code>MathCompileRun.Sqrt</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1acf5e751b993fb85beedce282cdc988a2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">cbrt</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L6" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1acf5e751b993fb85beedce282cdc988a2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Cube root. </p>
+  <div class="member-body"><p>Defined for the whole real line, including negatives (unlike sqrt): the result keeps the sign of <code>x</code>, so <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1acf5e751b993fb85beedce282cdc988a2">cbrt</a>(-8)</code> is <code>-2</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>∛<code>x</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L15"><code>MathCompileRun.Cbrt</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a2e4a468ffbc683e35885421132629372">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">fabs</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L7" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a2e4a468ffbc683e35885421132629372" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Absolute value of a double. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>|<code>x|</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L22"><code>MathCompileRun.Fabs</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a56e8ee2a6e47933e90a559467f364343">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">floor</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L8" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a56e8ee2a6e47933e90a559467f364343" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Round toward −∞. </p>
+  <div class="member-body"><p>Returns the largest integral value not greater than <code>x</code> as a <code>double</code>; already-integral, NaN, and ±∞ inputs are returned unchanged, and the sign of zero is preserved.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>⌊<code>x⌋</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L29"><code>MathCompileRun.Floor</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1aeb76dd72cb27a47848921684c5e54712">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">ceil</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L9" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1aeb76dd72cb27a47848921684c5e54712" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Round toward +∞. </p>
+  <div class="member-body"><p>Returns the smallest integral value not less than <code>x</code> as a <code>double</code>; already-integral, NaN, and ±∞ inputs are returned unchanged. For <code>x</code> in (−1, 0) the result is <code>-0.0</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>⌈<code>x⌉</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L36"><code>MathCompileRun.Ceil</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1aca5a34ad1fd8fe6d931d5a91e6ecb66e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">trunc</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L10" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1aca5a34ad1fd8fe6d931d5a91e6ecb66e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Round toward zero. </p>
+  <div class="member-body"><p>Discards the fractional part, rounding toward zero rather than ±∞ (so it differs from floor on negatives, e.g. <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1aca5a34ad1fd8fe6d931d5a91e6ecb66e">trunc</a>(-2.7)</code> is <code>-2.0</code>); the sign of <code>x</code>, NaN, and ±∞ are preserved.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>x</code> with the fraction dropped.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L43"><code>MathCompileRun.Trunc</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1abeac6418aa8c3831730485b1dd454e62">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">round</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L11" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1abeac6418aa8c3831730485b1dd454e62" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Round to nearest (half away from zero). </p>
+  <div class="member-body"><p>Halfway cases are rounded away from zero, not to even, so <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1abeac6418aa8c3831730485b1dd454e62">round</a>(2.5)</code> is <code>3</code> and <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1abeac6418aa8c3831730485b1dd454e62">round</a>(-2.5)</code> is <code>-3</code> — this differs from Python&#x27;s banker&#x27;s rounding; NaN and ±∞ pass through unchanged.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>rounded <code>x</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L50"><code>MathCompileRun.Round</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1abb1b103ca142d71d3ee23917d15ddd66">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">exp</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L12" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1abb1b103ca142d71d3ee23917d15ddd66" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Exponential. </p>
+  <div class="member-body"><p>Overflows to <code>+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code> for large <code>x</code> and underflows to <code>0</code> for large negative <code>x</code>; <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1abb1b103ca142d71d3ee23917d15ddd66">exp</a>(-<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a>)</code> is <code>0</code> and <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1abb1b103ca142d71d3ee23917d15ddd66">exp</a>(+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a>)</code> is <code>+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>e^<code>x</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L57"><code>MathCompileRun.Exp</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a6a1b99a10f60eb660642d260e51407c9">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">log</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L13" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a6a1b99a10f60eb660642d260e51407c9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Natural logarithm. </p>
+  <div class="member-body"><p>Returns <code>-<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code> for <code>x</code> == 0 and NaN (rather than throwing) for negative <code>x</code>; out-of-domain input never raises an exception.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>&gt; 0.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>ln(<code>x</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L64"><code>MathCompileRun.Log</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a1efa7f3917be4ac18af05d159254f492">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">log2</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L14" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a1efa7f3917be4ac18af05d159254f492" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Base-2 logarithm. </p>
+  <div class="member-body"><p>Returns <code>-<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code> for <code>x</code> == 0 and NaN for negative <code>x</code>, matching log&#x27;s out-of-domain behavior.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>&gt; 0.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>log₂(<code>x</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L71"><code>MathCompileRun.Log2</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a4649180e276e5ffe461847c24217de96">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">log10</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L15" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a4649180e276e5ffe461847c24217de96" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Base-10 logarithm. </p>
+  <div class="member-body"><p>Returns <code>-<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code> for <code>x</code> == 0 and NaN for negative <code>x</code>, matching log&#x27;s out-of-domain behavior.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>&gt; 0.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>log₁₀(<code>x</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L78"><code>MathCompileRun.Log10</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1aec7cb43d04c1b67badac5c7442e32314">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sin</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L16" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1aec7cb43d04c1b67badac5c7442e32314" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sine. </p>
+  <div class="member-body"><p>The argument is interpreted in radians; precision degrades for very large magnitudes due to argument reduction, and <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1aec7cb43d04c1b67badac5c7442e32314">sin</a>(±inf)</code> is NaN.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>radians.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>sin(<code>x</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L85"><code>MathCompileRun.Sin</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a68c4b1de38fbbac641000f39ef2f6045">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">cos</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L17" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a68c4b1de38fbbac641000f39ef2f6045" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Cosine. </p>
+  <div class="member-body"><p>The argument is interpreted in radians; precision degrades for very large magnitudes due to argument reduction, and <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1a68c4b1de38fbbac641000f39ef2f6045">cos</a>(±inf)</code> is NaN.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>radians.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>cos(<code>x</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L92"><code>MathCompileRun.Cos</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a4f766eb9cbf288eaad21b62a92d45394">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">tan</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L18" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a4f766eb9cbf288eaad21b62a92d45394" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Tangent. </p>
+  <div class="member-body"><p>The argument is in radians; near the poles (odd multiples of π/2, which are not exactly representable) the result is a large finite value rather than ±∞, and <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1a4f766eb9cbf288eaad21b62a92d45394">tan</a>(±inf)</code> is NaN.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>radians.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>tan(<code>x</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L99"><code>MathCompileRun.Tan</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a1f6837d3f9aac1399ff923def0981fba">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">asin</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L19" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a1f6837d3f9aac1399ff923def0981fba" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Arcsine. </p>
+  <div class="member-body"><p>Returns a value in [−π/2, π/2]; arguments outside [−1, 1] yield NaN rather than throwing.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>in [−1, 1].</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>asin(<code>x</code>) in radians.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L106"><code>MathCompileRun.Asin</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a4b757a9cb52f12076b23b483f6337654">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">acos</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L20" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a4b757a9cb52f12076b23b483f6337654" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Arccosine. </p>
+  <div class="member-body"><p>Returns a value in [0, π]; arguments outside [−1, 1] yield NaN rather than throwing.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>in [−1, 1].</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>acos(<code>x</code>) in radians.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L113"><code>MathCompileRun.Acos</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1afd3f237be14489b8a26573989e801139">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">atan</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L21" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1afd3f237be14489b8a26573989e801139" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Arctangent. </p>
+  <div class="member-body"><p>Accepts the whole real line and returns a value in (−π/2, π/2), approaching ±π/2 as <code>x</code> → ±∞.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>atan(<code>x</code>) in radians.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L120"><code>MathCompileRun.Atan</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1ab54826f981dd3e0c28e7fb0b36e52073">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">atan2</span>(double y, double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L22" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1ab54826f981dd3e0c28e7fb0b36e52073" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Two-argument arctangent. </p>
+  <div class="member-body"><p>Uses the signs of both arguments to select the correct quadrant, returning a value in (−π, π]; it is well-defined when <code>x</code> is zero (including the <code>atan2(0, 0)</code> case, which returns 0).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>y, x</code></td><td class="pdesc"><p>the coordinates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>atan2(<code>y</code>, <code>x</code>) in radians.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L46"><code>CheatahMath.Trigonometry</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L127"><code>MathCompileRun.Atan2</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1aa0e683d538326558e72c58d1d390c5c8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">hypot</span>(double x, double y)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L23" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1aa0e683d538326558e72c58d1d390c5c8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hypotenuse. </p>
+  <div class="member-body"><p>Computes the 2-norm while avoiding intermediate overflow/underflow that a naive <code><a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1a470ae22922df69a8a110843a9ef34c85">sqrt</a>(x*x + y*y)</code> would suffer; returns <code>+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code> if either argument is infinite (even when the other is NaN).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x, y</code></td><td class="pdesc"><p>the legs.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>√(<code>x²+<code>y²</code>)</code> without overflow.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L134"><code>MathCompileRun.Hypot</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a3c02cdc26f105130e0e38702d861c5cd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">fmod</span>(double x, double y)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L24" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a3c02cdc26f105130e0e38702d861c5cd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Floating-point remainder. </p>
+  <div class="member-body"><p>Returns <code>x - n*y</code> for the integer <code>n</code> truncated toward zero, so the result takes the sign of the dividend <code>x</code> (unlike a Python-style modulo); a zero divisor yields NaN rather than throwing.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x, y</code></td><td class="pdesc"><p>dividend, divisor.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>x</code> mod <code>y</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L141"><code>MathCompileRun.Fmod</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a0702be74f5473e45602554b01e681440">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">copysign</span>(double x, double y)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L25" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a0702be74f5473e45602554b01e681440" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Copy sign. </p>
+  <div class="member-body"><p>Takes the magnitude from <code>x</code> and the sign bit from <code>y</code>; because it copies the IEEE sign bit, it distinguishes <code>+0.0</code> from <code>-0.0</code> and works even when <code>x</code> is NaN.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>magnitude source,</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>sign source.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>|<code>x|</code> with <code>y&#x27;s</code> sign.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L148"><code>MathCompileRun.Copysign</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a52057ffbf09ce4dcc7361edfca574c8a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">degrees</span>(double radians)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L26" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a52057ffbf09ce4dcc7361edfca574c8a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Radians → degrees. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>radians</code></td><td class="pdesc"><p>angle in radians.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the angle in degrees.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L22"><code>CheatahMath.ScalarFunctions</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L155"><code>MathCompileRun.Degrees</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a215f044460829a2f7c9b1b5cb90fea3e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">radians</span>(double degrees)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L27" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a215f044460829a2f7c9b1b5cb90fea3e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Degrees → radians. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>degrees</code></td><td class="pdesc"><p>angle in degrees.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the angle in radians.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L32"><code>CheatahMath.TranscendentalAndRounding</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L162"><code>MathCompileRun.Radians</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a4696847a3a6cc104c4154c03d2acea27">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">isnan</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L28" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a4696847a3a6cc104c4154c03d2acea27" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Is NaN? </p>
+  <div class="member-body"><p>The reliable NaN test, since NaN compares unequal to everything including itself (so <code>x != x</code> is the only other portable check).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>x</code> is NaN.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L57"><code>CheatahMath.IsFiniteIsNanIsInf</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L169"><code>MathCompileRun.Isnan</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a4c88d12074e513cfd5ef4040e7db4e17">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">isinf</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a4c88d12074e513cfd5ef4040e7db4e17" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Is infinite? </p>
+  <div class="member-body"><p>True for both <code>+<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code> and <code>-<a href="namespacecheatah_1_1math.html#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></code>; false for NaN (use isnan for that) and for every finite value.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>x</code> is ±∞.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L57"><code>CheatahMath.IsFiniteIsNanIsInf</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L176"><code>MathCompileRun.Isinf</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a63b72edf970d874839fddefe4cedc5ee">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">isfinite</span>(double x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L30" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a63b72edf970d874839fddefe4cedc5ee" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Is finite? </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any real.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>x</code> is neither NaN nor ±∞.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L57"><code>CheatahMath.IsFiniteIsNanIsInf</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L183"><code>MathCompileRun.Isfinite</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1ad7d3f308bdf01aa893f1e2fa74b0f3ce">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">gcd</span>(long long a, long long b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L32" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1ad7d3f308bdf01aa893f1e2fa74b0f3ce" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Greatest common divisor. </p>
+  <div class="member-body"><p>Operates on the absolute values via the Euclidean algorithm, so the result is non-negative; <code>gcd(0, 0)</code> is 0 and <code>gcd(n, 0)</code> is <code>|n|</code>. Passing <code>LLONG_MIN</code> overflows when negated.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>integers.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>gcd(|<code>a|</code>, |<code>b|</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(log min(a,b)) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L67"><code>CheatahMath.Integer</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L190"><code>MathCompileRun.Gcd</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a84609784f47a6373ab8a38bad6c8ce7a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">factorial</span>(long long n)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_cpp.html#L42" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a84609784f47a6373ab8a38bad6c8ce7a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Factorial. </p>
+  <div class="member-body"><p>Computed by an iterative product from 2; <code>n</code> of 0 or 1 returns 1, and any negative <code>n</code> also returns 1 since the loop never executes (no error is raised). Results past 20! silently overflow <code>long long</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>≥ 0 (small; overflows <code>long long</code> past 20!).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>n!</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(<code>n</code>) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L67"><code>CheatahMath.Integer</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L197"><code>MathCompileRun.Factorial</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a2df6931141ffacc1a6ef083dc34cc9e7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">abs</span>(T x)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L42" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a2df6931141ffacc1a6ef083dc34cc9e7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Absolute value. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>any signed value.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>|<code>x|</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L15"><code>CheatahMath.BuiltinLikeOps</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L204"><code>MathCompileRun.Abs</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1af226e29104b09a0a117be99bdb0c93c2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const T &amp;</span> <span class="mname">min</span>(const T &amp;a, const T &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L60" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1af226e29104b09a0a117be99bdb0c93c2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Smallest of two-or-more values (variadic; the overloads chain to fold extra args). </p>
+  <div class="member-body"><p>Returns a reference bound to whichever argument compares smaller; on a tie (neither <code>b &lt; a</code>) it returns <code>a</code>, the first argument. Because the result is a reference into the caller&#x27;s arguments, it dangles if the operands are temporaries that outlive the call expression.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>the values to compare (<code>operator&lt;</code> required).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a reference to the minimum.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the argument count.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L15"><code>CheatahMath.BuiltinLikeOps</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L211"><code>MathCompileRun.Min</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1af9d5c9d455b7e5c741564891ea28bca2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const T &amp;</span> <span class="mname">min</span>(const T &amp;a, const T &amp;b, const Rest &amp;... rest)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L71" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1af9d5c9d455b7e5c741564891ea28bca2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Smallest of three-or-more values (folds the extra args onto the two-argument overload). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>the first two values.</p></td></tr><tr><td class="pname"><code>rest</code></td><td class="pdesc"><p>the remaining values (<code>operator&lt;</code> required).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a reference to the minimum.</p></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L15"><code>CheatahMath.BuiltinLikeOps</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L211"><code>MathCompileRun.Min</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1ab303bcdceabcf36f6f8e13042e303718">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const T &amp;</span> <span class="mname">max</span>(const T &amp;a, const T &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L88" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1ab303bcdceabcf36f6f8e13042e303718" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Largest of two-or-more values (variadic; the overloads chain to fold extra args). </p>
+  <div class="member-body"><p>Returns a reference bound to whichever argument compares larger; on a tie (neither <code>a &lt; b</code>) it returns <code>a</code>, the first argument. As with min, the returned reference dangles if the operands are temporaries.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>the values to compare (<code>operator&lt;</code> required).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a reference to the maximum.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the argument count.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L15"><code>CheatahMath.BuiltinLikeOps</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L218"><code>MathCompileRun.Max</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1a1336d688fc72abdb3c049cac9483b246">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const T &amp;</span> <span class="mname">max</span>(const T &amp;a, const T &amp;b, const Rest &amp;... rest)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L99" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a1336d688fc72abdb3c049cac9483b246" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Largest of three-or-more values (folds the extra args onto the two-argument overload). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>the first two values.</p></td></tr><tr><td class="pname"><code>rest</code></td><td class="pdesc"><p>the remaining values (<code>operator&lt;</code> required).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a reference to the maximum.</p></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L15"><code>CheatahMath.BuiltinLikeOps</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L218"><code>MathCompileRun.Max</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1math_1ae8cb45974306f18d03275039e17145ff">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pow</span>(Base base, Exp exp)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L118" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1ae8cb45974306f18d03275039e17145ff" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Power. </p>
+  <div class="member-body"><p>Both operands are cast to <code>double</code> and forwarded to <code>std::pow</code>, so this follows IEEE-754 semantics (e.g. <code>pow(0, 0)</code> is 1, and a negative base with a non-integer exponent yields NaN); integer arguments lose exactness beyond 2^53.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>base</code></td><td class="pdesc"><p>the base.</p></td></tr><tr><td class="pname"><code>exp</code></td><td class="pdesc"><p>the exponent.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>base</code> raised to <code>exp</code> (computed as <code>double</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) time.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_math_test_cpp.html#L15"><code>CheatahMath.BuiltinLikeOps</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_math_cr_test_cpp.html#L225"><code>MathCompileRun.Pow</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_math_sys_test_cpp.html#L21"><code>StdlibE2E.Math</code></a></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1math_1a0bcf9b701c447229c61f296b0d12cda0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pi</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L23" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1a0bcf9b701c447229c61f296b0d12cda0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">π. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1math_1ab2747f587c788907bbe5b778da6afe77">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">e</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L24" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1ab2747f587c788907bbe5b778da6afe77" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Euler&#x27;s number e. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1math_1abdf8a53675f214130af3e807412a43ff">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">tau</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L25" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1abdf8a53675f214130af3e807412a43ff" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">τ = 2π. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">inf</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L26" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">+∞. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1math_1af09016b3dc8f87eaffa5047a694e59ef">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">nan</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_math_math_hpp.html#L27" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1math_1af09016b3dc8f87eaffa5047a694e59ef" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">quiet NaN. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1math_1a470ae22922df69a8a110843a9ef34c85">sqrt</a></li><li><a href="#namespacecheatah_1_1math_1acf5e751b993fb85beedce282cdc988a2">cbrt</a></li><li><a href="#namespacecheatah_1_1math_1a2e4a468ffbc683e35885421132629372">fabs</a></li><li><a href="#namespacecheatah_1_1math_1a56e8ee2a6e47933e90a559467f364343">floor</a></li><li><a href="#namespacecheatah_1_1math_1aeb76dd72cb27a47848921684c5e54712">ceil</a></li><li><a href="#namespacecheatah_1_1math_1aca5a34ad1fd8fe6d931d5a91e6ecb66e">trunc</a></li><li><a href="#namespacecheatah_1_1math_1abeac6418aa8c3831730485b1dd454e62">round</a></li><li><a href="#namespacecheatah_1_1math_1abb1b103ca142d71d3ee23917d15ddd66">exp</a></li><li><a href="#namespacecheatah_1_1math_1a6a1b99a10f60eb660642d260e51407c9">log</a></li><li><a href="#namespacecheatah_1_1math_1a1efa7f3917be4ac18af05d159254f492">log2</a></li><li><a href="#namespacecheatah_1_1math_1a4649180e276e5ffe461847c24217de96">log10</a></li><li><a href="#namespacecheatah_1_1math_1aec7cb43d04c1b67badac5c7442e32314">sin</a></li><li><a href="#namespacecheatah_1_1math_1a68c4b1de38fbbac641000f39ef2f6045">cos</a></li><li><a href="#namespacecheatah_1_1math_1a4f766eb9cbf288eaad21b62a92d45394">tan</a></li><li><a href="#namespacecheatah_1_1math_1a1f6837d3f9aac1399ff923def0981fba">asin</a></li><li><a href="#namespacecheatah_1_1math_1a4b757a9cb52f12076b23b483f6337654">acos</a></li><li><a href="#namespacecheatah_1_1math_1afd3f237be14489b8a26573989e801139">atan</a></li><li><a href="#namespacecheatah_1_1math_1ab54826f981dd3e0c28e7fb0b36e52073">atan2</a></li><li><a href="#namespacecheatah_1_1math_1aa0e683d538326558e72c58d1d390c5c8">hypot</a></li><li><a href="#namespacecheatah_1_1math_1a3c02cdc26f105130e0e38702d861c5cd">fmod</a></li><li><a href="#namespacecheatah_1_1math_1a0702be74f5473e45602554b01e681440">copysign</a></li><li><a href="#namespacecheatah_1_1math_1a52057ffbf09ce4dcc7361edfca574c8a">degrees</a></li><li><a href="#namespacecheatah_1_1math_1a215f044460829a2f7c9b1b5cb90fea3e">radians</a></li><li><a href="#namespacecheatah_1_1math_1a4696847a3a6cc104c4154c03d2acea27">isnan</a></li><li><a href="#namespacecheatah_1_1math_1a4c88d12074e513cfd5ef4040e7db4e17">isinf</a></li><li><a href="#namespacecheatah_1_1math_1a63b72edf970d874839fddefe4cedc5ee">isfinite</a></li><li><a href="#namespacecheatah_1_1math_1ad7d3f308bdf01aa893f1e2fa74b0f3ce">gcd</a></li><li><a href="#namespacecheatah_1_1math_1a84609784f47a6373ab8a38bad6c8ce7a">factorial</a></li><li><a href="#namespacecheatah_1_1math_1a2df6931141ffacc1a6ef083dc34cc9e7">abs</a></li><li><a href="#namespacecheatah_1_1math_1af226e29104b09a0a117be99bdb0c93c2">min</a></li><li><a href="#namespacecheatah_1_1math_1af9d5c9d455b7e5c741564891ea28bca2">min</a></li><li><a href="#namespacecheatah_1_1math_1ab303bcdceabcf36f6f8e13042e303718">max</a></li><li><a href="#namespacecheatah_1_1math_1a1336d688fc72abdb3c049cac9483b246">max</a></li><li><a href="#namespacecheatah_1_1math_1ae8cb45974306f18d03275039e17145ff">pow</a></li><li><a href="#namespacecheatah_1_1math_1a0bcf9b701c447229c61f296b0d12cda0">pi</a></li><li><a href="#namespacecheatah_1_1math_1ab2747f587c788907bbe5b778da6afe77">e</a></li><li><a href="#namespacecheatah_1_1math_1abdf8a53675f214130af3e807412a43ff">tau</a></li><li><a href="#namespacecheatah_1_1math_1ab4d959cc5df775cd03e291175fce35df">inf</a></li><li><a href="#namespacecheatah_1_1math_1af09016b3dc8f87eaffa5047a694e59ef">nan</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

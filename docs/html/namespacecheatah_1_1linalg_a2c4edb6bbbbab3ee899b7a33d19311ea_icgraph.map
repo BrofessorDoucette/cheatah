@@ -1,7 +1,0 @@
-<map id="cheatah::linalg::matmul" name="cheatah::linalg::matmul">
-<area shape="rect" id="Node000001" title="Matrix multiply." alt="" coords="223,35,400,60"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1linalg.html#aae0fffb18efd5f74174b2fd0632d41dd" title="Least&#45;squares solution min‖A·x − b‖ (computed as pinv (a)·b)." alt="" coords="11,5,169,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,36,168,31,169,26,209,31"/>
-<area shape="rect" id="Node000003" href="$namespacecheatah_1_1linalg.html#ade89164399c44e04d11ceabf70dd7b0f" title="Integer matrix power Aⁿ (negative n via inv)." alt="" coords="5,55,175,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,63,175,67,174,62,209,58"/>
-</map>

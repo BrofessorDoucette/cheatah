@@ -1,481 +1,100 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::statistics Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>statistics · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>statistics</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1statistics_1a2a485aac6597b00092c0b65603309380">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sum</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L46" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1a2a485aac6597b00092c0b65603309380" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Sum of the elements. </p>
+  <div class="member-body"><p>Accumulates every element into a <code>double</code>, so an empty range sums to 0.0 and integer inputs are widened before adding (no integer overflow).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Σ<code>data</code> as <code>double</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) single pass.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L10"><code>CheatahStatistics.SumCountMean</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L13"><code>StatisticsCompileRun.Sum</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1a7fa49381737477d38f8e7ca85341b5ce">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">count</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L63" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1a7fa49381737477d38f8e7ca85341b5ce" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Element count. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the number of elements.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) single pass.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L10"><code>CheatahStatistics.SumCountMean</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L21"><code>StatisticsCompileRun.Count</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1abe718f480e8afcf0651f5101807837c4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">mean</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L86" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1abe718f480e8afcf0651f5101807837c4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Arithmetic mean. </p>
+  <div class="member-body"><p>Computes sum/count, but guards division by zero: an empty range returns 0.0 rather than NaN.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the mean, or 0.0 if empty.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) (two passes: count + sum).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L10"><code>CheatahStatistics.SumCountMean</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L29"><code>StatisticsCompileRun.Mean</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1ae63b51d847f97ee96a00c37f7d1dd7ca">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pvariance</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L106" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1ae63b51d847f97ee96a00c37f7d1dd7ca" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Population variance (divide by N). </p>
+  <div class="member-body"><p>Mean of the squared deviations from the mean, dividing by N (treats <code>data</code> as the entire population). Returns 0.0 for an empty range; a single element yields 0.0.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the variance, or 0.0 if empty.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L22"><code>CheatahStatistics.PopulationVarianceAndStdev</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L37"><code>StatisticsCompileRun.Pvariance</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1a39b929a293cf702d142acdeed56b774c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pstdev</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L131" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1a39b929a293cf702d142acdeed56b774c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Population standard deviation. </p>
+  <div class="member-body"><p>Square root of <a href="namespacecheatah_1_1statistics.html#namespacecheatah_1_1statistics_1ae63b51d847f97ee96a00c37f7d1dd7ca">pvariance</a>, so it is 0.0 for empty or single-element ranges and never negative.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>√pvariance(<code>data</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L22"><code>CheatahStatistics.PopulationVarianceAndStdev</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L45"><code>StatisticsCompileRun.Pstdev</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1a1da9e5e834ca9ddf11c8ae946e57bd08">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">variance</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L149" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1a1da9e5e834ca9ddf11c8ae946e57bd08" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sample variance (divide by N−1). </p>
+  <div class="member-body"><p>Sum of squared deviations from the mean divided by N−1 (Bessel&#x27;s correction, estimating the variance of the wider population from a sample). Requires at least two elements; an empty or single-element range returns 0.0 rather than dividing by zero.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the variance, or 0.0 if fewer than 2 elements.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L28"><code>CheatahStatistics.SampleVarianceAndStdev</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L53"><code>StatisticsCompileRun.Variance</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1a65e3e14c8cdf7f345af2065f18ae6212">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">stdev</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L174" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1a65e3e14c8cdf7f345af2065f18ae6212" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sample standard deviation. </p>
+  <div class="member-body"><p>Square root of <a href="namespacecheatah_1_1statistics.html#namespacecheatah_1_1statistics_1a1da9e5e834ca9ddf11c8ae946e57bd08">variance</a>, so it is 0.0 when there are fewer than two elements.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>√variance(<code>data</code>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L28"><code>CheatahStatistics.SampleVarianceAndStdev</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L61"><code>StatisticsCompileRun.Stdev</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1statistics_1aa8eef3e0b646fd5e70e8b53500d6af12">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">median</span>(const R &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_statistics_statistics_hpp.html#L191" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1statistics_1aa8eef3e0b646fd5e70e8b53500d6af12" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Median (mean of the two middle values when the count is even). </p>
+  <div class="member-body"><p>Copies the elements into a <code>double</code> vector and sorts ascending: with an odd count it returns the single middle value, and with an even count it averages the two central values. Returns 0.0 for an empty range.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the numeric range.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the median, or 0.0 if empty.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n log n) — copies the elements into a vector and sorts.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a temporary <code>std::vector&lt;double&gt;</code>.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_statistics_test_cpp.html#L17"><code>CheatahStatistics.MedianOddAndEven</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_statistics_cr_test_cpp.html#L69"><code>StatisticsCompileRun.Median</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_statistics_sys_test_cpp.html#L15"><code>StdlibE2E.Statistics</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1statistics_1a2a485aac6597b00092c0b65603309380">sum</a></li><li><a href="#namespacecheatah_1_1statistics_1a7fa49381737477d38f8e7ca85341b5ce">count</a></li><li><a href="#namespacecheatah_1_1statistics_1abe718f480e8afcf0651f5101807837c4">mean</a></li><li><a href="#namespacecheatah_1_1statistics_1ae63b51d847f97ee96a00c37f7d1dd7ca">pvariance</a></li><li><a href="#namespacecheatah_1_1statistics_1a39b929a293cf702d142acdeed56b774c">pstdev</a></li><li><a href="#namespacecheatah_1_1statistics_1a1da9e5e834ca9ddf11c8ae946e57bd08">variance</a></li><li><a href="#namespacecheatah_1_1statistics_1a65e3e14c8cdf7f345af2065f18ae6212">stdev</a></li><li><a href="#namespacecheatah_1_1statistics_1aa8eef3e0b646fd5e70e8b53500d6af12">median</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1statistics.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::statistics Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-concepts" class="groupheader"><a id="concepts" name="concepts"></a>
-Concepts</h2></td></tr>
-<tr class="memitem:NumericRange" id="r_NumericRange"><td class="memItemLeft">concept &#160;</td><td class="memItemRight"><a class="el" href="conceptcheatah_1_1statistics_1_1NumericRange.html">NumericRange</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">NumericRange&lt;R&gt;: an iterable of arithmetic values (list[float], array[int], …). <br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a2a485aac6597b00092c0b65603309380" id="r_a2a485aac6597b00092c0b65603309380"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:a2a485aac6597b00092c0b65603309380 template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a2a485aac6597b00092c0b65603309380">sum</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:a2a485aac6597b00092c0b65603309380"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sum of the elements.  <br /></td></tr>
-<tr class="memitem:a7fa49381737477d38f8e7ca85341b5ce" id="r_a7fa49381737477d38f8e7ca85341b5ce"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:a7fa49381737477d38f8e7ca85341b5ce template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a7fa49381737477d38f8e7ca85341b5ce">count</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:a7fa49381737477d38f8e7ca85341b5ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element count.  <br /></td></tr>
-<tr class="memitem:abe718f480e8afcf0651f5101807837c4" id="r_abe718f480e8afcf0651f5101807837c4"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:abe718f480e8afcf0651f5101807837c4 template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#abe718f480e8afcf0651f5101807837c4">mean</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:abe718f480e8afcf0651f5101807837c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arithmetic mean.  <br /></td></tr>
-<tr class="memitem:ae63b51d847f97ee96a00c37f7d1dd7ca" id="r_ae63b51d847f97ee96a00c37f7d1dd7ca"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:ae63b51d847f97ee96a00c37f7d1dd7ca template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#ae63b51d847f97ee96a00c37f7d1dd7ca">pvariance</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:ae63b51d847f97ee96a00c37f7d1dd7ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Population variance (divide by N).  <br /></td></tr>
-<tr class="memitem:a39b929a293cf702d142acdeed56b774c" id="r_a39b929a293cf702d142acdeed56b774c"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:a39b929a293cf702d142acdeed56b774c template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a39b929a293cf702d142acdeed56b774c">pstdev</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:a39b929a293cf702d142acdeed56b774c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Population standard deviation.  <br /></td></tr>
-<tr class="memitem:a1da9e5e834ca9ddf11c8ae946e57bd08" id="r_a1da9e5e834ca9ddf11c8ae946e57bd08"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:a1da9e5e834ca9ddf11c8ae946e57bd08 template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a1da9e5e834ca9ddf11c8ae946e57bd08">variance</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:a1da9e5e834ca9ddf11c8ae946e57bd08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sample variance (divide by N−1).  <br /></td></tr>
-<tr class="memitem:a65e3e14c8cdf7f345af2065f18ae6212" id="r_a65e3e14c8cdf7f345af2065f18ae6212"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:a65e3e14c8cdf7f345af2065f18ae6212 template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a65e3e14c8cdf7f345af2065f18ae6212">stdev</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:a65e3e14c8cdf7f345af2065f18ae6212"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sample standard deviation.  <br /></td></tr>
-<tr class="memitem:aa8eef3e0b646fd5e70e8b53500d6af12" id="r_aa8eef3e0b646fd5e70e8b53500d6af12"><td class="memTemplParams" colspan="2">template&lt;NumericRange R&gt; </td></tr>
-<tr class="memitem:aa8eef3e0b646fd5e70e8b53500d6af12 template"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aa8eef3e0b646fd5e70e8b53500d6af12">median</a> (const R &amp;data)</td></tr>
-<tr class="memdesc:aa8eef3e0b646fd5e70e8b53500d6af12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Median (mean of the two middle values when the count is even).  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a2a485aac6597b00092c0b65603309380" name="a2a485aac6597b00092c0b65603309380"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a485aac6597b00092c0b65603309380">&#9670;&#160;</a></span>sum()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::sum </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sum of the elements. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Σ<code class="param">data</code> as <span class="tt">double</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000183">Complexity</a></b></dt><dd>O(n) single pass. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000183">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000187">Test</a></b></dt><dd>CheatahStatistics.SumCountMean </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00041">41</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="statistics_8hpp_source.html#l00074">mean()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_a2a485aac6597b00092c0b65603309380_icgraph.svg" width="756" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a7fa49381737477d38f8e7ca85341b5ce" name="a7fa49381737477d38f8e7ca85341b5ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7fa49381737477d38f8e7ca85341b5ce">&#9670;&#160;</a></span>count()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t cheatah::statistics::count </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Element count. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the number of elements. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000184">Complexity</a></b></dt><dd>O(n) single pass. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000184">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000188">Test</a></b></dt><dd>CheatahStatistics.SumCountMean </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00056">56</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="statistics_8hpp_source.html#l00074">mean()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_a7fa49381737477d38f8e7ca85341b5ce_icgraph.svg" width="720" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="abe718f480e8afcf0651f5101807837c4" name="abe718f480e8afcf0651f5101807837c4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abe718f480e8afcf0651f5101807837c4">&#9670;&#160;</a></span>mean()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::mean </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Arithmetic mean. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the mean, or 0.0 if empty. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000185">Complexity</a></b></dt><dd>O(n) (two passes: count + sum). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000185">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000189">Test</a></b></dt><dd>CheatahStatistics.SumCountMean </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00074">74</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="statistics_8hpp_source.html#l00056">count()</a>, and <a class="el" href="statistics_8hpp_source.html#l00041">sum()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="statistics_8hpp_source.html#l00088">pvariance()</a>, and <a class="el" href="statistics_8hpp_source.html#l00119">variance()</a>.</p>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_abe718f480e8afcf0651f5101807837c4_cgraph.svg" width="378" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_abe718f480e8afcf0651f5101807837c4_icgraph.svg" width="531" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ae63b51d847f97ee96a00c37f7d1dd7ca" name="ae63b51d847f97ee96a00c37f7d1dd7ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae63b51d847f97ee96a00c37f7d1dd7ca">&#9670;&#160;</a></span>pvariance()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::pvariance </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Population variance (divide by N). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the variance, or 0.0 if empty. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000186">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000186">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000190">Test</a></b></dt><dd>CheatahStatistics.PopulationVarianceAndStdev </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00088">88</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="statistics_8hpp_source.html#l00074">mean()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="statistics_8hpp_source.html#l00108">pstdev()</a>.</p>
-<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_ae63b51d847f97ee96a00c37f7d1dd7ca_cgraph.svg" width="567" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_ae63b51d847f97ee96a00c37f7d1dd7ca_icgraph.svg" width="342" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a39b929a293cf702d142acdeed56b774c" name="a39b929a293cf702d142acdeed56b774c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a39b929a293cf702d142acdeed56b774c">&#9670;&#160;</a></span>pstdev()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::pstdev </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Population standard deviation. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>√pvariance(<code class="param">data</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000187">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000187">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000191">Test</a></b></dt><dd>CheatahStatistics.PopulationVarianceAndStdev </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00108">108</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="statistics_8hpp_source.html#l00088">pvariance()</a>.</p>
-<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_a39b929a293cf702d142acdeed56b774c_cgraph.svg" width="756" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a1da9e5e834ca9ddf11c8ae946e57bd08" name="a1da9e5e834ca9ddf11c8ae946e57bd08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1da9e5e834ca9ddf11c8ae946e57bd08">&#9670;&#160;</a></span>variance()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::variance </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sample variance (divide by N−1). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the variance, or 0.0 if fewer than 2 elements. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000188">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000188">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000192">Test</a></b></dt><dd>CheatahStatistics.SampleVarianceAndStdev </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00119">119</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="statistics_8hpp_source.html#l00074">mean()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="statistics_8hpp_source.html#l00139">stdev()</a>.</p>
-<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_a1da9e5e834ca9ddf11c8ae946e57bd08_cgraph.svg" width="567" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_a1da9e5e834ca9ddf11c8ae946e57bd08_icgraph.svg" width="342" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a65e3e14c8cdf7f345af2065f18ae6212" name="a65e3e14c8cdf7f345af2065f18ae6212"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a65e3e14c8cdf7f345af2065f18ae6212">&#9670;&#160;</a></span>stdev()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::stdev </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sample standard deviation. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>√variance(<code class="param">data</code>). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000189">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000189">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000193">Test</a></b></dt><dd>CheatahStatistics.SampleVarianceAndStdev </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00139">139</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-<p class="reference">References <a class="el" href="statistics_8hpp_source.html#l00119">variance()</a>.</p>
-<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-9-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1statistics_a65e3e14c8cdf7f345af2065f18ae6212_cgraph.svg" width="756" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aa8eef3e0b646fd5e70e8b53500d6af12" name="aa8eef3e0b646fd5e70e8b53500d6af12"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8eef3e0b646fd5e70e8b53500d6af12">&#9670;&#160;</a></span>median()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;NumericRange R&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::statistics::median </td>
-          <td>(</td>
-          <td class="paramtype">const R &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Median (mean of the two middle values when the count is even). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>the numeric range. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the median, or 0.0 if empty. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000190">Complexity</a></b></dt><dd>O(n log n) — copies the elements into a vector and sorts. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000190">Allocation</a></b></dt><dd>allocates a temporary <span class="tt">std::vector&lt;double&gt;</span>. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000194">Test</a></b></dt><dd>CheatahStatistics.MedianOddAndEven </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="statistics_8hpp_source.html#l00150">150</a> of file <a class="el" href="statistics_8hpp_source.html">statistics.hpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

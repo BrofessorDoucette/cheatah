@@ -1,451 +1,116 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::os::path Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>os::path · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>os::path</code></h1>
+  <p class="lede"><a href="namespacecheatah_1_1os_1_1path.html">os.path</a> — the path-manipulation submodule. </p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1os_1_1path_1a15a9953a39281406d03974063f735aa4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">exists</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L45" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a15a9953a39281406d03974063f735aa4" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Path existence test. </p>
+  <div class="member-body"><p>Follows symlinks and is true for any existing entry — file, directory, or other; returns false for a missing path.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>p</code> exists.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) + a syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L53"><code>CheatahOs.MakeDirExistsThenRemove</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L67"><code>OsCompileRun.PathExists</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1a4a75f417d107739ef21a62248fdcee7e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">isfile</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L46" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a4a75f417d107739ef21a62248fdcee7e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Regular-file test. </p>
+  <div class="member-body"><p>Returns false (rather than throwing) when <code>p</code> is missing or is a non-regular entry such as a directory; symlinks are followed to their target.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>p</code> is a regular file.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) + a syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L63"><code>CheatahOs.FileQueriesIsfileAndGetsize</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L81"><code>OsCompileRun.PathIsfile</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1abfc6fed92ef42082bd5622b94452dcd3">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">isdir</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L47" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1abfc6fed92ef42082bd5622b94452dcd3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Directory test. </p>
+  <div class="member-body"><p>Returns false (rather than throwing) when <code>p</code> is missing or is not a directory; symlinks are followed to their target.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>p</code> is a directory.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) + a syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L53"><code>CheatahOs.MakeDirExistsThenRemove</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L74"><code>OsCompileRun.PathIsdir</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1aff37c7858ed21cf11b3cdf44b333b83f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">basename</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L48" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1aff37c7858ed21cf11b3cdf44b333b83f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Final path component. </p>
+  <div class="member-body"><p>Returns the trailing filename component lexically, without touching the filesystem; a path ending in a separator (e.g. <code>a/b/</code>) yields an empty string, matching <code>std::filesystem::path::filename</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the basename (filename).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a path temporary and the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L34"><code>CheatahOs.PathBasenameDirname</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L28"><code>OsCompileRun.PathBasename</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1a2d3f5699d30656dd253cc1c0b4423d49">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">dirname</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L49" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a2d3f5699d30656dd253cc1c0b4423d49" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Parent path. </p>
+  <div class="member-body"><p>Returns everything before the final component lexically, without touching the filesystem; a bare filename with no separator (e.g. <code>file.txt</code>) yields an empty string, matching <code>std::filesystem::path::parent_path</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the directory portion of <code>p</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a path temporary and the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L34"><code>CheatahOs.PathBasenameDirname</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L35"><code>OsCompileRun.PathDirname</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1aa62189047efd20934b5225438abd1d7f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">abspath</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L50" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1aa62189047efd20934b5225438abd1d7f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Absolute path. </p>
+  <div class="member-body"><p>Prepends the current working directory to a relative <code>p</code>; it does not collapse <code>.</code>/<code>..</code> segments or resolve symlinks (combine with normpath for that), and <code>p</code> need not exist.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>p</code> resolved against the cwd.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) + a syscall (reads the cwd).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L74"><code>CheatahOs.AbspathAndNormpath</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L57"><code>OsCompileRun.PathAbspath</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1a7ca78fd59e2abd52c6c33d6726ce8bb9">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">normpath</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L51" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a7ca78fd59e2abd52c6c33d6726ce8bb9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Lexically normalized path (collapses current-dir and parent-dir segments). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the normalized path.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) (purely lexical, no syscall).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates a path temporary and the result string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L74"><code>CheatahOs.AbspathAndNormpath</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L42"><code>OsCompileRun.PathNormpath</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1a1af039907598e0109b1a25fa9b7dda8f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::uintmax_t</span> <span class="mname">getsize</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L52" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a1af039907598e0109b1a25fa9b7dda8f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">File size in bytes. </p>
+  <div class="member-body"><p>Defined only for regular files; querying a missing path, or a directory or other non-regular entry, throws rather than returning a sentinel.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the file path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>p&#x27;s</code> size.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) + a syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L63"><code>CheatahOs.FileQueriesIsfileAndGetsize</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L89"><code>OsCompileRun.PathGetsize</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1a3fbfc548700979280e860a64913079fb">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::pair&lt; std::string, std::string &gt;</span> <span class="mname">splitext</span>(const std::string &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_cpp.html#L54" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a3fbfc548700979280e860a64913079fb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Split a path into root and extension. </p>
+  <div class="member-body"><p>Splits at the last dot of the final component so that concatenating the two results reproduces <code>p</code>; when there is no extension the whole path is the root and the extension is empty. The extension includes its leading dot, and a leading-dot name (e.g. <code>.bashrc</code>) is treated as having no extension.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the path.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>e.g. <code><a href="namespacecheatah_1_1os_1_1path.html#namespacecheatah_1_1os_1_1path_1a3fbfc548700979280e860a64913079fb">splitext</a>(&quot;dir/file.purr&quot;) -&gt; {&quot;dir/file&quot;, &quot;.purr&quot;}</code> (empty extension when none).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the two result strings and a path temporary.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L25"><code>CheatahOs.PathSplitext</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L49"><code>OsCompileRun.PathSplitext</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1os_1_1path_1a513a81497ee8015697d31e4a8aa9765c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">join</span>(const std::string &amp;first, const Parts &amp;... rest)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_os_os_hpp.html#L236" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1os_1_1path_1a513a81497ee8015697d31e4a8aa9765c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Join path components with the platform separator. </p>
+  <div class="member-body"><p>Appends each component with <code>path::operator/=</code>, inserting a separator as needed; following <code>std::filesystem</code> rules, an absolute component discards everything joined before it. Purely lexical — the filesystem is not touched.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>first</code></td><td class="pdesc"><p>the first component.</p></td></tr><tr><td class="pname"><code>rest</code></td><td class="pdesc"><p>any further string-constructible components.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>e.g. <code><a href="namespacecheatah_1_1os_1_1path.html#namespacecheatah_1_1os_1_1path_1a513a81497ee8015697d31e4a8aa9765c">join</a>(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;) -&gt; &quot;a/b/c&quot;</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(total length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the result string and per-part path temporaries.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_os_test_cpp.html#L20"><code>CheatahOs.PathJoin</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_os_cr_test_cpp.html#L21"><code>OsCompileRun.PathJoin</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_os_sys_test_cpp.html#L27"><code>StdlibE2E.Os</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1os_1_1path_1a15a9953a39281406d03974063f735aa4">exists</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1a4a75f417d107739ef21a62248fdcee7e">isfile</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1abfc6fed92ef42082bd5622b94452dcd3">isdir</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1aff37c7858ed21cf11b3cdf44b333b83f">basename</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1a2d3f5699d30656dd253cc1c0b4423d49">dirname</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1aa62189047efd20934b5225438abd1d7f">abspath</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1a7ca78fd59e2abd52c6c33d6726ce8bb9">normpath</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1a1af039907598e0109b1a25fa9b7dda8f">getsize</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1a3fbfc548700979280e860a64913079fb">splitext</a></li><li><a href="#namespacecheatah_1_1os_1_1path_1a513a81497ee8015697d31e4a8aa9765c">join</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1os_1_1path.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::os::path Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-
-<p><a class="el" href="namespacecheatah_1_1os_1_1path.html" title="os.path — the path-manipulation submodule.">os.path</a> — the path-manipulation submodule.  
-<a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a15a9953a39281406d03974063f735aa4" id="r_a15a9953a39281406d03974063f735aa4"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a15a9953a39281406d03974063f735aa4">exists</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:a15a9953a39281406d03974063f735aa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path existence test.  <br /></td></tr>
-<tr class="memitem:a4a75f417d107739ef21a62248fdcee7e" id="r_a4a75f417d107739ef21a62248fdcee7e"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a4a75f417d107739ef21a62248fdcee7e">isfile</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:a4a75f417d107739ef21a62248fdcee7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Regular-file test.  <br /></td></tr>
-<tr class="memitem:abfc6fed92ef42082bd5622b94452dcd3" id="r_abfc6fed92ef42082bd5622b94452dcd3"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#abfc6fed92ef42082bd5622b94452dcd3">isdir</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:abfc6fed92ef42082bd5622b94452dcd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Directory test.  <br /></td></tr>
-<tr class="memitem:aff37c7858ed21cf11b3cdf44b333b83f" id="r_aff37c7858ed21cf11b3cdf44b333b83f"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aff37c7858ed21cf11b3cdf44b333b83f">basename</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:aff37c7858ed21cf11b3cdf44b333b83f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Final path component.  <br /></td></tr>
-<tr class="memitem:a2d3f5699d30656dd253cc1c0b4423d49" id="r_a2d3f5699d30656dd253cc1c0b4423d49"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a2d3f5699d30656dd253cc1c0b4423d49">dirname</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:a2d3f5699d30656dd253cc1c0b4423d49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parent path.  <br /></td></tr>
-<tr class="memitem:aa62189047efd20934b5225438abd1d7f" id="r_aa62189047efd20934b5225438abd1d7f"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa62189047efd20934b5225438abd1d7f">abspath</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:aa62189047efd20934b5225438abd1d7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute path.  <br /></td></tr>
-<tr class="memitem:a7ca78fd59e2abd52c6c33d6726ce8bb9" id="r_a7ca78fd59e2abd52c6c33d6726ce8bb9"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a7ca78fd59e2abd52c6c33d6726ce8bb9">normpath</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:a7ca78fd59e2abd52c6c33d6726ce8bb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexically normalized path (collapses current-dir and parent-dir segments).  <br /></td></tr>
-<tr class="memitem:a1af039907598e0109b1a25fa9b7dda8f" id="r_a1af039907598e0109b1a25fa9b7dda8f"><td class="memItemLeft">std::uintmax_t&#160;</td><td class="memItemRight"><a class="el" href="#a1af039907598e0109b1a25fa9b7dda8f">getsize</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:a1af039907598e0109b1a25fa9b7dda8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">File size in bytes.  <br /></td></tr>
-<tr class="memitem:a3fbfc548700979280e860a64913079fb" id="r_a3fbfc548700979280e860a64913079fb"><td class="memItemLeft">std::pair&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a3fbfc548700979280e860a64913079fb">splitext</a> (const std::string &amp;p)</td></tr>
-<tr class="memdesc:a3fbfc548700979280e860a64913079fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split a path into root and extension.  <br /></td></tr>
-<tr class="memitem:a513a81497ee8015697d31e4a8aa9765c" id="r_a513a81497ee8015697d31e4a8aa9765c"><td class="memTemplParams" colspan="2">template&lt;StringLike... Parts&gt; </td></tr>
-<tr class="memitem:a513a81497ee8015697d31e4a8aa9765c template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a513a81497ee8015697d31e4a8aa9765c">join</a> (const std::string &amp;first, const Parts &amp;... rest)</td></tr>
-<tr class="memdesc:a513a81497ee8015697d31e4a8aa9765c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Join path components with the platform separator.  <br /></td></tr>
-</table>
-<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="namespacecheatah_1_1os_1_1path.html" title="os.path — the path-manipulation submodule.">os.path</a> — the path-manipulation submodule. </p>
-</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a15a9953a39281406d03974063f735aa4" name="a15a9953a39281406d03974063f735aa4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15a9953a39281406d03974063f735aa4">&#9670;&#160;</a></span>exists()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::os::path::exists </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Path existence test. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> exists. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000153">Complexity</a></b></dt><dd>O(n) + a syscall. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000153">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000157">Test</a></b></dt><dd>CheatahOs.MakeDirExistsThenRemove </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00045">45</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a4a75f417d107739ef21a62248fdcee7e" name="a4a75f417d107739ef21a62248fdcee7e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a75f417d107739ef21a62248fdcee7e">&#9670;&#160;</a></span>isfile()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::os::path::isfile </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Regular-file test. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> is a regular file. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000154">Complexity</a></b></dt><dd>O(n) + a syscall. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000154">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000158">Test</a></b></dt><dd>CheatahOs.FileQueriesIsfileAndGetsize </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00046">46</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="abfc6fed92ef42082bd5622b94452dcd3" name="abfc6fed92ef42082bd5622b94452dcd3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfc6fed92ef42082bd5622b94452dcd3">&#9670;&#160;</a></span>isdir()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::os::path::isdir </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Directory test. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> is a directory. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000155">Complexity</a></b></dt><dd>O(n) + a syscall. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000155">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000159">Test</a></b></dt><dd>CheatahOs.MakeDirExistsThenRemove </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00047">47</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aff37c7858ed21cf11b3cdf44b333b83f" name="aff37c7858ed21cf11b3cdf44b333b83f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff37c7858ed21cf11b3cdf44b333b83f">&#9670;&#160;</a></span>basename()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::basename </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Final path component. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the basename (filename). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000156">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000156">Allocation</a></b></dt><dd>allocates a path temporary and the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000160">Test</a></b></dt><dd>CheatahOs.PathBasenameDirname </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00048">48</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2d3f5699d30656dd253cc1c0b4423d49" name="a2d3f5699d30656dd253cc1c0b4423d49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d3f5699d30656dd253cc1c0b4423d49">&#9670;&#160;</a></span>dirname()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::dirname </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Parent path. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the directory portion of <code class="param">p</code>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000157">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000157">Allocation</a></b></dt><dd>allocates a path temporary and the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000161">Test</a></b></dt><dd>CheatahOs.PathBasenameDirname </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00049">49</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aa62189047efd20934b5225438abd1d7f" name="aa62189047efd20934b5225438abd1d7f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa62189047efd20934b5225438abd1d7f">&#9670;&#160;</a></span>abspath()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::abspath </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Absolute path. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">p</code> resolved against the cwd. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000158">Complexity</a></b></dt><dd>O(n) + a syscall (reads the cwd). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000158">Allocation</a></b></dt><dd>allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000162">Test</a></b></dt><dd>CheatahOs.AbspathAndNormpath </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00050">50</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a7ca78fd59e2abd52c6c33d6726ce8bb9" name="a7ca78fd59e2abd52c6c33d6726ce8bb9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ca78fd59e2abd52c6c33d6726ce8bb9">&#9670;&#160;</a></span>normpath()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::normpath </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Lexically normalized path (collapses current-dir and parent-dir segments). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the normalized path. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000159">Complexity</a></b></dt><dd>O(n) (purely lexical, no syscall). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000159">Allocation</a></b></dt><dd>allocates a path temporary and the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000163">Test</a></b></dt><dd>CheatahOs.AbspathAndNormpath </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00051">51</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a1af039907598e0109b1a25fa9b7dda8f" name="a1af039907598e0109b1a25fa9b7dda8f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1af039907598e0109b1a25fa9b7dda8f">&#9670;&#160;</a></span>getsize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::uintmax_t cheatah::os::path::getsize </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>File size in bytes. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the file path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">p's</code> size. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000160">Complexity</a></b></dt><dd>O(1) + a syscall. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000160">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000164">Test</a></b></dt><dd>CheatahOs.FileQueriesIsfileAndGetsize </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00052">52</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a3fbfc548700979280e860a64913079fb" name="a3fbfc548700979280e860a64913079fb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fbfc548700979280e860a64913079fb">&#9670;&#160;</a></span>splitext()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::pair&lt; std::string, std::string &gt; cheatah::os::path::splitext </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Split a path into root and extension. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>e.g. <span class="tt"><a class="el" href="#a3fbfc548700979280e860a64913079fb" title="Split a path into root and extension.">splitext</a>("dir/file.purr") -&gt; {"dir/file", ".purr"}</span> (empty extension when none). </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000161">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000161">Allocation</a></b></dt><dd>allocates the two result strings and a path temporary. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000165">Test</a></b></dt><dd>CheatahOs.PathSplitext </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00054">54</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a513a81497ee8015697d31e4a8aa9765c" name="a513a81497ee8015697d31e4a8aa9765c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a513a81497ee8015697d31e4a8aa9765c">&#9670;&#160;</a></span>join()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;StringLike... Parts&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::join </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Parts &amp;...</td>          <td class="paramname"><span class="paramname"><em>rest</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Join path components with the platform separator. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">first</td><td>the first component. </td></tr>
-    <tr><td class="paramname">rest</td><td>any further string-constructible components. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>e.g. <span class="tt"><a class="el" href="#a513a81497ee8015697d31e4a8aa9765c" title="Join path components with the platform separator.">join</a>("a","b","c") -&gt; "a/b/c"</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000152">Complexity</a></b></dt><dd>O(total length). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000152">Allocation</a></b></dt><dd>allocates the result string and per-part path temporaries. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000156">Test</a></b></dt><dd>CheatahOs.PathJoin </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="os_8hpp_source.html#l00161">161</a> of file <a class="el" href="os_8hpp_source.html">os.hpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

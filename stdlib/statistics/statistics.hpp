@@ -31,11 +31,16 @@ concept NumericRange =
 
 /**
  * Sum of the elements.
+ *
+ * Accumulates every element into a `double`, so an empty range sums to 0.0 and
+ * integer inputs are widened before adding (no integer overflow).
  * @param data the numeric range.
  * @return Σ@p data as `double`.
  * @complexity O(n) single pass.
  * @alloc none.
  * @test CheatahStatistics.SumCountMean
+ * @crtest StatisticsCompileRun.Sum
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double sum(const R& data) {
@@ -51,6 +56,8 @@ double sum(const R& data) {
  * @complexity O(n) single pass.
  * @alloc none.
  * @test CheatahStatistics.SumCountMean
+ * @crtest StatisticsCompileRun.Count
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 std::size_t count(const R& data) {
@@ -64,11 +71,16 @@ std::size_t count(const R& data) {
 
 /**
  * Arithmetic mean.
+ *
+ * Computes sum/count, but guards division by zero: an empty range returns 0.0
+ * rather than NaN.
  * @param data the numeric range.
  * @return the mean, or 0.0 if empty.
  * @complexity O(n) (two passes: count + sum).
  * @alloc none.
  * @test CheatahStatistics.SumCountMean
+ * @crtest StatisticsCompileRun.Mean
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double mean(const R& data) {
@@ -78,11 +90,17 @@ double mean(const R& data) {
 
 /**
  * Population variance (divide by N).
+ *
+ * Mean of the squared deviations from the mean, dividing by N (treats @p data as
+ * the entire population). Returns 0.0 for an empty range; a single element yields
+ * 0.0.
  * @param data the numeric range.
  * @return the variance, or 0.0 if empty.
  * @complexity O(n).
  * @alloc none.
  * @test CheatahStatistics.PopulationVarianceAndStdev
+ * @crtest StatisticsCompileRun.Pvariance
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double pvariance(const R& data) {
@@ -98,22 +116,34 @@ double pvariance(const R& data) {
 }
 /**
  * Population standard deviation.
+ *
+ * Square root of @ref pvariance, so it is 0.0 for empty or single-element ranges
+ * and never negative.
  * @param data the numeric range.
  * @return √pvariance(@p data).
  * @complexity O(n).
  * @alloc none.
  * @test CheatahStatistics.PopulationVarianceAndStdev
+ * @crtest StatisticsCompileRun.Pstdev
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double pstdev(const R& data) { return std::sqrt(pvariance(data)); }
 
 /**
  * Sample variance (divide by N−1).
+ *
+ * Sum of squared deviations from the mean divided by N−1 (Bessel's correction,
+ * estimating the variance of the wider population from a sample). Requires at
+ * least two elements; an empty or single-element range returns 0.0 rather than
+ * dividing by zero.
  * @param data the numeric range.
  * @return the variance, or 0.0 if fewer than 2 elements.
  * @complexity O(n).
  * @alloc none.
  * @test CheatahStatistics.SampleVarianceAndStdev
+ * @crtest StatisticsCompileRun.Variance
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double variance(const R& data) {
@@ -129,22 +159,33 @@ double variance(const R& data) {
 }
 /**
  * Sample standard deviation.
+ *
+ * Square root of @ref variance, so it is 0.0 when there are fewer than two
+ * elements.
  * @param data the numeric range.
  * @return √variance(@p data).
  * @complexity O(n).
  * @alloc none.
  * @test CheatahStatistics.SampleVarianceAndStdev
+ * @crtest StatisticsCompileRun.Stdev
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double stdev(const R& data) { return std::sqrt(variance(data)); }
 
 /**
  * Median (mean of the two middle values when the count is even).
+ *
+ * Copies the elements into a `double` vector and sorts ascending: with an odd
+ * count it returns the single middle value, and with an even count it averages
+ * the two central values. Returns 0.0 for an empty range.
  * @param data the numeric range.
  * @return the median, or 0.0 if empty.
  * @complexity O(n log n) — copies the elements into a vector and sorts.
  * @alloc allocates a temporary `std::vector<double>`.
  * @test CheatahStatistics.MedianOddAndEven
+ * @crtest StatisticsCompileRun.Median
+ * @systest StdlibE2E.Statistics
  */
 template <NumericRange R>
 double median(const R& data) {

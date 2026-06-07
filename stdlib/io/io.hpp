@@ -36,11 +36,16 @@ concept Streamable = requires(std::ostream& os, const T& value) {
 
 /**
  * Python `str()`: stringify any streamable value.
+ *
+ * Renders @p value via its `operator<<` into a fresh `ostringstream`, so the result
+ * matches whatever that stream insertion produces (e.g. default float precision).
  * @param value the value to render.
  * @return @p value formatted as text.
  * @complexity O(n) in the output length.
  * @alloc allocates the result string (via an ostringstream).
  * @test CheatahIo.StrFormatsPythonStyle
+ * @crtest IoCompileRun.Str
+ * @systest StdlibE2E.Io
  */
 template <Streamable T>
 std::string str(const T& value) {
@@ -55,25 +60,37 @@ std::string str(const T& value) {
  * @complexity O(n).
  * @alloc allocates the result copy.
  * @test CheatahIo.StrFormatsPythonStyle
+ * @crtest IoCompileRun.Str
+ * @systest StdlibE2E.Io
  */
 std::string str(const std::string& value);
 /**
  * `str()` for a bool — Python spelling.
+ *
+ * Overrides the default streaming of a bool (`1`/`0`) to emit Python's capitalized
+ * `True`/`False` instead.
  * @param b the boolean.
  * @return `"True"` or `"False"`.
  * @complexity O(1).
  * @alloc allocates the small result string.
  * @test CheatahIo.StrFormatsPythonStyle
+ * @crtest IoCompileRun.Str
+ * @systest StdlibE2E.Io
  */
 std::string str(bool b);
 
 /**
  * Python `print(*args)`: space-separated, newline-terminated, to stdout (sep=' ', end='\n').
+ *
+ * Inserts a single space between consecutive arguments (none before the first) and always
+ * ends with a trailing `\n`; with no arguments it writes just that newline (blank line).
  * @param args zero or more streamable values.
  * @complexity O(total output length).
  * @alloc each arg is routed through str() so values format the Python way (e.g. bool →
  *   True/False), allocating temporary strings.
  * @test CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline
+ * @crtest IoCompileRun.Print
+ * @systest StdlibE2E.Io
  */
 template <Streamable... Args>
 void print(const Args&... args) {
@@ -84,30 +101,45 @@ void print(const Args&... args) {
 
 /**
  * Python `repr()` for a generic value — same as str() for non-strings.
+ *
+ * Forwards directly to str(), so non-string values get no extra quoting or escaping;
+ * only the string overloads below add the surrounding quotes.
  * @param value the value to render.
  * @return @p value formatted as text.
  * @complexity O(n).
  * @alloc allocates the result string.
  * @test CheatahIo.ReprQuotesStrings
+ * @crtest IoCompileRun.Repr
+ * @systest StdlibE2E.Io
  */
 template <Streamable T>
 std::string repr(const T& value) { return str(value); }
 /**
  * `repr()` for a `std::string` — quoted (Python repr).
+ *
+ * Wraps the text in single quotes but does not escape embedded quotes, backslashes, or
+ * control characters, so the result is not a faithful round-trip of Python's repr.
  * @param value the string.
  * @return @p value wrapped in single quotes.
  * @complexity O(n).
  * @alloc allocates the result string.
  * @test CheatahIo.ReprQuotesStrings
+ * @crtest IoCompileRun.Repr
+ * @systest StdlibE2E.Io
  */
 std::string repr(const std::string& value);
 /**
  * `repr()` for a C string — quoted (Python repr).
+ *
+ * Copies the NUL-terminated input into a `std::string` and wraps it in single quotes;
+ * like the string overload it performs no escaping, and @p value must not be null.
  * @param value the C string.
  * @return @p value wrapped in single quotes.
  * @complexity O(n).
  * @alloc allocates the result string.
  * @test CheatahIo.ReprQuotesStrings
+ * @crtest IoCompileRun.Repr
+ * @systest StdlibE2E.Io
  */
 std::string repr(const char* value);
 
@@ -139,6 +171,11 @@ void format_into(std::ostringstream& os, std::string_view fmt, const T& arg, con
 
 /**
  * Sequential `{}` substitution — the common case of Python's str.format() / f-strings.
+ *
+ * Replaces each `{}` left-to-right with the corresponding argument (streamed via its
+ * `operator<<`); surplus arguments are silently dropped, and any `{}` left without an
+ * argument is emitted literally rather than raising. Does not support indexed or named
+ * fields (`{0}`, `{name}`) or escaped braces (`{{`).
  * @param fmt format string with `{}` placeholders.
  * @param args values substituted left-to-right (extras dropped, missing placeholders left
  *   as-is).
@@ -146,6 +183,8 @@ void format_into(std::ostringstream& os, std::string_view fmt, const T& arg, con
  * @complexity O(len(fmt) + total arg output).
  * @alloc allocates the result string (via an ostringstream).
  * @test CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs
+ * @crtest IoCompileRun.Format
+ * @systest StdlibE2E.Io
  */
 template <Streamable... Args>
 std::string format(std::string_view fmt, const Args&... args) {
@@ -156,11 +195,17 @@ std::string format(std::string_view fmt, const Args&... args) {
 
 /**
  * Python `input(prompt="")`: write @p prompt, read one line from stdin.
+ *
+ * Writes (and flushes) @p prompt only when non-empty, then reads one line via getline;
+ * at EOF or on a blank line it returns an empty string rather than signaling end-of-input.
  * @param prompt text shown before reading (no newline added).
  * @return the line read, with the trailing newline stripped.
  * @complexity O(line length).
  * @alloc allocates the returned string.
  * @test CheatahIo.InputReadsALine
+ * @note No compile-run test: io.input reads stdin, which the e2e harness does not
+ *       feed, so it is intentionally skipped in tests/purrc/io_cr_test.cpp.
+ * @systest StdlibE2E.Io
  */
 std::string input(std::string_view prompt = "");
 
@@ -174,18 +219,28 @@ class File {
 public:
     /**
      * Construct a closed file (no stream attached).
+     *
+     * Leaves the underlying stream default-constructed and unopened, so is_open() is false
+     * until a later open(); read/write calls on it are no-ops that fail silently.
      * @complexity O(1).
      * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
+     * @crtest IoCompileRun.IsOpenAndClose
+     * @systest StdlibE2E.Io
      */
     File() = default;
     /**
      * Open @p path in @p mode (the open() free function's workhorse).
+     *
+     * Translates the Python mode and opens the stream; failure (e.g. missing file in `r`)
+     * is not thrown — it leaves is_open() false, so callers should check before using it.
      * @param path filesystem path.
      * @param mode Python-style mode (`r`/`w`/`a`, optional `+`/`b`).
      * @complexity O(1) plus the OS open.
      * @alloc none.
      * @test CheatahIo.FileWriteThenReadWhole
+     * @crtest IoCompileRun.OpenWriteRead
+     * @systest StdlibE2E.Io
      */
     File(const std::string& path, std::string_view mode);
     File(const File&) = delete;
@@ -202,16 +257,24 @@ public:
      * @complexity O(1).
      * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
+     * @crtest IoCompileRun.IsOpenAndClose
+     * @systest StdlibE2E.Io
      */
     ~File();
 
     /**
      * (Re)open @p path in @p mode.
+     *
+     * Opens the stream on @p path; it does not first close an already-open handle, so reuse
+     * this on a closed File. Mode follows Python: `r` read, `w` truncate-write, `a` append,
+     * `+` adds the opposite direction, `b` binary; an unrecognized/empty mode defaults to `r`.
      * @param path filesystem path.
      * @param mode Python-style mode string.
      * @complexity O(1) plus the OS open.
      * @alloc none.
      * @test CheatahIo.FileWriteThenReadWhole
+     * @crtest IoCompileRun.OpenWriteRead
+     * @systest StdlibE2E.Io
      */
     void open(const std::string& path, std::string_view mode);
     /**
@@ -220,6 +283,8 @@ public:
      * @complexity O(1).
      * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
+     * @crtest IoCompileRun.IsOpenAndClose
+     * @systest StdlibE2E.Io
      */
     bool is_open() const;
     /**
@@ -227,40 +292,65 @@ public:
      * @complexity O(1).
      * @alloc none.
      * @test CheatahIo.FileIsOpenAndClose
+     * @crtest IoCompileRun.IsOpenAndClose
+     * @systest StdlibE2E.Io
      */
     void close();
 
     /**
      * Read the whole remaining file.
+     *
+     * Drains the stream buffer from the current position to EOF in one shot, so a prior
+     * readline()/read() returns only what is left; returns "" at EOF or on a closed file.
      * @return the remaining bytes as one string.
      * @complexity O(n) in bytes read.
      * @alloc allocates the returned string (buffered through a stringstream).
      * @test CheatahIo.FileWriteThenReadWhole
+     * @crtest IoCompileRun.OpenWriteRead
+     * @systest StdlibE2E.Io
      */
     std::string read();                    // whole remaining file
     /**
      * Read the next line.
+     *
+     * Consumes through the next `\n` (which is discarded). Because both a genuine empty line
+     * and EOF yield "", the return value alone cannot distinguish them — check is_open()/EOF
+     * separately if that matters.
      * @return the line with its newline stripped; `""` at EOF.
      * @complexity O(line length).
      * @alloc allocates the returned string.
      * @test CheatahIo.FileReadlineThenReadlines
+     * @crtest IoCompileRun.Readline
+     * @systest StdlibE2E.Io
      */
     std::string readline();                // next line, no newline; "" at EOF
     /**
      * Read all remaining lines.
+     *
+     * Repeatedly getlines from the current position until EOF, pushing each newline-stripped
+     * line; returns an empty vector at EOF, and a trailing newline does not produce a final
+     * empty element.
      * @return a vector of lines (newlines stripped).
      * @complexity O(n) in bytes.
      * @alloc allocates the vector and each line string.
      * @test CheatahIo.FileReadlineThenReadlines
+     * @crtest IoCompileRun.Readlines
+     * @systest StdlibE2E.Io
      */
     std::vector<std::string> readlines();   // all remaining lines
 
     /**
      * Write a streamable value to the file.
+     *
+     * Streams @p value through `operator<<` exactly as written — no separator and no trailing
+     * newline are added (unlike print()), so the caller supplies any `\n`; data may stay
+     * buffered until the stream is flushed or the File is closed.
      * @param value any streamable value.
      * @complexity O(output length).
      * @alloc none (writes straight to the stream buffer).
      * @test CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode
+     * @crtest IoCompileRun.OpenWriteRead
+     * @systest StdlibE2E.Io
      */
     template <Streamable T>
     void write(const T& value) { stream_ << value; }
@@ -273,23 +363,33 @@ private:
 
 /**
  * Python `open(path, mode="r")` — construct and return a File.
+ *
+ * Constructs a File on @p path (defaulting to read mode) and returns it by move; as with the
+ * File constructor a failed open does not throw, so check is_open() on the result.
  * @param path filesystem path.
  * @param mode Python-style mode string.
  * @return an open File (move-returned).
  * @complexity O(1) plus the OS open.
  * @alloc constructs a File; no heap of our own.
  * @test CheatahIo.FileWriteThenReadWhole
+ * @crtest IoCompileRun.OpenWriteRead
+ * @systest StdlibE2E.Io
  */
 File open(const std::string& path, std::string_view mode = "r");
 
 /**
  * Read a whole file into a string in one call (binary-safe — preserves every byte, including
  *   NULs).
+ *
+ * Opens @p path in binary mode and slurps the entire buffer in one read; an empty return is
+ * ambiguous between a missing/unopenable file and a genuinely empty file.
  * @param path filesystem path.
  * @return the file's contents, or "" if it cannot be opened.
  * @complexity O(file size).
  * @alloc allocates the returned string.
  * @test CheatahIo.ReadFileWholeAndBinary
+ * @crtest IoCompileRun.ReadFile
+ * @systest StdlibE2E.Io
  */
 std::string read_file(const std::string& path);
 

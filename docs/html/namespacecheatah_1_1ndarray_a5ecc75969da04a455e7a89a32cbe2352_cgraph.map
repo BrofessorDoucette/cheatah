@@ -1,7 +1,0 @@
-<map id="cheatah::ndarray::shape_of" name="cheatah::ndarray::shape_of">
-<area shape="rect" id="Node000001" title="The shape as signed dims." alt="" coords="5,45,204,70"/>
-<area shape="rect" id="Node000002" href="$classcheatah_1_1ndarray_1_1NDArray.html#a09704c044d8abf1eadf1e47e203a18ec" title="The number of dimensions (rank)." alt="" coords="252,5,447,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,42,238,37,239,42,202,47"/>
-<area shape="rect" id="Node000003" href="$classcheatah_1_1ndarray_1_1NDArray.html#aad1a34c9ab0e62679bd257c907abb463" title="The shape (dimensions)." alt="" coords="252,69,447,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,67,239,72,238,77,202,73"/>
-</map>

@@ -13,11 +13,18 @@ Every standard-library function carries a Doxygen/Javadoc comment with a consist
 contract, so you always know what a call costs:
 
 - **`@param` / `@return`** — what goes in and comes out.
-- **`@note`** — the **runtime complexity** (Big-O) **and** whether the function
-  performs a **heap allocation** (`no heap`, `allocates the result`, or
-  `allocates a temporary`). Memory behavior is a first-class part of the contract:
-  cheatah's whole reason for existing is memory safety.
+- **`@complexity`** — the **runtime complexity** (Big-O) of the call.
+- **`@alloc`** — the function's **heap behavior**: `none`, or what it allocates
+  (`allocates the result`, `allocates a temporary`, scratch buffers, …). Memory
+  behavior is a first-class part of the contract: cheatah's whole reason for
+  existing is memory safety.
 - **`@test`** — a link to the unit test that exercises the function.
+
+> **On `@complexity`:** this is the *algorithmic* (Big-O) cost — how the work
+> scales with input size. The actual wall-clock time is **machine-dependent**, and
+> the constant factors can also shift with the **C runtime / standard library**
+> that gets linked when your program runs. Treat Big-O as the contract; benchmark
+> for absolute numbers.
 
 The entire library is verified on every QA-gate run under **AddressSanitizer**
 (the `asan` preset) and **Valgrind** (`security/run-valgrind.sh`), with **100% line
@@ -48,4 +55,4 @@ reference, or start from a module's header (e.g. `math.hpp`, `linalg/routines.hp
 
 <div class="cheetah-slogan">🐆 Built for speed. Guarded for safety. 🐱</div>
 
-<p class="cheetah-colophon">Reference site generated with <a href="https://www.doxygen.org/">Doxygen</a> and <a href="https://github.com/jothepro/doxygen-awesome-css">doxygen-awesome-css</a>.</p>
+<p class="cheetah-colophon">C++ API parsed with <a href="https://www.doxygen.org/">Doxygen</a>; this site is rendered by cheatah's own documentation generator.</p>

@@ -1,712 +1,148 @@
-<!-- cheatah standard library reference -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
-<meta name="generator" content="cheatah"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cheatah: cheatah::socket Namespace Reference</title>
-<link rel="icon" href="cheatah-logo.png" type="image/x-icon" />
-<link href="tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript" src="cookie.js"></script>
-<link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="cheetah.css" rel="stylesheet" type="text/css"/>
-
-<!-- Fixed dark theme: no dark-mode toggle. -->
-<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
-<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
-<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
-<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeFragmentCopyButton.init()
-    DoxygenAwesomeParagraphLink.init()
-    DoxygenAwesomeInteractiveToc.init()
-    DoxygenAwesomeTabs.init()
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>socket · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=80818421">
 </head>
 <body>
-<div id="top">
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="cheatah-logo.png"/></td>
-  <td id="projectalign">
-   <div id="projectname">cheatah
-   </div>
-   <div id="projectbrief">🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆</div>
-  </td>
- </tr>
- </tbody>
-</table>
-</div>
-<!-- end header part -->
-
-<script type="text/javascript">
-$(function() { codefold.init(); });
-</script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-$(function() {
-  initMenu('',false,false,'search.php','Search',true);
-});
-</script>
-<div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
     </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1NDArray.html" data-ref="classcheatah_1_1ndarray_1_1NDArray">ndarray::NDArray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>socket</code></h1>
+  
+</div>
+<div class="overview"></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1socket_1a60573a7cdf2847a01c831fde7e7aab39">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">socket</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L37" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a60573a7cdf2847a01c831fde7e7aab39" aria-label="permalink">#</a></span>
   </div>
+  <p class="member-brief">Create an IPv4 TCP socket. </p>
+  <div class="member-body"><p>Allocates an unbound, unconnected AF_INET/SOCK_STREAM fd; you must follow up with <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1ae01bda4934e97272765c957051061f28">bind()</a>+<a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a259eb5b0432636354d5fdc9abdc4ac96">listen()</a> or <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a205e3cf02d83c985ac003ff68930ec9d">connect()</a> before it can carry data, and <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a48fc8e3bdfab942983a875cecc431483">close()</a> it when done.</p><div class="ret"><span class="ret-h">Returns</span> <p>the new fd, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L73"><code>CheatahSocket.ListenLowLevel</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L53"><code>SocketCompileRun.Socket</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a7af90c71c5b2fe50a3dc06fd4292a1ca">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">set_reuseaddr</span>(long long fd)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L41" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a7af90c71c5b2fe50a3dc06fd4292a1ca" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Enable <code>SO_REUSEADDR</code> on <code>fd</code>. </p>
+  <div class="member-body"><p>Lets a subsequent <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1ae01bda4934e97272765c957051061f28">bind()</a> reuse a local address still lingering in TIME_WAIT, so a restarted server can re-listen on the same port immediately; call it before <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1ae01bda4934e97272765c957051061f28">bind()</a>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>the socket.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L73"><code>CheatahSocket.ListenLowLevel</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L63"><code>SocketCompileRun.SetReuseaddr</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1ae01bda4934e97272765c957051061f28">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">bind</span>(long long fd, const std::string &amp;host, long long port)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L46" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1ae01bda4934e97272765c957051061f28" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Bind <code>fd</code> to <code>host:<code>port</code>.</code> </p>
+  <div class="member-body"><p>Resolves <code>host</code> via <code>getaddrinfo</code> and assigns the resulting local address to the socket; a resolution failure returns -1 with errno set to EADDRNOTAVAIL (see the ResolveFailure test).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>the socket.</p></td></tr><tr><td class="pname"><code>host</code></td><td class="pdesc"><p>interface to bind.</p></td></tr><tr><td class="pname"><code>port</code></td><td class="pdesc"><p>TCP port (0 = OS-assigned).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) + resolution.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L73"><code>CheatahSocket.ListenLowLevel</code></a> <a href="src_stdlib_tests_socket_test_cpp.html#L96"><code>CheatahSocket.ResolveFailure</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L73"><code>SocketCompileRun.Bind</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a259eb5b0432636354d5fdc9abdc4ac96">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">listen</span>(long long fd, long long backlog)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L53" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a259eb5b0432636354d5fdc9abdc4ac96" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Mark <code>fd</code> as a passive (listening) socket. </p>
+  <div class="member-body"><p>Switches an already-bound socket into the listening state so <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a9041a1e2cd9b2ea93274fe372c8ecb22">accept()</a> can pull connections from it; <code>backlog</code> caps how many fully-established connections may queue before new ones are refused.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>the socket.</p></td></tr><tr><td class="pname"><code>backlog</code></td><td class="pdesc"><p>queue length.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L73"><code>CheatahSocket.ListenLowLevel</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L83"><code>SocketCompileRun.Listen</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a205e3cf02d83c985ac003ff68930ec9d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">connect</span>(long long fd, const std::string &amp;host, long long port)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L57" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a205e3cf02d83c985ac003ff68930ec9d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Connect <code>fd</code> to <code>host:<code>port</code>.</code> </p>
+  <div class="member-body"><p>Resolves <code>host</code> and blocks until the TCP handshake succeeds or fails; a refused connection returns -1 with errno ECONNREFUSED (see the ConnectRefused test). Unlike <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a24af8e33f0ce139e6831582ed97f717e">tcp_connect()</a> it does not close the fd on failure — the caller still owns <code>fd</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>the socket.</p></td></tr><tr><td class="pname"><code>host</code></td><td class="pdesc"><p>destination.</p></td></tr><tr><td class="pname"><code>port</code></td><td class="pdesc"><p>destination port.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) + DNS.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L84"><code>CheatahSocket.ConnectRefused</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L94"><code>SocketCompileRun.Connect</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a9041a1e2cd9b2ea93274fe372c8ecb22">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">accept</span>(long long fd)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L64" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a9041a1e2cd9b2ea93274fe372c8ecb22" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Accept one pending connection. </p>
+  <div class="member-body"><p>Blocks until a client connects, then returns a new fd for that one connection (the listening fd stays open for further accepts). The returned client fd is owned by the caller and must be closed separately; the peer address is discarded.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>a listening fd.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the connected client fd, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall (blocks until a client arrives).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L13"><code>CheatahSocket.Loopback</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L141"><code>SocketCompileRun.Accept</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a206a4e6066b36d31d4ef11e76be21fee">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">local_port</span>(long long fd)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L68" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a206a4e6066b36d31d4ef11e76be21fee" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The local TCP port <code>fd</code> is bound to (useful after binding to port 0). </p>
+  <div class="member-body"><p>Reads the address actually assigned via <code>getsockname</code> and returns its port in host byte order; this is the way to discover the ephemeral port the OS chose when you bound to port 0.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>a bound socket.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the port, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L13"><code>CheatahSocket.Loopback</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L26"><code>SocketCompileRun.LocalPort</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">send</span>(long long fd, const std::string &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L77" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Send some of <code>data</code> (one <code><a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">send</a></code>). </p>
+  <div class="member-body"><p>Issues a single <code><a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">send</a></code>, which may transmit fewer bytes than supplied (a partial send); the caller is responsible for re-sending the remainder, or use <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a67757ee6ca66cc1a6b95f643748a0450">sendall()</a> to loop automatically.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>a connected fd.</p></td></tr><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>bytes to send.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>bytes actually sent, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none (<code>MSG_NOSIGNAL</code>, so a broken pipe never raises <code>SIGPIPE</code>).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L41"><code>CheatahSocket.Sendall</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L113"><code>SocketCompileRun.Send</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a67757ee6ca66cc1a6b95f643748a0450">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">sendall</span>(long long fd, const std::string &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L81" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a67757ee6ca66cc1a6b95f643748a0450" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Send <code>data</code> in full, looping until all bytes are written. </p>
+  <div class="member-body"><p>Repeatedly calls <code><a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">send</a></code> on the unsent remainder until every byte is written, so unlike <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">send()</a> there are no partial sends to handle; it aborts with -1 the moment a <code><a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">send</a></code> returns &lt;= 0 (error or peer hang-up), in which case some bytes may already have been transmitted.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>a connected fd.</p></td></tr><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>bytes to send.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L41"><code>CheatahSocket.Sendall</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L121"><code>SocketCompileRun.Sendall</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a270e3398283a4305c4eaf264a01e5ee2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">recv</span>(long long fd, long long bufsize)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L91" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a270e3398283a4305c4eaf264a01e5ee2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Receive up to <code>bufsize</code> bytes. </p>
+  <div class="member-body"><p>Blocks for one <code><a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a270e3398283a4305c4eaf264a01e5ee2">recv</a></code> and returns whatever bytes arrive (possibly fewer than <code>bufsize</code>); the result is binary-safe, so a returned string may contain embedded NULs and its length is the true byte count. A clean EOF (peer closed) and an error both yield &quot;&quot;, so check <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1aec41c8ffa98cb1c2c71c2854ee1243a4">last_error()</a> to tell them apart; <code>bufsize</code> &lt;= 0 also returns &quot;&quot; without touching the socket.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>a connected fd.</p></td></tr><tr><td class="pname"><code>bufsize</code></td><td class="pdesc"><p>maximum bytes to read.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the bytes read (binary-safe), or &quot;&quot; on EOF/error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(<code>bufsize</code>).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L13"><code>CheatahSocket.Loopback</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L131"><code>SocketCompileRun.Recv</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a48fc8e3bdfab942983a875cecc431483">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">close</span>(long long fd)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L100" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a48fc8e3bdfab942983a875cecc431483" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close a socket. </p>
+  <div class="member-body"><p>Releases the fd back to the OS; after this the fd is invalid and must not be reused. Closing an already-closed or never-opened fd fails with -1 (EBADF), which is how the BadFd test exercises the error path.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>the fd to close.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L106"><code>CheatahSocket.BadFd</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L44"><code>SocketCompileRun.Close</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a8ce4f88031e57bfeef7a6509fb0d47f4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">tcp_listen</span>(const std::string &amp;host, long long port, long long backlog)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L104" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a8ce4f88031e57bfeef7a6509fb0d47f4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Create a TCP socket bound to <code>host:<code>port</code> and</code> put it in the listening state (sets <code>SO_REUSEADDR</code>). </p>
+  <div class="member-body"><p>Performs <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a60573a7cdf2847a01c831fde7e7aab39">socket()</a>/set_reuseaddr/bind/listen in one shot; on any failure it closes the partially-created socket and returns -1, so the caller never leaks an fd. On success the returned fd is owned by the caller and must be passed to <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a48fc8e3bdfab942983a875cecc431483">close()</a> when done.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>host</code></td><td class="pdesc"><p>interface to bind (&quot;127.0.0.1&quot;, &quot;0.0.0.0&quot;, …).</p></td></tr><tr><td class="pname"><code>port</code></td><td class="pdesc"><p>TCP port (0 = let the OS pick — read it back with <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a206a4e6066b36d31d4ef11e76be21fee">local_port()</a>).</p></td></tr><tr><td class="pname"><code>backlog</code></td><td class="pdesc"><p>pending-connection queue length.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the listening fd, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) (a few syscalls).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L13"><code>CheatahSocket.Loopback</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L16"><code>SocketCompileRun.TcpListen</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1a24af8e33f0ce139e6831582ed97f717e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">tcp_connect</span>(const std::string &amp;host, long long port)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L116" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1a24af8e33f0ce139e6831582ed97f717e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Create a TCP socket and connect it to <code>host:<code>port</code>.</code> </p>
+  <div class="member-body"><p>The host is resolved via <code>getaddrinfo</code>, so names, &quot;localhost&quot;, and dotted IPs all work; the connect blocks until the handshake completes or fails. On failure the socket is closed and -1 is returned; on success the caller owns the connected fd and must <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a48fc8e3bdfab942983a875cecc431483">close()</a> it.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>host</code></td><td class="pdesc"><p>destination host (name or IP).</p></td></tr><tr><td class="pname"><code>port</code></td><td class="pdesc"><p>destination port.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the connected fd, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) + DNS resolution.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L13"><code>CheatahSocket.Loopback</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L36"><code>SocketCompileRun.TcpConnect</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1socket_1aec41c8ffa98cb1c2c71c2854ee1243a4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">last_error</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L125" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1socket_1aec41c8ffa98cb1c2c71c2854ee1243a4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The message for the current <code>errno</code>. </p>
+  <div class="member-body"><p>Returns the human-readable text for the thread&#x27;s current <code>errno</code>; call it right after a function reports failure (a -1 return, or &quot;&quot; from recv), since any later syscall may overwrite <code>errno</code>.</p><div class="ret"><span class="ret-h">Returns</span> <p><code>strerror(errno)</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L84"><code>CheatahSocket.ConnectRefused</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_socket_cr_test_cpp.html#L104"><code>SocketCompileRun.LastError</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_socket_sys_test_cpp.html#L33"><code>StdlibE2E.Socket</code></a></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1socket_1a60573a7cdf2847a01c831fde7e7aab39">socket</a></li><li><a href="#namespacecheatah_1_1socket_1a7af90c71c5b2fe50a3dc06fd4292a1ca">set_reuseaddr</a></li><li><a href="#namespacecheatah_1_1socket_1ae01bda4934e97272765c957051061f28">bind</a></li><li><a href="#namespacecheatah_1_1socket_1a259eb5b0432636354d5fdc9abdc4ac96">listen</a></li><li><a href="#namespacecheatah_1_1socket_1a205e3cf02d83c985ac003ff68930ec9d">connect</a></li><li><a href="#namespacecheatah_1_1socket_1a9041a1e2cd9b2ea93274fe372c8ecb22">accept</a></li><li><a href="#namespacecheatah_1_1socket_1a206a4e6066b36d31d4ef11e76be21fee">local_port</a></li><li><a href="#namespacecheatah_1_1socket_1a2982b100f5088d94c9ad226a3844ab40">send</a></li><li><a href="#namespacecheatah_1_1socket_1a67757ee6ca66cc1a6b95f643748a0450">sendall</a></li><li><a href="#namespacecheatah_1_1socket_1a270e3398283a4305c4eaf264a01e5ee2">recv</a></li><li><a href="#namespacecheatah_1_1socket_1a48fc8e3bdfab942983a875cecc431483">close</a></li><li><a href="#namespacecheatah_1_1socket_1a8ce4f88031e57bfeef7a6509fb0d47f4">tcp_listen</a></li><li><a href="#namespacecheatah_1_1socket_1a24af8e33f0ce139e6831582ed97f717e">tcp_connect</a></li><li><a href="#namespacecheatah_1_1socket_1aec41c8ffa98cb1c2c71c2854ee1243a4">last_error</a></li></ul></aside>
 </div>
-<script type="text/javascript">
-$(function(){initNavTree('namespacecheatah_1_1socket.html','',''); });
-</script>
-<div id="container">
-<div id="doc-content">
-<div class="header">
-  <div class="headertitle"><div class="title">cheatah::socket Namespace Reference</div></div>
-</div><!--header-->
-<div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a60573a7cdf2847a01c831fde7e7aab39" id="r_a60573a7cdf2847a01c831fde7e7aab39"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a60573a7cdf2847a01c831fde7e7aab39">socket</a> ()</td></tr>
-<tr class="memdesc:a60573a7cdf2847a01c831fde7e7aab39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an IPv4 TCP socket.  <br /></td></tr>
-<tr class="memitem:a7af90c71c5b2fe50a3dc06fd4292a1ca" id="r_a7af90c71c5b2fe50a3dc06fd4292a1ca"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a7af90c71c5b2fe50a3dc06fd4292a1ca">set_reuseaddr</a> (long long fd)</td></tr>
-<tr class="memdesc:a7af90c71c5b2fe50a3dc06fd4292a1ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable <span class="tt">SO_REUSEADDR</span> on <code class="param">fd</code>.  <br /></td></tr>
-<tr class="memitem:ae01bda4934e97272765c957051061f28" id="r_ae01bda4934e97272765c957051061f28"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#ae01bda4934e97272765c957051061f28">bind</a> (long long fd, const std::string &amp;host, long long port)</td></tr>
-<tr class="memdesc:ae01bda4934e97272765c957051061f28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind <code class="param">fd</code> to <code class="param">host:<code class="param">port</code>.</code>  <br /></td></tr>
-<tr class="memitem:a259eb5b0432636354d5fdc9abdc4ac96" id="r_a259eb5b0432636354d5fdc9abdc4ac96"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a259eb5b0432636354d5fdc9abdc4ac96">listen</a> (long long fd, long long backlog)</td></tr>
-<tr class="memdesc:a259eb5b0432636354d5fdc9abdc4ac96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark <code class="param">fd</code> as a passive (listening) socket.  <br /></td></tr>
-<tr class="memitem:a205e3cf02d83c985ac003ff68930ec9d" id="r_a205e3cf02d83c985ac003ff68930ec9d"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a205e3cf02d83c985ac003ff68930ec9d">connect</a> (long long fd, const std::string &amp;host, long long port)</td></tr>
-<tr class="memdesc:a205e3cf02d83c985ac003ff68930ec9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connect <code class="param">fd</code> to <code class="param">host:<code class="param">port</code>.</code>  <br /></td></tr>
-<tr class="memitem:a9041a1e2cd9b2ea93274fe372c8ecb22" id="r_a9041a1e2cd9b2ea93274fe372c8ecb22"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a9041a1e2cd9b2ea93274fe372c8ecb22">accept</a> (long long fd)</td></tr>
-<tr class="memdesc:a9041a1e2cd9b2ea93274fe372c8ecb22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accept one pending connection.  <br /></td></tr>
-<tr class="memitem:a206a4e6066b36d31d4ef11e76be21fee" id="r_a206a4e6066b36d31d4ef11e76be21fee"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a206a4e6066b36d31d4ef11e76be21fee">local_port</a> (long long fd)</td></tr>
-<tr class="memdesc:a206a4e6066b36d31d4ef11e76be21fee"><td class="mdescLeft">&#160;</td><td class="mdescRight">The local TCP port <code class="param">fd</code> is bound to (useful after binding to port 0).  <br /></td></tr>
-<tr class="memitem:a2982b100f5088d94c9ad226a3844ab40" id="r_a2982b100f5088d94c9ad226a3844ab40"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a2982b100f5088d94c9ad226a3844ab40">send</a> (long long fd, const std::string &amp;data)</td></tr>
-<tr class="memdesc:a2982b100f5088d94c9ad226a3844ab40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send some of <code class="param">data</code> (one <span class="tt"><a class="el" href="#a2982b100f5088d94c9ad226a3844ab40" title="Send some of data (one send).">send</a></span>).  <br /></td></tr>
-<tr class="memitem:a67757ee6ca66cc1a6b95f643748a0450" id="r_a67757ee6ca66cc1a6b95f643748a0450"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a67757ee6ca66cc1a6b95f643748a0450">sendall</a> (long long fd, const std::string &amp;data)</td></tr>
-<tr class="memdesc:a67757ee6ca66cc1a6b95f643748a0450"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send <code class="param">data</code> in full, looping until all bytes are written.  <br /></td></tr>
-<tr class="memitem:a270e3398283a4305c4eaf264a01e5ee2" id="r_a270e3398283a4305c4eaf264a01e5ee2"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a270e3398283a4305c4eaf264a01e5ee2">recv</a> (long long fd, long long bufsize)</td></tr>
-<tr class="memdesc:a270e3398283a4305c4eaf264a01e5ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Receive up to <code class="param">bufsize</code> bytes.  <br /></td></tr>
-<tr class="memitem:a48fc8e3bdfab942983a875cecc431483" id="r_a48fc8e3bdfab942983a875cecc431483"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a48fc8e3bdfab942983a875cecc431483">close</a> (long long fd)</td></tr>
-<tr class="memdesc:a48fc8e3bdfab942983a875cecc431483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close a socket.  <br /></td></tr>
-<tr class="memitem:a8ce4f88031e57bfeef7a6509fb0d47f4" id="r_a8ce4f88031e57bfeef7a6509fb0d47f4"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a8ce4f88031e57bfeef7a6509fb0d47f4">tcp_listen</a> (const std::string &amp;host, long long port, long long backlog)</td></tr>
-<tr class="memdesc:a8ce4f88031e57bfeef7a6509fb0d47f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a TCP socket bound to <code class="param">host:<code class="param">port</code> and</code> put it in the listening state (sets <span class="tt">SO_REUSEADDR</span>).  <br /></td></tr>
-<tr class="memitem:a24af8e33f0ce139e6831582ed97f717e" id="r_a24af8e33f0ce139e6831582ed97f717e"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a24af8e33f0ce139e6831582ed97f717e">tcp_connect</a> (const std::string &amp;host, long long port)</td></tr>
-<tr class="memdesc:a24af8e33f0ce139e6831582ed97f717e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a TCP socket and connect it to <code class="param">host:<code class="param">port</code>.</code>  <br /></td></tr>
-<tr class="memitem:aec41c8ffa98cb1c2c71c2854ee1243a4" id="r_aec41c8ffa98cb1c2c71c2854ee1243a4"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aec41c8ffa98cb1c2c71c2854ee1243a4">last_error</a> ()</td></tr>
-<tr class="memdesc:aec41c8ffa98cb1c2c71c2854ee1243a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">The message for the current <span class="tt">errno</span>.  <br /></td></tr>
-</table>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a60573a7cdf2847a01c831fde7e7aab39" name="a60573a7cdf2847a01c831fde7e7aab39"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a60573a7cdf2847a01c831fde7e7aab39">&#9670;&#160;</a></span>socket()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::socket </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Create an IPv4 TCP socket. </p>
-<dl class="section return"><dt>Returns</dt><dd>the new fd, or -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000176">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000176">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000180">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00037">37</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00116">tcp_connect()</a>, and <a class="el" href="socket_8cpp_source.html#l00104">tcp_listen()</a>.</p>
-<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a60573a7cdf2847a01c831fde7e7aab39_icgraph.svg" width="386" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a7af90c71c5b2fe50a3dc06fd4292a1ca" name="a7af90c71c5b2fe50a3dc06fd4292a1ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7af90c71c5b2fe50a3dc06fd4292a1ca">&#9670;&#160;</a></span>set_reuseaddr()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::set_reuseaddr </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Enable <span class="tt">SO_REUSEADDR</span> on <code class="param">fd</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>the socket. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000177">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000177">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000181">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00041">41</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00104">tcp_listen()</a>.</p>
-<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a7af90c71c5b2fe50a3dc06fd4292a1ca_icgraph.svg" width="363" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ae01bda4934e97272765c957051061f28" name="ae01bda4934e97272765c957051061f28"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae01bda4934e97272765c957051061f28">&#9670;&#160;</a></span>bind()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::bind </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>host</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>port</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Bind <code class="param">fd</code> to <code class="param">host:<code class="param">port</code>.</code> </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>the socket. </td></tr>
-    <tr><td class="paramname">host</td><td>interface to bind. </td></tr>
-    <tr><td class="paramname">port</td><td>TCP port (0 = OS-assigned). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000178">Complexity</a></b></dt><dd>O(1) + resolution. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000178">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000182">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00046">46</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00104">tcp_listen()</a>.</p>
-<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_ae01bda4934e97272765c957051061f28_icgraph.svg" width="371" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a259eb5b0432636354d5fdc9abdc4ac96" name="a259eb5b0432636354d5fdc9abdc4ac96"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a259eb5b0432636354d5fdc9abdc4ac96">&#9670;&#160;</a></span>listen()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::listen </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>backlog</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Mark <code class="param">fd</code> as a passive (listening) socket. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>the socket. </td></tr>
-    <tr><td class="paramname">backlog</td><td>queue length. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000179">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000179">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000183">Test</a></b></dt><dd>CheatahSocket.ListenLowLevel </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00053">53</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00104">tcp_listen()</a>.</p>
-<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a259eb5b0432636354d5fdc9abdc4ac96_icgraph.svg" width="379" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a205e3cf02d83c985ac003ff68930ec9d" name="a205e3cf02d83c985ac003ff68930ec9d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a205e3cf02d83c985ac003ff68930ec9d">&#9670;&#160;</a></span>connect()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::connect </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>host</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>port</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Connect <code class="param">fd</code> to <code class="param">host:<code class="param">port</code>.</code> </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>the socket. </td></tr>
-    <tr><td class="paramname">host</td><td>destination. </td></tr>
-    <tr><td class="paramname">port</td><td>destination port. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000180">Complexity</a></b></dt><dd>O(1) + DNS. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000180">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000184">Test</a></b></dt><dd>CheatahSocket.ConnectRefused </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00057">57</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00116">tcp_connect()</a>.</p>
-<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a205e3cf02d83c985ac003ff68930ec9d_icgraph.svg" width="394" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a9041a1e2cd9b2ea93274fe372c8ecb22" name="a9041a1e2cd9b2ea93274fe372c8ecb22"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9041a1e2cd9b2ea93274fe372c8ecb22">&#9670;&#160;</a></span>accept()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::accept </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Accept one pending connection. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>a listening fd. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the connected client fd, or -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000171">Complexity</a></b></dt><dd>O(1) syscall (blocks until a client arrives). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000171">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000175">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00064">64</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a206a4e6066b36d31d4ef11e76be21fee" name="a206a4e6066b36d31d4ef11e76be21fee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a206a4e6066b36d31d4ef11e76be21fee">&#9670;&#160;</a></span>local_port()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::local_port </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The local TCP port <code class="param">fd</code> is bound to (useful after binding to port 0). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>a bound socket. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the port, or -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000181">Complexity</a></b></dt><dd>O(1) syscall. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000181">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000185">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00068">68</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a2982b100f5088d94c9ad226a3844ab40" name="a2982b100f5088d94c9ad226a3844ab40"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2982b100f5088d94c9ad226a3844ab40">&#9670;&#160;</a></span>send()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::send </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Send some of <code class="param">data</code> (one <span class="tt"><a class="el" href="#a2982b100f5088d94c9ad226a3844ab40" title="Send some of data (one send).">send</a></span>). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>a connected fd. </td></tr>
-    <tr><td class="paramname">data</td><td>bytes to send. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>bytes actually sent, or -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000173">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000173">Allocation</a></b></dt><dd>none (<span class="tt">MSG_NOSIGNAL</span>, so a broken pipe never raises <span class="tt">SIGPIPE</span>). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000177">Test</a></b></dt><dd>CheatahSocket.Sendall </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00077">77</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00081">sendall()</a>.</p>
-<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a2982b100f5088d94c9ad226a3844ab40_icgraph.svg" width="400" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a67757ee6ca66cc1a6b95f643748a0450" name="a67757ee6ca66cc1a6b95f643748a0450"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a67757ee6ca66cc1a6b95f643748a0450">&#9670;&#160;</a></span>sendall()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::sendall </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Send <code class="param">data</code> in full, looping until all bytes are written. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>a connected fd. </td></tr>
-    <tr><td class="paramname">data</td><td>bytes to send. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000174">Complexity</a></b></dt><dd>O(n). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000174">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000178">Test</a></b></dt><dd>CheatahSocket.Sendall </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00081">81</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="socket_8cpp_source.html#l00077">send()</a>.</p>
-<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a67757ee6ca66cc1a6b95f643748a0450_cgraph.svg" width="400" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a270e3398283a4305c4eaf264a01e5ee2" name="a270e3398283a4305c4eaf264a01e5ee2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a270e3398283a4305c4eaf264a01e5ee2">&#9670;&#160;</a></span>recv()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::socket::recv </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>bufsize</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Receive up to <code class="param">bufsize</code> bytes. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>a connected fd. </td></tr>
-    <tr><td class="paramname">bufsize</td><td>maximum bytes to read. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the bytes read (binary-safe), or "" on EOF/error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000172">Complexity</a></b></dt><dd>O(<code class="param">bufsize</code>). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000172">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000176">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00091">91</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="socket_8cpp_source.html#l00091">recv()</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00091">recv()</a>.</p>
-<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a270e3398283a4305c4eaf264a01e5ee2_cgraph.svg" width="171" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a270e3398283a4305c4eaf264a01e5ee2_icgraph.svg" width="171" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a48fc8e3bdfab942983a875cecc431483" name="a48fc8e3bdfab942983a875cecc431483"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48fc8e3bdfab942983a875cecc431483">&#9670;&#160;</a></span>close()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::close </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>fd</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Close a socket. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fd</td><td>the fd to close. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>0 on success, -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000175">Complexity</a></b></dt><dd>O(1) syscall. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000175">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000179">Test</a></b></dt><dd>CheatahSocket.BadFd </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00100">100</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="socket_8cpp_source.html#l00116">tcp_connect()</a>, and <a class="el" href="socket_8cpp_source.html#l00104">tcp_listen()</a>.</p>
-<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
-<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-9-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a48fc8e3bdfab942983a875cecc431483_icgraph.svg" width="378" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a8ce4f88031e57bfeef7a6509fb0d47f4" name="a8ce4f88031e57bfeef7a6509fb0d47f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ce4f88031e57bfeef7a6509fb0d47f4">&#9670;&#160;</a></span>tcp_listen()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::tcp_listen </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>host</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>port</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>backlog</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Create a TCP socket bound to <code class="param">host:<code class="param">port</code> and</code> put it in the listening state (sets <span class="tt">SO_REUSEADDR</span>). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">host</td><td>interface to bind ("127.0.0.1", "0.0.0.0", …). </td></tr>
-    <tr><td class="paramname">port</td><td>TCP port (0 = let the OS pick — read it back with <a class="el" href="#a206a4e6066b36d31d4ef11e76be21fee" title="The local TCP port fd is bound to (useful after binding to port 0).">local_port()</a>). </td></tr>
-    <tr><td class="paramname">backlog</td><td>pending-connection queue length. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the listening fd, or -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000169">Complexity</a></b></dt><dd>O(1) (a few syscalls). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000169">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000173">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00104">104</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="socket_8cpp_source.html#l00046">bind()</a>, <a class="el" href="socket_8cpp_source.html#l00100">close()</a>, <a class="el" href="socket_8cpp_source.html#l00053">listen()</a>, <a class="el" href="socket_8cpp_source.html#l00041">set_reuseaddr()</a>, and <a class="el" href="socket_8cpp_source.html#l00037">socket()</a>.</p>
-<div id="dynsection-10" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-10-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-10-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a8ce4f88031e57bfeef7a6509fb0d47f4_cgraph.svg" width="386" height="250"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a24af8e33f0ce139e6831582ed97f717e" name="a24af8e33f0ce139e6831582ed97f717e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a24af8e33f0ce139e6831582ed97f717e">&#9670;&#160;</a></span>tcp_connect()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::socket::tcp_connect </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>host</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>port</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Create a TCP socket and connect it to <code class="param">host:<code class="param">port</code>.</code> </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">host</td><td>destination host (name or IP). </td></tr>
-    <tr><td class="paramname">port</td><td>destination port. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the connected fd, or -1 on error. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000170">Complexity</a></b></dt><dd>O(1) + DNS resolution. </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000170">Allocation</a></b></dt><dd>none. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000174">Test</a></b></dt><dd>CheatahSocket.Loopback </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00116">116</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-<p class="reference">References <a class="el" href="socket_8cpp_source.html#l00100">close()</a>, <a class="el" href="socket_8cpp_source.html#l00057">connect()</a>, and <a class="el" href="socket_8cpp_source.html#l00037">socket()</a>.</p>
-<div id="dynsection-11" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
-<div id="dynsection-11-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-11-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1socket_a24af8e33f0ce139e6831582ed97f717e_cgraph.svg" width="394" height="135"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="aec41c8ffa98cb1c2c71c2854ee1243a4" name="aec41c8ffa98cb1c2c71c2854ee1243a4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec41c8ffa98cb1c2c71c2854ee1243a4">&#9670;&#160;</a></span>last_error()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::socket::last_error </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The message for the current <span class="tt">errno</span>. </p>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">strerror(errno)</span>. </dd></dl>
-<dl class="complexity"><dt><b><a class="el" href="complexity.html#_complexity000182">Complexity</a></b></dt><dd>O(1). </dd></dl>
-<dl class="alloc"><dt><b><a class="el" href="alloc.html#_alloc000182">Allocation</a></b></dt><dd>allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000186">Test</a></b></dt><dd>CheatahSocket.ConnectRefused </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="socket_8cpp_source.html#l00125">125</a> of file <a class="el" href="socket_8cpp_source.html">socket.cpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
-</div><!-- doc-content -->
-<div id="page-nav" class="page-nav-panel">
-<div id="page-nav-resize-handle"></div>
-<div id="page-nav-tree">
-<div id="page-nav-contents">
-</div><!-- page-nav-contents -->
-</div><!-- page-nav-tree -->
-</div><!-- page-nav -->
-</div><!-- container -->
-
-<!-- start footer part -->
-<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
-<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
-<footer class="cheetah-footer">
-  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
-  <span class="cheetah-footer-credit">cheatah standard library reference · built from source.</span>
-</footer>
+<script src="search-index.js?v=a6125919"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
 </body>
 </html>

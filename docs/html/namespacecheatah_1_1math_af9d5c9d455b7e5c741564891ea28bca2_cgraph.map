@@ -1,5 +1,0 @@
-<map id="cheatah::math::min" name="cheatah::math::min">
-<area shape="rect" id="Node000001" title="Smallest of three&#45;or&#45;more values (folds the extra args onto the two&#45;argument overload)." alt="" coords="5,5,155,31"/>
-<area shape="rect" id="Node000002" href="$namespacecheatah_1_1math.html#af226e29104b09a0a117be99bdb0c93c2" title="Smallest of two&#45;or&#45;more values (variadic; the overloads chain to fold extra args)." alt="" coords="203,5,352,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,15,189,15,189,21,155,21"/>
-</map>
