@@ -9,6 +9,11 @@ cheatah transpiles to modern C++ and is built at `-O3 -march=native`, your
 programs run at **optimized native speed** — a recursive `fib(35)` runs at parity
 with hand-written C++.
 
+> ⚠️ **Status: pre-alpha (v0.1.0-prealpha).** cheatah runs and is heavily tested
+> (100+ tests; the QA gate runs them under **ASan + UBSan + Valgrind**), but the
+> language and APIs may still change. Today `.purr`/`.so` are *fully trusted* — see
+> [SECURITY.md](SECURITY.md) before running code you didn't write.
+
 ```python
 # hello.purr
 import io
@@ -247,6 +252,19 @@ gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
 | [cmake/](cmake/) | the `add_cheatah_library` helper |
 | [editors/](editors/) | editor support — a VS Code extension + TextMate grammar (highlights `.purr`, incl. embedded C++ in `cpp { … }`) |
 | [scripts/](scripts/) | the QA gate and git-hook setup |
+
+## Security
+
+cheatah is **single-trust** today: `.purr` source and compiled `.so` modules are
+fully trusted, like Python or a C++ compiler. The toolchain avoids shell/command
+injection (`fork`+`execvp`, no shell), the runtime validates a module before
+`dlopen`, the standard library is bounds-checked, and CI runs the whole suite under
+**ASan + UBSan + Valgrind**.
+
+The threat model, the standing review, and the plan for safely adding a Unix
+interface and an MCP server (host-decided trust tiers, capability gating, and an OS
+sandbox) live in [SECURITY.md](SECURITY.md). **Don't run untrusted `.purr` until the
+sandboxed mode described there exists.**
 
 ## License
 
