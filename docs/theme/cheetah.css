@@ -1,0 +1,98 @@
+/*
+ * cheetah.css — cheetah-themed palette for cheatah's Doxygen docs. 🐆
+ * Layered on top of doxygen-awesome-css; overrides its CSS custom properties
+ * with a tawny-amber / charcoal "cheetah fur & spots" palette.
+ */
+
+/* ---- Light mode: sand & tawny amber, cheetah-spot charcoal accents ---- */
+html {
+    --primary-color:          #C07A1E;   /* tawny amber (cheetah coat) */
+    --primary-dark-color:      #8a560f;   /* deep amber for links/hover */
+    --primary-light-color:     #d99a3d;
+    --primary-lighter-color:   #f0d6a6;
+    --primary-lightest-color:  #fbf2df;   /* faint sand wash */
+
+    --page-background-color:   #fffdf8;   /* warm paper */
+    --page-foreground-color:   #2b2620;   /* near-black (spots) */
+    --separator-color:         #ecdcc0;
+
+    --header-foreground:       #2b2620;
+
+    --fragment-background:     #2b2620;   /* dark code blocks even in light mode */
+    --fragment-foreground:     #f6efe2;
+
+    --border-radius-large:     10px;
+    --border-radius-small:     5px;
+    --spacing-large:           14px;
+
+    --searchbar-background:    var(--page-background-color);
+}
+
+/* ---- Dark mode: charcoal night with glowing amber ---- */
+html.dark-mode {
+    --primary-color:          #e6a83e;
+    --primary-dark-color:      #f3c067;
+    --primary-light-color:     #b9842f;
+    --primary-lighter-color:   #4a3b22;
+    --primary-lightest-color:  #2a2620;
+
+    --page-background-color:   #1b1814;
+    --page-foreground-color:   #ece4d6;
+    --separator-color:         #3a3228;
+
+    --fragment-background:     #14110d;
+    --fragment-foreground:     #ece4d6;
+}
+
+/* ---- Header: project name + slogan ---- */
+#projectname {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+#projectbrief {
+    color: var(--primary-dark-color);
+    font-style: italic;
+    font-weight: 600;
+}
+html.dark-mode #projectbrief { color: var(--primary-dark-color); }
+
+/* A warm tawny gradient under the top title bar. */
+#titlearea {
+    background: linear-gradient(135deg, var(--primary-lightest-color) 0%, var(--page-background-color) 60%);
+    border-bottom: 3px solid var(--primary-color);
+}
+html.dark-mode #titlearea {
+    background: linear-gradient(135deg, #241f18 0%, var(--page-background-color) 60%);
+}
+
+/* ---- Slogan banner (used on the main page) ---- */
+.cheetah-slogan {
+    margin: 0 0 1.4em 0;
+    padding: 1.1em 1.4em;
+    border-left: 6px solid var(--primary-color);
+    border-radius: var(--border-radius-large);
+    background: linear-gradient(135deg, var(--primary-lightest-color), var(--primary-lighter-color));
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--page-foreground-color);
+}
+html.dark-mode .cheetah-slogan {
+    background: linear-gradient(135deg, #2a2418, #34291a);
+    color: var(--page-foreground-color);
+}
+
+/* ---- @note blocks: amber-tinted so the heap/complexity annotations pop ---- */
+dl.note {
+    background: var(--primary-lightest-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--border-radius-small);
+    padding: 0.4em 0.8em;
+}
+html.dark-mode dl.note {
+    background: #241f17;
+}
+
+/* Slightly rounder, cheetah-amber function prototypes. */
+.memtitle {
+    border-top-color: var(--primary-color);
+}

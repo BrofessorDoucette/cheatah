@@ -1,0 +1,37 @@
+var namespacecheatah_1_1linalg =
+[
+    [ "detail", "namespacecheatah_1_1linalg_1_1detail.html", [
+      [ "scalar_if_empty", "namespacecheatah_1_1linalg_1_1detail.html#a570e2dba7f4803ebc590e5e363167d44", null ]
+    ] ],
+    [ "QR", "structcheatah_1_1linalg_1_1QR.html", "structcheatah_1_1linalg_1_1QR" ],
+    [ "SVD", "structcheatah_1_1linalg_1_1SVD.html", "structcheatah_1_1linalg_1_1SVD" ],
+    [ "Eig", "structcheatah_1_1linalg_1_1Eig.html", "structcheatah_1_1linalg_1_1Eig" ],
+    [ "SLogDet", "structcheatah_1_1linalg_1_1SLogDet.html", "structcheatah_1_1linalg_1_1SLogDet" ],
+    [ "NDArray", "classcheatah_1_1linalg_1_1NDArray.html", "classcheatah_1_1linalg_1_1NDArray" ],
+    [ "dot", "namespacecheatah_1_1linalg.html#af622dbc275fbbb5c07221ab4be2c8e1c", null ],
+    [ "vdot", "namespacecheatah_1_1linalg.html#aeb4d9c3e5d41a7afe29f1bb5b60d6a76", null ],
+    [ "inner", "namespacecheatah_1_1linalg.html#a5c35a832b1c73bdf5cabfed648a308fc", null ],
+    [ "outer", "namespacecheatah_1_1linalg.html#a4851eb5e22a572a07ef8fa421ca3bfcb", null ],
+    [ "matmul", "namespacecheatah_1_1linalg.html#a2c4edb6bbbbab3ee899b7a33d19311ea", null ],
+    [ "matrix_power", "namespacecheatah_1_1linalg.html#ade89164399c44e04d11ceabf70dd7b0f", null ],
+    [ "kron", "namespacecheatah_1_1linalg.html#afcf3b262470f233b669d00f86bcbc442", null ],
+    [ "cholesky", "namespacecheatah_1_1linalg.html#a90da5609fdd9efb08b97dd3c0ed98d41", null ],
+    [ "qr", "namespacecheatah_1_1linalg.html#a5e67bd5371c2380dc4e4896b93006769", null ],
+    [ "svd", "namespacecheatah_1_1linalg.html#aca03d8bcbabadeb0f4aee077e65e48d0", null ],
+    [ "eig", "namespacecheatah_1_1linalg.html#ae6ac46aea9b8353893aaa9da852ca673", null ],
+    [ "eigvals", "namespacecheatah_1_1linalg.html#ae38fa57d37ed5c742bc4faf782b6e6ad", null ],
+    [ "eigh", "namespacecheatah_1_1linalg.html#a73d032676733f00ec8c5ceabc60cd4be", null ],
+    [ "eigvalsh", "namespacecheatah_1_1linalg.html#a8623020f326ce35d1e24600ab44ddb73", null ],
+    [ "norm", "namespacecheatah_1_1linalg.html#afe04c01bb9160f60115734737a890f53", null ],
+    [ "cond", "namespacecheatah_1_1linalg.html#a1a87733ea05b83ae7e5bc18c619ee0b0", null ],
+    [ "det", "namespacecheatah_1_1linalg.html#aedffc527790c80f83676088b55b57ff4", null ],
+    [ "matrix_rank", "namespacecheatah_1_1linalg.html#a28ceb7f1c8e368fb6f07cf5a92a4c6f0", null ],
+    [ "slogdet", "namespacecheatah_1_1linalg.html#a3d6e14b9367c2c90aad441fe00fa0789", null ],
+    [ "trace", "namespacecheatah_1_1linalg.html#a74d99618b24abcef74c90b11380ac7be", null ],
+    [ "solve", "namespacecheatah_1_1linalg.html#aa66920736e4d6190b9310fcf14d8dc3b", null ],
+    [ "lstsq", "namespacecheatah_1_1linalg.html#aae0fffb18efd5f74174b2fd0632d41dd", null ],
+    [ "inv", "namespacecheatah_1_1linalg.html#ac8e9b02dfce2845e7c41922bc5c3ce3a", null ],
+    [ "pinv", "namespacecheatah_1_1linalg.html#a15954951259f3da0e9cd986637238593", null ],
+    [ "simd_features", "namespacecheatah_1_1linalg.html#a2d288f8d35786438554abc6009432919", null ],
+    [ "simd_lane_doubles", "namespacecheatah_1_1linalg.html#af680e44741ec4db0de052c87c7423fc3", null ]
+];

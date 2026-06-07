@@ -1,0 +1,11 @@
+var searchData=
+[
+  ['nan_0',['nan',['../namespacecheatah_1_1math.html#af09016b3dc8f87eaffa5047a694e59ef',1,'cheatah::math']]],
+  ['ndarray_1',['NDArray',['../classcheatah_1_1linalg_1_1NDArray.html',1,'cheatah::linalg::NDArray'],['../classcheatah_1_1ndarray_1_1NDArray.html',1,'cheatah::ndarray::NDArray'],['../classcheatah_1_1ndarray_1_1NDArray.html#abe6943a3536dfb3245be4b532253bfaf',1,'cheatah::ndarray::NDArray::NDArray()'],['../classcheatah_1_1ndarray_1_1NDArray.html#a93e4a1fcff4d19c6ee28eb08cdab969e',1,'cheatah::ndarray::NDArray::NDArray(std::vector&lt; std::size_t &gt; shape, double fill=0.0)'],['../classcheatah_1_1ndarray_1_1NDArray.html#abf01a545db16e6921d16627a6c8fa0c3',1,'cheatah::ndarray::NDArray::NDArray(std::shared_ptr&lt; std::vector&lt; double &gt; &gt; data, std::vector&lt; std::size_t &gt; shape, std::vector&lt; std::ptrdiff_t &gt; strides, std::size_t offset)'],['../classcheatah_1_1linalg_1_1NDArray.html#abe6943a3536dfb3245be4b532253bfaf',1,'cheatah::linalg::NDArray::NDArray()'],['../classcheatah_1_1linalg_1_1NDArray.html#a93e4a1fcff4d19c6ee28eb08cdab969e',1,'cheatah::linalg::NDArray::NDArray(std::vector&lt; std::size_t &gt; shape, double fill=0.0)'],['../classcheatah_1_1linalg_1_1NDArray.html#abf01a545db16e6921d16627a6c8fa0c3',1,'cheatah::linalg::NDArray::NDArray(std::shared_ptr&lt; std::vector&lt; double &gt; &gt; data, std::vector&lt; std::size_t &gt; shape, std::vector&lt; std::ptrdiff_t &gt; strides, std::size_t offset)']]],
+  ['ndarray_2ehpp_2',['ndarray.hpp',['../ndarray_8hpp.html',1,'']]],
+  ['ndim_3',['ndim',['../classcheatah_1_1ndarray_1_1NDArray.html#a09704c044d8abf1eadf1e47e203a18ec',1,'cheatah::ndarray::NDArray::ndim()'],['../classcheatah_1_1linalg_1_1NDArray.html#a09704c044d8abf1eadf1e47e203a18ec',1,'cheatah::linalg::NDArray::ndim()']]],
+  ['norm_4',['norm',['../namespacecheatah_1_1linalg.html#afe04c01bb9160f60115734737a890f53',1,'cheatah::linalg']]],
+  ['normpath_5',['normpath',['../namespacecheatah_1_1os_1_1path.html#a7ca78fd59e2abd52c6c33d6726ce8bb9',1,'cheatah::os::path']]],
+  ['now_6',['now',['../namespacecheatah_1_1datetime.html#a42701f6b1618a5240aec5c266884837f',1,'cheatah::datetime']]],
+  ['numericrange_7',['NumericRange',['../conceptcheatah_1_1statistics_1_1NumericRange.html',1,'cheatah::statistics']]]
+];
