@@ -81,6 +81,7 @@ HTML_COPY_CLIPBOARD    = NO
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
+SEARCHENGINE           = NO
 HTML_DYNAMIC_SECTIONS  = YES
 HTML_EXTRA_STYLESHEET  = docs/theme/doxygen-awesome.css \
                          docs/theme/doxygen-awesome-sidebar-only.css \
@@ -96,7 +97,7 @@ HTML_EXTRA_FILES       = docs/theme/doxygen-awesome-fragment-copy-button.js \
 #---------------------------------------------------------------------------
 HAVE_DOT               = YES
 DOT_IMAGE_FORMAT       = svg
-INTERACTIVE_SVG        = YES
+INTERACTIVE_SVG        = NO
 DOT_GRAPH_MAX_NODES    = 50
 MAX_DOT_GRAPH_DEPTH    = 0
 DOT_MULTI_TARGETS      = YES

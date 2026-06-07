@@ -6,17 +6,6 @@
 <!-- Title: cheatah::linalg::dot Pages: 1 -->
 <svg width="273pt" height="64pt"
  viewBox="0.00 0.00 273.00 64.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-
-<svg id="main" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
-
-<style type="text/css"><![CDATA[
-.node, .edge {opacity: 0.7;}
-.node.selected, .edge.selected {opacity: 1;}
-.edge:hover path { stroke: red; }
-.edge:hover polygon { stroke: red; fill: red; }
-]]></style>
-<script type="application/ecmascript" xlink:href="svg.min.js"/>
-<svg id="graph" class="graph">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 60)">
 <title>cheatah::linalg::dot</title>
 <!-- Node1 -->
@@ -41,8 +30,8 @@
 <g id="edge1_Node000001_Node000002" class="edge">
 <title>Node1&#45;&gt;Node2</title>
 <g id="a_edge1_Node000001_Node000002"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M144.96,-35.69C136.33,-36.8 127.52,-37.92 119,-39.01"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="145.49,-39.15 154.97,-34.41 144.6,-32.21 145.49,-39.15"/>
+<path fill="none" stroke="#d6ad73" d="M144.96,-35.69C136.33,-36.8 127.52,-37.92 119,-39.01"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="145.49,-39.15 154.97,-34.41 144.6,-32.21 145.49,-39.15"/>
 </a>
 </g>
 </g>
@@ -59,25 +48,10 @@
 <g id="edge2_Node000001_Node000003" class="edge">
 <title>Node1&#45;&gt;Node3</title>
 <g id="a_edge2_Node000001_Node000003"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M144.89,-19.73C135.86,-18.63 126.63,-17.52 117.74,-16.44"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="144.62,-23.22 154.97,-20.95 145.46,-16.27 144.62,-23.22"/>
+<path fill="none" stroke="#d6ad73" d="M144.89,-19.73C135.86,-18.63 126.63,-17.52 117.74,-16.44"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="144.62,-23.22 154.97,-20.95 145.46,-16.27 144.62,-23.22"/>
 </a>
 </g>
 </g>
 </g>
-</svg>
-</svg>
-
-<style type='text/css'>
-<![CDATA[
-[data-mouse-over-selected='false'] { opacity: 0.7; }
-[data-mouse-over-selected='true']  { opacity: 1.0; }
-]]>
-</style>
-<script type="application/ecmascript"><![CDATA[
-document.addEventListener('DOMContentLoaded', (event) => {
-  highlightEdges();
-  highlightAdjacentNodes();
-});
-]]></script>
 </svg>

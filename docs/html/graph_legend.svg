@@ -30,8 +30,8 @@
 <g id="edge1" class="edge">
 <title>Node10&#45;&gt;Node9</title>
 <g id="a_edge1"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M77.7,-63.39C127.22,-50.51 207.6,-29.59 250.97,-18.31"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="76.72,-60.03 67.92,-65.94 78.48,-66.8 76.72,-60.03"/>
+<path fill="none" stroke="#d6ad73" d="M77.7,-63.39C127.22,-50.51 207.6,-29.59 250.97,-18.31"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="76.72,-60.03 67.92,-65.94 78.48,-66.8 76.72,-60.03"/>
 </a>
 </g>
 </g>
@@ -48,8 +48,8 @@
 <g id="edge2" class="edge">
 <title>Node11&#45;&gt;Node10</title>
 <g id="a_edge2"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M35,-121.58C35,-109.63 35,-94.72 35,-85.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="31.5,-121.87 35,-131.87 38.5,-121.87 31.5,-121.87"/>
+<path fill="none" stroke="#d6ad73" d="M35,-121.58C35,-109.63 35,-94.72 35,-85.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="31.5,-121.87 35,-131.87 38.5,-121.87 31.5,-121.87"/>
 </a>
 </g>
 </g>
@@ -102,8 +102,8 @@
 <g id="edge5" class="edge">
 <title>Node15&#45;&gt;Node9</title>
 <g id="a_edge5"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M318.67,-57.77C308.88,-45.49 295.98,-29.3 288.1,-19.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="316.15,-60.23 325.12,-65.87 321.63,-55.87 316.15,-60.23"/>
+<path fill="none" stroke="#d6ad73" d="M318.67,-57.77C308.88,-45.49 295.98,-29.3 288.1,-19.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="316.15,-60.23 325.12,-65.87 321.63,-55.87 316.15,-60.23"/>
 </a>
 </g>
 </g>
@@ -120,8 +120,8 @@
 <g id="edge6" class="edge">
 <title>Node16&#45;&gt;Node9</title>
 <g id="a_edge6"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M405.78,-62.02C375.24,-49.41 328.84,-30.25 302.07,-19.2"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="404.52,-65.29 415.1,-65.87 407.19,-58.82 404.52,-65.29"/>
+<path fill="none" stroke="#d6ad73" d="M405.78,-62.02C375.24,-49.41 328.84,-30.25 302.07,-19.2"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="404.52,-65.29 415.1,-65.87 407.19,-58.82 404.52,-65.29"/>
 </a>
 </g>
 </g>

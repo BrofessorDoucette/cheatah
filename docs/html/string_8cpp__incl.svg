@@ -6,17 +6,6 @@
 <!-- Title: stdlib/string/string.cpp Pages: 1 -->
 <svg width="277pt" height="137pt"
  viewBox="0.00 0.00 276.50 137.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-
-<svg id="main" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
-
-<style type="text/css"><![CDATA[
-.node, .edge {opacity: 0.7;}
-.node.selected, .edge.selected {opacity: 1;}
-.edge:hover path { stroke: red; }
-.edge:hover polygon { stroke: red; fill: red; }
-]]></style>
-<script type="application/ecmascript" xlink:href="svg.min.js"/>
-<svg id="graph" class="graph">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 133)">
 <title>stdlib/string/string.cpp</title>
 <!-- Node1 -->
@@ -41,8 +30,8 @@
 <g id="edge1_Node000001_Node000002" class="edge">
 <title>Node1&#45;&gt;Node2</title>
 <g id="a_edge1_Node000001_Node000002"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M158.89,-109.75C153.72,-102.34 146.15,-91.5 139.81,-82.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="142.59,-80.29 134,-74.09 136.85,-84.29 142.59,-80.29"/>
+<path fill="none" stroke="#d6ad73" d="M158.89,-109.75C153.72,-102.34 146.15,-91.5 139.81,-82.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="142.59,-80.29 134,-74.09 136.85,-84.29 142.59,-80.29"/>
 </a>
 </g>
 </g>
@@ -59,8 +48,8 @@
 <g id="edge6_Node000001_Node000007" class="edge">
 <title>Node1&#45;&gt;Node7</title>
 <g id="a_edge6_Node000001_Node000007"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M171.27,-109.75C176.59,-102.34 184.36,-91.5 190.88,-82.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="193.86,-84.26 196.84,-74.09 188.17,-80.18 193.86,-84.26"/>
+<path fill="none" stroke="#d6ad73" d="M171.27,-109.75C176.59,-102.34 184.36,-91.5 190.88,-82.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="193.86,-84.26 196.84,-74.09 188.17,-80.18 193.86,-84.26"/>
 </a>
 </g>
 </g>
@@ -77,8 +66,8 @@
 <g id="edge2_Node000002_Node000003" class="edge">
 <title>Node2&#45;&gt;Node3</title>
 <g id="a_edge2_Node000002_Node000003"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M111.45,-54.98C95.11,-46.57 69.87,-33.59 50.87,-23.81"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="52.34,-20.63 41.85,-19.17 49.14,-26.86 52.34,-20.63"/>
+<path fill="none" stroke="#d6ad73" d="M111.45,-54.98C95.11,-46.57 69.87,-33.59 50.87,-23.81"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="52.34,-20.63 41.85,-19.17 49.14,-26.86 52.34,-20.63"/>
 </a>
 </g>
 </g>
@@ -95,8 +84,8 @@
 <g id="edge3_Node000002_Node000004" class="edge">
 <title>Node2&#45;&gt;Node4</title>
 <g id="a_edge3_Node000002_Node000004"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M121.73,-54.75C116.41,-47.34 108.64,-36.5 102.12,-27.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="104.83,-25.18 96.16,-19.09 99.14,-29.26 104.83,-25.18"/>
+<path fill="none" stroke="#d6ad73" d="M121.73,-54.75C116.41,-47.34 108.64,-36.5 102.12,-27.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="104.83,-25.18 96.16,-19.09 99.14,-29.26 104.83,-25.18"/>
 </a>
 </g>
 </g>
@@ -113,8 +102,8 @@
 <g id="edge4_Node000002_Node000005" class="edge">
 <title>Node2&#45;&gt;Node5</title>
 <g id="a_edge4_Node000002_Node000005"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M134.44,-54.75C139.89,-47.34 147.86,-36.5 154.56,-27.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="157.57,-29.22 160.68,-19.09 151.93,-25.07 157.57,-29.22"/>
+<path fill="none" stroke="#d6ad73" d="M134.44,-54.75C139.89,-47.34 147.86,-36.5 154.56,-27.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="157.57,-29.22 160.68,-19.09 151.93,-25.07 157.57,-29.22"/>
 </a>
 </g>
 </g>
@@ -131,25 +120,10 @@
 <g id="edge5_Node000002_Node000006" class="edge">
 <title>Node2&#45;&gt;Node6</title>
 <g id="a_edge5_Node000002_Node000006"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M146.8,-54.98C165.62,-46.46 194.82,-33.23 216.5,-23.41"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="218.2,-26.48 225.86,-19.17 215.31,-20.11 218.2,-26.48"/>
+<path fill="none" stroke="#d6ad73" d="M146.8,-54.98C165.62,-46.46 194.82,-33.23 216.5,-23.41"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="218.2,-26.48 225.86,-19.17 215.31,-20.11 218.2,-26.48"/>
 </a>
 </g>
 </g>
 </g>
-</svg>
-</svg>
-
-<style type='text/css'>
-<![CDATA[
-[data-mouse-over-selected='false'] { opacity: 0.7; }
-[data-mouse-over-selected='true']  { opacity: 1.0; }
-]]>
-</style>
-<script type="application/ecmascript"><![CDATA[
-document.addEventListener('DOMContentLoaded', (event) => {
-  highlightEdges();
-  highlightAdjacentNodes();
-});
-]]></script>
 </svg>

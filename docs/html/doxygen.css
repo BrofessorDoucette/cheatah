@@ -196,7 +196,7 @@ dt.alphachar{
 }
 
 .classindex dl.odd {
-	background-color: #0B101A;
+	background-color: #1b1814;
 }
 
 @media(min-width: 1120px) {
@@ -352,7 +352,7 @@ ul.multicol {
 	padding: 10px 10px;
 	border: 1px solid #30363D;
 	border-radius: 4px;
-	background-color: #090D16;
+	background-color: #16130f;
 	color: #C9D1D9;
 }
 
@@ -366,7 +366,7 @@ pre.fragment {
 span.tt {
         white-space: pre;
 	font-family: 'JetBrains Mono',Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace,fixed;
-	background-color: #090D16;
+	background-color: #16130f;
 }
 
 .clipboard {
@@ -464,7 +464,7 @@ span.foldnone {
 span.fold.plus, span.fold.minus {
 	width: 10px;
 	height: 10px;
-	background-color: #090D16;
+	background-color: #16130f;
 	position: relative;
 	border: 1px solid #808080;
 	margin-right: 1px;
@@ -734,7 +734,7 @@ table.memberdecls {
 }
 
 .memItemLeft, .memItemRight, .memTemplParams {
-	background-color: #0B101A;
+	background-color: #1b1814;
 }
 
 .mdescLeft, .mdescRight {
@@ -1090,7 +1090,7 @@ div.directory {
 
 .directory tr.odd {
 	padding-left: 6px;
-	background-color: #0B101A;
+	background-color: #1b1814;
 }
 
 .directory tr.even {
@@ -1421,7 +1421,7 @@ div.missing_verifies {
 	padding-left: 4px;
 	background-image: none;
 	background: black;
-	border-bottom: 1px solid #212F4B;
+	border-bottom: 1px solid #38322a;
 	font-size: 13px;
 	font-family: 'Lucida Grande',Geneva,Helvetica,Arial,sans-serif;
 	position: relative;
@@ -1429,7 +1429,7 @@ div.missing_verifies {
 }
 
 #main-nav {
-	border-bottom: 1px solid #212F4B;
+	border-bottom: 1px solid #38322a;
 }
 
 .navpath li {
@@ -1478,7 +1478,7 @@ div.missing_verifies {
 	transform: scaleX(0.5) scale(0.707) rotate(45deg);
 	z-index: 10;
 	background: black;
-	box-shadow: 2px -2px 0 2px #212F4B;
+	box-shadow: 2px -2px 0 2px #38322a;
 	border-radius: 0 5px 0 50px;
 }
 
@@ -1594,12 +1594,12 @@ dl.note .tt, dl.remark .tt {
 
 dl.todo {
 	background: #163750;
-	border-left: 8px solid #1982D2;
+	border-left: 8px solid #d6ad73;
 	color: #dcf0fa;
 }
 
 dl.todo dt {
-	color: #1982D2;
+	color: #d6ad73;
 }
 
 dl.todo .tt {
@@ -1730,8 +1730,8 @@ dl.bug dd, dl.deprecated dd, dl.todo dd, dl.test dd {
 {
 	padding: 0 0 0 5px;
 	margin: 0px;
-	border-bottom: 1px solid #212F4B;
-	background-color: #090D16;
+	border-bottom: 1px solid #38322a;
+	background-color: #16130f;
 }
 
 .image

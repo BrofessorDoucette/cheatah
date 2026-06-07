@@ -6,17 +6,6 @@
 <!-- Title: stdlib/linalg/simd.hpp Pages: 1 -->
 <svg width="130pt" height="82pt"
  viewBox="0.00 0.00 130.00 82.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-
-<svg id="main" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
-
-<style type="text/css"><![CDATA[
-.node, .edge {opacity: 0.7;}
-.node.selected, .edge.selected {opacity: 1;}
-.edge:hover path { stroke: red; }
-.edge:hover polygon { stroke: red; fill: red; }
-]]></style>
-<script type="application/ecmascript" xlink:href="svg.min.js"/>
-<svg id="graph" class="graph">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 78)">
 <title>stdlib/linalg/simd.hpp</title>
 <!-- Node1 -->
@@ -41,25 +30,10 @@
 <g id="edge1_Node000001_Node000002" class="edge">
 <title>Node1&#45;&gt;Node2</title>
 <g id="a_edge1_Node000001_Node000002"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M61,-54.75C61,-47.8 61,-37.85 61,-29.13"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="64.5,-29.09 61,-19.09 57.5,-29.09 64.5,-29.09"/>
+<path fill="none" stroke="#d6ad73" d="M61,-54.75C61,-47.8 61,-37.85 61,-29.13"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="64.5,-29.09 61,-19.09 57.5,-29.09 64.5,-29.09"/>
 </a>
 </g>
 </g>
 </g>
-</svg>
-</svg>
-
-<style type='text/css'>
-<![CDATA[
-[data-mouse-over-selected='false'] { opacity: 0.7; }
-[data-mouse-over-selected='true']  { opacity: 1.0; }
-]]>
-</style>
-<script type="application/ecmascript"><![CDATA[
-document.addEventListener('DOMContentLoaded', (event) => {
-  highlightEdges();
-  highlightAdjacentNodes();
-});
-]]></script>
 </svg>

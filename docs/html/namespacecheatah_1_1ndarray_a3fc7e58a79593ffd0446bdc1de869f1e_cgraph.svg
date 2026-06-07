@@ -6,17 +6,6 @@
 <!-- Title: cheatah::ndarray::sum Pages: 1 -->
 <svg width="330pt" height="124pt"
  viewBox="0.00 0.00 330.00 123.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-
-<svg id="main" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
-
-<style type="text/css"><![CDATA[
-.node, .edge {opacity: 0.7;}
-.node.selected, .edge.selected {opacity: 1;}
-.edge:hover path { stroke: red; }
-.edge:hover polygon { stroke: red; fill: red; }
-]]></style>
-<script type="application/ecmascript" xlink:href="svg.min.js"/>
-<svg id="graph" class="graph">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 119.5)">
 <title>cheatah::ndarray::sum</title>
 <!-- Node1 -->
@@ -41,8 +30,8 @@
 <g id="edge1_Node000001_Node000002" class="edge">
 <title>Node1&#45;&gt;Node2</title>
 <g id="a_edge1_Node000001_Node000002"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M101.92,-72.52C119.86,-76.95 141.52,-82.27 161,-87 170.52,-89.31 180.68,-91.75 190.46,-94.09"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="189.91,-97.56 200.45,-96.48 191.54,-90.75 189.91,-97.56"/>
+<path fill="none" stroke="#d6ad73" d="M101.92,-72.52C119.86,-76.95 141.52,-82.27 161,-87 170.52,-89.31 180.68,-91.75 190.46,-94.09"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="189.91,-97.56 200.45,-96.48 191.54,-90.75 189.91,-97.56"/>
 </a>
 </g>
 </g>
@@ -60,8 +49,8 @@
 <g id="edge2_Node000001_Node000003" class="edge">
 <title>Node1&#45;&gt;Node3</title>
 <g id="a_edge2_Node000001_Node000003"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M125.41,-63C136.02,-63 147.19,-63 158.23,-63"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="158.31,-66.5 168.31,-63 158.31,-59.5 158.31,-66.5"/>
+<path fill="none" stroke="#d6ad73" d="M125.41,-63C136.02,-63 147.19,-63 158.23,-63"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="158.31,-66.5 168.31,-63 158.31,-59.5 158.31,-66.5"/>
 </a>
 </g>
 </g>
@@ -79,25 +68,10 @@
 <g id="edge3_Node000001_Node000004" class="edge">
 <title>Node1&#45;&gt;Node4</title>
 <g id="a_edge3_Node000001_Node000004"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M98.89,-53.4C120.72,-47.48 149.39,-39.71 175.22,-32.7"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="176.22,-36.06 184.96,-30.06 174.39,-29.3 176.22,-36.06"/>
+<path fill="none" stroke="#d6ad73" d="M98.89,-53.4C120.72,-47.48 149.39,-39.71 175.22,-32.7"/>
+<polygon fill="#d6ad73" stroke="#d6ad73" points="176.22,-36.06 184.96,-30.06 174.39,-29.3 176.22,-36.06"/>
 </a>
 </g>
 </g>
 </g>
-</svg>
-</svg>
-
-<style type='text/css'>
-<![CDATA[
-[data-mouse-over-selected='false'] { opacity: 0.7; }
-[data-mouse-over-selected='true']  { opacity: 1.0; }
-]]>
-</style>
-<script type="application/ecmascript"><![CDATA[
-document.addEventListener('DOMContentLoaded', (event) => {
-  highlightEdges();
-  highlightAdjacentNodes();
-});
-]]></script>
 </svg>
