@@ -7,6 +7,7 @@ var searchData=
   ['open_4',['open',['../classcheatah_1_1io_1_1File.html#aa05a743c57cad1b944aa3a54b88af8d4',1,'cheatah::io::File::open()'],['../namespacecheatah_1_1io.html#a32e500d7d08f83fda13aa1ea2366ad88',1,'cheatah::io::open()']]],
   ['operator_3d_5',['operator=',['../classcheatah_1_1io_1_1File.html#a07e02667599bc3745b09bdcdceca051a',1,'cheatah::io::File::operator=(const File &amp;)=delete'],['../classcheatah_1_1io_1_1File.html#a8c293be37ac4635d8a4666cfecf03d6b',1,'cheatah::io::File::operator=(File &amp;&amp;)=default']]],
   ['ord_6',['ord',['../namespacecheatah_1_1builtins.html#acac833a1aa10fb9458602a197f2d3c22',1,'cheatah::builtins']]],
-  ['os_2ehpp_7',['os.hpp',['../os_8hpp.html',1,'']]],
-  ['outer_8',['outer',['../namespacecheatah_1_1linalg.html#a4851eb5e22a572a07ef8fa421ca3bfcb',1,'cheatah::linalg']]]
+  ['os_2ecpp_7',['os.cpp',['../os_8cpp.html',1,'']]],
+  ['os_2ehpp_8',['os.hpp',['../os_8hpp.html',1,'']]],
+  ['outer_9',['outer',['../namespacecheatah_1_1linalg.html#a4851eb5e22a572a07ef8fa421ca3bfcb',1,'cheatah::linalg']]]
 ];

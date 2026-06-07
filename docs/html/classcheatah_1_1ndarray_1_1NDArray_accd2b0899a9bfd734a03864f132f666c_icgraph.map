@@ -1,0 +1,13 @@
+<map id="cheatah::ndarray::NDArray::buffer" name="cheatah::ndarray::NDArray::buffer">
+<area shape="rect" id="Node000001" title="The shared backing buffer." alt="" coords="508,73,703,113"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1ndarray.html#a21a5e63a10cd44d3d699f33a75a564ac" title="1&#45;D array from a list of values." alt="" coords="262,5,435,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="538,70,459,45,414,33,416,28,461,39,540,65"/>
+<area shape="rect" id="Node000004" href="$namespacecheatah_1_1ndarray.html#af3054f485e7082dc20e22f26c8cba362" title="A zero&#45;copy view of a stretched to target (size&#45;1 / missing dims get stride 0)." alt="" coords="237,55,460,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="494,84,460,81,460,76,495,79"/>
+<area shape="rect" id="Node000005" href="$namespacecheatah_1_1ndarray.html#a1a7555532cd64d3801dfb571f94fed3b" title="Reshape a to shape (same element count)." alt="" coords="253,104,444,129"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="495,106,444,110,444,105,494,100"/>
+<area shape="rect" id="Node000006" href="$namespacecheatah_1_1ndarray.html#a565074f9054d8cf73b55d076b1f5d8c2" title="0&#45;D scalar array (broadcasts to anything)." alt="" coords="259,153,438,179"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="536,120,461,143,411,156,410,151,459,138,534,115"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1ndarray.html#a7bbc058aba8db2b8f75967348173319d" title="1&#45;D range [start, stop) stepping by step (Python range&#45;like)." alt="" coords="5,5,189,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="248,21,189,21,189,15,248,15"/>
+</map>

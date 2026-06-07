@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -119,9 +117,6 @@ Concepts</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aeceb7ffd0fb3e2f0486923ab0f7001fa" id="r_aeceb7ffd0fb3e2f0486923ab0f7001fa"><td class="memTemplParams" colspan="2">template&lt;Sized C&gt; </td></tr>
-<tr class="memitem:aeceb7ffd0fb3e2f0486923ab0f7001fa template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#aeceb7ffd0fb3e2f0486923ab0f7001fa">len</a> (const C &amp;c)</td></tr>
-<tr class="memdesc:aeceb7ffd0fb3e2f0486923ab0f7001fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length / element count.  <br /></td></tr>
 <tr class="memitem:a1e4fe39c52a33b14a58d76bfb1d9337f" id="r_a1e4fe39c52a33b14a58d76bfb1d9337f"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a1e4fe39c52a33b14a58d76bfb1d9337f">len</a> (std::string_view s)</td></tr>
 <tr class="memdesc:a1e4fe39c52a33b14a58d76bfb1d9337f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of a C-string / string literal.  <br /></td></tr>
 <tr class="memitem:acac833a1aa10fb9458602a197f2d3c22" id="r_acac833a1aa10fb9458602a197f2d3c22"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#acac833a1aa10fb9458602a197f2d3c22">ord</a> (std::string_view s)</td></tr>
@@ -138,9 +133,6 @@ Functions</h2></td></tr>
 <tr class="memdesc:a3e23116038fc719d4dd3c0284fbd8d45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Printable-ASCII repr (non-printables/<span class="tt">\\endiskip</span>/<span class="tt">'</span> escaped, single-quoted).  <br /></td></tr>
 <tr class="memitem:a25f4a219bc7630cc2ca09ff99b8c3b5e" id="r_a25f4a219bc7630cc2ca09ff99b8c3b5e"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a25f4a219bc7630cc2ca09ff99b8c3b5e">to_bool</a> (std::string_view s)</td></tr>
 <tr class="memdesc:a25f4a219bc7630cc2ca09ff99b8c3b5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truthiness of a string.  <br /></td></tr>
-<tr class="memitem:a00e94776ca71a5f37ab20d9baa44fa46" id="r_a00e94776ca71a5f37ab20d9baa44fa46"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:a00e94776ca71a5f37ab20d9baa44fa46 template"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a00e94776ca71a5f37ab20d9baa44fa46">to_bool</a> (T x)</td></tr>
-<tr class="memdesc:a00e94776ca71a5f37ab20d9baa44fa46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truthiness of a number.  <br /></td></tr>
 <tr class="memitem:ab2ed64d3a47942bd2c95e9d8ee92e774" id="r_ab2ed64d3a47942bd2c95e9d8ee92e774"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#ab2ed64d3a47942bd2c95e9d8ee92e774">to_int</a> (std::string_view s)</td></tr>
 <tr class="memdesc:ab2ed64d3a47942bd2c95e9d8ee92e774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a base-10 integer.  <br /></td></tr>
 <tr class="memitem:aba85dbd1237b8e500cdee99e56f41c61" id="r_aba85dbd1237b8e500cdee99e56f41c61"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#aba85dbd1237b8e500cdee99e56f41c61">to_int</a> (double x)</td></tr>
@@ -151,45 +143,19 @@ Functions</h2></td></tr>
 <tr class="memdesc:af51b04fa63e06c758c747f5060a77127"><td class="mdescLeft">&#160;</td><td class="mdescRight">Widen an integer to a double.  <br /></td></tr>
 <tr class="memitem:a1816c3a787e971a1abaac43af09b22b7" id="r_a1816c3a787e971a1abaac43af09b22b7"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a1816c3a787e971a1abaac43af09b22b7">hash</a> (std::string_view s)</td></tr>
 <tr class="memdesc:a1816c3a787e971a1abaac43af09b22b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Content hash of a string.  <br /></td></tr>
+<tr class="memitem:aeceb7ffd0fb3e2f0486923ab0f7001fa" id="r_aeceb7ffd0fb3e2f0486923ab0f7001fa"><td class="memTemplParams" colspan="2">template&lt;Sized C&gt; </td></tr>
+<tr class="memitem:aeceb7ffd0fb3e2f0486923ab0f7001fa template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#aeceb7ffd0fb3e2f0486923ab0f7001fa">len</a> (const C &amp;c)</td></tr>
+<tr class="memdesc:aeceb7ffd0fb3e2f0486923ab0f7001fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length / element count.  <br /></td></tr>
+<tr class="memitem:a00e94776ca71a5f37ab20d9baa44fa46" id="r_a00e94776ca71a5f37ab20d9baa44fa46"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a00e94776ca71a5f37ab20d9baa44fa46 template"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a00e94776ca71a5f37ab20d9baa44fa46">to_bool</a> (T x)</td></tr>
+<tr class="memdesc:a00e94776ca71a5f37ab20d9baa44fa46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truthiness of a number.  <br /></td></tr>
 <tr class="memitem:ae3bbd163092ad32bc7759f7c717134ed" id="r_ae3bbd163092ad32bc7759f7c717134ed"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:ae3bbd163092ad32bc7759f7c717134ed template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#ae3bbd163092ad32bc7759f7c717134ed">hash</a> (const T &amp;x)</td></tr>
 <tr class="memdesc:ae3bbd163092ad32bc7759f7c717134ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hash of any hashable value.  <br /></td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="aeceb7ffd0fb3e2f0486923ab0f7001fa" name="aeceb7ffd0fb3e2f0486923ab0f7001fa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeceb7ffd0fb3e2f0486923ab0f7001fa">&#9670;&#160;</a></span>len() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Sized C&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t cheatah::builtins::len </td>
-          <td>(</td>
-          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>c</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Length / element count. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">c</td><td>a string or sized container. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">c.size()</span>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); no heap allocation. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000001">Test</a></b></dt><dd>CheatahBuiltins.LenOrdChr </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="builtins_8hpp_source.html#l00032">32</a> of file <a class="el" href="builtins_8hpp_source.html">builtins.hpp</a>.</p>
-
-</div>
-</div>
 <a id="a1e4fe39c52a33b14a58d76bfb1d9337f" name="a1e4fe39c52a33b14a58d76bfb1d9337f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1e4fe39c52a33b14a58d76bfb1d9337f">&#9670;&#160;</a></span>len() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e4fe39c52a33b14a58d76bfb1d9337f">&#9670;&#160;</a></span>len() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -213,6 +179,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>its byte length. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000002">Test</a></b></dt><dd>CheatahBuiltins.LenOrdChr </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00009">9</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
 
 </div>
 </div>
@@ -242,6 +210,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000003">Test</a></b></dt><dd>CheatahBuiltins.LenOrdChr </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00011">11</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
 </div>
 </div>
 <a id="add57207d37e5026c7f61ff6036c245c9" name="add57207d37e5026c7f61ff6036c245c9"></a>
@@ -269,6 +239,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>the one-character string. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap (1-char small-string optimization). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000004">Test</a></b></dt><dd>CheatahBuiltins.LenOrdChr </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00012">12</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
 
 </div>
 </div>
@@ -298,6 +270,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(log <code class="param">value</code>); allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000005">Test</a></b></dt><dd>CheatahBuiltins.BaseReprs </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00033">33</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a5c96f0d26d73582705074e3fecdd4d06" name="a5c96f0d26d73582705074e3fecdd4d06"></a>
@@ -325,6 +299,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">"0o…"</span> (with sign). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(log <code class="param">value</code>); allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000006">Test</a></b></dt><dd>CheatahBuiltins.BaseReprs </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00034">34</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
 
 </div>
 </div>
@@ -354,6 +330,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(log <code class="param">value</code>); allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000007">Test</a></b></dt><dd>CheatahBuiltins.BaseReprs </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00035">35</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a3e23116038fc719d4dd3c0284fbd8d45" name="a3e23116038fc719d4dd3c0284fbd8d45"></a>
@@ -382,6 +360,8 @@ template&lt;Sized C&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000008">Test</a></b></dt><dd>CheatahBuiltins.Ascii </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00037">37</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a25f4a219bc7630cc2ca09ff99b8c3b5e" name="a25f4a219bc7630cc2ca09ff99b8c3b5e"></a>
@@ -409,6 +389,190 @@ template&lt;Sized C&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>false iff <code class="param">s</code> is empty. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000009">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00056">56</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ab2ed64d3a47942bd2c95e9d8ee92e774" name="ab2ed64d3a47942bd2c95e9d8ee92e774"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2ed64d3a47942bd2c95e9d8ee92e774">&#9670;&#160;</a></span>to_int() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long long cheatah::builtins::to_int </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse a base-10 integer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>the integer string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>its value (throws on bad input). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates a temporary <span class="tt">std::string</span> for the parse. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000011">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00057">57</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aba85dbd1237b8e500cdee99e56f41c61" name="aba85dbd1237b8e500cdee99e56f41c61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba85dbd1237b8e500cdee99e56f41c61">&#9670;&#160;</a></span>to_int() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long long cheatah::builtins::to_int </td>
+          <td>(</td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Truncate a double to an integer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>the value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code class="param">x</code> toward zero. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000012">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00058">58</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aff56c57d03c72bb45a0f5e2e946e88df" name="aff56c57d03c72bb45a0f5e2e946e88df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff56c57d03c72bb45a0f5e2e946e88df">&#9670;&#160;</a></span>to_float() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double cheatah::builtins::to_float </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse a float. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>a floating-point string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>its value (throws on bad input). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates a temporary <span class="tt">std::string</span> for the parse. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000013">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00059">59</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
+</div>
+</div>
+<a id="af51b04fa63e06c758c747f5060a77127" name="af51b04fa63e06c758c747f5060a77127"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af51b04fa63e06c758c747f5060a77127">&#9670;&#160;</a></span>to_float() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double cheatah::builtins::to_float </td>
+          <td>(</td>
+          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Widen an integer to a double. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>the value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code class="param">x</code> as a <span class="tt">double</span>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000014">Test</a></b></dt><dd>CheatahBuiltins.ToFloatFromInt </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00060">60</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a1816c3a787e971a1abaac43af09b22b7" name="a1816c3a787e971a1abaac43af09b22b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1816c3a787e971a1abaac43af09b22b7">&#9670;&#160;</a></span>hash() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t cheatah::builtins::hash </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Content hash of a string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>input. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a <span class="tt">std::size_t</span> hash. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000015">Test</a></b></dt><dd>CheatahBuiltins.Hash </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8cpp_source.html#l00062">62</a> of file <a class="el" href="builtins_8cpp_source.html">builtins.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aeceb7ffd0fb3e2f0486923ab0f7001fa" name="aeceb7ffd0fb3e2f0486923ab0f7001fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeceb7ffd0fb3e2f0486923ab0f7001fa">&#9670;&#160;</a></span>len() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Sized C&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t cheatah::builtins::len </td>
+          <td>(</td>
+          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>c</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Length / element count. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">c</td><td>a string or sized container. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><span class="tt">c.size()</span>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(1); no heap allocation. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000001">Test</a></b></dt><dd>CheatahBuiltins.LenOrdChr </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="builtins_8hpp_source.html#l00032">32</a> of file <a class="el" href="builtins_8hpp_source.html">builtins.hpp</a>.</p>
 
 </div>
 </div>
@@ -441,146 +605,6 @@ template&lt;typename T&gt; </div>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000010">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="builtins_8hpp_source.html#l00065">65</a> of file <a class="el" href="builtins_8hpp_source.html">builtins.hpp</a>.</p>
-
-</div>
-</div>
-<a id="ab2ed64d3a47942bd2c95e9d8ee92e774" name="ab2ed64d3a47942bd2c95e9d8ee92e774"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab2ed64d3a47942bd2c95e9d8ee92e774">&#9670;&#160;</a></span>to_int() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::builtins::to_int </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Parse a base-10 integer. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>the integer string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>its value (throws on bad input). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates a temporary <span class="tt">std::string</span> for the parse. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000011">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
-
-</div>
-</div>
-<a id="aba85dbd1237b8e500cdee99e56f41c61" name="aba85dbd1237b8e500cdee99e56f41c61"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba85dbd1237b8e500cdee99e56f41c61">&#9670;&#160;</a></span>to_int() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::builtins::to_int </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Truncate a double to an integer. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>the value. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">x</code> toward zero. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000012">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
-
-</div>
-</div>
-<a id="aff56c57d03c72bb45a0f5e2e946e88df" name="aff56c57d03c72bb45a0f5e2e946e88df"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff56c57d03c72bb45a0f5e2e946e88df">&#9670;&#160;</a></span>to_float() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::builtins::to_float </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Parse a float. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>a floating-point string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>its value (throws on bad input). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates a temporary <span class="tt">std::string</span> for the parse. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000013">Test</a></b></dt><dd>CheatahBuiltins.Conversions </dd></dl>
-
-</div>
-</div>
-<a id="af51b04fa63e06c758c747f5060a77127" name="af51b04fa63e06c758c747f5060a77127"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af51b04fa63e06c758c747f5060a77127">&#9670;&#160;</a></span>to_float() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::builtins::to_float </td>
-          <td>(</td>
-          <td class="paramtype">long long</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Widen an integer to a double. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>the value. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">x</code> as a <span class="tt">double</span>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000014">Test</a></b></dt><dd>CheatahBuiltins.ToFloatFromInt </dd></dl>
-
-</div>
-</div>
-<a id="a1816c3a787e971a1abaac43af09b22b7" name="a1816c3a787e971a1abaac43af09b22b7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1816c3a787e971a1abaac43af09b22b7">&#9670;&#160;</a></span>hash() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t cheatah::builtins::hash </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Content hash of a string. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>input. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a <span class="tt">std::size_t</span> hash. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000015">Test</a></b></dt><dd>CheatahBuiltins.Hash </dd></dl>
 
 </div>
 </div>
@@ -626,13 +650,13 @@ template&lt;typename T&gt; </div>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1builtins.html">builtins</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

@@ -1,0 +1,5 @@
+<map id="cheatah::linalg::QR" name="cheatah::linalg::QR">
+<area shape="rect" id="Node000001" title="Result of qr(): A = q·r with orthonormal q and upper&#45;triangular r." alt="" coords="30,121,175,147"/>
+<area shape="rect" id="Node000002" href="$classcheatah_1_1ndarray_1_1NDArray.html" title="An N&#45;dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer." alt="" coords="5,5,200,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,45,105,121,100,121,100,45"/>
+</map>

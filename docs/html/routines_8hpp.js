@@ -4,7 +4,6 @@ var routines_8hpp =
     [ "cheatah::linalg::SVD", "structcheatah_1_1linalg_1_1SVD.html", "structcheatah_1_1linalg_1_1SVD" ],
     [ "cheatah::linalg::Eig", "structcheatah_1_1linalg_1_1Eig.html", "structcheatah_1_1linalg_1_1Eig" ],
     [ "cheatah::linalg::SLogDet", "structcheatah_1_1linalg_1_1SLogDet.html", "structcheatah_1_1linalg_1_1SLogDet" ],
-    [ "cheatah::linalg::NDArray", "classcheatah_1_1linalg_1_1NDArray.html", "classcheatah_1_1linalg_1_1NDArray" ],
     [ "cheatah::linalg::dot", "namespacecheatah_1_1linalg.html#af622dbc275fbbb5c07221ab4be2c8e1c", null ],
     [ "cheatah::linalg::vdot", "namespacecheatah_1_1linalg.html#aeb4d9c3e5d41a7afe29f1bb5b60d6a76", null ],
     [ "cheatah::linalg::inner", "namespacecheatah_1_1linalg.html#a5c35a832b1c73bdf5cabfed648a308fc", null ],

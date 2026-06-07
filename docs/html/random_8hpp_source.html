@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -130,24 +128,23 @@ $(function(){initNavTree('random_8hpp_source.html','',''); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &lt;cstddef&gt;</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &lt;ranges&gt;</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="foldopen" id="foldopen00020" data-start="{" data-end="}">
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1random.html">   20</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1random.html">cheatah::random</a> {</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1random.html">cheatah::random</a> {</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment"></span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">/** Seed the shared engine, making the stream reproducible. @param s the seed.</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahRandom.SeedMakesTheStreamReproducible */</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1random.html#a1edc81cc859779ed2967f782d6121f59">   24</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#a1edc81cc859779ed2967f782d6121f59">seed</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> s);<span class="comment"></span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#a1edc81cc859779ed2967f782d6121f59">seed</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> s);<span class="comment"></span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">/** Uniform random double. @return a value in [0, 1).</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahRandom.RandomInUnitInterval */</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1random.html#a61e342e7efad99a3ca414567988c3282">   27</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#a61e342e7efad99a3ca414567988c3282">random</a>();<span class="comment"></span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#a61e342e7efad99a3ca414567988c3282">random</a>();<span class="comment"></span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">/** Uniform random double in a range. @param a,b the bounds. @return a value in [@p a, @p b].</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahRandom.UniformInRange */</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1random.html#a2baa7c7eee111295c7ff9a2112f604a9">   30</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#a2baa7c7eee111295c7ff9a2112f604a9">uniform</a>(<span class="keywordtype">double</span> a, <span class="keywordtype">double</span> b);<span class="comment"></span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#a2baa7c7eee111295c7ff9a2112f604a9">uniform</a>(<span class="keywordtype">double</span> a, <span class="keywordtype">double</span> b);<span class="comment"></span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">/** Uniform random integer. @param a,b inclusive bounds. @return an integer in [@p a, @p b].</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahRandom.RandintInclusiveRange */</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1random.html#ad224634d97d4db14584c3af60a09179e">   33</a></span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#ad224634d97d4db14584c3af60a09179e">randint</a>(<span class="keywordtype">long</span> <span class="keywordtype">long</span> a, <span class="keywordtype">long</span> <span class="keywordtype">long</span> b);<span class="comment"></span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#ad224634d97d4db14584c3af60a09179e">randint</a>(<span class="keywordtype">long</span> <span class="keywordtype">long</span> a, <span class="keywordtype">long</span> <span class="keywordtype">long</span> b);<span class="comment"></span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">/** Normal (Gaussian) deviate. @param mu mean. @param sigma standard deviation. @return a normal sample.</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahRandom.GaussIsFiniteAndReproducible */</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1random.html#aca6f93bfb58d2df356576abedeef72ca">   36</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#aca6f93bfb58d2df356576abedeef72ca">gauss</a>(<span class="keywordtype">double</span> mu, <span class="keywordtype">double</span> sigma);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1random.html#aca6f93bfb58d2df356576abedeef72ca">gauss</a>(<span class="keywordtype">double</span> mu, <span class="keywordtype">double</span> sigma);</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment"></span> </div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">/** Random element of a random-access sequence (list/array).</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment"> *  @param seq the sequence to pick from (must be non-empty).</span></div>
@@ -162,24 +159,23 @@ $(function(){initNavTree('random_8hpp_source.html','',''); });
 </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>} <span class="comment">// namespace cheatah::random</span></div>
-</div>
-<div class="ttc" id="anamespacecheatah_1_1random_html"><div class="ttname"><a href="namespacecheatah_1_1random.html">cheatah::random</a></div><div class="ttdef"><b>Definition</b> <a href="#l00020">random.hpp:20</a></div></div>
-<div class="ttc" id="anamespacecheatah_1_1random_html_a1edc81cc859779ed2967f782d6121f59"><div class="ttname"><a href="namespacecheatah_1_1random.html#a1edc81cc859779ed2967f782d6121f59">cheatah::random::seed</a></div><div class="ttdeci">void seed(unsigned long long s)</div><div class="ttdoc">Seed the shared engine, making the stream reproducible.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1random_html_a2baa7c7eee111295c7ff9a2112f604a9"><div class="ttname"><a href="namespacecheatah_1_1random.html#a2baa7c7eee111295c7ff9a2112f604a9">cheatah::random::uniform</a></div><div class="ttdeci">double uniform(double a, double b)</div><div class="ttdoc">Uniform random double in a range.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1random_html_a61e342e7efad99a3ca414567988c3282"><div class="ttname"><a href="namespacecheatah_1_1random.html#a61e342e7efad99a3ca414567988c3282">cheatah::random::random</a></div><div class="ttdeci">double random()</div><div class="ttdoc">Uniform random double.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1random_html_aca6f93bfb58d2df356576abedeef72ca"><div class="ttname"><a href="namespacecheatah_1_1random.html#aca6f93bfb58d2df356576abedeef72ca">cheatah::random::gauss</a></div><div class="ttdeci">double gauss(double mu, double sigma)</div><div class="ttdoc">Normal (Gaussian) deviate.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1random_html_ad224634d97d4db14584c3af60a09179e"><div class="ttname"><a href="namespacecheatah_1_1random.html#ad224634d97d4db14584c3af60a09179e">cheatah::random::randint</a></div><div class="ttdeci">long long randint(long long a, long long b)</div><div class="ttdoc">Uniform random integer.</div></div>
+<div class="ttc" id="anamespacecheatah_1_1random_html"><div class="ttname"><a href="namespacecheatah_1_1random.html">cheatah::random</a></div><div class="ttdef"><b>Definition</b> <a href="random_8cpp_source.html#l00005">random.cpp:5</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1random_html_a1edc81cc859779ed2967f782d6121f59"><div class="ttname"><a href="namespacecheatah_1_1random.html#a1edc81cc859779ed2967f782d6121f59">cheatah::random::seed</a></div><div class="ttdeci">void seed(unsigned long long s)</div><div class="ttdoc">Seed the shared engine, making the stream reproducible.</div><div class="ttdef"><b>Definition</b> <a href="random_8cpp_source.html#l00014">random.cpp:14</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1random_html_a2baa7c7eee111295c7ff9a2112f604a9"><div class="ttname"><a href="namespacecheatah_1_1random.html#a2baa7c7eee111295c7ff9a2112f604a9">cheatah::random::uniform</a></div><div class="ttdeci">double uniform(double a, double b)</div><div class="ttdoc">Uniform random double in a range.</div><div class="ttdef"><b>Definition</b> <a href="random_8cpp_source.html#l00017">random.cpp:17</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1random_html_a61e342e7efad99a3ca414567988c3282"><div class="ttname"><a href="namespacecheatah_1_1random.html#a61e342e7efad99a3ca414567988c3282">cheatah::random::random</a></div><div class="ttdeci">double random()</div><div class="ttdoc">Uniform random double.</div><div class="ttdef"><b>Definition</b> <a href="random_8cpp_source.html#l00016">random.cpp:16</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1random_html_aca6f93bfb58d2df356576abedeef72ca"><div class="ttname"><a href="namespacecheatah_1_1random.html#aca6f93bfb58d2df356576abedeef72ca">cheatah::random::gauss</a></div><div class="ttdeci">double gauss(double mu, double sigma)</div><div class="ttdoc">Normal (Gaussian) deviate.</div><div class="ttdef"><b>Definition</b> <a href="random_8cpp_source.html#l00021">random.cpp:21</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1random_html_ad224634d97d4db14584c3af60a09179e"><div class="ttname"><a href="namespacecheatah_1_1random.html#ad224634d97d4db14584c3af60a09179e">cheatah::random::randint</a></div><div class="ttdeci">long long randint(long long a, long long b)</div><div class="ttdoc">Uniform random integer.</div><div class="ttdef"><b>Definition</b> <a href="random_8cpp_source.html#l00018">random.cpp:18</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1random_html_aefcc34e321f7fb9345877073ae182c08"><div class="ttname"><a href="namespacecheatah_1_1random.html#aefcc34e321f7fb9345877073ae182c08">cheatah::random::choice</a></div><div class="ttdeci">std::ranges::range_value_t&lt; R &gt; choice(const R &amp;seq)</div><div class="ttdoc">Random element of a random-access sequence (list/array).</div><div class="ttdef"><b>Definition</b> <a href="#l00043">random.hpp:43</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_76d1802185e4bf156700321498b4df1e.html">random</a></li><li class="navelem"><a href="random_8hpp.html">random.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

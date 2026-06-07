@@ -1,0 +1,14 @@
+<map id="stdlib/linalg/routines.hpp" name="stdlib/linalg/routines.hpp">
+<area shape="rect" id="Node000001" title="cheatah linalg — numpy&#39;s linear&#45;algebra API on ndarray, with SIMD&#45;friendly contiguous kernels (a ...." alt="" coords="5,5,188,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="20,152,83,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,32,62,140,57,138,90,30"/>
+<area shape="rect" id="Node000003" href="$ndarray_8hpp.html" title="cheatah ndarray — our own numpy&#45;flavored N&#45;dimensional array (of doubles) with NumPy broadcasting,..." alt="" coords="93,79,191,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="106,30,130,66,125,69,102,32"/>
+<area shape="poly" id="edge6_Node000003_Node000002" title=" " alt="" coords="129,106,79,145,75,141,126,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="107,152,177,177"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="145,104,145,138,139,138,139,104"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="202,152,279,177"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="159,102,215,142,212,146,156,106"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="303,152,362,177"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="174,102,291,145,289,150,172,107"/>
+</map>

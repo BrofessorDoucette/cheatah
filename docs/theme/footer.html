@@ -1,18 +1,12 @@
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
 <!--BEGIN GENERATE_TREEVIEW-->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    $navpath
-    <li class="footer">$generatedby <a href="https://www.doxygen.org/index.html"><img class="footer" src="$relpath^doxygen.svg" width="104" height="31" alt="doxygen"/></a> $doxygenversion </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
 <!--END GENERATE_TREEVIEW-->
-<!--BEGIN !GENERATE_TREEVIEW-->
-<hr class="footer"/><address class="footer"><small>
-$generatedby&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="$relpath^doxygen.svg" width="104" height="31" alt="doxygen"/></a> $doxygenversion
-</small></address>
-</div><!-- doc-content -->
-<!--END !GENERATE_TREEVIEW-->
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen $doxygenversion + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

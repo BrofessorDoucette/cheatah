@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['len_0',['len',['../namespacecheatah_1_1builtins.html#aeceb7ffd0fb3e2f0486923ab0f7001fa',1,'cheatah::builtins::len(const C &amp;c)'],['../namespacecheatah_1_1builtins.html#a1e4fe39c52a33b14a58d76bfb1d9337f',1,'cheatah::builtins::len(std::string_view s)']]],
+  ['len_0',['len',['../namespacecheatah_1_1builtins.html#a1e4fe39c52a33b14a58d76bfb1d9337f',1,'cheatah::builtins::len(std::string_view s)'],['../namespacecheatah_1_1builtins.html#aeceb7ffd0fb3e2f0486923ab0f7001fa',1,'cheatah::builtins::len(const C &amp;c)']]],
   ['listdir_1',['listdir',['../namespacecheatah_1_1os.html#af9235c17ad4a054da2b9f56e5483c72d',1,'cheatah::os']]],
   ['ljust_2',['ljust',['../namespacecheatah_1_1string.html#a97c8e581a5152b1b17ead098974556ee',1,'cheatah::string']]],
   ['log_3',['log',['../namespacecheatah_1_1math.html#a6a1b99a10f60eb660642d260e51407c9',1,'cheatah::math']]],

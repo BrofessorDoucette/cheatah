@@ -1,0 +1,9 @@
+<map id="cheatah::string::capwords" name="cheatah::string::capwords">
+<area shape="rect" id="Node000001" title="Python string.capwords: split on whitespace, capitalize, re&#45;join with spaces." alt="" coords="5,55,195,80"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1string.html#adcb334605ed874d8666032175fda6fda" title="Capitalize: first char upper, rest lower." alt="" coords="243,5,433,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,52,262,31,263,36,162,57"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1string.html#a9aa028849a867d9227b0c038410fc285" title="Join parts with sep." alt="" coords="263,55,413,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,65,249,65,249,70,195,70"/>
+<area shape="rect" id="Node000004" href="$namespacecheatah_1_1string.html#ab10c3c11d1af8518209c6fde0937ba7f" title="Split on sep." alt="" coords="261,104,415,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="162,77,263,99,262,104,161,83"/>
+</map>

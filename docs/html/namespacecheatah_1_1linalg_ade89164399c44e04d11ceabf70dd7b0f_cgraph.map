@@ -1,0 +1,7 @@
+<map id="cheatah::linalg::matrix_power" name="cheatah::linalg::matrix_power">
+<area shape="rect" id="Node000001" title="Integer matrix power Aⁿ (negative n via inv)." alt="" coords="5,23,175,63"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1linalg.html#ac8e9b02dfce2845e7c41922bc5c3ce3a" title="Matrix inverse via LU with partial pivoting." alt="" coords="238,5,385,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,31,224,25,225,31,176,36"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1linalg.html#a2c4edb6bbbbab3ee899b7a33d19311ea" title="Matrix multiply." alt="" coords="223,55,400,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,50,209,54,208,59,175,55"/>
+</map>

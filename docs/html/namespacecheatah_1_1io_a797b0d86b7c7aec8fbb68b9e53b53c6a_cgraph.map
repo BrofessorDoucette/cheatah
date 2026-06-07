@@ -1,0 +1,5 @@
+<map id="cheatah::io::print" name="cheatah::io::print">
+<area shape="rect" id="Node000001" title="Python print(*args): space&#45;separated, newline&#45;terminated, to stdout (sep=&#39; &#39;, end=&#39; &#39;)." alt="" coords="5,5,137,31"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload." alt="" coords="185,5,304,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,15,172,15,172,21,138,21"/>
+</map>

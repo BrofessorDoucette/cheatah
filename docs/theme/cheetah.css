@@ -1,98 +1,289 @@
 /*
- * cheetah.css — cheetah-themed palette for cheatah's Doxygen docs. 🐆
- * Layered on top of doxygen-awesome-css; overrides its CSS custom properties
- * with a tawny-amber / charcoal "cheetah fur & spots" palette.
+ * cheetah.css — cheatah's dark, modern, cheetah-themed Doxygen design. 🐆
+ *
+ * Layered on doxygen-awesome-css. A FIXED dark theme (no toggle): a warm charcoal
+ * "night" with tawny-amber accents — the cheetah's coat against the dark — plus a
+ * modern web-docs pass (refined type, card-style members, soft depth, motion).
+ *
+ * ── Accessibility (WCAG 2.1) ──────────────────────────────────────────────
+ * Verified contrast on the page background (#1b1814); keep new colors at/above
+ * these as the docs grow (full rationale: docs/theme/ACCESSIBILITY.md):
+ *   Body #ece4d6 → 14.0:1 (AAA) · Amber #f0a83e → 8.7:1 (AAA)
+ *   Secondary #a39a8b → 6.4:1 (AA) · Code/tokens ≥ 6.6:1
+ * 1.4.1 in-text links underlined · 2.4.7/1.4.11 visible amber focus ring (≥3:1).
+ * ──────────────────────────────────────────────────────────────────────────
  */
 
-/* ---- Light mode: sand & tawny amber, cheetah-spot charcoal accents ---- */
 html {
-    --primary-color:          #C07A1E;   /* tawny amber (cheetah coat) */
-    --primary-dark-color:      #8a560f;   /* deep amber for links/hover */
-    --primary-light-color:     #d99a3d;
-    --primary-lighter-color:   #f0d6a6;
-    --primary-lightest-color:  #fbf2df;   /* faint sand wash */
-
-    --page-background-color:   #fffdf8;   /* warm paper */
-    --page-foreground-color:   #2b2620;   /* near-black (spots) */
-    --separator-color:         #ecdcc0;
-
-    --header-foreground:       #2b2620;
-
-    --fragment-background:     #2b2620;   /* dark code blocks even in light mode */
-    --fragment-foreground:     #f6efe2;
-
-    --border-radius-large:     10px;
-    --border-radius-small:     5px;
-    --spacing-large:           14px;
-
-    --searchbar-background:    var(--page-background-color);
-}
-
-/* ---- Dark mode: charcoal night with glowing amber ---- */
-html.dark-mode {
-    --primary-color:          #e6a83e;
-    --primary-dark-color:      #f3c067;
-    --primary-light-color:     #b9842f;
+    /* ---- Cheetah amber accents ---- */
+    --primary-color:          #f0a83e;
+    --primary-dark-color:      #f6c06a;
+    --primary-light-color:     #c2812a;
     --primary-lighter-color:   #4a3b22;
-    --primary-lightest-color:  #2a2620;
+    --primary-lightest-color:  #2a2418;
 
-    --page-background-color:   #1b1814;
-    --page-foreground-color:   #ece4d6;
-    --separator-color:         #3a3228;
+    /* ---- Warm charcoal surfaces (no white anywhere) ---- */
+    --page-background-color:          #1b1814;
+    --page-foreground-color:          #ece4d6;
+    --page-secondary-foreground-color:#a39a8b;
+    --separator-color:                #3a3228;
 
-    --fragment-background:     #14110d;
-    --fragment-foreground:     #ece4d6;
+    --header-background:    rgba(27,24,20,.82);   /* translucent for the blur bar */
+    --header-foreground:    var(--page-foreground-color);
+
+    --side-nav-background:  #161310;
+    --side-nav-foreground:  var(--page-foreground-color);
+    --toc-background:       #201c16;
+    --toc-foreground:       var(--page-foreground-color);
+
+    --searchbar-background: #211d17;
+    --searchbar-foreground: var(--page-foreground-color);
+    --searchbar-border-color: var(--primary-light-color);
+
+    --menu-focus-foreground: #1b1814;
+    --menu-focus-background:  var(--primary-color);
+    --menu-selected-background: rgba(240,168,62,.16);
+
+    --tablehead-background: #2a241b;
+    --tablehead-foreground: var(--page-foreground-color);
+    --blockquote-background:#1f1c17;
+    --blockquote-foreground:#b3a892;
+    --odd-color:            rgba(240,168,62,.045);
+
+    /* ---- Inline code & fenced fragments ---- */
+    --code-background:      #26221c;
+    --code-foreground:      var(--page-foreground-color);
+    --fragment-background:  #16130f;
+    --fragment-foreground:  #e7dfd0;
+    --fragment-keyword:     #cc99cd;
+    --fragment-keywordtype: #b8a6e0;
+    --fragment-keywordflow: #f0922e;
+    --fragment-token:       #8fd3a6;
+    --fragment-comment:     #a6a6a6;
+    --fragment-link:        #9cc6ea;
+    --fragment-preprocessor:#6fd0c4;
+    --fragment-linenumber-color:      #cdc4b4;
+    --fragment-linenumber-background: #221e18;
+    --fragment-linenumber-border:     #3a3228;
+
+    /* ---- Admonitions: dark fills, bright borders ---- */
+    --warning-color: #3b2e04;  --warning-color-dark: #f1b602;  --warning-color-darker: #f0e2b0;
+    --note-color:    #2a2012;  --note-color-dark:    #f0a83e;  --note-color-darker:    #f4e6cd;
+    --todo-color:    #2a2536;  --todo-color-dark:    #9a86d6;  --todo-color-darker:    #d8cef0;
+    --deprecated-color: #2e323b; --deprecated-color-dark: #94a3b6; --deprecated-color-darker: #cdd2dd;
+    --bug-color:     #2e1917;  --bug-color-dark:     #e0584a;  --bug-color-darker:     #f5cbc5;
+    --invariant-color: #1b2a20; --invariant-color-dark: #76ce96; --invariant-color-darker: #cceed5;
+
+    /* ---- Modern shape & rhythm ---- */
+    --border-radius-large:  14px;
+    --border-radius-medium: 10px;
+    --border-radius-small:  7px;
+    --content-maxwidth:     1100px;
+    --spacing-large:        16px;
+    --spacing-medium:       11px;
+
+    --font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-monospace: "JetBrains Mono", "Cascadia Code", "SF Mono", "Fira Code", ui-monospace, Consolas, monospace;
 }
 
-/* ---- Header: project name + slogan ---- */
-#projectname {
+/* ---- Base typography ---- */
+body, .contents, #nav-tree, table.directory, div.toc {
+    font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+div.contents { line-height: 1.65; }
+div.contents p { margin: 0.8em 0; }
+h1, h2, h3, h4, .title {
+    font-family: var(--font-family);
+    letter-spacing: -0.02em;
     font-weight: 700;
-    letter-spacing: -0.5px;
 }
-#projectbrief {
-    color: var(--primary-dark-color);
-    font-style: italic;
-    font-weight: 600;
+div.contents h1, div.contents h2 { margin-top: 1.6em; }
+code, pre, .fragment, div.line, .memname, .paramname, span.mlabel {
+    font-family: var(--font-family-monospace);
 }
-html.dark-mode #projectbrief { color: var(--primary-dark-color); }
 
-/* A warm tawny gradient under the top title bar. */
+/* ---- Sticky, frosted top bar ---- */
+#top {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--header-background);
+    backdrop-filter: saturate(150%) blur(12px);
+    -webkit-backdrop-filter: saturate(150%) blur(12px);
+    border-bottom: 1px solid var(--separator-color);
+    box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 6px 20px -12px rgba(0,0,0,.7);
+}
 #titlearea {
-    background: linear-gradient(135deg, var(--primary-lightest-color) 0%, var(--page-background-color) 60%);
-    border-bottom: 3px solid var(--primary-color);
+    background: linear-gradient(135deg, #2a2316 0%, rgba(27,24,20,0) 62%);
+    border-bottom: none;
 }
-html.dark-mode #titlearea {
-    background: linear-gradient(135deg, #241f18 0%, var(--page-background-color) 60%);
+#projectname { font-weight: 800; letter-spacing: -0.5px; }
+#projectbrief { color: var(--primary-color); font-style: italic; font-weight: 600; }
+
+/* ---- Content column ---- */
+div.header {
+    background: transparent;
+    border-bottom: 1px solid var(--separator-color);
+    padding-bottom: 0.6em;
+}
+.title { font-size: 2.0rem; }
+
+/* ---- Sidebar: refined, rounded selection ---- */
+#side-nav { border-right: 1px solid var(--separator-color); }
+#nav-tree .item { border-radius: var(--border-radius-small); transition: background-color .15s ease, color .15s ease; }
+#nav-tree .item:hover { background: rgba(240,168,62,.10); }
+#nav-tree a { color: var(--side-nav-foreground); }
+#nav-tree .selected {
+    background-image: none;
+    background-color: rgba(240,168,62,.16);
+    box-shadow: inset 3px 0 0 var(--primary-color);
+    border-radius: var(--border-radius-small);
+}
+#nav-tree .selected a, #nav-tree .selected .arrow { color: var(--primary-color); text-shadow: none; }
+
+/* ---- Member declarations & docs: modern cards ---- */
+div.memitem {
+    border-radius: var(--border-radius-large);
+    border: 1px solid var(--separator-color);
+    background: #201c16;
+    box-shadow: 0 10px 30px -22px rgba(0,0,0,.9);
+    overflow: hidden;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+div.memitem:hover {
+    border-color: var(--primary-light-color);
+    box-shadow: 0 16px 40px -22px rgba(0,0,0,.95);
+}
+div.memproto, h2.memtitle {
+    background: linear-gradient(180deg, #2a241b, #221e17);
+    border-bottom: 1px solid var(--separator-color);
+}
+h2.memtitle { border-top: 3px solid var(--primary-color); border-radius: 0; }
+.memname td, .memname { color: var(--page-foreground-color); }
+.paramname { color: var(--primary-dark-color); font-style: normal; }
+table.memberdecls .heading h3,
+table.memberdecls span.mlabel { letter-spacing: -0.01em; }
+table.memberdecls td.memItemLeft,
+table.memberdecls td.memItemRight { background: transparent; }
+
+/* ---- Code: rounded, padded, depth ---- */
+div.fragment, pre.fragment {
+    border-radius: var(--border-radius-medium);
+    border: 1px solid var(--separator-color);
+    padding: 0.9em 1.1em;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+}
+code, a.code, a.codeRef {
+    background: var(--code-background);
+    border: 1px solid var(--separator-color);
+    border-radius: var(--border-radius-small);
+    padding: 0.08em 0.42em;
+}
+div.fragment code { background: none; border: none; padding: 0; }
+
+/* ---- Tables: rounded, tidy header, zebra ---- */
+table.doxtable, table.markdownTable, table.fieldtable {
+    border-radius: var(--border-radius-medium);
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: 0 10px 30px -24px rgba(0,0,0,.9);
+}
+table.doxtable th, table.markdownTable th, .markdownTableHead th {
+    background: var(--tablehead-background);
+    color: var(--page-foreground-color);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+table.doxtable td, table.markdownTable td { border-color: var(--separator-color); }
+table.markdownTable tr:nth-child(2n) td { background: var(--odd-color); }
+
+/* ---- Admonition blocks: rounded with a soft fill ---- */
+dl.note, dl.warning, dl.attention, dl.bug, dl.deprecated, dl.todo, dl.remark, dl.invariant {
+    border-radius: var(--border-radius-medium);
+    padding: 0.7em 1em;
 }
 
-/* ---- Slogan banner (used on the main page) ---- */
+/* ---- Diagrams: give SVG graphs a tidy framed surface ---- */
+div.dyncontent, .center img[src$=".svg"] {
+    border-radius: var(--border-radius-medium);
+}
+
+/* ---- Slogan hero (main page) with subtle cheetah-spot texture ---- */
 .cheetah-slogan {
-    margin: 0 0 1.4em 0;
-    padding: 1.1em 1.4em;
+    position: relative;
+    margin: 0 0 1.6em 0;
+    padding: 1.4em 1.6em;
     border-left: 6px solid var(--primary-color);
     border-radius: var(--border-radius-large);
-    background: linear-gradient(135deg, var(--primary-lightest-color), var(--primary-lighter-color));
-    font-size: 1.25rem;
+    background:
+        radial-gradient(circle at 18% 30%, rgba(0,0,0,.34) 0 7px, transparent 8px),
+        radial-gradient(circle at 32% 72%, rgba(0,0,0,.30) 0 6px, transparent 7px),
+        radial-gradient(circle at 73% 40%, rgba(0,0,0,.30) 0 8px, transparent 9px),
+        radial-gradient(circle at 88% 78%, rgba(0,0,0,.26) 0 6px, transparent 7px),
+        linear-gradient(135deg, #2a2114, #3a2c13);
+    font-size: 1.35rem;
     font-weight: 600;
     color: var(--page-foreground-color);
-}
-html.dark-mode .cheetah-slogan {
-    background: linear-gradient(135deg, #2a2418, #34291a);
-    color: var(--page-foreground-color);
+    box-shadow: 0 18px 50px -28px rgba(0,0,0,.95);
 }
 
-/* ---- @note blocks: amber-tinted so the heap/complexity annotations pop ---- */
-dl.note {
-    background: var(--primary-lightest-color);
-    border-left: 4px solid var(--primary-color);
-    border-radius: var(--border-radius-small);
-    padding: 0.4em 0.8em;
+/* ---- Links: amber, underlined in prose (1.4.1), smooth ---- */
+a { transition: color .15s ease; }
+.textblock a, .memdoc a, dl.params a, .contents p a, .contents li a, .cheetah-slogan a {
+    text-decoration: underline;
+    text-decoration-color: rgba(240,168,62,.5);
+    text-underline-offset: 3px;
 }
-html.dark-mode dl.note {
-    background: #241f17;
+.textblock a:hover, .memdoc a:hover, .contents p a:hover, .contents li a:hover {
+    color: var(--primary-dark-color);
+    text-decoration-color: var(--primary-dark-color);
 }
 
-/* Slightly rounder, cheetah-amber function prototypes. */
-.memtitle {
-    border-top-color: var(--primary-color);
+/* ---- Focus visible (2.4.7) + non-text contrast (1.4.11) ---- */
+a:focus-visible, button:focus-visible, input:focus-visible,
+summary:focus-visible, .tablist a:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+#MSearchBox, #MSearchField {
+    border: 1px solid var(--searchbar-border-color);
+    border-radius: 999px;
+}
+
+/* ---- Modern footer (replaces the bottom breadcrumb tabs) ---- */
+.cheetah-footer {
+    max-width: var(--content-maxwidth);
+    margin: 3em auto 1.4em;
+    padding: 1.3em 1.6em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5em 1.2em;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--separator-color);
+    color: var(--page-secondary-foreground-color);
+    font-family: var(--font-family);
+    font-size: .9rem;
+}
+.cheetah-footer-slogan { color: var(--page-foreground-color); }
+.cheetah-footer-slogan strong { color: var(--primary-color); }
+.cheetah-footer-credit { opacity: .85; }
+
+/* ---- Themed scrollbars ---- */
+* { scrollbar-color: #4a3f30 transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb {
+    background: #4a3f30;
+    border: 3px solid var(--page-background-color);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary-light-color); }
+
+/* ---- Respect reduced-motion preferences ---- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
 }

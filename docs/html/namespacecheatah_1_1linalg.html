@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -145,40 +143,40 @@ Functions</h2></td></tr>
 <tr class="memdesc:ade89164399c44e04d11ceabf70dd7b0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integer matrix power Aⁿ (negative n via <a class="el" href="#ac8e9b02dfce2845e7c41922bc5c3ce3a" title="inv">inv</a>).  <br /></td></tr>
 <tr class="memitem:afcf3b262470f233b669d00f86bcbc442" id="r_afcf3b262470f233b669d00f86bcbc442"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#afcf3b262470f233b669d00f86bcbc442">kron</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
 <tr class="memdesc:afcf3b262470f233b669d00f86bcbc442"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kronecker product.  <br /></td></tr>
+<tr class="memitem:a74d99618b24abcef74c90b11380ac7be" id="r_a74d99618b24abcef74c90b11380ac7be"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a74d99618b24abcef74c90b11380ac7be">trace</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:a74d99618b24abcef74c90b11380ac7be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trace: sum of the main diagonal.  <br /></td></tr>
+<tr class="memitem:afe04c01bb9160f60115734737a890f53" id="r_afe04c01bb9160f60115734737a890f53"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#afe04c01bb9160f60115734737a890f53">norm</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:afe04c01bb9160f60115734737a890f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Norm: L2 for vectors, Frobenius for matrices.  <br /></td></tr>
+<tr class="memitem:aa66920736e4d6190b9310fcf14d8dc3b" id="r_aa66920736e4d6190b9310fcf14d8dc3b"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa66920736e4d6190b9310fcf14d8dc3b">solve</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
+<tr class="memdesc:aa66920736e4d6190b9310fcf14d8dc3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve A·x = b via LU with partial pivoting.  <br /></td></tr>
+<tr class="memitem:aedffc527790c80f83676088b55b57ff4" id="r_aedffc527790c80f83676088b55b57ff4"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aedffc527790c80f83676088b55b57ff4">det</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:aedffc527790c80f83676088b55b57ff4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determinant via LU with partial pivoting.  <br /></td></tr>
+<tr class="memitem:a3d6e14b9367c2c90aad441fe00fa0789" id="r_a3d6e14b9367c2c90aad441fe00fa0789"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a>&#160;</td><td class="memItemRight"><a class="el" href="#a3d6e14b9367c2c90aad441fe00fa0789">slogdet</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:a3d6e14b9367c2c90aad441fe00fa0789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign and log|det| via LU (overflow-safe determinant).  <br /></td></tr>
+<tr class="memitem:ac8e9b02dfce2845e7c41922bc5c3ce3a" id="r_ac8e9b02dfce2845e7c41922bc5c3ce3a"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:ac8e9b02dfce2845e7c41922bc5c3ce3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix inverse via LU with partial pivoting.  <br /></td></tr>
+<tr class="memitem:aae0fffb18efd5f74174b2fd0632d41dd" id="r_aae0fffb18efd5f74174b2fd0632d41dd"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aae0fffb18efd5f74174b2fd0632d41dd">lstsq</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
+<tr class="memdesc:aae0fffb18efd5f74174b2fd0632d41dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Least-squares solution min‖A·x − b‖ (computed as <a class="el" href="#a15954951259f3da0e9cd986637238593" title="pinv">pinv</a> (a)·b).  <br /></td></tr>
 <tr class="memitem:a90da5609fdd9efb08b97dd3c0ed98d41" id="r_a90da5609fdd9efb08b97dd3c0ed98d41"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a90da5609fdd9efb08b97dd3c0ed98d41">cholesky</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
 <tr class="memdesc:a90da5609fdd9efb08b97dd3c0ed98d41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cholesky factor of a symmetric positive-definite matrix (throws otherwise).  <br /></td></tr>
 <tr class="memitem:a5e67bd5371c2380dc4e4896b93006769" id="r_a5e67bd5371c2380dc4e4896b93006769"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1QR.html">QR</a>&#160;</td><td class="memItemRight"><a class="el" href="#a5e67bd5371c2380dc4e4896b93006769">qr</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
 <tr class="memdesc:a5e67bd5371c2380dc4e4896b93006769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reduced <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a> via Householder reflections (requires rows ≥ cols).  <br /></td></tr>
 <tr class="memitem:aca03d8bcbabadeb0f4aee077e65e48d0" id="r_aca03d8bcbabadeb0f4aee077e65e48d0"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a>&#160;</td><td class="memItemRight"><a class="el" href="#aca03d8bcbabadeb0f4aee077e65e48d0">svd</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
 <tr class="memdesc:aca03d8bcbabadeb0f4aee077e65e48d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).  <br /></td></tr>
-<tr class="memitem:ae6ac46aea9b8353893aaa9da852ca673" id="r_ae6ac46aea9b8353893aaa9da852ca673"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a>&#160;</td><td class="memItemRight"><a class="el" href="#ae6ac46aea9b8353893aaa9da852ca673">eig</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:ae6ac46aea9b8353893aaa9da852ca673"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).  <br /></td></tr>
-<tr class="memitem:ae38fa57d37ed5c742bc4faf782b6e6ad" id="r_ae38fa57d37ed5c742bc4faf782b6e6ad"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#ae38fa57d37ed5c742bc4faf782b6e6ad">eigvals</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:ae38fa57d37ed5c742bc4faf782b6e6ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).  <br /></td></tr>
+<tr class="memitem:a15954951259f3da0e9cd986637238593" id="r_a15954951259f3da0e9cd986637238593"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a15954951259f3da0e9cd986637238593">pinv</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:a15954951259f3da0e9cd986637238593"><td class="mdescLeft">&#160;</td><td class="mdescRight">Moore–Penrose pseudo-inverse via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> (any shape).  <br /></td></tr>
+<tr class="memitem:a1a87733ea05b83ae7e5bc18c619ee0b0" id="r_a1a87733ea05b83ae7e5bc18c619ee0b0"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a1a87733ea05b83ae7e5bc18c619ee0b0">cond</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:a1a87733ea05b83ae7e5bc18c619ee0b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">2-norm condition number σ_max/σ_min (∞ if singular).  <br /></td></tr>
+<tr class="memitem:a28ceb7f1c8e368fb6f07cf5a92a4c6f0" id="r_a28ceb7f1c8e368fb6f07cf5a92a4c6f0"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">matrix_rank</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:a28ceb7f1c8e368fb6f07cf5a92a4c6f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Numerical rank from <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> singular-value thresholding.  <br /></td></tr>
 <tr class="memitem:a73d032676733f00ec8c5ceabc60cd4be" id="r_a73d032676733f00ec8c5ceabc60cd4be"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a>&#160;</td><td class="memItemRight"><a class="el" href="#a73d032676733f00ec8c5ceabc60cd4be">eigh</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
 <tr class="memdesc:a73d032676733f00ec8c5ceabc60cd4be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigen-decomposition of a symmetric matrix (cyclic Jacobi).  <br /></td></tr>
 <tr class="memitem:a8623020f326ce35d1e24600ab44ddb73" id="r_a8623020f326ce35d1e24600ab44ddb73"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a8623020f326ce35d1e24600ab44ddb73">eigvalsh</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
 <tr class="memdesc:a8623020f326ce35d1e24600ab44ddb73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).  <br /></td></tr>
-<tr class="memitem:afe04c01bb9160f60115734737a890f53" id="r_afe04c01bb9160f60115734737a890f53"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#afe04c01bb9160f60115734737a890f53">norm</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:afe04c01bb9160f60115734737a890f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Norm: L2 for vectors, Frobenius for matrices.  <br /></td></tr>
-<tr class="memitem:a1a87733ea05b83ae7e5bc18c619ee0b0" id="r_a1a87733ea05b83ae7e5bc18c619ee0b0"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a1a87733ea05b83ae7e5bc18c619ee0b0">cond</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a1a87733ea05b83ae7e5bc18c619ee0b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">2-norm condition number σ_max/σ_min (∞ if singular).  <br /></td></tr>
-<tr class="memitem:aedffc527790c80f83676088b55b57ff4" id="r_aedffc527790c80f83676088b55b57ff4"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#aedffc527790c80f83676088b55b57ff4">det</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:aedffc527790c80f83676088b55b57ff4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determinant via LU with partial pivoting.  <br /></td></tr>
-<tr class="memitem:a28ceb7f1c8e368fb6f07cf5a92a4c6f0" id="r_a28ceb7f1c8e368fb6f07cf5a92a4c6f0"><td class="memItemLeft">long long&#160;</td><td class="memItemRight"><a class="el" href="#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">matrix_rank</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a28ceb7f1c8e368fb6f07cf5a92a4c6f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Numerical rank from <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> singular-value thresholding.  <br /></td></tr>
-<tr class="memitem:a3d6e14b9367c2c90aad441fe00fa0789" id="r_a3d6e14b9367c2c90aad441fe00fa0789"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a>&#160;</td><td class="memItemRight"><a class="el" href="#a3d6e14b9367c2c90aad441fe00fa0789">slogdet</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a3d6e14b9367c2c90aad441fe00fa0789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign and log|det| via LU (overflow-safe determinant).  <br /></td></tr>
-<tr class="memitem:a74d99618b24abcef74c90b11380ac7be" id="r_a74d99618b24abcef74c90b11380ac7be"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a74d99618b24abcef74c90b11380ac7be">trace</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a74d99618b24abcef74c90b11380ac7be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trace: sum of the main diagonal.  <br /></td></tr>
-<tr class="memitem:aa66920736e4d6190b9310fcf14d8dc3b" id="r_aa66920736e4d6190b9310fcf14d8dc3b"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa66920736e4d6190b9310fcf14d8dc3b">solve</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
-<tr class="memdesc:aa66920736e4d6190b9310fcf14d8dc3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve A·x = b via LU with partial pivoting.  <br /></td></tr>
-<tr class="memitem:aae0fffb18efd5f74174b2fd0632d41dd" id="r_aae0fffb18efd5f74174b2fd0632d41dd"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#aae0fffb18efd5f74174b2fd0632d41dd">lstsq</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a, const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;b)</td></tr>
-<tr class="memdesc:aae0fffb18efd5f74174b2fd0632d41dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Least-squares solution min‖A·x − b‖ (computed as <a class="el" href="#a15954951259f3da0e9cd986637238593" title="pinv">pinv</a> (a)·b).  <br /></td></tr>
-<tr class="memitem:ac8e9b02dfce2845e7c41922bc5c3ce3a" id="r_ac8e9b02dfce2845e7c41922bc5c3ce3a"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac8e9b02dfce2845e7c41922bc5c3ce3a">inv</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:ac8e9b02dfce2845e7c41922bc5c3ce3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix inverse via LU with partial pivoting.  <br /></td></tr>
-<tr class="memitem:a15954951259f3da0e9cd986637238593" id="r_a15954951259f3da0e9cd986637238593"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#a15954951259f3da0e9cd986637238593">pinv</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
-<tr class="memdesc:a15954951259f3da0e9cd986637238593"><td class="mdescLeft">&#160;</td><td class="mdescRight">Moore–Penrose pseudo-inverse via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> (any shape).  <br /></td></tr>
+<tr class="memitem:ae6ac46aea9b8353893aaa9da852ca673" id="r_ae6ac46aea9b8353893aaa9da852ca673"><td class="memItemLeft"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a>&#160;</td><td class="memItemRight"><a class="el" href="#ae6ac46aea9b8353893aaa9da852ca673">eig</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:ae6ac46aea9b8353893aaa9da852ca673"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).  <br /></td></tr>
+<tr class="memitem:ae38fa57d37ed5c742bc4faf782b6e6ad" id="r_ae38fa57d37ed5c742bc4faf782b6e6ad"><td class="memItemLeft"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a>&#160;</td><td class="memItemRight"><a class="el" href="#ae38fa57d37ed5c742bc4faf782b6e6ad">eigvals</a> (const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;a)</td></tr>
+<tr class="memdesc:ae38fa57d37ed5c742bc4faf782b6e6ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).  <br /></td></tr>
 <tr class="memitem:a2d288f8d35786438554abc6009432919" id="r_a2d288f8d35786438554abc6009432919"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a2d288f8d35786438554abc6009432919">simd_features</a> ()</td></tr>
 <tr class="memdesc:a2d288f8d35786438554abc6009432919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instruction sets this build targets, e.g.  <br /></td></tr>
 <tr class="memitem:af680e44741ec4db0de052c87c7423fc3" id="r_af680e44741ec4db0de052c87c7423fc3"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#af680e44741ec4db0de052c87c7423fc3">simd_lane_doubles</a> () noexcept</td></tr>
@@ -215,6 +213,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); copies both operands into scratch O(n), returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000051">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00329">329</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00338">inner()</a>, and <a class="el" href="routines_8cpp_source.html#l00337">vdot()</a>.</p>
+<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_af622dbc275fbbb5c07221ab4be2c8e1c_icgraph.svg" width="364" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="aeb4d9c3e5d41a7afe29f1bb5b60d6a76" name="aeb4d9c3e5d41a7afe29f1bb5b60d6a76"></a>
@@ -247,6 +255,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); scratch O(n), returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000052">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00337">337</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00329">dot()</a>.</p>
+<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_aeb4d9c3e5d41a7afe29f1bb5b60d6a76_cgraph.svg" width="360" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a5c35a832b1c73bdf5cabfed648a308fc" name="a5c35a832b1c73bdf5cabfed648a308fc"></a>
@@ -278,6 +296,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>Σ aᵢbᵢ. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); scratch O(n), returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000053">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00338">338</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00329">dot()</a>.</p>
+<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-2-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a5c35a832b1c73bdf5cabfed648a308fc_cgraph.svg" width="364" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -312,6 +340,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n·m); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000054">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00340">340</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a2c4edb6bbbbab3ee899b7a33d19311ea" name="a2c4edb6bbbbab3ee899b7a33d19311ea"></a>
@@ -344,6 +374,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>m×p product. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result (plus scratch copies of <code class="param">a</code> and <code class="param">b</code>). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000055">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00349">349</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00468">lstsq()</a>, and <a class="el" href="routines_8cpp_source.html#l00363">matrix_power()</a>.</p>
+<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-3-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a2c4edb6bbbbab3ee899b7a33d19311ea_icgraph.svg" width="406" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -378,6 +418,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n³·log|n|) by binary exponentiation; allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000056">Test</a></b></dt><dd>LinalgRoutines.MatrixPower </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00363">363</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00453">inv()</a>, and <a class="el" href="routines_8cpp_source.html#l00349">matmul()</a>.</p>
+<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-4-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_ade89164399c44e04d11ceabf70dd7b0f_cgraph.svg" width="406" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="afcf3b262470f233b669d00f86bcbc442" name="afcf3b262470f233b669d00f86bcbc442"></a>
@@ -411,16 +461,18 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n⁴) in the output area; allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000057">Test</a></b></dt><dd>LinalgRoutines.VdotInnerOuterKron </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00380">380</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
 </div>
 </div>
-<a id="a90da5609fdd9efb08b97dd3c0ed98d41" name="a90da5609fdd9efb08b97dd3c0ed98d41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90da5609fdd9efb08b97dd3c0ed98d41">&#9670;&#160;</a></span>cholesky()</h2>
+<a id="a74d99618b24abcef74c90b11380ac7be" name="a74d99618b24abcef74c90b11380ac7be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74d99618b24abcef74c90b11380ac7be">&#9670;&#160;</a></span>trace()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::cholesky </td>
+          <td class="memname">double cheatah::linalg::trace </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
           <td></td>
@@ -428,184 +480,18 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Cholesky factor of a symmetric positive-definite matrix (throws otherwise). </p>
+<p>Trace: sum of the main diagonal. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">a</td><td>square SPD matrix. </td></tr>
+    <tr><td class="paramname">a</td><td>matrix. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>lower-triangular L with A = L·Lᵀ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000058">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Σ aᵢᵢ. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n) summation, but copies the matrix into scratch O(n²) first; returns a double. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000070">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
 
-</div>
-</div>
-<a id="a5e67bd5371c2380dc4e4896b93006769" name="a5e67bd5371c2380dc4e4896b93006769"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5e67bd5371c2380dc4e4896b93006769">&#9670;&#160;</a></span>qr()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1QR.html">QR</a> cheatah::linalg::qr </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Reduced <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a> via Householder reflections (requires rows ≥ cols). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="QR">QR</a> with q (m×n, orthonormal cols) and r (n×n, upper-triangular). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates both members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000059">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
-
-</div>
-</div>
-<a id="aca03d8bcbabadeb0f4aee077e65e48d0" name="aca03d8bcbabadeb0f4aee077e65e48d0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca03d8bcbabadeb0f4aee077e65e48d0">&#9670;&#160;</a></span>svd()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> cheatah::linalg::svd </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Singular value decomposition (one-sided Jacobi; requires rows ≥ cols). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="SVD">SVD</a> with u (m×n), s (descending singular values), vh (n×n = Vᵀ). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates all members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000060">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
-
-</div>
-</div>
-<a id="ae6ac46aea9b8353893aaa9da852ca673" name="ae6ac46aea9b8353893aaa9da852ca673"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae6ac46aea9b8353893aaa9da852ca673">&#9670;&#160;</a></span>eig()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> cheatah::linalg::eig </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> (vectors empty unless <code class="param">a</code> is symmetric). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via Hessenberg + shifted <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a>; allocates both members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000061">Test</a></b></dt><dd>LinalgRoutines.GeneralEig </dd></dl>
-
-</div>
-</div>
-<a id="ae38fa57d37ed5c742bc4faf782b6e6ad" name="ae38fa57d37ed5c742bc4faf782b6e6ad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae38fa57d37ed5c742bc4faf782b6e6ad">&#9670;&#160;</a></span>eigvals()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::eigvals </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigenvalues of a general square matrix, descending (real only; throws on complex pairs). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000062">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
-
-</div>
-</div>
-<a id="a73d032676733f00ec8c5ceabc60cd4be" name="a73d032676733f00ec8c5ceabc60cd4be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73d032676733f00ec8c5ceabc60cd4be">&#9670;&#160;</a></span>eigh()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> cheatah::linalg::eigh </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigen-decomposition of a symmetric matrix (cyclic Jacobi). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square symmetric matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> with descending values and matching eigenvectors. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates both members. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000063">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
-
-</div>
-</div>
-<a id="a8623020f326ce35d1e24600ab44ddb73" name="a8623020f326ce35d1e24600ab44ddb73"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8623020f326ce35d1e24600ab44ddb73">&#9670;&#160;</a></span>eigvalsh()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::eigvalsh </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Eigenvalues of a symmetric matrix, descending (cyclic Jacobi). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square symmetric matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000064">Test</a></b></dt><dd>LinalgRoutines.EigvalshSymmetric </dd></dl>
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00394">394</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
 
 </div>
 </div>
@@ -635,145 +521,15 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n) for vectors / O(n²) for matrices; copies into scratch, returns a double. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000065">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00402">402</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00050">cheatah::ndarray::NDArray::ndim()</a>.</p>
+<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
 </div>
+<div id="dynsection-5-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_afe04c01bb9160f60115734737a890f53_cgraph.svg" width="414" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
-<a id="a1a87733ea05b83ae7e5bc18c619ee0b0" name="a1a87733ea05b83ae7e5bc18c619ee0b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a87733ea05b83ae7e5bc18c619ee0b0">&#9670;&#160;</a></span>cond()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::cond </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>2-norm condition number σ_max/σ_min (∞ if singular). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>condition number. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates scratch O(n²) for the factorization, returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000066">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
-
-</div>
-</div>
-<a id="aedffc527790c80f83676088b55b57ff4" name="aedffc527790c80f83676088b55b57ff4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aedffc527790c80f83676088b55b57ff4">&#9670;&#160;</a></span>det()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::det </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Determinant via LU with partial pivoting. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>det(A). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates scratch O(n²) for the factorization, returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000067">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
-
-</div>
-</div>
-<a id="a28ceb7f1c8e368fb6f07cf5a92a4c6f0" name="a28ceb7f1c8e368fb6f07cf5a92a4c6f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">&#9670;&#160;</a></span>matrix_rank()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">long long cheatah::linalg::matrix_rank </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Numerical rank from <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> singular-value thresholding. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>rank. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates scratch O(n²) for the factorization. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000068">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
-
-</div>
-</div>
-<a id="a3d6e14b9367c2c90aad441fe00fa0789" name="a3d6e14b9367c2c90aad441fe00fa0789"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d6e14b9367c2c90aad441fe00fa0789">&#9670;&#160;</a></span>slogdet()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> cheatah::linalg::slogdet </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sign and log|det| via LU (overflow-safe determinant). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html" title="SLogDet">SLogDet</a>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n³); allocates scratch O(n²) for the factorization (the struct members are plain doubles). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000069">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
-
-</div>
-</div>
-<a id="a74d99618b24abcef74c90b11380ac7be" name="a74d99618b24abcef74c90b11380ac7be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74d99618b24abcef74c90b11380ac7be">&#9670;&#160;</a></span>trace()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double cheatah::linalg::trace </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Trace: sum of the main diagonal. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">a</td><td>matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Σ aᵢᵢ. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) summation, but copies the matrix into scratch O(n²) first; returns a double. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000070">Test</a></b></dt><dd>LinalgRoutines.ProductsAndTrace </dd></dl>
 
 </div>
 </div>
@@ -808,6 +564,106 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000071">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00417">417</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aedffc527790c80f83676088b55b57ff4" name="aedffc527790c80f83676088b55b57ff4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedffc527790c80f83676088b55b57ff4">&#9670;&#160;</a></span>det()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double cheatah::linalg::det </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Determinant via LU with partial pivoting. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>det(A). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n³); allocates scratch O(n²) for the factorization, returns a double. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000067">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00429">429</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a3d6e14b9367c2c90aad441fe00fa0789" name="a3d6e14b9367c2c90aad441fe00fa0789"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d6e14b9367c2c90aad441fe00fa0789">&#9670;&#160;</a></span>slogdet()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">SLogDet</a> cheatah::linalg::slogdet </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sign and log|det| via LU (overflow-safe determinant). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html" title="SLogDet">SLogDet</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n³); allocates scratch O(n²) for the factorization (the struct members are plain doubles). </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000069">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00439">439</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ac8e9b02dfce2845e7c41922bc5c3ce3a" name="ac8e9b02dfce2845e7c41922bc5c3ce3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8e9b02dfce2845e7c41922bc5c3ce3a">&#9670;&#160;</a></span>inv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::inv </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix inverse via LU with partial pivoting. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A⁻¹. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000073">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00453">453</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00363">matrix_power()</a>.</p>
+<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-6-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_ac8e9b02dfce2845e7c41922bc5c3ce3a_icgraph.svg" width="375" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="aae0fffb18efd5f74174b2fd0632d41dd" name="aae0fffb18efd5f74174b2fd0632d41dd"></a>
@@ -841,16 +697,26 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000072">Test</a></b></dt><dd>LinalgRoutines.Lstsq </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00468">468</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00349">matmul()</a>, and <a class="el" href="routines_8cpp_source.html#l00546">pinv()</a>.</p>
+<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-7-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_aae0fffb18efd5f74174b2fd0632d41dd_cgraph.svg" width="394" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
-<a id="ac8e9b02dfce2845e7c41922bc5c3ce3a" name="ac8e9b02dfce2845e7c41922bc5c3ce3a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8e9b02dfce2845e7c41922bc5c3ce3a">&#9670;&#160;</a></span>inv()</h2>
+<a id="a90da5609fdd9efb08b97dd3c0ed98d41" name="a90da5609fdd9efb08b97dd3c0ed98d41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90da5609fdd9efb08b97dd3c0ed98d41">&#9670;&#160;</a></span>cholesky()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::inv </td>
+          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::cholesky </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
           <td></td>
@@ -858,16 +724,78 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Matrix inverse via LU with partial pivoting. </p>
+<p>Cholesky factor of a symmetric positive-definite matrix (throws otherwise). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
+    <tr><td class="paramname">a</td><td>square SPD matrix. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A⁻¹. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>lower-triangular L with A = L·Lᵀ. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000073">Test</a></b></dt><dd>LinalgRoutines.SolveDetInv </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000058">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00473">473</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a5e67bd5371c2380dc4e4896b93006769" name="a5e67bd5371c2380dc4e4896b93006769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e67bd5371c2380dc4e4896b93006769">&#9670;&#160;</a></span>qr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1QR.html">QR</a> cheatah::linalg::qr </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reduced <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a> via Householder reflections (requires rows ≥ cols). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="QR">QR</a> with q (m×n, orthonormal cols) and r (n×n, upper-triangular). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n³); allocates both members. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000059">Test</a></b></dt><dd>LinalgRoutines.CholeskyAndQR </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00494">494</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aca03d8bcbabadeb0f4aee077e65e48d0" name="aca03d8bcbabadeb0f4aee077e65e48d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca03d8bcbabadeb0f4aee077e65e48d0">&#9670;&#160;</a></span>svd()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1SVD.html">SVD</a> cheatah::linalg::svd </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Singular value decomposition (one-sided Jacobi; requires rows ≥ cols). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>m×n matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="SVD">SVD</a> with u (m×n), s (descending singular values), vh (n×n = Vᵀ). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates all members. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000060">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00534">534</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
 
 </div>
 </div>
@@ -897,6 +825,212 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000074">Test</a></b></dt><dd>LinalgRoutines.PinvCondRankOnWideMatrix </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00546">546</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00468">lstsq()</a>.</p>
+<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-8-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a15954951259f3da0e9cd986637238593_icgraph.svg" width="371" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="a1a87733ea05b83ae7e5bc18c619ee0b0" name="a1a87733ea05b83ae7e5bc18c619ee0b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a87733ea05b83ae7e5bc18c619ee0b0">&#9670;&#160;</a></span>cond()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double cheatah::linalg::cond </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>2-norm condition number σ_max/σ_min (∞ if singular). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>condition number. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates scratch O(n²) for the factorization, returns a double. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000066">Test</a></b></dt><dd>LinalgRoutines.SlogdetAndCond </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00579">579</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a28ceb7f1c8e368fb6f07cf5a92a4c6f0" name="a28ceb7f1c8e368fb6f07cf5a92a4c6f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28ceb7f1c8e368fb6f07cf5a92a4c6f0">&#9670;&#160;</a></span>matrix_rank()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long long cheatah::linalg::matrix_rank </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Numerical rank from <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a> singular-value thresholding. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>rank. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via <a class="el" href="structcheatah_1_1linalg_1_1SVD.html" title="Result of svd(): A = u·diag(s)·vh.">SVD</a>; allocates scratch O(n²) for the factorization. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000068">Test</a></b></dt><dd>LinalgRoutines.NormAndRank </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00595">595</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a73d032676733f00ec8c5ceabc60cd4be" name="a73d032676733f00ec8c5ceabc60cd4be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73d032676733f00ec8c5ceabc60cd4be">&#9670;&#160;</a></span>eigh()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> cheatah::linalg::eigh </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Eigen-decomposition of a symmetric matrix (cyclic Jacobi). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square symmetric matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> with descending values and matching eigenvectors. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates both members. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000063">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00616">616</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="routines_8cpp_source.html#l00632">eig()</a>.</p>
+<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-9-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a73d032676733f00ec8c5ceabc60cd4be_icgraph.svg" width="360" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="a8623020f326ce35d1e24600ab44ddb73" name="a8623020f326ce35d1e24600ab44ddb73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8623020f326ce35d1e24600ab44ddb73">&#9670;&#160;</a></span>eigvalsh()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::eigvalsh </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Eigenvalues of a symmetric matrix, descending (cyclic Jacobi). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square symmetric matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000064">Test</a></b></dt><dd>LinalgRoutines.EigvalshSymmetric </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00624">624</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ae6ac46aea9b8353893aaa9da852ca673" name="ae6ac46aea9b8353893aaa9da852ca673"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6ac46aea9b8353893aaa9da852ca673">&#9670;&#160;</a></span>eig()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structcheatah_1_1linalg_1_1Eig.html">Eig</a> cheatah::linalg::eig </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structcheatah_1_1linalg_1_1Eig.html" title="Eig">Eig</a> (vectors empty unless <code class="param">a</code> is symmetric). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³) via Hessenberg + shifted <a class="el" href="structcheatah_1_1linalg_1_1QR.html" title="Result of qr(): A = q·r with orthonormal q and upper-triangular r.">QR</a>; allocates both members. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000061">Test</a></b></dt><dd>LinalgRoutines.GeneralEig </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00632">632</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="routines_8cpp_source.html#l00616">eigh()</a>.</p>
+<div id="dynsection-10" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-10-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-10-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_ae6ac46aea9b8353893aaa9da852ca673_cgraph.svg" width="360" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="ae38fa57d37ed5c742bc4faf782b6e6ad" name="ae38fa57d37ed5c742bc4faf782b6e6ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae38fa57d37ed5c742bc4faf782b6e6ad">&#9670;&#160;</a></span>eigvals()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> cheatah::linalg::eigvals </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html">NDArray</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Eigenvalues of a general square matrix, descending (real only; throws on complex pairs). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>square matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>length-n vector of eigenvalues. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>iterative O(n³); allocates a new <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> result. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000062">Test</a></b></dt><dd>LinalgRoutines.SvdAndEigh </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="routines_8cpp_source.html#l00642">642</a> of file <a class="el" href="routines_8cpp_source.html">routines.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a2d288f8d35786438554abc6009432919" name="a2d288f8d35786438554abc6009432919"></a>
@@ -918,6 +1052,16 @@ Functions</h2></td></tr>
 <p>"AVX2;FMA" (x86-64), "NEON" (ARM), or "scalar". </p><dl class="section return"><dt>Returns</dt><dd><span class="tt">;</span>-separated feature list. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); reflects compile-time target flags (e.g. -march=native), not a runtime CPUID probe. Allocates the returned std::string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000075">Test</a></b></dt><dd>LinalgSmoke.SimdFeaturesReported </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="simd_8cpp_source.html#l00014">14</a> of file <a class="el" href="simd_8cpp_source.html">simd.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="simd_8cpp_source.html#l00008">cheatah::linalg::detail::scalar_if_empty()</a>.</p>
+<div id="dynsection-11" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-11-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-11-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1linalg_a2d288f8d35786438554abc6009432919_cgraph.svg" width="380" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -949,6 +1093,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. Useful for sizing blocked kernels. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000076">Test</a></b></dt><dd>LinalgSmoke.SimdFeaturesReported </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="simd_8cpp_source.html#l00045">45</a> of file <a class="el" href="simd_8cpp_source.html">simd.cpp</a>.</p>
+
 </div>
 </div>
 </div><!-- contents -->
@@ -961,13 +1107,13 @@ Functions</h2></td></tr>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1linalg.html">linalg</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

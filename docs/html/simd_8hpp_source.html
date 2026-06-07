@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -128,34 +126,32 @@ $(function(){initNavTree('simd_8hpp_source.html','',''); });
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1linalg.html">cheatah::linalg</a> {</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment"></span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">/** Instruction sets this build targets, e.g. &quot;AVX2;FMA&quot; (x86-64), &quot;NEON&quot; (ARM), or &quot;scalar&quot;. @return `;`-separated feature list. @note O(1); reflects compile-time target flags (e.g. -march=native), not a runtime CPUID probe. Allocates the returned std::string. @test LinalgSmoke.SimdFeaturesReported */</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1linalg.html#a2d288f8d35786438554abc6009432919">   18</a></span>std::string <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a2d288f8d35786438554abc6009432919">simd_features</a>();</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>std::string <a class="code hl_function" href="namespacecheatah_1_1linalg.html#a2d288f8d35786438554abc6009432919">simd_features</a>();</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"></span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">/** Width, in `double`s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512). @return lane width. @note O(1); no heap. Useful for sizing blocked kernels. @test LinalgSmoke.SimdFeaturesReported */</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1linalg.html#af680e44741ec4db0de052c87c7423fc3">   21</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#af680e44741ec4db0de052c87c7423fc3">simd_lane_doubles</a>() noexcept;</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespacecheatah_1_1linalg.html#af680e44741ec4db0de052c87c7423fc3">simd_lane_doubles</a>() noexcept;</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="foldopen" id="foldopen00023" data-start="{" data-end="}">
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1linalg_1_1detail.html">   23</a></span>namespace <a class="code hl_namespace" href="namespacecheatah_1_1linalg_1_1detail.html">detail</a> {<span class="comment"></span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>namespace <a class="code hl_namespace" href="namespacecheatah_1_1linalg_1_1detail.html">detail</a> {<span class="comment"></span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">/** Normalize a feature list: &quot;scalar&quot; if empty, else unchanged. @param features raw feature list. @return @p features, or &quot;scalar&quot; when empty. @note O(n); factored out so the no-SIMD fallback is testable on SIMD-capable build machines. Allocates the returned std::string. @test LinalgSmoke.SimdScalarFallback */</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1linalg_1_1detail.html#a570e2dba7f4803ebc590e5e363167d44">   25</a></span>std::string <a class="code hl_function" href="namespacecheatah_1_1linalg_1_1detail.html#a570e2dba7f4803ebc590e5e363167d44">scalar_if_empty</a>(std::string features);</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>std::string <a class="code hl_function" href="namespacecheatah_1_1linalg_1_1detail.html#a570e2dba7f4803ebc590e5e363167d44">scalar_if_empty</a>(std::string features);</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>}  <span class="comment">// namespace detail</span></div>
-</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>} <span class="comment">// namespace cheatah::linalg</span></div>
-<div class="ttc" id="anamespacecheatah_1_1linalg_1_1detail_html"><div class="ttname"><a href="namespacecheatah_1_1linalg_1_1detail.html">cheatah::linalg::detail</a></div><div class="ttdef"><b>Definition</b> <a href="#l00023">simd.hpp:23</a></div></div>
-<div class="ttc" id="anamespacecheatah_1_1linalg_1_1detail_html_a570e2dba7f4803ebc590e5e363167d44"><div class="ttname"><a href="namespacecheatah_1_1linalg_1_1detail.html#a570e2dba7f4803ebc590e5e363167d44">cheatah::linalg::detail::scalar_if_empty</a></div><div class="ttdeci">std::string scalar_if_empty(std::string features)</div><div class="ttdoc">Normalize a feature list: &quot;scalar&quot; if empty, else unchanged.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1linalg_html"><div class="ttname"><a href="namespacecheatah_1_1linalg.html">cheatah::linalg</a></div><div class="ttdef"><b>Definition</b> <a href="routines_8hpp_source.html#l00028">routines.hpp:28</a></div></div>
-<div class="ttc" id="anamespacecheatah_1_1linalg_html_a2d288f8d35786438554abc6009432919"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#a2d288f8d35786438554abc6009432919">cheatah::linalg::simd_features</a></div><div class="ttdeci">std::string simd_features()</div><div class="ttdoc">Instruction sets this build targets, e.g.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1linalg_html_af680e44741ec4db0de052c87c7423fc3"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#af680e44741ec4db0de052c87c7423fc3">cheatah::linalg::simd_lane_doubles</a></div><div class="ttdeci">int simd_lane_doubles() noexcept</div><div class="ttdoc">Width, in doubles, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON,...</div></div>
+<div class="ttc" id="anamespacecheatah_1_1linalg_1_1detail_html"><div class="ttname"><a href="namespacecheatah_1_1linalg_1_1detail.html">cheatah::linalg::detail</a></div><div class="ttdef"><b>Definition</b> <a href="simd_8cpp_source.html#l00007">simd.cpp:7</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1linalg_1_1detail_html_a570e2dba7f4803ebc590e5e363167d44"><div class="ttname"><a href="namespacecheatah_1_1linalg_1_1detail.html#a570e2dba7f4803ebc590e5e363167d44">cheatah::linalg::detail::scalar_if_empty</a></div><div class="ttdeci">std::string scalar_if_empty(std::string features)</div><div class="ttdoc">Normalize a feature list: &quot;scalar&quot; if empty, else unchanged.</div><div class="ttdef"><b>Definition</b> <a href="simd_8cpp_source.html#l00008">simd.cpp:8</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1linalg_html"><div class="ttname"><a href="namespacecheatah_1_1linalg.html">cheatah::linalg</a></div><div class="ttdef"><b>Definition</b> <a href="routines_8cpp_source.html#l00015">routines.cpp:15</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1linalg_html_a2d288f8d35786438554abc6009432919"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#a2d288f8d35786438554abc6009432919">cheatah::linalg::simd_features</a></div><div class="ttdeci">std::string simd_features()</div><div class="ttdoc">Instruction sets this build targets, e.g.</div><div class="ttdef"><b>Definition</b> <a href="simd_8cpp_source.html#l00014">simd.cpp:14</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1linalg_html_af680e44741ec4db0de052c87c7423fc3"><div class="ttname"><a href="namespacecheatah_1_1linalg.html#af680e44741ec4db0de052c87c7423fc3">cheatah::linalg::simd_lane_doubles</a></div><div class="ttdeci">int simd_lane_doubles() noexcept</div><div class="ttdoc">Width, in doubles, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON,...</div><div class="ttdef"><b>Definition</b> <a href="simd_8cpp_source.html#l00045">simd.cpp:45</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_4e42dd9459b784f8d0afec43bca14864.html">linalg</a></li><li class="navelem"><a href="simd_8hpp.html">simd.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

@@ -1,7 +1,6 @@
 var namespacecheatah_1_1os =
 [
     [ "path", "namespacecheatah_1_1os_1_1path.html", [
-      [ "join", "namespacecheatah_1_1os_1_1path.html#a513a81497ee8015697d31e4a8aa9765c", null ],
       [ "exists", "namespacecheatah_1_1os_1_1path.html#a15a9953a39281406d03974063f735aa4", null ],
       [ "isfile", "namespacecheatah_1_1os_1_1path.html#a4a75f417d107739ef21a62248fdcee7e", null ],
       [ "isdir", "namespacecheatah_1_1os_1_1path.html#abfc6fed92ef42082bd5622b94452dcd3", null ],
@@ -10,7 +9,8 @@ var namespacecheatah_1_1os =
       [ "abspath", "namespacecheatah_1_1os_1_1path.html#aa62189047efd20934b5225438abd1d7f", null ],
       [ "normpath", "namespacecheatah_1_1os_1_1path.html#a7ca78fd59e2abd52c6c33d6726ce8bb9", null ],
       [ "getsize", "namespacecheatah_1_1os_1_1path.html#a1af039907598e0109b1a25fa9b7dda8f", null ],
-      [ "splitext", "namespacecheatah_1_1os_1_1path.html#a3fbfc548700979280e860a64913079fb", null ]
+      [ "splitext", "namespacecheatah_1_1os_1_1path.html#a3fbfc548700979280e860a64913079fb", null ],
+      [ "join", "namespacecheatah_1_1os_1_1path.html#a513a81497ee8015697d31e4a8aa9765c", null ]
     ] ],
     [ "StringLike", "conceptcheatah_1_1os_1_1StringLike.html", null ],
     [ "getcwd", "namespacecheatah_1_1os.html#a6093cccd561d1ff5f68acea6ecbcfe94", null ],

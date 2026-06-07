@@ -22,7 +22,7 @@ var searchData=
   ['sqrt_19',['sqrt',['../namespacecheatah_1_1math.html#a470ae22922df69a8a110843a9ef34c85',1,'cheatah::math']]],
   ['startswith_20',['startswith',['../namespacecheatah_1_1string.html#a22d7072dc6e2257114052c3f3bc88be0',1,'cheatah::string']]],
   ['stdev_21',['stdev',['../namespacecheatah_1_1statistics.html#a65e3e14c8cdf7f345af2065f18ae6212',1,'cheatah::statistics']]],
-  ['str_22',['str',['../namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff',1,'cheatah::io::str(const T &amp;value)'],['../namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062',1,'cheatah::io::str(const std::string &amp;value)'],['../namespacecheatah_1_1io.html#ab47c30312ae96bbb5d61d65177e3075e',1,'cheatah::io::str(bool b)']]],
+  ['str_22',['str',['../namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062',1,'cheatah::io::str(const std::string &amp;value)'],['../namespacecheatah_1_1io.html#ab47c30312ae96bbb5d61d65177e3075e',1,'cheatah::io::str(bool b)'],['../namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff',1,'cheatah::io::str(const T &amp;value)']]],
   ['strides_23',['strides',['../classcheatah_1_1ndarray_1_1NDArray.html#af3fe15dacbd79b5e38cf696f73338739',1,'cheatah::ndarray::NDArray::strides()'],['../classcheatah_1_1linalg_1_1NDArray.html#af3fe15dacbd79b5e38cf696f73338739',1,'cheatah::linalg::NDArray::strides()']]],
   ['strip_24',['strip',['../namespacecheatah_1_1string.html#a165a3ca0ca4dd31ff7e5d7e4913b10ab',1,'cheatah::string']]],
   ['sub_25',['sub',['../namespacecheatah_1_1ndarray.html#a2c6efc14872c11a009505a014138a508',1,'cheatah::ndarray']]],

@@ -1,0 +1,17 @@
+<map id="stdlib/statistics/statistics.cpp" name="stdlib/statistics/statistics.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="179,5,389,31"/>
+<area shape="rect" id="Node000002" href="$statistics_8hpp.html" title="cheatah statistics — descriptive statistics over numeric sequences, mirroring Python&#39;s statistics mod..." alt="" coords="229,79,339,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="287,31,287,65,281,65,281,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,91,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="247,107,100,151,99,145,245,101"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="115,152,178,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="263,106,182,148,180,143,261,102"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="202,152,273,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="279,106,255,142,250,139,274,103"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="297,152,364,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="294,103,318,139,313,142,289,106"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="389,152,481,177"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="309,102,399,144,396,148,307,106"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="505,152,567,177"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="325,101,492,148,490,153,324,107"/>
+</map>

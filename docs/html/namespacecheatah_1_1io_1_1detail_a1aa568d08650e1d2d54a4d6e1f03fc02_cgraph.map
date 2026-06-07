@@ -1,0 +1,5 @@
+<map id="cheatah::io::detail::format_into" name="cheatah::io::detail::format_into">
+<area shape="rect" id="Node000001" title="Recursive step: write text up to the next {}, substitute arg, recurse on the rest." alt="" coords="5,5,144,45"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1io_1_1detail.html#ac8ea9c7fd360b9e8450129755666b818" title="Base case of the recursive formatter: emit the remainder of fmt verbatim." alt="" coords="192,5,331,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,23,178,23,178,28,145,28"/>
+</map>

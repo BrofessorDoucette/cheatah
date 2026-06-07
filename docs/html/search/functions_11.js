@@ -9,7 +9,7 @@ var searchData=
   ['remove_6',['remove',['../namespacecheatah_1_1os.html#aa53d36f72895bb0993907be1420cb7d5',1,'cheatah::os']]],
   ['rename_7',['rename',['../namespacecheatah_1_1os.html#a7011d5be5824fc2152264f0b552769b9',1,'cheatah::os']]],
   ['replace_8',['replace',['../namespacecheatah_1_1string.html#a7ebf1ac5b5dc5434d3e2f73236376673',1,'cheatah::string']]],
-  ['repr_9',['repr',['../namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572',1,'cheatah::io::repr(const T &amp;value)'],['../namespacecheatah_1_1io.html#ad7f55404376630a2fa5bd56b20b2efe5',1,'cheatah::io::repr(const std::string &amp;value)'],['../namespacecheatah_1_1io.html#a7acfd3543261ed05c8b4cc2bb222b51a',1,'cheatah::io::repr(const char *value)']]],
+  ['repr_9',['repr',['../namespacecheatah_1_1io.html#ad7f55404376630a2fa5bd56b20b2efe5',1,'cheatah::io::repr(const std::string &amp;value)'],['../namespacecheatah_1_1io.html#a7acfd3543261ed05c8b4cc2bb222b51a',1,'cheatah::io::repr(const char *value)'],['../namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572',1,'cheatah::io::repr(const T &amp;value)']]],
   ['reshape_10',['reshape',['../namespacecheatah_1_1ndarray.html#a1a7555532cd64d3801dfb571f94fed3b',1,'cheatah::ndarray']]],
   ['rfind_11',['rfind',['../namespacecheatah_1_1string.html#a5236fbcb2618997d208cde76a2a45be8',1,'cheatah::string']]],
   ['rjust_12',['rjust',['../namespacecheatah_1_1string.html#a1c57119d31ac94c9ea048812916d4340',1,'cheatah::string']]],

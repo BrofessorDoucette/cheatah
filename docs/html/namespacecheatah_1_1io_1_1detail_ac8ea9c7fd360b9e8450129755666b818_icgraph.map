@@ -1,0 +1,7 @@
+<map id="cheatah::io::detail::format_into" name="cheatah::io::detail::format_into">
+<area shape="rect" id="Node000001" title="Base case of the recursive formatter: emit the remainder of fmt verbatim." alt="" coords="200,27,339,67"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1io.html#aa2a59474b36f5e824c5297716d2970c3" title="Sequential {} substitution — the common case of Python&#39;s str.format() / f&#45;strings." alt="" coords="5,5,152,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,37,152,32,153,27,187,32"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1io_1_1detail.html#a1aa568d08650e1d2d54a4d6e1f03fc02" title="Recursive step: write text up to the next {}, substitute arg, recurse on the rest." alt="" coords="9,55,148,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,62,148,68,148,63,186,57"/>
+</map>

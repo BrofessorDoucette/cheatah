@@ -1,0 +1,7 @@
+<map id="cheatah::statistics::mean" name="cheatah::statistics::mean">
+<area shape="rect" id="Node000001" title="Arithmetic mean." alt="" coords="5,35,147,75"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1statistics.html#a7fa49381737477d38f8e7ca85341b5ce" title="Element count." alt="" coords="213,5,354,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,42,199,35,199,40,148,47"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1statistics.html#a2a485aac6597b00092c0b65603309380" title="Sum of the elements." alt="" coords="195,70,372,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,62,181,66,181,71,147,67"/>
+</map>

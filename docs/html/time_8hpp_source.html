@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -129,59 +127,57 @@ $(function(){initNavTree('time_8hpp_source.html','',''); });
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &lt;cstdint&gt;</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="foldopen" id="foldopen00019" data-start="{" data-end="}">
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html">   19</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1time.html">cheatah::time</a> {</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1time.html">cheatah::time</a> {</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"></span> </div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">/** Wall-clock time. @return seconds since the Unix epoch (`system_clock`).</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.WallClockIsRecent */</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a89f0d465fd0d0866202907e1a24ef38d">   23</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a89f0d465fd0d0866202907e1a24ef38d">time</a>();<span class="comment"></span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a89f0d465fd0d0866202907e1a24ef38d">time</a>();<span class="comment"></span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">/** Wall-clock time. @return nanoseconds since the Unix epoch (`system_clock`).</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.WallClockIsRecent */</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a94c74361b883bc740274549ad244aca9">   26</a></span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a94c74361b883bc740274549ad244aca9">time_ns</a>();</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a94c74361b883bc740274549ad244aca9">time_ns</a>();</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment"></span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">/** Monotonic clock; never runs backwards. @return seconds from `steady_clock`.</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a6ebb3e75e2532b7a3b35643881523042">   30</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a6ebb3e75e2532b7a3b35643881523042">monotonic</a>();<span class="comment"></span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a6ebb3e75e2532b7a3b35643881523042">monotonic</a>();<span class="comment"></span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">/** Monotonic clock; never runs backwards. @return nanoseconds from `steady_clock`.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a3a9135be5790da4412bab13e87b8b7de">   33</a></span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a3a9135be5790da4412bab13e87b8b7de">monotonic_ns</a>();</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a3a9135be5790da4412bab13e87b8b7de">monotonic_ns</a>();</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment"></span> </div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">/** Highest-resolution monotonic counter. @return seconds from `steady_clock`.</span></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.PerfCounterAdvances */</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#aac0af5664b94744d1bcfaef00466f318">   37</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#aac0af5664b94744d1bcfaef00466f318">perf_counter</a>();<span class="comment"></span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#aac0af5664b94744d1bcfaef00466f318">perf_counter</a>();<span class="comment"></span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">/** Highest-resolution monotonic counter. @return nanoseconds from `steady_clock`.</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a1831115f4e68883a73652b216f64da65">   40</a></span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a1831115f4e68883a73652b216f64da65">perf_counter_ns</a>();</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a1831115f4e68883a73652b216f64da65">perf_counter_ns</a>();</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment"></span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">/** CPU time consumed by this process. @return seconds of CPU time (`std::clock`).</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment"> *  @note O(1) time; no heap. @test CheatahTime.ProcessTimeNonNegative */</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a94aeef18a2da0c3fe7b21dd48e10ec0d">   44</a></span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a94aeef18a2da0c3fe7b21dd48e10ec0d">process_time</a>();</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a94aeef18a2da0c3fe7b21dd48e10ec0d">process_time</a>();</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment"></span> </div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">/** Suspend the calling thread. @param seconds duration to sleep (fractional).</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment"> *  @note O(1) plus the sleep wait; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1time.html#a571a9a99c976adbb23173290852f80de">   48</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a571a9a99c976adbb23173290852f80de">sleep</a>(<span class="keywordtype">double</span> seconds);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacecheatah_1_1time.html#a571a9a99c976adbb23173290852f80de">sleep</a>(<span class="keywordtype">double</span> seconds);</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>} <span class="comment">// namespace cheatah::time</span></div>
-</div>
-<div class="ttc" id="anamespacecheatah_1_1time_html"><div class="ttname"><a href="namespacecheatah_1_1time.html">cheatah::time</a></div><div class="ttdef"><b>Definition</b> <a href="#l00019">time.hpp:19</a></div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a1831115f4e68883a73652b216f64da65"><div class="ttname"><a href="namespacecheatah_1_1time.html#a1831115f4e68883a73652b216f64da65">cheatah::time::perf_counter_ns</a></div><div class="ttdeci">long long perf_counter_ns()</div><div class="ttdoc">Highest-resolution monotonic counter.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a3a9135be5790da4412bab13e87b8b7de"><div class="ttname"><a href="namespacecheatah_1_1time.html#a3a9135be5790da4412bab13e87b8b7de">cheatah::time::monotonic_ns</a></div><div class="ttdeci">long long monotonic_ns()</div><div class="ttdoc">Monotonic clock; never runs backwards.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a571a9a99c976adbb23173290852f80de"><div class="ttname"><a href="namespacecheatah_1_1time.html#a571a9a99c976adbb23173290852f80de">cheatah::time::sleep</a></div><div class="ttdeci">void sleep(double seconds)</div><div class="ttdoc">Suspend the calling thread.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a6ebb3e75e2532b7a3b35643881523042"><div class="ttname"><a href="namespacecheatah_1_1time.html#a6ebb3e75e2532b7a3b35643881523042">cheatah::time::monotonic</a></div><div class="ttdeci">double monotonic()</div><div class="ttdoc">Monotonic clock; never runs backwards.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a89f0d465fd0d0866202907e1a24ef38d"><div class="ttname"><a href="namespacecheatah_1_1time.html#a89f0d465fd0d0866202907e1a24ef38d">cheatah::time::time</a></div><div class="ttdeci">double time()</div><div class="ttdoc">Wall-clock time.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a94aeef18a2da0c3fe7b21dd48e10ec0d"><div class="ttname"><a href="namespacecheatah_1_1time.html#a94aeef18a2da0c3fe7b21dd48e10ec0d">cheatah::time::process_time</a></div><div class="ttdeci">double process_time()</div><div class="ttdoc">CPU time consumed by this process.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_a94c74361b883bc740274549ad244aca9"><div class="ttname"><a href="namespacecheatah_1_1time.html#a94c74361b883bc740274549ad244aca9">cheatah::time::time_ns</a></div><div class="ttdeci">long long time_ns()</div><div class="ttdoc">Wall-clock time.</div></div>
-<div class="ttc" id="anamespacecheatah_1_1time_html_aac0af5664b94744d1bcfaef00466f318"><div class="ttname"><a href="namespacecheatah_1_1time.html#aac0af5664b94744d1bcfaef00466f318">cheatah::time::perf_counter</a></div><div class="ttdeci">double perf_counter()</div><div class="ttdoc">Highest-resolution monotonic counter.</div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html"><div class="ttname"><a href="namespacecheatah_1_1time.html">cheatah::time</a></div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00007">time.cpp:7</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a1831115f4e68883a73652b216f64da65"><div class="ttname"><a href="namespacecheatah_1_1time.html#a1831115f4e68883a73652b216f64da65">cheatah::time::perf_counter_ns</a></div><div class="ttdeci">long long perf_counter_ns()</div><div class="ttdoc">Highest-resolution monotonic counter.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00029">time.cpp:29</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a3a9135be5790da4412bab13e87b8b7de"><div class="ttname"><a href="namespacecheatah_1_1time.html#a3a9135be5790da4412bab13e87b8b7de">cheatah::time::monotonic_ns</a></div><div class="ttdeci">long long monotonic_ns()</div><div class="ttdoc">Monotonic clock; never runs backwards.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00023">time.cpp:23</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a571a9a99c976adbb23173290852f80de"><div class="ttname"><a href="namespacecheatah_1_1time.html#a571a9a99c976adbb23173290852f80de">cheatah::time::sleep</a></div><div class="ttdeci">void sleep(double seconds)</div><div class="ttdoc">Suspend the calling thread.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00035">time.cpp:35</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a6ebb3e75e2532b7a3b35643881523042"><div class="ttname"><a href="namespacecheatah_1_1time.html#a6ebb3e75e2532b7a3b35643881523042">cheatah::time::monotonic</a></div><div class="ttdeci">double monotonic()</div><div class="ttdoc">Monotonic clock; never runs backwards.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00022">time.cpp:22</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a89f0d465fd0d0866202907e1a24ef38d"><div class="ttname"><a href="namespacecheatah_1_1time.html#a89f0d465fd0d0866202907e1a24ef38d">cheatah::time::time</a></div><div class="ttdeci">double time()</div><div class="ttdoc">Wall-clock time.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00017">time.cpp:17</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a94aeef18a2da0c3fe7b21dd48e10ec0d"><div class="ttname"><a href="namespacecheatah_1_1time.html#a94aeef18a2da0c3fe7b21dd48e10ec0d">cheatah::time::process_time</a></div><div class="ttdeci">double process_time()</div><div class="ttdoc">CPU time consumed by this process.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00033">time.cpp:33</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_a94c74361b883bc740274549ad244aca9"><div class="ttname"><a href="namespacecheatah_1_1time.html#a94c74361b883bc740274549ad244aca9">cheatah::time::time_ns</a></div><div class="ttdeci">long long time_ns()</div><div class="ttdoc">Wall-clock time.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00018">time.cpp:18</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1time_html_aac0af5664b94744d1bcfaef00466f318"><div class="ttname"><a href="namespacecheatah_1_1time.html#aac0af5664b94744d1bcfaef00466f318">cheatah::time::perf_counter</a></div><div class="ttdeci">double perf_counter()</div><div class="ttdoc">Highest-resolution monotonic counter.</div><div class="ttdef"><b>Definition</b> <a href="time_8cpp_source.html#l00028">time.cpp:28</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_0448644849d82288d7fb17552879d489.html">time</a></li><li class="navelem"><a href="time_8hpp.html">time.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -128,35 +126,228 @@ Concepts</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aa2b498516ecd4652c1f0995bcf7df062" id="r_aa2b498516ecd4652c1f0995bcf7df062"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062">str</a> (const std::string &amp;value)</td></tr>
+<tr class="memdesc:aa2b498516ecd4652c1f0995bcf7df062"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a <span class="tt">std::string</span> — identity overload.  <br /></td></tr>
+<tr class="memitem:ab47c30312ae96bbb5d61d65177e3075e" id="r_ab47c30312ae96bbb5d61d65177e3075e"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ab47c30312ae96bbb5d61d65177e3075e">str</a> (bool b)</td></tr>
+<tr class="memdesc:ab47c30312ae96bbb5d61d65177e3075e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a bool — Python spelling.  <br /></td></tr>
+<tr class="memitem:ad7f55404376630a2fa5bd56b20b2efe5" id="r_ad7f55404376630a2fa5bd56b20b2efe5"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5">repr</a> (const std::string &amp;value)</td></tr>
+<tr class="memdesc:ad7f55404376630a2fa5bd56b20b2efe5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr).  <br /></td></tr>
+<tr class="memitem:a7acfd3543261ed05c8b4cc2bb222b51a" id="r_a7acfd3543261ed05c8b4cc2bb222b51a"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a7acfd3543261ed05c8b4cc2bb222b51a">repr</a> (const char *value)</td></tr>
+<tr class="memdesc:a7acfd3543261ed05c8b4cc2bb222b51a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a C string — quoted (Python repr).  <br /></td></tr>
+<tr class="memitem:aecad87986d545617e47eda139f27c2c6" id="r_aecad87986d545617e47eda139f27c2c6"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aecad87986d545617e47eda139f27c2c6">input</a> (std::string_view prompt=&quot;&quot;)</td></tr>
+<tr class="memdesc:aecad87986d545617e47eda139f27c2c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin.  <br /></td></tr>
+<tr class="memitem:a32e500d7d08f83fda13aa1ea2366ad88" id="r_a32e500d7d08f83fda13aa1ea2366ad88"><td class="memItemLeft"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a>&#160;</td><td class="memItemRight"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88">open</a> (const std::string &amp;path, std::string_view mode=&quot;r&quot;)</td></tr>
+<tr class="memdesc:a32e500d7d08f83fda13aa1ea2366ad88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>.  <br /></td></tr>
 <tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff" id="r_ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
 <tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff">str</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span>: stringify any streamable value.  <br /></td></tr>
-<tr class="memitem:aa2b498516ecd4652c1f0995bcf7df062" id="r_aa2b498516ecd4652c1f0995bcf7df062"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062">str</a> (const std::string &amp;value)</td></tr>
-<tr class="memdesc:aa2b498516ecd4652c1f0995bcf7df062"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span> for a <span class="tt">std::string</span> — identity overload.  <br /></td></tr>
-<tr class="memitem:ab47c30312ae96bbb5d61d65177e3075e" id="r_ab47c30312ae96bbb5d61d65177e3075e"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ab47c30312ae96bbb5d61d65177e3075e">str</a> (bool b)</td></tr>
-<tr class="memdesc:ab47c30312ae96bbb5d61d65177e3075e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span> for a bool — Python spelling.  <br /></td></tr>
+<tr class="memdesc:ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span>: stringify any streamable value.  <br /></td></tr>
 <tr class="memitem:a797b0d86b7c7aec8fbb68b9e53b53c6a" id="r_a797b0d86b7c7aec8fbb68b9e53b53c6a"><td class="memTemplParams" colspan="2">template&lt;Streamable... Args&gt; </td></tr>
 <tr class="memitem:a797b0d86b7c7aec8fbb68b9e53b53c6a template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a797b0d86b7c7aec8fbb68b9e53b53c6a">print</a> (const Args &amp;... args)</td></tr>
 <tr class="memdesc:a797b0d86b7c7aec8fbb68b9e53b53c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt">print(*args)</span>: space-separated, newline-terminated, to stdout (sep=' ', end='<br  />
 ').  <br /></td></tr>
 <tr class="memitem:aea5137e3c9c915c88d0f0886d6266572" id="r_aea5137e3c9c915c88d0f0886d6266572"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
 <tr class="memitem:aea5137e3c9c915c88d0f0886d6266572 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572">repr</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:aea5137e3c9c915c88d0f0886d6266572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a generic value — same as <a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a> for non-strings.  <br /></td></tr>
-<tr class="memitem:ad7f55404376630a2fa5bd56b20b2efe5" id="r_ad7f55404376630a2fa5bd56b20b2efe5"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5">repr</a> (const std::string &amp;value)</td></tr>
-<tr class="memdesc:ad7f55404376630a2fa5bd56b20b2efe5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr).  <br /></td></tr>
-<tr class="memitem:a7acfd3543261ed05c8b4cc2bb222b51a" id="r_a7acfd3543261ed05c8b4cc2bb222b51a"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a7acfd3543261ed05c8b4cc2bb222b51a">repr</a> (const char *value)</td></tr>
-<tr class="memdesc:a7acfd3543261ed05c8b4cc2bb222b51a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a C string — quoted (Python repr).  <br /></td></tr>
+<tr class="memdesc:aea5137e3c9c915c88d0f0886d6266572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a generic value — same as <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> for non-strings.  <br /></td></tr>
 <tr class="memitem:aa2a59474b36f5e824c5297716d2970c3" id="r_aa2a59474b36f5e824c5297716d2970c3"><td class="memTemplParams" colspan="2">template&lt;Streamable... Args&gt; </td></tr>
 <tr class="memitem:aa2a59474b36f5e824c5297716d2970c3 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aa2a59474b36f5e824c5297716d2970c3">format</a> (std::string_view fmt, const Args &amp;... args)</td></tr>
 <tr class="memdesc:aa2a59474b36f5e824c5297716d2970c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequential <span class="tt">{}</span> substitution — the common case of Python's str.format() / f-strings.  <br /></td></tr>
-<tr class="memitem:aecad87986d545617e47eda139f27c2c6" id="r_aecad87986d545617e47eda139f27c2c6"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aecad87986d545617e47eda139f27c2c6">input</a> (std::string_view prompt=&quot;&quot;)</td></tr>
-<tr class="memdesc:aecad87986d545617e47eda139f27c2c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin.  <br /></td></tr>
-<tr class="memitem:a32e500d7d08f83fda13aa1ea2366ad88" id="r_a32e500d7d08f83fda13aa1ea2366ad88"><td class="memItemLeft"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a>&#160;</td><td class="memItemRight"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88">open</a> (const std::string &amp;path, std::string_view mode=&quot;r&quot;)</td></tr>
-<tr class="memdesc:a32e500d7d08f83fda13aa1ea2366ad88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>.  <br /></td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="aa2b498516ecd4652c1f0995bcf7df062" name="aa2b498516ecd4652c1f0995bcf7df062"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2b498516ecd4652c1f0995bcf7df062">&#9670;&#160;</a></span>str() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::io::str </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a <span class="tt">std::string</span> — identity overload. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>the string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a copy of <code class="param">value</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result copy. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000032">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00007">7</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00051">print()</a>, and <a class="el" href="io_8hpp_source.html#l00059">repr()</a>.</p>
+<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_aa2b498516ecd4652c1f0995bcf7df062_icgraph.svg" width="310" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="ab47c30312ae96bbb5d61d65177e3075e" name="ab47c30312ae96bbb5d61d65177e3075e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab47c30312ae96bbb5d61d65177e3075e">&#9670;&#160;</a></span>str() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::io::str </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>b</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a bool — Python spelling. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">b</td><td>the boolean. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><span class="tt">"True"</span> or <span class="tt">"False"</span>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(1); allocates the small result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000033">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00008">8</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ad7f55404376630a2fa5bd56b20b2efe5" name="ad7f55404376630a2fa5bd56b20b2efe5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7f55404376630a2fa5bd56b20b2efe5">&#9670;&#160;</a></span>repr() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::io::repr </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>the string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000036">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00010">10</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a7acfd3543261ed05c8b4cc2bb222b51a" name="a7acfd3543261ed05c8b4cc2bb222b51a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7acfd3543261ed05c8b4cc2bb222b51a">&#9670;&#160;</a></span>repr() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::io::repr </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a C string — quoted (Python repr). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>the C string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000037">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00011">11</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aecad87986d545617e47eda139f27c2c6" name="aecad87986d545617e47eda139f27c2c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aecad87986d545617e47eda139f27c2c6">&#9670;&#160;</a></span>input()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::io::input </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>prompt</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">prompt</td><td>text shown before reading (no newline added). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the line read, with the trailing newline stripped. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(line length); allocates the returned string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000039">Test</a></b></dt><dd>CheatahIo.InputReadsALine </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00019">19</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a32e500d7d08f83fda13aa1ea2366ad88" name="a32e500d7d08f83fda13aa1ea2366ad88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32e500d7d08f83fda13aa1ea2366ad88">&#9670;&#160;</a></span>open()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a> cheatah::io::open </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>mode</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;r&quot;</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>filesystem path.</td></tr>
+    <tr><td class="paramname">mode</td><td>Python-style mode string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>an open <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> (move-returned). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(1) plus the OS open; constructs a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>, no heap of our own. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000040">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00072">72</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+</div>
+</div>
 <a id="ad01c2dd31b9a428f1c4ac129968ae9ff" name="ad01c2dd31b9a428f1c4ac129968ae9ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad01c2dd31b9a428f1c4ac129968ae9ff">&#9670;&#160;</a></span>str() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad01c2dd31b9a428f1c4ac129968ae9ff">&#9670;&#160;</a></span>str() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -172,7 +363,7 @@ template&lt;Streamable T&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Python <span class="tt"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span>: stringify any streamable value. </p>
+<p>Python <span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span>: stringify any streamable value. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>the value to render. </td></tr>
@@ -184,62 +375,6 @@ template&lt;Streamable T&gt; </div>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000031">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00039">39</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
-
-</div>
-</div>
-<a id="aa2b498516ecd4652c1f0995bcf7df062" name="aa2b498516ecd4652c1f0995bcf7df062"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2b498516ecd4652c1f0995bcf7df062">&#9670;&#160;</a></span>str() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::str </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span> for a <span class="tt">std::string</span> — identity overload. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>a copy of <code class="param">value</code>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result copy. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000032">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
-
-</div>
-</div>
-<a id="ab47c30312ae96bbb5d61d65177e3075e" name="ab47c30312ae96bbb5d61d65177e3075e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab47c30312ae96bbb5d61d65177e3075e">&#9670;&#160;</a></span>str() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::str </td>
-          <td>(</td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>b</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span> for a bool — Python spelling. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">b</td><td>the boolean. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">"True"</span> or <span class="tt">"False"</span>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1); allocates the small result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000033">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
 
 </div>
 </div>
@@ -268,15 +403,23 @@ template&lt;Streamable... Args&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>O(total output length); each arg is routed through <a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(total output length); each arg is routed through <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000034">Test</a></b></dt><dd>CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00051">51</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
+<p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
+<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_a797b0d86b7c7aec8fbb68b9e53b53c6a_cgraph.svg" width="310" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="aea5137e3c9c915c88d0f0886d6266572" name="aea5137e3c9c915c88d0f0886d6266572"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aea5137e3c9c915c88d0f0886d6266572">&#9670;&#160;</a></span>repr() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aea5137e3c9c915c88d0f0886d6266572">&#9670;&#160;</a></span>repr() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -292,7 +435,7 @@ template&lt;Streamable T&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Python <span class="tt"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a generic value — same as <a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a> for non-strings. </p>
+<p>Python <span class="tt"><a class="el" href="#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a generic value — same as <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> for non-strings. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>the value to render. </td></tr>
@@ -305,61 +448,13 @@ template&lt;Streamable T&gt; </div>
 
 <p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00059">59</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
+<p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
+<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
 </div>
+<div id="dynsection-2-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_aea5137e3c9c915c88d0f0886d6266572_cgraph.svg" width="306" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
-<a id="ad7f55404376630a2fa5bd56b20b2efe5" name="ad7f55404376630a2fa5bd56b20b2efe5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad7f55404376630a2fa5bd56b20b2efe5">&#9670;&#160;</a></span>repr() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::repr </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000036">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
-
-</div>
-</div>
-<a id="a7acfd3543261ed05c8b4cc2bb222b51a" name="a7acfd3543261ed05c8b4cc2bb222b51a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7acfd3543261ed05c8b4cc2bb222b51a">&#9670;&#160;</a></span>repr() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::repr </td>
-          <td>(</td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><span class="tt"><a class="el" href="#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a C string — quoted (Python repr). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>the C string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">value</code> wrapped in single quotes. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000037">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
 
 </div>
 </div>
@@ -398,66 +493,13 @@ template&lt;Streamable... Args&gt; </div>
 
 <p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00083">83</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
+<p class="reference">References <a class="el" href="io_8cpp_source.html#l00014">cheatah::io::detail::format_into()</a>.</p>
+<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
 </div>
+<div id="dynsection-3-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1io_aa2a59474b36f5e824c5297716d2970c3_cgraph.svg" width="344" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
-<a id="aecad87986d545617e47eda139f27c2c6" name="aecad87986d545617e47eda139f27c2c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aecad87986d545617e47eda139f27c2c6">&#9670;&#160;</a></span>input()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::io::input </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>prompt</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">prompt</td><td>text shown before reading (no newline added). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the line read, with the trailing newline stripped. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(line length); allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000039">Test</a></b></dt><dd>CheatahIo.InputReadsALine </dd></dl>
-
-</div>
-</div>
-<a id="a32e500d7d08f83fda13aa1ea2366ad88" name="a32e500d7d08f83fda13aa1ea2366ad88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32e500d7d08f83fda13aa1ea2366ad88">&#9670;&#160;</a></span>open()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a> cheatah::io::open </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>mode</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;r&quot;</span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>filesystem path.</td></tr>
-    <tr><td class="paramname">mode</td><td>Python-style mode string. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>an open <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a> (move-returned). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) plus the OS open; constructs a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>, no heap of our own. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000040">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
 
 </div>
 </div>
@@ -471,13 +513,13 @@ template&lt;Streamable... Args&gt; </div>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1io.html">io</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

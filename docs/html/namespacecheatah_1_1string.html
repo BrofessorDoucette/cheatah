@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -129,12 +127,12 @@ Functions</h2></td></tr>
 <tr class="memdesc:a103ef7ce6199145ea376e7de4b0a7319"><td class="mdescLeft">&#160;</td><td class="mdescRight">Title-case each word.  <br /></td></tr>
 <tr class="memitem:a43df7364abfd8dcbdffabf7643f526b3" id="r_a43df7364abfd8dcbdffabf7643f526b3"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a43df7364abfd8dcbdffabf7643f526b3">swapcase</a> (std::string_view s)</td></tr>
 <tr class="memdesc:a43df7364abfd8dcbdffabf7643f526b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swap the case of each letter.  <br /></td></tr>
-<tr class="memitem:a165a3ca0ca4dd31ff7e5d7e4913b10ab" id="r_a165a3ca0ca4dd31ff7e5d7e4913b10ab"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a165a3ca0ca4dd31ff7e5d7e4913b10ab">strip</a> (std::string_view s, std::string_view chars=<a class="el" href="#acb50eb3375cf819da05a8f21b2701a06">whitespace</a>)</td></tr>
-<tr class="memdesc:a165a3ca0ca4dd31ff7e5d7e4913b10ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip leading+trailing <code class="param">chars</code>.  <br /></td></tr>
 <tr class="memitem:aba7aad6dfc4a8c8a6eb753d87d303751" id="r_aba7aad6dfc4a8c8a6eb753d87d303751"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aba7aad6dfc4a8c8a6eb753d87d303751">lstrip</a> (std::string_view s, std::string_view chars=<a class="el" href="#acb50eb3375cf819da05a8f21b2701a06">whitespace</a>)</td></tr>
 <tr class="memdesc:aba7aad6dfc4a8c8a6eb753d87d303751"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip leading <code class="param">chars</code>.  <br /></td></tr>
 <tr class="memitem:a1dac2078baadf219b65aefb760740805" id="r_a1dac2078baadf219b65aefb760740805"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a1dac2078baadf219b65aefb760740805">rstrip</a> (std::string_view s, std::string_view chars=<a class="el" href="#acb50eb3375cf819da05a8f21b2701a06">whitespace</a>)</td></tr>
 <tr class="memdesc:a1dac2078baadf219b65aefb760740805"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip trailing <code class="param">chars</code>.  <br /></td></tr>
+<tr class="memitem:a165a3ca0ca4dd31ff7e5d7e4913b10ab" id="r_a165a3ca0ca4dd31ff7e5d7e4913b10ab"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a165a3ca0ca4dd31ff7e5d7e4913b10ab">strip</a> (std::string_view s, std::string_view chars=<a class="el" href="#acb50eb3375cf819da05a8f21b2701a06">whitespace</a>)</td></tr>
+<tr class="memdesc:a165a3ca0ca4dd31ff7e5d7e4913b10ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip leading+trailing <code class="param">chars</code>.  <br /></td></tr>
 <tr class="memitem:a22d7072dc6e2257114052c3f3bc88be0" id="r_a22d7072dc6e2257114052c3f3bc88be0"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a22d7072dc6e2257114052c3f3bc88be0">startswith</a> (std::string_view s, std::string_view prefix)</td></tr>
 <tr class="memdesc:a22d7072dc6e2257114052c3f3bc88be0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prefix test.  <br /></td></tr>
 <tr class="memitem:accc02b87bcc3f649d82eaa18b1ead63b" id="r_accc02b87bcc3f649d82eaa18b1ead63b"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#accc02b87bcc3f649d82eaa18b1ead63b">endswith</a> (std::string_view s, std::string_view suffix)</td></tr>
@@ -157,9 +155,6 @@ Functions</h2></td></tr>
 <tr class="memdesc:aae65c28ea8980c33307e3dbd6e4108d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split into lines.  <br /></td></tr>
 <tr class="memitem:a5f24a087014af0392d51847c589f8e28" id="r_a5f24a087014af0392d51847c589f8e28"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a5f24a087014af0392d51847c589f8e28">capwords</a> (std::string_view s)</td></tr>
 <tr class="memdesc:a5f24a087014af0392d51847c589f8e28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#a5f24a087014af0392d51847c589f8e28" title="Python string.capwords: split on whitespace, capitalize, re-join with spaces.">string.capwords</a></span>: split on whitespace, capitalize, re-join with spaces.  <br /></td></tr>
-<tr class="memitem:a9aa028849a867d9227b0c038410fc285" id="r_a9aa028849a867d9227b0c038410fc285"><td class="memTemplParams" colspan="2">template&lt;std::ranges::input_range Range&gt; </td></tr>
-<tr class="memitem:a9aa028849a867d9227b0c038410fc285 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a9aa028849a867d9227b0c038410fc285">join</a> (std::string_view sep, const Range &amp;parts)</td></tr>
-<tr class="memdesc:a9aa028849a867d9227b0c038410fc285"><td class="mdescLeft">&#160;</td><td class="mdescRight">Join <code class="param">parts</code> with <code class="param">sep</code>.  <br /></td></tr>
 <tr class="memitem:a97c8e581a5152b1b17ead098974556ee" id="r_a97c8e581a5152b1b17ead098974556ee"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a97c8e581a5152b1b17ead098974556ee">ljust</a> (std::string_view s, std::size_t width, std::string_view fill=&quot; &quot;)</td></tr>
 <tr class="memdesc:a97c8e581a5152b1b17ead098974556ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left-justify to <code class="param">width</code>.  <br /></td></tr>
 <tr class="memitem:a1c57119d31ac94c9ea048812916d4340" id="r_a1c57119d31ac94c9ea048812916d4340"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a1c57119d31ac94c9ea048812916d4340">rjust</a> (std::string_view s, std::size_t width, std::string_view fill=&quot; &quot;)</td></tr>
@@ -180,6 +175,9 @@ Functions</h2></td></tr>
 <tr class="memdesc:a9810feae122b00b82f016387f46d957f"><td class="mdescLeft">&#160;</td><td class="mdescRight">All uppercase?  <br /></td></tr>
 <tr class="memitem:a791e7e2df88d53e7fbe27f18025fa608" id="r_a791e7e2df88d53e7fbe27f18025fa608"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a791e7e2df88d53e7fbe27f18025fa608">islower</a> (std::string_view s)</td></tr>
 <tr class="memdesc:a791e7e2df88d53e7fbe27f18025fa608"><td class="mdescLeft">&#160;</td><td class="mdescRight">All lowercase?  <br /></td></tr>
+<tr class="memitem:a9aa028849a867d9227b0c038410fc285" id="r_a9aa028849a867d9227b0c038410fc285"><td class="memTemplParams" colspan="2">template&lt;std::ranges::input_range Range&gt; </td></tr>
+<tr class="memitem:a9aa028849a867d9227b0c038410fc285 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a9aa028849a867d9227b0c038410fc285">join</a> (std::string_view sep, const Range &amp;parts)</td></tr>
+<tr class="memdesc:a9aa028849a867d9227b0c038410fc285"><td class="mdescLeft">&#160;</td><td class="mdescRight">Join <code class="param">parts</code> with <code class="param">sep</code>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -227,6 +225,8 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates the result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000177">Test</a></b></dt><dd>CheatahString.Case </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00013">13</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a878bcf5eaccf8f7d0bde0eb673841741" name="a878bcf5eaccf8f7d0bde0eb673841741"></a>
@@ -254,6 +254,8 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd><code class="param">s</code> lowercased. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates the result. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000178">Test</a></b></dt><dd>CheatahString.Case </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00018">18</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -283,6 +285,16 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000179">Test</a></b></dt><dd>CheatahString.Case </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00023">23</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="string_8cpp_source.html#l00148">capwords()</a>.</p>
+<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_adcb334605ed874d8666032175fda6fda_icgraph.svg" width="439" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a103ef7ce6199145ea376e7de4b0a7319" name="a103ef7ce6199145ea376e7de4b0a7319"></a>
@@ -310,6 +322,8 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>title-cased <code class="param">s</code>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000180">Test</a></b></dt><dd>CheatahString.Case </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00031">31</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -339,38 +353,7 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000181">Test</a></b></dt><dd>CheatahString.Case </dd></dl>
 
-</div>
-</div>
-<a id="a165a3ca0ca4dd31ff7e5d7e4913b10ab" name="a165a3ca0ca4dd31ff7e5d7e4913b10ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a165a3ca0ca4dd31ff7e5d7e4913b10ab">&#9670;&#160;</a></span>strip()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::string::strip </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>chars</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="#acb50eb3375cf819da05a8f21b2701a06">whitespace</a></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Strip leading+trailing <code class="param">chars</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>input.</td></tr>
-    <tr><td class="paramname">chars</td><td>cut set. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>trimmed <code class="param">s</code>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000182">Test</a></b></dt><dd>CheatahString.Trimming </dd></dl>
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00041">41</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -405,6 +388,16 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000183">Test</a></b></dt><dd>CheatahString.Trimming </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00051">51</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="string_8cpp_source.html#l00061">strip()</a>.</p>
+<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_aba7aad6dfc4a8c8a6eb753d87d303751_icgraph.svg" width="375" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a1dac2078baadf219b65aefb760740805" name="a1dac2078baadf219b65aefb760740805"></a>
@@ -437,6 +430,59 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>right-trimmed <code class="param">s</code>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000184">Test</a></b></dt><dd>CheatahString.Trimming </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00056">56</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="string_8cpp_source.html#l00061">strip()</a>.</p>
+<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-2-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_a1dac2078baadf219b65aefb760740805_icgraph.svg" width="376" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="a165a3ca0ca4dd31ff7e5d7e4913b10ab" name="a165a3ca0ca4dd31ff7e5d7e4913b10ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a165a3ca0ca4dd31ff7e5d7e4913b10ab">&#9670;&#160;</a></span>strip()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::string::strip </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>chars</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="#acb50eb3375cf819da05a8f21b2701a06">whitespace</a></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Strip leading+trailing <code class="param">chars</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>input.</td></tr>
+    <tr><td class="paramname">chars</td><td>cut set. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>trimmed <code class="param">s</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000182">Test</a></b></dt><dd>CheatahString.Trimming </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00061">61</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="string_8cpp_source.html#l00051">lstrip()</a>, and <a class="el" href="string_8cpp_source.html#l00056">rstrip()</a>.</p>
+<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-3-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_a165a3ca0ca4dd31ff7e5d7e4913b10ab_cgraph.svg" width="376" height="86"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -471,6 +517,8 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000185">Test</a></b></dt><dd>CheatahString.SearchAndTest </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00063">63</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="accc02b87bcc3f649d82eaa18b1ead63b" name="accc02b87bcc3f649d82eaa18b1ead63b"></a>
@@ -503,6 +551,8 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">s</code> ends with <code class="param">suffix</code>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000186">Test</a></b></dt><dd>CheatahString.SearchAndTest </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00066">66</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -537,6 +587,8 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n·m); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000187">Test</a></b></dt><dd>CheatahString.SearchAndTest </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00070">70</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a9c65955254d4dbb82f7e0a7f89057ef5" name="a9c65955254d4dbb82f7e0a7f89057ef5"></a>
@@ -569,6 +621,8 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>index, or -1. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n·m); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000188">Test</a></b></dt><dd>CheatahString.SearchAndTest </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00072">72</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -603,6 +657,8 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n·m); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000189">Test</a></b></dt><dd>CheatahString.SearchAndTest </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00076">76</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a2f109728e68891859a0f1aecdd8beb5f" name="a2f109728e68891859a0f1aecdd8beb5f"></a>
@@ -635,6 +691,16 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>occurrence count. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n·m); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000190">Test</a></b></dt><dd>CheatahString.SearchAndTest </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00080">80</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>.</p>
+<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-4-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_a2f109728e68891859a0f1aecdd8beb5f_cgraph.svg" width="416" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -674,6 +740,8 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n·m); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000191">Test</a></b></dt><dd>CheatahString.Transform </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00091">91</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="ab10c3c11d1af8518209c6fde0937ba7f" name="ab10c3c11d1af8518209c6fde0937ba7f"></a>
@@ -707,6 +775,16 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates a vector of strings. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000192">Test</a></b></dt><dd>CheatahString.Transform, CheatahString.SplitEmptySeparator </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00104">104</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="string_8cpp_source.html#l00148">capwords()</a>.</p>
+<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-5-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_ab10c3c11d1af8518209c6fde0937ba7f_icgraph.svg" width="403" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a4135fb883ebf0bc4c4cb4959f23be6a1" name="a4135fb883ebf0bc4c4cb4959f23be6a1"></a>
@@ -734,6 +812,10 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>the non-empty parts. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates a vector of strings. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000193">Test</a></b></dt><dd>CheatahString.Transform </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00118">118</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="string_8hpp_source.html#l00032">whitespace</a>.</p>
 
 </div>
 </div>
@@ -763,6 +845,8 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates a vector of strings. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000194">Test</a></b></dt><dd>CheatahString.Transform </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00131">131</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a5f24a087014af0392d51847c589f8e28" name="a5f24a087014af0392d51847c589f8e28"></a>
@@ -791,42 +875,15 @@ Variables</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000195">Test</a></b></dt><dd>CheatahString.Transform </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00148">148</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="string_8cpp_source.html#l00023">capitalize()</a>, <a class="el" href="string_8hpp_source.html#l00087">join()</a>, and <a class="el" href="string_8cpp_source.html#l00104">split()</a>.</p>
+<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
 </div>
+<div id="dynsection-6-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_a5f24a087014af0392d51847c589f8e28_cgraph.svg" width="439" height="135"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
-<a id="a9aa028849a867d9227b0c038410fc285" name="a9aa028849a867d9227b0c038410fc285"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9aa028849a867d9227b0c038410fc285">&#9670;&#160;</a></span>join()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::ranges::input_range Range&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::string::join </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>sep</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Range &amp;</td>          <td class="paramname"><span class="paramname"><em>parts</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Join <code class="param">parts</code> with <code class="param">sep</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">sep</td><td>separator.</td></tr>
-    <tr><td class="paramname">parts</td><td>any range of string-like values. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the joined string. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(total length); allocates the result. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000196">Test</a></b></dt><dd>CheatahString.Transform </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="string_8hpp_source.html#l00087">87</a> of file <a class="el" href="string_8hpp_source.html">string.hpp</a>.</p>
 
 </div>
 </div>
@@ -867,6 +924,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(width); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000197">Test</a></b></dt><dd>CheatahString.Padding </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00154">154</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a1c57119d31ac94c9ea048812916d4340" name="a1c57119d31ac94c9ea048812916d4340"></a>
@@ -905,6 +964,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>padded <code class="param">s</code>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(width); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000198">Test</a></b></dt><dd>CheatahString.Padding </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00160">160</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -945,6 +1006,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(width); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000199">Test</a></b></dt><dd>CheatahString.Padding </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00165">165</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="af5d6ae546422f8331d8175f92ac23490" name="af5d6ae546422f8331d8175f92ac23490"></a>
@@ -978,6 +1041,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(width); allocates. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000200">Test</a></b></dt><dd>CheatahString.Padding </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00172">172</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="ab7c967b82a288bc959e48ceac22ed78c" name="ab7c967b82a288bc959e48ceac22ed78c"></a>
@@ -1005,6 +1070,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>true iff non-empty and all <span class="tt">0–9</span>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000201">Test</a></b></dt><dd>CheatahString.Classification </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00192">192</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -1034,6 +1101,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000202">Test</a></b></dt><dd>CheatahString.Classification </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00193">193</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a2ebf2f085ce33ec57be86860293ce3d3" name="a2ebf2f085ce33ec57be86860293ce3d3"></a>
@@ -1061,6 +1130,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>true iff non-empty and all letters/digits. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000203">Test</a></b></dt><dd>CheatahString.ClassificationAlnumAndSpace </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00194">194</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
 
 </div>
 </div>
@@ -1090,6 +1161,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000204">Test</a></b></dt><dd>CheatahString.ClassificationAlnumAndSpace </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00195">195</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a9810feae122b00b82f016387f46d957f" name="a9810feae122b00b82f016387f46d957f"></a>
@@ -1118,6 +1191,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000205">Test</a></b></dt><dd>CheatahString.Classification </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00197">197</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a791e7e2df88d53e7fbe27f18025fa608" name="a791e7e2df88d53e7fbe27f18025fa608"></a>
@@ -1145,6 +1220,53 @@ template&lt;std::ranges::input_range Range&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>true iff non-empty and has no uppercase. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000206">Test</a></b></dt><dd>CheatahString.Classification </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8cpp_source.html#l00206">206</a> of file <a class="el" href="string_8cpp_source.html">string.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a9aa028849a867d9227b0c038410fc285" name="a9aa028849a867d9227b0c038410fc285"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9aa028849a867d9227b0c038410fc285">&#9670;&#160;</a></span>join()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;std::ranges::input_range Range&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::string::join </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>sep</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Range &amp;</td>          <td class="paramname"><span class="paramname"><em>parts</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Join <code class="param">parts</code> with <code class="param">sep</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sep</td><td>separator.</td></tr>
+    <tr><td class="paramname">parts</td><td>any range of string-like values. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the joined string. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(total length); allocates the result. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000196">Test</a></b></dt><dd>CheatahString.Transform </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="string_8hpp_source.html#l00087">87</a> of file <a class="el" href="string_8hpp_source.html">string.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="string_8cpp_source.html#l00148">capwords()</a>.</p>
+<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-7-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1string_a9aa028849a867d9227b0c038410fc285_icgraph.svg" width="399" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -1357,6 +1479,8 @@ template&lt;std::ranges::input_range Range&gt; </div>
 
 <p class="definition">Definition at line <a class="el" href="string_8hpp_source.html#l00032">32</a> of file <a class="el" href="string_8hpp_source.html">string.hpp</a>.</p>
 
+<p class="reference">Referenced by <a class="el" href="string_8cpp_source.html#l00118">split()</a>.</p>
+
 </div>
 </div>
 </div><!-- contents -->
@@ -1369,13 +1493,13 @@ template&lt;std::ranges::input_range Range&gt; </div>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1string.html">string</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

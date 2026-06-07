@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -116,6 +114,18 @@ $(function(){initNavTree('routines_8hpp.html','',''); });
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;vector&gt;</code><br />
 <code>#include &quot;<a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>&quot;</code><br />
+</div><div class="textblock"><div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Include dependency graph for routines.hpp:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="routines_8hpp__incl.svg" width="368" height="183"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+</div><div class="textblock"><div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>This graph shows which files directly or indirectly include this file:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="routines_8hpp__dep__incl.svg" width="384" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 </div>
 <p><a href="routines_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -129,8 +139,6 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of <a class="el" href="namespacecheatah_1_1linalg.html#ae6ac46aea9b8353893aaa9da852ca673" title="Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).">eig()</a> / <a class="el" href="namespacecheatah_1_1linalg.html#a73d032676733f00ec8c5ceabc60cd4be" title="Eigen-decomposition of a symmetric matrix (cyclic Jacobi).">eigh()</a>: column j of vectors is the eigenvector for values[j].  <a href="structcheatah_1_1linalg_1_1Eig.html#details">More...</a><br /></td></tr>
 <tr class="memitem:cheatah_3A_3Alinalg_3A_3ASLogDet" id="r_cheatah_3A_3Alinalg_3A_3ASLogDet"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structcheatah_1_1linalg_1_1SLogDet.html">cheatah::linalg::SLogDet</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of <a class="el" href="namespacecheatah_1_1linalg.html#a3d6e14b9367c2c90aad441fe00fa0789" title="Sign and log|det| via LU (overflow-safe determinant).">slogdet()</a>: det(A) = sign·exp(logabsdet).  <a href="structcheatah_1_1linalg_1_1SLogDet.html#details">More...</a><br /></td></tr>
-<tr class="memitem:cheatah_3A_3Alinalg_3A_3ANDArray" id="r_cheatah_3A_3Alinalg_3A_3ANDArray"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classcheatah_1_1linalg_1_1NDArray.html">cheatah::linalg::NDArray</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.  <a href="classcheatah_1_1linalg_1_1NDArray.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
@@ -191,8 +199,8 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>cheatah <span class="tt">linalg</span> — numpy's linear-algebra API on ndarray, with SIMD-friendly contiguous kernels (a .purr program writes <span class="tt">linalg.solve(A, b)</span>). </p>
 <p><span class="tt">import linalg</span> to use it (auto-links ndarray). Unit tests: stdlib/tests/linalg_routines_test.cpp; SIMD reporting tested in tests/linalg/smoke_test.cpp. The suite runs under AddressSanitizer (the <span class="tt">asan</span> preset) and Valgrind (security/run-valgrind.sh) on every QA-gate run.</p>
-<p>Routines operate on <span class="tt">ndarray::NDArray</span> (2-D = matrix, 1-D = vector). They mirror <a href="https://numpy.org/doc/stable/reference/routines.linalg.html">https://numpy.org/doc/stable/reference/routines.linalg.html</a> and are implemented in routines.cpp (LU w/ partial pivoting, Cholesky, Householder QR, one-sided Jacobi SVD, cyclic Jacobi symmetric eigen, Hessenberg + shifted-QR general eigen) at -O3 -march=native so the hot loops auto-vectorize.</p>
-<dl class="section note"><dt>Note</dt><dd><span class="tt">n</span> below is the matrix dimension. <a class="el" href="classcheatah_1_1linalg_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> is double-only, so <span class="tt">eig</span>/ <span class="tt">eigvals</span> return REAL eigenvalues and throw on a complex pair. Routines that extract a working copy "allocate scratch O(n²) for the factorization" even when they return a scalar. </dd></dl>
+<p>Routines operate on <span class="tt">ndarray::NDArray</span> (2-D = matrix, 1-D = vector). They mirror <a href="https://numpy.org/doc/stable/reference/routines.linalg.html">https://numpy.org/doc/stable/reference/routines.linalg.html</a> and are implemented in <a class="el" href="routines_8cpp.html">routines.cpp</a> (LU w/ partial pivoting, Cholesky, Householder QR, one-sided Jacobi SVD, cyclic Jacobi symmetric eigen, Hessenberg + shifted-QR general eigen) at -O3 -march=native so the hot loops auto-vectorize.</p>
+<dl class="section note"><dt>Note</dt><dd><span class="tt">n</span> below is the matrix dimension. NDArray is double-only, so <span class="tt">eig</span>/ <span class="tt">eigvals</span> return REAL eigenvalues and throw on a complex pair. Routines that extract a working copy "allocate scratch O(n²) for the factorization" even when they return a scalar. </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="routines_8hpp_source.html">routines.hpp</a>.</p>
 </div></div><!-- contents -->
@@ -205,13 +213,13 @@ Functions</h2></td></tr>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_4e42dd9459b784f8d0afec43bca14864.html">linalg</a></li><li class="navelem"><a href="routines_8hpp.html">routines.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

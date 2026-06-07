@@ -1,0 +1,7 @@
+<map id="cheatah::ndarray::NDArray::offset" name="cheatah::ndarray::NDArray::offset">
+<area shape="rect" id="Node000001" title="The flat offset into the buffer where this view starts." alt="" coords="276,27,471,67"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1ndarray.html#af3054f485e7082dc20e22f26c8cba362" title="A zero&#45;copy view of a stretched to target (size&#45;1 / missing dims get stride 0)." alt="" coords="5,5,228,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="262,37,227,33,228,28,263,32"/>
+<area shape="rect" id="Node000003" href="$classcheatah_1_1ndarray_1_1NDArray.html#abf01a545db16e6921d16627a6c8fa0c3" title="Construct a view from explicit buffer/shape/strides/offset (used by views)." alt="" coords="19,55,214,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="263,62,214,67,214,62,262,57"/>
+</map>

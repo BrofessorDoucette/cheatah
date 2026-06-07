@@ -1,7 +1,8 @@
 # Doxyfile for cheatah's standard library.
 # Generate the site (output lands in docs/html/) with:
 #     doxygen Doxyfile
-# Modern styling via doxygen-awesome-css + a cheetah-themed palette (docs/theme/).
+# Styling: a fixed dark cheetah theme via doxygen-awesome-css + docs/theme/cheetah.css
+# (WCAG 2.1 contrast — see docs/theme/ACCESSIBILITY.md). Diagrams: Graphviz dot.
 
 #---------------------------------------------------------------------------
 # Project
@@ -26,6 +27,7 @@ TAB_SIZE               = 4
 EXTRACT_ALL            = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_PRIVATE        = NO
 JAVADOC_AUTOBRIEF      = YES
 QT_AUTOBRIEF           = NO
 INLINE_INHERITED_MEMB  = NO
@@ -45,19 +47,28 @@ WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
 
 #---------------------------------------------------------------------------
-# Input
+# Input — headers (the API) + implementations (so call/reference graphs have
+# real data) + the hand-written main page. Tests/scripts/READMEs excluded.
 #---------------------------------------------------------------------------
 INPUT                  = stdlib docs/mainpage.md
 INPUT_ENCODING         = UTF-8
-FILE_PATTERNS          = *.hpp *.md
+FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = */tests/* */scripts/* */README.md
 USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
-SOURCE_BROWSER         = YES
-STRIP_CODE_COMMENTS    = NO
 
 #---------------------------------------------------------------------------
-# HTML output + doxygen-awesome-css theme
+# Source browser + cross-references ("References" / "Referenced by")
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+
+#---------------------------------------------------------------------------
+# HTML output + doxygen-awesome-css theme (fixed dark cheetah palette, no toggle)
 #---------------------------------------------------------------------------
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
@@ -65,7 +76,7 @@ HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = docs/theme/header.html
 HTML_FOOTER            = docs/theme/footer.html
-HTML_COLORSTYLE        = LIGHT
+HTML_COLORSTYLE        = DARK
 HTML_COPY_CLIPBOARD    = NO
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
@@ -73,23 +84,42 @@ FULL_SIDEBAR           = NO
 HTML_DYNAMIC_SECTIONS  = YES
 HTML_EXTRA_STYLESHEET  = docs/theme/doxygen-awesome.css \
                          docs/theme/doxygen-awesome-sidebar-only.css \
-                         docs/theme/doxygen-awesome-sidebar-only-darkmode-toggle.css \
                          docs/theme/cheetah.css
-HTML_EXTRA_FILES       = docs/theme/doxygen-awesome-darkmode-toggle.js \
-                         docs/theme/doxygen-awesome-fragment-copy-button.js \
+HTML_EXTRA_FILES       = docs/theme/doxygen-awesome-fragment-copy-button.js \
                          docs/theme/doxygen-awesome-paragraph-link.js \
                          docs/theme/doxygen-awesome-interactive-toc.js \
                          docs/theme/doxygen-awesome-tabs.js
 
 #---------------------------------------------------------------------------
-# Diagrams (graphviz optional — off to keep the build self-contained)
+# Diagrams — Graphviz dot (inheritance, collaboration, include, call/caller,
+# hierarchy, directory). Rendered as SVG; dark-aware because HTML_COLORSTYLE=DARK.
 #---------------------------------------------------------------------------
-HAVE_DOT               = NO
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 0
+DOT_MULTI_TARGETS      = YES
+GENERATE_LEGEND        = YES
+HIDE_UNDOC_RELATIONS   = YES
 CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = NO
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
 
 #---------------------------------------------------------------------------
-# Preprocessor (keep template/concept-heavy headers parseable)
+# Preprocessor — expand macros so generated docs/graphs reflect real code
 #---------------------------------------------------------------------------
 ENABLE_PREPROCESSING   = YES
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+SKIP_FUNCTION_MACROS   = YES
 SEARCH_INCLUDES        = YES
+PREDEFINED             =

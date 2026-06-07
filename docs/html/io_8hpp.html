@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -122,6 +120,18 @@ $(function(){initNavTree('io_8hpp.html','',''); });
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
+</div><div class="textblock"><div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Include dependency graph for io.hpp:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><div class="zoom"><iframe scrolling="no" loading="lazy" frameborder="0" src="io_8hpp__incl.svg" width="100%" height="382"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
+</div>
+</div><div class="textblock"><div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>This graph shows which files directly or indirectly include this file:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="io_8hpp__dep__incl.svg" width="130" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 </div>
 <p><a href="io_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -145,22 +155,22 @@ Concepts</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff" id="r_ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
 <tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff">cheatah::io::str</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span>: stringify any streamable value.  <br /></td></tr>
+<tr class="memdesc:ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span>: stringify any streamable value.  <br /></td></tr>
 <tr class="memitem:aa2b498516ecd4652c1f0995bcf7df062" id="r_aa2b498516ecd4652c1f0995bcf7df062"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062">cheatah::io::str</a> (const std::string &amp;value)</td></tr>
-<tr class="memdesc:aa2b498516ecd4652c1f0995bcf7df062"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span> for a <span class="tt">std::string</span> — identity overload.  <br /></td></tr>
+<tr class="memdesc:aa2b498516ecd4652c1f0995bcf7df062"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a <span class="tt">std::string</span> — identity overload.  <br /></td></tr>
 <tr class="memitem:ab47c30312ae96bbb5d61d65177e3075e" id="r_ab47c30312ae96bbb5d61d65177e3075e"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#ab47c30312ae96bbb5d61d65177e3075e">cheatah::io::str</a> (bool b)</td></tr>
-<tr class="memdesc:ab47c30312ae96bbb5d61d65177e3075e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a></span> for a bool — Python spelling.  <br /></td></tr>
+<tr class="memdesc:ab47c30312ae96bbb5d61d65177e3075e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span> for a bool — Python spelling.  <br /></td></tr>
 <tr class="memitem:a797b0d86b7c7aec8fbb68b9e53b53c6a" id="r_a797b0d86b7c7aec8fbb68b9e53b53c6a"><td class="memTemplParams" colspan="2">template&lt;Streamable... Args&gt; </td></tr>
 <tr class="memitem:a797b0d86b7c7aec8fbb68b9e53b53c6a template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#a797b0d86b7c7aec8fbb68b9e53b53c6a">cheatah::io::print</a> (const Args &amp;... args)</td></tr>
 <tr class="memdesc:a797b0d86b7c7aec8fbb68b9e53b53c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt">print(*args)</span>: space-separated, newline-terminated, to stdout (sep=' ', end='<br  />
 ').  <br /></td></tr>
 <tr class="memitem:aea5137e3c9c915c88d0f0886d6266572" id="r_aea5137e3c9c915c88d0f0886d6266572"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
 <tr class="memitem:aea5137e3c9c915c88d0f0886d6266572 template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572">cheatah::io::repr</a> (const T &amp;value)</td></tr>
-<tr class="memdesc:aea5137e3c9c915c88d0f0886d6266572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a generic value — same as <a class="el" href="namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff" title="Python str(): stringify any streamable value.">str()</a> for non-strings.  <br /></td></tr>
+<tr class="memdesc:aea5137e3c9c915c88d0f0886d6266572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="namespacecheatah_1_1io.html#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a generic value — same as <a class="el" href="namespacecheatah_1_1io.html#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> for non-strings.  <br /></td></tr>
 <tr class="memitem:ad7f55404376630a2fa5bd56b20b2efe5" id="r_ad7f55404376630a2fa5bd56b20b2efe5"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#ad7f55404376630a2fa5bd56b20b2efe5">cheatah::io::repr</a> (const std::string &amp;value)</td></tr>
-<tr class="memdesc:ad7f55404376630a2fa5bd56b20b2efe5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr).  <br /></td></tr>
+<tr class="memdesc:ad7f55404376630a2fa5bd56b20b2efe5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a <span class="tt">std::string</span> — quoted (Python repr).  <br /></td></tr>
 <tr class="memitem:a7acfd3543261ed05c8b4cc2bb222b51a" id="r_a7acfd3543261ed05c8b4cc2bb222b51a"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io.html#a7acfd3543261ed05c8b4cc2bb222b51a">cheatah::io::repr</a> (const char *value)</td></tr>
-<tr class="memdesc:a7acfd3543261ed05c8b4cc2bb222b51a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572" title="Python repr() for a generic value — same as str() for non-strings.">repr()</a></span> for a C string — quoted (Python repr).  <br /></td></tr>
+<tr class="memdesc:a7acfd3543261ed05c8b4cc2bb222b51a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><span class="tt"><a class="el" href="namespacecheatah_1_1io.html#ad7f55404376630a2fa5bd56b20b2efe5" title="repr() for a std::string — quoted (Python repr).">repr()</a></span> for a C string — quoted (Python repr).  <br /></td></tr>
 <tr class="memitem:ac8ea9c7fd360b9e8450129755666b818" id="r_ac8ea9c7fd360b9e8450129755666b818"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespacecheatah_1_1io_1_1detail.html#ac8ea9c7fd360b9e8450129755666b818">cheatah::io::detail::format_into</a> (std::ostringstream &amp;<a class="el" href="namespacecheatah_1_1os.html">os</a>, std::string_view fmt)</td></tr>
 <tr class="memdesc:ac8ea9c7fd360b9e8450129755666b818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base case of the recursive formatter: emit the remainder of <code class="param">fmt</code> verbatim.  <br /></td></tr>
 <tr class="memitem:a1aa568d08650e1d2d54a4d6e1f03fc02" id="r_a1aa568d08650e1d2d54a4d6e1f03fc02"><td class="memTemplParams" colspan="2">template&lt;Streamable T, typename... Rest&gt; </td></tr>
@@ -191,13 +201,13 @@ Functions</h2></td></tr>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_a1f9143565396d950f5d851dfb495801.html">io</a></li><li class="navelem"><a href="io_8hpp.html">io.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

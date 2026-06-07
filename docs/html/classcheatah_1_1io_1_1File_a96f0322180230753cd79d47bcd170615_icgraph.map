@@ -1,0 +1,5 @@
+<map id="cheatah::io::File::close" name="cheatah::io::File::close">
+<area shape="rect" id="Node000001" title="Close the underlying stream (no&#45;op if already closed)." alt="" coords="187,5,320,45"/>
+<area shape="rect" id="Node000002" href="$classcheatah_1_1io_1_1File.html#aef228566630dd43ee216ae263ea802b4" title="Close the stream if still open." alt="" coords="5,5,139,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,28,139,28,139,23,173,23"/>
+</map>

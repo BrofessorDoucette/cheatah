@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -154,6 +152,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000163">Test</a></b></dt><dd>CheatahRandom.SeedMakesTheStreamReproducible </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00014">14</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a61e342e7efad99a3ca414567988c3282" name="a61e342e7efad99a3ca414567988c3282"></a>
@@ -175,6 +175,8 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a value in [0, 1). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000164">Test</a></b></dt><dd>CheatahRandom.RandomInUnitInterval </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00016">16</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
 
 </div>
 </div>
@@ -208,6 +210,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000165">Test</a></b></dt><dd>CheatahRandom.UniformInRange </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00017">17</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
+
 </div>
 </div>
 <a id="ad224634d97d4db14584c3af60a09179e" name="ad224634d97d4db14584c3af60a09179e"></a>
@@ -239,6 +243,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>an integer in [<code class="param">a</code>, <code class="param">b</code>]. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000166">Test</a></b></dt><dd>CheatahRandom.RandintInclusiveRange </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00018">18</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="random_8hpp_source.html#l00043">choice()</a>.</p>
+<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1random_ad224634d97d4db14584c3af60a09179e_icgraph.svg" width="428" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -273,6 +287,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1) time; no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000167">Test</a></b></dt><dd>CheatahRandom.GaussIsFiniteAndReproducible </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="random_8cpp_source.html#l00021">21</a> of file <a class="el" href="random_8cpp_source.html">random.cpp</a>.</p>
+
 </div>
 </div>
 <a id="aefcc34e321f7fb9345877073ae182c08" name="aefcc34e321f7fb9345877073ae182c08"></a>
@@ -305,6 +321,14 @@ template&lt;std::ranges::random_access_range R&gt; </div>
 
 <p class="definition">Definition at line <a class="el" href="random_8hpp_source.html#l00043">43</a> of file <a class="el" href="random_8hpp_source.html">random.hpp</a>.</p>
 
+<p class="reference">References <a class="el" href="random_8cpp_source.html#l00018">randint()</a>.</p>
+<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1random_aefcc34e321f7fb9345877073ae182c08_cgraph.svg" width="428" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 </div><!-- contents -->
@@ -317,13 +341,13 @@ template&lt;std::ranges::random_access_range R&gt; </div>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1random.html">random</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

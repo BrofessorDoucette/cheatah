@@ -1,0 +1,5 @@
+<map id="cheatah::linalg::inv" name="cheatah::linalg::inv">
+<area shape="rect" id="Node000001" title="Matrix inverse via LU with partial pivoting." alt="" coords="223,13,369,38"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1linalg.html#ade89164399c44e04d11ceabf70dd7b0f" title="Integer matrix power Aⁿ (negative n via inv)." alt="" coords="5,5,175,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,28,175,28,175,23,209,23"/>
+</map>

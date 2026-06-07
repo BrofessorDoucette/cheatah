@@ -1,0 +1,5 @@
+<map id="cheatah::linalg::norm" name="cheatah::linalg::norm">
+<area shape="rect" id="Node000001" title="Norm: L2 for vectors, Frobenius for matrices." alt="" coords="5,13,165,38"/>
+<area shape="rect" id="Node000002" href="$classcheatah_1_1ndarray_1_1NDArray.html#a09704c044d8abf1eadf1e47e203a18ec" title="The number of dimensions (rank)." alt="" coords="213,5,408,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,23,200,23,200,28,166,28"/>
+</map>

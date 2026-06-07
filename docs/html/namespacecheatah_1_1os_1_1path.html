@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -117,9 +115,6 @@ $(function(){initNavTree('namespacecheatah_1_1os_1_1path.html','',''); });
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a513a81497ee8015697d31e4a8aa9765c" id="r_a513a81497ee8015697d31e4a8aa9765c"><td class="memTemplParams" colspan="2">template&lt;StringLike... Parts&gt; </td></tr>
-<tr class="memitem:a513a81497ee8015697d31e4a8aa9765c template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a513a81497ee8015697d31e4a8aa9765c">join</a> (const std::string &amp;first, const Parts &amp;... rest)</td></tr>
-<tr class="memdesc:a513a81497ee8015697d31e4a8aa9765c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Join path components with the platform separator.  <br /></td></tr>
 <tr class="memitem:a15a9953a39281406d03974063f735aa4" id="r_a15a9953a39281406d03974063f735aa4"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a15a9953a39281406d03974063f735aa4">exists</a> (const std::string &amp;p)</td></tr>
 <tr class="memdesc:a15a9953a39281406d03974063f735aa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path existence test.  <br /></td></tr>
 <tr class="memitem:a4a75f417d107739ef21a62248fdcee7e" id="r_a4a75f417d107739ef21a62248fdcee7e"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a4a75f417d107739ef21a62248fdcee7e">isfile</a> (const std::string &amp;p)</td></tr>
@@ -138,10 +133,283 @@ Functions</h2></td></tr>
 <tr class="memdesc:a1af039907598e0109b1a25fa9b7dda8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">File size in bytes.  <br /></td></tr>
 <tr class="memitem:a3fbfc548700979280e860a64913079fb" id="r_a3fbfc548700979280e860a64913079fb"><td class="memItemLeft">std::pair&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a3fbfc548700979280e860a64913079fb">splitext</a> (const std::string &amp;p)</td></tr>
 <tr class="memdesc:a3fbfc548700979280e860a64913079fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split a path into root and extension.  <br /></td></tr>
+<tr class="memitem:a513a81497ee8015697d31e4a8aa9765c" id="r_a513a81497ee8015697d31e4a8aa9765c"><td class="memTemplParams" colspan="2">template&lt;StringLike... Parts&gt; </td></tr>
+<tr class="memitem:a513a81497ee8015697d31e4a8aa9765c template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a513a81497ee8015697d31e4a8aa9765c">join</a> (const std::string &amp;first, const Parts &amp;... rest)</td></tr>
+<tr class="memdesc:a513a81497ee8015697d31e4a8aa9765c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Join path components with the platform separator.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="namespacecheatah_1_1os_1_1path.html" title="os.path — the path-manipulation submodule.">os.path</a> — the path-manipulation submodule. </p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="a15a9953a39281406d03974063f735aa4" name="a15a9953a39281406d03974063f735aa4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15a9953a39281406d03974063f735aa4">&#9670;&#160;</a></span>exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cheatah::os::path::exists </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Path existence test. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> exists. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall; no heap on return. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000153">Test</a></b></dt><dd>CheatahOs.MakeDirExistsThenRemove </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00045">45</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a4a75f417d107739ef21a62248fdcee7e" name="a4a75f417d107739ef21a62248fdcee7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a75f417d107739ef21a62248fdcee7e">&#9670;&#160;</a></span>isfile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cheatah::os::path::isfile </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Regular-file test. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> is a regular file. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall; no heap on return. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000154">Test</a></b></dt><dd>CheatahOs.FileQueriesIsfileAndGetsize </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00046">46</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="abfc6fed92ef42082bd5622b94452dcd3" name="abfc6fed92ef42082bd5622b94452dcd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfc6fed92ef42082bd5622b94452dcd3">&#9670;&#160;</a></span>isdir()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cheatah::os::path::isdir </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Directory test. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> is a directory. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall; no heap on return. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000155">Test</a></b></dt><dd>CheatahOs.MakeDirExistsThenRemove </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00047">47</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aff37c7858ed21cf11b3cdf44b333b83f" name="aff37c7858ed21cf11b3cdf44b333b83f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff37c7858ed21cf11b3cdf44b333b83f">&#9670;&#160;</a></span>basename()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::os::path::basename </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Final path component. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the basename (filename). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates a path temporary and the result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000156">Test</a></b></dt><dd>CheatahOs.PathBasenameDirname </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00048">48</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a2d3f5699d30656dd253cc1c0b4423d49" name="a2d3f5699d30656dd253cc1c0b4423d49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d3f5699d30656dd253cc1c0b4423d49">&#9670;&#160;</a></span>dirname()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::os::path::dirname </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parent path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the directory portion of <code class="param">p</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates a path temporary and the result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000157">Test</a></b></dt><dd>CheatahOs.PathBasenameDirname </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00049">49</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aa62189047efd20934b5225438abd1d7f" name="aa62189047efd20934b5225438abd1d7f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa62189047efd20934b5225438abd1d7f">&#9670;&#160;</a></span>abspath()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::os::path::abspath </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Absolute path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code class="param">p</code> resolved against the cwd. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall (reads the cwd); allocates the result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000158">Test</a></b></dt><dd>CheatahOs.AbspathAndNormpath </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00050">50</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a7ca78fd59e2abd52c6c33d6726ce8bb9" name="a7ca78fd59e2abd52c6c33d6726ce8bb9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ca78fd59e2abd52c6c33d6726ce8bb9">&#9670;&#160;</a></span>normpath()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::os::path::normpath </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Lexically normalized path (collapses current-dir and parent-dir segments). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the normalized path. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n) (purely lexical, no syscall); allocates a path temporary and the result string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000159">Test</a></b></dt><dd>CheatahOs.AbspathAndNormpath </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00051">51</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a1af039907598e0109b1a25fa9b7dda8f" name="a1af039907598e0109b1a25fa9b7dda8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1af039907598e0109b1a25fa9b7dda8f">&#9670;&#160;</a></span>getsize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uintmax_t cheatah::os::path::getsize </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>File size in bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the file path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code class="param">p's</code> size. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(1) + a syscall; no heap on return. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000160">Test</a></b></dt><dd>CheatahOs.FileQueriesIsfileAndGetsize </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00052">52</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a3fbfc548700979280e860a64913079fb" name="a3fbfc548700979280e860a64913079fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fbfc548700979280e860a64913079fb">&#9670;&#160;</a></span>splitext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt; std::string, std::string &gt; cheatah::os::path::splitext </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Split a path into root and extension. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>the path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>e.g. <span class="tt"><a class="el" href="#a3fbfc548700979280e860a64913079fb" title="Split a path into root and extension.">splitext</a>("dir/file.purr") -&gt; {"dir/file", ".purr"}</span> (empty extension when none). </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(n); allocates the two result strings and a path temporary. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000161">Test</a></b></dt><dd>CheatahOs.PathSplitext </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="os_8cpp_source.html#l00054">54</a> of file <a class="el" href="os_8cpp_source.html">os.cpp</a>.</p>
+
+</div>
+</div>
 <a id="a513a81497ee8015697d31e4a8aa9765c" name="a513a81497ee8015697d31e4a8aa9765c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a513a81497ee8015697d31e4a8aa9765c">&#9670;&#160;</a></span>join()</h2>
 
@@ -179,258 +447,6 @@ template&lt;StringLike... Parts&gt; </div>
 
 </div>
 </div>
-<a id="a15a9953a39281406d03974063f735aa4" name="a15a9953a39281406d03974063f735aa4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15a9953a39281406d03974063f735aa4">&#9670;&#160;</a></span>exists()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::os::path::exists </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Path existence test. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> exists. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall; no heap on return. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000153">Test</a></b></dt><dd>CheatahOs.MakeDirExistsThenRemove </dd></dl>
-
-</div>
-</div>
-<a id="a4a75f417d107739ef21a62248fdcee7e" name="a4a75f417d107739ef21a62248fdcee7e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a75f417d107739ef21a62248fdcee7e">&#9670;&#160;</a></span>isfile()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::os::path::isfile </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Regular-file test. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> is a regular file. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall; no heap on return. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000154">Test</a></b></dt><dd>CheatahOs.FileQueriesIsfileAndGetsize </dd></dl>
-
-</div>
-</div>
-<a id="abfc6fed92ef42082bd5622b94452dcd3" name="abfc6fed92ef42082bd5622b94452dcd3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfc6fed92ef42082bd5622b94452dcd3">&#9670;&#160;</a></span>isdir()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool cheatah::os::path::isdir </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Directory test. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff <code class="param">p</code> is a directory. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall; no heap on return. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000155">Test</a></b></dt><dd>CheatahOs.MakeDirExistsThenRemove </dd></dl>
-
-</div>
-</div>
-<a id="aff37c7858ed21cf11b3cdf44b333b83f" name="aff37c7858ed21cf11b3cdf44b333b83f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff37c7858ed21cf11b3cdf44b333b83f">&#9670;&#160;</a></span>basename()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::basename </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Final path component. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the basename (filename). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates a path temporary and the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000156">Test</a></b></dt><dd>CheatahOs.PathBasenameDirname </dd></dl>
-
-</div>
-</div>
-<a id="a2d3f5699d30656dd253cc1c0b4423d49" name="a2d3f5699d30656dd253cc1c0b4423d49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d3f5699d30656dd253cc1c0b4423d49">&#9670;&#160;</a></span>dirname()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::dirname </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Parent path. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the directory portion of <code class="param">p</code>. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates a path temporary and the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000157">Test</a></b></dt><dd>CheatahOs.PathBasenameDirname </dd></dl>
-
-</div>
-</div>
-<a id="aa62189047efd20934b5225438abd1d7f" name="aa62189047efd20934b5225438abd1d7f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa62189047efd20934b5225438abd1d7f">&#9670;&#160;</a></span>abspath()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::abspath </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Absolute path. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">p</code> resolved against the cwd. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) + a syscall (reads the cwd); allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000158">Test</a></b></dt><dd>CheatahOs.AbspathAndNormpath </dd></dl>
-
-</div>
-</div>
-<a id="a7ca78fd59e2abd52c6c33d6726ce8bb9" name="a7ca78fd59e2abd52c6c33d6726ce8bb9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ca78fd59e2abd52c6c33d6726ce8bb9">&#9670;&#160;</a></span>normpath()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string cheatah::os::path::normpath </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Lexically normalized path (collapses current-dir and parent-dir segments). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the normalized path. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n) (purely lexical, no syscall); allocates a path temporary and the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000159">Test</a></b></dt><dd>CheatahOs.AbspathAndNormpath </dd></dl>
-
-</div>
-</div>
-<a id="a1af039907598e0109b1a25fa9b7dda8f" name="a1af039907598e0109b1a25fa9b7dda8f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1af039907598e0109b1a25fa9b7dda8f">&#9670;&#160;</a></span>getsize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::uintmax_t cheatah::os::path::getsize </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>File size in bytes. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the file path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code class="param">p's</code> size. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(1) + a syscall; no heap on return. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000160">Test</a></b></dt><dd>CheatahOs.FileQueriesIsfileAndGetsize </dd></dl>
-
-</div>
-</div>
-<a id="a3fbfc548700979280e860a64913079fb" name="a3fbfc548700979280e860a64913079fb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fbfc548700979280e860a64913079fb">&#9670;&#160;</a></span>splitext()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::pair&lt; std::string, std::string &gt; cheatah::os::path::splitext </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Split a path into root and extension. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">p</td><td>the path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>e.g. <span class="tt"><a class="el" href="#a3fbfc548700979280e860a64913079fb" title="Split a path into root and extension.">splitext</a>("dir/file.purr") -&gt; {"dir/file", ".purr"}</span> (empty extension when none). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>O(n); allocates the two result strings and a path temporary. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000161">Test</a></b></dt><dd>CheatahOs.PathSplitext </dd></dl>
-
-</div>
-</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div id="page-nav" class="page-nav-panel">
@@ -441,13 +457,13 @@ template&lt;StringLike... Parts&gt; </div>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1os.html">os</a></li><li class="navelem"><a href="namespacecheatah_1_1os_1_1path.html">path</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

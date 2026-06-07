@@ -1,0 +1,13 @@
+<map id="cheatah::statistics::count" name="cheatah::statistics::count">
+<area shape="rect" id="Node000001" title="Element count." alt="" coords="573,37,715,77"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1statistics.html#abe718f480e8afcf0651f5101807837c4" title="Arithmetic mean." alt="" coords="384,37,525,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="559,60,526,60,526,55,559,55"/>
+<area shape="rect" id="Node000003" href="$namespacecheatah_1_1statistics.html#ae63b51d847f97ee96a00c37f7d1dd7ca" title="Population variance (divide by N)." alt="" coords="195,5,336,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="370,46,336,40,337,35,371,41"/>
+<area shape="rect" id="Node000005" href="$namespacecheatah_1_1statistics.html#a1da9e5e834ca9ddf11c8ae946e57bd08" title="Sample variance (divide by N−1)." alt="" coords="195,69,336,109"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="371,74,337,80,336,75,370,69"/>
+<area shape="rect" id="Node000004" href="$namespacecheatah_1_1statistics.html#a39b929a293cf702d142acdeed56b774c" title="Population standard deviation." alt="" coords="5,5,147,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="181,28,147,28,147,23,181,23"/>
+<area shape="rect" id="Node000006" href="$namespacecheatah_1_1statistics.html#a65e3e14c8cdf7f345af2065f18ae6212" title="Sample standard deviation." alt="" coords="5,69,147,109"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="181,92,147,92,147,87,181,87"/>
+</map>

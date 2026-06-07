@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -135,8 +133,7 @@ $(function(){initNavTree('statistics_8hpp_source.html','',''); });
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;type_traits&gt;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="foldopen" id="foldopen00025" data-start="{" data-end="}">
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1statistics.html">   25</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1statistics.html">cheatah::statistics</a> {</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1statistics.html">cheatah::statistics</a> {</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment"></span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment">/// NumericRange&lt;R&gt;: an iterable of arithmetic values (list[float], array[int], …).</span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> R&gt;</div>
@@ -235,9 +232,8 @@ $(function(){initNavTree('statistics_8hpp_source.html','',''); });
 </div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>} <span class="comment">// namespace cheatah::statistics</span></div>
-</div>
 <div class="ttc" id="aconceptcheatah_1_1statistics_1_1NumericRange_html"><div class="ttname"><a href="conceptcheatah_1_1statistics_1_1NumericRange.html">cheatah::statistics::NumericRange</a></div><div class="ttdoc">NumericRange&lt;R&gt;: an iterable of arithmetic values (list[float], array[int], …).</div><div class="ttdef"><b>Definition</b> <a href="#l00029">statistics.hpp:29</a></div></div>
-<div class="ttc" id="anamespacecheatah_1_1statistics_html"><div class="ttname"><a href="namespacecheatah_1_1statistics.html">cheatah::statistics</a></div><div class="ttdef"><b>Definition</b> <a href="#l00025">statistics.hpp:25</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1statistics_html"><div class="ttname"><a href="namespacecheatah_1_1statistics.html">cheatah::statistics</a></div><div class="ttdef"><b>Definition</b> <a href="statistics_8cpp_source.html#l00006">statistics.cpp:6</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1statistics_html_a1da9e5e834ca9ddf11c8ae946e57bd08"><div class="ttname"><a href="namespacecheatah_1_1statistics.html#a1da9e5e834ca9ddf11c8ae946e57bd08">cheatah::statistics::variance</a></div><div class="ttdeci">double variance(const R &amp;data)</div><div class="ttdoc">Sample variance (divide by N−1).</div><div class="ttdef"><b>Definition</b> <a href="#l00083">statistics.hpp:83</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1statistics_html_a2a485aac6597b00092c0b65603309380"><div class="ttname"><a href="namespacecheatah_1_1statistics.html#a2a485aac6597b00092c0b65603309380">cheatah::statistics::sum</a></div><div class="ttdeci">double sum(const R &amp;data)</div><div class="ttdoc">Sum of the elements.</div><div class="ttdef"><b>Definition</b> <a href="#l00035">statistics.hpp:35</a></div></div>
 <div class="ttc" id="anamespacecheatah_1_1statistics_html_a39b929a293cf702d142acdeed56b774c"><div class="ttname"><a href="namespacecheatah_1_1statistics.html#a39b929a293cf702d142acdeed56b774c">cheatah::statistics::pstdev</a></div><div class="ttdeci">double pstdev(const R &amp;data)</div><div class="ttdoc">Population standard deviation.</div><div class="ttdef"><b>Definition</b> <a href="#l00078">statistics.hpp:78</a></div></div>
@@ -249,13 +245,13 @@ $(function(){initNavTree('statistics_8hpp_source.html','',''); });
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_a59993f929dd918dc4072ed99cd3a3e9.html">statistics</a></li><li class="navelem"><a href="statistics_8hpp.html">statistics.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

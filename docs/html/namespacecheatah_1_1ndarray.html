@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -190,6 +188,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(max(ndim)); allocates the small result vector; throws if the shapes are incompatible. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000110">Test</a></b></dt><dd>CheatahNDArray.BroadcastShapeRules </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00119">119</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
 </div>
 </div>
 <a id="af3054f485e7082dc20e22f26c8cba362" name="af3054f485e7082dc20e22f26c8cba362"></a>
@@ -223,6 +223,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(target ndim); allocates only the small strides vector for the view, not the data; throws if <code class="param">a</code> is not broadcastable to <code class="param">target</code>. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000111">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00138">138</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00057">cheatah::ndarray::NDArray::buffer()</a>, <a class="el" href="ndarray_8hpp_source.html#l00050">cheatah::ndarray::NDArray::ndim()</a>, <a class="el" href="ndarray_8hpp_source.html#l00059">cheatah::ndarray::NDArray::offset()</a>, <a class="el" href="ndarray_8hpp_source.html#l00046">cheatah::ndarray::NDArray::shape()</a>, <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00048">cheatah::ndarray::NDArray::strides()</a>.</p>
+<div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_af3054f485e7082dc20e22f26c8cba362_cgraph.svg" width="476" height="371"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a21a5e63a10cd44d3d699f33a75a564ac" name="a21a5e63a10cd44d3d699f33a75a564ac"></a>
@@ -250,6 +260,24 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a contiguous 1-D <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000112">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00156">156</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00057">cheatah::ndarray::NDArray::buffer()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00174">arange()</a>.</p>
+<div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-1-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a21a5e63a10cd44d3d699f33a75a564ac_cgraph.svg" width="427" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+<div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-2-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a21a5e63a10cd44d3d699f33a75a564ac_icgraph.svg" width="416" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -279,6 +307,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer holding one element. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000113">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast, CheatahNDArray.ToStringScalar </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00162">162</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00057">cheatah::ndarray::NDArray::buffer()</a>.</p>
+<div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-3-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a565074f9054d8cf73b55d076b1f5d8c2_cgraph.svg" width="432" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a9766d9295a8ef186f7189ca28279e576" name="a9766d9295a8ef186f7189ca28279e576"></a>
@@ -307,6 +345,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000114">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00168">168</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a227d5bda54a6f968d2589bcbccf74a68" name="a227d5bda54a6f968d2589bcbccf74a68"></a>
@@ -334,6 +374,8 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a one-filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000115">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00169">169</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
 </div>
 </div>
@@ -367,6 +409,8 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000116">Test</a></b></dt><dd>CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00170">170</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
 </div>
 </div>
@@ -407,6 +451,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(count) where count = number of steps; allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if <code class="param">step</code> is zero. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000117">Test</a></b></dt><dd>CheatahNDArray.Arange </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00174">174</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00156">array()</a>.</p>
+<div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-4-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a7bbc058aba8db2b8f75967348173319d_cgraph.svg" width="659" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a1a7555532cd64d3801dfb571f94fed3b" name="a1a7555532cd64d3801dfb571f94fed3b"></a>
@@ -439,6 +493,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a new contiguous <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> with the data laid out in C-order. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); flattens through views and allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on size mismatch or negative dims. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000118">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd, CheatahNDArray.ReshapeSizeMismatchThrows </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00181">181</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>, <a class="el" href="ndarray_8hpp_source.html#l00057">cheatah::ndarray::NDArray::buffer()</a>, <a class="el" href="ndarray_8hpp_source.html#l00050">cheatah::ndarray::NDArray::ndim()</a>, <a class="el" href="ndarray_8hpp_source.html#l00046">cheatah::ndarray::NDArray::shape()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>.</p>
+<div id="dynsection-5" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-5-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a1a7555532cd64d3801dfb571f94fed3b_cgraph.svg" width="464" height="294"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -473,6 +537,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000119">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00197">197</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a2c6efc14872c11a009505a014138a508" name="a2c6efc14872c11a009505a014138a508"></a>
@@ -505,6 +571,8 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">a - b</span> broadcast to their common shape. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000120">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00200">200</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
 </div>
 </div>
@@ -539,6 +607,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000121">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00203">203</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a68be874288321590e276c0e908232116" name="a68be874288321590e276c0e908232116"></a>
@@ -572,6 +642,8 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000122">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00206">206</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
 </div>
 </div>
 <a id="a3fc7e58a79593ffd0446bdc1de869f1e" name="a3fc7e58a79593ffd0446bdc1de869f1e"></a>
@@ -600,6 +672,24 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(size); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000123">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00210">210</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>, <a class="el" href="ndarray_8hpp_source.html#l00050">cheatah::ndarray::NDArray::ndim()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00046">cheatah::ndarray::NDArray::shape()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00218">mean()</a>.</p>
+<div id="dynsection-6" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-6-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a3fc7e58a79593ffd0446bdc1de869f1e_cgraph.svg" width="440" height="166"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+<div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
+<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-7-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a3fc7e58a79593ffd0446bdc1de869f1e_icgraph.svg" width="402" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a54d1a3c8c622bac7fa431b75d47ae8ab" name="a54d1a3c8c622bac7fa431b75d47ae8ab"></a>
@@ -627,6 +717,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>the average. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000124">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00218">218</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00210">sum()</a>.</p>
+<div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-8-content" class="dyncontent" style="display:none;">
+<div class="center"><div class="zoom"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a54d1a3c8c622bac7fa431b75d47ae8ab_cgraph.svg" width="100%" height="429"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
+</div>
 
 </div>
 </div>
@@ -661,6 +761,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); no heap; bounds-checks rank/range and throws on a bad index. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000125">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00223">223</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>.</p>
+<div id="dynsection-9" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-9-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_aa36e827b43482683b94b6b08b3c89e4d_cgraph.svg" width="434" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="a5ecc75969da04a455e7a89a32cbe2352" name="a5ecc75969da04a455e7a89a32cbe2352"></a>
@@ -688,6 +798,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a vector of the dimensions. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); allocates a small vector. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000126">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00225">225</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00050">cheatah::ndarray::NDArray::ndim()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00046">cheatah::ndarray::NDArray::shape()</a>.</p>
+<div id="dynsection-10" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-10-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-10-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_a5ecc75969da04a455e7a89a32cbe2352_cgraph.svg" width="452" height="115"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -717,6 +837,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000127">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.Arange </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00230">230</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00103">cheatah::ndarray::NDArray::size()</a>.</p>
+<div id="dynsection-11" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-11-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-11-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_acb44fb58ea77e7951a35708b39f3a7d5_cgraph.svg" width="439" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 <a id="aa4c21ed00e8ef67406221c3d0dd29594" name="aa4c21ed00e8ef67406221c3d0dd29594"></a>
@@ -745,6 +875,16 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000128">Test</a></b></dt><dd>CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00232">232</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
+
+<p class="reference">References <a class="el" href="ndarray_8cpp_source.html#l00105">cheatah::ndarray::NDArray::at()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00050">cheatah::ndarray::NDArray::ndim()</a>.</p>
+<div id="dynsection-12" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
+<div id="dynsection-12-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-12-content" class="dyncontent" style="display:none;">
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="namespacecheatah_1_1ndarray_aa4c21ed00e8ef67406221c3d0dd29594_cgraph.svg" width="426" height="102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
 </div>
 </div>
 </div><!-- contents -->
@@ -757,13 +897,13 @@ Functions</h2></td></tr>
 </div><!-- page-nav-tree -->
 </div><!-- page-nav -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="namespacecheatah.html">cheatah</a></li><li class="navelem"><a href="namespacecheatah_1_1ndarray.html">ndarray</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>

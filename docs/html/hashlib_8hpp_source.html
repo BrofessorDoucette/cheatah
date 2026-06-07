@@ -21,16 +21,14 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
 <link href="cheetah.css" rel="stylesheet" type="text/css"/>
 <!-- doxygen-awesome-css extensions (https://github.com/jothepro/doxygen-awesome-css) -->
-<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<!-- Fixed dark theme: no dark-mode toggle. -->
 <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeParagraphLink.init()
     DoxygenAwesomeInteractiveToc.init()
@@ -127,27 +125,25 @@ $(function(){initNavTree('hashlib_8hpp_source.html','',''); });
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;string_view&gt;</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
-<div class="foldopen" id="foldopen00017" data-start="{" data-end="}">
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1hashlib.html">   17</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1hashlib.html">cheatah::hashlib</a> {</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacecheatah_1_1hashlib.html">cheatah::hashlib</a> {</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment"></span> </div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">/** SHA-256 digest of @p data. @param data the bytes to hash (an embedded NUL is part of the input, since the length is carried). @return a 64-char lowercase hex digest.</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"> *  @note O(n) in the input length; allocates the 64-char result string and a padded message buffer internally. @test CheatahHashlib.KnownVectors, CheatahHashlib.DigestShape, CheatahHashlib.EmbeddedNulIsHashed */</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="namespacecheatah_1_1hashlib.html#abff0eeef3a6d13935d7fe4b835d4398f">   21</a></span>std::string <a class="code hl_function" href="namespacecheatah_1_1hashlib.html#abff0eeef3a6d13935d7fe4b835d4398f">sha256</a>(std::string_view data);  <span class="comment">// 64-char lowercase hex digest</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>std::string <a class="code hl_function" href="namespacecheatah_1_1hashlib.html#abff0eeef3a6d13935d7fe4b835d4398f">sha256</a>(std::string_view data);  <span class="comment">// 64-char lowercase hex digest</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>} <span class="comment">// namespace cheatah::hashlib</span></div>
-</div>
-<div class="ttc" id="anamespacecheatah_1_1hashlib_html"><div class="ttname"><a href="namespacecheatah_1_1hashlib.html">cheatah::hashlib</a></div><div class="ttdef"><b>Definition</b> <a href="#l00017">hashlib.hpp:17</a></div></div>
-<div class="ttc" id="anamespacecheatah_1_1hashlib_html_abff0eeef3a6d13935d7fe4b835d4398f"><div class="ttname"><a href="namespacecheatah_1_1hashlib.html#abff0eeef3a6d13935d7fe4b835d4398f">cheatah::hashlib::sha256</a></div><div class="ttdeci">std::string sha256(std::string_view data)</div><div class="ttdoc">SHA-256 digest of data.</div></div>
+<div class="ttc" id="anamespacecheatah_1_1hashlib_html"><div class="ttname"><a href="namespacecheatah_1_1hashlib.html">cheatah::hashlib</a></div><div class="ttdef"><b>Definition</b> <a href="hashlib_8cpp_source.html#l00006">hashlib.cpp:6</a></div></div>
+<div class="ttc" id="anamespacecheatah_1_1hashlib_html_abff0eeef3a6d13935d7fe4b835d4398f"><div class="ttname"><a href="namespacecheatah_1_1hashlib.html#abff0eeef3a6d13935d7fe4b835d4398f">cheatah::hashlib::sha256</a></div><div class="ttdeci">std::string sha256(std::string_view data)</div><div class="ttdoc">SHA-256 digest of data.</div><div class="ttdef"><b>Definition</b> <a href="hashlib_8cpp_source.html#l00027">hashlib.cpp:27</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
-<!-- HTML footer for doxygen 1.16.1-->
+<!-- HTML footer for doxygen 1.16.1 — cheatah modern theme -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a href="dir_a0da0faf188e2446764a7b7e8d6753bc.html">stdlib</a></li><li class="navelem"><a href="dir_aeaa47383a09b3d9936ade7535ae141a.html">hashlib</a></li><li class="navelem"><a href="hashlib_8hpp.html">hashlib.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
-  </ul>
-</div>
+<!-- #nav-path kept (the treeview JS references it) but emptied + hidden: no bottom breadcrumb tabs. -->
+<div id="nav-path" class="navpath" style="display:none"><ul></ul></div>
+<footer class="cheetah-footer">
+  <span class="cheetah-footer-slogan">🐆 <strong>cheatah</strong> — Programs so fast they purrrrrrrrrrrrr like a kitten. 🐱</span>
+  <span class="cheetah-footer-credit">Reference built with Doxygen 1.16.1 + doxygen-awesome-css.</span>
+</footer>
 </body>
 </html>
