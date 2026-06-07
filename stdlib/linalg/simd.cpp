@@ -1,6 +1,15 @@
 #include "simd.hpp"
 
+#include <utility>
+
 namespace cheatah::linalg {
+
+namespace detail {
+std::string scalar_if_empty(std::string features) {
+    if (features.empty()) return "scalar";
+    return features;
+}
+}  // namespace detail
 
 std::string simd_features() {
     std::string features;
@@ -30,10 +39,7 @@ std::string simd_features() {
     add("NEON");
 #endif
 
-    if (features.empty()) {
-        features = "scalar";
-    }
-    return features;
+    return detail::scalar_if_empty(std::move(features));
 }
 
 int simd_lane_doubles() noexcept {

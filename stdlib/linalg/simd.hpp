@@ -21,4 +21,11 @@ std::string simd_features();
 // 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512). Useful for sizing blocked kernels.
 int simd_lane_doubles() noexcept;
 
+namespace detail {
+// Returns "scalar" for an empty feature list, else the list unchanged. Factored
+// out so the no-SIMD fallback is testable on SIMD-capable build machines (where
+// `simd_features()` itself never produces an empty list).
+std::string scalar_if_empty(std::string features);
+}  // namespace detail
+
 } // namespace cheatah::linalg

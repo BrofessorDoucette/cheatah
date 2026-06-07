@@ -115,3 +115,9 @@ TEST(CheatahIo, InputReadsALine) {
     EXPECT_EQ(io::input(), "second");
     std::cin.rdbuf(saved);  // restore
 }
+
+TEST(CheatahIo, FormatMultiArgAndExtraArgs) {
+    EXPECT_EQ(io::format("{}-{}", 1, 2), "1-2");  // recursion across placeholders
+    EXPECT_EQ(io::format("{}", 1, 2, 3), "1");    // more args than placeholders → dropped
+    EXPECT_EQ(io::format("none", 7), "none");     // no placeholders at all
+}

@@ -67,3 +67,9 @@ TEST(CheatahString, ClassificationAlnumAndSpace) {
     EXPECT_FALSE(str::isspace("a b"));
     EXPECT_FALSE(str::isspace(""));
 }
+
+TEST(CheatahString, SplitEmptySeparator) {
+    const std::vector<std::string> parts = str::split("abc", "");  // whole string, one element
+    ASSERT_EQ(parts.size(), 1u);
+    EXPECT_EQ(parts[0], "abc");
+}

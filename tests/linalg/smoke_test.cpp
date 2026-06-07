@@ -16,6 +16,12 @@ TEST(LinalgSmoke, SimdFeaturesReported) {
     EXPECT_GE(la::simd_lane_doubles(), 1);
 }
 
+TEST(LinalgSmoke, SimdScalarFallback) {
+    // The no-SIMD fallback (unreachable on this SIMD build) tested directly.
+    EXPECT_EQ(la::detail::scalar_if_empty(""), "scalar");
+    EXPECT_EQ(la::detail::scalar_if_empty("AVX2;FMA"), "AVX2;FMA");
+}
+
 TEST(LinalgSmoke, DotMatchesHandComputed) {
     EXPECT_DOUBLE_EQ(la::dot(nd::array({1, 2, 3, 4}), nd::array({5, 6, 7, 8})), 70.0);
 }

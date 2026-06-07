@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -180,4 +181,36 @@ TEST(LinalgRoutines, GeneralEigvals3x3Dense) {
     const std::vector<double> v = sorted3(la::eigvals(mat(3, 3, {2, 1, 1, 1, 2, 1, 1, 1, 2})));
     EXPECT_TRUE(close(v[0], 1.0, 1e-6));
     EXPECT_TRUE(close(v[2], 4.0, 1e-6));
+}
+
+TEST(LinalgRoutines, NonSymmetric3x3HessenbergPath) {
+    // M = P·diag(2,3,5)·P⁻¹ — non-symmetric with real eigenvalues 2,3,5. Routes
+    // through eigvals_general (Householder–Hessenberg + shifted QR for n≥3).
+    const nd::NDArray M = mat(3, 3, {2.5, 0.5, -0.5, -1, 4, 1, -1.5, 1.5, 3.5});
+    const std::vector<double> v = sorted3(la::eigvals(M));
+    EXPECT_TRUE(close(v[0], 2.0, 1e-6));
+    EXPECT_TRUE(close(v[1], 3.0, 1e-6));
+    EXPECT_TRUE(close(v[2], 5.0, 1e-6));
+    EXPECT_TRUE(close(nd::get(la::eig(M).values, {0}), 5.0, 1e-6));  // descending; eig() too
+}
+
+TEST(LinalgRoutines, ComplexEigenvaluesThrow) {
+    // A 2-D rotation [[0,-1],[1,0]] has eigenvalues ±i — the real-only solver rejects it.
+    EXPECT_THROW(la::eigvals(mat(2, 2, {0, -1, 1, 0})), std::runtime_error);
+}
+
+TEST(LinalgRoutines, VdotRejectsNonVector) {
+    EXPECT_THROW(la::vdot(mat(2, 2, {1, 2, 3, 4}), mat(2, 2, {1, 2, 3, 4})), std::runtime_error);
+}
+
+TEST(LinalgRoutines, NormOfMatrixIsFrobenius) {
+    EXPECT_TRUE(close(la::norm(mat(2, 2, {1, 2, 2, 4})), 5.0));  // sqrt(1+4+4+16)
+}
+
+TEST(LinalgRoutines, PinvCondRankOnWideMatrix) {
+    const nd::NDArray W = mat(2, 3, {1, 0, 0, 0, 1, 0});  // 2x3 (more cols than rows)
+    const nd::NDArray P = la::pinv(W);                    // -> 3x2 (transpose-SVD branch)
+    EXPECT_EQ(nd::shape_of(P), (std::vector<long long>{3, 2}));
+    EXPECT_GE(la::cond(W), 1.0);
+    EXPECT_EQ(la::matrix_rank(W), 2);
 }

@@ -43,3 +43,12 @@ TEST(CheatahBuiltins, ToFloatFromInt) {
     EXPECT_DOUBLE_EQ(b::to_float(7LL), 7.0);
     EXPECT_DOUBLE_EQ(b::to_float(-3LL), -3.0);
 }
+
+TEST(CheatahBuiltins, AsciiEscapesQuoteChar) {
+    EXPECT_EQ(b::ascii("'"), "'\\''");  // a lone single quote -> \'
+}
+
+TEST(CheatahBuiltins, AsciiEscapesBackslashAndQuote) {
+    EXPECT_EQ(b::ascii(std::string("a\\b")), "'a\\\\b'");  // backslash → \\
+    EXPECT_EQ(b::ascii("it's"), "'it\\'s'");               // single quote → \'
+}
