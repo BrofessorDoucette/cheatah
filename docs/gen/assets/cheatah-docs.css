@@ -199,6 +199,7 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .tag-crtest { border-left-color: #8c9488; }       /* neutral slate-grey */
 .tag-systest { border-left-color: #97918a; }      /* neutral warm-grey */
 .tag-test .tag-v, .tag-crtest .tag-v, .tag-systest .tag-v { font-family: var(--mono); font-size: .85rem; }
+.tag-v .more { color: var(--fg-faint); cursor: help; padding: 0 2px; }
 .tag-test .tag-k, .tag-crtest .tag-k, .tag-systest .tag-k { min-width: 92px; }
 
 /* ---- admonitions ---- */

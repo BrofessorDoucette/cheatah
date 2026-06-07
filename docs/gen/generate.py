@@ -130,6 +130,10 @@ class Renderer:
         self.valid: set[str] | None = None   # refids that have a page; None => link everything
         self.src_map: dict[str, str] = {}    # source path -> source-page html filename
         self.test_index: dict[str, tuple[str, str]] = {}  # "Suite.Name" -> (path, line)
+        # (module_short, func) -> set of system-test names that call the function.
+        self.app_usage: dict[tuple[str, str], set[str]] = {}
+        self.cur_module = ""   # set per page/member so @systest can list every test it's in
+        self.cur_func = ""
 
     def src_link(self, path: str, line) -> str | None:
         page = self.src_map.get(path)
@@ -214,27 +218,42 @@ class Renderer:
         title = text_of(el.find("xreftitle")).strip()
         cls = self.XREF_CLASS.get(title, "xref")
         label = self.XREF_LABEL.get(title, title)
-        if title in self.TEST_TITLES:
+        if title == "System test":
+            body = self.render_systests(text_of(el.find("xrefdescription")))
+        elif title in self.TEST_TITLES:
             body = self.render_tests(text_of(el.find("xrefdescription")))
         else:
             body = "".join(self.node(c) for c in el.find("xrefdescription"))
         return (f'<div class="tag tag-{cls}"><span class="tag-k">{html.escape(label)}</span>'
                 f'<span class="tag-v">{body}</span></div>')
 
+    def link_test(self, name: str) -> str:
+        """One gtest `Suite.Name` rendered as a link to its source (if known)."""
+        loc = self.test_index.get(name)
+        if loc and loc[0] in self.src_map:
+            return f'<a href="{self.src_link(loc[0], loc[1])}"><code>{html.escape(name)}</code></a>'
+        return f"<code>{html.escape(name)}</code>"
+
     def render_tests(self, text: str) -> str:
-        """Render @test value(s) as links to the test's source location."""
-        out = []
-        for raw in re.split(r"[,\s]+", text.strip()):
-            name = raw.strip()
-            if not name:
-                continue
-            loc = self.test_index.get(name)
-            if loc and loc[0] in self.src_map:
-                href = self.src_link(loc[0], loc[1])
-                out.append(f'<a href="{href}"><code>{html.escape(name)}</code></a>')
-            else:
-                out.append(f"<code>{html.escape(name)}</code>")
-        return " ".join(out)
+        """Render @test/@crtest value(s) as links to the test's source location."""
+        names = [n for n in re.split(r"[,\s]+", text.strip()) if n]
+        return " ".join(self.link_test(n) for n in names)
+
+    MAX_SYSTESTS = 3  # show this many, then "…" — every system test the function is in
+
+    def render_systests(self, text: str) -> str:
+        """List EVERY system test the current function appears in: the per-module
+        @systest (from the tag) plus any cross-module app that calls it. Truncate
+        with a "…" (full list in its title) when too many to render cleanly."""
+        names = [n for n in re.split(r"[,\s]+", text.strip()) if n]
+        for extra in sorted(self.app_usage.get((self.cur_module, self.cur_func), ())):
+            if extra not in names:
+                names.append(extra)
+        shown = [self.link_test(n) for n in names[:self.MAX_SYSTESTS]]
+        if len(names) > self.MAX_SYSTESTS:
+            rest = ", ".join(names[self.MAX_SYSTESTS:])
+            shown.append(f'<span class="more" title="{html.escape(rest)}">…</span>')
+        return " ".join(shown)
 
     def t_itemizedlist(self, el) -> str:
         items = "".join(f"<li>{self.inline(li)}</li>" for li in el.findall("listitem"))
@@ -346,6 +365,7 @@ def member_signature(r: Renderer, m: Member) -> str:
 
 def render_member(r: Renderer, m: Member) -> str:
     badge = KIND_BADGE.get(m.kind, m.kind)
+    r.cur_func = m.name   # so @systest can list every system test this function is in
     brief = r.brief(m.brief_xml)
     detail = r.render(m.detail_xml)
     src = r.src_link(m.srcfile, m.srcline) if m.srcfile else None
@@ -420,6 +440,7 @@ def build_toc(members: list[Member]) -> str:
 
 def render_compound_page(r: Renderer, comp: Compound, sidebar: str) -> str:
     kind_label = {NS: "Module", CLASS: "Class", STRUCT: "Struct", CONCEPT: "Concept"}[comp.kind]
+    r.cur_module = comp.short   # module context for @systest app-usage lookup
     brief = r.brief(comp.brief_xml)
     detail = r.render(comp.detail_xml)
     # Group members.
@@ -473,6 +494,36 @@ def build_test_index() -> dict[str, tuple[str, str]]:
                     idx[f"{m.group(1)}.{m.group(2)}"] = (rel, str(i))
     return idx
 
+_CALL_RE = re.compile(r"((?:\w+\.)*)(\w+)\s*\(")
+_QUAL_MODULE = {
+    "": "builtins", "math": "math", "io": "io", "string": "string",
+    "ndarray": "ndarray", "linalg": "linalg", "os": "os", "os.path": "os::path",
+    "socket": "socket", "statistics": "statistics", "random": "random",
+    "hashlib": "hashlib", "datetime": "datetime", "time": "time",
+}
+
+def build_app_usage() -> dict[tuple[str, str], set[str]]:
+    """Scan the cross-module app system tests (tests/purrc/app_*_test.cpp) and map
+    (module_short, function) -> {system-test names that call it}, so the docs can
+    list every system test a function actually appears in."""
+    usage: dict[tuple[str, str], set[str]] = {}
+    tdir = ROOT / "tests" / "purrc"
+    if not tdir.is_dir():
+        return usage
+    for f in sorted(tdir.glob("app_*_test.cpp")):
+        text = f.read_text()
+        tm = TEST_RE.search(text)
+        if not tm:
+            continue
+        test_name = f"{tm.group(1)}.{tm.group(2)}"
+        pm = re.search(r'R"PURR\((.*?)\)PURR"', text, re.S)
+        purr = pm.group(1) if pm else ""
+        for qual, func in _CALL_RE.findall(purr):
+            mod = _QUAL_MODULE.get(qual.rstrip("."))
+            if mod is not None:
+                usage.setdefault((mod, func), set()).add(test_name)
+    return usage
+
 def src_page_name(rel_path: str) -> str:
     return "src_" + re.sub(r"[^A-Za-z0-9]", "_", rel_path) + ".html"
 
@@ -521,6 +572,7 @@ def main() -> int:
     src_map = {p: src_page_name(p) for p in sorted(src_files) if (ROOT / p).is_file()}
     r.src_map = src_map
     r.test_index = build_test_index()
+    r.app_usage = build_app_usage()
 
     OUT.mkdir(parents=True, exist_ok=True)
     sidebar = build_sidebar(compounds)
