@@ -28,6 +28,8 @@
 #       QA_GATE_SKIP_DOCS=1       skip only the documentation-coverage stage
 #       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
 #       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
+#       QA_GATE_FULL_CR=1         ALSO run the full per-function compile-run battery
+#                                 (~200 tests; off by default — opt in when needed)
 #       QA_BENCH_MIN_TIME         benchmark min time per case (default 0.05s)
 set -uo pipefail
 
@@ -42,6 +44,17 @@ bold() { printf '\n\033[1m[qa-gate] %s\033[0m\n' "$*"; }
 fail() { printf '\n\033[31m[qa-gate] FAILED: %s\033[0m\n' "$*"; exit 1; }
 
 MIN_TIME="${QA_BENCH_MIN_TIME:-0.05s}"
+
+# The per-function compile-run battery (~200 tests, each forks the compiler+runtime)
+# is OPT-IN: set QA_GATE_FULL_CR=1 to include it. By default the gate runs everything
+# else — unit tests, the pipeline tests, and the multi-module system apps — and
+# excludes the *CompileRun.* tests (in ctest and under Valgrind) to stay fast.
+export QA_GATE_FULL_CR="${QA_GATE_FULL_CR:-0}"
+if [ "$QA_GATE_FULL_CR" = "1" ]; then
+    CR_EXCLUDE=()
+else
+    CR_EXCLUDE=(--exclude-regex 'CompileRun')
+fi
 
 # 1. Coverage: regenerate the README table; fail if it changed (commit it first) --
 if [ "${QA_GATE_SKIP_COVERAGE:-0}" = "1" ]; then
@@ -84,7 +97,7 @@ cmake --build --preset debug >/tmp/cheatah_build_debug.log 2>&1 || { tail -30 /t
 
 # 4. Unit tests (hard gate) --------------------------------------------------
 bold "Running unit test suite…"
-ctest --preset debug --output-on-failure || fail "unit tests"
+ctest --preset debug --output-on-failure "${CR_EXCLUDE[@]}" || fail "unit tests"
 
 # 5. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
 if [ "${QA_GATE_SKIP_ASAN:-0}" = "1" ]; then
@@ -96,7 +109,7 @@ else
     bold "Running unit test suite under ASan + UBSan…"
     UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1" \
     ASAN_OPTIONS="detect_leaks=1:abort_on_error=1" \
-        ctest --preset asan --output-on-failure || fail "sanitizer (ASan/UBSan) tests"
+        ctest --preset asan --output-on-failure "${CR_EXCLUDE[@]}" || fail "sanitizer (ASan/UBSan) tests"
 fi
 
 # 6. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------

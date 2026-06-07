@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Run cheatah's in-process unit tests under Valgrind memcheck — a second memory
-# checker alongside ASan (each catches things the other can miss). Uses the plain
-# `debug` build, because Valgrind cannot run an ASan-instrumented binary.
+# Run cheatah's tests under Valgrind memcheck — a second memory checker alongside
+# ASan (each catches things the other can miss). Uses the plain `debug` build,
+# because Valgrind cannot run an ASan-instrumented binary.
 #
 #   security/run-valgrind.sh
 #
-# Excludes the purrc end-to-end test (it forks the C++ backend and dlopens a
-# clang-built .so — noisy and slow under Valgrind); ASan covers that path instead.
+# Covers all three test kinds: the in-process unit tests AND the compile-run +
+# system-level tests (cheatah_purrc_tests). The compile-run/system harness shells
+# out to purrc/cheatah (those children run natively, not traced), so Valgrind here
+# memchecks the in-process unit tests directly and the e2e harness itself.
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
@@ -21,9 +23,10 @@ VG=(valgrind --tool=memcheck --leak-check=full
     --errors-for-leak-kinds=definite,indirect
     --error-exitcode=1 --suppressions="$SUPP")
 
-# The in-process unit-test binaries. 100% Valgrind coverage = every test in each of
-# these runs under Valgrind, all pass, none skipped (asserted from the gtest summary).
-UNIT_BINS=(cheatah_tests cheatah_linalg_tests)
+# All test binaries — unit (cheatah_tests, cheatah_linalg_tests) plus the
+# compile-run + system-level tests (cheatah_purrc_tests). 100% Valgrind coverage =
+# every test in each runs under Valgrind, all pass, none skipped (asserted below).
+UNIT_BINS=(cheatah_tests cheatah_linalg_tests cheatah_purrc_tests)
 
 status=0
 total_ran=0
@@ -31,8 +34,15 @@ for t in "${UNIT_BINS[@]}"; do
     bin="./build/debug/bin/$t"
     [ -x "$bin" ] || { echo "[valgrind] missing $bin — cannot cover all unit tests"; status=1; continue; }
     log="/tmp/cheatah_vg_$t.log"
+    # The per-function compile-run battery is opt-in (QA_GATE_FULL_CR=1); skip it
+    # here by default so Valgrind stays fast (the unit tests already memcheck the
+    # functions directly; the system apps still run).
+    filter=()
+    if [ "$t" = "cheatah_purrc_tests" ] && [ "${QA_GATE_FULL_CR:-0}" != "1" ]; then
+        filter=(--gtest_filter=-*CompileRun*)
+    fi
     echo "[valgrind] memcheck: $t"
-    if ! "${VG[@]}" "$bin" >"$log" 2>&1; then
+    if ! "${VG[@]}" "$bin" "${filter[@]}" >"$log" 2>&1; then
         echo "[valgrind] ERRORS/LEAKS in $t:"; tail -50 "$log"; status=1
     fi
     # Coverage assertion: confirm every test in the binary actually executed under
