@@ -19,26 +19,53 @@
 
 namespace cheatah::random {
 
-/** Seed the shared engine, making the stream reproducible. @param s the seed.
- *  @note O(1) time; no heap. @test CheatahRandom.SeedMakesTheStreamReproducible */
+/**
+ * Seed the shared engine, making the stream reproducible.
+ * @param s the seed.
+ * @note O(1) time; no heap.
+ * @test CheatahRandom.SeedMakesTheStreamReproducible
+ */
 void seed(unsigned long long s);
-/** Uniform random double. @return a value in [0, 1).
- *  @note O(1) time; no heap. @test CheatahRandom.RandomInUnitInterval */
+/**
+ * Uniform random double.
+ * @return a value in [0, 1).
+ * @note O(1) time; no heap.
+ * @test CheatahRandom.RandomInUnitInterval
+ */
 double random();
-/** Uniform random double in a range. @param a,b the bounds. @return a value in [@p a, @p b].
- *  @note O(1) time; no heap. @test CheatahRandom.UniformInRange */
+/**
+ * Uniform random double in a range.
+ * @param a,b the bounds.
+ * @return a value in [@p a, @p b].
+ * @note O(1) time; no heap.
+ * @test CheatahRandom.UniformInRange
+ */
 double uniform(double a, double b);
-/** Uniform random integer. @param a,b inclusive bounds. @return an integer in [@p a, @p b].
- *  @note O(1) time; no heap. @test CheatahRandom.RandintInclusiveRange */
+/**
+ * Uniform random integer.
+ * @param a,b inclusive bounds.
+ * @return an integer in [@p a, @p b].
+ * @note O(1) time; no heap.
+ * @test CheatahRandom.RandintInclusiveRange
+ */
 long long randint(long long a, long long b);
-/** Normal (Gaussian) deviate. @param mu mean. @param sigma standard deviation. @return a normal sample.
- *  @note O(1) time; no heap. @test CheatahRandom.GaussIsFiniteAndReproducible */
+/**
+ * Normal (Gaussian) deviate.
+ * @param mu mean.
+ * @param sigma standard deviation.
+ * @return a normal sample.
+ * @note O(1) time; no heap.
+ * @test CheatahRandom.GaussIsFiniteAndReproducible
+ */
 double gauss(double mu, double sigma);
 
-/** Random element of a random-access sequence (list/array).
- *  @param seq the sequence to pick from (must be non-empty).
- *  @return a copy of a uniformly chosen element.
- *  @note O(1) time; no heap of its own (copies one element; via @ref randint). @test CheatahRandom.Choice */
+/**
+ * Random element of a random-access sequence (list/array).
+ * @param seq the sequence to pick from (must be non-empty).
+ * @return a copy of a uniformly chosen element.
+ * @note O(1) time; no heap of its own (copies one element; via @ref randint).
+ * @test CheatahRandom.Choice
+ */
 template <std::ranges::random_access_range R>
 std::ranges::range_value_t<R> choice(const R& seq) {
     const auto n = static_cast<long long>(std::ranges::size(seq));

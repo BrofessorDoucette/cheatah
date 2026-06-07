@@ -183,7 +183,7 @@ Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00007">7</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00051">print()</a>, and <a class="el" href="io_8hpp_source.html#l00059">repr()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="io_8hpp_source.html#l00075">print()</a>, and <a class="el" href="io_8hpp_source.html#l00089">repr()</a>.</p>
 <div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
@@ -335,7 +335,7 @@ Functions</h2></td></tr>
 <p>Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>filesystem path.</td></tr>
+    <tr><td class="paramname">path</td><td>filesystem path. </td></tr>
     <tr><td class="paramname">mode</td><td>Python-style mode string. </td></tr>
   </table>
   </dd>
@@ -406,7 +406,7 @@ template&lt;Streamable T&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(n) in the output length; allocates the result string (via an ostringstream). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000031">Test</a></b></dt><dd>CheatahIo.StrFormatsPythonStyle </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00039">39</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00045">45</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 </div>
 </div>
@@ -438,7 +438,7 @@ template&lt;Streamable... Args&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(total output length); each arg is routed through <a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a> so values format the Python way (e.g. bool → True/False), allocating temporary strings. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000034">Test</a></b></dt><dd>CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00051">51</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00075">75</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
 <div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
@@ -478,7 +478,7 @@ template&lt;Streamable T&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates the result string. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000035">Test</a></b></dt><dd>CheatahIo.ReprQuotesStrings </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00059">59</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00089">89</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00007">str()</a>.</p>
 <div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
@@ -514,7 +514,7 @@ template&lt;Streamable... Args&gt; </div>
 <p>Sequential <span class="tt">{}</span> substitution — the common case of Python's str.format() / f-strings. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fmt</td><td>format string with <span class="tt">{}</span> placeholders.</td></tr>
+    <tr><td class="paramname">fmt</td><td>format string with <span class="tt">{}</span> placeholders. </td></tr>
     <tr><td class="paramname">args</td><td>values substituted left-to-right (extras dropped, missing placeholders left as-is). </td></tr>
   </table>
   </dd>
@@ -523,7 +523,7 @@ template&lt;Streamable... Args&gt; </div>
 <dl class="section note"><dt>Note</dt><dd>O(len(fmt) + total arg output); allocates the result string (via an ostringstream). </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000038">Test</a></b></dt><dd>CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00083">83</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00133">133</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="io_8cpp_source.html#l00014">cheatah::io::detail::format_into()</a>.</p>
 <div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>

@@ -197,7 +197,7 @@ Public Member Functions</h2></td></tr>
 <p>Construct a contiguous array of <code class="param">shape</code> filled with <code class="param">fill</code>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname"><a class="el" href="#aad1a34c9ab0e62679bd257c907abb463" title="The shape (dimensions).">shape</a></td><td>the dimensions.</td></tr>
+    <tr><td class="paramname"><a class="el" href="#aad1a34c9ab0e62679bd257c907abb463" title="The shape (dimensions).">shape</a></td><td>the dimensions. </td></tr>
     <tr><td class="paramname">fill</td><td>value for every element. </td></tr>
   </table>
   </dd>
@@ -207,7 +207,7 @@ Public Member Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00092">92</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
-<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00046">shape()</a>.</p>
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00070">shape()</a>.</p>
 <div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
@@ -249,9 +249,9 @@ Public Member Functions</h2></td></tr>
 <p>Construct a view from explicit buffer/shape/strides/offset (used by views). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>the shared element buffer.</td></tr>
-    <tr><td class="paramname"><a class="el" href="#aad1a34c9ab0e62679bd257c907abb463" title="The shape (dimensions).">shape</a></td><td>the dimensions.</td></tr>
-    <tr><td class="paramname"><a class="el" href="#af3fe15dacbd79b5e38cf696f73338739" title="The element strides.">strides</a></td><td>element strides per dimension.</td></tr>
+    <tr><td class="paramname">data</td><td>the shared element buffer. </td></tr>
+    <tr><td class="paramname"><a class="el" href="#aad1a34c9ab0e62679bd257c907abb463" title="The shape (dimensions).">shape</a></td><td>the dimensions. </td></tr>
+    <tr><td class="paramname"><a class="el" href="#af3fe15dacbd79b5e38cf696f73338739" title="The element strides.">strides</a></td><td>element strides per dimension. </td></tr>
     <tr><td class="paramname"><a class="el" href="#ac0534f170688c79b16eaccb012dba447" title="The flat offset into the buffer where this view starts.">offset</a></td><td>starting flat offset into <code class="param">data</code>. </td></tr>
   </table>
   </dd>
@@ -261,7 +261,7 @@ Public Member Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00098">98</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
-<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00059">offset()</a>, <a class="el" href="ndarray_8hpp_source.html#l00046">shape()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00048">strides()</a>.</p>
+<p class="reference">References <a class="el" href="ndarray_8hpp_source.html#l00115">offset()</a>, <a class="el" href="ndarray_8hpp_source.html#l00070">shape()</a>, and <a class="el" href="ndarray_8hpp_source.html#l00077">strides()</a>.</p>
 <div id="dynsection-1" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the call graph for this function:</div>
 <div id="dynsection-1-summary" class="dynsummary" style="display:block;">
 </div>
@@ -300,7 +300,7 @@ Public Member Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000133">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00046">46</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00070">70</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, <a class="el" href="ndarray_8cpp_source.html#l00098">NDArray()</a>, <a class="el" href="ndarray_8cpp_source.html#l00092">NDArray()</a>, <a class="el" href="ndarray_8cpp_source.html#l00181">cheatah::ndarray::reshape()</a>, <a class="el" href="ndarray_8cpp_source.html#l00225">cheatah::ndarray::shape_of()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00210">cheatah::ndarray::sum()</a>.</p>
 <div id="dynsection-2" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
@@ -340,7 +340,7 @@ Public Member Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000134">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00048">48</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00077">77</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00098">NDArray()</a>.</p>
 <div id="dynsection-3" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
@@ -380,7 +380,7 @@ Public Member Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000135">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00050">50</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00084">84</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, <a class="el" href="routines_8cpp_source.html#l00402">cheatah::linalg::norm()</a>, <a class="el" href="ndarray_8cpp_source.html#l00181">cheatah::ndarray::reshape()</a>, <a class="el" href="ndarray_8cpp_source.html#l00225">cheatah::ndarray::shape_of()</a>, <a class="el" href="ndarray_8cpp_source.html#l00210">cheatah::ndarray::sum()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00232">cheatah::ndarray::to_string()</a>.</p>
 <div id="dynsection-4" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
@@ -490,7 +490,7 @@ Public Member Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000138">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00057">57</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00108">108</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00156">cheatah::ndarray::array()</a>, <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, <a class="el" href="ndarray_8cpp_source.html#l00181">cheatah::ndarray::reshape()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00162">cheatah::ndarray::scalar()</a>.</p>
 <div id="dynsection-7" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
@@ -530,7 +530,7 @@ Public Member Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000139">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00059">59</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ndarray_8hpp_source.html#l00115">115</a> of file <a class="el" href="ndarray_8hpp_source.html">ndarray.hpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ndarray_8cpp_source.html#l00138">cheatah::ndarray::broadcast_to()</a>, and <a class="el" href="ndarray_8cpp_source.html#l00098">NDArray()</a>.</p>
 <div id="dynsection-8" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>

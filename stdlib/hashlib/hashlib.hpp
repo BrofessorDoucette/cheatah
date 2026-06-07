@@ -16,8 +16,16 @@
 
 namespace cheatah::hashlib {
 
-/** SHA-256 digest of @p data. @param data the bytes to hash (an embedded NUL is part of the input, since the length is carried). @return a 64-char lowercase hex digest.
- *  @note O(n) in the input length; allocates the 64-char result string and a padded message buffer internally. @test CheatahHashlib.KnownVectors, CheatahHashlib.DigestShape, CheatahHashlib.EmbeddedNulIsHashed */
+/**
+ * SHA-256 digest of @p data.
+ * @param data the bytes to hash (an embedded NUL is part of the input, since the length is
+ *   carried).
+ * @return a 64-char lowercase hex digest.
+ * @note O(n) in the input length; allocates the 64-char result string and a padded message
+ *   buffer internally.
+ * @test CheatahHashlib.KnownVectors, CheatahHashlib.DigestShape,
+ *   CheatahHashlib.EmbeddedNulIsHashed
+ */
 std::string sha256(std::string_view data);  // 64-char lowercase hex digest
 
 } // namespace cheatah::hashlib

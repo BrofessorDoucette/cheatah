@@ -18,33 +18,65 @@
 
 namespace cheatah::time {
 
-/** Wall-clock time. @return seconds since the Unix epoch (`system_clock`).
- *  @note O(1) time; no heap. @test CheatahTime.WallClockIsRecent */
+/**
+ * Wall-clock time.
+ * @return seconds since the Unix epoch (`system_clock`).
+ * @note O(1) time; no heap.
+ * @test CheatahTime.WallClockIsRecent
+ */
 double time();
-/** Wall-clock time. @return nanoseconds since the Unix epoch (`system_clock`).
- *  @note O(1) time; no heap. @test CheatahTime.WallClockIsRecent */
+/**
+ * Wall-clock time.
+ * @return nanoseconds since the Unix epoch (`system_clock`).
+ * @note O(1) time; no heap.
+ * @test CheatahTime.WallClockIsRecent
+ */
 long long time_ns();
 
-/** Monotonic clock; never runs backwards. @return seconds from `steady_clock`.
- *  @note O(1) time; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */
+/**
+ * Monotonic clock; never runs backwards.
+ * @return seconds from `steady_clock`.
+ * @note O(1) time; no heap.
+ * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
+ */
 double monotonic();
-/** Monotonic clock; never runs backwards. @return nanoseconds from `steady_clock`.
- *  @note O(1) time; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */
+/**
+ * Monotonic clock; never runs backwards.
+ * @return nanoseconds from `steady_clock`.
+ * @note O(1) time; no heap.
+ * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
+ */
 long long monotonic_ns();
 
-/** Highest-resolution monotonic counter. @return seconds from `steady_clock`.
- *  @note O(1) time; no heap. @test CheatahTime.PerfCounterAdvances */
+/**
+ * Highest-resolution monotonic counter.
+ * @return seconds from `steady_clock`.
+ * @note O(1) time; no heap.
+ * @test CheatahTime.PerfCounterAdvances
+ */
 double perf_counter();
-/** Highest-resolution monotonic counter. @return nanoseconds from `steady_clock`.
- *  @note O(1) time; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */
+/**
+ * Highest-resolution monotonic counter.
+ * @return nanoseconds from `steady_clock`.
+ * @note O(1) time; no heap.
+ * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
+ */
 long long perf_counter_ns();
 
-/** CPU time consumed by this process. @return seconds of CPU time (`std::clock`).
- *  @note O(1) time; no heap. @test CheatahTime.ProcessTimeNonNegative */
+/**
+ * CPU time consumed by this process.
+ * @return seconds of CPU time (`std::clock`).
+ * @note O(1) time; no heap.
+ * @test CheatahTime.ProcessTimeNonNegative
+ */
 double process_time();
 
-/** Suspend the calling thread. @param seconds duration to sleep (fractional).
- *  @note O(1) plus the sleep wait; no heap. @test CheatahTime.MonotonicClocksAdvanceAcrossSleep */
+/**
+ * Suspend the calling thread.
+ * @param seconds duration to sleep (fractional).
+ * @note O(1) plus the sleep wait; no heap.
+ * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
+ */
 void sleep(double seconds);
 
 } // namespace cheatah::time
