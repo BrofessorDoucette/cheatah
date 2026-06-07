@@ -23,10 +23,11 @@ VG=(valgrind --tool=memcheck --leak-check=full
     --errors-for-leak-kinds=definite,indirect
     --error-exitcode=1 --suppressions="$SUPP")
 
-# All test binaries — unit (cheatah_tests, cheatah_linalg_tests) plus the
-# compile-run + system-level tests (cheatah_purrc_tests). 100% Valgrind coverage =
-# every test in each runs under Valgrind, all pass, none skipped (asserted below).
-UNIT_BINS=(cheatah_tests cheatah_linalg_tests cheatah_purrc_tests)
+# All test binaries — the in-process unit tests (cheatah_tests, which now includes
+# the linalg core + smoke tests) plus the compile-run + system-level tests
+# (cheatah_purrc_tests). 100% Valgrind coverage = every test in each runs under
+# Valgrind, all pass, none skipped (asserted below).
+UNIT_BINS=(cheatah_tests cheatah_purrc_tests)
 
 status=0
 total_ran=0

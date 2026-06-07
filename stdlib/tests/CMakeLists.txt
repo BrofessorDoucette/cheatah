@@ -21,6 +21,7 @@ add_executable(cheatah_tests
     hashlib_test.cpp
     ndarray_test.cpp
     linalg_routines_test.cpp
+    linalg_smoke_test.cpp
     socket_test.cpp
 )
 

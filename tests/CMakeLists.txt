@@ -1,15 +1,13 @@
-# Test suites — one executable per product target so each component can be built
-# and run independently:
-#   linalg/  -> cheatah_linalg_tests   : the linear-algebra core (cheatah::linalg)
-#   purrc/   -> purrc → cheatah end-to-end compile-and-run pipeline test
+# Test suites. The in-process unit tests — including the linear-algebra core and
+# its smoke tests — live in stdlib/tests (cheatah_tests). Here we add the
+# end-to-end suites:
+#   purrc/   -> purrc → cheatah compile-and-run pipeline + per-function + system tests
 #
-# gtest_discover_tests() (used by each subdir) registers every TEST/TEST_F/TEST_P
-# case as its own CTest entry, prefixed per component (linalg: …) so
-# `ctest -R '^linalg:'` runs just that suite. GoogleTest is included once here;
-# the function it defines is global, so the subdirectories can call it.
+# gtest_discover_tests() (used by the subdir) registers every TEST case as its own
+# CTest entry, prefixed per component. GoogleTest is included once here; the
+# function it defines is global, so the subdirectory can call it.
 include(GoogleTest)
 
-add_subdirectory(linalg)
 add_subdirectory(purrc)  # purrc → cheatah end-to-end pipeline test
 
 # Micro-benchmarks (Google Benchmark) for the same code the unit tests exercise.
