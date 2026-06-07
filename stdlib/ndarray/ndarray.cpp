@@ -1,6 +1,7 @@
 #include "ndarray.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 
@@ -18,15 +19,29 @@ std::vector<std::ptrdiff_t> contiguous_strides(const std::vector<std::size_t>& s
     return s;
 }
 
+// Overflow-checked product of the dimensions. A huge shape would otherwise wrap
+// std::size_t and under-allocate, turning later element access into out-of-bounds
+// writes — so we reject it up front.
 std::size_t product(const std::vector<std::size_t>& shape) {
     std::size_t t = 1;
-    for (std::size_t d : shape) t *= d;
+    for (std::size_t d : shape) {
+        if (d != 0 && t > std::numeric_limits<std::size_t>::max() / d) {
+            throw std::runtime_error("ndarray: shape too large (size overflow)");
+        }
+        t *= d;
+    }
     return t;
 }
 
+// Convert signed dimensions/indices to sizes, rejecting negatives — a negative
+// cast to std::size_t becomes an enormous value (another under-allocation / OOB
+// vector). Validate at the boundary where untrusted shapes/indices enter.
 std::vector<std::size_t> to_size(const std::vector<long long>& v) {
     std::vector<std::size_t> out(v.size());
-    for (std::size_t i = 0; i < v.size(); ++i) out[i] = static_cast<std::size_t>(v[i]);
+    for (std::size_t i = 0; i < v.size(); ++i) {
+        if (v[i] < 0) throw std::runtime_error("ndarray: negative dimension or index");
+        out[i] = static_cast<std::size_t>(v[i]);
+    }
     return out;
 }
 
@@ -88,8 +103,14 @@ NDArray::NDArray(std::shared_ptr<std::vector<double>> data, std::vector<std::siz
 std::size_t NDArray::size() const { return product(shape_); }
 
 double NDArray::at(const std::vector<std::size_t>& index) const {
+    // Bounds-check: a wrong-rank or out-of-range index would otherwise compute an
+    // offset outside the backing buffer (out-of-bounds read).
+    if (index.size() != shape_.size()) {
+        throw std::runtime_error("ndarray: index has the wrong number of dimensions");
+    }
     std::ptrdiff_t off = static_cast<std::ptrdiff_t>(offset_);
     for (std::size_t i = 0; i < index.size(); ++i) {
+        if (index[i] >= shape_[i]) throw std::runtime_error("ndarray: index out of range");
         off += static_cast<std::ptrdiff_t>(index[i]) * strides_[i];
     }
     return (*data_)[static_cast<std::size_t>(off)];

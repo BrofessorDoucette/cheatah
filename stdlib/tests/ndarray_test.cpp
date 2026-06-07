@@ -1,10 +1,25 @@
 #include "ndarray.hpp"
 
+#include <stdexcept>
 #include <vector>
 
 #include <gtest/gtest.h>
 
 namespace nd = cheatah::ndarray;
+
+// Security hardening: malicious/buggy shapes and indices must throw, not corrupt
+// memory (negative dims -> huge size; product overflow -> under-allocation; OOB
+// index -> out-of-bounds read). Matters once untrusted .purr can reach these.
+TEST(CheatahNDArray, RejectsMaliciousShapesAndIndices) {
+    EXPECT_THROW(nd::zeros({-1}), std::runtime_error);          // negative dimension
+    EXPECT_THROW(nd::full({-3, 2}, 1.0), std::runtime_error);   // negative dimension
+    const long long big = 1LL << 40;                           // product 2^120 wraps size_t
+    EXPECT_THROW(nd::zeros({big, big, big}), std::runtime_error);
+    EXPECT_THROW(nd::get(nd::array({1.0, 2.0}), {5}), std::runtime_error);  // OOB index
+    EXPECT_THROW(nd::get(nd::array({1.0, 2.0}), {-1}), std::runtime_error); // negative index
+    EXPECT_THROW(nd::get(nd::reshape(nd::array({1.0, 2.0, 3.0, 4.0}), {2, 2}), {0}),
+                 std::runtime_error);                           // wrong-rank index
+}
 
 TEST(CheatahNDArray, ShapeFactoriesAndReductions) {
     const nd::NDArray z = nd::zeros({2, 3});
