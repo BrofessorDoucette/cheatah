@@ -9,7 +9,9 @@
 #   3. Unit test suite (hard gate) — ctest.
 #   4. AddressSanitizer + UBSan: build + run the whole suite under sanitizers
 #      (hard gate) — catches memory errors and undefined behavior.
-#   5. Benchmarks: build optimized + run a smoke pass (hard gate that they
+#   5. Valgrind memcheck: run the unit tests under Valgrind (hard gate) — a
+#      second memory checker (security/run-valgrind.sh).
+#   6. Benchmarks: build optimized + run a smoke pass (hard gate that they
 #      build & run; perf-regression gating comes once we archive history).
 #
 # This is intentionally lean for the scaffolding stage. As the language grows we
@@ -17,6 +19,7 @@
 #
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
 #       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
+#       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
 #       QA_BENCH_MIN_TIME         benchmark min time per case (default 0.05s)
 set -uo pipefail
 
@@ -58,7 +61,17 @@ else
         ctest --preset asan --output-on-failure || fail "sanitizer (ASan/UBSan) tests"
 fi
 
-# 5. Benchmarks: build optimized + smoke run (hard gate) ---------------------
+# 5. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------
+if [ "${QA_GATE_SKIP_VALGRIND:-0}" = "1" ]; then
+    bold "Skipping Valgrind stage (QA_GATE_SKIP_VALGRIND=1)."
+elif ! command -v valgrind >/dev/null 2>&1; then
+    fail "valgrind not installed (install it, or set QA_GATE_SKIP_VALGRIND=1)"
+else
+    bold "Running unit tests under Valgrind memcheck…"
+    bash security/run-valgrind.sh >/tmp/cheatah_valgrind.log 2>&1 || { tail -50 /tmp/cheatah_valgrind.log; fail "valgrind memcheck"; }
+fi
+
+# 6. Benchmarks: build optimized + smoke run (hard gate) ---------------------
 bold "Building benchmarks (release)…"
 cmake --build --preset release-benchmarks >/tmp/cheatah_build_bench.log 2>&1 || { tail -30 /tmp/cheatah_build_bench.log; fail "release benchmark build"; }
 
