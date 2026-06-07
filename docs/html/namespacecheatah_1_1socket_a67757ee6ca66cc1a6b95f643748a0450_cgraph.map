@@ -1,0 +1,5 @@
+<map id="cheatah::socket::sendall" name="cheatah::socket::sendall">
+<area shape="rect" id="Node000001" title="Send data in full, looping until all bytes are written." alt="" coords="5,5,184,31"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1socket.html#a2982b100f5088d94c9ad226a3844ab40" title="Send some of data (one send)." alt="" coords="232,5,395,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,15,218,15,218,21,184,21"/>
+</map>

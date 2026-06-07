@@ -31,6 +31,7 @@ import it neither sees nor links it.
 - `input(prompt="")` — write the prompt, read one line from stdin.
 
 ### Files
+- `read_file(path)` — read a whole file into a string in one call (binary-safe; `""` if it can't be opened).
 - `open(path, mode="r")` — returns a `File` (Python modes `r`/`w`/`a`, `+`/`b`).
 - `File::read()` — the whole remaining file.
 - `File::readline()` — the next line (newline stripped; `""` at EOF).

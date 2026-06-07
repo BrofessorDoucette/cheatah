@@ -13,5 +13,6 @@ var io_8hpp =
     [ "cheatah::io::detail::format_into", "namespacecheatah_1_1io_1_1detail.html#a1aa568d08650e1d2d54a4d6e1f03fc02", null ],
     [ "cheatah::io::format", "namespacecheatah_1_1io.html#aa2a59474b36f5e824c5297716d2970c3", null ],
     [ "cheatah::io::input", "namespacecheatah_1_1io.html#aecad87986d545617e47eda139f27c2c6", null ],
-    [ "cheatah::io::open", "namespacecheatah_1_1io.html#a32e500d7d08f83fda13aa1ea2366ad88", null ]
+    [ "cheatah::io::open", "namespacecheatah_1_1io.html#a32e500d7d08f83fda13aa1ea2366ad88", null ],
+    [ "cheatah::io::read_file", "namespacecheatah_1_1io.html#a89fd1df08ae448fb628d8a34239fe0bc", null ]
 ];

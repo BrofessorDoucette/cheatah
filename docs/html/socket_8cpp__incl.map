@@ -1,0 +1,19 @@
+<map id="stdlib/socket/socket.cpp" name="stdlib/socket/socket.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="247,5,424,31"/>
+<area shape="rect" id="Node000002" href="$socket_8hpp.html" title="cheatah socket — a small wrapper around BSD/POSIX TCP sockets, in the spirit of Python&#39;s socket." alt="" coords="5,79,97,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="290,33,111,78,110,73,289,28"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="121,79,184,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="307,33,196,76,194,71,305,28"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="209,79,275,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="322,33,270,72,266,68,319,29"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="300,79,371,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="338,31,338,65,333,65,333,31"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="395,79,491,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="354,28,416,69,413,73,351,33"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="516,79,619,104"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="373,28,518,72,516,77,372,33"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="643,79,718,104"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="395,28,630,76,629,81,394,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="22,152,81,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="54,104,54,138,49,138,49,104"/>
+</map>

@@ -174,7 +174,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Construct a closed file (no stream attached). </p>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000041">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000042">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
 
 <p class="reference">Referenced by <a class="el" href="#a2a49e436b18ed2c84ee0c6c06f677a89">File()</a>, <a class="el" href="#a2f67c23e42644b2b1f93d022ee8743da">File()</a>, <a class="el" href="#a07e02667599bc3745b09bdcdceca051a">operator=()</a>, and <a class="el" href="#a8c293be37ac4635d8a4666cfecf03d6b">operator=()</a>.</p>
 <div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Here is the caller graph for this function:</div>
@@ -214,7 +214,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) plus the OS open; no heap of our own. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000042">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000043">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00028">28</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -311,7 +311,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Close the stream if still open. </p>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000043">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000044">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00029">29</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -420,7 +420,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>O(1) plus the OS open; no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000044">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000045">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00031">31</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -452,7 +452,7 @@ Public Member Functions</h2></td></tr>
 <p>Is the underlying stream open? </p>
 <dl class="section return"><dt>Returns</dt><dd>true iff a file is attached and open. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000045">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000046">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00034">34</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -475,7 +475,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Close the underlying stream (no-op if already closed). </p>
 <dl class="section note"><dt>Note</dt><dd>O(1); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000046">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000047">Test</a></b></dt><dd>CheatahIo.FileIsOpenAndClose </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00035">35</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -507,7 +507,7 @@ Public Member Functions</h2></td></tr>
 <p>Read the whole remaining file. </p>
 <dl class="section return"><dt>Returns</dt><dd>the remaining bytes as one string. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n) in bytes read; allocates the returned string (buffered through a stringstream). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000047">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000048">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00041">41</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -531,7 +531,7 @@ Public Member Functions</h2></td></tr>
 <p>Read the next line. </p>
 <dl class="section return"><dt>Returns</dt><dd>the line with its newline stripped; <span class="tt">""</span> at EOF. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(line length); allocates the returned string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000048">Test</a></b></dt><dd>CheatahIo.FileReadlineThenReadlines </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000049">Test</a></b></dt><dd>CheatahIo.FileReadlineThenReadlines </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00046">46</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -555,7 +555,7 @@ Public Member Functions</h2></td></tr>
 <p>Read all remaining lines. </p>
 <dl class="section return"><dt>Returns</dt><dd>a vector of lines (newlines stripped). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n) in bytes; allocates the vector and each line string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000049">Test</a></b></dt><dd>CheatahIo.FileReadlineThenReadlines </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000050">Test</a></b></dt><dd>CheatahIo.FileReadlineThenReadlines </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00051">51</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
@@ -594,7 +594,7 @@ template&lt;Streamable T&gt; </div>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>O(output length); writes straight to the stream buffer, no heap of our own. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000050">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000051">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8hpp_source.html#l00127">127</a> of file <a class="el" href="io_8hpp_source.html">io.hpp</a>.</p>
 

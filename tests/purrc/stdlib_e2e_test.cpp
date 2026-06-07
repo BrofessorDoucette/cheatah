@@ -178,3 +178,15 @@ io.print(linalg.det(a), linalg.trace(a))
 )PURR",
                "-2 5\n");
 }
+
+TEST(StdlibE2E, Socket) {
+    // Bind a TCP listener on an OS-assigned port: proves `import socket` links and
+    // the fd/port round-trips through purrc end to end.
+    expect_e2e("socket", R"PURR(import io
+import socket
+let fd = socket.tcp_listen("127.0.0.1", 0, 1)
+io.print(fd >= 0, socket.local_port(fd) > 0, socket.tcp_connect("127.0.0.1", 1) < 0)
+socket.close(fd)
+)PURR",
+               "True True True\n");
+}

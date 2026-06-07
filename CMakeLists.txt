@@ -92,6 +92,7 @@ add_dependencies(purrc
     cheatah_random_static
     cheatah_statistics_static
     cheatah_hashlib_static
+    cheatah_socket_static
     cheatah_ndarray_static
     cheatah_linalg_static)
 

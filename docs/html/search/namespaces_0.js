@@ -13,7 +13,8 @@ var searchData=
   ['cheatah_3a_3aos_10',['os',['../namespacecheatah_1_1os.html',1,'cheatah']]],
   ['cheatah_3a_3aos_3a_3apath_11',['path',['../namespacecheatah_1_1os_1_1path.html',1,'cheatah::os']]],
   ['cheatah_3a_3arandom_12',['random',['../namespacecheatah_1_1random.html',1,'cheatah']]],
-  ['cheatah_3a_3astatistics_13',['statistics',['../namespacecheatah_1_1statistics.html',1,'cheatah']]],
-  ['cheatah_3a_3astring_14',['string',['../namespacecheatah_1_1string.html',1,'cheatah']]],
-  ['cheatah_3a_3atime_15',['time',['../namespacecheatah_1_1time.html',1,'cheatah']]]
+  ['cheatah_3a_3asocket_13',['socket',['../namespacecheatah_1_1socket.html',1,'cheatah']]],
+  ['cheatah_3a_3astatistics_14',['statistics',['../namespacecheatah_1_1statistics.html',1,'cheatah']]],
+  ['cheatah_3a_3astring_15',['string',['../namespacecheatah_1_1string.html',1,'cheatah']]],
+  ['cheatah_3a_3atime_16',['time',['../namespacecheatah_1_1time.html',1,'cheatah']]]
 ];

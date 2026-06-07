@@ -138,6 +138,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:aecad87986d545617e47eda139f27c2c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aecad87986d545617e47eda139f27c2c6" title="Python input(prompt=&quot;&quot;): write prompt, read one line from stdin.">input</a>(prompt="")</span>: write <code class="param">prompt</code>, read one line from stdin.  <br /></td></tr>
 <tr class="memitem:a32e500d7d08f83fda13aa1ea2366ad88" id="r_a32e500d7d08f83fda13aa1ea2366ad88"><td class="memItemLeft"><a class="el" href="classcheatah_1_1io_1_1File.html">File</a>&#160;</td><td class="memItemRight"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88">open</a> (const std::string &amp;path, std::string_view mode=&quot;r&quot;)</td></tr>
 <tr class="memdesc:a32e500d7d08f83fda13aa1ea2366ad88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#a32e500d7d08f83fda13aa1ea2366ad88" title="Python open(path, mode=&quot;r&quot;) — construct and return a File.">open</a>(path, mode="r")</span> — construct and return a <a class="el" href="classcheatah_1_1io_1_1File.html" title="A Python-like file object over std::fstream.">File</a>.  <br /></td></tr>
+<tr class="memitem:a89fd1df08ae448fb628d8a34239fe0bc" id="r_a89fd1df08ae448fb628d8a34239fe0bc"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a89fd1df08ae448fb628d8a34239fe0bc">read_file</a> (const std::string &amp;path)</td></tr>
+<tr class="memdesc:a89fd1df08ae448fb628d8a34239fe0bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a whole file into a string in one call (binary-safe — preserves every byte, including NULs).  <br /></td></tr>
 <tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff" id="r_ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="memTemplParams" colspan="2">template&lt;Streamable T&gt; </td></tr>
 <tr class="memitem:ad01c2dd31b9a428f1c4ac129968ae9ff template"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad01c2dd31b9a428f1c4ac129968ae9ff">str</a> (const T &amp;value)</td></tr>
 <tr class="memdesc:ad01c2dd31b9a428f1c4ac129968ae9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Python <span class="tt"><a class="el" href="#aa2b498516ecd4652c1f0995bcf7df062" title="str() for a std::string — identity overload.">str()</a></span>: stringify any streamable value.  <br /></td></tr>
@@ -343,6 +345,36 @@ Functions</h2></td></tr>
 <dl class="test"><dt><b><a class="el" href="test.html#_test000040">Test</a></b></dt><dd>CheatahIo.FileWriteThenReadWhole </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00072">72</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a89fd1df08ae448fb628d8a34239fe0bc" name="a89fd1df08ae448fb628d8a34239fe0bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89fd1df08ae448fb628d8a34239fe0bc">&#9670;&#160;</a></span>read_file()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cheatah::io::read_file </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a whole file into a string in one call (binary-safe — preserves every byte, including NULs). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>filesystem path. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the file's contents, or "" if it cannot be opened. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(file size); allocates the returned string. </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000041">Test</a></b></dt><dd>CheatahIo.ReadFileWholeAndBinary </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="io_8cpp_source.html#l00074">74</a> of file <a class="el" href="io_8cpp_source.html">io.cpp</a>.</p>
 
 </div>
 </div>

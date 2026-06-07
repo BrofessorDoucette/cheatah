@@ -1,0 +1,5 @@
+<map id="cheatah::socket::connect" name="cheatah::socket::connect">
+<area shape="rect" id="Node000001" title="Connect fd to host:port." alt="" coords="205,13,388,38"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1socket.html#a24af8e33f0ce139e6831582ed97f717e" title="Create a TCP socket and connect it to host:port." alt="" coords="5,5,157,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,28,158,28,158,23,192,23"/>
+</map>

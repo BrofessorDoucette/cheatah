@@ -1,0 +1,5 @@
+<map id="cheatah::socket::bind" name="cheatah::socket::bind">
+<area shape="rect" id="Node000001" title="Bind fd to host:port." alt="" coords="205,13,365,38"/>
+<area shape="rect" id="Node000002" href="$namespacecheatah_1_1socket.html#a8ce4f88031e57bfeef7a6509fb0d47f4" title="Create a TCP socket bound to host:port and put it in the listening state (sets SO_REUSEADDR)." alt="" coords="5,5,157,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,28,157,28,157,23,192,23"/>
+</map>

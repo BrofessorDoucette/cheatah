@@ -21,6 +21,7 @@ add_executable(cheatah_tests
     hashlib_test.cpp
     ndarray_test.cpp
     linalg_routines_test.cpp
+    socket_test.cpp
 )
 
 target_link_libraries(cheatah_tests PRIVATE
@@ -35,6 +36,7 @@ target_link_libraries(cheatah_tests PRIVATE
     cheatah::random_static
     cheatah::statistics_static
     cheatah::hashlib_static
+    cheatah::socket_static
     cheatah::ndarray_static
     cheatah::linalg_static
     GTest::gmock_main

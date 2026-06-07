@@ -121,3 +121,17 @@ TEST(CheatahIo, FormatMultiArgAndExtraArgs) {
     EXPECT_EQ(io::format("{}", 1, 2, 3), "1");    // more args than placeholders → dropped
     EXPECT_EQ(io::format("none", 7), "none");     // no placeholders at all
 }
+
+TEST(CheatahIo, ReadFileWholeAndBinary) {
+    const std::string path = "purr_io_readfile_tmp.bin";
+    std::string payload = "meow\npurr\n";
+    payload.push_back('\0');          // embedded NUL — read_file must preserve it
+    payload += "after-nul";
+    {
+        io::File f = io::open(path, "wb");
+        f.write(payload);
+    }
+    EXPECT_EQ(io::read_file(path), payload);          // whole file, byte-exact
+    EXPECT_EQ(io::read_file("no_such_file_qzx.bin"), "");  // missing → ""
+    std::filesystem::remove(path);
+}

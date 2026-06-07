@@ -186,7 +186,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the broadcast shape (trailing-aligned). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(max(ndim)); allocates the small result vector; throws if the shapes are incompatible. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000110">Test</a></b></dt><dd>CheatahNDArray.BroadcastShapeRules </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000111">Test</a></b></dt><dd>CheatahNDArray.BroadcastShapeRules </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00119">119</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -221,7 +221,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a VIEW sharing <code class="param">a's</code> buffer (no element copy). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(target ndim); allocates only the small strides vector for the view, not the data; throws if <code class="param">a</code> is not broadcastable to <code class="param">target</code>. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000111">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000112">Test</a></b></dt><dd>CheatahNDArray.BroadcastTo </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00138">138</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -259,7 +259,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a contiguous 1-D <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(n); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;). </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000112">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000113">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00156">156</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -305,7 +305,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a 0-d <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(1); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer holding one element. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000113">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast, CheatahNDArray.ToStringScalar </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000114">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast, CheatahNDArray.ToStringScalar </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00162">162</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -343,7 +343,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a zero-filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000114">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000115">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00168">168</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -373,7 +373,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a one-filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000115">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000116">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00169">169</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -408,7 +408,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a filled <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on negative or overflowing dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000116">Test</a></b></dt><dd>CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000117">Test</a></b></dt><dd>CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00170">170</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -449,7 +449,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a 1-D <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> of the generated values. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(count) where count = number of steps; allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if <code class="param">step</code> is zero. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000117">Test</a></b></dt><dd>CheatahNDArray.Arange </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000118">Test</a></b></dt><dd>CheatahNDArray.Arange </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00174">174</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -492,7 +492,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a new contiguous <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> with the data laid out in C-order. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); flattens through views and allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws on size mismatch or negative dims. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000118">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd, CheatahNDArray.ReshapeSizeMismatchThrows </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000119">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd, CheatahNDArray.ReshapeSizeMismatchThrows </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00181">181</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -535,7 +535,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">a + b</span> broadcast to their common shape. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000119">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000120">Test</a></b></dt><dd>CheatahNDArray.BroadcastingAdd </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00197">197</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -570,7 +570,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">a - b</span> broadcast to their common shape. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000120">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000121">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00200">200</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -605,7 +605,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">a * b</span> broadcast to their common shape. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000121">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000122">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00203">203</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -640,7 +640,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">a / b</span> broadcast to their common shape. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size of result); allocates a new <a class="el" href="classcheatah_1_1ndarray_1_1NDArray.html" title="An N-dimensional array of doubles: a view ({shape, strides, offset}) over a shared element buffer.">NDArray</a> buffer (shared_ptr&lt;vector&lt;double&gt;&gt;); throws if shapes don't broadcast. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000122">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000123">Test</a></b></dt><dd>CheatahNDArray.ElementwiseAndScalarBroadcast </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00206">206</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -670,7 +670,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the total. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000123">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000124">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00210">210</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -716,7 +716,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the average. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000124">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000125">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00218">218</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -759,7 +759,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the element value. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); no heap; bounds-checks rank/range and throws on a bad index. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000125">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000126">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.RejectsMaliciousShapesAndIndices </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00223">223</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -797,7 +797,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a vector of the dimensions. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); allocates a small vector. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000126">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000127">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00225">225</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -835,7 +835,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of elements. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(ndim); no heap. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000127">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.Arange </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000128">Test</a></b></dt><dd>CheatahNDArray.ShapeFactoriesAndReductions, CheatahNDArray.Arange </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00230">230</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 
@@ -873,7 +873,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the textual representation. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>O(size); allocates the result string. </dd></dl>
-<dl class="test"><dt><b><a class="el" href="test.html#_test000128">Test</a></b></dt><dd>CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd </dd></dl>
+<dl class="test"><dt><b><a class="el" href="test.html#_test000129">Test</a></b></dt><dd>CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ndarray_8cpp_source.html#l00232">232</a> of file <a class="el" href="ndarray_8cpp_source.html">ndarray.cpp</a>.</p>
 

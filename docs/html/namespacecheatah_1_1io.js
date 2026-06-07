@@ -12,6 +12,7 @@ var namespacecheatah_1_1io =
     [ "repr", "namespacecheatah_1_1io.html#a7acfd3543261ed05c8b4cc2bb222b51a", null ],
     [ "input", "namespacecheatah_1_1io.html#aecad87986d545617e47eda139f27c2c6", null ],
     [ "open", "namespacecheatah_1_1io.html#a32e500d7d08f83fda13aa1ea2366ad88", null ],
+    [ "read_file", "namespacecheatah_1_1io.html#a89fd1df08ae448fb628d8a34239fe0bc", null ],
     [ "str", "namespacecheatah_1_1io.html#ad01c2dd31b9a428f1c4ac129968ae9ff", null ],
     [ "print", "namespacecheatah_1_1io.html#a797b0d86b7c7aec8fbb68b9e53b53c6a", null ],
     [ "repr", "namespacecheatah_1_1io.html#aea5137e3c9c915c88d0f0886d6266572", null ],

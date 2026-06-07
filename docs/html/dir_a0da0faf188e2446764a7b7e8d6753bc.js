@@ -9,6 +9,7 @@ var dir_a0da0faf188e2446764a7b7e8d6753bc =
     [ "ndarray", "dir_321fd0c08c186efc161697463f12b3d5.html", "dir_321fd0c08c186efc161697463f12b3d5" ],
     [ "os", "dir_d9986835b10ce897faddcaf3146daebe.html", "dir_d9986835b10ce897faddcaf3146daebe" ],
     [ "random", "dir_76d1802185e4bf156700321498b4df1e.html", "dir_76d1802185e4bf156700321498b4df1e" ],
+    [ "socket", "dir_c30372a1e60d8e454267e90055a6e861.html", "dir_c30372a1e60d8e454267e90055a6e861" ],
     [ "statistics", "dir_a59993f929dd918dc4072ed99cd3a3e9.html", "dir_a59993f929dd918dc4072ed99cd3a3e9" ],
     [ "string", "dir_ad8820358b05411b6a00ef5515636af3.html", "dir_ad8820358b05411b6a00ef5515636af3" ],
     [ "time", "dir_0448644849d82288d7fb17552879d489.html", "dir_0448644849d82288d7fb17552879d489" ]

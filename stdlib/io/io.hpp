@@ -135,4 +135,9 @@ private:
 /** Python `open(path, mode="r")` — construct and return a File. @param path filesystem path. @param mode Python-style mode string. @return an open File (move-returned). @note O(1) plus the OS open; constructs a File, no heap of our own. @test CheatahIo.FileWriteThenReadWhole */
 File open(const std::string& path, std::string_view mode = "r");
 
+/** Read a whole file into a string in one call (binary-safe — preserves every byte,
+ *  including NULs). @param path filesystem path. @return the file's contents, or "" if
+ *  it cannot be opened. @note O(file size); allocates the returned string. @test CheatahIo.ReadFileWholeAndBinary */
+std::string read_file(const std::string& path);
+
 } // namespace cheatah::io

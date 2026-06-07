@@ -39,6 +39,7 @@ and function coverage** of the stdlib.
 | `hashlib`   | SHA-256 digests. |
 | `ndarray`   | N-dimensional `double` arrays with broadcasting. |
 | `linalg`    | numpy-style linear algebra on `ndarray`, SIMD-accelerated. |
+| `socket`    | TCP sockets — a small BSD-socket wrapper (Python-`socket`-flavored). |
 
 Browse the **Files** and **Namespaces** tabs above for the full per-function
 reference, or start from a module's header (e.g. `math.hpp`, `linalg/routines.hpp`).

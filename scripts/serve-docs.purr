@@ -1,0 +1,84 @@
+# serve-docs.purr — the cheatah docs preview server, written in pure cheatah. 🐆
+#
+# Serves docs/html over http://localhost so the generated site renders the way it
+# will when hosted (opening index.html as a file:// URL breaks Doxygen's search,
+# nav tree, and interactive SVGs). Run it from the repo root:
+#
+#   purrc scripts/serve-docs.purr -o serve-docs.so
+#   cheatah serve-docs.so
+#
+# The networking is the `socket` stdlib module (a thin BSD-socket wrapper); the
+# rest — request parsing, routing, MIME, file reading — is ordinary, memory-safe
+# cheatah. No raw pointers, no `cpp { }` escape hatch.
+
+import io
+import os
+import socket
+import string
+
+let port = 8080
+let root = "docs/html"
+
+# Map a path's extension to a Content-Type.
+fn content_type(p) {
+    if string.endswith(p, ".html") { return "text/html; charset=utf-8" }
+    if string.endswith(p, ".css") { return "text/css; charset=utf-8" }
+    if string.endswith(p, ".js") { return "text/javascript; charset=utf-8" }
+    if string.endswith(p, ".svg") { return "image/svg+xml" }
+    if string.endswith(p, ".png") { return "image/png" }
+    if string.endswith(p, ".json") { return "application/json" }
+    if string.endswith(p, ".map") { return "application/json" }
+    if string.endswith(p, ".woff2") { return "font/woff2" }
+    return "application/octet-stream"
+}
+
+# Pull the request target out of an HTTP request line: "GET /path?q HTTP/1.1".
+fn target_of(request) {
+    let parts = string.split(request)
+    if len(parts) < 2 { return "/" }
+    let no_query = string.split(parts[1], "?")
+    return no_query[0]
+}
+
+# Build an HTTP response (headers + body) for a status/type/body triple.
+# (cheatah string literals don't take a `\r` escape, so CRLF is built from chr().)
+fn response(status, ctype, body) {
+    let nl = chr(13) + chr(10)
+    let head = "HTTP/1.1 " + status + nl
+    head = head + "Content-Type: " + ctype + nl
+    head = head + "Content-Length: " + io.str(len(body)) + nl
+    head = head + "Cache-Control: no-store" + nl
+    head = head + "Connection: close" + nl + nl
+    return head + body
+}
+
+let listen_fd = socket.tcp_listen("127.0.0.1", port, 16)
+if listen_fd < 0 {
+    io.print("could not bind port", port, "-", socket.last_error())
+} else {
+    io.print("🐆 Serving cheatah docs at http://localhost:8080/  (Ctrl+C to stop)")
+    while true {
+        let conn = socket.accept(listen_fd)
+        if conn >= 0 {
+            let request = socket.recv(conn, 8192)
+            let path = target_of(request)
+            if path == "/" {
+                path = "/index.html"
+            }
+            if string.contains(path, "..") {
+                socket.sendall(conn, response("403 Forbidden", "text/plain", "403 Forbidden"))
+                io.print("403", path)
+            } else {
+                let full = root + "/" + string.lstrip(path, "/")
+                if os.path.isfile(full) {
+                    socket.sendall(conn, response("200 OK", content_type(full), io.read_file(full)))
+                    io.print("200", path)
+                } else {
+                    socket.sendall(conn, response("404 Not Found", "text/html; charset=utf-8", "<h1>404 Not Found</h1>"))
+                    io.print("404", path)
+                }
+            }
+            socket.close(conn)
+        }
+    }
+}

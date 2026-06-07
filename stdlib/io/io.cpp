@@ -71,4 +71,12 @@ std::ios::openmode File::translate_mode(std::string_view mode) {
 
 File open(const std::string& path, std::string_view mode) { return File(path, mode); }
 
+std::string read_file(const std::string& path) {
+    std::ifstream in(path, std::ios::binary);
+    if (!in) return std::string();
+    std::ostringstream ss;
+    ss << in.rdbuf();
+    return ss.str();
+}
+
 } // namespace cheatah::io
