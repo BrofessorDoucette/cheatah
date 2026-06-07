@@ -4,20 +4,23 @@
 # Invoked by the git pre-push hook (.githooks/pre-push) for every push to any
 # remote/branch, and runnable by hand. Exits non-zero to BLOCK the push.
 #
-#   1. Configure (debug for tests, release for benchmarks).
-#   2. Build (debug).
-#   3. Unit test suite (hard gate) — ctest.
-#   4. AddressSanitizer + UBSan: build + run the whole suite under sanitizers
+#   1. Coverage: regenerate the README coverage table from clang source-based
+#      coverage; FAIL if it changed, so the pushed README always reflects reality.
+#   2. Configure (debug for tests, release for benchmarks).
+#   3. Build (debug).
+#   4. Unit test suite (hard gate) — ctest.
+#   5. AddressSanitizer + UBSan: build + run the whole suite under sanitizers
 #      (hard gate) — catches memory errors and undefined behavior.
-#   5. Valgrind memcheck: run the unit tests under Valgrind (hard gate) — a
+#   6. Valgrind memcheck: run the unit tests under Valgrind (hard gate) — a
 #      second memory checker (security/run-valgrind.sh).
-#   6. Benchmarks: build optimized + run a smoke pass (hard gate that they
+#   7. Benchmarks: build optimized + run a smoke pass (hard gate that they
 #      build & run; perf-regression gating comes once we archive history).
 #
 # This is intentionally lean for the scaffolding stage. As the language grows we
 # layer on more rigor (benchmark regression vs archived history, etc.).
 #
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
+#       QA_GATE_SKIP_COVERAGE=1   skip only the coverage/README-table stage
 #       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
 #       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
 #       QA_BENCH_MIN_TIME         benchmark min time per case (default 0.05s)
@@ -35,20 +38,34 @@ fail() { printf '\n\033[31m[qa-gate] FAILED: %s\033[0m\n' "$*"; exit 1; }
 
 MIN_TIME="${QA_BENCH_MIN_TIME:-0.05s}"
 
-# 1. Configure ---------------------------------------------------------------
+# 1. Coverage: regenerate the README table; fail if it changed (commit it first) --
+if [ "${QA_GATE_SKIP_COVERAGE:-0}" = "1" ]; then
+    bold "Skipping coverage stage (QA_GATE_SKIP_COVERAGE=1)."
+else
+    bold "Measuring coverage + refreshing the README table…"
+    bash scripts/coverage.sh update-readme >/tmp/cheatah_coverage.log 2>&1 || { tail -30 /tmp/cheatah_coverage.log; fail "coverage report"; }
+    if ! git diff --quiet -- README.md; then
+        printf '\n[qa-gate] The README coverage table is out of date. Updated it to:\n\n'
+        git --no-pager diff -- README.md | sed -n '/coverage:start/,/coverage:end/p'
+        fail "README coverage table changed — 'git add README.md && git commit', then push again"
+    fi
+    cat /tmp/cheatah_coverage.log
+fi
+
+# 2. Configure ---------------------------------------------------------------
 bold "Configuring (debug + release)…"
 cmake --preset debug   >/tmp/cheatah_cfg_debug.log   2>&1 || { tail -20 /tmp/cheatah_cfg_debug.log;   fail "configure (debug)"; }
 cmake --preset release >/tmp/cheatah_cfg_release.log 2>&1 || { tail -20 /tmp/cheatah_cfg_release.log; fail "configure (release)"; }
 
-# 2. Build (debug) -----------------------------------------------------------
+# 3. Build (debug) -----------------------------------------------------------
 bold "Building (debug)…"
 cmake --build --preset debug >/tmp/cheatah_build_debug.log 2>&1 || { tail -30 /tmp/cheatah_build_debug.log; fail "debug build"; }
 
-# 3. Unit tests (hard gate) --------------------------------------------------
+# 4. Unit tests (hard gate) --------------------------------------------------
 bold "Running unit test suite…"
 ctest --preset debug --output-on-failure || fail "unit tests"
 
-# 4. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
+# 5. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
 if [ "${QA_GATE_SKIP_ASAN:-0}" = "1" ]; then
     bold "Skipping sanitizer stage (QA_GATE_SKIP_ASAN=1)."
 else
@@ -61,7 +78,7 @@ else
         ctest --preset asan --output-on-failure || fail "sanitizer (ASan/UBSan) tests"
 fi
 
-# 5. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------
+# 6. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------
 if [ "${QA_GATE_SKIP_VALGRIND:-0}" = "1" ]; then
     bold "Skipping Valgrind stage (QA_GATE_SKIP_VALGRIND=1)."
 elif ! command -v valgrind >/dev/null 2>&1; then
@@ -71,7 +88,7 @@ else
     bash security/run-valgrind.sh >/tmp/cheatah_valgrind.log 2>&1 || { tail -50 /tmp/cheatah_valgrind.log; fail "valgrind memcheck"; }
 fi
 
-# 6. Benchmarks: build optimized + smoke run (hard gate) ---------------------
+# 7. Benchmarks: build optimized + smoke run (hard gate) ---------------------
 bold "Building benchmarks (release)…"
 cmake --build --preset release-benchmarks >/tmp/cheatah_build_bench.log 2>&1 || { tail -30 /tmp/cheatah_build_bench.log; fail "release benchmark build"; }
 
