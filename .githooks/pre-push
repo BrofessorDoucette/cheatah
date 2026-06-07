@@ -3,7 +3,31 @@
 # A non-zero exit aborts the push. Enabled via `git config core.hooksPath .githooks`
 # (run scripts/setup_hooks.sh once). Bypass (discouraged): `git push --no-verify`
 # or `QA_GATE_SKIP=1 git push`.
+#
+# After a PASSING gate, and ONLY when pushing `main`, it regenerates the docs site
+# (Doxygen XML -> docs/gen generator -> docs/html). Never on a failing gate, never
+# on other branches, never on a manual `scripts/qa_gate.sh` run.
 set -uo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-exec bash "$repo_root/scripts/qa_gate.sh"
+
+# pre-push receives "<local_ref> <local_sha> <remote_ref> <remote_sha>" lines on
+# stdin; note whether main is among the refs being pushed.
+pushing_main=0
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+    [ "$remote_ref" = "refs/heads/main" ] && pushing_main=1
+done
+
+# 1. QA gate — blocks the push on failure.
+bash "$repo_root/scripts/qa_gate.sh" || exit 1
+
+# 2. Gate passed. Refresh the docs site only for a real main push (not when the
+#    gate was bypassed with QA_GATE_SKIP).
+if [ "$pushing_main" = "1" ] && [ "${QA_GATE_SKIP:-0}" != "1" ]; then
+    printf '\n\033[1m[pre-push] gate passed + pushing main — regenerating docs site…\033[0m\n'
+    bash "$repo_root/docs/build-docs.sh" || { echo "[pre-push] docs regeneration FAILED"; exit 1; }
+    if ! git -C "$repo_root" diff --quiet -- docs/html; then
+        printf '[pre-push] docs/html was refreshed — commit the update to publish it.\n'
+    fi
+fi
+exit 0
