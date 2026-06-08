@@ -1,0 +1,90 @@
+# perf_compare.purr — per-call cheatah-vs-CPython micro-benchmarks, in PURE CHEATAH.
+# The harness assembles each elision-proof loop (vary input + accumulate + print),
+# compiles the cheatah version with purrc, races the CPython twin, and reports ns/call.
+# (See app_compare.purr for whole-program workloads.) Run from the repo root:
+#     purrc scripts/perf_compare.purr -o /tmp/perf_compare.so && cheatah /tmp/perf_compare.so
+
+import io
+import os
+import string
+
+# name, cheatah imports, python imports, accumulator init, cheatah body, python body, iters
+struct Case {
+    name: str
+    imp: str
+    pyimp: str
+    acc0: str
+    body: str
+    pybody: str
+    iters: int
+}
+
+struct Timing {
+    secs: float
+    result: str
+}
+
+fn write_file(path, content) {
+    let f = io.open(path, "w")
+    f.write(content)
+}
+
+# Wrap a per-iteration body in a timed, elision-proof loop (accumulate + print).
+fn cheatah_src(c) {
+    let s = "import io\nimport time\n" + c.imp
+    s = s + "let acc = " + c.acc0 + "\nlet t0 = time.monotonic()\n"
+    s = s + "for i in range(0, " + io.str(c.iters) + ") {\n    " + c.body + "\n}\n"
+    s = s + "let t1 = time.monotonic()\nio.print(acc)\nio.print(t1 - t0)\n"
+    return s
+}
+
+fn python_src(c) {
+    let s = "import time\n" + c.pyimp
+    s = s + "acc = " + c.acc0 + "\nt0 = time.monotonic()\n"
+    s = s + "for i in range(" + io.str(c.iters) + "):\n    " + c.pybody + "\n"
+    s = s + "t1 = time.monotonic()\nprint(acc)\nprint(t1 - t0)\n"
+    return s
+}
+
+fn time_runs(runcmd, outpath) {
+    let best = -1.0
+    for t in range(0, 5) {
+        os.system(runcmd + " > " + outpath + " 2>/dev/null")
+        let lines = string.splitlines(string.strip(io.read_file(outpath)))
+        let n = len(lines)
+        if n >= 2 {
+            let elapsed = float(lines[n - 1])
+            if best < 0.0 or elapsed < best { best = elapsed }
+        }
+    }
+    return Timing(best, "")
+}
+
+# ---- cases (elision-proof: input varies by i, results accumulate) ----------
+# Each Case() is on one line: cheatah supports neither multi-line call args nor
+# multi-line list literals, so we append one per line.
+let cases: list[Case] = []
+cases.append(Case("loop (logistic map)", "", "", "0.5", "acc = 3.9 * acc * (1.0 - acc)", "acc = 3.9 * acc * (1.0 - acc)", 5000000))
+cases.append(Case("math.sqrt", "import math\n", "import math\n", "0.0", "acc = acc + math.sqrt(1.0 + i)", "acc = acc + math.sqrt(1.0 + i)", 5000000))
+cases.append(Case("math: sqrt+divide", "import math\n", "import math\n", "0.0", "acc = acc + math.sqrt(1.0 + i) / (2.0 + i)", "acc = acc + math.sqrt(1.0 + i) / (2.0 + i)", 5000000))
+cases.append(Case("hashlib.sha256", "import hashlib\n", "import hashlib\n", "0.0", "acc = acc + ord(hashlib.sha256(io.str(i))[0])", "acc = acc + ord(hashlib.sha256(str(i).encode()).hexdigest()[0])", 500000))
+
+io.print("# cheatah (compiled) vs CPython — per-call micro-benchmarks (pure-cheatah harness)")
+io.print("# elision-proof: vary input + accumulate + print; best of 5")
+io.print("")
+for c in cases {
+    write_file("/tmp/pc.purr", cheatah_src(c))
+    write_file("/tmp/pc.py", python_src(c))
+    let crc = os.system("build/release/bin/purrc /tmp/pc.purr -o /tmp/pc.so > /tmp/pc_c.log 2>&1")
+    if crc != 0 {
+        io.print(c.name + " - cheatah compile FAILED")
+    } else {
+        let ch = time_runs("build/release/bin/cheatah /tmp/pc.so", "/tmp/pc_ch.out")
+        let py = time_runs("python3 /tmp/pc.py", "/tmp/pc_py.out")
+        let ch_ns = ch.secs / float(io.str(c.iters)) * 1000000000.0
+        let py_ns = py.secs / float(io.str(c.iters)) * 1000000000.0
+        let line = c.name + " | " + io.str(ch_ns) + " ns cheatah | "
+        line = line + io.str(py_ns) + " ns cpython | " + io.str(py.secs / ch.secs) + "x faster"
+        io.print(line)
+    }
+}
