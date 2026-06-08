@@ -255,10 +255,11 @@ for fn in ["cholesky", "cond", "conj_transpose", "det", "dot", "eig", "eigh", "e
     REG[f"linalg.{fn}"] = NUMPY()
 REG["linalg.simd_features"] = NOTE("queries CPU SIMD support — not a hot path")
 REG["linalg.simd_lane_doubles"] = NOTE("queries CPU SIMD width — not a hot path")
-for fn in ["add", "arange", "array", "binary_op", "broadcast_shapes", "broadcast_to",
-           "complex", "conj", "divide", "full", "get", "imag", "is_contiguous", "mean",
-           "mul", "ones", "real", "reshape", "scalar", "shape_of", "size_of", "sub",
-           "sum", "to_string", "zeros"]:
+for fn in ["abs", "add", "arange", "array", "binary_op", "broadcast_shapes",
+           "broadcast_to", "cbrt", "complex", "conj", "cos", "divide", "exp", "full",
+           "get", "imag", "is_contiguous", "log", "mean", "mul", "ones", "real",
+           "reshape", "scalar", "shape_of", "size_of", "sin", "sqrt", "sub", "sum",
+           "tan", "to_string", "zeros"]:
     REG[f"ndarray.{fn}"] = NUMPY()
 
 # ---- I/O / system / network: no honest in-loop Python twin ----------------

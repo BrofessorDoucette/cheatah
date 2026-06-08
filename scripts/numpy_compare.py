@@ -87,7 +87,8 @@ def time_cheatah(setup, expr, iters, extract="[0]"):
 
 
 def time_numpy(build, op, iters):
-    """build returns the operands dict; op(operands, i) -> scalar contribution."""
+    """build returns the operands; op(operands, i) -> scalar contribution. `i` lets a
+    case vary its input per iteration (to match a cheatah loop that does the same)."""
     import time as _t
     operands = build()
     best, acc = None, None
@@ -95,7 +96,7 @@ def time_numpy(build, op, iters):
         a = 0.0
         t0 = _t.monotonic()
         for i in range(iters):
-            a += op(operands)
+            a += op(operands, i)
         t1 = _t.monotonic()
         if best is None or (t1 - t0) < best:
             best, acc = t1 - t0, a
@@ -134,7 +135,7 @@ def main():
         setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])\n" \
                 f"let B = ndarray.reshape(ndarray.array({lit(B)}), [{n}, {n}])"
         bench("matmul", n, iters, setup, "linalg.matmul(A, B)",
-              lambda A=A, B=B: (A, B), lambda o: float((o[0] @ o[1])[0, 0]),
+              lambda A=A, B=B: (A, B), lambda o, i: float((o[0] @ o[1])[0, 0]),
               extract="[0, 0]")
 
     # ---- solve A·x = b ----
@@ -143,21 +144,21 @@ def main():
         setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])\n" \
                 f"let b = ndarray.array({lit(b)})"
         bench("solve", n, iters, setup, "linalg.solve(A, b)",
-              lambda A=A, b=b: (A, b), lambda o: float(np.linalg.solve(o[0], o[1])[0]))
+              lambda A=A, b=b: (A, b), lambda o, i: float(np.linalg.solve(o[0], o[1])[0]))
 
     # ---- det(A) ----
     for n, iters in [(4, 200000), (16, 50000), (32, 20000), (64, 5000)]:
         A = spd(n)
         setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
         bench("det", n, iters, setup, "linalg.det(A)",
-              lambda A=A: (A,), lambda o: float(np.linalg.det(o[0])), extract="")
+              lambda A=A: (A,), lambda o, i: float(np.linalg.det(o[0])), extract="")
 
     # ---- inv(A) ----
     for n, iters in [(4, 100000), (16, 30000), (32, 10000), (64, 3000)]:
         A = spd(n)
         setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
         bench("inv", n, iters, setup, "linalg.inv(A)",
-              lambda A=A: (A,), lambda o: float(np.linalg.inv(o[0])[0, 0]),
+              lambda A=A: (A,), lambda o, i: float(np.linalg.inv(o[0])[0, 0]),
               extract="[0, 0]")
 
     # ---- eigvalsh(A) (symmetric eigenvalues) ----
@@ -171,18 +172,33 @@ def main():
         # cheatah returns eigenvalues DESCENDING ([0] = largest); NumPy returns them
         # ASCENDING ([-1] = largest) — read the same end so the cross-check agrees.
         bench("eigvalsh", n, iters, setup, "linalg.eigvalsh(A)",
-              lambda A=A: (A,), lambda o: float(np.linalg.eigvalsh(o[0])[-1]))
+              lambda A=A: (A,), lambda o, i: float(np.linalg.eigvalsh(o[0])[-1]))
 
     # ---- dot (vectors) ----
     for n, iters in [(64, 200000), (1024, 50000), (16384, 5000)]:
         u, v = rng.standard_normal(n), rng.standard_normal(n)
         setup = f"let u = ndarray.array({lit(u)})\nlet v = ndarray.array({lit(v)})"
         bench("dot", n, iters, setup, "linalg.dot(u, v)",
-              lambda u=u, v=v: (u, v), lambda o: float(o[0] @ o[1]), extract="")
+              lambda u=u, v=v: (u, v), lambda o, i: float(o[0] @ o[1]), extract="")
+
+    # ---- element-wise math ufuncs (cheatah ndarray.sqrt etc. vs numpy np.sqrt) ----
+    # cheatah's ndarray ufuncs are header templates (inlined), so a loop-invariant
+    # input would be hoisted out; we add a tiny i-dependent scalar each iteration to
+    # force the work to run. NumPy does the same add+ufunc (Python never hoists), so
+    # the comparison stays fair — both compute "add a scalar, then the ufunc, over n".
+    for fn in ["sqrt", "exp", "sin"]:
+        npfn = getattr(np, fn)
+        for n, iters in [(64, 200000), (1024, 50000), (16384, 4000)]:
+            v = rng.random(n) + 0.1  # positive (valid for sqrt)
+            setup = f"let v = ndarray.array({lit(v)})"
+            expr = f"ndarray.{fn}(ndarray.add(v, ndarray.scalar(0.000001 * i)))"
+            bench(f"ndarray.{fn}", n, iters, setup, expr,
+                  lambda v=v: (v,),
+                  lambda o, i, f=npfn: float(f(o[0] + 0.000001 * i)[0]), extract="[0]")
 
     print("\nNote: NumPy calls BLAS/LAPACK (often threaded). cheatah's kernels are "
           "single-threaded\nauto-vectorized C++. Small n favors cheatah (no Python/"
-          "dispatch overhead); large n favors BLAS.")
+          "dispatch overhead); large n favors BLAS / vectorized ufuncs.")
 
 
 if __name__ == "__main__":

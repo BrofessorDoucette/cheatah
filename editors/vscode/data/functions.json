@@ -2879,6 +2879,31 @@
       }
     },
     {
+      "name": "abs",
+      "signature": "abs(const basic_ndarray< T > &a)",
+      "brief": "Element-wise absolute value (the array form of math.abs; ≈ numpy.abs).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array."
+        }
+      ],
+      "returns": "a fresh same-shape array with |x| for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 820,
+      "module": "ndarray",
+      "qualified": "ndarray.abs",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
       "name": "add",
       "signature": "add(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
       "brief": "Element-wise a + b with broadcasting.",
@@ -2901,7 +2926,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 553,
+      "srcline": 554,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
@@ -2935,7 +2960,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 472,
+      "srcline": 473,
       "module": "ndarray",
       "qualified": "ndarray.arange",
       "perf": {
@@ -2960,7 +2985,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 399,
+      "srcline": 400,
       "module": "ndarray",
       "qualified": "ndarray.array",
       "perf": {
@@ -2993,7 +3018,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 521,
+      "srcline": 522,
       "module": "ndarray",
       "qualified": "ndarray.binary_op",
       "perf": {
@@ -3022,7 +3047,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 319,
+      "srcline": 320,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes",
       "perf": {
@@ -3049,9 +3074,34 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 354,
+      "srcline": 355,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "cbrt",
+      "signature": "cbrt(const basic_ndarray< T > &a)",
+      "brief": "Element-wise cube root (the array form of math.cbrt; ≈ numpy.cbrt).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array."
+        }
+      ],
+      "returns": "a fresh same-shape array with ∛x for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 746,
+      "module": "ndarray",
+      "qualified": "ndarray.cbrt",
       "perf": {
         "kind": "numpy"
       }
@@ -3079,7 +3129,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 637,
+      "srcline": 638,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
@@ -3105,9 +3155,34 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 664,
+      "srcline": 665,
       "module": "ndarray",
       "qualified": "ndarray.conj",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "cos",
+      "signature": "cos(const basic_ndarray< T > &a)",
+      "brief": "Element-wise cosine (the array form of math.cos; ≈ numpy.cos).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array (radians)."
+        }
+      ],
+      "returns": "a fresh same-shape array with cos(x) for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 796,
+      "module": "ndarray",
+      "qualified": "ndarray.cos",
       "perf": {
         "kind": "numpy"
       }
@@ -3135,9 +3210,35 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 595,
+      "srcline": 596,
       "module": "ndarray",
       "qualified": "ndarray.divide",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "exp",
+      "signature": "exp(const basic_ndarray< T > &a)",
+      "brief": "Element-wise eˣ (the array form of math.exp; ≈ numpy.exp).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array."
+        }
+      ],
+      "returns": "a fresh same-shape array with exp(x) for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "crtest": "NdarrayCompileRun.Exp",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 759,
+      "module": "ndarray",
+      "qualified": "ndarray.exp",
       "perf": {
         "kind": "numpy"
       }
@@ -3165,7 +3266,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 456,
+      "srcline": 457,
       "module": "ndarray",
       "qualified": "ndarray.full",
       "perf": {
@@ -3195,7 +3296,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 772,
+      "srcline": 878,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3221,7 +3322,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 707,
+      "srcline": 708,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3246,9 +3347,34 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 341,
+      "srcline": 342,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "log",
+      "signature": "log(const basic_ndarray< T > &a)",
+      "brief": "Element-wise natural log (the array form of math.log; ≈ numpy.log).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array."
+        }
+      ],
+      "returns": "a fresh same-shape array with ln(x) for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 771,
+      "module": "ndarray",
+      "qualified": "ndarray.log",
       "perf": {
         "kind": "numpy"
       }
@@ -3272,7 +3398,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 755,
+      "srcline": 861,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -3302,7 +3428,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 581,
+      "srcline": 582,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -3328,7 +3454,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 441,
+      "srcline": 442,
       "module": "ndarray",
       "qualified": "ndarray.ones",
       "perf": {
@@ -3354,7 +3480,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 685,
+      "srcline": 686,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -3384,7 +3510,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 491,
+      "srcline": 492,
       "module": "ndarray",
       "qualified": "ndarray.reshape",
       "perf": {
@@ -3410,7 +3536,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 413,
+      "srcline": 414,
       "module": "ndarray",
       "qualified": "ndarray.scalar",
       "perf": {
@@ -3436,9 +3562,35 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 786,
+      "srcline": 892,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "sin",
+      "signature": "sin(const basic_ndarray< T > &a)",
+      "brief": "Element-wise sine (the array form of math.sin; ≈ numpy.sin).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array (radians)."
+        }
+      ],
+      "returns": "a fresh same-shape array with sin(x) for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "crtest": "NdarrayCompileRun.Sin",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 784,
+      "module": "ndarray",
+      "qualified": "ndarray.sin",
       "perf": {
         "kind": "numpy"
       }
@@ -3462,9 +3614,35 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 802,
+      "srcline": 908,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "sqrt",
+      "signature": "sqrt(const basic_ndarray< T > &a)",
+      "brief": "Element-wise square root (the array form of math.sqrt; ≈ numpy.sqrt).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array."
+        }
+      ],
+      "returns": "a fresh same-shape array with √x for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "crtest": "NdarrayCompileRun.Sqrt",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 734,
+      "module": "ndarray",
+      "qualified": "ndarray.sqrt",
       "perf": {
         "kind": "numpy"
       }
@@ -3492,7 +3670,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 567,
+      "srcline": 568,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -3518,9 +3696,34 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 731,
+      "srcline": 837,
       "module": "ndarray",
       "qualified": "ndarray.sum",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "tan",
+      "signature": "tan(const basic_ndarray< T > &a)",
+      "brief": "Element-wise tangent (the array form of math.tan; ≈ numpy.tan).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a floating-point array (radians)."
+        }
+      ],
+      "returns": "a fresh same-shape array with tan(x) for each element.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ElementwiseMath",
+        "systest": "StdlibE2E.NdarrayMath"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 808,
+      "module": "ndarray",
+      "qualified": "ndarray.tan",
       "perf": {
         "kind": "numpy"
       }
@@ -3544,7 +3747,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 859,
+      "srcline": 965,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {
@@ -3570,7 +3773,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 428,
+      "srcline": 429,
       "module": "ndarray",
       "qualified": "ndarray.zeros",
       "perf": {
@@ -6209,7 +6412,7 @@
     "time"
   ],
   "perf_meta": {
-    "cheatah_commit": "82a478b",
+    "cheatah_commit": "0842d8c",
     "cpython": "3.12.3",
     "generated": "2026-06-08",
     "machine": "x86_64",

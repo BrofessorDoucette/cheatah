@@ -51,6 +51,18 @@ print(ndarray.to_string(c))
 ### Element-wise ops (broadcasting)
 - `add` / `sub` / `mul` / `divide` — `a` op `b` over the common shape.
 
+### Element-wise math (numpy-style ufuncs)
+The array forms of the scalar `math` module — mirroring Python's `math.sqrt(x)` (a
+scalar) vs `numpy.sqrt(array)` (a whole array). Each applies the function to every
+element, SIMD-vectorized on the contiguous fast path:
+- `sqrt` / `cbrt` / `exp` / `log` — roots, exponential, natural log.
+- `sin` / `cos` / `tan` — trigonometric (radians).
+- `abs` — absolute value.
+
+```purr
+io.print(ndarray.to_string(ndarray.sqrt(ndarray.array([1.0, 4.0, 9.0]))))   # [1, 2, 3]
+```
+
 ### Complex
 - `complex(re, im)` — build a complex array from real & imaginary parts (broadcasts).
 - `real(a)` / `imag(a)` — the real / imaginary parts as a real array.

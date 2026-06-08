@@ -162,3 +162,24 @@ let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
 io.print(ndarray.to_string(ndarray.imag(z)))
 )PURR", "[1, -3]\n");
 }
+
+TEST(NdarrayCompileRun, Sqrt) {
+    e2e::expect_e2e("ndarray_sqrt", R"PURR(import io
+import ndarray
+io.print(ndarray.to_string(ndarray.sqrt(ndarray.array([1.0, 4.0, 9.0, 16.0]))))
+)PURR", "[1, 2, 3, 4]\n");
+}
+
+TEST(NdarrayCompileRun, Exp) {
+    e2e::expect_e2e("ndarray_exp", R"PURR(import io
+import ndarray
+io.print(ndarray.to_string(ndarray.exp(ndarray.array([0.0]))))
+)PURR", "[1]\n");
+}
+
+TEST(NdarrayCompileRun, Sin) {
+    e2e::expect_e2e("ndarray_sin", R"PURR(import io
+import ndarray
+io.print(ndarray.to_string(ndarray.sin(ndarray.array([0.0]))))
+)PURR", "[0]\n");
+}

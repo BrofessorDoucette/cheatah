@@ -19,6 +19,7 @@
  *       no manual frees. `size` below is the element count (product of dims).
  */
 #include <algorithm>
+#include <cmath>
 #include <complex>
 #include <concepts>
 #include <cstddef>
@@ -713,6 +714,111 @@ basic_ndarray<real_base_t<T>> imag(const basic_ndarray<T>& a) {
             return R{0};
         }
     });
+}
+
+// ---- element-wise math (numpy-style ufuncs) ----
+// These are the array counterparts of the scalar `math` module — mirroring Python's
+// split: `math.sqrt(x)` for a scalar, `ndarray.sqrt(a)` (≈ `numpy.sqrt`) for a whole
+// array. Each applies the scalar function to every element, vectorized via the
+// contiguous `std::transform(unseq)` fast path (so `-O3 -march=native` emits SIMD).
+/**
+ * Element-wise square root (the array form of `math.sqrt`; ≈ `numpy.sqrt`).
+ * @param a a floating-point array.
+ * @return a fresh same-shape array with `√x` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @crtest NdarrayCompileRun.Sqrt
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> sqrt(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::sqrt(x); });
+}
+/**
+ * Element-wise cube root (the array form of `math.cbrt`; ≈ `numpy.cbrt`).
+ * @param a a floating-point array.
+ * @return a fresh same-shape array with `∛x` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> cbrt(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::cbrt(x); });
+}
+/**
+ * Element-wise eˣ (the array form of `math.exp`; ≈ `numpy.exp`).
+ * @param a a floating-point array.
+ * @return a fresh same-shape array with `exp(x)` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @crtest NdarrayCompileRun.Exp
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> exp(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::exp(x); });
+}
+/**
+ * Element-wise natural log (the array form of `math.log`; ≈ `numpy.log`).
+ * @param a a floating-point array.
+ * @return a fresh same-shape array with `ln(x)` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> log(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::log(x); });
+}
+/**
+ * Element-wise sine (the array form of `math.sin`; ≈ `numpy.sin`).
+ * @param a a floating-point array (radians).
+ * @return a fresh same-shape array with `sin(x)` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @crtest NdarrayCompileRun.Sin
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> sin(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::sin(x); });
+}
+/**
+ * Element-wise cosine (the array form of `math.cos`; ≈ `numpy.cos`).
+ * @param a a floating-point array (radians).
+ * @return a fresh same-shape array with `cos(x)` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> cos(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::cos(x); });
+}
+/**
+ * Element-wise tangent (the array form of `math.tan`; ≈ `numpy.tan`).
+ * @param a a floating-point array (radians).
+ * @return a fresh same-shape array with `tan(x)` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> tan(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::tan(x); });
+}
+/**
+ * Element-wise absolute value (the array form of `math.abs`; ≈ `numpy.abs`).
+ * @param a a floating-point array.
+ * @return a fresh same-shape array with `|x|` for each element.
+ * @complexity O(size). @alloc allocates the result buffer.
+ * @test CheatahNDArray.ElementwiseMath
+ * @systest StdlibE2E.NdarrayMath
+ */
+template <FloatingPoint T>
+basic_ndarray<T> abs(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) { return std::fabs(x); });
 }
 
 // ---- reductions / access / display ----

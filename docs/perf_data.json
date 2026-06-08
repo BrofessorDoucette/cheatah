@@ -477,6 +477,9 @@
    "python_ns": 69.77,
    "speedup": 34.7
   },
+  "ndarray.abs": {
+   "kind": "numpy"
+  },
   "ndarray.add": {
    "kind": "numpy"
   },
@@ -495,13 +498,22 @@
   "ndarray.broadcast_to": {
    "kind": "numpy"
   },
+  "ndarray.cbrt": {
+   "kind": "numpy"
+  },
   "ndarray.complex": {
    "kind": "numpy"
   },
   "ndarray.conj": {
    "kind": "numpy"
   },
+  "ndarray.cos": {
+   "kind": "numpy"
+  },
   "ndarray.divide": {
+   "kind": "numpy"
+  },
+  "ndarray.exp": {
    "kind": "numpy"
   },
   "ndarray.full": {
@@ -514,6 +526,9 @@
    "kind": "numpy"
   },
   "ndarray.is_contiguous": {
+   "kind": "numpy"
+  },
+  "ndarray.log": {
    "kind": "numpy"
   },
   "ndarray.mean": {
@@ -537,13 +552,22 @@
   "ndarray.shape_of": {
    "kind": "numpy"
   },
+  "ndarray.sin": {
+   "kind": "numpy"
+  },
   "ndarray.size_of": {
+   "kind": "numpy"
+  },
+  "ndarray.sqrt": {
    "kind": "numpy"
   },
   "ndarray.sub": {
    "kind": "numpy"
   },
   "ndarray.sum": {
+   "kind": "numpy"
+  },
+  "ndarray.tan": {
    "kind": "numpy"
   },
   "ndarray.to_string": {
@@ -1056,7 +1080,7 @@
   }
  },
  "meta": {
-  "cheatah_commit": "82a478b",
+  "cheatah_commit": "0842d8c",
   "cpython": "3.12.3",
   "generated": "2026-06-08",
   "machine": "x86_64",

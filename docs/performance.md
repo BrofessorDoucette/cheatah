@@ -144,6 +144,10 @@ hardware will differ):
 | `eigvalsh` | 4 | 0.93 | 2.53 | **cheatah 2.7×** |
 | `eigvalsh` | 32 | 333 | 24 | NumPy 13.7× |
 | `dot` | 16384 | 280 | 7.7 | **NumPy 36×** |
+| `ndarray.sqrt` | 64 | 0.56 | 0.79 | **cheatah 1.4×** |
+| `ndarray.sqrt` | 16384 | 85 | 14 | NumPy 6.2× |
+| `ndarray.sin` | 64 | 0.75 | 1.02 | **cheatah 1.4×** |
+| `ndarray.sin` | 16384 | 144 | 85 | NumPy 1.7× |
 
 The pattern is consistent and unsurprising once you see it:
 
@@ -163,6 +167,12 @@ The pattern is consistent and unsurprising once you see it:
 - **BLAS/LAPACK also win large `dot`** (BLAS `ddot`, ≈36× at n=16384). These are the
   routines to reach for NumPy on at scale, and where cheatah has the most headroom
   (e.g. `dot`/`solve` still copy their inputs into scratch — an avoidable cost).
+- **Element-wise math** (`ndarray.sqrt`/`exp`/`sin`/… — the array forms of the `math`
+  module, ≈ NumPy's ufuncs) shows the same shape: cheatah wins **small** arrays
+  (n≈64, ~1.4×) where NumPy's per-call dispatch dominates, and NumPy's vectorized
+  ufuncs win **large** (n=16384: `sqrt` ≈6×, `sin` ≈1.7×). Both auto-vectorize the
+  inner loop; the crossover is again "is the array big enough to amortize the Python
+  call?".
 
 So: cheatah is **not** trying to out-BLAS BLAS at scale. It wins where avoiding
 interpreter and dispatch overhead matters more than a tuned kernel — which, for the

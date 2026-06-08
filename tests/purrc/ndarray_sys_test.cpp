@@ -88,3 +88,20 @@ io.print(ndarray.to_string(ndarray.imag(z)))
                     "[0, 1, 2]\n"
                     "[1, 0, -3]\n");
 }
+
+// Element-wise math ufuncs exercised together (the array forms of the math module).
+TEST(StdlibE2E, NdarrayMath) {
+    e2e::expect_e2e("ndarray_math_sys", R"PURR(import io
+import ndarray
+
+let a = ndarray.array([1.0, 4.0, 9.0, 16.0])
+io.print(ndarray.to_string(ndarray.sqrt(a)))
+io.print(ndarray.to_string(ndarray.cbrt(ndarray.array([1.0, 8.0, 27.0]))))
+io.print(ndarray.to_string(ndarray.abs(ndarray.array([-2.0, 3.0, -4.0]))))
+io.print(ndarray.to_string(ndarray.sin(ndarray.array([0.0]))))
+)PURR",
+                    "[1, 2, 3, 4]\n"
+                    "[1, 2, 3]\n"
+                    "[2, 3, 4]\n"
+                    "[0]\n");
+}

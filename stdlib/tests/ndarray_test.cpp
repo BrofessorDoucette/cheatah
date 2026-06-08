@@ -1,5 +1,6 @@
 #include "ndarray.hpp"
 
+#include <cmath>
 #include <complex>
 #include <stdexcept>
 #include <vector>
@@ -99,6 +100,22 @@ TEST(CheatahNDArray, ComplexElementType) {
     EXPECT_EQ(nd::to_string(nd::add(a, a)), "[2+4j, 6-8j, 0+2j]");
     // A 0-d complex scalar formats without brackets.
     EXPECT_EQ(nd::to_string(nd::scalar(C(5, -6))), "5-6j");
+}
+
+TEST(CheatahNDArray, ElementwiseMath) {
+    // The array counterparts of the scalar math module (numpy-style ufuncs).
+    const nd::NDArray a = nd::array({1.0, 4.0, 9.0, 16.0});
+    EXPECT_EQ(nd::to_string(nd::sqrt(a)), "[1, 2, 3, 4]");
+    EXPECT_EQ(nd::to_string(nd::cbrt(nd::array({1.0, 8.0, 27.0}))), "[1, 2, 3]");
+    EXPECT_DOUBLE_EQ(nd::get(nd::exp(nd::array({0.0, 1.0})), {1}), std::exp(1.0));
+    EXPECT_DOUBLE_EQ(nd::get(nd::log(nd::array({1.0, 2.718281828459045})), {1}), std::log(2.718281828459045));
+    EXPECT_NEAR(nd::get(nd::sin(nd::array({0.0, 1.5707963267948966})), {1}), 1.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::cos(nd::array({0.0})), {0}), 1.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::tan(nd::array({0.0})), {0}), 0.0, 1e-12);
+    EXPECT_EQ(nd::to_string(nd::abs(nd::array({-2.0, 3.0, -4.0}))), "[2, 3, 4]");
+    // Shape is preserved (2-D input → 2-D output).
+    const nd::NDArray m = nd::reshape(nd::array({1.0, 4.0, 9.0, 16.0}), {2, 2});
+    EXPECT_EQ(nd::to_string(nd::sqrt(m)), "[[1, 2], [3, 4]]");
 }
 
 TEST(CheatahNDArray, ComplexConstructAndParts) {
