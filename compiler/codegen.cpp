@@ -9,6 +9,12 @@ namespace cheatah {
 
 namespace {
 
+// Every cheatah fn/method param lowers to a C++20 abbreviated function template.
+// We constrain each with the baseline `Value` concept so no generated template is
+// unconstrained — keeps the C++ compiler's errors comprehensible and gives the
+// future purrc diagnostics a concept-failure hook. (See constrain-all-templates.)
+constexpr const char* kParamConcept = "cheatah::builtins::Value auto ";
+
 // Bare names that are Python built-ins (always available, no import) -> their C++
 // symbol in cheatah::builtins. Keyword-named conversions map specially.
 std::optional<std::string> builtin_cpp_name(const std::string& name) {
@@ -16,10 +22,123 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
         {"len", "len"},   {"ord", "ord"},   {"chr", "chr"},     {"hex", "hex"},
         {"oct", "oct"},   {"bin", "bin"},   {"ascii", "ascii"}, {"hash", "hash"},
         {"bool", "to_bool"}, {"int", "to_int"}, {"float", "to_float"},
+        {"append", "append"}, {"startswith", "startswith"},
+        {"endswith", "endswith"}, {"contains", "contains"},
     };
     const auto it = kBuiltins.find(name);
     if (it == kBuiltins.end()) return std::nullopt;
     return "cheatah::builtins::" + it->second;
+}
+
+// Does an lvalue expression have `self` at its root (self / self.x / self.xs[i])?
+bool is_self_rooted(const Expr& e) {
+    switch (e.kind) {
+        case ExprKind::Ident: return static_cast<const Ident&>(e).name == "self";
+        case ExprKind::Member: return is_self_rooted(*static_cast<const Member&>(e).object);
+        case ExprKind::Index: return is_self_rooted(*static_cast<const Index&>(e).object);
+        default: return false;
+    }
+}
+bool block_mutates_self(const Block& body);  // fwd
+// Whether a statement assigns through `self` (so the method must be non-const).
+bool stmt_mutates_self(const Stmt& s) {
+    switch (s.kind) {
+        case StmtKind::Assign:
+            return is_self_rooted(*static_cast<const Assign&>(s).target);
+        case StmtKind::If: {
+            const auto& n = static_cast<const If&>(s);
+            return block_mutates_self(n.then_body) || block_mutates_self(n.else_body);
+        }
+        case StmtKind::While:
+            return block_mutates_self(static_cast<const While&>(s).body);
+        case StmtKind::For:
+            return block_mutates_self(static_cast<const For&>(s).body);
+        case StmtKind::Try: {
+            const auto& t = static_cast<const Try&>(s);
+            return block_mutates_self(t.body) || block_mutates_self(t.catch_body);
+        }
+        case StmtKind::Match: {
+            const auto& m = static_cast<const Match&>(s);
+            for (const MatchCase& c : m.cases)
+                if (block_mutates_self(c.body)) return true;
+            return false;
+        }
+        default:
+            return false;
+    }
+}
+bool block_mutates_self(const Block& body) {
+    for (const StmtPtr& s : body)
+        if (stmt_mutates_self(*s)) return true;
+    return false;
+}
+
+// Flatten a left-associated `+` chain (`((a + b) + c)`) into its operands in
+// left-to-right order ([a, b, c]) — used to turn `x = x + a + b` into in-place
+// appends and avoid full-string-copy temporaries.
+void flatten_add(const Expr& e, std::vector<const Expr*>& out) {
+    if (e.kind == ExprKind::Binary && static_cast<const Binary&>(e).op == "+") {
+        const auto& b = static_cast<const Binary&>(e);
+        flatten_add(*b.lhs, out);
+        out.push_back(b.rhs.get());
+    } else {
+        out.push_back(&e);
+    }
+}
+// Whether expression @p e references the variable @p name anywhere (so a self-append
+// rewrite stays correct only when the appended operands don't read the target).
+bool refers_to(const Expr& e, const std::string& name) {
+    switch (e.kind) {
+        case ExprKind::Ident:
+            return static_cast<const Ident&>(e).name == name;
+        case ExprKind::Member:
+            return refers_to(*static_cast<const Member&>(e).object, name);
+        case ExprKind::Index: {
+            const auto& ix = static_cast<const Index&>(e);
+            return refers_to(*ix.object, name) || refers_to(*ix.index, name);
+        }
+        case ExprKind::Slice: {
+            const auto& sl = static_cast<const Slice&>(e);
+            return refers_to(*sl.object, name) || (sl.start && refers_to(*sl.start, name)) ||
+                   (sl.stop && refers_to(*sl.stop, name));
+        }
+        case ExprKind::Call: {
+            const auto& c = static_cast<const Call&>(e);
+            if (refers_to(*c.callee, name)) return true;
+            for (const ExprPtr& a : c.args)
+                if (refers_to(*a, name)) return true;
+            return false;
+        }
+        case ExprKind::Unary:
+            return refers_to(*static_cast<const Unary&>(e).operand, name);
+        case ExprKind::Binary: {
+            const auto& b = static_cast<const Binary&>(e);
+            return refers_to(*b.lhs, name) || refers_to(*b.rhs, name);
+        }
+        case ExprKind::ListLit: {
+            for (const ExprPtr& el : static_cast<const ListLit&>(e).elements)
+                if (refers_to(*el, name)) return true;
+            return false;
+        }
+        case ExprKind::DictLit: {
+            const auto& d = static_cast<const DictLit&>(e);
+            for (const ExprPtr& k : d.keys)
+                if (refers_to(*k, name)) return true;
+            for (const ExprPtr& v : d.values)
+                if (refers_to(*v, name)) return true;
+            return false;
+        }
+        default:
+            return false;
+    }
+}
+
+// cheatah "value methods": `obj.f(a)` routes to `cheatah::builtins::f(obj, a)`.
+// Kept to a known set so real member methods on module classes (e.g. io's File)
+// are left as direct `obj.f(a)` calls.
+bool is_builtin_method(const std::string& name) {
+    return name == "append" || name == "startswith" || name == "endswith" ||
+           name == "contains";
 }
 
 std::string cpp_string_literal(const std::string& s) {
@@ -68,13 +187,16 @@ public:
                 roots_.insert(imp.module.front());
             } else if (s->kind == StmtKind::StructDef) {
                 struct_names_.insert(static_cast<const StructDef&>(*s).name);
+            } else if (s->kind == StmtKind::InterfaceDef) {
+                interface_names_.insert(static_cast<const InterfaceDef&>(*s).name);
             }
         }
 
         std::ostringstream os;
         os << "// Generated by purrc — do not edit.\n";
-        os << "#include <array>\n#include <cmath>\n#include <memory>\n#include <stdexcept>\n"
-              "#include <string>\n#include <unordered_map>\n#include <utility>\n#include <vector>\n";
+        os << "#include <array>\n#include <cmath>\n#include <concepts>\n#include <memory>\n"
+              "#include <stdexcept>\n#include <string>\n#include <unordered_map>\n"
+              "#include <utility>\n#include <vector>\n";
         os << "#include \"builtins.hpp\"\n";  // built-ins are always available
         for (const std::string& root : roots_) {
             os << "#include \"" << root << ".hpp\"\n";
@@ -90,6 +212,13 @@ public:
             }
         }
 
+        // Interfaces (concepts) first — structs static_assert against them and
+        // functions constrain parameters by them.
+        for (const StmtPtr& s : prog.body) {
+            if (s->kind == StmtKind::InterfaceDef)
+                gen_interface(os, static_cast<const InterfaceDef&>(*s));
+        }
+
         // Struct definitions, then function definitions, at file scope.
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::StructDef) gen_struct(os, static_cast<const StructDef&>(*s));
@@ -102,7 +231,8 @@ public:
         os << "extern \"C\" void purr_main() {\n";
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::Import || s->kind == StmtKind::StructDef ||
-                s->kind == StmtKind::FnDef || s->kind == StmtKind::RawCpp) {
+                s->kind == StmtKind::FnDef || s->kind == StmtKind::RawCpp ||
+                s->kind == StmtKind::InterfaceDef) {
                 continue;  // emitted above (imports -> includes; top-level cpp -> file scope)
             }
             gen_stmt(os, *s, "    ");
@@ -117,21 +247,98 @@ public:
     }
 
 private:
+    // The constraint prefix for a parameter declared with type @p type_name: an
+    // interface name -> that concept (`Shape auto`); otherwise the baseline Value.
+    std::string param_prefix(const std::string& type_name) const {
+        if (!type_name.empty() && interface_names_.count(type_name)) {
+            return type_name + " auto ";
+        }
+        return kParamConcept;
+    }
+
+    // interface -> a C++20 concept: every method must be callable on the type, so a
+    // `struct S : Iface` whose methods don't match fails the static_assert below.
+    void gen_interface(std::ostringstream& os, const InterfaceDef& id) {
+        os << "template <typename Self>\n";
+        os << "concept " << id.name << " =";
+        if (id.methods.empty()) {
+            os << " true;\n\n";
+            return;
+        }
+        for (std::size_t i = 0; i < id.methods.size(); ++i) {
+            const InterfaceMethod& m = id.methods[i];
+            os << (i == 0 ? "\n    " : " &&\n    ");
+            os << "requires(Self& self) { self." << m.name << "(";
+            for (std::size_t j = 0; j < m.param_types.size(); ++j) {
+                const std::string ty =
+                    m.param_types[j].name.empty() ? "long long" : map_type(m.param_types[j]);
+                os << (j != 0 ? ", " : "") << "std::declval<" << ty << ">()";
+            }
+            os << "); }";
+        }
+        os << ";\n\n";
+    }
+
     void gen_struct(std::ostringstream& os, const StructDef& sd) {
         os << "struct " << sd.name << " {\n";
         for (const Field& f : sd.fields) {
             os << "    " << map_type(f.type) << " " << f.name << ";\n";
         }
-        os << "};\n\n";
+        // Methods become member functions. A leading `self` param is implicit (it
+        // is `*this`); the struct stays a C++ aggregate (member functions are
+        // allowed), so `Name{...}` construction is unaffected.
+        for (const StmtPtr& m : sd.methods) {
+            gen_method(os, static_cast<const FnDef&>(*m));
+        }
+        os << "};\n";
+        // `struct S : Iface…` -> a compile-time check that S fulfills each interface.
+        if (!sd.fulfills.empty()) {
+            os << "static_assert(";
+            for (std::size_t i = 0; i < sd.fulfills.size(); ++i) {
+                os << (i != 0 ? " && " : "") << sd.fulfills[i] << "<" << sd.name << ">";
+            }
+            os << ", \"" << sd.name << " must fulfill ";
+            for (std::size_t i = 0; i < sd.fulfills.size(); ++i) {
+                os << (i != 0 ? ", " : "") << sd.fulfills[i];
+            }
+            os << "\");\n";
+        }
+        os << "\n";
+    }
+
+    // The type declared for a method param (parallel to params; the implicit `self`
+    // at index 0 has none), or "" when untyped.
+    std::string method_param_type(const FnDef& fd, std::size_t i) const {
+        return i < fd.param_types.size() ? fd.param_types[i] : std::string();
+    }
+
+    void gen_method(std::ostringstream& os, const FnDef& fd) {
+        const bool has_self = !fd.params.empty() && fd.params[0] == "self";
+        os << "    auto " << fd.name << "(";
+        bool first = true;
+        for (std::size_t i = (has_self ? 1 : 0); i < fd.params.size(); ++i) {
+            os << (first ? "" : ", ") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+            first = false;
+        }
+        // A method that never assigns through `self` is `const`, so it works on
+        // const objects — required for the print/`str()` protocol and read-only use.
+        const bool mutates = has_self && block_mutates_self(fd.body);
+        os << ")" << (mutates ? "" : " const") << " {\n";
+        const bool prev = in_method_;
+        in_method_ = true;
+        gen_block(os, fd.body, "        ");
+        in_method_ = prev;
+        os << "    }\n";
     }
 
     void gen_fn(std::ostringstream& os, const FnDef& fd) {
         // `static` -> internal linkage, so the optimizer inlines/optimizes these
         // like local C++ functions (no exported-symbol interposition barrier).
-        // Untyped params -> C++20 abbreviated function template (auto params).
+        // Untyped params -> C++20 abbreviated function template; an interface-typed
+        // param becomes a concept-constrained `auto` (static dispatch).
         os << "static auto " << fd.name << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
-            os << (i != 0 ? ", " : "") << "auto " << fd.params[i];
+            os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
         }
         os << ") {\n";
         gen_block(os, fd.body, "    ");
@@ -142,16 +349,65 @@ private:
         for (const StmtPtr& s : block) gen_stmt(os, *s, indent);
     }
 
+    // An assignment target is an lvalue: `xs[i] = v` / `d[k] = v` must use a raw
+    // subscript (not the by-value `index()` helper used in value position).
+    std::string gen_lvalue(const Expr& e) {
+        if (e.kind == ExprKind::Index) {
+            const auto& ix = static_cast<const Index&>(e);
+            return gen_expr(*ix.object) + "[" + gen_expr(*ix.index) + "]";
+        }
+        return gen_expr(e);
+    }
+
     void gen_stmt(std::ostringstream& os, const Stmt& s, const std::string& indent) {
         switch (s.kind) {
             case StmtKind::Let: {
                 const auto& l = static_cast<const Let&>(s);
-                os << indent << "auto " << l.name << " = " << gen_expr(*l.value) << ";\n";
+                if (l.has_type) {
+                    // An explicit type drives the declaration, so empty `[]` / `{}`
+                    // get their element types from the annotation (not deduced).
+                    const bool empty_list =
+                        l.value->kind == ExprKind::ListLit &&
+                        static_cast<const ListLit&>(*l.value).elements.empty();
+                    const bool empty_dict =
+                        l.value->kind == ExprKind::DictLit &&
+                        static_cast<const DictLit&>(*l.value).keys.empty();
+                    if (empty_list || empty_dict) {
+                        os << indent << map_type(l.type) << " " << l.name << ";\n";
+                    } else {
+                        os << indent << map_type(l.type) << " " << l.name << " = "
+                           << gen_expr(*l.value) << ";\n";
+                    }
+                } else {
+                    os << indent << "auto " << l.name << " = " << gen_expr(*l.value) << ";\n";
+                }
                 return;
             }
             case StmtKind::Assign: {
                 const auto& a = static_cast<const Assign&>(s);
-                os << indent << gen_expr(*a.target) << " = " << gen_expr(*a.value) << ";\n";
+                // Self-append fast path: `x = x + e1 + e2 …` -> `x += e1; x += e2; …`,
+                // so building a string (or accumulator) doesn't copy the whole left
+                // operand each step (O(n²) -> O(n); no full-length temporaries). Only
+                // when the target is a plain variable that sits at the head of the `+`
+                // chain and is not re-read by the appended operands.
+                if (a.target->kind == ExprKind::Ident && a.value->kind == ExprKind::Binary &&
+                    static_cast<const Binary&>(*a.value).op == "+") {
+                    const std::string& name = static_cast<const Ident&>(*a.target).name;
+                    std::vector<const Expr*> ops;
+                    flatten_add(*a.value, ops);
+                    bool safe = ops.size() > 1 && ops[0]->kind == ExprKind::Ident &&
+                                static_cast<const Ident&>(*ops[0]).name == name;
+                    for (std::size_t i = 1; safe && i < ops.size(); ++i) {
+                        if (refers_to(*ops[i], name)) safe = false;
+                    }
+                    if (safe) {
+                        for (std::size_t i = 1; i < ops.size(); ++i) {
+                            os << indent << name << " += " << gen_expr(*ops[i]) << ";\n";
+                        }
+                        return;
+                    }
+                }
+                os << indent << gen_lvalue(*a.target) << " = " << gen_expr(*a.value) << ";\n";
                 return;
             }
             case StmtKind::If: {
@@ -208,11 +464,49 @@ private:
                 // verbatim, at this point in the enclosing scope.
                 os << static_cast<const RawCpp&>(s).code << "\n";
                 return;
+            case StmtKind::Break:
+                os << indent << "break;\n";
+                return;
+            case StmtKind::Continue:
+                os << indent << "continue;\n";
+                return;
+            case StmtKind::Match:
+                gen_match(os, static_cast<const Match&>(s), indent);
+                return;
             case StmtKind::Import:
             case StmtKind::StructDef:
             case StmtKind::FnDef:
+            case StmtKind::InterfaceDef:
                 return;  // emitted at file scope
         }
+    }
+
+    // match <subject> { case v { … } case _ { … } } -> evaluate the subject once,
+    // then an if / else-if chain comparing it with `==`; the `_` case is the else.
+    void gen_match(std::ostringstream& os, const Match& m, const std::string& indent) {
+        const std::string var = "__match_" + std::to_string(match_id_++);
+        os << indent << "{\n";
+        const std::string in = indent + "    ";
+        os << in << "auto " << var << " = " << gen_expr(*m.subject) << ";\n";
+        const MatchCase* wildcard = nullptr;
+        bool first = true;
+        for (const MatchCase& c : m.cases) {
+            if (c.wildcard) {
+                wildcard = &c;  // last `_` wins; emitted as the trailing else
+                continue;
+            }
+            os << in << (first ? "if (" : "else if (") << var << " == " << gen_expr(*c.pattern)
+               << ") {\n";
+            gen_block(os, c.body, in + "    ");
+            os << in << "}\n";
+            first = false;
+        }
+        if (wildcard != nullptr) {
+            os << in << (first ? "{\n" : "else {\n");
+            gen_block(os, wildcard->body, in + "    ");
+            os << in << "}\n";
+        }
+        os << indent << "}\n";
     }
 
     void gen_for(std::ostringstream& os, const For& f, const std::string& indent) {
@@ -288,9 +582,10 @@ private:
             case ExprKind::BoolLit:
                 return static_cast<const BoolLit&>(e).value ? "true" : "false";
             case ExprKind::Ident: {
-                const auto it = aliases_.find(static_cast<const Ident&>(e).name);
-                return (it != aliases_.end()) ? module_namespace(it->second)
-                                              : static_cast<const Ident&>(e).name;
+                const auto& name = static_cast<const Ident&>(e).name;
+                if (in_method_ && name == "self") return "(*this)";  // method receiver
+                const auto it = aliases_.find(name);
+                return (it != aliases_.end()) ? module_namespace(it->second) : name;
             }
             case ExprKind::Member: {
                 const auto& m = static_cast<const Member&>(e);
@@ -298,8 +593,19 @@ private:
                 return gen_expr(*m.object) + "." + m.name;
             }
             case ExprKind::Index: {
+                // Value position: negative-aware, and string indexing yields a
+                // length-1 string. Assignment targets use gen_lvalue (raw [] ).
                 const auto& ix = static_cast<const Index&>(e);
-                return gen_expr(*ix.object) + "[" + gen_expr(*ix.index) + "]";
+                return "cheatah::builtins::index(" + gen_expr(*ix.object) + ", " +
+                       gen_expr(*ix.index) + ")";
+            }
+            case ExprKind::Slice: {
+                const auto& sl = static_cast<const Slice&>(e);
+                const std::string lo = sl.start ? gen_expr(*sl.start) : "0LL";
+                const std::string hi =
+                    sl.stop ? gen_expr(*sl.stop) : "cheatah::builtins::slice_end";
+                return "cheatah::builtins::slice(" + gen_expr(*sl.object) + ", " + lo + ", " + hi +
+                       ")";
             }
             case ExprKind::Unary: {
                 const auto& u = static_cast<const Unary&>(e);
@@ -344,6 +650,20 @@ private:
                         return *bi + "(" + gen_args(c.args) + ")";
                     }
                 }
+                // Method-call syntax via UFCS for cheatah's value-methods: a call
+                // `obj.append(x)` on a non-module value lowers to
+                // `cheatah::builtins::append(obj, x)`. Restricted to a known set so
+                // genuine member methods on module classes (io File.write/close,
+                // ndarray NDArray.…) stay as direct member calls, and module calls
+                // (io.print, os.path.join) keep their namespace qualification.
+                if (c.callee->kind == ExprKind::Member) {
+                    const auto& m = static_cast<const Member&>(*c.callee);
+                    if (is_builtin_method(m.name) && !resolve_module_path(m)) {
+                        std::string out = "cheatah::builtins::" + m.name + "(" + gen_expr(*m.object);
+                        for (const ExprPtr& a : c.args) out += ", " + gen_expr(*a);
+                        return out + ")";
+                    }
+                }
                 return gen_expr(*c.callee) + "(" + gen_args(c.args) + ")";
             }
         }
@@ -362,7 +682,10 @@ private:
     std::map<std::string, std::vector<std::string>> aliases_;
     std::set<std::string> roots_;
     std::set<std::string> struct_names_;
+    std::set<std::string> interface_names_;
     std::vector<std::string> diags_;
+    int match_id_ = 0;     // unique suffix for the temp in each lowered `match`
+    bool in_method_ = false;  // inside a struct method body, so `self` -> `(*this)`
 };
 
 } // namespace

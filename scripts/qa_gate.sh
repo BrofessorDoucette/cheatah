@@ -9,6 +9,9 @@
 #      are both 100% (so pushed code is always fully unit-tested).
 #   2. Documentation coverage: 100% Javadoc on the public stdlib API (hard gate) —
 #      every type/function/parameter/return documented (scripts/doc_coverage.sh).
+#   2b. VS Code extension (hard gate): regenerate its hover database from the stdlib
+#      API (Doxygen XML -> gen-hover-docs.py) and FAIL if it drifted, so the editor
+#      extension never ships stale relative to the library.
 #   3. Configure (debug for tests, release for benchmarks).
 #   4. Build (debug).
 #   5. Unit test suite (hard gate) — ctest.
@@ -26,6 +29,7 @@
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
 #       QA_GATE_SKIP_COVERAGE=1   skip only the coverage/README-table/100% stage
 #       QA_GATE_SKIP_DOCS=1       skip only the documentation-coverage stage
+#       QA_GATE_SKIP_EXTENSION=1  skip only the VS Code extension hover-DB sync check
 #       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
 #       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
 #       QA_GATE_FULL_CR=1         ALSO run the full per-function compile-run battery
@@ -84,6 +88,28 @@ if [ "${QA_GATE_SKIP_DOCS:-0}" = "1" ]; then
 else
     bold "Checking documentation coverage (100% Javadoc)…"
     bash scripts/doc_coverage.sh || fail "documentation coverage below 100% — document the entities listed above"
+fi
+
+# 1c. VS Code extension: its hover database (editors/vscode/data/functions.json) is
+#     GENERATED from the stdlib API (Doxygen XML -> gen-hover-docs.py), so it must be
+#     regenerated and committed whenever the library changes. Regenerate it and FAIL
+#     if it drifted, so the editor extension is never shipped stale vs. the library.
+if [ "${QA_GATE_SKIP_EXTENSION:-0}" = "1" ]; then
+    bold "Skipping VS Code extension check (QA_GATE_SKIP_EXTENSION=1)."
+else
+    bold "Checking the VS Code extension hover DB is in sync with the stdlib API…"
+    DOXYGEN="${DOXYGEN:-doxygen}"
+    command -v "$DOXYGEN" >/dev/null 2>&1 || DOXYGEN="$HOME/Tools/doxygen-1.16.1/bin/doxygen"
+    command -v "$DOXYGEN" >/dev/null 2>&1 || fail "doxygen not found (needed to regenerate the extension hover DB)"
+    "$DOXYGEN" Doxyfile >/tmp/cheatah_ext_doxygen.log 2>&1 || { tail -20 /tmp/cheatah_ext_doxygen.log; fail "doxygen (XML) for the extension check"; }
+    python3 editors/vscode/scripts/gen-hover-docs.py >/tmp/cheatah_ext_gen.log 2>&1 || { tail -20 /tmp/cheatah_ext_gen.log; fail "gen-hover-docs.py (extension hover DB)"; }
+    # --porcelain catches BOTH a modified and a never-committed (untracked) hover DB.
+    if [ -n "$(git status --porcelain -- editors/vscode/data/functions.json)" ]; then
+        printf '\n[qa-gate] The VS Code extension hover database is out of date / uncommitted:\n\n'
+        git --no-pager diff --stat -- editors/vscode/data/functions.json
+        fail "VS Code extension hover DB changed — run 'bash docs/build-docs.sh && python3 editors/vscode/scripts/gen-hover-docs.py', commit editors/vscode/data/functions.json, then push again"
+    fi
+    bold "VS Code extension hover DB is up to date."
 fi
 
 # 2. Configure ---------------------------------------------------------------

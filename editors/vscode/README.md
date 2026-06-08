@@ -8,6 +8,10 @@ language (`.purr`).
   numbers, both comment styles (`#` and `//`), operators, types, and built-ins.
 - **The `cpp { … }` escape hatch is highlighted as real C++** — the block body uses
   VS Code's built-in C/C++ grammar (`source.cpp`), with balanced-brace tracking.
+- **IntelliSense** — hover any stdlib or built-in function (`math.sqrt`,
+  `string.split`, `io.print`, `len`, `range`, …) for its signature, parameters,
+  and return value; type `<module>.` for autocomplete. The docs are generated
+  from the stdlib's Doxygen comments into [`data/functions.json`](data/functions.json).
 - Bracket matching, auto-closing pairs, and comment toggling for `.purr`.
 - **A cheetah 🐆 file icon for `.purr`** via the bundled **"cheatah (Seti + cheetah)"**
   file icon theme. VS Code's default *Seti* theme overrides per-language icons, so to
@@ -39,9 +43,13 @@ to see it in action.
 
 | File | Purpose |
 |------|---------|
-| `package.json` | extension manifest — registers the `cheatah` language + grammar |
+| `package.json` | extension manifest — registers the `cheatah` language, grammar, walkthrough |
 | `language-configuration.json` | comments, brackets, auto-closing, indentation |
 | `syntaxes/cheatah.tmLanguage.json` | the TextMate grammar (the highlighter) |
+| `extension.js` | runtime — registers the hover + autocomplete providers |
+| `data/functions.json` | generated doc database (stdlib + builtins) the providers read |
+| `scripts/gen-hover-docs.py` | regenerates `data/functions.json` from `docs/xml` (Doxygen) |
+| `walkthroughs/` | the "Get Started with cheatah" walkthrough shown on install |
 
 ## Highlighting on GitHub
 

@@ -49,12 +49,21 @@ private:
         Block body;
         skip_separators();
         while (!at_end() && !(in_block && check(TokenKind::RBrace))) {
+            const std::size_t before = pos_;
             StmtPtr s = parse_stmt();
             if (s) body.push_back(std::move(s));
             if (!at_end() && !check(TokenKind::Newline) && !check(TokenKind::Semicolon) &&
                 !check(TokenKind::RBrace)) {
                 error("expected a newline or ';' after the statement");
                 synchronize();
+            }
+            // Guarantee forward progress: a failed parse that didn't consume anything
+            // (e.g. a stray top-level `}` — synchronize() stops AT an RBrace, and the
+            // top-level loop doesn't exit on one) would otherwise spin forever. Skip
+            // the offending token so a malformed program ERRORS rather than hanging.
+            if (pos_ == before && !at_end()) {
+                error("unexpected token");
+                advance();
             }
             skip_separators();
         }
@@ -80,6 +89,7 @@ private:
     StmtPtr parse_stmt() {
         if (check(TokenKind::CppBlock)) return std::make_unique<RawCpp>(advance().text);
         if (check_kw("import")) return parse_import();
+        if (check_kw("interface")) return parse_interface();
         if (check_kw("struct")) return parse_struct();
         if (check_kw("fn")) return parse_fn();
         if (check_kw("let")) return parse_let();
@@ -89,6 +99,9 @@ private:
         if (check_kw("return")) return parse_return();
         if (check_kw("try")) return parse_try();
         if (check_kw("raise")) return parse_raise();
+        if (check_kw("break")) { advance(); return std::make_unique<Break>(); }
+        if (check_kw("continue")) { advance(); return std::make_unique<Continue>(); }
+        if (check_kw("match")) return parse_match();
         return parse_assign_or_expr();
     }
 
@@ -131,6 +144,21 @@ private:
             return nullptr;
         }
         s->name = advance().text;
+        if (check(TokenKind::Colon)) {  // : Iface1, Iface2  — interfaces this struct fulfills
+            advance();
+            for (;;) {
+                if (!check(TokenKind::Identifier)) {
+                    error("expected an interface name after ':'");
+                    break;
+                }
+                s->fulfills.push_back(advance().text);
+                if (check(TokenKind::Comma)) {
+                    advance();
+                    continue;
+                }
+                break;
+            }
+        }
         if (!check(TokenKind::LBrace)) {
             error("expected '{' after struct name");
             synchronize();
@@ -139,8 +167,14 @@ private:
         advance();  // {
         skip_separators();
         while (!at_end() && !check(TokenKind::RBrace)) {
+            if (check_kw("fn")) {  // a method: fn name(self, …) { … }
+                StmtPtr m = parse_fn();
+                if (m) s->methods.push_back(std::move(m));
+                skip_separators();
+                continue;
+            }
             if (!check(TokenKind::Identifier)) {
-                error("expected a field name");
+                error("expected a field name or 'fn'");
                 synchronize();
                 skip_separators();
                 continue;
@@ -195,6 +229,17 @@ private:
                     break;
                 }
                 f->params.push_back(advance().text);
+                // Optional `: Type` — an interface name here constrains the param.
+                std::string ptype;
+                if (check(TokenKind::Colon)) {
+                    advance();
+                    if (check(TokenKind::Identifier)) {
+                        ptype = advance().text;
+                    } else {
+                        error("expected a type after ':' in the parameter list");
+                    }
+                }
+                f->param_types.push_back(ptype);
                 if (check(TokenKind::Comma)) {
                     advance();
                     continue;
@@ -212,6 +257,87 @@ private:
         return f;
     }
 
+    StmtPtr parse_interface() {
+        advance();  // interface
+        auto it = std::make_unique<InterfaceDef>();
+        if (!check(TokenKind::Identifier)) {
+            error("expected an interface name");
+            synchronize();
+            return nullptr;
+        }
+        it->name = advance().text;
+        if (!check(TokenKind::LBrace)) {
+            error("expected '{' after the interface name");
+            synchronize();
+            return nullptr;
+        }
+        advance();  // {
+        skip_separators();
+        while (!at_end() && !check(TokenKind::RBrace)) {
+            if (!check_kw("fn")) {
+                error("expected a method signature ('fn …') inside the interface");
+                synchronize();
+                skip_separators();
+                continue;
+            }
+            advance();  // fn
+            InterfaceMethod m;
+            if (!check(TokenKind::Identifier)) {
+                error("expected a method name");
+                synchronize();
+                skip_separators();
+                continue;
+            }
+            m.name = advance().text;
+            if (!check(TokenKind::LParen)) {
+                error("expected '(' after the method name");
+                synchronize();
+                skip_separators();
+                continue;
+            }
+            advance();  // (
+            bool first = true;
+            if (!check(TokenKind::RParen)) {
+                for (;;) {
+                    if (!check(TokenKind::Identifier)) {
+                        error("expected a parameter name");
+                        break;
+                    }
+                    advance();  // param name (the first is the `self` receiver)
+                    if (first) {
+                        first = false;  // self has no declared type
+                    } else if (check(TokenKind::Colon)) {
+                        advance();
+                        m.param_types.push_back(parse_type());
+                    } else {
+                        TypeRef any;  // untyped interface param -> no type constraint
+                        m.param_types.push_back(any);
+                    }
+                    if (check(TokenKind::Comma)) {
+                        advance();
+                        continue;
+                    }
+                    break;
+                }
+            }
+            if (!check(TokenKind::RParen)) {
+                error("expected ')' after the method parameters");
+                synchronize();
+                skip_separators();
+                continue;
+            }
+            advance();  // )
+            it->methods.push_back(std::move(m));
+            skip_separators();
+        }
+        if (!check(TokenKind::RBrace)) {
+            error("expected '}' to close the interface");
+        } else {
+            advance();
+        }
+        return it;
+    }
+
     StmtPtr parse_let() {
         advance();  // let
         auto l = std::make_unique<Let>();
@@ -221,6 +347,11 @@ private:
             return nullptr;
         }
         l->name = advance().text;
+        if (check(TokenKind::Colon)) {  // optional `: <type>` annotation
+            advance();
+            l->type = parse_type();
+            l->has_type = true;
+        }
         if (!check(TokenKind::Assign)) {
             error("expected '=' after the name in 'let'");
             synchronize();
@@ -237,6 +368,11 @@ private:
 
     StmtPtr parse_if() {
         advance();  // if
+        return parse_if_rest();
+    }
+    // The cond+block of an if, plus any `elif`/`else if`/`else` tail. Shared by the
+    // leading `if` and each `elif` so chains nest as If-in-else_body.
+    StmtPtr parse_if_rest() {
         auto n = std::make_unique<If>();
         n->cond = parse_expr();
         if (!n->cond) {
@@ -244,16 +380,77 @@ private:
             return nullptr;
         }
         n->then_body = parse_block();
-        if (check_kw("else")) {
+        // `elif`/`else` may sit on the next line(s) (`} \n elif …`), so skip
+        // separators to look for one — but only consume them if a continuation
+        // actually follows, otherwise the newline correctly ends the `if` statement.
+        const std::size_t after_block = pos_;
+        skip_separators();
+        if (!check_kw("elif") && !check_kw("else")) {
+            pos_ = after_block;
+        }
+        if (check_kw("elif")) {
+            advance();  // elif — like `else if`, condition follows directly
+            StmtPtr nested = parse_if_rest();
+            if (nested) n->else_body.push_back(std::move(nested));
+        } else if (check_kw("else")) {
             advance();
             if (check_kw("if")) {
-                StmtPtr nested = parse_if();  // else if …
+                advance();
+                StmtPtr nested = parse_if_rest();  // else if …
                 if (nested) n->else_body.push_back(std::move(nested));
             } else {
                 n->else_body = parse_block();
             }
         }
         return n;
+    }
+
+    StmtPtr parse_match() {
+        advance();  // match
+        auto m = std::make_unique<Match>();
+        m->subject = parse_expr();
+        if (!m->subject) {
+            synchronize();
+            return nullptr;
+        }
+        if (!check(TokenKind::LBrace)) {
+            error("expected '{' after the match subject");
+            synchronize();
+            return nullptr;
+        }
+        advance();  // {
+        skip_separators();
+        while (!at_end() && !check(TokenKind::RBrace)) {
+            if (!check_kw("case")) {
+                error("expected 'case' inside a match");
+                synchronize();
+                skip_separators();
+                continue;
+            }
+            advance();  // case
+            MatchCase c;
+            // `case _ { … }` is the default; otherwise `case <expr> { … }`.
+            if (check(TokenKind::Identifier) && peek().text == "_") {
+                advance();
+                c.wildcard = true;
+            } else {
+                c.pattern = parse_expr();
+                if (!c.pattern) {
+                    synchronize();
+                    skip_separators();
+                    continue;
+                }
+            }
+            c.body = parse_block();
+            m->cases.push_back(std::move(c));
+            skip_separators();
+        }
+        if (!check(TokenKind::RBrace)) {
+            error("expected '}' to close the match");
+        } else {
+            advance();
+        }
+        return m;
     }
 
     StmtPtr parse_while() {
@@ -496,13 +693,37 @@ private:
                 e = std::make_unique<Call>(std::move(e), std::move(args));
             } else if (check(TokenKind::LBracket)) {
                 advance();
-                ExprPtr idx = parse_expr();
-                if (!check(TokenKind::RBracket)) {
-                    error("expected ']' after index");
-                    return nullptr;
+                // `obj[i]` (index) or `obj[a:b]` (slice); either bound may be omitted.
+                ExprPtr first;
+                if (!check(TokenKind::Colon)) {
+                    first = parse_expr();
+                    if (!first) return nullptr;
                 }
-                advance();
-                e = std::make_unique<Index>(std::move(e), std::move(idx));
+                if (check(TokenKind::Colon)) {
+                    advance();
+                    ExprPtr last;
+                    if (!check(TokenKind::RBracket)) {
+                        last = parse_expr();
+                        if (!last) return nullptr;
+                    }
+                    if (!check(TokenKind::RBracket)) {
+                        error("expected ']' after slice");
+                        return nullptr;
+                    }
+                    advance();
+                    e = std::make_unique<Slice>(std::move(e), std::move(first), std::move(last));
+                } else {
+                    if (!first) {
+                        error("expected an index expression");
+                        return nullptr;
+                    }
+                    if (!check(TokenKind::RBracket)) {
+                        error("expected ']' after index");
+                        return nullptr;
+                    }
+                    advance();
+                    e = std::make_unique<Index>(std::move(e), std::move(first));
+                }
             } else {
                 break;
             }

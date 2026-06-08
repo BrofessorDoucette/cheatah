@@ -48,8 +48,15 @@ d = linalg.det(A)
 - `pinv` — Moore–Penrose pseudo-inverse (SVD, any shape).
 
 ### SIMD
+SIMD here is **pure compiler auto-vectorization** (no intrinsics): the kernels are
+contiguous, unit-stride loops compiled at `-O3 -march=native`. These functions only
+*report* the build's capability:
 - `simd_features` — instruction sets this build targets (e.g. `AVX2;FMA`, `NEON`, `scalar`).
 - `simd_lane_doubles` — widest SIMD lane width in `double`s.
+
+On a build with **no SIMD** every routine returns identical results, just scalar /
+slower — SIMD is never a correctness dependency. The full model (and the
+compile-time-dispatch limitation) is documented in [simd.hpp](simd.hpp).
 
 ---
 

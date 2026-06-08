@@ -25,14 +25,14 @@ TEST(LinalgRoutines, ProductsAndTrace) {
     EXPECT_DOUBLE_EQ(nd::get(c, {0, 0}), 58);
     EXPECT_DOUBLE_EQ(nd::get(c, {0, 1}), 64);
     EXPECT_DOUBLE_EQ(nd::get(c, {1, 1}), 154);
-    EXPECT_DOUBLE_EQ(la::dot(nd::array({1, 2, 3}), nd::array({4, 5, 6})), 32);  // 4+10+18
+    EXPECT_DOUBLE_EQ(la::dot(nd::array({1.0, 2.0, 3.0}), nd::array({4.0, 5.0, 6.0})), 32);  // 4+10+18
     EXPECT_DOUBLE_EQ(la::trace(mat(2, 2, {1, 2, 3, 4})), 5);  // 1+4
 }
 
 TEST(LinalgRoutines, SolveDetInv) {
     const nd::NDArray A = mat(2, 2, {4, 3, 6, 3});  // det = 12-18 = -6
     EXPECT_TRUE(close(la::det(A), -6.0));
-    const nd::NDArray x = la::solve(A, nd::array({10, 12}));  // 4x+3y=10, 6x+3y=12 -> x=1,y=2
+    const nd::NDArray x = la::solve(A, nd::array({10.0, 12.0}));  // 4x+3y=10, 6x+3y=12 -> x=1,y=2
     EXPECT_TRUE(close(nd::get(x, {0}), 1.0));
     EXPECT_TRUE(close(nd::get(x, {1}), 2.0));
     const nd::NDArray Ai = la::inv(A);
@@ -79,17 +79,17 @@ TEST(LinalgRoutines, SvdAndEigh) {
 }
 
 TEST(LinalgRoutines, NormAndRank) {
-    EXPECT_TRUE(close(la::norm(nd::array({3, 4})), 5.0));        // L2
+    EXPECT_TRUE(close(la::norm(nd::array({3.0, 4.0})), 5.0));        // L2
     EXPECT_EQ(la::matrix_rank(mat(2, 2, {1, 2, 2, 4})), 1);      // rank-deficient
     EXPECT_EQ(la::matrix_rank(mat(2, 2, {1, 0, 0, 1})), 2);
 }
 
 TEST(LinalgRoutines, VdotInnerOuterKron) {
-    const nd::NDArray a = nd::array({1, 2, 3});
-    const nd::NDArray b = nd::array({4, 5, 6});
+    const nd::NDArray a = nd::array({1.0, 2.0, 3.0});
+    const nd::NDArray b = nd::array({4.0, 5.0, 6.0});
     EXPECT_DOUBLE_EQ(la::vdot(a, b), 32.0);   // 4+10+18
     EXPECT_DOUBLE_EQ(la::inner(a, b), 32.0);
-    const nd::NDArray o = la::outer(nd::array({1, 2}), nd::array({3, 4}));  // [[3,4],[6,8]]
+    const nd::NDArray o = la::outer(nd::array({1.0, 2.0}), nd::array({3.0, 4.0}));  // [[3,4],[6,8]]
     EXPECT_DOUBLE_EQ(nd::get(o, {0, 0}), 3.0);
     EXPECT_DOUBLE_EQ(nd::get(o, {1, 1}), 8.0);
     const nd::NDArray k = la::kron(mat(2, 2, {1, 0, 0, 1}), mat(2, 2, {1, 2, 3, 4}));  // I⊗B

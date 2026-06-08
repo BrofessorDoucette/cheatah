@@ -30,6 +30,10 @@ The entire library is verified on every QA-gate run under **AddressSanitizer**
 (the `asan` preset) and **Valgrind** (`security/run-valgrind.sh`), with **100% line
 and function coverage** of the stdlib.
 
+See the **[Performance](performance.html)** guide for how cheatah delivers
+hand-written-C++ speed — zero-cost generic abstractions, declarative SIMD, and the
+compiler's automatic string-concatenation optimization — at the cost of compile time.
+
 ## Modules 🐆
 
 | Module | What it gives you |
@@ -44,7 +48,7 @@ and function coverage** of the stdlib.
 | `random`    | Pseudo-random numbers and selection. |
 | `statistics`| Mean, median, variance, standard deviation. |
 | `hashlib`   | SHA-256 digests. |
-| `ndarray`   | N-dimensional `double` arrays with broadcasting. |
+| `ndarray`   | N-dimensional arrays **generic over the numeric element type** (deduced from the literals), with broadcasting + declarative SIMD. |
 | `linalg`    | numpy-style linear algebra on `ndarray`, SIMD-accelerated. |
 | `socket`    | TCP sockets — a small BSD-socket wrapper (Python-`socket`-flavored). |
 

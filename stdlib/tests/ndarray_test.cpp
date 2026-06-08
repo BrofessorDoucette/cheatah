@@ -93,3 +93,19 @@ TEST(CheatahNDArray, BroadcastTo) {
     EXPECT_THROW(nd::broadcast_to(m, {4}), std::runtime_error);    // can't broadcast to fewer dims
     EXPECT_THROW(nd::broadcast_to(row, {2, 4}), std::runtime_error);  // {3} not broadcastable to last dim 4
 }
+
+// Cover both element-wise paths: the vectorized contiguous fast path (matching
+// shapes, no broadcast) and the C-order odometer fallback (a strided/broadcast
+// view), plus the strided-reduction (sum) fallback.
+TEST(CheatahNDArray, ContiguousFastPathAndStridedReduce) {
+    // Same-shape, contiguous operands -> the std::transform(unseq) fast path.
+    const nd::NDArray a = nd::array({1.0, 2.0, 3.0, 4.0});
+    const nd::NDArray b = nd::array({10.0, 20.0, 30.0, 40.0});
+    const nd::NDArray c = nd::add(a, b);
+    EXPECT_DOUBLE_EQ(nd::get(c, {0}), 11.0);
+    EXPECT_DOUBLE_EQ(nd::get(c, {3}), 44.0);
+    EXPECT_DOUBLE_EQ(nd::get(nd::mul(a, b), {1}), 40.0);
+    // Sum of a NON-contiguous (broadcast, stride-0) view -> the odometer fallback.
+    const nd::NDArray v = nd::broadcast_to(nd::scalar(2.0), {3});  // [2, 2, 2], stride 0
+    EXPECT_DOUBLE_EQ(nd::sum(v), 6.0);
+}

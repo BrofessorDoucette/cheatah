@@ -3,6 +3,76 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.3.0-alpha — a real language: methods, interfaces, generic numerics, and IntelliSense
+
+Third pre-alpha, and the largest yet. This release turns cheatah from a small
+scripting core into a **statically-typed, concept-driven language**: structs gain
+methods and interfaces (lowered to C++ concepts), the numeric core becomes
+**generic over its element type**, and the editor gets full **IntelliSense**. A
+standing rule lands too — *every* template is concept-constrained, so misuse yields
+a named error, never template spam.
+
+### Language
+- **Control flow:** `break`, `continue`, `elif`, and `match`/`case`.
+- **Collections:** growable lists (`xs.append(v)` / `append(xs, v)`), index
+  assignment (`d[k] = v`, `xs[i] = v`), and empty typed declarations
+  (`let xs: list[int] = []`).
+- **Slicing & indexing:** `a[i:j]` (and `a[i:]`, `a[:j]`), **negative indices**, and
+  Python-style string indexing (`s[i]` is a length-1 string, so `s[i] == "<"`).
+- **Method-call syntax:** `obj.method(...)` (UFCS) — including string predicates
+  `s.startswith/endswith/contains`.
+- **Struct methods:** declare `fn method(self, …)` in a struct body → a real C++
+  member function (`self` is implicit; non-mutating methods are emitted `const`).
+- **Interfaces:** `interface Shape { fn area(self) … }` lowers to a **C++20 concept**;
+  `struct Circle : Shape { … }` adds a compile-time `static_assert` (a struct that
+  doesn't fulfill it fails with *"Circle must fulfill Shape"*, not a template dump);
+  and `fn describe(s: Shape)` becomes a concept-constrained `auto` — static
+  polymorphism, no inheritance, no vtables.
+
+### Numerics — generic over the element type
+- **`ndarray` is now `basic_ndarray<T>`** over any `Numeric` element type, **deduced
+  from the literals** (`array([1,2,3])` is integer, `array([1.0,…])` is double).
+  `NDArray` remains the default `basic_ndarray<double>`, so existing code is unchanged.
+- **Declarative SIMD:** element-wise ops use `std::transform(std::execution::unseq, …)`
+  and `sum` uses `std::reduce(unseq)` — vectorized for any `T` — with a correct
+  C-order fallback for broadcast/strided views. The linalg SIMD model (pure
+  auto-vectorization, and the no-SIMD behavior) is now documented in `simd.hpp`.
+- A `Numeric` / `FloatingPoint` concept split is in place for the linalg
+  generalization to come.
+
+### io
+- **`Printable` protocol:** `io.print` / `io.str` now render **lists, dicts,
+  structs, and ndarrays** — a value is printable if it streams, exposes a `str()`
+  method, or is a container of printables (recursive). `NDArray` gained a `str()`.
+
+### Performance
+- **Automatic string-concatenation optimization:** the compiler rewrites
+  `x = x + a + b` into in-place appends (`x += a; x += b`), turning O(n²)
+  string-building into O(n) with no full-length temporaries — an ease-of-development
+  guarantee, no manual `+=`/builder needed.
+- A new **[Performance](docs/performance.md)** docs page documents the
+  compile-time-for-run-time bargain.
+
+### Compiler & policy
+- **Constrain-all-templates:** every emitted function/method parameter is a
+  concept-constrained `auto` (the baseline `Value`), and every library template
+  carries a concept (`Numeric`, `Ordered`, `Printable`, `Sized`, …). No
+  unconstrained templates anywhere — comprehensible compile errors by construction.
+
+### Tooling
+- **VS Code extension → IntelliSense.** Hover any stdlib/builtin function for its
+  signature, params, and docs; type `module.` for autocomplete. Backed by a
+  generated `functions.json` (built from the Doxygen XML), plus a "Get Started"
+  walkthrough. The extension is now versioned with the language.
+- **QA gate enforces the extension stays in sync** — a new hard-gate stage
+  regenerates the extension hover DB from the stdlib API and fails the push if it
+  drifted, so the editor never ships stale relative to the library.
+- The docs generator now renders hand-written **guide pages** (e.g. Performance).
+
+### Quality
+- **100% unit-test line + function coverage** and **100% Javadoc** maintained across
+  all the new code, under the existing ASan + UBSan + Valgrind QA gate.
+
 ## v0.2.0-alpha — networking, a bespoke docs site, and a three-tier test system
 
 Second pre-alpha. The language core is unchanged; this release adds **networking**

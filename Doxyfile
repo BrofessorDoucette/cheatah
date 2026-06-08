@@ -58,11 +58,15 @@ WARN_NO_PARAMDOC       = NO
 # Input — headers (the API) + implementations (so call/reference graphs have
 # real data) + the hand-written main page. Tests/scripts/READMEs excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md
+INPUT                  = stdlib docs/mainpage.md docs/performance.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = */tests/* */scripts/* */README.md
+# Internal implementation helpers (any `detail` namespace) are NOT public API: the
+# site generator and the hover index already hide them, so they are excluded here
+# too (and from the 100%-Javadoc gate).
+EXCLUDE_SYMBOLS        = *::detail::* *::detail
 USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
 
 #---------------------------------------------------------------------------

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>html::parser · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=29bd8302">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="performance.html" data-ref="performance">Performance</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></li><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">html::parser</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1basic__ndarray.html" data-ref="classcheatah_1_1ndarray_1_1basic__ndarray">ndarray::basic_ndarray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>html::parser</code></h1>
+  <p class="lede">The tokenizing parser — the <code><a href="namespacecheatah_1_1html_1_1parser.html">html.parser</a></code> submodule. </p>
+</div>
+<div class="overview"><p><code>import <a href="namespacecheatah_1_1html.html">html</a></code>, then call <code>html.parser.parse(src)</code>.</p></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1html_1_1parser_1a3133dc4601a2a67aee27aa607945ec54">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; Token &gt;</span> <span class="mname">parse</span>(std::string_view html)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_html_html_cpp.html#L159" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1html_1_1parser_1a3133dc4601a2a67aee27aa607945ec54" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Tokenize an HTML document into the events a callback parser would dispatch. </p>
+  <div class="member-body"><p>Returns one Token per event, in document order. The Token::kind is one of:</p><ul><li><p><code>&quot;starttag&quot;</code> — <code>&lt;div class=&quot;x&quot;&gt;</code>; Token::tag + Token::attrs set.</p>
+</li><li><p><code>&quot;startendtag&quot;</code> — self-closing <code>&lt;br/&gt;</code>; tag + attrs set.</p>
+</li><li><p><code>&quot;endtag&quot;</code> — <code>&lt;/div&gt;</code>; Token::tag set.</p>
+</li><li><p><code>&quot;data&quot;</code> — text between tags; Token::data set (character references decoded, like Python&#x27;s <code>convert_charrefs=True</code>).</p>
+</li><li><p><code>&quot;comment&quot;</code> — <code>&lt;!-- … --&gt;</code>; Token::data is the comment body.</p>
+</li><li><p><code>&quot;decl&quot;</code> — <code>&lt;!DOCTYPE <a href="namespacecheatah_1_1html.html">html</a>&gt;</code>; Token::data is the text after <code>&lt;!</code>.</p>
+</li><li><p><code>&quot;pi&quot;</code> — processing instruction <code>&lt;? … &gt;</code>; Token::data the body.</p>
+</li></ul><p>Tag and attribute names are lowercased. <code>&lt;script&gt;</code> / <code>&lt;style&gt;</code> bodies are emitted as a single raw <code>&quot;data&quot;</code> token (references <strong>not</strong> decoded). Malformed input never throws: unterminated constructs consume to end-of-input.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>html</code></td><td class="pdesc"><p>the document text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the token list (empty for empty input).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) time in the length of <code>html</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the token vector and its strings on the heap.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>CheatahHtml.Parse</code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code>HtmlCompileRun.Parse</code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code>StdlibE2E.Html</code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1html_1_1parser_1a2ac219ac3711a4c4d72c2b67a0f4a495">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">get_attr</span>(const Token &amp;t, std::string_view name)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_html_html_cpp.html#L302" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1html_1_1parser_1a2ac219ac3711a4c4d72c2b67a0f4a495" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Value of attribute <code>name</code> on <code>t</code>, or &quot;&quot; if absent (or valueless). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>a start/startend token.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>attribute name (matched case-insensitively).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the attribute value, or &quot;&quot;.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(k) in the attribute count of <code>t</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result string on the heap.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>CheatahHtml.GetAttr</code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code>HtmlCompileRun.GetAttr</code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code>StdlibE2E.Html</code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1html_1_1parser_1a2b6faf11dceea2187008aeda9ab44008">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">has_attr</span>(const Token &amp;t, std::string_view name)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_html_html_cpp.html#L310" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1html_1_1parser_1a2b6faf11dceea2187008aeda9ab44008" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether <code>t</code> carries an attribute named <code>name</code> (case-insensitive). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>a start/startend token.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>attribute name.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true if present (even if valueless).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(k) in the attribute count of <code>t</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>CheatahHtml.HasAttr</code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code>HtmlCompileRun.HasAttr</code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code>StdlibE2E.Html</code></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1html_1_1parser_1a3133dc4601a2a67aee27aa607945ec54">parse</a></li><li><a href="#namespacecheatah_1_1html_1_1parser_1a2ac219ac3711a4c4d72c2b67a0f4a495">get_attr</a></li><li><a href="#namespacecheatah_1_1html_1_1parser_1a2b6faf11dceea2187008aeda9ab44008">has_attr</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=d65cd33a"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
+</body>
+</html>

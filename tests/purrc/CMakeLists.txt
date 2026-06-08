@@ -2,6 +2,7 @@
 # purrc compiles a .purr to a loadable module, cheatah loads and runs it.
 add_executable(cheatah_purrc_tests
     compile_run_test.cpp
+    lang_features_test.cpp
     linalg_lsq_e2e_test.cpp
     # Comprehensive per-module system tests (suite StdlibE2E): each exercises
     # EVERY function of its module in one cohesive program (backs the @systest docs).

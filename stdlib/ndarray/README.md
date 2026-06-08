@@ -1,11 +1,22 @@
 # cheatah `ndarray`
 
-Our own numpy-flavored N-dimensional array of doubles, with full NumPy
+Our own numpy-flavored N-dimensional array, **generic over its numeric element
+type**, with full NumPy
 [broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html).
 
-Elements live in a shared buffer (`shared_ptr<vector<double>>`); an array is a
-VIEW into it — `{shape, strides, offset}` — so reshape and broadcast are zero-copy
+The array is `basic_ndarray<T>` for any `Numeric` element type `T` (int or float
+family); the element type is **deduced from the literals** — `array([1, 2, 3])`
+is an integer array, `array([1.0, …])` is a `double` array. `NDArray` is the
+default `basic_ndarray<double>`.
+
+Elements live in a shared buffer (`shared_ptr<vector<T>>`); an array is a VIEW
+into it — `{shape, strides, offset}` — so reshape and broadcast are zero-copy
 (a stretched dimension just gets stride 0). Shared ownership keeps it memory-safe.
+
+Element-wise ops vectorize declaratively: a contiguous fast path uses
+`std::transform(std::execution::unseq, …)` (and `sum` uses `std::reduce(unseq)`),
+so the compiler emits SIMD for any `T`; broadcast/strided views fall back to a
+correct C-order walk.
 
 ## Usage
 

@@ -64,7 +64,11 @@ TEST(CheatahCodegen, EmitsFunctionAndCall) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "auto add(auto a, auto b) {"));  // C++20 abbreviated template
+    // C++20 abbreviated template, each param constrained by the baseline `Value`
+    // concept (no generated template is left unconstrained).
+    EXPECT_TRUE(contains(
+        cg.source,
+        "auto add(cheatah::builtins::Value auto a, cheatah::builtins::Value auto b) {"));
     EXPECT_TRUE(contains(cg.source, "return (a + b);"));
     EXPECT_TRUE(contains(cg.source, "auto x = add(1LL, 2LL);"));
 }
@@ -88,6 +92,33 @@ TEST(CheatahCodegen, StructConstructionUsesAggregateBraces) {
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "auto p = P{1LL, 2LL};"));  // P{...} not P(...)
+}
+
+TEST(CheatahCodegen, StructMethodBecomesMemberFunction) {
+    const ParseResult pr = parse_source(
+        "struct Circle {\nr: float\nfn area(self) {\nreturn self.r * self.r\n}\n}\n"
+        "let c = Circle(2.0)\nlet a = c.area()\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "double r;"));
+    EXPECT_TRUE(contains(cg.source, "auto area() const {"));     // non-mutating -> const; self is (*this)
+    EXPECT_TRUE(contains(cg.source, "return ((*this).r * (*this).r);"));
+    EXPECT_TRUE(contains(cg.source, "auto a = c.area();"));      // call is a direct member call
+}
+
+TEST(CheatahCodegen, InterfaceBecomesConceptAndStaticAssert) {
+    const ParseResult pr = parse_source(
+        "interface Shape {\nfn area(self)\n}\n"
+        "struct Circle : Shape {\nr: float\nfn area(self) {\nreturn self.r\n}\n}\n"
+        "fn describe(s: Shape) {\nreturn s.area()\n}\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "concept Shape ="));                  // interface -> concept
+    EXPECT_TRUE(contains(cg.source, "requires(Self& self) { self.area(); }"));
+    EXPECT_TRUE(contains(cg.source, "static_assert(Shape<Circle>"));      // fulfillment check
+    EXPECT_TRUE(contains(cg.source, "describe(Shape auto s)"));           // interface-typed param
 }
 
 TEST(CheatahCodegen, ContainerFieldTypes) {

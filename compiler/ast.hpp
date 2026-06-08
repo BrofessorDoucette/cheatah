@@ -12,7 +12,7 @@ namespace cheatah {
 
 // ---- Expressions ----
 enum class ExprKind {
-    StringLit, NumberLit, BoolLit, Ident, Member, Index, Call, Unary, Binary,
+    StringLit, NumberLit, BoolLit, Ident, Member, Index, Slice, Call, Unary, Binary,
     ListLit, DictLit,
 };
 
@@ -56,6 +56,14 @@ struct Index : Expr {  // object[index]
     Index(ExprPtr o, ExprPtr i) : Expr(ExprKind::Index), object(std::move(o)), index(std::move(i)) {}
 };
 
+struct Slice : Expr {  // object[start:stop]  (start and/or stop may be null)
+    ExprPtr object;
+    ExprPtr start;  // null -> from the beginning
+    ExprPtr stop;   // null -> to the end
+    Slice(ExprPtr o, ExprPtr a, ExprPtr b)
+        : Expr(ExprKind::Slice), object(std::move(o)), start(std::move(a)), stop(std::move(b)) {}
+};
+
 struct Call : Expr {  // callee(args...)
     ExprPtr callee;
     std::vector<ExprPtr> args;
@@ -88,9 +96,24 @@ struct Binary : Expr {  // lhs op rhs  (op is the C++ operator: "+","==","&&", �
         : Expr(ExprKind::Binary), op(std::move(o)), lhs(std::move(l)), rhs(std::move(r)) {}
 };
 
+// A type reference: a primitive/struct name, or a container with type args.
+//   int -> {name:"int"} ; list[float] -> {name:"list", args:[float]} ;
+//   dict[str,int] -> {name:"dict", args:[str,int]} ; array[int,8] -> {…, array_size:"8"}
+struct TypeRef {
+    std::string name;
+    std::vector<TypeRef> args;
+    std::string array_size;  // only for array[T, N]
+};
+
+struct Field {
+    std::string name;
+    TypeRef type;
+};
+
 // ---- Statements ----
 enum class StmtKind {
     Import, ExprStmt, Let, Assign, If, While, For, Return, Try, Raise, StructDef, FnDef, RawCpp,
+    Break, Continue, Match, InterfaceDef,
 };
 
 struct Stmt {
@@ -112,8 +135,10 @@ struct ExprStmt : Stmt {
     explicit ExprStmt(ExprPtr e) : Stmt(StmtKind::ExprStmt), expr(std::move(e)) {}
 };
 
-struct Let : Stmt {  // let <name> = <value>
+struct Let : Stmt {  // let <name> [: <type>] = <value>
     std::string name;
+    bool has_type = false;  // an explicit `: <type>` annotation was given
+    TypeRef type;           // valid iff has_type — declares the C++ type (e.g. empty list[int])
     ExprPtr value;
     Let() : Stmt(StmtKind::Let) {}
 };
@@ -162,31 +187,56 @@ struct Raise : Stmt {  // raise <message>
     Raise() : Stmt(StmtKind::Raise) {}
 };
 
-// A type reference: a primitive/struct name, or a container with type args.
-//   int -> {name:"int"} ; list[float] -> {name:"list", args:[float]} ;
-//   dict[str,int] -> {name:"dict", args:[str,int]} ; array[int,8] -> {…, array_size:"8"}
-struct TypeRef {
-    std::string name;
-    std::vector<TypeRef> args;
-    std::string array_size;  // only for array[T, N]
+struct Break : Stmt {  // break — exit the nearest loop
+    Break() : Stmt(StmtKind::Break) {}
 };
 
-struct Field {
-    std::string name;
-    TypeRef type;
+struct Continue : Stmt {  // continue — next iteration of the nearest loop
+    Continue() : Stmt(StmtKind::Continue) {}
 };
 
-struct StructDef : Stmt {  // C-style struct: struct Name { field: type … }
+// match <subject> { case <expr> { … }  case _ { … } }  — value match; `_` is the
+// default. Lowers to an if/else-if chain comparing the subject with `==`.
+struct MatchCase {
+    ExprPtr pattern;   // null when `wildcard` (the `_` default)
+    bool wildcard = false;
+    Block body;
+};
+struct Match : Stmt {
+    ExprPtr subject;
+    std::vector<MatchCase> cases;
+    Match() : Stmt(StmtKind::Match) {}
+};
+
+struct StructDef : Stmt {  // struct Name [: Iface, …] { field: type … [fn method(self,…){…}] }
     std::string name;
     std::vector<Field> fields;
+    std::vector<StmtPtr> methods;       // each is a FnDef; first param is `self`
+    std::vector<std::string> fulfills;  // interfaces this struct must satisfy (-> static_assert)
     StructDef() : Stmt(StmtKind::StructDef) {}
 };
 
 struct FnDef : Stmt {  // fn <name>(<params>) { … }  (untyped params -> auto)
     std::string name;
     std::vector<std::string> params;
+    std::vector<std::string> param_types;  // parallel to params; "" = untyped (auto). An
+                                           // interface name here constrains that param.
     Block body;
     FnDef() : Stmt(StmtKind::FnDef) {}
+};
+
+// interface Name { fn method(self [, p: type]…) [-> type] … } — a contract that
+// lowers to a C++ concept; a struct that lists it in `fulfills` is static_asserted.
+struct InterfaceMethod {
+    std::string name;
+    std::vector<TypeRef> param_types;  // types of params AFTER self (self is the receiver)
+    bool has_return = false;
+    TypeRef return_type;
+};
+struct InterfaceDef : Stmt {
+    std::string name;
+    std::vector<InterfaceMethod> methods;
+    InterfaceDef() : Stmt(StmtKind::InterfaceDef) {}
 };
 
 // Raw C++ escape hatch: `cpp { … }`. `code` is the verbatim body. Emitted at FILE

@@ -21,6 +21,8 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace cheatah::io {
@@ -33,6 +35,28 @@ template <typename T>
 concept Streamable = requires(std::ostream& os, const T& value) {
     { os << value } -> std::convertible_to<std::ostream&>;
 };
+
+/// HasStr<T>: T exposes a `str()` method that returns a Streamable value. This is
+/// the hook a struct (or a built-in object like NDArray) implements to become
+/// printable — `io.print` calls it to get something it can stream.
+template <typename T>
+concept HasStr = requires(const T& value) {
+    { value.str() } -> Streamable;
+};
+
+// Printable<T>: what `print`/`str` actually require — NOT "is it Streamable", but
+// "can it be turned into something Streamable, then streamed". True when T streams
+// directly, exposes a HasStr `str()`, or is a list/dict whose elements are
+// themselves Printable (checked recursively, so nested containers work).
+template <typename T>
+struct printable_trait : std::bool_constant<Streamable<T> || HasStr<T>> {};
+template <typename T, typename A>
+struct printable_trait<std::vector<T, A>> : printable_trait<T> {};
+template <typename K, typename V, typename H, typename E, typename A>
+struct printable_trait<std::unordered_map<K, V, H, E, A>>
+    : std::bool_constant<printable_trait<K>::value && printable_trait<V>::value> {};
+template <typename T>
+concept Printable = printable_trait<std::remove_cvref_t<T>>::value;
 
 /**
  * Python `str()`: stringify any streamable value.
@@ -79,6 +103,79 @@ std::string str(const std::string& value);
  */
 std::string str(bool b);
 
+// repr() renders a value the way it appears INSIDE a container (strings quoted).
+// Forward-declared here so the str(list)/str(dict) overloads below can call it for
+// their elements; the definitions live further down.
+template <Streamable T>
+std::string repr(const T& value);
+std::string repr(const std::string& value);
+std::string repr(const char* value);
+template <typename T>
+    requires(HasStr<T> && !Streamable<T>)
+std::string repr(const T& value);
+template <typename T>
+    requires Printable<T>
+std::string repr(const std::vector<T>& v);
+template <typename K, typename V, typename H, typename E, typename A>
+    requires(Printable<K> && Printable<V>)
+std::string repr(const std::unordered_map<K, V, H, E, A>& m);
+
+/**
+ * `str()` for a type with a `str()` method (a cheatah struct that implements it, or
+ * a built-in object like NDArray): defer to that method's rendering.
+ * @param value a HasStr value.
+ * @return `value.str()`, itself run through str() so the result is a string.
+ * @test CheatahIo.StrRendersContainersAndObjects
+ * @systest StdlibE2E.Io
+ */
+template <typename T>
+    requires(HasStr<T> && !Streamable<T>)
+std::string str(const T& value) {
+    return str(value.str());
+}
+/**
+ * `str()` for a list — Python `[a, b, c]`. Elements are rendered with repr(), so a
+ * `list[str]` prints with quotes (`['a', 'b']`), matching Python.
+ * @param v the list (its element type must be Printable).
+ * @return the bracketed rendering.
+ * @test CheatahIo.StrRendersContainersAndObjects
+ * @systest StdlibE2E.Io
+ */
+template <typename T>
+    requires Printable<T>
+std::string str(const std::vector<T>& v) {
+    std::ostringstream os;
+    os << '[';
+    for (std::size_t i = 0; i < v.size(); ++i) {
+        if (i != 0) os << ", ";
+        os << repr(v[i]);
+    }
+    os << ']';
+    return os.str();
+}
+/**
+ * `str()` for a dict — Python `{k: v, …}`. Iteration order is unspecified (it is a
+ * hash map). Keys and values are rendered with repr().
+ * @param m the dict (key and value types must be Printable).
+ * @return the brace-wrapped rendering.
+ * @test CheatahIo.StrRendersContainersAndObjects
+ * @systest StdlibE2E.Io
+ */
+template <typename K, typename V, typename H, typename E, typename A>
+    requires(Printable<K> && Printable<V>)
+std::string str(const std::unordered_map<K, V, H, E, A>& m) {
+    std::ostringstream os;
+    os << '{';
+    bool first = true;
+    for (const auto& [k, val] : m) {
+        if (!first) os << ", ";
+        first = false;
+        os << repr(k) << ": " << repr(val);
+    }
+    os << '}';
+    return os.str();
+}
+
 /**
  * Python `print(*args)`: space-separated, newline-terminated, to stdout (sep=' ', end='\n').
  *
@@ -92,7 +189,7 @@ std::string str(bool b);
  * @crtest IoCompileRun.Print
  * @systest StdlibE2E.Io
  */
-template <Streamable... Args>
+template <Printable... Args>
 void print(const Args&... args) {
     std::size_t i = 0;
     ((std::cout << (i++ ? " " : "") << str(args)), ...);
@@ -142,6 +239,46 @@ std::string repr(const std::string& value);
  * @systest StdlibE2E.Io
  */
 std::string repr(const char* value);
+/**
+ * repr() of a `str()`-having object is its `str()` (like Python, repr defers to the
+ * type's own rendering).
+ * @param value a value whose type exposes `str()`.
+ * @return `value.str()`.
+ * @complexity O(n). @alloc allocates the result string.
+ * @test CheatahIo.StrRendersContainersAndObjects
+ * @systest StdlibE2E.Io
+ */
+template <typename T>
+    requires(HasStr<T> && !Streamable<T>)
+std::string repr(const T& value) {
+    return str(value);
+}
+/**
+ * repr() of a list equals its str() (Python: `repr([1, 2]) == '[1, 2]'`).
+ * @param v the list (its element type must be Printable).
+ * @return the bracketed rendering, elements repr'd.
+ * @complexity O(n). @alloc allocates the result string.
+ * @test CheatahIo.StrRendersContainersAndObjects
+ * @systest StdlibE2E.Io
+ */
+template <typename T>
+    requires Printable<T>
+std::string repr(const std::vector<T>& v) {
+    return str(v);
+}
+/**
+ * repr() of a dict equals its str() (`{k: v, …}`, unspecified order).
+ * @param m the dict (key and value types must be Printable).
+ * @return the brace-wrapped rendering, keys/values repr'd.
+ * @complexity O(n). @alloc allocates the result string.
+ * @test CheatahIo.StrRendersContainersAndObjects
+ * @systest StdlibE2E.Io
+ */
+template <typename K, typename V, typename H, typename E, typename A>
+    requires(Printable<K> && Printable<V>)
+std::string repr(const std::unordered_map<K, V, H, E, A>& m) {
+    return str(m);
+}
 
 namespace detail {
 /**

@@ -1,6 +1,8 @@
 #include "builtins.hpp"
 
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -51,4 +53,58 @@ TEST(CheatahBuiltins, AsciiEscapesQuoteChar) {
 TEST(CheatahBuiltins, AsciiEscapesBackslashAndQuote) {
     EXPECT_EQ(b::ascii(std::string("a\\b")), "'a\\\\b'");  // backslash → \\
     EXPECT_EQ(b::ascii("it's"), "'it\\'s'");               // single quote → \'
+}
+
+TEST(CheatahBuiltins, Append) {
+    std::vector<long long> xs;
+    b::append(xs, 1);
+    b::append(xs, 2LL);
+    ASSERT_EQ(xs.size(), 2u);
+    EXPECT_EQ(xs[0], 1);
+    EXPECT_EQ(xs[1], 2);
+}
+
+TEST(CheatahBuiltins, StringPredicates) {
+    EXPECT_TRUE(b::startswith("</div>", "</"));
+    EXPECT_FALSE(b::startswith("x", "</"));
+    EXPECT_TRUE(b::endswith("hello", "lo"));
+    EXPECT_FALSE(b::endswith("hi", "lo"));
+    EXPECT_TRUE(b::contains("abcd", "bc"));
+    EXPECT_FALSE(b::contains("abcd", "zz"));
+}
+
+TEST(CheatahBuiltins, IndexString) {
+    EXPECT_EQ(b::index(std::string("hello"), 0), "h");
+    EXPECT_EQ(b::index(std::string("hello"), -1), "o");  // negative from the end
+    EXPECT_THROW(b::index(std::string("hi"), 5), std::out_of_range);
+}
+
+TEST(CheatahBuiltins, IndexList) {
+    const std::vector<long long> xs{10, 20, 30};
+    EXPECT_EQ(b::index(xs, 1), 20);
+    EXPECT_EQ(b::index(xs, -1), 30);
+    EXPECT_THROW(b::index(xs, 3), std::out_of_range);
+}
+
+TEST(CheatahBuiltins, IndexDict) {
+    const std::unordered_map<std::string, long long> m{{"a", 1}, {"b", 2}};
+    EXPECT_EQ(b::index(m, std::string("a")), 1);
+    EXPECT_THROW(b::index(m, std::string("z")), std::out_of_range);
+}
+
+TEST(CheatahBuiltins, SliceString) {
+    const std::string s = "hello world";
+    EXPECT_EQ(b::slice(s, 0, 5), "hello");
+    EXPECT_EQ(b::slice(s, 6, b::slice_end), "world");  // s[6:]
+    EXPECT_EQ(b::slice(s, 0, b::slice_end), s);          // s[:]
+    EXPECT_EQ(b::slice(s, -5, b::slice_end), "world");   // negative start
+    EXPECT_EQ(b::slice(s, 3, 1), "");                    // empty when lo >= hi
+    EXPECT_EQ(b::slice(s, 0, 100), s);                   // hi clamped to len
+}
+
+TEST(CheatahBuiltins, SliceList) {
+    const std::vector<long long> xs{1, 2, 3, 4, 5};
+    EXPECT_EQ(b::slice(xs, 1, 4), (std::vector<long long>{2, 3, 4}));
+    EXPECT_EQ(b::slice(xs, -2, b::slice_end), (std::vector<long long>{4, 5}));
+    EXPECT_TRUE(b::slice(xs, 3, 1).empty());
 }

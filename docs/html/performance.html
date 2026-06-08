@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>Performance · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=29bd8302">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="performance.html" data-ref="performance">Performance</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></li><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">html::parser</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1basic__ndarray.html" data-ref="classcheatah_1_1ndarray_1_1basic__ndarray">ndarray::basic_ndarray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Guide</div>
+  <h1>Performance</h1>
+  
+</div>
+<div class="overview"><p>🐱 <em>Programs so fast they purrrrrrrrrrrrr like a kitten.</em> 🐆</p><p>cheatah&#x27;s whole reason to exist is <strong>Python-shaped code at hand-written-C++ speed</strong>. That goal is a design constraint we apply <em>a priori</em> — before writing a feature — not an afterthought we profile our way toward later. This page is the standing record of how we keep cheatah fast, and the one deliberate price we pay for it: <strong>slower compilation</strong>.</p><h2>The core bargain: compile-time cost for run-time speed</h2><p>A <code>.purr</code> program is transpiled to modern C++ and built at <strong><code>-O3 -march=native</code></strong>, then run on the headless host. We lean hard on <strong>templates and C++20 concepts</strong> for zero-cost abstraction — generic code that monomorphizes at the call site into exactly the machine code you&#x27;d write by hand, with no virtual dispatch, no boxing, no runtime type tags.</p><p>Templates are not free: they make the C++ compiler do more work, so <strong>cheatah programs compile more slowly than an equivalent dynamically-typed language would &quot;load.&quot;</strong> We accept that trade knowingly. Compilation happens once; the compiled <code>.so</code> then runs in hot loops, inner products, and tight string-building paths millions of times. Paying the cost once, at build time, to delete it forever at run time is the right side of that trade for the scientific-computing, ML, and systems workloads cheatah targets. (It is also why every emitted template is <strong>constrained by a concept</strong> — see Why constrained templates, given the compile-time cost below — so the extra compiler work buys <em>comprehensible errors</em>, not just speed.)</p><h2>String building: no accidental O(n²), no surplus temporaries</h2><p>This is the concern that prompted this page, and it is a real trap in naive transpilers. Consider a typical builder — assembling an HTTP response header:</p><pre class="code"><code>fnresponse(status,ctype,body){
+letnl=chr(13)+chr(10)
+lethead=&quot;HTTP/1.1&quot;+status+nl
+head=head+&quot;Content-Type:&quot;+ctype+nl
+head=head+&quot;Content-Length:&quot;+io.str(len(body))+nl
+head=head+&quot;Connection:close&quot;+nl+nl
+returnhead+body
+}</code></pre><p>A literal translation of <code>head = head + &quot;…&quot; + ctype + nl</code> would <strong>copy the entire growing <code>head</code></strong> on every line. Over a header that&#x27;s <code>n</code> bytes when done, that is <code>O(n²)</code> total copying plus a fresh full-length temporary per statement — exactly the death-by-<code>std::string</code>-temporaries you&#x27;d worry about.</p><p>cheatah does <strong>not</strong> emit that. Two things protect you:</p><ol><li><p><strong>Self-append rewrite.</strong> The codegen recognizes the pattern <code>x = x + e1 + e2 + …</code> (a plain variable at the head of a <code>+</code> chain that the appended operands don&#x27;t re-read) and lowers it to <strong>in-place appends</strong>:</p>
+<pre class="code"><code>head+=std::string(&quot;Content-Type:&quot;);
+head+=ctype;
+head+=nl;</code></pre>
+<p>The <code>head</code> buffer grows amortized in place; nothing copies the bytes already written. <code>O(n²)</code> becomes <code>O(n)</code>, and the per-line full-length temporary is gone. (The same rewrite turns numeric accumulators like <code>total = total + i</code> into <code>total += i</code>.)</p>
+</li><li><p><strong>rvalue <code>operator+</code> chaining.</strong> For a <em>fresh</em> left-to-right chain such as <code>let head = &quot;HTTP/1.1 &quot; + status + nl</code>, C++&#x27;s rvalue overloads of <code>operator+</code> reuse the leftmost temporary&#x27;s buffer and append into it, so a chain of <code>k</code> concatenations is one growing buffer — not <code>k</code> independent allocations.</p>
+</li></ol><p>Net: the builder above performs work proportional to the <strong>output length</strong>, with the allocations a careful C++ programmer would write by hand.</p><h2>Numeric speed: zero-cost generics + SIMD</h2><ul><li><p><strong><code>ndarray</code> is generic over its element type</strong> (<code>basic_ndarray&lt;T&gt;</code>, constrained to a <code>Numeric</code> concept), monomorphized per type — an <code>int</code> array and a <code>double</code> array are each as tight as a hand-rolled <code>std::vector&lt;T&gt;</code> loop, with no shared dynamic base.</p>
+</li><li><p><strong>Element-wise kernels vectorize declaratively</strong> via <code>std::transform(std::execution::unseq, …)</code> and <code>std::reduce(std::execution::unseq, …)</code> — we write our <em>intent to vectorize</em> in the source, and the compiler emits SIMD for whatever the target supports.</p>
+</li><li><p><strong>linalg kernels auto-vectorize</strong> at <code>-O3 -march=native</code> (contiguous, unit-stride loops; no hand-written intrinsics). See simd.hpp for the full SIMD model, including exactly what happens on a build with <strong>no SIMD</strong> (answer: identical results, just scalar/slower — SIMD is never a correctness dependency).</p>
+</li></ul><h2>Why constrained templates, given the compile-time cost</h2><p>Every generic surface in cheatah — <code>io.print</code>&#x27;s <code>Printable</code>, <code>ndarray</code>&#x27;s <code>Numeric</code>, <code>math</code>&#x27;s <code>Ordered</code>, the baseline <code>Value</code> on every emitted function parameter — is <strong>concept-constrained</strong>. This is a deliberate doubling-down on the compile-time investment: we are already asking the compiler to instantiate templates, so we make that work also yield <em>early, named</em> diagnostics (&quot;`Point` does not satisfy
+`Printable`&quot;) instead of pages of instantiation backtrace. Fast code <strong>and</strong> legible errors, both bought with the same compile-time spend.</p><h2>The standing rule</h2><p>When we add a feature, we ask up front: <em>does this allocate or copy more than the hand-written C++ would?</em> If yes, we fix it in the codegen or the library before it ships — as with the self-append rewrite — rather than leaving it for a user to discover with a profiler. Performance is a feature, designed in, not bolted on.</p></div>
+</main>
+  <aside class="toc" aria-label="On this page"></aside>
+</div>
+<script src="search-index.js?v=d65cd33a"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
+</body>
+</html>

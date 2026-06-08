@@ -23,12 +23,12 @@ TEST(LinalgSmoke, SimdScalarFallback) {
 }
 
 TEST(LinalgSmoke, DotMatchesHandComputed) {
-    EXPECT_DOUBLE_EQ(la::dot(nd::array({1, 2, 3, 4}), nd::array({5, 6, 7, 8})), 70.0);
+    EXPECT_DOUBLE_EQ(la::dot(nd::array({1.0, 2.0, 3.0, 4.0}), nd::array({5.0, 6.0, 7.0, 8.0})), 70.0);
 }
 
 TEST(LinalgSmoke, MatmulMatchesHandComputed) {
-    const nd::NDArray a = nd::reshape(nd::array({1, 2, 3, 4, 5, 6}), {2, 3});
-    const nd::NDArray b = nd::reshape(nd::array({7, 8, 9, 10, 11, 12}), {3, 2});
+    const nd::NDArray a = nd::reshape(nd::array({1.0, 2.0, 3.0, 4.0, 5.0, 6.0}), {2, 3});
+    const nd::NDArray b = nd::reshape(nd::array({7.0, 8.0, 9.0, 10.0, 11.0, 12.0}), {3, 2});
     const nd::NDArray c = la::matmul(a, b);  // [[58, 64], [139, 154]]
     EXPECT_DOUBLE_EQ(nd::get(c, {0, 0}), 58.0);
     EXPECT_DOUBLE_EQ(nd::get(c, {1, 1}), 154.0);

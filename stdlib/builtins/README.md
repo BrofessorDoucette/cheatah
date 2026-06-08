@@ -20,6 +20,15 @@ print(to_int("42") + 1)   # 43
 - **Repr** — `ascii` (printable-ASCII, escaped, single-quoted).
 - **Conversions** — `to_bool`, `to_int`, `to_float` (string and numeric overloads).
 - **Hashing** — `hash`.
+- **Growable lists** — `append(list, x)` / `xs.append(x)` (in-place push).
+- **Indexing & slicing** — `index(seq, i)` (`seq[i]`; negative indices; a string
+  index yields a length-1 string) and `slice(seq, lo, hi)` (`seq[lo:hi]`); the
+  compiler lowers `seq[i]`/`seq[i:j]` to these.
+- **String predicates** — `startswith`, `endswith`, `contains` (usable as methods:
+  `s.startswith("…")`).
+
+Every template here is constrained by a concept (e.g. the baseline `Value`,
+`Sized`, `convertible_to`), so misuse fails with a named error, not template spam.
 
 Scalar-returning built-ins (`len`/`ord`/`to_bool`/`hash`/…) don't allocate;
 the string-building ones (`chr`/`hex`/`oct`/`bin`/`ascii`) allocate their result,

@@ -24,18 +24,26 @@ light edits.** Update this as the language grows.
 | Power | `2 ** 10` (→ `std::pow`) | `2 ** 10` |
 | Comparison | `== != < <= > >=` | same |
 | Logical | `and` `or` `not` | same |
-| `if` / `else if` / `else` | `if c { … } else if c { … } else { … }` | `if/elif/else:` |
+| `if` / `elif` / `else` | `if c { … } elif c { … } else { … }` | `if/elif/else:` |
+| `match` / `case` | `match x { case 1 { … } case _ { … } }` | `match/case` |
 | `while` | `while c { … }` | `while c:` |
+| `break` / `continue` | `break`, `continue` | same |
 | `for` over a range | `for i in range(a, b) { … }` | `for i in range(a, b):` |
 | Function def | `fn f(a, b) { return a + b }` | `def f(a, b):` |
 | Exceptions | `try { … } except e { … }`, `raise "msg"` | `try/except`, `raise` |
 | Recursion | works | works |
 | Function call | `f(1, 2)` | same |
-| Indexing | `a[i]` | same |
+| Indexing | `a[i]` (negative OK; `s[i]` → 1-char str) | same |
+| Slicing | `a[i:j]`, `a[i:]`, `a[:j]`, `a[-3:]` | same |
 | List literal | `[1, 2, 3]` → `std::vector` | `[1, 2, 3]` |
+| Empty typed list/dict | `let xs: list[int] = []`, `let d: dict[str,int] = {}` | `xs = []`, `d = {}` |
+| Growable list | `xs.append(v)` / `append(xs, v)` | `xs.append(v)` |
 | Dict literal | `{"k": 1}` → `std::unordered_map` | `{"k": 1}` |
+| Index assignment | `xs[i] = v`, `d[k] = v` | same |
 | Iterate a container | `for x in xs { … }` | `for x in xs:` |
 | String concatenation | `"a" + "b"` (strings are `std::string`) | same |
+| String predicates | `s.startswith(p)`, `s.endswith(s)`, `s.contains(x)` | `s.startswith`, `in` |
+| Method-call syntax | `xs.append(v)` (UFCS → `cheatah::builtins`) | `obj.method(...)` |
 | Module import | `import io`, `import os.path as p` | same |
 | Member access | `b.close`, `os.path.join(...)` | same |
 | Records | `struct Bar { close: float }` | `@dataclass class Bar:` |
@@ -115,9 +123,9 @@ True / False are written **lowercase** (`true` / `false`).
 ## 🚧 Not yet supported (roadmap)
 
 Comprehensions; typed exceptions & `finally`; classes with methods/inheritance;
-f-strings & rich string formatting (use `io.format`); slicing (`a[1:3]`); empty
-container literals; tuples/unpacking; `with` statements; generators/`yield`;
-keyword/default arguments; `lambda`.
+f-strings & rich string formatting (use `io.format`); slice **assignment**
+(`a[1:3] = …`) and step slices (`a[::2]`); tuples/unpacking; `with` statements;
+generators/`yield`; keyword/default arguments; `lambda`.
 
 These are tracked toward the goal of frictionless Python → cheatah porting.
 

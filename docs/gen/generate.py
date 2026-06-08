@@ -33,6 +33,11 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 # Compound kinds we turn into pages (in sidebar group order).
 NS, CLASS, STRUCT, CONCEPT = "namespace", "class", "struct", "concept"
 
+# Doxygen-internal index pages (the homepage + the @xrefitem buckets) — these are not
+# standalone content; the homepage is rendered specially and the rest are skipped.
+# Any OTHER `page` compound (e.g. a hand-written guide like Performance) is rendered.
+XREF_PAGES = {"indexpage", "complexity", "alloc", "test", "crtest", "systest"}
+
 # ---------------------------------------------------------------------------
 # Model
 # ---------------------------------------------------------------------------
@@ -416,6 +421,15 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
 def build_sidebar(compounds: dict[str, Compound]) -> str:
     groups = [("Modules", NS), ("Classes", CLASS), ("Structs", STRUCT), ("Concepts", CONCEPT)]
     parts = ['<a class="side-home" href="index.html">Overview</a>']
+    # Hand-written guide pages (e.g. Performance) — listed first, by title.
+    guides = sorted((c for c in compounds.values()
+                     if c.kind == "page" and c.refid not in XREF_PAGES),
+                    key=lambda c: (c.title or c.short).lower())
+    if guides:
+        links = "".join(
+            f'<li><a href="{c.refid}.html" data-ref="{c.refid}">{html.escape(c.title or c.short)}</a></li>'
+            for c in guides)
+        parts.append(f'<div class="side-group"><div class="side-h">Guides</div><ul>{links}</ul></div>')
     for label, kind in groups:
         items = sorted((c for c in compounds.values() if c.kind == kind),
                        key=lambda c: c.short.lower())
@@ -439,7 +453,11 @@ def build_toc(members: list[Member]) -> str:
     return "".join(parts)
 
 def render_compound_page(r: Renderer, comp: Compound, sidebar: str) -> str:
-    kind_label = {NS: "Module", CLASS: "Class", STRUCT: "Struct", CONCEPT: "Concept"}[comp.kind]
+    # A standalone content page (a Doxygen markdown @page, e.g. Performance) renders
+    # as prose with its title; reference compounds render as a code-named symbol.
+    is_page = comp.kind == "page"
+    kind_label = {NS: "Module", CLASS: "Class", STRUCT: "Struct",
+                  CONCEPT: "Concept"}.get(comp.kind, "Guide")
     r.cur_module = comp.short   # module context for @systest app-usage lookup
     brief = r.brief(comp.brief_xml)
     detail = r.render(comp.detail_xml)
@@ -453,15 +471,16 @@ def render_compound_page(r: Renderer, comp: Compound, sidebar: str) -> str:
             continue
         body = "".join(render_member(r, m) for m in items)
         sections.append(f'<h2 class="group">{label}</h2>{body}')
+    title = html.escape(comp.title) if is_page else f"<code>{html.escape(comp.short)}</code>"
     content = f"""<div class="page-head">
   <div class="eyebrow">{kind_label}</div>
-  <h1><code>{html.escape(comp.short)}</code></h1>
+  <h1>{title}</h1>
   {f'<p class="lede">{brief}</p>' if brief else ''}
 </div>
 <div class="overview">{detail}</div>
 {"".join(sections)}"""
     toc = build_toc(comp.members)
-    return page_shell(comp.short, sidebar, content, toc)
+    return page_shell(comp.title if is_page else comp.short, sidebar, content, toc)
 
 def render_home(r: Renderer, comp: Compound, sidebar: str) -> str:
     detail = r.render(comp.detail_xml)
@@ -591,6 +610,9 @@ def main() -> int:
         if comp.kind == "page":
             if comp.refid == "indexpage":
                 (OUT / "index.html").write_text(render_home(r, comp, sidebar))
+                pages += 1
+            elif comp.refid not in XREF_PAGES:  # a real content/guide page (e.g. Performance)
+                (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
                 pages += 1
             continue
         (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))

@@ -1,0 +1,4 @@
+# Dev-only: the generator and its inputs aren't needed in the packaged .vsix.
+# (data/functions.json — its committed output — IS shipped.)
+scripts/**
+.vscodeignore

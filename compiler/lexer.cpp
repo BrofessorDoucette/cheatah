@@ -10,10 +10,10 @@ bool is_keyword(std::string_view word) {
     // General-purpose language keywords. Builtins like print and len are runtime
     // FUNCTIONS provided by the stdlib, not keywords.
     // Sorted for binary_search — keep alphabetical and in sync with README.md.
-    static constexpr std::array<std::string_view, 20> kKeywords{
-        "and", "as", "else", "except", "false", "fn", "for", "from", "if",
-        "import", "in", "let", "not", "or", "raise", "return", "struct",
-        "true", "try", "while",
+    static constexpr std::array<std::string_view, 26> kKeywords{
+        "and", "as", "break", "case", "continue", "elif", "else", "except",
+        "false", "fn", "for", "from", "if", "import", "in", "interface", "let",
+        "match", "not", "or", "raise", "return", "struct", "true", "try", "while",
     };
     return std::binary_search(kKeywords.begin(), kKeywords.end(), word);
 }

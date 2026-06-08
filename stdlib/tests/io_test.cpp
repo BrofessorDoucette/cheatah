@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -16,6 +17,20 @@ static_assert(io::Streamable<int>);
 static_assert(io::Streamable<std::string>);
 static_assert(io::Streamable<const char*>);
 static_assert(!io::Streamable<std::vector<int>>);
+
+// print() requires Printable, NOT Streamable: a value is printable if it streams
+// directly, has a `str()`, or is a list/dict of printable elements.
+namespace {
+struct WithStr { std::string str() const { return "W"; } };
+struct NotPrintable { int z; };  // not streamable, no str()
+}  // namespace
+static_assert(io::Printable<int>);
+static_assert(io::Printable<std::vector<int>>);
+static_assert(io::Printable<std::vector<std::vector<std::string>>>);
+static_assert(io::Printable<std::unordered_map<std::string, int>>);
+static_assert(io::Printable<WithStr>);
+static_assert(!io::Printable<NotPrintable>);              // no stream op, no str()
+static_assert(!io::Printable<std::vector<NotPrintable>>);  // element not printable
 
 TEST(CheatahIo, PrintWritesSpaceSeparatedLine) {
     std::ostringstream cap;
@@ -31,6 +46,16 @@ TEST(CheatahIo, PrintNoArgsIsJustNewline) {
     io::print();
     std::cout.rdbuf(old);
     EXPECT_EQ(cap.str(), "\n");
+}
+
+TEST(CheatahIo, StrRendersContainersAndObjects) {
+    EXPECT_EQ(io::str(std::vector<long long>{1, 2, 3}), "[1, 2, 3]");
+    EXPECT_EQ(io::str(std::vector<std::string>{"a", "b"}), "['a', 'b']");  // nested strings quoted
+    EXPECT_EQ(io::str(std::vector<std::vector<long long>>{{1, 2}, {3, 4}}), "[[1, 2], [3, 4]]");
+    std::unordered_map<std::string, long long> m{{"a", 1}};
+    EXPECT_EQ(io::str(m), "{'a': 1}");
+    EXPECT_EQ(io::str(WithStr{}), "W");                    // a type with a str() method
+    EXPECT_EQ(io::str(std::vector<WithStr>{{}, {}}), "[W, W]");
 }
 
 TEST(CheatahIo, StrFormatsPythonStyle) {

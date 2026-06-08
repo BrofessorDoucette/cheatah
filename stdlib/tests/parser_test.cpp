@@ -125,3 +125,25 @@ TEST(CheatahParser, OperatorPrecedence) {
     ASSERT_NE(rhs, nullptr);
     EXPECT_EQ(rhs->op, "*");  // multiplication binds tighter
 }
+
+// Regression: a stray top-level `}` (e.g. from an unrecognized continuation) must
+// produce a diagnostic and RETURN — parse_stmts must never spin forever on a token
+// that synchronize() can't advance past (which used to OOM the compiler).
+TEST(CheatahParser, StrayTopLevelBraceErrorsWithoutHanging) {
+    const ParseResult r = parse_source("import io\nio.print(1)\n}\n");
+    EXPECT_FALSE(r.ok());                  // reports the stray brace
+    EXPECT_FALSE(r.diagnostics.empty());
+    EXPECT_GE(r.program.body.size(), 2u);  // the valid statements before it still parsed
+}
+
+// Multi-line `elif`/`else` (on their own lines after the `if` block) parse like the
+// same-line form: the `elif` becomes a chained If in the else branch.
+TEST(CheatahParser, ParsesMultilineElifElse) {
+    const ParseResult r = parse_source(
+        "let r = 0\nif r < 0 {\nr = 1\n}\nelif r == 0 {\nr = 2\n}\nelse {\nr = 3\n}\n");
+    ASSERT_TRUE(r.ok()) << (r.diagnostics.empty() ? "" : r.diagnostics.front().message);
+    auto* iff = dynamic_cast<If*>(r.program.body.back().get());
+    ASSERT_NE(iff, nullptr);
+    ASSERT_EQ(iff->else_body.size(), 1u);
+    EXPECT_NE(dynamic_cast<If*>(iff->else_body[0].get()), nullptr);
+}

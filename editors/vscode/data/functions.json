@@ -1,0 +1,3244 @@
+{
+  "functions": [
+    {
+      "name": "append",
+      "signature": "append(std::vector< T > &v, U &&x)",
+      "brief": "Append x to list v in place (Python list.append).",
+      "params": [
+        {
+          "name": "v",
+          "desc": "the list to grow."
+        },
+        {
+          "name": "x",
+          "desc": "the value to append."
+        }
+      ],
+      "returns": "",
+      "module": "",
+      "qualified": "append"
+    },
+    {
+      "name": "ascii",
+      "signature": "ascii(std::string_view s)",
+      "brief": "Printable-ASCII repr (non-printables/\\\\endiskip/' escaped, single-quoted).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "the quoted repr.",
+      "module": "",
+      "qualified": "ascii"
+    },
+    {
+      "name": "bin",
+      "signature": "bin(long long value)",
+      "brief": "Binary representation.",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the integer."
+        }
+      ],
+      "returns": "\"0b…\" (with sign).",
+      "module": "",
+      "qualified": "bin"
+    },
+    {
+      "name": "bool",
+      "signature": "bool(T x)",
+      "brief": "Truthiness of a number.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any arithmetic value."
+        }
+      ],
+      "returns": "x != 0.",
+      "module": "",
+      "qualified": "bool"
+    },
+    {
+      "name": "chr",
+      "signature": "chr(int codepoint)",
+      "brief": "Character for a code point.",
+      "params": [
+        {
+          "name": "codepoint",
+          "desc": "a byte value."
+        }
+      ],
+      "returns": "the one-character string.",
+      "module": "",
+      "qualified": "chr"
+    },
+    {
+      "name": "contains",
+      "signature": "contains(std::string_view s, std::string_view sub)",
+      "brief": "Whether sub occurs anywhere in s (Python sub in s).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "the string to search."
+        },
+        {
+          "name": "sub",
+          "desc": "the substring to find."
+        }
+      ],
+      "returns": "true iff sub is a substring of s.",
+      "module": "",
+      "qualified": "contains"
+    },
+    {
+      "name": "endswith",
+      "signature": "endswith(std::string_view s, std::string_view suffix)",
+      "brief": "Whether s ends with suffix (Python str.endswith).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "the string."
+        },
+        {
+          "name": "suffix",
+          "desc": "the suffix to test."
+        }
+      ],
+      "returns": "true iff s ends with suffix.",
+      "module": "",
+      "qualified": "endswith"
+    },
+    {
+      "name": "float",
+      "signature": "float(long long x)",
+      "brief": "Widen an integer to a double.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the value."
+        }
+      ],
+      "returns": "x as a double.",
+      "module": "",
+      "qualified": "float"
+    },
+    {
+      "name": "hash",
+      "signature": "hash(const T &x)",
+      "brief": "Hash of any hashable value.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the value."
+        }
+      ],
+      "returns": "std::hash<T>{}(x).",
+      "module": "",
+      "qualified": "hash"
+    },
+    {
+      "name": "hex",
+      "signature": "hex(long long value)",
+      "brief": "Hex representation.",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the integer."
+        }
+      ],
+      "returns": "\"0x…\" (with sign).",
+      "module": "",
+      "qualified": "hex"
+    },
+    {
+      "name": "index",
+      "signature": "index(const std::unordered_map< K, V, H, E, A > &m, const Key &key)",
+      "brief": "Value for key in a dict (Python d[key]), by value.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the dict."
+        },
+        {
+          "name": "key",
+          "desc": "the key to look up."
+        }
+      ],
+      "returns": "a copy of the mapped value (throws std::out_of_range if absent).",
+      "module": "",
+      "qualified": "index"
+    },
+    {
+      "name": "int",
+      "signature": "int(double x)",
+      "brief": "Truncate a double to an integer.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the value."
+        }
+      ],
+      "returns": "x toward zero.",
+      "module": "",
+      "qualified": "int"
+    },
+    {
+      "name": "len",
+      "signature": "len(const C &c)",
+      "brief": "Length / element count.",
+      "params": [
+        {
+          "name": "c",
+          "desc": "a string or sized container."
+        }
+      ],
+      "returns": "c.size().",
+      "module": "",
+      "qualified": "len"
+    },
+    {
+      "name": "oct",
+      "signature": "oct(long long value)",
+      "brief": "Octal representation.",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the integer."
+        }
+      ],
+      "returns": "\"0o…\" (with sign).",
+      "module": "",
+      "qualified": "oct"
+    },
+    {
+      "name": "ord",
+      "signature": "ord(std::string_view s)",
+      "brief": "Code point of the first byte.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "a one-character string."
+        }
+      ],
+      "returns": "its byte value (0 if empty).",
+      "module": "",
+      "qualified": "ord"
+    },
+    {
+      "name": "range",
+      "signature": "range(stop) | range(start, stop)",
+      "brief": "Integer sequence for `for x in range(...)` loops.",
+      "params": [
+        {
+          "name": "start",
+          "desc": "inclusive lower bound (default 0)."
+        },
+        {
+          "name": "stop",
+          "desc": "exclusive upper bound."
+        }
+      ],
+      "returns": "the half-open integer range [start, stop).",
+      "module": "",
+      "qualified": "range"
+    },
+    {
+      "name": "slice",
+      "signature": "slice(const C &c, long long lo, long long hi)",
+      "brief": "Sub-list xs[lo:hi] (Python slice semantics), returned as a new list.",
+      "params": [
+        {
+          "name": "c",
+          "desc": "the sequence."
+        },
+        {
+          "name": "lo",
+          "desc": "start index."
+        },
+        {
+          "name": "hi",
+          "desc": "end index, or slice_end for \"to the end\"."
+        }
+      ],
+      "returns": "the slice as a std::vector of the element type.",
+      "module": "",
+      "qualified": "slice"
+    },
+    {
+      "name": "startswith",
+      "signature": "startswith(std::string_view s, std::string_view prefix)",
+      "brief": "Whether s begins with prefix (Python str.startswith).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "the string."
+        },
+        {
+          "name": "prefix",
+          "desc": "the prefix to test."
+        }
+      ],
+      "returns": "true iff s starts with prefix.",
+      "module": "",
+      "qualified": "startswith"
+    },
+    {
+      "name": "to_bool",
+      "signature": "to_bool(T x)",
+      "brief": "Truthiness of a number.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any arithmetic value."
+        }
+      ],
+      "returns": "x != 0.",
+      "module": "",
+      "qualified": "to_bool"
+    },
+    {
+      "name": "to_float",
+      "signature": "to_float(long long x)",
+      "brief": "Widen an integer to a double.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the value."
+        }
+      ],
+      "returns": "x as a double.",
+      "module": "",
+      "qualified": "to_float"
+    },
+    {
+      "name": "to_int",
+      "signature": "to_int(double x)",
+      "brief": "Truncate a double to an integer.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the value."
+        }
+      ],
+      "returns": "x toward zero.",
+      "module": "",
+      "qualified": "to_int"
+    },
+    {
+      "name": "day",
+      "signature": "day(double epoch)",
+      "brief": "Local-time day of month.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "the day, 1..31.",
+      "module": "datetime",
+      "qualified": "datetime.day"
+    },
+    {
+      "name": "format",
+      "signature": "format(double epoch, std::string_view fmt)",
+      "brief": "strftime-style formatting of an epoch in local time (e.g.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        },
+        {
+          "name": "fmt",
+          "desc": "a strftime format string."
+        }
+      ],
+      "returns": "the formatted string.",
+      "module": "datetime",
+      "qualified": "datetime.format"
+    },
+    {
+      "name": "hour",
+      "signature": "hour(double epoch)",
+      "brief": "Local-time hour.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "the hour, 0..23.",
+      "module": "datetime",
+      "qualified": "datetime.hour"
+    },
+    {
+      "name": "minute",
+      "signature": "minute(double epoch)",
+      "brief": "Local-time minute.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "the minute, 0..59.",
+      "module": "datetime",
+      "qualified": "datetime.minute"
+    },
+    {
+      "name": "month",
+      "signature": "month(double epoch)",
+      "brief": "Local-time month.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "the month, 1..12.",
+      "module": "datetime",
+      "qualified": "datetime.month"
+    },
+    {
+      "name": "now",
+      "signature": "now()",
+      "brief": "Current local time as \"YYYY-MM-DD HH:MM:SS\".",
+      "params": [],
+      "returns": "the formatted string.",
+      "module": "datetime",
+      "qualified": "datetime.now"
+    },
+    {
+      "name": "second",
+      "signature": "second(double epoch)",
+      "brief": "Local-time second.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "the second, 0..60 (leap).",
+      "module": "datetime",
+      "qualified": "datetime.second"
+    },
+    {
+      "name": "timestamp",
+      "signature": "timestamp()",
+      "brief": "Current time.",
+      "params": [],
+      "returns": "seconds since the Unix epoch (system_clock).",
+      "module": "datetime",
+      "qualified": "datetime.timestamp"
+    },
+    {
+      "name": "today",
+      "signature": "today()",
+      "brief": "Current local date as \"YYYY-MM-DD\".",
+      "params": [],
+      "returns": "the formatted string.",
+      "module": "datetime",
+      "qualified": "datetime.today"
+    },
+    {
+      "name": "utcnow",
+      "signature": "utcnow()",
+      "brief": "Current UTC time as \"YYYY-MM-DDTHH:MM:SSZ\".",
+      "params": [],
+      "returns": "the formatted string.",
+      "module": "datetime",
+      "qualified": "datetime.utcnow"
+    },
+    {
+      "name": "weekday",
+      "signature": "weekday(double epoch)",
+      "brief": "Local-time weekday.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "Monday=0 .. Sunday=6 (Python convention).",
+      "module": "datetime",
+      "qualified": "datetime.weekday"
+    },
+    {
+      "name": "year",
+      "signature": "year(double epoch)",
+      "brief": "Local-time year.",
+      "params": [
+        {
+          "name": "epoch",
+          "desc": "epoch seconds."
+        }
+      ],
+      "returns": "the 4-digit year.",
+      "module": "datetime",
+      "qualified": "datetime.year"
+    },
+    {
+      "name": "sha256",
+      "signature": "sha256(std::string_view data)",
+      "brief": "SHA-256 digest of data.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the bytes to hash (an embedded NUL is part of the input, since the length is carried)."
+        }
+      ],
+      "returns": "a 64-char lowercase hex digest.",
+      "module": "hashlib",
+      "qualified": "hashlib.sha256"
+    },
+    {
+      "name": "escape",
+      "signature": "escape(std::string_view s, bool quote=true)",
+      "brief": "Escape the markup-significant characters in s (Python html.escape).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "the text to escape."
+        },
+        {
+          "name": "quote",
+          "desc": "also escape the quote characters (default true)."
+        }
+      ],
+      "returns": "a newly allocated escaped copy.",
+      "module": "html",
+      "qualified": "html.escape"
+    },
+    {
+      "name": "unescape",
+      "signature": "unescape(std::string_view s)",
+      "brief": "Resolve character references back to text (Python html.unescape).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "text that may contain character references."
+        }
+      ],
+      "returns": "a newly allocated decoded copy.",
+      "module": "html",
+      "qualified": "html.unescape"
+    },
+    {
+      "name": "get_attr",
+      "signature": "get_attr(const Token &t, std::string_view name)",
+      "brief": "Value of attribute name on t, or \"\" if absent (or valueless).",
+      "params": [
+        {
+          "name": "t",
+          "desc": "a start/startend token."
+        },
+        {
+          "name": "name",
+          "desc": "attribute name (matched case-insensitively)."
+        }
+      ],
+      "returns": "the attribute value, or \"\".",
+      "module": "html.parser",
+      "qualified": "html.parser.get_attr"
+    },
+    {
+      "name": "has_attr",
+      "signature": "has_attr(const Token &t, std::string_view name)",
+      "brief": "Whether t carries an attribute named name (case-insensitive).",
+      "params": [
+        {
+          "name": "t",
+          "desc": "a start/startend token."
+        },
+        {
+          "name": "name",
+          "desc": "attribute name."
+        }
+      ],
+      "returns": "true if present (even if valueless).",
+      "module": "html.parser",
+      "qualified": "html.parser.has_attr"
+    },
+    {
+      "name": "parse",
+      "signature": "parse(std::string_view html)",
+      "brief": "Tokenize an HTML document into the events a callback parser would dispatch.",
+      "params": [
+        {
+          "name": "html",
+          "desc": "the document text."
+        }
+      ],
+      "returns": "the token list (empty for empty input).",
+      "module": "html.parser",
+      "qualified": "html.parser.parse"
+    },
+    {
+      "name": "format",
+      "signature": "format(std::string_view fmt, const Args &... args)",
+      "brief": "Sequential {} substitution — the common case of Python's str.format() / f-strings.",
+      "params": [
+        {
+          "name": "fmt",
+          "desc": "format string with {} placeholders."
+        },
+        {
+          "name": "args",
+          "desc": "values substituted left-to-right (extras dropped, missing placeholders left as-is)."
+        }
+      ],
+      "returns": "the formatted string.",
+      "module": "io",
+      "qualified": "io.format"
+    },
+    {
+      "name": "input",
+      "signature": "input(std::string_view prompt=\"\")",
+      "brief": "Python input(prompt=\"\"): write prompt, read one line from stdin.",
+      "params": [
+        {
+          "name": "prompt",
+          "desc": "text shown before reading (no newline added)."
+        }
+      ],
+      "returns": "the line read, with the trailing newline stripped.",
+      "module": "io",
+      "qualified": "io.input"
+    },
+    {
+      "name": "open",
+      "signature": "open(const std::string &path, std::string_view mode=\"r\")",
+      "brief": "Python open(path, mode=\"r\") — construct and return a File.",
+      "params": [
+        {
+          "name": "path",
+          "desc": "filesystem path."
+        },
+        {
+          "name": "mode",
+          "desc": "Python-style mode string."
+        }
+      ],
+      "returns": "an open File (move-returned).",
+      "module": "io",
+      "qualified": "io.open"
+    },
+    {
+      "name": "print",
+      "signature": "print(const Args &... args)",
+      "brief": "Python print(*args): space-separated, newline-terminated, to stdout (sep=' ', end=' ').",
+      "params": [
+        {
+          "name": "args",
+          "desc": "zero or more streamable values."
+        }
+      ],
+      "returns": "",
+      "module": "io",
+      "qualified": "io.print"
+    },
+    {
+      "name": "read_file",
+      "signature": "read_file(const std::string &path)",
+      "brief": "Read a whole file into a string in one call (binary-safe — preserves every byte, including NULs).",
+      "params": [
+        {
+          "name": "path",
+          "desc": "filesystem path."
+        }
+      ],
+      "returns": "the file's contents, or \"\" if it cannot be opened.",
+      "module": "io",
+      "qualified": "io.read_file"
+    },
+    {
+      "name": "repr",
+      "signature": "repr(const std::unordered_map< K, V, H, E, A > &m)",
+      "brief": "repr() of a dict equals its str() ({k: v, …}, unspecified order).",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the dict (key and value types must be Printable)."
+        }
+      ],
+      "returns": "the brace-wrapped rendering, keys/values repr'd.",
+      "module": "io",
+      "qualified": "io.repr"
+    },
+    {
+      "name": "str",
+      "signature": "str(const std::unordered_map< K, V, H, E, A > &m)",
+      "brief": "str() for a dict — Python {k: v, …}.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the dict (key and value types must be Printable)."
+        }
+      ],
+      "returns": "the brace-wrapped rendering.",
+      "module": "io",
+      "qualified": "io.str"
+    },
+    {
+      "name": "cholesky",
+      "signature": "cholesky(const NDArray &a)",
+      "brief": "Cholesky factor of a symmetric positive-definite matrix (throws otherwise).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square SPD matrix."
+        }
+      ],
+      "returns": "lower-triangular L with A = L·Lᵀ.",
+      "module": "linalg",
+      "qualified": "linalg.cholesky"
+    },
+    {
+      "name": "cond",
+      "signature": "cond(const NDArray &a)",
+      "brief": "2-norm condition number σ_max/σ_min (∞ if singular).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "matrix."
+        }
+      ],
+      "returns": "condition number.",
+      "module": "linalg",
+      "qualified": "linalg.cond"
+    },
+    {
+      "name": "det",
+      "signature": "det(const NDArray &a)",
+      "brief": "Determinant via LU with partial pivoting.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square matrix."
+        }
+      ],
+      "returns": "det(A).",
+      "module": "linalg",
+      "qualified": "linalg.det"
+    },
+    {
+      "name": "dot",
+      "signature": "dot(const NDArray &a, const NDArray &b)",
+      "brief": "Dot product: 1-D inner product (vectors flattened).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "same-length vectors."
+        },
+        {
+          "name": "b",
+          "desc": "same-length vectors."
+        }
+      ],
+      "returns": "Σ aᵢbᵢ.",
+      "module": "linalg",
+      "qualified": "linalg.dot"
+    },
+    {
+      "name": "eig",
+      "signature": "eig(const NDArray &a)",
+      "brief": "Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square matrix."
+        }
+      ],
+      "returns": "Eig (vectors empty unless a is symmetric).",
+      "module": "linalg",
+      "qualified": "linalg.eig"
+    },
+    {
+      "name": "eigh",
+      "signature": "eigh(const NDArray &a)",
+      "brief": "Eigen-decomposition of a symmetric matrix (cyclic Jacobi).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square symmetric matrix."
+        }
+      ],
+      "returns": "Eig with descending values and matching eigenvectors.",
+      "module": "linalg",
+      "qualified": "linalg.eigh"
+    },
+    {
+      "name": "eigvals",
+      "signature": "eigvals(const NDArray &a)",
+      "brief": "Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square matrix."
+        }
+      ],
+      "returns": "length-n vector of eigenvalues.",
+      "module": "linalg",
+      "qualified": "linalg.eigvals"
+    },
+    {
+      "name": "eigvalsh",
+      "signature": "eigvalsh(const NDArray &a)",
+      "brief": "Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square symmetric matrix."
+        }
+      ],
+      "returns": "length-n vector of eigenvalues.",
+      "module": "linalg",
+      "qualified": "linalg.eigvalsh"
+    },
+    {
+      "name": "inner",
+      "signature": "inner(const NDArray &a, const NDArray &b)",
+      "brief": "Inner product of two vectors (alias of dot).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "same-length vectors."
+        },
+        {
+          "name": "b",
+          "desc": "same-length vectors."
+        }
+      ],
+      "returns": "Σ aᵢbᵢ.",
+      "module": "linalg",
+      "qualified": "linalg.inner"
+    },
+    {
+      "name": "inv",
+      "signature": "inv(const NDArray &a)",
+      "brief": "Matrix inverse via LU with partial pivoting.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square matrix."
+        }
+      ],
+      "returns": "A⁻¹.",
+      "module": "linalg",
+      "qualified": "linalg.inv"
+    },
+    {
+      "name": "kron",
+      "signature": "kron(const NDArray &a, const NDArray &b)",
+      "brief": "Kronecker product.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×k matrix."
+        },
+        {
+          "name": "b",
+          "desc": "p×q matrix."
+        }
+      ],
+      "returns": "(m·p)×(k·q) block product.",
+      "module": "linalg",
+      "qualified": "linalg.kron"
+    },
+    {
+      "name": "lstsq",
+      "signature": "lstsq(const NDArray &a, const NDArray &b)",
+      "brief": "Least-squares solution min‖A·x − b‖ (computed as pinv (a)·b).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×n matrix."
+        },
+        {
+          "name": "b",
+          "desc": "right-hand side."
+        }
+      ],
+      "returns": "minimizing x.",
+      "module": "linalg",
+      "qualified": "linalg.lstsq"
+    },
+    {
+      "name": "matmul",
+      "signature": "matmul(const NDArray &a, const NDArray &b)",
+      "brief": "Matrix multiply.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×k matrix."
+        },
+        {
+          "name": "b",
+          "desc": "k×p matrix."
+        }
+      ],
+      "returns": "m×p product.",
+      "module": "linalg",
+      "qualified": "linalg.matmul"
+    },
+    {
+      "name": "matrix_power",
+      "signature": "matrix_power(const NDArray &a, long long n)",
+      "brief": "Integer matrix power Aⁿ (negative n via inv).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square matrix."
+        },
+        {
+          "name": "n",
+          "desc": "exponent."
+        }
+      ],
+      "returns": "Aⁿ.",
+      "module": "linalg",
+      "qualified": "linalg.matrix_power"
+    },
+    {
+      "name": "matrix_rank",
+      "signature": "matrix_rank(const NDArray &a)",
+      "brief": "Numerical rank from SVD singular-value thresholding.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "matrix."
+        }
+      ],
+      "returns": "rank.",
+      "module": "linalg",
+      "qualified": "linalg.matrix_rank"
+    },
+    {
+      "name": "norm",
+      "signature": "norm(const NDArray &a)",
+      "brief": "Norm: L2 for vectors, Frobenius for matrices.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "vector or matrix."
+        }
+      ],
+      "returns": "√Σ xᵢ².",
+      "module": "linalg",
+      "qualified": "linalg.norm"
+    },
+    {
+      "name": "outer",
+      "signature": "outer(const NDArray &a, const NDArray &b)",
+      "brief": "Outer product of two vectors.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "length-n vector."
+        },
+        {
+          "name": "b",
+          "desc": "length-m vector."
+        }
+      ],
+      "returns": "n×m matrix aᵢbⱼ.",
+      "module": "linalg",
+      "qualified": "linalg.outer"
+    },
+    {
+      "name": "pinv",
+      "signature": "pinv(const NDArray &a)",
+      "brief": "Moore–Penrose pseudo-inverse via SVD (any shape).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×n matrix."
+        }
+      ],
+      "returns": "n×m pseudo-inverse.",
+      "module": "linalg",
+      "qualified": "linalg.pinv"
+    },
+    {
+      "name": "qr",
+      "signature": "qr(const NDArray &a)",
+      "brief": "Reduced QR via Householder reflections (requires rows ≥ cols).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×n matrix."
+        }
+      ],
+      "returns": "QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).",
+      "module": "linalg",
+      "qualified": "linalg.qr"
+    },
+    {
+      "name": "simd_features",
+      "signature": "simd_features()",
+      "brief": "Instruction sets this build targets, e.g.",
+      "params": [],
+      "returns": ";-separated feature list.",
+      "module": "linalg",
+      "qualified": "linalg.simd_features"
+    },
+    {
+      "name": "simd_lane_doubles",
+      "signature": "simd_lane_doubles() noexcept",
+      "brief": "Width, in doubles, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512).",
+      "params": [],
+      "returns": "lane width.",
+      "module": "linalg",
+      "qualified": "linalg.simd_lane_doubles"
+    },
+    {
+      "name": "slogdet",
+      "signature": "slogdet(const NDArray &a)",
+      "brief": "Sign and log|det| via LU (overflow-safe determinant).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square matrix."
+        }
+      ],
+      "returns": "SLogDet.",
+      "module": "linalg",
+      "qualified": "linalg.slogdet"
+    },
+    {
+      "name": "solve",
+      "signature": "solve(const NDArray &a, const NDArray &b)",
+      "brief": "Solve A·x = b via LU with partial pivoting.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "square coefficient matrix."
+        },
+        {
+          "name": "b",
+          "desc": "right-hand-side vector."
+        }
+      ],
+      "returns": "solution x.",
+      "module": "linalg",
+      "qualified": "linalg.solve"
+    },
+    {
+      "name": "svd",
+      "signature": "svd(const NDArray &a)",
+      "brief": "Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×n matrix."
+        }
+      ],
+      "returns": "SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).",
+      "module": "linalg",
+      "qualified": "linalg.svd"
+    },
+    {
+      "name": "trace",
+      "signature": "trace(const NDArray &a)",
+      "brief": "Trace: sum of the main diagonal.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "matrix."
+        }
+      ],
+      "returns": "Σ aᵢᵢ.",
+      "module": "linalg",
+      "qualified": "linalg.trace"
+    },
+    {
+      "name": "vdot",
+      "signature": "vdot(const NDArray &a, const NDArray &b)",
+      "brief": "Vector dot product (alias of dot; flattens N×1/1×N).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "same-length vectors."
+        },
+        {
+          "name": "b",
+          "desc": "same-length vectors."
+        }
+      ],
+      "returns": "Σ aᵢbᵢ.",
+      "module": "linalg",
+      "qualified": "linalg.vdot"
+    },
+    {
+      "name": "abs",
+      "signature": "abs(T x)",
+      "brief": "Absolute value.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any signed value."
+        }
+      ],
+      "returns": "|x|.",
+      "module": "math",
+      "qualified": "math.abs"
+    },
+    {
+      "name": "acos",
+      "signature": "acos(double x)",
+      "brief": "Arccosine.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "in [−1, 1]."
+        }
+      ],
+      "returns": "acos(x) in radians.",
+      "module": "math",
+      "qualified": "math.acos"
+    },
+    {
+      "name": "asin",
+      "signature": "asin(double x)",
+      "brief": "Arcsine.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "in [−1, 1]."
+        }
+      ],
+      "returns": "asin(x) in radians.",
+      "module": "math",
+      "qualified": "math.asin"
+    },
+    {
+      "name": "atan",
+      "signature": "atan(double x)",
+      "brief": "Arctangent.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "atan(x) in radians.",
+      "module": "math",
+      "qualified": "math.atan"
+    },
+    {
+      "name": "atan2",
+      "signature": "atan2(double y, double x)",
+      "brief": "Two-argument arctangent.",
+      "params": [
+        {
+          "name": "y",
+          "desc": "the coordinates."
+        },
+        {
+          "name": "x",
+          "desc": "the coordinates."
+        }
+      ],
+      "returns": "atan2(y, x) in radians.",
+      "module": "math",
+      "qualified": "math.atan2"
+    },
+    {
+      "name": "cbrt",
+      "signature": "cbrt(double x)",
+      "brief": "Cube root.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "∛x.",
+      "module": "math",
+      "qualified": "math.cbrt"
+    },
+    {
+      "name": "ceil",
+      "signature": "ceil(double x)",
+      "brief": "Round toward +∞.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "⌈x⌉.",
+      "module": "math",
+      "qualified": "math.ceil"
+    },
+    {
+      "name": "copysign",
+      "signature": "copysign(double x, double y)",
+      "brief": "Copy sign.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "magnitude source,"
+        },
+        {
+          "name": "y",
+          "desc": "sign source."
+        }
+      ],
+      "returns": "|x| with y's sign.",
+      "module": "math",
+      "qualified": "math.copysign"
+    },
+    {
+      "name": "cos",
+      "signature": "cos(double x)",
+      "brief": "Cosine.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "radians."
+        }
+      ],
+      "returns": "cos(x).",
+      "module": "math",
+      "qualified": "math.cos"
+    },
+    {
+      "name": "degrees",
+      "signature": "degrees(double radians)",
+      "brief": "Radians → degrees.",
+      "params": [
+        {
+          "name": "radians",
+          "desc": "angle in radians."
+        }
+      ],
+      "returns": "the angle in degrees.",
+      "module": "math",
+      "qualified": "math.degrees"
+    },
+    {
+      "name": "exp",
+      "signature": "exp(double x)",
+      "brief": "Exponential.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "e^x.",
+      "module": "math",
+      "qualified": "math.exp"
+    },
+    {
+      "name": "fabs",
+      "signature": "fabs(double x)",
+      "brief": "Absolute value of a double.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "|x|.",
+      "module": "math",
+      "qualified": "math.fabs"
+    },
+    {
+      "name": "factorial",
+      "signature": "factorial(long long n)",
+      "brief": "Factorial.",
+      "params": [
+        {
+          "name": "n",
+          "desc": "≥ 0 (small; overflows long long past 20!)."
+        }
+      ],
+      "returns": "n!.",
+      "module": "math",
+      "qualified": "math.factorial"
+    },
+    {
+      "name": "floor",
+      "signature": "floor(double x)",
+      "brief": "Round toward −∞.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "⌊x⌋.",
+      "module": "math",
+      "qualified": "math.floor"
+    },
+    {
+      "name": "fmod",
+      "signature": "fmod(double x, double y)",
+      "brief": "Floating-point remainder.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "dividend, divisor."
+        },
+        {
+          "name": "y",
+          "desc": "dividend, divisor."
+        }
+      ],
+      "returns": "x mod y.",
+      "module": "math",
+      "qualified": "math.fmod"
+    },
+    {
+      "name": "gcd",
+      "signature": "gcd(long long a, long long b)",
+      "brief": "Greatest common divisor.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "integers."
+        },
+        {
+          "name": "b",
+          "desc": "integers."
+        }
+      ],
+      "returns": "gcd(|a|, |b|).",
+      "module": "math",
+      "qualified": "math.gcd"
+    },
+    {
+      "name": "hypot",
+      "signature": "hypot(double x, double y)",
+      "brief": "Hypotenuse.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the legs."
+        },
+        {
+          "name": "y",
+          "desc": "the legs."
+        }
+      ],
+      "returns": "√(x²+y²) without overflow.",
+      "module": "math",
+      "qualified": "math.hypot"
+    },
+    {
+      "name": "isfinite",
+      "signature": "isfinite(double x)",
+      "brief": "Is finite?",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "true iff x is neither NaN nor ±∞.",
+      "module": "math",
+      "qualified": "math.isfinite"
+    },
+    {
+      "name": "isinf",
+      "signature": "isinf(double x)",
+      "brief": "Is infinite?",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "true iff x is ±∞.",
+      "module": "math",
+      "qualified": "math.isinf"
+    },
+    {
+      "name": "isnan",
+      "signature": "isnan(double x)",
+      "brief": "Is NaN?",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "true iff x is NaN.",
+      "module": "math",
+      "qualified": "math.isnan"
+    },
+    {
+      "name": "log",
+      "signature": "log(double x)",
+      "brief": "Natural logarithm.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "> 0."
+        }
+      ],
+      "returns": "ln(x).",
+      "module": "math",
+      "qualified": "math.log"
+    },
+    {
+      "name": "log10",
+      "signature": "log10(double x)",
+      "brief": "Base-10 logarithm.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "> 0."
+        }
+      ],
+      "returns": "log₁₀(x).",
+      "module": "math",
+      "qualified": "math.log10"
+    },
+    {
+      "name": "log2",
+      "signature": "log2(double x)",
+      "brief": "Base-2 logarithm.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "> 0."
+        }
+      ],
+      "returns": "log₂(x).",
+      "module": "math",
+      "qualified": "math.log2"
+    },
+    {
+      "name": "max",
+      "signature": "max(const T &a, const T &b, const Rest &... rest)",
+      "brief": "Largest of three-or-more values (folds the extra args onto the two-argument overload).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the first two values."
+        },
+        {
+          "name": "b",
+          "desc": "the first two values."
+        },
+        {
+          "name": "rest",
+          "desc": "the remaining values (operator< required)."
+        }
+      ],
+      "returns": "a reference to the maximum.",
+      "module": "math",
+      "qualified": "math.max"
+    },
+    {
+      "name": "min",
+      "signature": "min(const T &a, const T &b, const Rest &... rest)",
+      "brief": "Smallest of three-or-more values (folds the extra args onto the two-argument overload).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the first two values."
+        },
+        {
+          "name": "b",
+          "desc": "the first two values."
+        },
+        {
+          "name": "rest",
+          "desc": "the remaining values (operator< required)."
+        }
+      ],
+      "returns": "a reference to the minimum.",
+      "module": "math",
+      "qualified": "math.min"
+    },
+    {
+      "name": "pow",
+      "signature": "pow(Base base, Exp exp)",
+      "brief": "Power.",
+      "params": [
+        {
+          "name": "base",
+          "desc": "the base."
+        },
+        {
+          "name": "exp",
+          "desc": "the exponent."
+        }
+      ],
+      "returns": "base raised to exp (computed as double).",
+      "module": "math",
+      "qualified": "math.pow"
+    },
+    {
+      "name": "radians",
+      "signature": "radians(double degrees)",
+      "brief": "Degrees → radians.",
+      "params": [
+        {
+          "name": "degrees",
+          "desc": "angle in degrees."
+        }
+      ],
+      "returns": "the angle in radians.",
+      "module": "math",
+      "qualified": "math.radians"
+    },
+    {
+      "name": "round",
+      "signature": "round(double x)",
+      "brief": "Round to nearest (half away from zero).",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "rounded x.",
+      "module": "math",
+      "qualified": "math.round"
+    },
+    {
+      "name": "sin",
+      "signature": "sin(double x)",
+      "brief": "Sine.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "radians."
+        }
+      ],
+      "returns": "sin(x).",
+      "module": "math",
+      "qualified": "math.sin"
+    },
+    {
+      "name": "sqrt",
+      "signature": "sqrt(double x)",
+      "brief": "Square root.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "radicand (NaN if x < 0)."
+        }
+      ],
+      "returns": "√x.",
+      "module": "math",
+      "qualified": "math.sqrt"
+    },
+    {
+      "name": "tan",
+      "signature": "tan(double x)",
+      "brief": "Tangent.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "radians."
+        }
+      ],
+      "returns": "tan(x).",
+      "module": "math",
+      "qualified": "math.tan"
+    },
+    {
+      "name": "trunc",
+      "signature": "trunc(double x)",
+      "brief": "Round toward zero.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "any real."
+        }
+      ],
+      "returns": "x with the fraction dropped.",
+      "module": "math",
+      "qualified": "math.trunc"
+    },
+    {
+      "name": "add",
+      "signature": "add(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
+      "brief": "Element-wise a + b with broadcasting.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "first operand."
+        },
+        {
+          "name": "b",
+          "desc": "second operand."
+        }
+      ],
+      "returns": "a + b broadcast to the common shape.",
+      "module": "ndarray",
+      "qualified": "ndarray.add"
+    },
+    {
+      "name": "arange",
+      "signature": "arange(T start, T stop, T step)",
+      "brief": "1-D range [start, stop) stepping by step; element type deduced from the args.",
+      "params": [
+        {
+          "name": "start",
+          "desc": "first value."
+        },
+        {
+          "name": "stop",
+          "desc": "exclusive bound."
+        },
+        {
+          "name": "step",
+          "desc": "increment (throws if zero); a step pointing away from stop yields empty."
+        }
+      ],
+      "returns": "a 1-D basic_ndarray<T> of the generated values.",
+      "module": "ndarray",
+      "qualified": "ndarray.arange"
+    },
+    {
+      "name": "array",
+      "signature": "array(std::initializer_list< T > values)",
+      "brief": "array({1, 2, 3}) — braced-list overload (deduces T from the initializer_list, which the std::vector<T> overload can't do directly).",
+      "params": [
+        {
+          "name": "values",
+          "desc": "the elements as a braced list."
+        }
+      ],
+      "returns": "a contiguous 1-D basic_ndarray<T>.",
+      "module": "ndarray",
+      "qualified": "ndarray.array"
+    },
+    {
+      "name": "binary_op",
+      "signature": "binary_op(const basic_ndarray< T > &a, const basic_ndarray< T > &b, Op op)",
+      "brief": "Broadcast a and b to their common shape and apply op elementwise into a fresh contiguous result.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "first operand."
+        },
+        {
+          "name": "b",
+          "desc": "second operand."
+        },
+        {
+          "name": "op",
+          "desc": "the binary operation applied to corresponding elements."
+        }
+      ],
+      "returns": "op(a, b) broadcast to the common shape; throws if shapes don't broadcast.",
+      "module": "ndarray",
+      "qualified": "ndarray.binary_op"
+    },
+    {
+      "name": "broadcast_shapes",
+      "signature": "broadcast_shapes(const std::vector< std::size_t > &a, const std::vector< std::size_t > &b)",
+      "brief": "The broadcast result shape of two shapes (NumPy rules).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "first shape."
+        },
+        {
+          "name": "b",
+          "desc": "second shape."
+        }
+      ],
+      "returns": "the broadcast shape (trailing-aligned).",
+      "module": "ndarray",
+      "qualified": "ndarray.broadcast_shapes"
+    },
+    {
+      "name": "broadcast_to",
+      "signature": "broadcast_to(const basic_ndarray< T > &a, const std::vector< std::size_t > &target)",
+      "brief": "A zero-copy view of a stretched to target (size-1 / missing dims get stride 0).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "source array."
+        },
+        {
+          "name": "target",
+          "desc": "the shape to stretch to."
+        }
+      ],
+      "returns": "a VIEW sharing a's buffer (no element copy).",
+      "module": "ndarray",
+      "qualified": "ndarray.broadcast_to"
+    },
+    {
+      "name": "divide",
+      "signature": "divide(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
+      "brief": "Element-wise a / b with broadcasting (an integer element type does integer division).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "numerator."
+        },
+        {
+          "name": "b",
+          "desc": "denominator (float division follows IEEE-754: /0 yields inf/nan, no throw)."
+        }
+      ],
+      "returns": "a / b broadcast to the common shape.",
+      "module": "ndarray",
+      "qualified": "ndarray.divide"
+    },
+    {
+      "name": "full",
+      "signature": "full(const std::vector< long long > &shape, T value)",
+      "brief": "Array of shape filled with value; element type deduced from value.",
+      "params": [
+        {
+          "name": "shape",
+          "desc": "the dimensions (signed; throws on a negative)."
+        },
+        {
+          "name": "value",
+          "desc": "the fill value (its type is the array's element type)."
+        }
+      ],
+      "returns": "a filled basic_ndarray<T>.",
+      "module": "ndarray",
+      "qualified": "ndarray.full"
+    },
+    {
+      "name": "get",
+      "signature": "get(const basic_ndarray< T > &a, const std::vector< long long > &index)",
+      "brief": "Read one element by signed multi-index (the cheatah-facing wrapper over basic_ndarray::at; rejects negative coordinates).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        },
+        {
+          "name": "index",
+          "desc": "one coordinate per dimension (signed; throws on a negative)."
+        }
+      ],
+      "returns": "the element value (type T); throws on a wrong-rank/out-of-range index.",
+      "module": "ndarray",
+      "qualified": "ndarray.get"
+    },
+    {
+      "name": "is_contiguous",
+      "signature": "is_contiguous(const basic_ndarray< T > &a)",
+      "brief": "Whether a is a contiguous C-order block (no broadcast/stride-0/permuted view), so its elements live consecutively from offset() and can be walked flatly.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array (or view) to test."
+        }
+      ],
+      "returns": "true if a's strides are the C-order strides for its shape.",
+      "module": "ndarray",
+      "qualified": "ndarray.is_contiguous"
+    },
+    {
+      "name": "mean",
+      "signature": "mean(const basic_ndarray< T > &a)",
+      "brief": "Mean of all elements, always as a double (0.0 for an empty array — no divide-by-zero).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the average as a double.",
+      "module": "ndarray",
+      "qualified": "ndarray.mean"
+    },
+    {
+      "name": "mul",
+      "signature": "mul(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
+      "brief": "Element-wise a * b with broadcasting.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "first operand."
+        },
+        {
+          "name": "b",
+          "desc": "second operand."
+        }
+      ],
+      "returns": "a * b broadcast to the common shape.",
+      "module": "ndarray",
+      "qualified": "ndarray.mul"
+    },
+    {
+      "name": "ones",
+      "signature": "ones(const std::vector< long long > &shape)",
+      "brief": "Array of shape filled with 1 (a double array by default; rejects negatives).",
+      "params": [
+        {
+          "name": "shape",
+          "desc": "the dimensions (signed; throws on a negative)."
+        }
+      ],
+      "returns": "a one-filled NDArray.",
+      "module": "ndarray",
+      "qualified": "ndarray.ones"
+    },
+    {
+      "name": "reshape",
+      "signature": "reshape(const basic_ndarray< T > &a, const std::vector< long long > &shape)",
+      "brief": "Reshape a to shape (same element count); reads in C-order so views/broadcasts are flattened into a fresh contiguous buffer (a copy, not an alias).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "source array."
+        },
+        {
+          "name": "shape",
+          "desc": "the new dimensions (signed; throws on a negative)."
+        }
+      ],
+      "returns": "a new contiguous basic_ndarray<T> with the data in C-order.",
+      "module": "ndarray",
+      "qualified": "ndarray.reshape"
+    },
+    {
+      "name": "scalar",
+      "signature": "scalar(T value)",
+      "brief": "0-D scalar array (broadcasts to anything); element type deduced from value.",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the single element."
+        }
+      ],
+      "returns": "a 0-d basic_ndarray<T>.",
+      "module": "ndarray",
+      "qualified": "ndarray.scalar"
+    },
+    {
+      "name": "shape_of",
+      "signature": "shape_of(const basic_ndarray< T > &a)",
+      "brief": "The shape as signed dims (cheatah integers are signed; a 0-d array yields an empty list).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the dimensions as a long long vector.",
+      "module": "ndarray",
+      "qualified": "ndarray.shape_of"
+    },
+    {
+      "name": "size_of",
+      "signature": "size_of(const basic_ndarray< T > &a)",
+      "brief": "The element count as a signed value (1 for a 0-d array).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the number of elements as a long long.",
+      "module": "ndarray",
+      "qualified": "ndarray.size_of"
+    },
+    {
+      "name": "sub",
+      "signature": "sub(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
+      "brief": "Element-wise a - b with broadcasting.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "first operand."
+        },
+        {
+          "name": "b",
+          "desc": "second operand."
+        }
+      ],
+      "returns": "a - b broadcast to the common shape.",
+      "module": "ndarray",
+      "qualified": "ndarray.sub"
+    },
+    {
+      "name": "sum",
+      "signature": "sum(const basic_ndarray< T > &a)",
+      "brief": "Sum of all elements — a full reduction across every axis (vectorized via std::reduce(unseq) when contiguous, else a C-order walk); empty sums to 0.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the total, as the element type T.",
+      "module": "ndarray",
+      "qualified": "ndarray.sum"
+    },
+    {
+      "name": "to_string",
+      "signature": "to_string(const basic_ndarray< T > &a)",
+      "brief": "Render as a nested-bracket string, e.g.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the textual representation.",
+      "module": "ndarray",
+      "qualified": "ndarray.to_string"
+    },
+    {
+      "name": "zeros",
+      "signature": "zeros(const std::vector< long long > &shape)",
+      "brief": "Array of shape filled with 0 (a double array by default; rejects negatives).",
+      "params": [
+        {
+          "name": "shape",
+          "desc": "the dimensions (signed; throws on a negative)."
+        }
+      ],
+      "returns": "a zero-filled NDArray.",
+      "module": "ndarray",
+      "qualified": "ndarray.zeros"
+    },
+    {
+      "name": "chdir",
+      "signature": "chdir(const std::string &path)",
+      "brief": "Change the working directory.",
+      "params": [
+        {
+          "name": "path",
+          "desc": "the target directory."
+        }
+      ],
+      "returns": "",
+      "module": "os",
+      "qualified": "os.chdir"
+    },
+    {
+      "name": "cpu_count",
+      "signature": "cpu_count()",
+      "brief": "Logical CPU count.",
+      "params": [],
+      "returns": "the number of hardware threads (0 if undetermined).",
+      "module": "os",
+      "qualified": "os.cpu_count"
+    },
+    {
+      "name": "getcwd",
+      "signature": "getcwd()",
+      "brief": "Current working directory.",
+      "params": [],
+      "returns": "the absolute cwd.",
+      "module": "os",
+      "qualified": "os.getcwd"
+    },
+    {
+      "name": "getenv",
+      "signature": "getenv(const std::string &name, const std::string &fallback=\"\")",
+      "brief": "Read an environment variable.",
+      "params": [
+        {
+          "name": "name",
+          "desc": "the variable name."
+        },
+        {
+          "name": "fallback",
+          "desc": "returned when unset."
+        }
+      ],
+      "returns": "the value, or fallback.",
+      "module": "os",
+      "qualified": "os.getenv"
+    },
+    {
+      "name": "getpid",
+      "signature": "getpid()",
+      "brief": "Process id.",
+      "params": [],
+      "returns": "the current process's pid.",
+      "module": "os",
+      "qualified": "os.getpid"
+    },
+    {
+      "name": "listdir",
+      "signature": "listdir(const std::string &path=\".\")",
+      "brief": "List a directory's entries (basenames only).",
+      "params": [
+        {
+          "name": "path",
+          "desc": "the directory (default .)."
+        }
+      ],
+      "returns": "the entry names.",
+      "module": "os",
+      "qualified": "os.listdir"
+    },
+    {
+      "name": "makedirs",
+      "signature": "makedirs(const std::string &path)",
+      "brief": "Create a directory and any missing parents.",
+      "params": [
+        {
+          "name": "path",
+          "desc": "the nested directory to create."
+        }
+      ],
+      "returns": "",
+      "module": "os",
+      "qualified": "os.makedirs"
+    },
+    {
+      "name": "mkdir",
+      "signature": "mkdir(const std::string &path)",
+      "brief": "Create a single directory.",
+      "params": [
+        {
+          "name": "path",
+          "desc": "the directory to create."
+        }
+      ],
+      "returns": "",
+      "module": "os",
+      "qualified": "os.mkdir"
+    },
+    {
+      "name": "remove",
+      "signature": "remove(const std::string &path)",
+      "brief": "Remove a file or empty directory.",
+      "params": [
+        {
+          "name": "path",
+          "desc": "the entry to remove."
+        }
+      ],
+      "returns": "true iff something was removed.",
+      "module": "os",
+      "qualified": "os.remove"
+    },
+    {
+      "name": "rename",
+      "signature": "rename(const std::string &src, const std::string &dst)",
+      "brief": "Rename/move src to dst.",
+      "params": [
+        {
+          "name": "src",
+          "desc": "source path."
+        },
+        {
+          "name": "dst",
+          "desc": "destination path."
+        }
+      ],
+      "returns": "",
+      "module": "os",
+      "qualified": "os.rename"
+    },
+    {
+      "name": "rmdir",
+      "signature": "rmdir(const std::string &path)",
+      "brief": "Remove an (empty) directory.",
+      "params": [
+        {
+          "name": "path",
+          "desc": "the directory to remove."
+        }
+      ],
+      "returns": "",
+      "module": "os",
+      "qualified": "os.rmdir"
+    },
+    {
+      "name": "setenv",
+      "signature": "setenv(const std::string &name, const std::string &value, bool overwrite=true)",
+      "brief": "Set an environment variable.",
+      "params": [
+        {
+          "name": "name",
+          "desc": "the variable name."
+        },
+        {
+          "name": "value",
+          "desc": "the value to set."
+        },
+        {
+          "name": "overwrite",
+          "desc": "replace an existing value when true."
+        }
+      ],
+      "returns": "",
+      "module": "os",
+      "qualified": "os.setenv"
+    },
+    {
+      "name": "system",
+      "signature": "system(const std::string &command)",
+      "brief": "Run a shell command.",
+      "params": [
+        {
+          "name": "command",
+          "desc": "the command line."
+        }
+      ],
+      "returns": "the command's exit status.",
+      "module": "os",
+      "qualified": "os.system"
+    },
+    {
+      "name": "abspath",
+      "signature": "abspath(const std::string &p)",
+      "brief": "Absolute path.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "p resolved against the cwd.",
+      "module": "os.path",
+      "qualified": "os.path.abspath"
+    },
+    {
+      "name": "basename",
+      "signature": "basename(const std::string &p)",
+      "brief": "Final path component.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "the basename (filename).",
+      "module": "os.path",
+      "qualified": "os.path.basename"
+    },
+    {
+      "name": "dirname",
+      "signature": "dirname(const std::string &p)",
+      "brief": "Parent path.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "the directory portion of p.",
+      "module": "os.path",
+      "qualified": "os.path.dirname"
+    },
+    {
+      "name": "exists",
+      "signature": "exists(const std::string &p)",
+      "brief": "Path existence test.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "true iff p exists.",
+      "module": "os.path",
+      "qualified": "os.path.exists"
+    },
+    {
+      "name": "getsize",
+      "signature": "getsize(const std::string &p)",
+      "brief": "File size in bytes.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the file path."
+        }
+      ],
+      "returns": "p's size.",
+      "module": "os.path",
+      "qualified": "os.path.getsize"
+    },
+    {
+      "name": "isdir",
+      "signature": "isdir(const std::string &p)",
+      "brief": "Directory test.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "true iff p is a directory.",
+      "module": "os.path",
+      "qualified": "os.path.isdir"
+    },
+    {
+      "name": "isfile",
+      "signature": "isfile(const std::string &p)",
+      "brief": "Regular-file test.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "true iff p is a regular file.",
+      "module": "os.path",
+      "qualified": "os.path.isfile"
+    },
+    {
+      "name": "join",
+      "signature": "join(const std::string &first, const Parts &... rest)",
+      "brief": "Join path components with the platform separator.",
+      "params": [
+        {
+          "name": "first",
+          "desc": "the first component."
+        },
+        {
+          "name": "rest",
+          "desc": "any further string-constructible components."
+        }
+      ],
+      "returns": "e.g. join(\"a\",\"b\",\"c\") -> \"a/b/c\".",
+      "module": "os.path",
+      "qualified": "os.path.join"
+    },
+    {
+      "name": "normpath",
+      "signature": "normpath(const std::string &p)",
+      "brief": "Lexically normalized path (collapses current-dir and parent-dir segments).",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "the normalized path.",
+      "module": "os.path",
+      "qualified": "os.path.normpath"
+    },
+    {
+      "name": "splitext",
+      "signature": "splitext(const std::string &p)",
+      "brief": "Split a path into root and extension.",
+      "params": [
+        {
+          "name": "p",
+          "desc": "the path."
+        }
+      ],
+      "returns": "e.g. splitext(\"dir/file.purr\") -> {\"dir/file\", \".purr\"} (empty extension when none).",
+      "module": "os.path",
+      "qualified": "os.path.splitext"
+    },
+    {
+      "name": "choice",
+      "signature": "choice(const R &seq)",
+      "brief": "Random element of a random-access sequence (list/array).",
+      "params": [
+        {
+          "name": "seq",
+          "desc": "the sequence to pick from (must be non-empty)."
+        }
+      ],
+      "returns": "a copy of a uniformly chosen element.",
+      "module": "random",
+      "qualified": "random.choice"
+    },
+    {
+      "name": "gauss",
+      "signature": "gauss(double mu, double sigma)",
+      "brief": "Normal (Gaussian) deviate.",
+      "params": [
+        {
+          "name": "mu",
+          "desc": "mean."
+        },
+        {
+          "name": "sigma",
+          "desc": "standard deviation."
+        }
+      ],
+      "returns": "a normal sample.",
+      "module": "random",
+      "qualified": "random.gauss"
+    },
+    {
+      "name": "randint",
+      "signature": "randint(long long a, long long b)",
+      "brief": "Uniform random integer.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "inclusive bounds."
+        },
+        {
+          "name": "b",
+          "desc": "inclusive bounds."
+        }
+      ],
+      "returns": "an integer in [a, b].",
+      "module": "random",
+      "qualified": "random.randint"
+    },
+    {
+      "name": "random",
+      "signature": "random()",
+      "brief": "Uniform random double.",
+      "params": [],
+      "returns": "a value in [0, 1).",
+      "module": "random",
+      "qualified": "random.random"
+    },
+    {
+      "name": "seed",
+      "signature": "seed(unsigned long long s)",
+      "brief": "Seed the shared engine, making the stream reproducible.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "the seed."
+        }
+      ],
+      "returns": "",
+      "module": "random",
+      "qualified": "random.seed"
+    },
+    {
+      "name": "uniform",
+      "signature": "uniform(double a, double b)",
+      "brief": "Uniform random double in a range.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the bounds."
+        },
+        {
+          "name": "b",
+          "desc": "the bounds."
+        }
+      ],
+      "returns": "a value in [a, b].",
+      "module": "random",
+      "qualified": "random.uniform"
+    },
+    {
+      "name": "accept",
+      "signature": "accept(long long fd)",
+      "brief": "Accept one pending connection.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a listening fd."
+        }
+      ],
+      "returns": "the connected client fd, or -1 on error.",
+      "module": "socket",
+      "qualified": "socket.accept"
+    },
+    {
+      "name": "bind",
+      "signature": "bind(long long fd, const std::string &host, long long port)",
+      "brief": "Bind fd to host:port.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "the socket."
+        },
+        {
+          "name": "host",
+          "desc": "interface to bind."
+        },
+        {
+          "name": "port",
+          "desc": "TCP port (0 = OS-assigned)."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "module": "socket",
+      "qualified": "socket.bind"
+    },
+    {
+      "name": "close",
+      "signature": "close(long long fd)",
+      "brief": "Close a socket.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "the fd to close."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "module": "socket",
+      "qualified": "socket.close"
+    },
+    {
+      "name": "connect",
+      "signature": "connect(long long fd, const std::string &host, long long port)",
+      "brief": "Connect fd to host:port.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "the socket."
+        },
+        {
+          "name": "host",
+          "desc": "destination."
+        },
+        {
+          "name": "port",
+          "desc": "destination port."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "module": "socket",
+      "qualified": "socket.connect"
+    },
+    {
+      "name": "last_error",
+      "signature": "last_error()",
+      "brief": "The message for the current errno.",
+      "params": [],
+      "returns": "strerror(errno).",
+      "module": "socket",
+      "qualified": "socket.last_error"
+    },
+    {
+      "name": "listen",
+      "signature": "listen(long long fd, long long backlog)",
+      "brief": "Mark fd as a passive (listening) socket.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "the socket."
+        },
+        {
+          "name": "backlog",
+          "desc": "queue length."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "module": "socket",
+      "qualified": "socket.listen"
+    },
+    {
+      "name": "local_port",
+      "signature": "local_port(long long fd)",
+      "brief": "The local TCP port fd is bound to (useful after binding to port 0).",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a bound socket."
+        }
+      ],
+      "returns": "the port, or -1 on error.",
+      "module": "socket",
+      "qualified": "socket.local_port"
+    },
+    {
+      "name": "recv",
+      "signature": "recv(long long fd, long long bufsize)",
+      "brief": "Receive up to bufsize bytes.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a connected fd."
+        },
+        {
+          "name": "bufsize",
+          "desc": "maximum bytes to read."
+        }
+      ],
+      "returns": "the bytes read (binary-safe), or \"\" on EOF/error.",
+      "module": "socket",
+      "qualified": "socket.recv"
+    },
+    {
+      "name": "send",
+      "signature": "send(long long fd, const std::string &data)",
+      "brief": "Send some of data (one send).",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a connected fd."
+        },
+        {
+          "name": "data",
+          "desc": "bytes to send."
+        }
+      ],
+      "returns": "bytes actually sent, or -1 on error.",
+      "module": "socket",
+      "qualified": "socket.send"
+    },
+    {
+      "name": "sendall",
+      "signature": "sendall(long long fd, const std::string &data)",
+      "brief": "Send data in full, looping until all bytes are written.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a connected fd."
+        },
+        {
+          "name": "data",
+          "desc": "bytes to send."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "module": "socket",
+      "qualified": "socket.sendall"
+    },
+    {
+      "name": "set_reuseaddr",
+      "signature": "set_reuseaddr(long long fd)",
+      "brief": "Enable SO_REUSEADDR on fd.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "the socket."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "module": "socket",
+      "qualified": "socket.set_reuseaddr"
+    },
+    {
+      "name": "socket",
+      "signature": "socket()",
+      "brief": "Create an IPv4 TCP socket.",
+      "params": [],
+      "returns": "the new fd, or -1 on error.",
+      "module": "socket",
+      "qualified": "socket.socket"
+    },
+    {
+      "name": "tcp_connect",
+      "signature": "tcp_connect(const std::string &host, long long port)",
+      "brief": "Create a TCP socket and connect it to host:port.",
+      "params": [
+        {
+          "name": "host",
+          "desc": "destination host (name or IP)."
+        },
+        {
+          "name": "port",
+          "desc": "destination port."
+        }
+      ],
+      "returns": "the connected fd, or -1 on error.",
+      "module": "socket",
+      "qualified": "socket.tcp_connect"
+    },
+    {
+      "name": "tcp_listen",
+      "signature": "tcp_listen(const std::string &host, long long port, long long backlog)",
+      "brief": "Create a TCP socket bound to host:port and put it in the listening state (sets SO_REUSEADDR).",
+      "params": [
+        {
+          "name": "host",
+          "desc": "interface to bind (\"127.0.0.1\", \"0.0.0.0\", …)."
+        },
+        {
+          "name": "port",
+          "desc": "TCP port (0 = let the OS pick — read it back with local_port())."
+        },
+        {
+          "name": "backlog",
+          "desc": "pending-connection queue length."
+        }
+      ],
+      "returns": "the listening fd, or -1 on error.",
+      "module": "socket",
+      "qualified": "socket.tcp_listen"
+    },
+    {
+      "name": "count",
+      "signature": "count(const R &data)",
+      "brief": "Element count.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "the number of elements.",
+      "module": "statistics",
+      "qualified": "statistics.count"
+    },
+    {
+      "name": "mean",
+      "signature": "mean(const R &data)",
+      "brief": "Arithmetic mean.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "the mean, or 0.0 if empty.",
+      "module": "statistics",
+      "qualified": "statistics.mean"
+    },
+    {
+      "name": "median",
+      "signature": "median(const R &data)",
+      "brief": "Median (mean of the two middle values when the count is even).",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "the median, or 0.0 if empty.",
+      "module": "statistics",
+      "qualified": "statistics.median"
+    },
+    {
+      "name": "pstdev",
+      "signature": "pstdev(const R &data)",
+      "brief": "Population standard deviation.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "√pvariance(data).",
+      "module": "statistics",
+      "qualified": "statistics.pstdev"
+    },
+    {
+      "name": "pvariance",
+      "signature": "pvariance(const R &data)",
+      "brief": "Population variance (divide by N).",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "the variance, or 0.0 if empty.",
+      "module": "statistics",
+      "qualified": "statistics.pvariance"
+    },
+    {
+      "name": "stdev",
+      "signature": "stdev(const R &data)",
+      "brief": "Sample standard deviation.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "√variance(data).",
+      "module": "statistics",
+      "qualified": "statistics.stdev"
+    },
+    {
+      "name": "sum",
+      "signature": "sum(const R &data)",
+      "brief": "Sum of the elements.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "Σdata as double.",
+      "module": "statistics",
+      "qualified": "statistics.sum"
+    },
+    {
+      "name": "variance",
+      "signature": "variance(const R &data)",
+      "brief": "Sample variance (divide by N−1).",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the numeric range."
+        }
+      ],
+      "returns": "the variance, or 0.0 if fewer than 2 elements.",
+      "module": "statistics",
+      "qualified": "statistics.variance"
+    },
+    {
+      "name": "capitalize",
+      "signature": "capitalize(std::string_view s)",
+      "brief": "Capitalize: first char upper, rest lower.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "capitalized s.",
+      "module": "string",
+      "qualified": "string.capitalize"
+    },
+    {
+      "name": "capwords",
+      "signature": "capwords(std::string_view s)",
+      "brief": "Python string.capwords: split on whitespace, capitalize, re-join with spaces.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "the result.",
+      "module": "string",
+      "qualified": "string.capwords"
+    },
+    {
+      "name": "center",
+      "signature": "center(std::string_view s, std::size_t width, std::string_view fill=\" \")",
+      "brief": "Center within width.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "width",
+          "desc": "target."
+        },
+        {
+          "name": "fill",
+          "desc": "pad char."
+        }
+      ],
+      "returns": "padded s.",
+      "module": "string",
+      "qualified": "string.center"
+    },
+    {
+      "name": "contains",
+      "signature": "contains(std::string_view s, std::string_view sub)",
+      "brief": "Substring test.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "sub",
+          "desc": "needle."
+        }
+      ],
+      "returns": "true iff sub occurs in s.",
+      "module": "string",
+      "qualified": "string.contains"
+    },
+    {
+      "name": "count",
+      "signature": "count(std::string_view s, std::string_view sub)",
+      "brief": "Count non-overlapping sub.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "sub",
+          "desc": "needle."
+        }
+      ],
+      "returns": "occurrence count.",
+      "module": "string",
+      "qualified": "string.count"
+    },
+    {
+      "name": "endswith",
+      "signature": "endswith(std::string_view s, std::string_view suffix)",
+      "brief": "Suffix test.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "suffix",
+          "desc": "sought suffix."
+        }
+      ],
+      "returns": "true iff s ends with suffix.",
+      "module": "string",
+      "qualified": "string.endswith"
+    },
+    {
+      "name": "find",
+      "signature": "find(std::string_view s, std::string_view sub)",
+      "brief": "First index of sub.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "sub",
+          "desc": "needle."
+        }
+      ],
+      "returns": "index, or -1.",
+      "module": "string",
+      "qualified": "string.find"
+    },
+    {
+      "name": "isalnum",
+      "signature": "isalnum(std::string_view s)",
+      "brief": "All alphanumeric?",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "true iff non-empty and all letters/digits.",
+      "module": "string",
+      "qualified": "string.isalnum"
+    },
+    {
+      "name": "isalpha",
+      "signature": "isalpha(std::string_view s)",
+      "brief": "All letters?",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "true iff non-empty and all alphabetic.",
+      "module": "string",
+      "qualified": "string.isalpha"
+    },
+    {
+      "name": "isdigit",
+      "signature": "isdigit(std::string_view s)",
+      "brief": "All digits?",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "true iff non-empty and all 0–9.",
+      "module": "string",
+      "qualified": "string.isdigit"
+    },
+    {
+      "name": "islower",
+      "signature": "islower(std::string_view s)",
+      "brief": "All lowercase?",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "true iff non-empty and has no uppercase.",
+      "module": "string",
+      "qualified": "string.islower"
+    },
+    {
+      "name": "isspace",
+      "signature": "isspace(std::string_view s)",
+      "brief": "All whitespace?",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "true iff non-empty and all whitespace.",
+      "module": "string",
+      "qualified": "string.isspace"
+    },
+    {
+      "name": "isupper",
+      "signature": "isupper(std::string_view s)",
+      "brief": "All uppercase?",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "true iff non-empty and has no lowercase.",
+      "module": "string",
+      "qualified": "string.isupper"
+    },
+    {
+      "name": "join",
+      "signature": "join(std::string_view sep, const Range &parts)",
+      "brief": "Join parts with sep.",
+      "params": [
+        {
+          "name": "sep",
+          "desc": "separator."
+        },
+        {
+          "name": "parts",
+          "desc": "any range of string-like values."
+        }
+      ],
+      "returns": "the joined string.",
+      "module": "string",
+      "qualified": "string.join"
+    },
+    {
+      "name": "ljust",
+      "signature": "ljust(std::string_view s, std::size_t width, std::string_view fill=\" \")",
+      "brief": "Left-justify to width.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "width",
+          "desc": "target."
+        },
+        {
+          "name": "fill",
+          "desc": "pad char."
+        }
+      ],
+      "returns": "padded s (or s if already ≥ width).",
+      "module": "string",
+      "qualified": "string.ljust"
+    },
+    {
+      "name": "lower",
+      "signature": "lower(std::string_view s)",
+      "brief": "Lowercase.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "s lowercased.",
+      "module": "string",
+      "qualified": "string.lower"
+    },
+    {
+      "name": "lstrip",
+      "signature": "lstrip(std::string_view s, std::string_view chars=whitespace)",
+      "brief": "Strip leading chars.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "chars",
+          "desc": "cut set."
+        }
+      ],
+      "returns": "left-trimmed s.",
+      "module": "string",
+      "qualified": "string.lstrip"
+    },
+    {
+      "name": "replace",
+      "signature": "replace(std::string_view s, std::string_view from, std::string_view to)",
+      "brief": "Replace all from with to.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "from",
+          "desc": "needle/replacement."
+        },
+        {
+          "name": "to",
+          "desc": "needle/replacement."
+        }
+      ],
+      "returns": "new string.",
+      "module": "string",
+      "qualified": "string.replace"
+    },
+    {
+      "name": "rfind",
+      "signature": "rfind(std::string_view s, std::string_view sub)",
+      "brief": "Last index of sub.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "sub",
+          "desc": "needle."
+        }
+      ],
+      "returns": "index, or -1.",
+      "module": "string",
+      "qualified": "string.rfind"
+    },
+    {
+      "name": "rjust",
+      "signature": "rjust(std::string_view s, std::size_t width, std::string_view fill=\" \")",
+      "brief": "Right-justify to width.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "width",
+          "desc": "target."
+        },
+        {
+          "name": "fill",
+          "desc": "pad char."
+        }
+      ],
+      "returns": "padded s.",
+      "module": "string",
+      "qualified": "string.rjust"
+    },
+    {
+      "name": "rstrip",
+      "signature": "rstrip(std::string_view s, std::string_view chars=whitespace)",
+      "brief": "Strip trailing chars.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "chars",
+          "desc": "cut set."
+        }
+      ],
+      "returns": "right-trimmed s.",
+      "module": "string",
+      "qualified": "string.rstrip"
+    },
+    {
+      "name": "split",
+      "signature": "split(std::string_view s)",
+      "brief": "Split on runs of whitespace.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "the non-empty parts.",
+      "module": "string",
+      "qualified": "string.split"
+    },
+    {
+      "name": "splitlines",
+      "signature": "splitlines(std::string_view s)",
+      "brief": "Split into lines.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "the lines (newlines removed).",
+      "module": "string",
+      "qualified": "string.splitlines"
+    },
+    {
+      "name": "startswith",
+      "signature": "startswith(std::string_view s, std::string_view prefix)",
+      "brief": "Prefix test.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "prefix",
+          "desc": "sought prefix."
+        }
+      ],
+      "returns": "true iff s starts with prefix.",
+      "module": "string",
+      "qualified": "string.startswith"
+    },
+    {
+      "name": "strip",
+      "signature": "strip(std::string_view s, std::string_view chars=whitespace)",
+      "brief": "Strip leading+trailing chars.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "chars",
+          "desc": "cut set."
+        }
+      ],
+      "returns": "trimmed s.",
+      "module": "string",
+      "qualified": "string.strip"
+    },
+    {
+      "name": "swapcase",
+      "signature": "swapcase(std::string_view s)",
+      "brief": "Swap the case of each letter.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "case-swapped s.",
+      "module": "string",
+      "qualified": "string.swapcase"
+    },
+    {
+      "name": "title",
+      "signature": "title(std::string_view s)",
+      "brief": "Title-case each word.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "title-cased s.",
+      "module": "string",
+      "qualified": "string.title"
+    },
+    {
+      "name": "upper",
+      "signature": "upper(std::string_view s)",
+      "brief": "Uppercase.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        }
+      ],
+      "returns": "s uppercased.",
+      "module": "string",
+      "qualified": "string.upper"
+    },
+    {
+      "name": "zfill",
+      "signature": "zfill(std::string_view s, std::size_t width)",
+      "brief": "Zero-fill on the left to width.",
+      "params": [
+        {
+          "name": "s",
+          "desc": "input."
+        },
+        {
+          "name": "width",
+          "desc": "target."
+        }
+      ],
+      "returns": "'0'-padded s.",
+      "module": "string",
+      "qualified": "string.zfill"
+    },
+    {
+      "name": "monotonic",
+      "signature": "monotonic()",
+      "brief": "Monotonic clock; never runs backwards.",
+      "params": [],
+      "returns": "seconds from steady_clock.",
+      "module": "time",
+      "qualified": "time.monotonic"
+    },
+    {
+      "name": "monotonic_ns",
+      "signature": "monotonic_ns()",
+      "brief": "Monotonic clock; never runs backwards.",
+      "params": [],
+      "returns": "nanoseconds from steady_clock.",
+      "module": "time",
+      "qualified": "time.monotonic_ns"
+    },
+    {
+      "name": "perf_counter",
+      "signature": "perf_counter()",
+      "brief": "Highest-resolution monotonic counter.",
+      "params": [],
+      "returns": "seconds from steady_clock.",
+      "module": "time",
+      "qualified": "time.perf_counter"
+    },
+    {
+      "name": "perf_counter_ns",
+      "signature": "perf_counter_ns()",
+      "brief": "Highest-resolution monotonic counter.",
+      "params": [],
+      "returns": "nanoseconds from steady_clock.",
+      "module": "time",
+      "qualified": "time.perf_counter_ns"
+    },
+    {
+      "name": "process_time",
+      "signature": "process_time()",
+      "brief": "CPU time consumed by this process.",
+      "params": [],
+      "returns": "seconds of CPU time (std::clock).",
+      "module": "time",
+      "qualified": "time.process_time"
+    },
+    {
+      "name": "sleep",
+      "signature": "sleep(double seconds)",
+      "brief": "Suspend the calling thread.",
+      "params": [
+        {
+          "name": "seconds",
+          "desc": "duration to sleep (fractional)."
+        }
+      ],
+      "returns": "",
+      "module": "time",
+      "qualified": "time.sleep"
+    },
+    {
+      "name": "time",
+      "signature": "time()",
+      "brief": "Wall-clock time.",
+      "params": [],
+      "returns": "seconds since the Unix epoch (system_clock).",
+      "module": "time",
+      "qualified": "time.time"
+    },
+    {
+      "name": "time_ns",
+      "signature": "time_ns()",
+      "brief": "Wall-clock time.",
+      "params": [],
+      "returns": "nanoseconds since the Unix epoch (system_clock).",
+      "module": "time",
+      "qualified": "time.time_ns"
+    }
+  ],
+  "modules": [
+    "datetime",
+    "hashlib",
+    "html",
+    "html.parser",
+    "io",
+    "linalg",
+    "math",
+    "ndarray",
+    "os",
+    "os.path",
+    "random",
+    "socket",
+    "statistics",
+    "string",
+    "time"
+  ]
+}

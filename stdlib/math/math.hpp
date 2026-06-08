@@ -15,9 +15,22 @@
  * the @test that covers it.
  */
 #include <cmath>
+#include <concepts>
 #include <limits>
+#include <type_traits>
 
 namespace cheatah::math {
+
+// Concepts naming what each scalar op needs, so a misuse fails with the concept's
+// name rather than a deep template error (see constrain-all-templates policy).
+/// Numeric<T>: an arithmetic type — the int/float family `abs`/`pow` operate on.
+template <typename T>
+concept Numeric = std::is_arithmetic_v<T>;
+/// Ordered<T>: `<`-comparable, so `min`/`max` can pick the smaller/larger.
+template <typename T>
+concept Ordered = requires(const T& a, const T& b) {
+    { a < b } -> std::convertible_to<bool>;
+};
 
 // ---- constants ----
 inline constexpr double pi = 3.14159265358979323846;   ///< π.
@@ -38,7 +51,7 @@ inline constexpr double nan = std::numeric_limits<double>::quiet_NaN();   ///< q
  * @crtest MathCompileRun.Abs
  * @systest StdlibE2E.Math
  */
-template <typename T>
+template <Numeric T>
 T abs(T x) { return x < T{} ? -x : x; }
 
 /**
@@ -56,7 +69,7 @@ T abs(T x) { return x < T{} ? -x : x; }
  * @crtest MathCompileRun.Min
  * @systest StdlibE2E.Math
  */
-template <typename T>
+template <Ordered T>
 const T& min(const T& a, const T& b) { return (b < a) ? b : a; }
 /**
  * Smallest of three-or-more values (folds the extra args onto the two-argument overload).
@@ -67,7 +80,7 @@ const T& min(const T& a, const T& b) { return (b < a) ? b : a; }
  * @crtest MathCompileRun.Min
  * @systest StdlibE2E.Math
  */
-template <typename T, typename... Rest>
+template <Ordered T, Ordered... Rest>
 const T& min(const T& a, const T& b, const Rest&... rest) { return min(min(a, b), rest...); }
 
 /**
@@ -84,7 +97,7 @@ const T& min(const T& a, const T& b, const Rest&... rest) { return min(min(a, b)
  * @crtest MathCompileRun.Max
  * @systest StdlibE2E.Math
  */
-template <typename T>
+template <Ordered T>
 const T& max(const T& a, const T& b) { return (a < b) ? b : a; }
 /**
  * Largest of three-or-more values (folds the extra args onto the two-argument overload).
@@ -95,7 +108,7 @@ const T& max(const T& a, const T& b) { return (a < b) ? b : a; }
  * @crtest MathCompileRun.Max
  * @systest StdlibE2E.Math
  */
-template <typename T, typename... Rest>
+template <Ordered T, Ordered... Rest>
 const T& max(const T& a, const T& b, const Rest&... rest) { return max(max(a, b), rest...); }
 
 /**
@@ -114,7 +127,7 @@ const T& max(const T& a, const T& b, const Rest&... rest) { return max(max(a, b)
  * @crtest MathCompileRun.Pow
  * @systest StdlibE2E.Math
  */
-template <typename Base, typename Exp>
+template <Numeric Base, Numeric Exp>
 double pow(Base base, Exp exp) {
     return std::pow(static_cast<double>(base), static_cast<double>(exp));
 }

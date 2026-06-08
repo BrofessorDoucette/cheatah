@@ -14,9 +14,14 @@
 #include <concepts>
 #include <cstddef>
 #include <functional>
+#include <limits>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace cheatah::builtins {
 
@@ -25,6 +30,13 @@ template <typename C>
 concept Sized = requires(const C& c) {
     { c.size() } -> std::convertible_to<std::size_t>;
 };
+
+/// Value<T>: a cheatah value — movable, so it can be stored, passed, and returned.
+/// This is the baseline concept purrc stamps on every emitted function/method
+/// parameter, so no cheatah code ever instantiates a fully unconstrained template
+/// (keeps compile errors comprehensible). See `constrain-all-templates` policy.
+template <typename T>
+concept Value = std::movable<std::remove_cvref_t<T>>;
 
 /**
  * Length / element count.
@@ -261,6 +273,199 @@ std::size_t hash(std::string_view s);
  *       hash value is implementation-defined and has no portable expected stdout.
  */
 template <typename T>
+    requires requires(const T& x) { std::hash<T>{}(x); }
 std::size_t hash(const T& x) { return std::hash<T>{}(x); }
+
+// ---- collection + method-style helpers ----
+//
+// These power cheatah's growable lists and the method-call syntax `obj.f(a)`,
+// which lowers to `cheatah::builtins::f(obj, a)`. Free-function form works too:
+// `append(xs, x)` and `xs.append(x)` are the same call.
+
+/**
+ * Append @p x to list @p v in place (Python `list.append`).
+ *
+ * Grows @p v by one, converting @p x to the list's element type. Usable as a
+ * method (`xs.append(x)`) or a bare call (`append(xs, x)`); the list is taken by
+ * reference, so the caller's list is mutated.
+ * @param v the list to grow.
+ * @param x the value to append.
+ * @complexity amortized O(1).
+ * @alloc reallocates @p v when it outgrows its capacity.
+ * @test CheatahBuiltins.Append
+ * @crtest BuiltinsCompileRun.Append
+ * @systest StdlibE2E.Builtins
+ */
+template <typename T, typename U>
+    requires std::convertible_to<std::remove_cvref_t<U>, T>
+void append(std::vector<T>& v, U&& x) {
+    v.push_back(static_cast<T>(std::forward<U>(x)));
+}
+
+/**
+ * Whether @p s begins with @p prefix (Python `str.startswith`).
+ * @param s the string.
+ * @param prefix the prefix to test.
+ * @return true iff @p s starts with @p prefix.
+ * @complexity O(len(@p prefix)).
+ * @alloc none.
+ * @test CheatahBuiltins.StringPredicates
+ * @crtest BuiltinsCompileRun.StartsWith
+ * @systest StdlibE2E.Builtins
+ */
+inline bool startswith(std::string_view s, std::string_view prefix) {
+    return s.size() >= prefix.size() && s.compare(0, prefix.size(), prefix) == 0;
+}
+
+/**
+ * Whether @p s ends with @p suffix (Python `str.endswith`).
+ * @param s the string.
+ * @param suffix the suffix to test.
+ * @return true iff @p s ends with @p suffix.
+ * @complexity O(len(@p suffix)).
+ * @alloc none.
+ * @test CheatahBuiltins.StringPredicates
+ * @crtest BuiltinsCompileRun.EndsWith
+ * @systest StdlibE2E.Builtins
+ */
+inline bool endswith(std::string_view s, std::string_view suffix) {
+    return s.size() >= suffix.size() &&
+           s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+/**
+ * Whether @p sub occurs anywhere in @p s (Python `sub in s`).
+ * @param s the string to search.
+ * @param sub the substring to find.
+ * @return true iff @p sub is a substring of @p s.
+ * @complexity O(len(@p s) · len(@p sub)) worst case.
+ * @alloc none.
+ * @test CheatahBuiltins.StringPredicates
+ * @crtest BuiltinsCompileRun.Contains
+ * @systest StdlibE2E.Builtins
+ */
+inline bool contains(std::string_view s, std::string_view sub) {
+    return s.find(sub) != std::string_view::npos;
+}
+
+// ---- indexing & slicing (Python `seq[i]` / `seq[i:j]`) ----
+//
+// The compiler lowers value-position `seq[i]` to `index(seq, i)` and `seq[a:b]`
+// to `slice(seq, a, b)` (a missing bound becomes 0 / `slice_end`). Indices may be
+// negative (counted from the end). Indexing a string yields a length-1 string
+// (Python semantics), so `s[i] == "<"` type-checks; slicing yields the same kind.
+
+/// Sentinel for an omitted slice upper bound (`s[a:]`): "to the end".
+inline constexpr long long slice_end = std::numeric_limits<long long>::max();
+
+namespace detail {
+inline long long norm_index(long long i, long long n) { return i < 0 ? i + n : i; }
+}  // namespace detail
+
+/**
+ * Element at @p i of a string — a length-1 string (Python `s[i]`).
+ * Negative @p i counts from the end; out-of-range throws `std::out_of_range`.
+ * @param s the string.
+ * @param i the index (may be negative).
+ * @return the one-character string at @p i.
+ * @complexity O(1).
+ * @alloc the 1-char result (small-string optimized).
+ * @test CheatahBuiltins.IndexString
+ * @crtest BuiltinsCompileRun.IndexString
+ * @systest StdlibE2E.Builtins
+ */
+inline std::string index(const std::string& s, long long i) {
+    const long long n = static_cast<long long>(s.size());
+    i = detail::norm_index(i, n);
+    if (i < 0 || i >= n) throw std::out_of_range("string index out of range");
+    return std::string(1, s[static_cast<std::size_t>(i)]);
+}
+
+/**
+ * Element at @p i of a list/array (Python `xs[i]`), by value.
+ * Negative @p i counts from the end; out-of-range throws `std::out_of_range`.
+ * @param c the sequence.
+ * @param i the index (may be negative).
+ * @return a copy of the element at @p i.
+ * @complexity O(1).
+ * @alloc none beyond copying the element.
+ * @test CheatahBuiltins.IndexList
+ * @crtest BuiltinsCompileRun.IndexList
+ * @systest StdlibE2E.Builtins
+ */
+template <typename C>
+    requires requires(const C& c) { c.data(); c.size(); }  // contiguous seq (vector/array), not a map
+auto index(const C& c, long long i) -> std::decay_t<decltype(c[0])> {
+    const long long n = static_cast<long long>(c.size());
+    i = detail::norm_index(i, n);
+    if (i < 0 || i >= n) throw std::out_of_range("index out of range");
+    return c[static_cast<std::size_t>(i)];
+}
+
+/**
+ * Value for @p key in a dict (Python `d[key]`), by value.
+ * @param m the dict.
+ * @param key the key to look up.
+ * @return a copy of the mapped value (throws `std::out_of_range` if absent).
+ * @complexity O(1) average.
+ * @alloc none beyond copying the value.
+ * @test CheatahBuiltins.IndexDict
+ * @crtest BuiltinsCompileRun.IndexDict
+ * @systest StdlibE2E.Builtins
+ */
+template <typename K, typename V, typename H, typename E, typename A, typename Key>
+    requires requires(const std::unordered_map<K, V, H, E, A>& m, const Key& key) { m.find(key); }
+V index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
+    const auto it = m.find(key);
+    if (it == m.end()) throw std::out_of_range("key not found");
+    return it->second;
+}
+
+/**
+ * Substring `s[lo:hi]` (Python slice semantics: clamped, negatives from the end).
+ * @param s the string.
+ * @param lo start index (default 0 at the call site).
+ * @param hi end index, or @ref slice_end for "to the end".
+ * @return the slice (empty if `lo >= hi` after clamping).
+ * @complexity O(hi-lo).
+ * @alloc the result string.
+ * @test CheatahBuiltins.SliceString
+ * @crtest BuiltinsCompileRun.SliceString
+ * @systest StdlibE2E.Builtins
+ */
+inline std::string slice(const std::string& s, long long lo, long long hi) {
+    const long long n = static_cast<long long>(s.size());
+    lo = detail::norm_index(lo, n);
+    hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
+    if (lo < 0) lo = 0;
+    if (hi > n) hi = n;
+    if (lo >= hi) return std::string();
+    return s.substr(static_cast<std::size_t>(lo), static_cast<std::size_t>(hi - lo));
+}
+
+/**
+ * Sub-list `xs[lo:hi]` (Python slice semantics), returned as a new list.
+ * @param c the sequence.
+ * @param lo start index.
+ * @param hi end index, or @ref slice_end for "to the end".
+ * @return the slice as a `std::vector` of the element type.
+ * @complexity O(hi-lo).
+ * @alloc the result vector.
+ * @test CheatahBuiltins.SliceList
+ * @crtest BuiltinsCompileRun.SliceList
+ * @systest StdlibE2E.Builtins
+ */
+template <typename C>
+    requires requires(const C& c) { c.data(); c.size(); }  // contiguous seq, not a map
+auto slice(const C& c, long long lo, long long hi) -> std::vector<std::decay_t<decltype(c[0])>> {
+    const long long n = static_cast<long long>(c.size());
+    lo = detail::norm_index(lo, n);
+    hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
+    if (lo < 0) lo = 0;
+    if (hi > n) hi = n;
+    std::vector<std::decay_t<decltype(c[0])>> out;
+    for (long long k = lo; k < hi; ++k) out.push_back(c[static_cast<std::size_t>(k)]);
+    return out;
+}
 
 } // namespace cheatah::builtins

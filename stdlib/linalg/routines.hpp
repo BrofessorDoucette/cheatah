@@ -16,6 +16,11 @@
  * Jacobi SVD, cyclic Jacobi symmetric eigen, Hessenberg + shifted-QR general
  * eigen) at -O3 -march=native so the hot loops auto-vectorize.
  *
+ * SIMD here is pure compiler auto-vectorization (no intrinsics). On a scalar build
+ * (no vector ISA) every routine still returns identical results, just slower — see
+ * simd.hpp's file comment for the full SIMD model, the no-SIMD behavior, and the
+ * compile-time-dispatch limitation.
+ *
  * @note `n` below is the matrix dimension. NDArray is double-only, so `eig`/
  *       `eigvals` return REAL eigenvalues and throw on a complex pair. Routines
  *       that extract a working copy "allocate scratch O(n²) for the factorization"
