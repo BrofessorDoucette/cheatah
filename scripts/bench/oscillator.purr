@@ -1,0 +1,24 @@
+import io
+import time
+fn fx(x, v) { return v }
+fn fv(x, v) { return -x }
+let x = 1.0
+let v = 0.0
+let dt = 0.0005
+let n = 4000000
+let t0 = time.monotonic()
+for i in range(0, n) {
+    let k1x = fx(x, v)
+    let k1v = fv(x, v)
+    let k2x = fx(x + 0.5 * dt * k1x, v + 0.5 * dt * k1v)
+    let k2v = fv(x + 0.5 * dt * k1x, v + 0.5 * dt * k1v)
+    let k3x = fx(x + 0.5 * dt * k2x, v + 0.5 * dt * k2v)
+    let k3v = fv(x + 0.5 * dt * k2x, v + 0.5 * dt * k2v)
+    let k4x = fx(x + dt * k3x, v + dt * k3v)
+    let k4v = fv(x + dt * k3x, v + dt * k3v)
+    x = x + dt * (k1x + 2.0 * k2x + 2.0 * k3x + k4x) / 6.0
+    v = v + dt * (k1v + 2.0 * k2v + 2.0 * k3v + k4v) / 6.0
+}
+let t1 = time.monotonic()
+io.print(0.5 * (x * x + v * v))
+io.print(t1 - t0)

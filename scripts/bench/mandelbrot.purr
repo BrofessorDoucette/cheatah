@@ -1,0 +1,26 @@
+import io
+import time
+let W = 800
+let H = 600
+let maxit = 256
+let total = 0
+let t0 = time.monotonic()
+for py in range(0, H) {
+    for px in range(0, W) {
+        let x0 = -2.5 + 3.5 * px / W
+        let y0 = -1.0 + 2.0 * py / H
+        let x = 0.0
+        let y = 0.0
+        let it = 0
+        while x * x + y * y <= 4.0 and it < maxit {
+            let xt = x * x - y * y + x0
+            y = 2.0 * x * y + y0
+            x = xt
+            it = it + 1
+        }
+        total = total + it
+    }
+}
+let t1 = time.monotonic()
+io.print(total)
+io.print(t1 - t0)

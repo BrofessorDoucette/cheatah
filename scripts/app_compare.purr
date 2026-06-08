@@ -1,0 +1,83 @@
+# app_compare.purr — application-scale cheatah-vs-CPython benchmarks, written in
+# PURE CHEATAH (the benchmark harness dogfoods the language). The QA gate stays in
+# trusted Python/C++ tooling; benchmarks only measure already-verified code, so it is
+# safe — and fitting — to run them in cheatah itself.
+#
+# For each whole-program workload it compiles the cheatah version with purrc, runs it
+# (best of 3, the program self-times its compute), runs the CPython twin the same way,
+# and reports the speedup + cross-checks the two results. Run from the repo root after
+# a `release` build:
+#     purrc scripts/app_compare.purr -o /tmp/app_compare.so
+#     cheatah /tmp/app_compare.so
+
+import io
+import os
+import string
+
+# A program prints `<result>` then `<elapsed seconds>`; capture both (best elapsed).
+struct Timing {
+    secs: float
+    result: str
+}
+
+fn time_runs(runcmd, outpath) {
+    let best = -1.0
+    let result = ""
+    for t in range(0, 3) {
+        os.system(runcmd + " > " + outpath + " 2>/dev/null")
+        let out = string.strip(io.read_file(outpath))
+        let lines = string.splitlines(out)
+        let n = len(lines)
+        if n >= 2 {
+            result = lines[n - 2]
+            let elapsed = float(lines[n - 1])
+            if best < 0.0 or elapsed < best {
+                best = elapsed
+            }
+        }
+    }
+    return Timing(best, result)
+}
+
+# |a - b| <= 1e-4 * max(1, |b|)  — cheatah's io.print emits ~6 significant figures.
+fn close_enough(a, b) {
+    let cf = float(a)
+    let pf = float(b)
+    let diff = cf - pf
+    if diff < 0.0 { diff = -diff }
+    let scale = pf
+    if scale < 0.0 { scale = -scale }
+    if scale < 1.0 { scale = 1.0 }
+    return diff <= 0.0001 * scale
+}
+
+# ---- top-level program (runs as purr_main) --------------------------------
+let PURRC = "build/release/bin/purrc"
+let CHEATAH = "build/release/bin/cheatah"
+let apps = ["mandelbrot", "integral", "oscillator", "nbody"]
+
+io.print("# cheatah (compiled) vs CPython — whole-program workloads")
+io.print("# pure-cheatah harness; compute time only (best of 3); results cross-checked")
+io.print("")
+for a in apps {
+    let purr = "scripts/bench/" + a + ".purr"
+    let so = "/tmp/bench_" + a + ".so"
+    let crc = os.system(PURRC + " " + purr + " -o " + so + " > /tmp/bench_compile.log 2>&1")
+    if crc != 0 {
+        io.print(a + " - cheatah compile FAILED")
+    } else {
+        let ch = time_runs(CHEATAH + " " + so, "/tmp/bench_ch.out")
+        let py = time_runs("python3 scripts/bench/" + a + ".py", "/tmp/bench_py.out")
+        let chk = "ok"
+        if ch.result != py.result and not close_enough(ch.result, py.result) {
+            chk = "DIFFER " + ch.result + " vs " + py.result
+        }
+        let speedup = py.secs / ch.secs
+        let line = a + " | " + io.str(ch.secs * 1000.0) + " ms cheatah | "
+        line = line + io.str(py.secs * 1000.0) + " ms cpython | "
+        line = line + io.str(speedup) + "x faster | " + chk
+        io.print(line)
+    }
+}
+io.print("")
+io.print("Same algorithm both sides; cheatah compiles to native, no GC pauses.")

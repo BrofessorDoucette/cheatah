@@ -1,0 +1,44 @@
+import io
+import time
+import math
+let N = 256
+let steps = 200
+let px: list[float] = []
+let py: list[float] = []
+let vx: list[float] = []
+let vy: list[float] = []
+for i in range(0, N) {
+    let fi = 1.0 + i
+    px.append(math.sin(fi * 1.3))
+    py.append(math.cos(fi * 0.7))
+    vx.append(0.0)
+    vy.append(0.0)
+}
+let dt = 0.001
+let eps = 0.01
+let t0 = time.monotonic()
+for s in range(0, steps) {
+    for i in range(0, N) {
+        let ax = 0.0
+        let ay = 0.0
+        for j in range(0, N) {
+            let dx = px[j] - px[i]
+            let dy = py[j] - py[i]
+            let r2 = dx * dx + dy * dy + eps
+            let inv = 1.0 / (r2 * math.sqrt(r2))
+            ax = ax + dx * inv
+            ay = ay + dy * inv
+        }
+        vx[i] = vx[i] + dt * ax
+        vy[i] = vy[i] + dt * ay
+    }
+    for i in range(0, N) {
+        px[i] = px[i] + dt * vx[i]
+        py[i] = py[i] + dt * vy[i]
+    }
+}
+let chk = 0.0
+for i in range(0, N) { chk = chk + px[i] + py[i] }
+let t1 = time.monotonic()
+io.print(chk)
+io.print(t1 - t0)
