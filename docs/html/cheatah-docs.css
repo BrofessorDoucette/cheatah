@@ -29,6 +29,7 @@
   --c-complexity: #9a927f;
   --c-alloc: #a3937c;
   --c-test: #8f938b;
+  --c-perf: #d6ad73;
 }
 [data-theme="light"] {
   --bg: #f7f3ea; --bg-2: #f1ebde; --surface: #fffdf8; --surface-2: #f4eee2;
@@ -196,6 +197,8 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .tag-complexity { border-left-color: var(--c-complexity); }
 .tag-alloc { border-left-color: var(--c-alloc); }
 .tag-test { border-left-color: var(--c-test); }
+.tag-perf { border-left-color: var(--c-perf); }
+.tag-perf .tag-v strong { color: var(--accent); }
 .tag-crtest { border-left-color: #8c9488; }       /* neutral slate-grey */
 .tag-systest { border-left-color: #97918a; }      /* neutral warm-grey */
 .tag-test .tag-v, .tag-crtest .tag-v, .tag-systest .tag-v { font-family: var(--mono); font-size: .85rem; }

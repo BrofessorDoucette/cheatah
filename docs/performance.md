@@ -55,11 +55,17 @@ conserved **energy**, which both agree on.)
 
 ## Measuring `@perf`: cheatah vs CPython, exactly {#measuring-perf}
 
-Many standard-library functions carry a `@perf` row in their Javadoc — *"how much
-faster is this when called from cheatah than from Python?"*. So that nobody has to
-take those numbers on faith, here is **exactly** how each one is produced (the
-harness is [`scripts/perf_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/perf_compare.py),
-and it lists the precise snippet timed for every function).
+Many standard-library functions carry a **Performance** row on their reference page —
+*"how much faster is this when called from cheatah than from Python?"*. Those numbers
+are **not hand-written**: a periodic benchmark suite
+([`scripts/perf_suite.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/perf_suite.py))
+times every function and writes one provenance-tagged data file
+(`docs/perf_data.json`, stamped with the machine, the cheatah commit, the CPython
+version, and the date); the docs render the row from that file. The suite is **not**
+part of the QA gate — benchmarks are slow, noisy, and machine-specific — so it is run
+deliberately on a reference machine when the language or CPython changes, and the
+regenerated data file is committed. So that nobody has to take the numbers on faith,
+here is **exactly** how each one is produced.
 
 The comparison is deliberately the most honest one we can make: a **compiled cheatah
 program** against an **interpreted CPython program** running the *equivalent logic* —

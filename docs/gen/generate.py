@@ -30,6 +30,43 @@ XML = ROOT / "docs" / "xml"
 OUT = ROOT / "docs" / "html"
 ASSETS = Path(__file__).resolve().parent / "assets"
 
+# Per-function benchmark numbers (regenerated periodically by scripts/perf_suite.py,
+# NOT in the QA gate). The docs render a "Performance" row for any function found here,
+# so the machine-specific numbers live in ONE provenance-tagged file, not 218 headers.
+_PERF_FILE = ROOT / "docs" / "perf_data.json"
+_perf = json.loads(_PERF_FILE.read_text()) if _PERF_FILE.exists() else {}
+PERF = _perf.get("functions", {})
+PERF_META = _perf.get("meta", {})
+MOD_SHORT: dict[str, str] = {}   # namespace refid -> dotted module name (e.g. "os.path")
+
+def _fmt_ns(ns: float) -> str:
+    return f"{ns:.2f} ns/call" if ns < 100 else f"{ns:.0f} ns/call"
+
+def perf_row(refid: str, name: str) -> str:
+    """Render the 'Performance' tag row for <module>.<name>, if perf_data covers it."""
+    mod = MOD_SHORT.get(refid)
+    e = PERF.get(f"{mod}.{name}") if mod else None
+    if not e:
+        return ""
+    kind = e.get("kind")
+    if kind == "numpy":
+        body = ('numeric — the honest comparison is vs NumPy/LAPACK (not a pure-Python '
+                'loop); see the <a href="performance.html#vs-numpy">NumPy comparison</a>')
+    elif kind == "note":
+        body = html.escape(e.get("note", ""))
+    elif kind in ("compared", "cheatah_only"):
+        body = f'<strong>{_fmt_ns(e["cheatah_ns"])}</strong> in cheatah'
+        if kind == "compared" and "python_ns" in e:
+            body += (f' · {_fmt_ns(e["python_ns"])} in CPython '
+                     f'{PERF_META.get("cpython", "3.x")} · '
+                     f'<strong>≈{e["speedup"]:g}× faster</strong>')
+        else:
+            body += ' · <em>(no direct CPython equivalent)</em>'
+    else:
+        return ""
+    return (f'<div class="tag tag-perf"><span class="tag-k">Performance</span>'
+            f'<span class="tag-v">{body}</span></div>')
+
 # Compound kinds we turn into pages (in sidebar group order).
 NS, CLASS, STRUCT, CONCEPT = "namespace", "class", "struct", "concept"
 
@@ -139,6 +176,8 @@ def load() -> tuple[dict[str, Compound], dict[str, str]]:
         comp.brief_xml = cdef.find("briefdescription")
         comp.detail_xml = cdef.find("detaileddescription")
         comp.members = []
+        if kind == NS:
+            MOD_SHORT[refid] = comp.short.replace("::", ".")
         for md in cdef.iter("memberdef"):
             m = Member()
             m.id = md.get("id")
@@ -447,7 +486,7 @@ def render_member(r: Renderer, m: Member) -> str:
     badge = KIND_BADGE.get(m.kind, m.kind)
     r.cur_func = m.name   # so @systest can list every system test this function is in
     brief = r.brief(m.brief_xml)
-    detail = r.render(m.detail_xml)
+    detail = r.render(m.detail_xml) + perf_row(m.compound, m.name)
     src = r.src_link(m.srcfile, m.srcline) if m.srcfile else None
     src_html = f'<a class="src-link" href="{src}" title="View source">source</a>' if src else ""
     return f"""<section class="member" id="{m.id}">

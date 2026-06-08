@@ -1,0 +1,476 @@
+{
+ "functions": {
+  "io.input": {
+   "kind": "note",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked"
+  },
+  "io.open": {
+   "kind": "note",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked"
+  },
+  "io.print": {
+   "kind": "note",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked"
+  },
+  "io.read_file": {
+   "kind": "note",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked"
+  },
+  "linalg.cholesky": {
+   "kind": "numpy"
+  },
+  "linalg.cond": {
+   "kind": "numpy"
+  },
+  "linalg.conj_transpose": {
+   "kind": "numpy"
+  },
+  "linalg.det": {
+   "kind": "numpy"
+  },
+  "linalg.dot": {
+   "kind": "numpy"
+  },
+  "linalg.eig": {
+   "kind": "numpy"
+  },
+  "linalg.eigh": {
+   "kind": "numpy"
+  },
+  "linalg.eigvals": {
+   "kind": "numpy"
+  },
+  "linalg.eigvalsh": {
+   "kind": "numpy"
+  },
+  "linalg.inner": {
+   "kind": "numpy"
+  },
+  "linalg.inv": {
+   "kind": "numpy"
+  },
+  "linalg.kron": {
+   "kind": "numpy"
+  },
+  "linalg.lstsq": {
+   "kind": "numpy"
+  },
+  "linalg.matmul": {
+   "kind": "numpy"
+  },
+  "linalg.matrix_power": {
+   "kind": "numpy"
+  },
+  "linalg.matrix_rank": {
+   "kind": "numpy"
+  },
+  "linalg.norm": {
+   "kind": "numpy"
+  },
+  "linalg.outer": {
+   "kind": "numpy"
+  },
+  "linalg.pinv": {
+   "kind": "numpy"
+  },
+  "linalg.qr": {
+   "kind": "numpy"
+  },
+  "linalg.simd_features": {
+   "kind": "note",
+   "note": "queries CPU SIMD support \u2014 not a hot path"
+  },
+  "linalg.simd_lane_doubles": {
+   "kind": "note",
+   "note": "queries CPU SIMD width \u2014 not a hot path"
+  },
+  "linalg.slogdet": {
+   "kind": "numpy"
+  },
+  "linalg.solve": {
+   "kind": "numpy"
+  },
+  "linalg.svd": {
+   "kind": "numpy"
+  },
+  "linalg.trace": {
+   "kind": "numpy"
+  },
+  "linalg.vdot": {
+   "kind": "numpy"
+  },
+  "math.abs": {
+   "cheatah_ns": 0.49,
+   "kind": "compared",
+   "python_ns": 63.24,
+   "speedup": 129.0
+  },
+  "math.acos": {
+   "cheatah_ns": 23.95,
+   "kind": "compared",
+   "python_ns": 95.35,
+   "speedup": 4.0
+  },
+  "math.asin": {
+   "cheatah_ns": 23.57,
+   "kind": "compared",
+   "python_ns": 93.01,
+   "speedup": 3.9
+  },
+  "math.atan": {
+   "cheatah_ns": 10.09,
+   "kind": "compared",
+   "python_ns": 66.72,
+   "speedup": 6.6
+  },
+  "math.atan2": {
+   "cheatah_ns": 9.07,
+   "kind": "compared",
+   "python_ns": 75.95,
+   "speedup": 8.4
+  },
+  "math.cbrt": {
+   "cheatah_ns": 8.53,
+   "kind": "compared",
+   "python_ns": 69.63,
+   "speedup": 8.2
+  },
+  "math.ceil": {
+   "cheatah_ns": 1.96,
+   "kind": "compared",
+   "python_ns": 75.38,
+   "speedup": 38.5
+  },
+  "math.copysign": {
+   "cheatah_ns": 1.88,
+   "kind": "compared",
+   "python_ns": 63.93,
+   "speedup": 34.1
+  },
+  "math.cos": {
+   "cheatah_ns": 15.91,
+   "kind": "compared",
+   "python_ns": 67.44,
+   "speedup": 4.2
+  },
+  "math.degrees": {
+   "cheatah_ns": 2.12,
+   "kind": "compared",
+   "python_ns": 59.48,
+   "speedup": 28.1
+  },
+  "math.exp": {
+   "cheatah_ns": 3.28,
+   "kind": "compared",
+   "python_ns": 64.28,
+   "speedup": 19.6
+  },
+  "math.fabs": {
+   "cheatah_ns": 2.03,
+   "kind": "compared",
+   "python_ns": 62.37,
+   "speedup": 30.7
+  },
+  "math.factorial": {
+   "cheatah_ns": 2.13,
+   "kind": "compared",
+   "python_ns": 58.93,
+   "speedup": 27.7
+  },
+  "math.floor": {
+   "cheatah_ns": 2.25,
+   "kind": "compared",
+   "python_ns": 73.47,
+   "speedup": 32.6
+  },
+  "math.fmod": {
+   "cheatah_ns": 5.16,
+   "kind": "compared",
+   "python_ns": 69.52,
+   "speedup": 13.5
+  },
+  "math.gcd": {
+   "cheatah_ns": 5.78,
+   "kind": "compared",
+   "python_ns": 92.43,
+   "speedup": 16.0
+  },
+  "math.hypot": {
+   "cheatah_ns": 9.12,
+   "kind": "compared",
+   "python_ns": 85.45,
+   "speedup": 9.4
+  },
+  "math.isfinite": {
+   "cheatah_ns": 2.0,
+   "kind": "compared",
+   "python_ns": 62.81,
+   "speedup": 31.4
+  },
+  "math.isinf": {
+   "cheatah_ns": 0.75,
+   "kind": "compared",
+   "python_ns": 61.07,
+   "speedup": 81.6
+  },
+  "math.isnan": {
+   "cheatah_ns": 0.74,
+   "kind": "compared",
+   "python_ns": 61.25,
+   "speedup": 82.8
+  },
+  "math.log": {
+   "cheatah_ns": 10.57,
+   "kind": "compared",
+   "python_ns": 66.11,
+   "speedup": 6.3
+  },
+  "math.log10": {
+   "cheatah_ns": 13.85,
+   "kind": "compared",
+   "python_ns": 68.97,
+   "speedup": 5.0
+  },
+  "math.log2": {
+   "cheatah_ns": 11.19,
+   "kind": "compared",
+   "python_ns": 65.02,
+   "speedup": 5.8
+  },
+  "math.max": {
+   "cheatah_ns": 0.66,
+   "kind": "compared",
+   "python_ns": 126.06,
+   "speedup": 191.4
+  },
+  "math.min": {
+   "cheatah_ns": 0.52,
+   "kind": "compared",
+   "python_ns": 131.48,
+   "speedup": 253.1
+  },
+  "math.pow": {
+   "cheatah_ns": 0.49,
+   "kind": "compared",
+   "python_ns": 79.74,
+   "speedup": 164.2
+  },
+  "math.radians": {
+   "cheatah_ns": 1.97,
+   "kind": "compared",
+   "python_ns": 59.42,
+   "speedup": 30.1
+  },
+  "math.round": {
+   "cheatah_ns": 1.97,
+   "kind": "compared",
+   "python_ns": 110.88,
+   "speedup": 56.4
+  },
+  "math.sin": {
+   "cheatah_ns": 15.51,
+   "kind": "compared",
+   "python_ns": 66.25,
+   "speedup": 4.3
+  },
+  "math.sqrt": {
+   "cheatah_ns": 1.86,
+   "kind": "compared",
+   "python_ns": 61.98,
+   "speedup": 33.3
+  },
+  "math.tan": {
+   "cheatah_ns": 23.74,
+   "kind": "compared",
+   "python_ns": 76.66,
+   "speedup": 3.2
+  },
+  "math.trunc": {
+   "cheatah_ns": 1.91,
+   "kind": "compared",
+   "python_ns": 79.35,
+   "speedup": 41.5
+  },
+  "ndarray.add": {
+   "kind": "numpy"
+  },
+  "ndarray.arange": {
+   "kind": "numpy"
+  },
+  "ndarray.array": {
+   "kind": "numpy"
+  },
+  "ndarray.binary_op": {
+   "kind": "numpy"
+  },
+  "ndarray.broadcast_shapes": {
+   "kind": "numpy"
+  },
+  "ndarray.broadcast_to": {
+   "kind": "numpy"
+  },
+  "ndarray.complex": {
+   "kind": "numpy"
+  },
+  "ndarray.conj": {
+   "kind": "numpy"
+  },
+  "ndarray.divide": {
+   "kind": "numpy"
+  },
+  "ndarray.full": {
+   "kind": "numpy"
+  },
+  "ndarray.get": {
+   "kind": "numpy"
+  },
+  "ndarray.imag": {
+   "kind": "numpy"
+  },
+  "ndarray.is_contiguous": {
+   "kind": "numpy"
+  },
+  "ndarray.mean": {
+   "kind": "numpy"
+  },
+  "ndarray.mul": {
+   "kind": "numpy"
+  },
+  "ndarray.ones": {
+   "kind": "numpy"
+  },
+  "ndarray.real": {
+   "kind": "numpy"
+  },
+  "ndarray.reshape": {
+   "kind": "numpy"
+  },
+  "ndarray.scalar": {
+   "kind": "numpy"
+  },
+  "ndarray.shape_of": {
+   "kind": "numpy"
+  },
+  "ndarray.size_of": {
+   "kind": "numpy"
+  },
+  "ndarray.sub": {
+   "kind": "numpy"
+  },
+  "ndarray.sum": {
+   "kind": "numpy"
+  },
+  "ndarray.to_string": {
+   "kind": "numpy"
+  },
+  "ndarray.zeros": {
+   "kind": "numpy"
+  },
+  "os.chdir": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.getcwd": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.getenv": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.listdir": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.makedirs": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.mkdir": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.remove": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.rename": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.rmdir": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.setenv": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.system": {
+   "kind": "note",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "socket.accept": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.bind": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.close": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.connect": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.last_error": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.listen": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.local_port": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.recv": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.send": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.sendall": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.set_reuseaddr": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.socket": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.tcp_connect": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "socket.tcp_listen": {
+   "kind": "note",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  }
+ },
+ "meta": {
+  "cheatah_commit": "96aed1f",
+  "cpython": "3.12.3",
+  "generated": "2026-06-08",
+  "machine": "x86_64"
+ }
+}
