@@ -113,7 +113,7 @@ import linalg
 let a = ndarray.reshape(ndarray.array([2.0, 0.0, 0.0, 3.0]), [2, 2])
 let e = linalg.eig(a)
 io.print(ndarray.to_string(e.values))
-)PURR", "[3, 2]\n");
+)PURR", "[3+0j, 2+0j]\n");  // general eig -> complex spectrum (real parts here)
 }
 
 TEST(LinalgCompileRun, Eigvals) {
@@ -122,7 +122,17 @@ import ndarray
 import linalg
 let a = ndarray.reshape(ndarray.array([2.0, 0.0, 0.0, 3.0]), [2, 2])
 io.print(ndarray.to_string(linalg.eigvals(a)))
-)PURR", "[3, 2]\n");
+)PURR", "[3+0j, 2+0j]\n");
+}
+
+TEST(LinalgCompileRun, EigvalsComplex) {
+    // A real rotation matrix [[0,-1],[1,0]] has eigenvalues ±i — printed Python-style.
+    e2e::expect_e2e("linalg_eigvals_complex", R"PURR(import io
+import ndarray
+import linalg
+let a = ndarray.reshape(ndarray.array([0.0, -1.0, 1.0, 0.0]), [2, 2])
+io.print(ndarray.to_string(linalg.eigvals(a)))
+)PURR", "[0+1j, 0-1j]\n");
 }
 
 TEST(LinalgCompileRun, Eigh) {
@@ -241,4 +251,64 @@ import linalg
 let a = ndarray.reshape(ndarray.array([2.0, 0.0, 0.0, 4.0]), [2, 2])
 io.print(ndarray.to_string(linalg.pinv(a)))
 )PURR", "[[0.5, 0], [0, 0.25]]\n");
+}
+
+// ---- complex products (complex inner-product spaces) ----
+
+TEST(LinalgCompileRun, ComplexDot) {
+    e2e::expect_e2e("linalg_complex_dot", R"PURR(import io
+import ndarray
+import linalg
+let a = ndarray.complex(ndarray.array([1.0, 3.0]), ndarray.array([2.0, -1.0]))
+let b = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, 0.0]))
+io.print(linalg.dot(a, b))
+)PURR", "4-1j\n");
+}
+
+TEST(LinalgCompileRun, ComplexVdot) {
+    e2e::expect_e2e("linalg_complex_vdot", R"PURR(import io
+import ndarray
+import linalg
+let a = ndarray.complex(ndarray.array([1.0, 3.0]), ndarray.array([2.0, -1.0]))
+let b = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, 0.0]))
+io.print(linalg.vdot(a, b))
+)PURR", "8+3j\n");
+}
+
+TEST(LinalgCompileRun, ComplexMatmul) {
+    e2e::expect_e2e("linalg_complex_matmul", R"PURR(import io
+import ndarray
+import linalg
+let M = ndarray.reshape(ndarray.complex(ndarray.array([1.0, 0.0, 0.0, 1.0]), ndarray.array([1.0, 0.0, 0.0, 1.0])), [2, 2])
+let I = ndarray.reshape(ndarray.complex(ndarray.array([1.0, 0.0, 0.0, 1.0]), ndarray.array([0.0, 0.0, 0.0, 0.0])), [2, 2])
+io.print(ndarray.to_string(linalg.matmul(M, I)))
+)PURR", "[[1+1j, 0+0j], [0+0j, 1+1j]]\n");
+}
+
+TEST(LinalgCompileRun, ConjTranspose) {
+    e2e::expect_e2e("linalg_conj_transpose", R"PURR(import io
+import ndarray
+import linalg
+let M = ndarray.reshape(ndarray.complex(ndarray.array([1.0, 2.0, 0.0, 3.0]), ndarray.array([1.0, 0.0, 0.0, -1.0])), [2, 2])
+io.print(ndarray.to_string(linalg.conj_transpose(M)))
+)PURR", "[[1-1j, 0+0j], [2+0j, 3+1j]]\n");
+}
+
+TEST(LinalgCompileRun, EighComplex) {
+    // Hermitian [[2, 1+i],[1-i, 3]] -> real eigenvalues 4, 1.
+    e2e::expect_e2e("linalg_eigh_complex", R"PURR(import io
+import ndarray
+import linalg
+let H = ndarray.reshape(ndarray.complex(ndarray.array([2.0, 1.0, 1.0, 3.0]), ndarray.array([0.0, 1.0, -1.0, 0.0])), [2, 2])
+io.print(ndarray.to_string(linalg.eigh(H).values))
+)PURR", "[4, 1]\n");
+}
+
+TEST(LinalgCompileRun, EigvalshComplex) {
+    e2e::expect_e2e("linalg_eigvalsh_complex", R"PURR(import io
+import ndarray
+import linalg
+let H = ndarray.reshape(ndarray.complex(ndarray.array([2.0, 1.0, 1.0, 3.0]), ndarray.array([0.0, 1.0, -1.0, 0.0])), [2, 2])
+io.print(ndarray.to_string(linalg.eigvalsh(H)))
+)PURR", "[4, 1]\n");
 }

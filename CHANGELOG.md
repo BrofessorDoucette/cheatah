@@ -3,6 +3,51 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.4.0-alpha — complex linear algebra
+
+cheatah becomes a tool for **complex** linear algebra — the kind physics (quantum,
+plasma) and signal processing actually need. The numeric core can now store and
+operate on complex numbers, the `linalg` module gains complex inner-product spaces
+and Hermitian eigensolvers, and a real matrix finally yields the **complex
+eigenvalues it mathematically has** instead of throwing. The docs site grows three
+new guides (Getting Started, Coming from Python, Security).
+
+### Numeric core (`ndarray`)
+- **Complex element type.** The array element constraint widened from `Numeric` to
+  **`Field`** — a real arithmetic type *or* a `std::complex` of a floating type — so
+  complex matrices and vectors are first-class. Complex arrays print Python-style
+  (`a+bj` / `a-bj`).
+- **Construct & inspect complex arrays:** `complex(re, im)`, `real(a)`, `imag(a)`,
+  `conj(a)`.
+- `io.print` renders complex scalars Python-style too (`8+3j`, not `(8,3)`).
+
+### Linear algebra (`linalg`)
+- **Complex spectra.** `eig` / `eigvals` on a general real matrix now return the
+  **complex** eigenvalues (a rotation gives ±i) *and* complex eigenvectors (inverse
+  iteration) — they no longer throw on a complex conjugate pair. `eigh` / `eigvalsh`
+  return the guaranteed-real spectrum (the numpy split).
+- **Complex Hermitian eigensolver.** `eigh` / `eigvalsh` accept a complex Hermitian
+  matrix → real eigenvalues, complex eigenvectors (the quantum-mechanics workhorse),
+  via a real symmetric 2n embedding.
+- **Complex inner-product spaces:** complex `dot` (bilinear) and `vdot`
+  (conjugate-linear Hermitian inner product), complex `matmul`, and `conj_transpose`
+  (the Hermitian adjoint Aᴴ).
+
+### Docs
+- New site guides: **Getting Started** (with `.purr` → `.so` compile + static/dynamic
+  link diagrams), **Coming from Python** (porting guide), and **Security** (built-in
+  protections vs. what you still own).
+- **Syntax highlighting** in the generated site's code blocks — a lightweight,
+  theme-matched highlighter that reuses the compiler's own keyword set.
+- Fixed code-block rendering in the generated site (spaces inside `<pre>` were being
+  collapsed). `compiler/PYTHON.md` now documents struct **methods** and
+  **interfaces**, not just data classes.
+
+### Not yet
+- Templating the real decomposition routines over a generic `FloatingPoint` element
+  type (float32) is deferred to a follow-up — float arrays aren't constructible from
+  cheatah source yet.
+
 ## v0.3.0-alpha — a real language: methods, interfaces, generic numerics, and IntelliSense
 
 Third pre-alpha, and the largest yet. This release turns cheatah from a small

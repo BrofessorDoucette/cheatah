@@ -21,11 +21,14 @@
  * simd.hpp's file comment for the full SIMD model, the no-SIMD behavior, and the
  * compile-time-dispatch limitation.
  *
- * @note `n` below is the matrix dimension. NDArray is double-only, so `eig`/
- *       `eigvals` return REAL eigenvalues and throw on a complex pair. Routines
- *       that extract a working copy "allocate scratch O(n²) for the factorization"
- *       even when they return a scalar.
+ * @note `n` below is the matrix dimension. The general eigensolvers `eig`/`eigvals`
+ *       return a **complex** spectrum (@ref CNDArray) — a real matrix can have
+ *       complex conjugate eigenvalue pairs — while the Hermitian solvers
+ *       `eigh`/`eigvalsh` return a guaranteed-real spectrum. Routines that extract
+ *       a working copy "allocate scratch O(n²) for the factorization" even when
+ *       they return a scalar.
  */
+#include <complex>
 #include <vector>
 
 #include "ndarray.hpp"
@@ -38,6 +41,15 @@ namespace cheatah::linalg {
 /// \cond INTERNAL
 using ndarray::NDArray;
 /// \endcond
+
+/// A complex scalar (`std::complex<double>`) — the element type of @ref CNDArray and
+/// the return type of the complex inner products @ref dot / @ref vdot.
+using Cplx = std::complex<double>;
+
+/// A complex array (`basic_ndarray<std::complex<double>>`) — what the general
+/// eigensolvers return, since a real matrix can have complex eigenvalues. Prints
+/// element-wise as `a+bj` via @ref cheatah::ndarray::to_string.
+using CNDArray = ndarray::basic_ndarray<Cplx>;
 
 // ---- Matrix and vector products ----
 /**
@@ -58,8 +70,9 @@ double dot(const NDArray& a, const NDArray& b);          // 1-D dot / 2-D matmul
 /**
  * Vector dot product (alias of @ref dot; flattens N×1/1×N).
  *
- * Delegates directly to @ref dot; since NDArray is real-valued there is no
- * conjugation, so this is identical to @ref dot and @ref inner.
+ * Delegates directly to @ref dot; for real vectors there is no conjugation, so this
+ * is identical to @ref dot and @ref inner. The **complex** overload differs — it is
+ * conjugate-linear (see the `CNDArray` `vdot` below).
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
  * @complexity O(n).
@@ -114,6 +127,58 @@ NDArray outer(const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray matmul(const NDArray& a, const NDArray& b);
+
+// ---- complex products (complex inner-product spaces) ----
+/**
+ * Bilinear dot product of two **complex** vectors: Σ aᵢbᵢ (no conjugation, matching
+ * numpy's `dot`). For the Hermitian inner product ⟨a, b⟩ use @ref vdot.
+ * @param a,b same-length complex vectors.
+ * @return Σ aᵢbᵢ as a `std::complex<double>`; throws on a length mismatch.
+ * @complexity O(n).
+ * @alloc scratch O(n); returns a complex scalar.
+ * @test LinalgRoutines.ComplexProducts
+ * @crtest LinalgCompileRun.ComplexDot
+ * @systest StdlibE2E.LinalgComplex
+ */
+Cplx dot(const CNDArray& a, const CNDArray& b);
+/**
+ * Conjugate-linear (Hermitian) inner product of two **complex** vectors:
+ * ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ — the inner product of a complex vector space, conjugating
+ * the FIRST argument (numpy's `vdot` convention). `vdot(a, a)` is the real squared
+ * norm ‖a‖². For the non-conjugating product use @ref dot.
+ * @param a,b same-length complex vectors.
+ * @return Σ conj(aᵢ)·bᵢ as a `std::complex<double>`; throws on a length mismatch.
+ * @complexity O(n).
+ * @alloc scratch O(n); returns a complex scalar.
+ * @test LinalgRoutines.ComplexProducts
+ * @crtest LinalgCompileRun.ComplexVdot
+ * @systest StdlibE2E.LinalgComplex
+ */
+Cplx vdot(const CNDArray& a, const CNDArray& b);
+/**
+ * Matrix multiply of two **complex** matrices (the complex analogue of @ref matmul).
+ * @param a m×k complex matrix.
+ * @param b k×p complex matrix.
+ * @return m×p complex product; throws on an inner-dimension mismatch or non-2-D input.
+ * @complexity O(n³).
+ * @alloc allocates a new CNDArray result (plus scratch copies of @p a and @p b).
+ * @test LinalgRoutines.ComplexProducts
+ * @crtest LinalgCompileRun.ComplexMatmul
+ * @systest StdlibE2E.LinalgComplex
+ */
+CNDArray matmul(const CNDArray& a, const CNDArray& b);
+/**
+ * Conjugate transpose (Hermitian adjoint) Aᴴ of a **complex** matrix: transpose,
+ * then conjugate every entry. A matrix is Hermitian iff `conj_transpose(A) == A`.
+ * @param a a 2-D complex matrix.
+ * @return the c×r adjoint of an r×c input; throws on non-2-D input.
+ * @complexity O(r·c).
+ * @alloc allocates a new CNDArray result.
+ * @test LinalgRoutines.ComplexProducts
+ * @crtest LinalgCompileRun.ConjTranspose
+ * @systest StdlibE2E.LinalgComplex
+ */
+CNDArray conj_transpose(const CNDArray& a);
 /**
  * Integer matrix power Aⁿ (negative n via @ref inv).
  *
@@ -209,42 +274,55 @@ struct SVD {
 SVD svd(const NDArray& a);
 
 // ---- Matrix eigenvalues ----
-/** Result of eig() / eigh(): column j of vectors is the eigenvector for values[j]. */
+/** Result of eigh(): a real spectrum — column j of vectors is the eigenvector for values[j]. */
 struct Eig {
-    NDArray values;   ///< Eigenvalues (length n).
+    NDArray values;   ///< Eigenvalues (length n), real.
     NDArray vectors;  ///< Eigenvectors as columns: column j matches values[j] (empty if not computed).
 };
 /**
- * Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).
+ * Result of the general eig(): a **complex** spectrum, since a real matrix can have
+ * complex conjugate eigenvalue pairs. Column j of vectors is the eigenvector for values[j].
+ */
+struct EigC {
+    CNDArray values;   ///< Eigenvalues (length n), complex.
+    CNDArray vectors;  ///< Eigenvectors as columns: column j matches values[j].
+};
+/**
+ * Eigen-decomposition of a general square matrix (**complex** spectrum and
+ * eigenvectors).
  *
- * For a symmetric @p a it delegates to @ref eigh (returning eigenvectors too);
- * otherwise it uses Hessenberg reduction + shifted QR for the eigenvalues only,
- * returning empty vectors. Throws on a complex conjugate pair, on a non-square
- * matrix, or if the QR iteration fails to converge.
+ * For a symmetric @p a it delegates to @ref eigh (promoted to complex with zero
+ * imaginary part); otherwise it uses Hessenberg reduction + shifted QR for the
+ * eigenvalues, then **inverse iteration** for each eigenvector. A real matrix with a
+ * complex conjugate pair (e.g. a rotation) yields those complex eigenvalues and
+ * eigenvectors rather than throwing. Throws on a non-square matrix or if the QR
+ * iteration fails to converge.
  * @param a square matrix.
- * @return @ref Eig (vectors empty unless @p a is symmetric).
+ * @return @ref EigC with complex values and matching complex eigenvector columns.
  * @complexity iterative O(n³) via Hessenberg + shifted QR.
  * @alloc allocates both members.
  * @test LinalgRoutines.GeneralEig
  * @crtest LinalgCompileRun.Eig
  * @systest StdlibE2E.Linalg
  */
-Eig eig(const NDArray& a);                                // general square matrix
+EigC eig(const NDArray& a);                               // general square matrix
 /**
- * Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).
+ * Eigenvalues of a general square matrix (**complex**), descending.
  *
  * Routes symmetric input through cyclic Jacobi and everything else through
- * Hessenberg + shifted QR, then sorts the result descending. Throws on a complex
- * conjugate pair, a non-square matrix, or non-convergence of the QR iteration.
+ * Hessenberg + shifted QR, then sorts the result descending (by real part, then by
+ * imaginary part). A real matrix with a complex conjugate pair yields those complex
+ * eigenvalues rather than throwing. Throws on a non-square matrix or non-convergence
+ * of the QR iteration.
  * @param a square matrix.
- * @return length-n vector of eigenvalues.
+ * @return length-n complex vector of eigenvalues.
  * @complexity iterative O(n³).
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new CNDArray result.
  * @test LinalgRoutines.SvdAndEigh
  * @crtest LinalgCompileRun.Eigvals
  * @systest StdlibE2E.Linalg
  */
-NDArray eigvals(const NDArray& a);
+CNDArray eigvals(const NDArray& a);
 /**
  * Eigen-decomposition of a symmetric matrix (cyclic Jacobi).
  *
@@ -275,6 +353,47 @@ Eig eigh(const NDArray& a);                               // symmetric / Hermiti
  * @systest StdlibE2E.Linalg
  */
 NDArray eigvalsh(const NDArray& a);
+/**
+ * Result of the complex Hermitian eigh(): **real** eigenvalues (a Hermitian operator
+ * has a real spectrum) with **complex** eigenvectors. Column j of vectors is the
+ * (unit-norm) eigenvector for values[j].
+ */
+struct EighC {
+    NDArray values;    ///< Eigenvalues (length n), real and descending.
+    CNDArray vectors;  ///< Eigenvectors as columns: column j matches values[j].
+};
+/**
+ * Eigen-decomposition of a **complex Hermitian** matrix — real eigenvalues, complex
+ * eigenvectors.
+ *
+ * The quantum-mechanics workhorse: a Hermitian operator (`conj_transpose(a) == a`)
+ * has a guaranteed-real spectrum and orthonormal complex eigenvectors. Computed by
+ * the real symmetric Jacobi solver on the 2n×2n real embedding
+ * `[[Re a, -Im a], [Im a, Re a]]`. Assumes (does not verify) that @p a is Hermitian;
+ * throws on a non-square matrix.
+ * @param a square complex Hermitian matrix.
+ * @return @ref EighC with descending real values and matching complex eigenvectors.
+ * @complexity iterative O(n³).
+ * @alloc allocates both members.
+ * @test LinalgRoutines.ComplexHermitianEigh
+ * @crtest LinalgCompileRun.EighComplex
+ * @systest StdlibE2E.LinalgComplex
+ */
+EighC eigh(const CNDArray& a);
+/**
+ * Eigenvalues of a **complex Hermitian** matrix, descending and **real**.
+ *
+ * Same 2n-embedding Jacobi diagonalization as the complex @ref eigh but discards the
+ * eigenvectors; assumes (does not verify) Hermitian and throws on a non-square matrix.
+ * @param a square complex Hermitian matrix.
+ * @return length-n real vector of eigenvalues.
+ * @complexity iterative O(n³).
+ * @alloc allocates a new NDArray result.
+ * @test LinalgRoutines.ComplexHermitianEigh
+ * @crtest LinalgCompileRun.EigvalshComplex
+ * @systest StdlibE2E.LinalgComplex
+ */
+NDArray eigvalsh(const CNDArray& a);
 
 // ---- Norms and other numbers ----
 /**

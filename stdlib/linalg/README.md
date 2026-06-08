@@ -3,9 +3,12 @@
 NumPy-style linear algebra on `ndarray`, with SIMD-accelerated contiguous kernels.
 
 The routines mirror [numpy.linalg](https://numpy.org/doc/stable/reference/routines.linalg.html)
-and operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). NDArray is
-double-only, so eigenvalue routines return real spectra and throw on a complex
-pair. Kernels are compiled at `-O3 -march=native` so the hot loops auto-vectorize.
+and operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). The general
+eigensolvers `eig`/`eigvals` return a **complex** spectrum (`CNDArray`) — a real
+matrix can have complex conjugate eigenvalue pairs, e.g. a rotation has ±i — while
+the Hermitian solvers `eigh`/`eigvalsh` return a guaranteed-real spectrum (the same
+split as numpy). Kernels are compiled at `-O3 -march=native` so the hot loops
+auto-vectorize.
 
 ## Usage
 
@@ -31,8 +34,41 @@ d = linalg.det(A)
 - `svd` — singular value decomposition (one-sided Jacobi).
 
 ### Eigen
-- `eig` / `eigvals` — general square matrix (real spectrum; Hessenberg + shifted QR).
-- `eigh` / `eigvalsh` — symmetric matrix (cyclic Jacobi).
+- `eig` / `eigvals` — general square matrix (**complex** spectrum + eigenvectors;
+  Hessenberg + shifted QR for the values, inverse iteration for the vectors).
+- `eigh` / `eigvalsh` — symmetric **or complex Hermitian** matrix (real spectrum,
+  complex eigenvectors; cyclic Jacobi, via a real 2n embedding for Hermitian input).
+
+```purr
+# A real rotation matrix has complex eigenvalues ±i:
+let r = ndarray.reshape(ndarray.array([0.0, -1.0, 1.0, 0.0]), [2, 2])
+io.print(ndarray.to_string(linalg.eigvals(r)))   # [0+1j, 0-1j]
+```
+
+### Complex inner-product spaces
+Vectors and matrices can be **complex** (`ndarray.complex(re, im)`), so the routines
+work over complex inner-product spaces — Hermitian operators, complex wavefunctions:
+- `dot` — bilinear product Σ aᵢbᵢ (complex, no conjugation; matches numpy).
+- `vdot` — conjugate-linear Hermitian inner product ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ
+  (conjugates the first argument; `vdot(a, a)` is the real ‖a‖²).
+- `matmul` — complex matrix multiply.
+- `conj_transpose` — conjugate transpose (Hermitian adjoint) Aᴴ.
+
+```purr
+import io
+import ndarray
+import linalg
+
+# A Hermitian operator H = [[2, 1+i], [1-i, 3]] — real eigenvalues 4, 1:
+let H = ndarray.reshape(
+    ndarray.complex(ndarray.array([2.0, 1.0, 1.0, 3.0]),
+                    ndarray.array([0.0, 1.0, -1.0, 0.0])), [2, 2])
+io.print(ndarray.to_string(linalg.eigvalsh(H)))   # [4, 1]
+
+# Hermitian inner product ⟨a, a⟩ = ‖a‖² is real:
+let a = ndarray.complex(ndarray.array([1.0, 3.0]), ndarray.array([2.0, -1.0]))
+io.print(linalg.vdot(a, a))                        # 15+0j
+```
 
 ### Norms & numbers
 - `norm` — L2 (vector) / Frobenius (matrix).

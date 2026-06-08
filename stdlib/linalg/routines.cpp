@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <limits>
 #include <stdexcept>
 #include <vector>
@@ -10,8 +11,9 @@
 // standard numerical methods (LU w/ partial pivoting, Cholesky, Householder QR,
 // one-sided Jacobi SVD, cyclic Jacobi symmetric eigen, Hessenberg+shifted-QR for
 // the general real spectrum). Hot loops are contiguous so -O3 -march=native
-// auto-vectorizes them (SIMD). NDArray is double-only, so eig returns REAL
-// eigenvalues and throws if a complex pair is detected.
+// auto-vectorizes them (SIMD). The matrices are real (double) but the general
+// eigensolvers return a COMPLEX spectrum (CNDArray) — a real matrix can have
+// complex conjugate eigenvalue pairs — built from the real arithmetic below.
 namespace cheatah::linalg {
 
 /// \cond INTERNAL
@@ -56,6 +58,55 @@ NDArray make_vector(std::vector<double> data) {
     NDArray out(std::vector<std::size_t>{data.size()});
     *out.buffer() = std::move(data);
     return out;
+}
+CNDArray make_cvector(std::vector<Cplx> data) {
+    CNDArray out(std::vector<std::size_t>{data.size()});
+    *out.buffer() = std::move(data);
+    return out;
+}
+CNDArray make_cmatrix(std::size_t rows, std::size_t cols, std::vector<Cplx> data) {
+    CNDArray out(std::vector<std::size_t>{rows, cols});
+    *out.buffer() = std::move(data);
+    return out;
+}
+// Promote a freshly-built (contiguous, offset-0) real result to complex (imag 0).
+CNDArray to_complex(const NDArray& a) {
+    CNDArray out(a.shape());
+    const std::vector<double>& src = *a.buffer();
+    *out.buffer() = std::vector<Cplx>(src.begin(), src.end());
+    return out;
+}
+// Descending order for a complex spectrum: by real part, then imaginary part.
+bool cgreater(const Cplx& x, const Cplx& y) {
+    if (x.real() != y.real()) return x.real() > y.real();
+    return x.imag() > y.imag();
+}
+// ---- extract complex matrices & vectors (mirror as_matrix / as_vector) ----
+std::vector<Cplx> as_cmatrix(const CNDArray& a, std::size_t& rows, std::size_t& cols) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    rows = a.shape()[0];
+    cols = a.shape()[1];
+    std::vector<Cplx> m(rows * cols);
+    for (std::size_t i = 0; i < rows; ++i)
+        for (std::size_t j = 0; j < cols; ++j) m[i * cols + j] = a.at({i, j});
+    return m;
+}
+std::vector<Cplx> as_cvector(const CNDArray& a, std::size_t& n) {
+    if (a.ndim() == 1) {
+        n = a.shape()[0];
+        std::vector<Cplx> v(n);
+        for (std::size_t i = 0; i < n; ++i) v[i] = a.at({i});
+        return v;
+    }
+    if (a.ndim() == 2 && (a.shape()[0] == 1 || a.shape()[1] == 1)) {
+        n = a.size();
+        std::vector<Cplx> v;
+        v.reserve(n);
+        for (std::size_t i = 0; i < a.shape()[0]; ++i)
+            for (std::size_t j = 0; j < a.shape()[1]; ++j) v.push_back(a.at({i, j}));
+        return v;
+    }
+    throw std::runtime_error("linalg: expected a 1-D vector");
 }
 void require_square(std::size_t r, std::size_t c) {
     if (r != c) throw std::runtime_error("linalg: expected a square matrix");
@@ -230,8 +281,122 @@ bool is_symmetric(const std::vector<double>& a, std::size_t n) {
     return true;
 }
 
-// ---- general real eigenvalues: Hessenberg reduction + shifted QR ----
-std::vector<double> eigvals_general(std::vector<double> a, std::size_t n) {
+// Complex Hermitian eigensolver with REAL eigenvalues and COMPLEX eigenvectors,
+// reusing the real symmetric Jacobi solver via the standard 2n×2n real embedding:
+// for H = A + iB (A symmetric, B antisymmetric), the real symmetric matrix
+//   M = [[A, -B], [B, A]]
+// has each eigenvalue of H twice, and a real eigenvector [x; y] of M corresponds to
+// the complex eigenvector x + iy of H (already unit-norm: |x|²+|y|² = 1). We take
+// one representative per duplicated pair. @p evecs (when requested) is row-major n×n
+// with column k the eigenvector for evals[k]; both come out sorted descending.
+void hermitian_eig(const std::vector<Cplx>& H, std::size_t n, std::vector<double>& evals,
+                   std::vector<Cplx>& evecs, bool want_vectors) {
+    const std::size_t N = 2 * n;
+    std::vector<double> M(N * N, 0.0);
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j) {
+            const double re = H[i * n + j].real(), im = H[i * n + j].imag();
+            M[i * N + j] = re;                  // top-left  A
+            M[(i + n) * N + (j + n)] = re;      // bottom-right A
+            M[i * N + (j + n)] = -im;           // top-right  -B
+            M[(i + n) * N + j] = im;            // bottom-left B
+        }
+    std::vector<double> w, V;
+    jacobi_symmetric(M, N, w, V);               // 2n eigenvalues (desc, paired) + vectors
+    evals.resize(n);
+    for (std::size_t k = 0; k < n; ++k) evals[k] = w[2 * k];  // one of each equal pair
+    if (want_vectors) {
+        evecs.assign(n * n, Cplx{});
+        for (std::size_t k = 0; k < n; ++k) {
+            const std::size_t col = 2 * k;
+            for (std::size_t p = 0; p < n; ++p) {
+                const double x = V[p * N + col], y = V[(p + n) * N + col];
+                evecs[p * n + k] = Cplx(x, y);  // column k = eigenvector for evals[k]
+            }
+        }
+    }
+}
+
+// Solve the complex linear system M·x = b (M row-major n×n) by LU with partial
+// pivoting. Used by inverse iteration; M there is deliberately near-singular, which
+// LU handles (it yields a large solution pointing along the eigenvector).
+std::vector<Cplx> complex_solve(std::vector<Cplx> M, std::vector<Cplx> b, std::size_t n) {
+    for (std::size_t k = 0; k < n; ++k) {
+        std::size_t piv = k;
+        double best = std::abs(M[k * n + k]);
+        for (std::size_t i = k + 1; i < n; ++i) {
+            const double m = std::abs(M[i * n + k]);
+            if (m > best) {
+                best = m;
+                piv = i;
+            }
+        }
+        if (piv != k) {
+            for (std::size_t j = 0; j < n; ++j) std::swap(M[k * n + j], M[piv * n + j]);
+            std::swap(b[k], b[piv]);
+        }
+        const Cplx d = M[k * n + k];
+        for (std::size_t i = k + 1; i < n; ++i) {
+            const Cplx f = M[i * n + k] / d;
+            for (std::size_t j = k; j < n; ++j) M[i * n + j] -= f * M[k * n + j];
+            b[i] -= f * b[k];
+        }
+    }
+    std::vector<Cplx> x(n);
+    for (std::size_t ii = n; ii-- > 0;) {
+        Cplx s = b[ii];
+        for (std::size_t j = ii + 1; j < n; ++j) s -= M[ii * n + j] * x[j];
+        x[ii] = s / M[ii * n + ii];
+    }
+    return x;
+}
+
+// Eigenvector of the real matrix @p A for (complex) eigenvalue @p lambda, by inverse
+// iteration. C = A − (λ + tiny complex shift)·I is made just non-singular by the
+// shift, then a few inverse-iteration steps converge to the eigenvector; the phase
+// is fixed so the largest-magnitude component is real-positive (a stable, if
+// arbitrary, choice — eigenvectors are only defined up to phase).
+std::vector<Cplx> eigvector_inverse_iteration(const std::vector<double>& A, std::size_t n,
+                                              Cplx lambda) {
+    double scale = 1.0;
+    for (double a : A) scale = std::max(scale, std::fabs(a));
+    const Cplx shifted = lambda + Cplx(scale * 1e-10, scale * 1e-10);
+    std::vector<Cplx> C(n * n);
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j)
+            C[i * n + j] = Cplx(A[i * n + j], 0.0) - (i == j ? shifted : Cplx{});
+    const auto normalize = [&](std::vector<Cplx>& x) {
+        double nrm = 0.0;
+        for (const Cplx& z : x) nrm += std::norm(z);
+        nrm = std::sqrt(nrm);
+        for (Cplx& z : x) z /= nrm;
+    };
+    std::vector<Cplx> v(n, Cplx(1.0, 0.0));
+    normalize(v);
+    for (int it = 0; it < 5; ++it) {
+        std::vector<Cplx> w = complex_solve(C, v, n);
+        normalize(w);
+        v = std::move(w);
+    }
+    std::size_t mi = 0;
+    double mb = 0.0;
+    for (std::size_t i = 0; i < n; ++i) {
+        const double m = std::abs(v[i]);
+        if (m > mb) {
+            mb = m;
+            mi = i;
+        }
+    }
+    const Cplx phase = v[mi] / std::abs(v[mi]);  // unit-norm v -> mb > 0
+    for (Cplx& z : v) z /= phase;
+    return v;
+}
+
+// ---- general eigenvalues: Hessenberg reduction + shifted QR ----
+// Real matrix in; COMPLEX spectrum out (a 2×2 block with negative discriminant is a
+// conjugate pair, not an error). The arithmetic stays real; only the extracted
+// eigenvalues are complex.
+std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
     // Householder reduction to upper Hessenberg.
     for (std::size_t k = 1; k + 1 < n; ++k) {
         double scale = 0.0;
@@ -263,8 +428,9 @@ std::vector<double> eigvals_general(std::vector<double> a, std::size_t n) {
         for (std::size_t i = k + 1; i < n; ++i) a[i * n + (k - 1)] = 0.0;
     }
 
-    // Shifted QR on the Hessenberg matrix (real eigenvalues; complex pairs throw).
-    std::vector<double> w(n, 0.0);
+    // Shifted QR on the Hessenberg matrix. A 1×1 block is a real eigenvalue; a 2×2
+    // block is two reals (disc ≥ 0) or a complex conjugate pair (disc < 0).
+    std::vector<Cplx> w(n);
     long long hi = static_cast<long long>(n) - 1;
     const double eps = 1e-14;
     int iter = 0;
@@ -285,10 +451,15 @@ std::vector<double> eigvals_general(std::vector<double> a, std::size_t n) {
             const double apq = a[p * n + q], aqp = a[q * n + p];
             const double tr = app + aqq, det = app * aqq - apq * aqp;
             const double disc = tr * tr - 4.0 * det;
-            if (disc < 0.0) throw std::runtime_error("linalg: complex eigenvalues (use eigh for symmetric matrices)");
-            const double sq = std::sqrt(disc);
-            w[p] = (tr + sq) / 2.0;
-            w[q] = (tr - sq) / 2.0;
+            if (disc >= 0.0) {                  // two real eigenvalues
+                const double sq = std::sqrt(disc);
+                w[p] = (tr + sq) / 2.0;
+                w[q] = (tr - sq) / 2.0;
+            } else {                            // complex conjugate pair
+                const double im = std::sqrt(-disc) / 2.0;
+                w[p] = Cplx(tr / 2.0, im);
+                w[q] = Cplx(tr / 2.0, -im);
+            }
             hi -= 2;
             iter = 0;
         } else {                                // QR sweep with Wilkinson shift
@@ -339,6 +510,25 @@ double dot(const NDArray& a, const NDArray& b) {
 double vdot(const NDArray& a, const NDArray& b) { return dot(a, b); }
 double inner(const NDArray& a, const NDArray& b) { return dot(a, b); }
 
+// Complex products. `dot`/`inner` are bilinear (Σ aᵢbᵢ, no conjugation, like numpy);
+// `vdot` is the conjugate-linear Hermitian inner product Σ conj(aᵢ)·bᵢ = ⟨a, b⟩.
+Cplx dot(const CNDArray& a, const CNDArray& b) {
+    std::size_t n, m;
+    const std::vector<Cplx> x = as_cvector(a, n), y = as_cvector(b, m);
+    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
+    Cplx s{};
+    for (std::size_t i = 0; i < n; ++i) s += x[i] * y[i];
+    return s;
+}
+Cplx vdot(const CNDArray& a, const CNDArray& b) {
+    std::size_t n, m;
+    const std::vector<Cplx> x = as_cvector(a, n), y = as_cvector(b, m);
+    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
+    Cplx s{};
+    for (std::size_t i = 0; i < n; ++i) s += std::conj(x[i]) * y[i];
+    return s;
+}
+
 NDArray outer(const NDArray& a, const NDArray& b) {
     std::size_t n, m;
     const std::vector<double> x = as_vector(a, n), y = as_vector(b, m);
@@ -360,6 +550,30 @@ NDArray matmul(const NDArray& a, const NDArray& b) {
             for (std::size_t j = 0; j < bc; ++j) C[i * bc + j] += aik * B[k * bc + j];
         }
     return make_matrix(ar, bc, std::move(C));
+}
+
+CNDArray matmul(const CNDArray& a, const CNDArray& b) {
+    std::size_t ar, ac, br, bc;
+    const std::vector<Cplx> A = as_cmatrix(a, ar, ac);
+    const std::vector<Cplx> B = as_cmatrix(b, br, bc);
+    if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
+    std::vector<Cplx> C(ar * bc, Cplx{});
+    for (std::size_t i = 0; i < ar; ++i)
+        for (std::size_t k = 0; k < ac; ++k) {
+            const Cplx aik = A[i * ac + k];
+            for (std::size_t j = 0; j < bc; ++j) C[i * bc + j] += aik * B[k * bc + j];
+        }
+    return make_cmatrix(ar, bc, std::move(C));
+}
+
+// Conjugate transpose (Hermitian adjoint) Aᴴ: transpose, then conjugate every entry.
+CNDArray conj_transpose(const CNDArray& a) {
+    std::size_t r, c;
+    const std::vector<Cplx> A = as_cmatrix(a, r, c);
+    std::vector<Cplx> T(c * r);
+    for (std::size_t i = 0; i < r; ++i)
+        for (std::size_t j = 0; j < c; ++j) T[j * r + i] = std::conj(A[i * c + j]);
+    return make_cmatrix(c, r, std::move(T));
 }
 
 NDArray matrix_power(const NDArray& a, long long p) {
@@ -631,27 +845,56 @@ NDArray eigvalsh(const NDArray& a) {
     jacobi_symmetric(A, n, vals, vecs);
     return make_vector(std::move(vals));
 }
-Eig eig(const NDArray& a) {
+EighC eigh(const CNDArray& a) {
     std::size_t n, c;
-    const std::vector<double> A = as_matrix(a, n, c);
+    const std::vector<Cplx> H = as_cmatrix(a, n, c);
     require_square(n, c);
-    if (is_symmetric(A, n)) return eigh(a);  // symmetric -> eigenvectors too
-    std::vector<double> vals = eigvals_general(A, n);
-    std::sort(vals.begin(), vals.end(), std::greater<double>());
-    // General eigenvectors via inverse iteration would go here; not provided yet.
-    return {make_vector(std::move(vals)), make_matrix(0, 0, {})};
+    std::vector<double> vals;
+    std::vector<Cplx> vecs;
+    hermitian_eig(H, n, vals, vecs, /*want_vectors=*/true);
+    return {make_vector(std::move(vals)), make_cmatrix(n, n, std::move(vecs))};
 }
-NDArray eigvals(const NDArray& a) {
+NDArray eigvalsh(const CNDArray& a) {
+    std::size_t n, c;
+    const std::vector<Cplx> H = as_cmatrix(a, n, c);
+    require_square(n, c);
+    std::vector<double> vals;
+    std::vector<Cplx> vecs;
+    hermitian_eig(H, n, vals, vecs, /*want_vectors=*/false);
+    return make_vector(std::move(vals));
+}
+EigC eig(const NDArray& a) {
     std::size_t n, c;
     const std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
-    std::vector<double> vals = is_symmetric(A, n) ? std::vector<double>{} : eigvals_general(A, n);
-    if (vals.empty()) {
-        std::vector<double> vecs;
-        jacobi_symmetric(A, n, vals, vecs);
+    if (is_symmetric(A, n)) {                // symmetric -> real spectrum + eigenvectors
+        const Eig r = eigh(a);
+        return {to_complex(r.values), to_complex(r.vectors)};
     }
-    std::sort(vals.begin(), vals.end(), std::greater<double>());
-    return make_vector(std::move(vals));
+    std::vector<Cplx> vals = eigvals_general(A, n);
+    std::sort(vals.begin(), vals.end(), cgreater);
+    // Complex eigenvectors via inverse iteration: column k is the eigenvector for vals[k].
+    std::vector<Cplx> vecs(n * n, Cplx{});
+    for (std::size_t k = 0; k < n; ++k) {
+        const std::vector<Cplx> vk = eigvector_inverse_iteration(A, n, vals[k]);
+        for (std::size_t i = 0; i < n; ++i) vecs[i * n + k] = vk[i];
+    }
+    return {make_cvector(std::move(vals)), make_cmatrix(n, n, std::move(vecs))};
+}
+CNDArray eigvals(const NDArray& a) {
+    std::size_t n, c;
+    const std::vector<double> A = as_matrix(a, n, c);
+    require_square(n, c);
+    std::vector<Cplx> vals;
+    if (is_symmetric(A, n)) {                // symmetric -> real spectrum via Jacobi
+        std::vector<double> rvals, vecs;
+        jacobi_symmetric(A, n, rvals, vecs);
+        vals.assign(rvals.begin(), rvals.end());
+    } else {
+        vals = eigvals_general(A, n);
+    }
+    std::sort(vals.begin(), vals.end(), cgreater);
+    return make_cvector(std::move(vals));
 }
 
 } // namespace cheatah::linalg

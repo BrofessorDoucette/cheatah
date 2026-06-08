@@ -58,7 +58,7 @@ WARN_NO_PARAMDOC       = NO
 # Input — headers (the API) + implementations (so call/reference graphs have
 # real data) + the hand-written main page. Tests/scripts/READMEs excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md docs/performance.md
+INPUT                  = stdlib docs/mainpage.md docs/getting_started.md docs/performance.md docs/porting.md docs/security.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES

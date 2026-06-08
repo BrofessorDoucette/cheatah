@@ -1,5 +1,6 @@
 #include "io.hpp"
 
+#include <complex>
 #include <filesystem>
 #include <iostream>
 #include <sstream>
@@ -10,6 +11,17 @@
 #include <gtest/gtest.h>
 
 namespace io = cheatah::io;
+
+TEST(CheatahIo, StrRendersComplex) {
+    using C = std::complex<double>;
+    EXPECT_EQ(io::str(C(8, 3)), "8+3j");    // positive imaginary
+    EXPECT_EQ(io::str(C(1, -2)), "1-2j");   // negative imaginary
+    EXPECT_EQ(io::str(C(1, 0)), "1+0j");    // +0 (not "-0") after a conjugate
+    EXPECT_EQ(io::str(std::conj(C(1, 0))), "1+0j");
+    // repr matches str (numbers are not quoted), and a list of complex prints readably.
+    EXPECT_EQ(io::repr(C(2, -5)), "2-5j");
+    EXPECT_EQ(io::str(std::vector<C>{C(0, 1), C(2, 0)}), "[0+1j, 2+0j]");
+}
 
 // The io concept must accept exactly what the templates already take (streamable
 // types) and reject the rest, so a bad call gives a clear diagnostic.

@@ -75,8 +75,9 @@ allocations a careful C++ programmer would write by hand.
 ## Numeric speed: zero-cost generics + SIMD
 
 - **`ndarray` is generic over its element type** (`basic_ndarray<T>`, constrained to a
-  `Numeric` concept), monomorphized per type — an `int` array and a `double` array are
-  each as tight as a hand-rolled `std::vector<T>` loop, with no shared dynamic base.
+  `Field` concept — real or complex), monomorphized per type — an `int` array, a
+  `double` array, and a `complex<double>` array are each as tight as a hand-rolled
+  `std::vector<T>` loop, with no shared dynamic base.
 - **Element-wise kernels vectorize declaratively** via `std::transform(std::execution::unseq, …)`
   and `std::reduce(std::execution::unseq, …)` — we write our *intent to vectorize*
   in the source, and the compiler emits SIMD for whatever the target supports.
@@ -94,6 +95,96 @@ investment: we are already asking the compiler to instantiate templates, so we m
 that work also yield *early, named* diagnostics ("`Point` does not satisfy
 `Printable`") instead of pages of instantiation backtrace. Fast code **and** legible
 errors, both bought with the same compile-time spend.
+
+## Measuring `@perf`: cheatah vs CPython, exactly {#measuring-perf}
+
+Many standard-library functions carry a `@perf` row in their Javadoc — *"how much
+faster is this when called from cheatah than from Python?"*. So that nobody has to
+take those numbers on faith, here is **exactly** how each one is produced (the
+harness is [`scripts/perf_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/perf_compare.py),
+and it lists the precise snippet timed for every function).
+
+The comparison is deliberately the most honest one we can make: a **compiled cheatah
+program** against an **interpreted CPython program** running the *equivalent logic* —
+the real, whole-program execution in each language, not an isolated micro-measurement
+that has been tuned to flatter either side. (We do **not** use `timeit`'s
+overhead-subtraction or best-call isolation — that would measure something other than
+"run this program.") Both sides do the same thing: **call the function `N` times in a
+tight loop, bracketed by a monotonic clock**, in a fresh process, and report the
+per-call time (the minimum over several trials, to remove OS jitter). cheatah is built
+once at `-O3 -march=native`; CPython runs the stock interpreter (no JIT).
+
+- **cheatah side.** We generate a small `.purr` that calls the function `N` times in
+  a `for` loop between two `time.monotonic()` reads, compile it with `purrc` into a
+  native `.so`, and run it on the `cheatah` host. So we are timing **the real
+  compiled program** — the exact code path your own program would take — not a
+  hand-written C++ microbenchmark.
+
+- **CPython side** *(only when an honest one-to-one equivalent exists)*. We run the
+  equivalent CPython call `N` times in a `for` loop, bracketed by `time.monotonic()`,
+  in a fresh interpreter (e.g. cheatah `string.upper(s)` ↔ Python `s.upper()`,
+  `math.sqrt(x)` ↔ `math.sqrt(x)`, `len(s)` ↔ `len(s)`).
+
+The `@perf` row then reads one of two ways:
+
+> **Performance:** `0.9 ns/call` in cheatah · `53 ns/call` in CPython 3.x · **≈59× faster**
+>
+> **Performance:** `0.9 ns/call` in cheatah · *(no direct CPython equivalent)*
+
+**What the speedup actually measures.** Overwhelmingly, it is the elimination of
+CPython's **per-iteration bytecode-interpretation + call overhead** — a compiled
+tight loop versus an interpreted one. That is the dominant, honest effect of "call
+this in a loop," and it is exactly the cost cheatah exists to remove. It also means
+the gap is **honest about its size**: when the Python equivalent's real work already
+lives in C (e.g. `hashlib.sha256`, `math.sqrt`), the per-call work is fast on both
+sides and the speedup *narrows* — what's left is mostly the interpreter's call
+overhead. Where the Python equivalent is itself Python-level work, the gap widens.
+We report whatever the measurement says; we do not curate for big numbers.
+
+**Honest caveats** (so the numbers stay trustworthy):
+- The figures are **machine- and CPython-version-specific**, so they are
+  auto-generated on a fixed reference machine and recorded with that machine +
+  interpreter version — treat them as *representative*, and benchmark your own
+  hardware for absolutes (the same disclaimer as `@complexity`).
+- **Not everything has an honest Python twin.** numpy-backed numeric ops
+  (`ndarray`/`linalg`) are **not** raced against numpy's BLAS — that would be
+  apples-to-oranges and cheatah would not win — and things like socket internals or
+  `io.input` have no equivalent at all. Those get a **cheatah-only** row (its own
+  speed, no comparison), never a misleading one.
+
+## Dynamism without the interpreter: the cheatah runtime
+
+The usual objection to "just compile it" is that you give up what interpreted
+languages are *good* at: loading code at runtime, hot-reloading a changed module
+without restarting, plugin systems, embedding a scripting layer in a host app. Those
+abilities are why people reach for an interpreter in the first place.
+
+cheatah keeps them — through the **runtime**, not an interpreter. A `.purr` program
+does **not** compile to a standalone executable; it compiles to a **loadable module**
+(a `.so` exporting `extern "C" void purr_main()`). The `cheatah` host then
+`dlopen`s that module at runtime, resolves `purr_main`, and calls it. That `dlopen`
+plug-in model **is** the dynamic-loading mechanism interpreted languages use — but the
+code being loaded is **compiled native**, so it runs at full speed.
+
+So the runtime is how cheatah serves applications that would otherwise *demand* an
+interpreted language:
+- **Hot reload / live update.** A long-running host — a server, a trading agent, the
+  plotting engine — can `dlopen` a freshly-compiled module to swap behavior without
+  restarting, exactly like re-importing a Python module, but native.
+- **Plug-in architectures.** An application loads user-supplied cheatah modules as
+  plug-ins; the host stays small and the capabilities arrive as separately-compiled
+  `.so`s it loads on demand.
+- **Embeddable scripting.** Embed the `cheatah` runtime in a host app and let users
+  *script it in cheatah*; their scripts compile to native modules the host loads —
+  scripting-language extensibility at compiled speed.
+- **A path to interactivity.** A REPL / `eval` is just this primitive in a loop:
+  compile a snippet with `purrc`, `dlopen` it, run it.
+
+The honest trade-off is the one this whole page is about: there is a **compile step**
+(`purrc` → `.so`) before a module can be loaded, so it is not type-and-eval-instantly.
+But you get the dynamic loading, hot reload, plug-ins, and embedding of an interpreted
+runtime — *"compile once to a module, then load / run / reload it dynamically"* —
+while every line that actually executes is optimized native code.
 
 ## The standing rule
 

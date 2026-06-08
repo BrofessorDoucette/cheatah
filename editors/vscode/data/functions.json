@@ -709,6 +709,20 @@
       "qualified": "linalg.cond"
     },
     {
+      "name": "conj_transpose",
+      "signature": "conj_transpose(const CNDArray &a)",
+      "brief": "Conjugate transpose (Hermitian adjoint) Aᴴ of a complex matrix: transpose, then conjugate every entry.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "a 2-D complex matrix."
+        }
+      ],
+      "returns": "the c×r adjoint of an r×c input; throws on non-2-D input.",
+      "module": "linalg",
+      "qualified": "linalg.conj_transpose"
+    },
+    {
       "name": "det",
       "signature": "det(const NDArray &a)",
       "brief": "Determinant via LU with partial pivoting.",
@@ -724,75 +738,75 @@
     },
     {
       "name": "dot",
-      "signature": "dot(const NDArray &a, const NDArray &b)",
-      "brief": "Dot product: 1-D inner product (vectors flattened).",
+      "signature": "dot(const CNDArray &a, const CNDArray &b)",
+      "brief": "Bilinear dot product of two complex vectors: Σ aᵢbᵢ (no conjugation, matching numpy's dot).",
       "params": [
         {
           "name": "a",
-          "desc": "same-length vectors."
+          "desc": "same-length complex vectors."
         },
         {
           "name": "b",
-          "desc": "same-length vectors."
+          "desc": "same-length complex vectors."
         }
       ],
-      "returns": "Σ aᵢbᵢ.",
+      "returns": "Σ aᵢbᵢ as a std::complex<double>; throws on a length mismatch.",
       "module": "linalg",
       "qualified": "linalg.dot"
     },
     {
       "name": "eig",
       "signature": "eig(const NDArray &a)",
-      "brief": "Eigen-decomposition of a general square matrix (real spectrum only; throws on complex pairs).",
+      "brief": "Eigen-decomposition of a general square matrix (complex spectrum and eigenvectors).",
       "params": [
         {
           "name": "a",
           "desc": "square matrix."
         }
       ],
-      "returns": "Eig (vectors empty unless a is symmetric).",
+      "returns": "EigC with complex values and matching complex eigenvector columns.",
       "module": "linalg",
       "qualified": "linalg.eig"
     },
     {
       "name": "eigh",
-      "signature": "eigh(const NDArray &a)",
-      "brief": "Eigen-decomposition of a symmetric matrix (cyclic Jacobi).",
+      "signature": "eigh(const CNDArray &a)",
+      "brief": "Eigen-decomposition of a complex Hermitian matrix — real eigenvalues, complex eigenvectors.",
       "params": [
         {
           "name": "a",
-          "desc": "square symmetric matrix."
+          "desc": "square complex Hermitian matrix."
         }
       ],
-      "returns": "Eig with descending values and matching eigenvectors.",
+      "returns": "EighC with descending real values and matching complex eigenvectors.",
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
     {
       "name": "eigvals",
       "signature": "eigvals(const NDArray &a)",
-      "brief": "Eigenvalues of a general square matrix, descending (real only; throws on complex pairs).",
+      "brief": "Eigenvalues of a general square matrix (complex), descending.",
       "params": [
         {
           "name": "a",
           "desc": "square matrix."
         }
       ],
-      "returns": "length-n vector of eigenvalues.",
+      "returns": "length-n complex vector of eigenvalues.",
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
     {
       "name": "eigvalsh",
-      "signature": "eigvalsh(const NDArray &a)",
-      "brief": "Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).",
+      "signature": "eigvalsh(const CNDArray &a)",
+      "brief": "Eigenvalues of a complex Hermitian matrix, descending and real.",
       "params": [
         {
           "name": "a",
-          "desc": "square symmetric matrix."
+          "desc": "square complex Hermitian matrix."
         }
       ],
-      "returns": "length-n vector of eigenvalues.",
+      "returns": "length-n real vector of eigenvalues.",
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
@@ -866,19 +880,19 @@
     },
     {
       "name": "matmul",
-      "signature": "matmul(const NDArray &a, const NDArray &b)",
-      "brief": "Matrix multiply.",
+      "signature": "matmul(const CNDArray &a, const CNDArray &b)",
+      "brief": "Matrix multiply of two complex matrices (the complex analogue of matmul).",
       "params": [
         {
           "name": "a",
-          "desc": "m×k matrix."
+          "desc": "m×k complex matrix."
         },
         {
           "name": "b",
-          "desc": "k×p matrix."
+          "desc": "k×p complex matrix."
         }
       ],
-      "returns": "m×p product.",
+      "returns": "m×p complex product; throws on an inner-dimension mismatch or non-2-D input.",
       "module": "linalg",
       "qualified": "linalg.matmul"
     },
@@ -1054,19 +1068,19 @@
     },
     {
       "name": "vdot",
-      "signature": "vdot(const NDArray &a, const NDArray &b)",
-      "brief": "Vector dot product (alias of dot; flattens N×1/1×N).",
+      "signature": "vdot(const CNDArray &a, const CNDArray &b)",
+      "brief": "Conjugate-linear (Hermitian) inner product of two complex vectors: ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ — the inner product of a complex vector space, conjugating the FIRST argument (numpy's vdot convention).",
       "params": [
         {
           "name": "a",
-          "desc": "same-length vectors."
+          "desc": "same-length complex vectors."
         },
         {
           "name": "b",
-          "desc": "same-length vectors."
+          "desc": "same-length complex vectors."
         }
       ],
-      "returns": "Σ aᵢbᵢ.",
+      "returns": "Σ conj(aᵢ)·bᵢ as a std::complex<double>; throws on a length mismatch.",
       "module": "linalg",
       "qualified": "linalg.vdot"
     },
@@ -1671,6 +1685,38 @@
       "qualified": "ndarray.broadcast_to"
     },
     {
+      "name": "complex",
+      "signature": "complex(const basic_ndarray< T > &re, const basic_ndarray< T > &im)",
+      "brief": "Build a complex array from real and imaginary parts (element-wise re + im·j), broadcasting the two together — the way to construct a complex matrix/vector (a wavefunction, a Hermitian operator) since cheatah literals are real.",
+      "params": [
+        {
+          "name": "re",
+          "desc": "the real parts (a real floating array)."
+        },
+        {
+          "name": "im",
+          "desc": "the imaginary parts (a real floating array, broadcast against re)."
+        }
+      ],
+      "returns": "a basic_ndarray<std::complex<T>> of re + im·j; throws if the shapes don't broadcast.",
+      "module": "ndarray",
+      "qualified": "ndarray.complex"
+    },
+    {
+      "name": "conj",
+      "signature": "conj(const basic_ndarray< T > &a)",
+      "brief": "Element-wise complex conjugate (a − b·j for each a + b·j); on a real array it is the identity (a copy).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "a fresh array of the same element type with each element conjugated.",
+      "module": "ndarray",
+      "qualified": "ndarray.conj"
+    },
+    {
       "name": "divide",
       "signature": "divide(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
       "brief": "Element-wise a / b with broadcasting (an integer element type does integer division).",
@@ -1723,6 +1769,20 @@
       "returns": "the element value (type T); throws on a wrong-rank/out-of-range index.",
       "module": "ndarray",
       "qualified": "ndarray.get"
+    },
+    {
+      "name": "imag",
+      "signature": "imag(const basic_ndarray< T > &a)",
+      "brief": "The imaginary parts as a real array (all zeros for a real array).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "a basic_ndarray<real_base_t<T>> of the imaginary parts.",
+      "module": "ndarray",
+      "qualified": "ndarray.imag"
     },
     {
       "name": "is_contiguous",
@@ -1783,6 +1843,20 @@
       "returns": "a one-filled NDArray.",
       "module": "ndarray",
       "qualified": "ndarray.ones"
+    },
+    {
+      "name": "real",
+      "signature": "real(const basic_ndarray< T > &a)",
+      "brief": "The real parts as a real array (the identity on a real array).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array."
+        }
+      ],
+      "returns": "a basic_ndarray<real_base_t<T>> of the real parts.",
+      "module": "ndarray",
+      "qualified": "ndarray.real"
     },
     {
       "name": "reshape",

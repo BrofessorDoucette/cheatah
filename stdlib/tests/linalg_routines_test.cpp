@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <stdexcept>
 #include <vector>
 
@@ -16,6 +17,19 @@ nd::NDArray mat(std::size_t r, std::size_t c, std::vector<double> data) {
     return nd::reshape(nd::array(std::move(data)), {(long long)r, (long long)c});
 }
 bool close(double a, double b, double tol = 1e-9) { return std::fabs(a - b) < tol; }
+// The general eig()/eigvals() return a complex spectrum; these read one element and
+// compare against a complex (or, implicitly, a real) expectation.
+std::complex<double> cget(const la::CNDArray& v, std::vector<long long> idx) {
+    return nd::get(v, std::move(idx));
+}
+bool cclose(std::complex<double> a, std::complex<double> b, double tol = 1e-6) {
+    return std::abs(a - b) < tol;
+}
+using C = std::complex<double>;
+la::CNDArray cvec(std::vector<C> data) { return nd::array(std::move(data)); }
+la::CNDArray cmat(std::size_t r, std::size_t c, std::vector<C> data) {
+    return nd::reshape(nd::array(std::move(data)), {(long long)r, (long long)c});
+}
 }  // namespace
 
 TEST(LinalgRoutines, ProductsAndTrace) {
@@ -72,10 +86,91 @@ TEST(LinalgRoutines, SvdAndEigh) {
     EXPECT_TRUE(close(nd::get(e.values, {0}), 3.0, 1e-6));
     EXPECT_TRUE(close(nd::get(e.values, {1}), 1.0, 1e-6));
 
-    // general (real) eigenvalues of [[2,0],[0,5]] -> 5, 2
-    const nd::NDArray ev = la::eigvals(mat(2, 2, {2, 0, 0, 5}));
-    EXPECT_TRUE(close(nd::get(ev, {0}), 5.0, 1e-6));
-    EXPECT_TRUE(close(nd::get(ev, {1}), 2.0, 1e-6));
+    // general eigenvalues of [[2,0],[0,5]] -> 5, 2 (real, returned as complex)
+    const la::CNDArray ev = la::eigvals(mat(2, 2, {2, 0, 0, 5}));
+    EXPECT_TRUE(cclose(cget(ev, {0}), 5.0));
+    EXPECT_TRUE(cclose(cget(ev, {1}), 2.0));
+}
+
+TEST(LinalgRoutines, ComplexProducts) {
+    const la::CNDArray a = cvec({C(1, 2), C(3, -1)});
+    const la::CNDArray b = cvec({C(0, 1), C(2, 0)});
+    // Bilinear dot (no conjugation): (1+2j)(0+1j) + (3-1j)(2) = (-2+1j) + (6-2j) = 4-1j.
+    EXPECT_TRUE(cclose(la::dot(a, b), C(4, -1)));
+    // Hermitian inner product (conjugate the first): conj(a)·b = (1-2j)(0+1j)+(3+1j)(2) = (2+1j)+(6+2j) = 8+3j.
+    EXPECT_TRUE(cclose(la::vdot(a, b), C(8, 3)));
+    // vdot(a,a) is the real squared norm ‖a‖² = 1+4+9+1 = 15.
+    EXPECT_TRUE(cclose(la::vdot(a, a), C(15, 0)));
+
+    // Conjugate transpose (Hermitian adjoint): transpose + conjugate every entry.
+    const la::CNDArray M = cmat(2, 2, {C(1, 1), C(2, 0), C(0, 0), C(3, -1)});
+    const la::CNDArray H = la::conj_transpose(M);  // [[1-1j, 0],[2, 3+1j]]
+    EXPECT_TRUE(cclose(cget(H, {0, 0}), C(1, -1)));
+    EXPECT_TRUE(cclose(cget(H, {0, 1}), C(0, 0)));
+    EXPECT_TRUE(cclose(cget(H, {1, 0}), C(2, 0)));
+    EXPECT_TRUE(cclose(cget(H, {1, 1}), C(3, 1)));
+
+    // Complex matmul: M · Mᴴ is Hermitian; check entry (0,0) = |1+1j|² + |2|² = 2 + 4 = 6.
+    const la::CNDArray P = la::matmul(M, H);
+    EXPECT_TRUE(cclose(cget(P, {0, 0}), C(6, 0)));
+    EXPECT_TRUE(cclose(cget(P, {1, 1}), C(10, 0)));  // |0|² + |3-1j|² = 0 + 10
+
+    // as_cvector accepts a 2-D N×1 / 1×N as a flat vector (like the real path)…
+    const la::CNDArray col = cmat(2, 1, {C(1, 0), C(0, 1)});
+    EXPECT_TRUE(cclose(la::dot(col, col), C(0, 0)));  // 1·1 + i·i = 1 − 1 = 0
+    // …and rejects a genuine 2-D matrix where a vector is required.
+    EXPECT_THROW(la::vdot(M, M), std::runtime_error);
+}
+
+TEST(LinalgRoutines, GeneralEigVectors) {
+    // For a real matrix, eig() returns complex eigenvalues AND eigenvectors (via
+    // inverse iteration). Verify A·v_k = λ_k·v_k for each column (phase-independent),
+    // building a complex copy Ac of A so we can multiply the complex eigenvectors.
+    const auto check = [](std::vector<double> data, std::size_t n) {
+        const nd::NDArray A = mat(n, n, data);
+        std::vector<C> cdata;
+        for (double x : data) cdata.push_back(C(x, 0.0));
+        const la::CNDArray Ac = cmat(n, n, cdata);
+        const la::EigC e = la::eig(A);
+        const la::CNDArray AV = la::matmul(Ac, e.vectors);
+        for (std::size_t k = 0; k < n; ++k) {
+            const C lam = cget(e.values, {(long long)k});
+            for (std::size_t r = 0; r < n; ++r) {
+                EXPECT_TRUE(cclose(cget(AV, {(long long)r, (long long)k}),
+                                   lam * cget(e.vectors, {(long long)r, (long long)k}), 1e-5));
+            }
+        }
+    };
+    check({2, 1, 0, 3}, 2);          // real eigenvalues 3, 2 (upper-triangular)
+    check({0, -1, 1, 0}, 2);         // complex conjugate pair ±i (rotation)
+    check({0, 1, 2, 0}, 2);          // eigenvalues ±√2; forces a pivot row-swap in the solve
+    check({2, 1, 1, 1, 2, 1, 1, 1, 2}, 3);  // symmetric -> real eigenvalues 4,1,1
+}
+
+TEST(LinalgRoutines, ComplexHermitianEigh) {
+    // H = [[2, 1+i],[1-i, 3]] is Hermitian (conj_transpose(H) == H); eigenvalues 4, 1.
+    const la::CNDArray H = cmat(2, 2, {C(2, 0), C(1, 1), C(1, -1), C(3, 0)});
+    const nd::NDArray w = la::eigvalsh(H);  // real, descending
+    EXPECT_TRUE(close(nd::get(w, {0}), 4.0, 1e-6));
+    EXPECT_TRUE(close(nd::get(w, {1}), 1.0, 1e-6));
+
+    const la::EighC e = la::eigh(H);
+    EXPECT_TRUE(close(nd::get(e.values, {0}), 4.0, 1e-6));
+    EXPECT_TRUE(close(nd::get(e.values, {1}), 1.0, 1e-6));
+    // Verify the eigenpairs: H·V should equal V·diag(λ), independent of eigenvector
+    // phase. So column k of H·V equals λ_k · column k of V.
+    const la::CNDArray HV = la::matmul(H, e.vectors);
+    for (int k = 0; k < 2; ++k) {
+        const double lam = nd::get(e.values, {k});
+        for (int r = 0; r < 2; ++r) {
+            EXPECT_TRUE(cclose(cget(HV, {r, k}), lam * cget(e.vectors, {r, k})));
+        }
+    }
+    // Eigenvectors are unit-norm: ⟨v,v⟩ = 1.
+    for (int k = 0; k < 2; ++k) {
+        const la::CNDArray vk = cvec({cget(e.vectors, {0, k}), cget(e.vectors, {1, k})});
+        EXPECT_TRUE(cclose(la::vdot(vk, vk), C(1, 0)));
+    }
 }
 
 TEST(LinalgRoutines, NormAndRank) {
@@ -136,16 +231,25 @@ TEST(LinalgRoutines, EigvalshSymmetric) {
 }
 
 TEST(LinalgRoutines, GeneralEig) {
-    // Non-symmetric (upper-triangular) [[2,1],[0,3]] -> eigenvalues 2, 3.
-    const la::Eig e = la::eig(mat(2, 2, {2, 1, 0, 3}));
-    const double a = nd::get(e.values, {0}), b = nd::get(e.values, {1});
-    EXPECT_TRUE(close(std::min(a, b), 2.0, 1e-6));
-    EXPECT_TRUE(close(std::max(a, b), 3.0, 1e-6));
+    // Non-symmetric (upper-triangular) [[2,1],[0,3]] -> eigenvalues 2, 3 (real).
+    const la::EigC e = la::eig(mat(2, 2, {2, 1, 0, 3}));
+    EXPECT_TRUE(cclose(cget(e.values, {0}), 3.0));  // descending
+    EXPECT_TRUE(cclose(cget(e.values, {1}), 2.0));
     // eigvals on the same non-symmetric matrix exercises the general path too.
-    const nd::NDArray ev = la::eigvals(mat(2, 2, {2, 1, 0, 3}));
-    const double c = nd::get(ev, {0}), d = nd::get(ev, {1});
-    EXPECT_TRUE(close(std::min(c, d), 2.0, 1e-6));
-    EXPECT_TRUE(close(std::max(c, d), 3.0, 1e-6));
+    const la::CNDArray ev = la::eigvals(mat(2, 2, {2, 1, 0, 3}));
+    EXPECT_TRUE(cclose(cget(ev, {0}), 3.0));
+    EXPECT_TRUE(cclose(cget(ev, {1}), 2.0));
+}
+
+TEST(LinalgRoutines, GeneralEigOnSymmetricPromotesToComplex) {
+    // eig() on a symmetric matrix routes through eigh and PROMOTES the real spectrum
+    // and eigenvectors to complex (imag 0): values are real-valued complex, and the
+    // eigenvectors are present (a 2x2 complex matrix), unlike the non-symmetric case.
+    const la::EigC e = la::eig(mat(2, 2, {2, 1, 1, 2}));  // eigenvalues 3, 1
+    EXPECT_TRUE(cclose(cget(e.values, {0}), 3.0));
+    EXPECT_TRUE(cclose(cget(e.values, {1}), 1.0));
+    EXPECT_EQ(nd::size_of(e.vectors), 4);  // 2x2 eigenvectors present (promoted to complex)
+    EXPECT_EQ(e.vectors.ndim(), 2u);
 }
 
 // ---- targeted tests for the deep numerical branches ----
@@ -153,6 +257,12 @@ TEST(LinalgRoutines, GeneralEig) {
 namespace {
 std::vector<double> sorted3(const nd::NDArray& v) {
     std::vector<double> s{nd::get(v, {0}), nd::get(v, {1}), nd::get(v, {2})};
+    std::sort(s.begin(), s.end());
+    return s;
+}
+// Same, for a complex spectrum known to be real (imaginary parts ≈ 0): the real parts.
+std::vector<double> sorted3c(const la::CNDArray& v) {
+    std::vector<double> s{cget(v, {0}).real(), cget(v, {1}).real(), cget(v, {2}).real()};
     std::sort(s.begin(), s.end());
     return s;
 }
@@ -178,7 +288,7 @@ TEST(LinalgRoutines, Eigvalsh3x3Dense) {
 
 TEST(LinalgRoutines, GeneralEigvals3x3Dense) {
     // Same dense matrix through the general (Hessenberg + shifted-QR) path.
-    const std::vector<double> v = sorted3(la::eigvals(mat(3, 3, {2, 1, 1, 1, 2, 1, 1, 1, 2})));
+    const std::vector<double> v = sorted3c(la::eigvals(mat(3, 3, {2, 1, 1, 1, 2, 1, 1, 1, 2})));
     EXPECT_TRUE(close(v[0], 1.0, 1e-6));
     EXPECT_TRUE(close(v[2], 4.0, 1e-6));
 }
@@ -187,16 +297,24 @@ TEST(LinalgRoutines, NonSymmetric3x3HessenbergPath) {
     // M = P·diag(2,3,5)·P⁻¹ — non-symmetric with real eigenvalues 2,3,5. Routes
     // through eigvals_general (Householder–Hessenberg + shifted QR for n≥3).
     const nd::NDArray M = mat(3, 3, {2.5, 0.5, -0.5, -1, 4, 1, -1.5, 1.5, 3.5});
-    const std::vector<double> v = sorted3(la::eigvals(M));
+    const std::vector<double> v = sorted3c(la::eigvals(M));
     EXPECT_TRUE(close(v[0], 2.0, 1e-6));
     EXPECT_TRUE(close(v[1], 3.0, 1e-6));
     EXPECT_TRUE(close(v[2], 5.0, 1e-6));
-    EXPECT_TRUE(close(nd::get(la::eig(M).values, {0}), 5.0, 1e-6));  // descending; eig() too
+    EXPECT_TRUE(cclose(cget(la::eig(M).values, {0}), 5.0));  // descending; eig() too
 }
 
-TEST(LinalgRoutines, ComplexEigenvaluesThrow) {
-    // A 2-D rotation [[0,-1],[1,0]] has eigenvalues ±i — the real-only solver rejects it.
-    EXPECT_THROW(la::eigvals(mat(2, 2, {0, -1, 1, 0})), std::runtime_error);
+TEST(LinalgRoutines, ComplexEigenvaluesOfRotation) {
+    // A 2-D rotation [[0,-1],[1,0]] has eigenvalues ±i. The general eigensolver
+    // returns the complex conjugate pair (descending by real, then imag: +i, then -i)
+    // rather than throwing — complex spectra are first-class.
+    const la::CNDArray ev = la::eigvals(mat(2, 2, {0, -1, 1, 0}));
+    EXPECT_TRUE(cclose(cget(ev, {0}), std::complex<double>(0.0, 1.0)));
+    EXPECT_TRUE(cclose(cget(ev, {1}), std::complex<double>(0.0, -1.0)));
+    // A complex pair with a non-zero real part: [[1,-1],[1,1]] -> 1±i.
+    const la::CNDArray ev2 = la::eigvals(mat(2, 2, {1, -1, 1, 1}));
+    EXPECT_TRUE(cclose(cget(ev2, {0}), std::complex<double>(1.0, 1.0)));
+    EXPECT_TRUE(cclose(cget(ev2, {1}), std::complex<double>(1.0, -1.0)));
 }
 
 TEST(LinalgRoutines, VdotRejectsNonVector) {

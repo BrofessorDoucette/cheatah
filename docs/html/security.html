@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>Security · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=fb022564">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="security.html" data-ref="security">Security</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></li><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">html::parser</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1basic__ndarray.html" data-ref="classcheatah_1_1ndarray_1_1basic__ndarray">ndarray::basic_ndarray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Guide</div>
+  <h1>Security</h1>
+  
+</div>
+<div class="overview"><p>🐱 <em>Memory-safe by construction; honest about the rest.</em> 🐆</p><p>This page is the <strong>user&#x27;s-eye view</strong> of cheatah security: what the language and toolchain protect you from automatically, and what you are still on the hook for <strong>today</strong>. For the full threat model, the standing security review, and the sandbox/MCP roadmap, see <a href="https://github.com/BrofessorDoucette/cheatah/blob/main/SECURITY.md" target="_blank" rel="noopener"><code>SECURITY.md</code></a>.</p><h2>The one assumption to internalize</h2><p>cheatah is <strong>single-trust today</strong>, exactly like CPython or a C++ compiler:</p><p><p>The <code>.purr</code> source and the compiled <code>.so</code> you run are <strong>fully trusted</strong>. The person who writes, compiles, and runs the program is the person whose machine it runs on.</p></p><p>cheatah is <strong>pre-alpha</strong>. There is <strong>no sandbox yet</strong> — so the headline rule is: <strong>do not run <code>.purr</code> you did not write or audit.</strong> Everything below is framed by that assumption.</p><h2>Protections built into the language</h2><p>These you get for free — the compiler and runtime enforce them so you don&#x27;t have to:</p><ul><li><p><strong>Memory-safe generated code by construction.</strong> Codegen emits value types, STL containers, and smart pointers — <strong>no raw <code>new</code>/<code>delete</code>, no manual pointer arithmetic</strong>. Use-after-free and double-free are off the table for the code the compiler writes. (The one exception is the <code>cpp { … }</code> escape hatch — see below.)</p>
+</li><li><p><strong>Bounds- and overflow-checked standard library.</strong> Array shape math is overflow-checked (a <code>size_t</code> overflow throws instead of under-allocating), negative dimensions/indices are rejected, and element access is bounds-checked — malformed inputs <strong>raise an error, they don&#x27;t corrupt memory</strong>.</p>
+</li><li><p><strong>No command injection in the toolchain.</strong> <code>purrc</code> invokes the C++ backend with <code>fork</code> + <code>execvp</code> — <strong>never a shell</strong> — so a crafted path can never be reinterpreted as shell syntax.</p>
+</li><li><p><strong>Validated module loading.</strong> Before <code>dlopen</code>-ing a compiled module the runtime canonicalizes the path, requires a <strong>regular file</strong>, <strong>refuses world-writable</strong> modules, and checks the <strong>ELF magic</strong> — so a stray or obviously-tampered <code>.so</code> is rejected rather than blindly loaded.</p>
+</li><li><p><strong>Every template is concept-constrained.</strong> Misuse surfaces as an <strong>early, named compile error</strong> (&quot;`Point` does not satisfy `Printable`&quot;), not undefined behavior or a pages-long instantiation backtrace.</p>
+</li><li><p><strong>A QA gate that runs on every push.</strong> The suite runs under <strong>AddressSanitizer + UndefinedBehaviorSanitizer</strong> <em>and</em> <strong>Valgrind</strong>, with <strong>100% line and function test coverage</strong> enforced — memory errors, UB, and leaks fail the build before they ship. (Caveat: sanitizers only cover <em>exercised</em> paths; the historical <code>ndarray</code> overflow bugs were caught by manual review, then fixed and regression-tested.)</p>
+</li></ul><h2>What you still have to worry about (for now)</h2><p>cheatah does not yet protect you from these — they are your responsibility under the single-trust model:</p><ul><li><p><strong>Running untrusted code.</strong> There is <strong>no sandbox</strong>. A <code>.purr</code> program can do anything your user account can. Treat a <code>.purr</code>/<code>.so</code> like a shell script you&#x27;re about to <code>bash</code>: only run what you trust.</p>
+</li><li><p><strong>The <code>cpp { … }</code> escape hatch.</strong> It runs <strong>arbitrary C++</strong> with no safety net — memory safety inside the block is entirely yours. (It is slated to be <strong>refused</strong> in the future sandboxed mode, but that mode does not exist yet.)</p>
+</li><li><p><strong>Host effects: <code>os.system</code>, filesystem, environment.</strong> These are Python-parity conveniences with <strong>full host access</strong> today. Validate any data that flows into a path, a command, or a file you open — cheatah won&#x27;t second-guess it for you.</p>
+</li><li><p><strong>Your own input validation and secrets.</strong> Bounds checks stop memory corruption, not logic bugs. Untrusted <em>input</em> to a trusted program is still your domain: validate ranges, sanitize before shelling out, and keep credentials out of source.</p>
+</li><li><p><strong>A known TOCTOU window on module load.</strong> Between the runtime&#x27;s file checks and the <code>dlopen</code> there is a small time-of-check/time-of-use gap. It is <strong>acceptable under full trust</strong> but is not a defense against an attacker who can swap files underneath you.</p>
+</li><li><p><strong>No capability gating / process isolation / MCP boundary yet.</strong> Trust tiers, link-time capability gating, an OS-level sandbox (seccomp, Landlock, namespaces, rlimits), and a safe MCP server for LLM-driven cheatah are <strong>design intent, not implemented</strong>. Until they land, <em>don&#x27;t</em> run LLM-generated or otherwise author-untrusted programs.</p>
+</li></ul><h2>Reporting</h2><p>Please report suspected vulnerabilities <strong>privately to the maintainer</strong> rather than opening a public issue.</p><hr><p>The short version: the <strong>compiler keeps the code it generates memory-safe and the toolchain honest</strong>, and the <strong>QA gate keeps it that way</strong>; <strong>trust, host effects, and the escape hatch are yours</strong> until the sandboxed mode in <a href="https://github.com/BrofessorDoucette/cheatah/blob/main/SECURITY.md" target="_blank" rel="noopener"><code>SECURITY.md</code></a> exists.</p></div>
+</main>
+  <aside class="toc" aria-label="On this page"></aside>
+</div>
+<script src="search-index.js?v=366bc213"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
+</body>
+</html>

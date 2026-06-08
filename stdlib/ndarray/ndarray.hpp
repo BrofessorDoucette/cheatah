@@ -19,6 +19,7 @@
  *       no manual frees. `size` below is the element count (product of dims).
  */
 #include <algorithm>
+#include <complex>
 #include <concepts>
 #include <cstddef>
 #include <execution>
@@ -43,6 +44,46 @@ concept Numeric = std::is_arithmetic_v<T>;
 /// integer array fails with a clear "FloatingPoint not satisfied", not template spam.
 template <typename T>
 concept FloatingPoint = std::floating_point<T>;
+
+/// \cond INTERNAL
+template <typename T>
+struct is_complex : std::false_type {};
+template <typename U>
+struct is_complex<std::complex<U>> : std::bool_constant<std::is_floating_point_v<U>> {};
+/// \endcond
+
+/// Whether `T` is a `std::complex` of a floating type — the trait behind @ref Field.
+template <typename T>
+inline constexpr bool is_complex_v = is_complex<T>::value;
+
+/// Field<T>: a scalar an ndarray can store — a real arithmetic type OR a
+/// `std::complex` of a floating type. This is what makes **complex** matrices and
+/// vectors first-class (Hermitian operators, complex wavefunctions), and lets a
+/// REAL matrix yield the COMPLEX eigenvalues it mathematically has.
+template <typename T>
+concept Field = std::is_arithmetic_v<T> || is_complex_v<T>;
+
+/// \cond INTERNAL
+template <typename T>
+struct real_base {
+    using type = T;
+};
+template <typename U>
+struct real_base<std::complex<U>> {
+    using type = U;
+};
+/// \endcond
+
+/// The real type underlying a @ref Field `T` (`double` for both `double` and
+/// `complex<double>`).
+template <typename T>
+using real_base_t = typename real_base<T>::type;
+
+/// complex_of_t<T>: the complex type over T's real base. `eig`/`eigvals` return an
+/// array of these, because a real matrix can have complex eigenvalues (conjugate
+/// pairs) — e.g. the rotation matrix [[0,-1],[1,0]] has eigenvalues ±i.
+template <typename T>
+using complex_of_t = std::complex<real_base_t<T>>;
 
 namespace detail {
 /// C-order (row-major) strides for a shape.
@@ -88,18 +129,20 @@ inline bool next_index(std::vector<std::size_t>& idx, const std::vector<std::siz
 }  // namespace detail
 
 /**
- * @brief An N-dimensional array of `T` (a Numeric element type): a view
- *        ({shape, strides, offset}) over a shared element buffer.
+ * @brief An N-dimensional array of `T` (a @ref Field element type — real or complex):
+ *        a view ({shape, strides, offset}) over a shared element buffer.
  *
  * Copies are cheap and share the buffer; reshape/broadcast produce new views without
  * copying elements. Index math goes through @ref at, which bounds-checks. The element
  * type is deduced from the data (e.g. `array([1,2,3])` is integer, `array([1.0,…])`
- * is double); `NDArray` is the default `basic_ndarray<double>`.
+ * is double); `NDArray` is the default `basic_ndarray<double>`. Complex element types
+ * (`std::complex<double>`) make complex matrices/vectors — and the complex eigenvalues
+ * a real matrix can have — first-class.
  */
-template <Numeric T>
+template <Field T>
 class basic_ndarray {
 public:
-    using value_type = T;  ///< The stored element type (the `Numeric` `T`).
+    using value_type = T;  ///< The stored element type (the @ref Field `T`).
     /**
      * Construct an empty 0-d array with a fresh empty buffer.
      *
@@ -294,7 +337,7 @@ std::vector<std::size_t> broadcast_shapes(const std::vector<std::size_t>& a,
  * @test CheatahNDArray.BroadcastingAdd
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 inline bool is_contiguous(const basic_ndarray<T>& a) {
     return a.strides() == detail::contiguous_strides(a.shape());
 }
@@ -307,7 +350,7 @@ inline bool is_contiguous(const basic_ndarray<T>& a) {
  * @test CheatahNDArray.BroadcastTo
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> broadcast_to(const basic_ndarray<T>& a, const std::vector<std::size_t>& target) {
     const std::size_t n = target.size();
     if (a.ndim() > n) throw std::runtime_error("ndarray: cannot broadcast to fewer dimensions");
@@ -336,7 +379,7 @@ basic_ndarray<T> broadcast_to(const basic_ndarray<T>& a, const std::vector<std::
  * @crtest NdarrayCompileRun.Array
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> array(const std::vector<T>& values) {
     basic_ndarray<T> a(std::vector<std::size_t>{values.size()});
     *a.buffer() = values;
@@ -352,7 +395,7 @@ basic_ndarray<T> array(const std::vector<T>& values) {
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> array(std::initializer_list<T> values) {
     return array(std::vector<T>(values));
 }
@@ -366,7 +409,7 @@ basic_ndarray<T> array(std::initializer_list<T> values) {
  * @crtest NdarrayCompileRun.Scalar
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> scalar(T value) {
     basic_ndarray<T> a;  // 0-d
     a.buffer()->assign(1, value);
@@ -409,7 +452,7 @@ inline NDArray ones(const std::vector<long long>& shape) {
  * @crtest NdarrayCompileRun.Full
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> full(const std::vector<long long>& shape, T value) {
     return basic_ndarray<T>(detail::to_size(shape), value);
 }
@@ -444,7 +487,7 @@ basic_ndarray<T> arange(T start, T stop, T step) {
  * @crtest NdarrayCompileRun.Reshape
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>& shape) {
     const std::vector<std::size_t> ns = detail::to_size(shape);
     if (detail::product(ns) != a.size()) {
@@ -474,7 +517,7 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
  * @test CheatahNDArray.BroadcastingAdd
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T, typename Op>
+template <Field T, typename Op>
 basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b, Op op) {
     const std::vector<std::size_t> rshape = broadcast_shapes(a.shape(), b.shape());
     const basic_ndarray<T> av = broadcast_to(a, rshape);
@@ -506,7 +549,7 @@ basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b,
  * @crtest NdarrayCompileRun.Add
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> add(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
     return binary_op(a, b, [](T x, T y) { return x + y; });
 }
@@ -520,7 +563,7 @@ basic_ndarray<T> add(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * @crtest NdarrayCompileRun.Sub
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> sub(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
     return binary_op(a, b, [](T x, T y) { return x - y; });
 }
@@ -534,7 +577,7 @@ basic_ndarray<T> sub(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * @crtest NdarrayCompileRun.Mul
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> mul(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
     return binary_op(a, b, [](T x, T y) { return x * y; });
 }
@@ -548,9 +591,128 @@ basic_ndarray<T> mul(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * @crtest NdarrayCompileRun.Divide
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 basic_ndarray<T> divide(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
     return binary_op(a, b, [](T x, T y) { return x / y; });
+}
+
+// ---- complex support ----
+namespace detail {
+/// Map @p a element-wise through @p f into a fresh contiguous array of element type
+/// `U` (which may differ from `T` — e.g. complex→real for @ref real). Contiguous
+/// fast path via `std::transform(unseq)`; otherwise a C-order walk.
+template <typename U, Field T, typename F>
+basic_ndarray<U> map_array(const basic_ndarray<T>& a, F f) {
+    basic_ndarray<U> out(a.shape());
+    auto& obuf = *out.buffer();
+    if (is_contiguous(a)) {
+        const auto& abuf = *a.buffer();
+        std::transform(std::execution::unseq, abuf.begin() + a.offset(),
+                       abuf.begin() + a.offset() + a.size(), obuf.begin(), f);
+        return out;
+    }
+    std::vector<std::size_t> idx(a.ndim(), 0);
+    std::size_t flat = 0;
+    do {
+        obuf[flat++] = f(a.at(idx));
+    } while (a.ndim() != 0 && next_index(idx, a.shape()));
+    return out;
+}
+}  // namespace detail
+
+/**
+ * Build a complex array from real and imaginary parts (element-wise `re + im·j`),
+ * broadcasting the two together — the way to construct a complex matrix/vector
+ * (a wavefunction, a Hermitian operator) since cheatah literals are real.
+ * @param re the real parts (a real floating array).
+ * @param im the imaginary parts (a real floating array, broadcast against @p re).
+ * @return a `basic_ndarray<std::complex<T>>` of `re + im·j`; throws if the shapes don't broadcast.
+ * @complexity O(size of result).
+ * @alloc allocates the result buffer.
+ * @test CheatahNDArray.ComplexConstructAndParts
+ * @crtest NdarrayCompileRun.Complex
+ * @systest StdlibE2E.NdarrayComplex
+ */
+template <FloatingPoint T>
+basic_ndarray<std::complex<T>> complex(const basic_ndarray<T>& re, const basic_ndarray<T>& im) {
+    using C = std::complex<T>;
+    const std::vector<std::size_t> rshape = broadcast_shapes(re.shape(), im.shape());
+    const basic_ndarray<T> rv = broadcast_to(re, rshape);
+    const basic_ndarray<T> iv = broadcast_to(im, rshape);
+    basic_ndarray<C> out(rshape);
+    auto& obuf = *out.buffer();
+    std::vector<std::size_t> idx(rshape.size(), 0);
+    std::size_t flat = 0;
+    do {
+        obuf[flat++] = C(rv.at(idx), iv.at(idx));
+    } while (!rshape.empty() && detail::next_index(idx, rshape));
+    return out;
+}
+/**
+ * Element-wise complex conjugate (`a − b·j` for each `a + b·j`); on a real array it
+ * is the identity (a copy). Type-preserving. Used to form Hermitian adjoints and
+ * conjugate-linear inner products.
+ * @param a the array.
+ * @return a fresh array of the same element type with each element conjugated.
+ * @complexity O(size).
+ * @alloc allocates the result buffer.
+ * @test CheatahNDArray.ComplexConstructAndParts
+ * @crtest NdarrayCompileRun.Conj
+ * @systest StdlibE2E.NdarrayComplex
+ */
+template <Field T>
+basic_ndarray<T> conj(const basic_ndarray<T>& a) {
+    return detail::map_array<T>(a, [](T x) -> T {
+        if constexpr (is_complex_v<T>) {
+            return std::conj(x);
+        } else {
+            return x;
+        }
+    });
+}
+/**
+ * The real parts as a real array (the identity on a real array). For `a + b·j` it
+ * returns `a`.
+ * @param a the array.
+ * @return a `basic_ndarray<real_base_t<T>>` of the real parts.
+ * @complexity O(size).
+ * @alloc allocates the result buffer.
+ * @test CheatahNDArray.ComplexConstructAndParts
+ * @crtest NdarrayCompileRun.Real
+ * @systest StdlibE2E.NdarrayComplex
+ */
+template <Field T>
+basic_ndarray<real_base_t<T>> real(const basic_ndarray<T>& a) {
+    using R = real_base_t<T>;
+    return detail::map_array<R>(a, [](T x) -> R {
+        if constexpr (is_complex_v<T>) {
+            return x.real();
+        } else {
+            return x;
+        }
+    });
+}
+/**
+ * The imaginary parts as a real array (all zeros for a real array). For `a + b·j` it
+ * returns `b`.
+ * @param a the array.
+ * @return a `basic_ndarray<real_base_t<T>>` of the imaginary parts.
+ * @complexity O(size).
+ * @alloc allocates the result buffer.
+ * @test CheatahNDArray.ComplexConstructAndParts
+ * @crtest NdarrayCompileRun.Imag
+ * @systest StdlibE2E.NdarrayComplex
+ */
+template <Field T>
+basic_ndarray<real_base_t<T>> imag(const basic_ndarray<T>& a) {
+    using R = real_base_t<T>;
+    return detail::map_array<R>(a, [](T x) -> R {
+        if constexpr (is_complex_v<T>) {
+            return x.imag();
+        } else {
+            return R{0};
+        }
+    });
 }
 
 // ---- reductions / access / display ----
@@ -565,7 +727,7 @@ basic_ndarray<T> divide(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * @crtest NdarrayCompileRun.Sum
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 T sum(const basic_ndarray<T>& a) {
     if (is_contiguous(a)) {
         const auto& buf = *a.buffer();
@@ -606,7 +768,7 @@ double mean(const basic_ndarray<T>& a) {
  * @crtest NdarrayCompileRun.Get
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 T get(const basic_ndarray<T>& a, const std::vector<long long>& index) {
     return a.at(detail::to_size(index));
 }
@@ -620,7 +782,7 @@ T get(const basic_ndarray<T>& a, const std::vector<long long>& index) {
  * @crtest NdarrayCompileRun.ShapeOf
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 std::vector<long long> shape_of(const basic_ndarray<T>& a) {
     std::vector<long long> out(a.ndim());
     for (std::size_t i = 0; i < a.ndim(); ++i) out[i] = static_cast<long long>(a.shape()[i]);
@@ -636,20 +798,40 @@ std::vector<long long> shape_of(const basic_ndarray<T>& a) {
  * @crtest NdarrayCompileRun.SizeOf
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 long long size_of(const basic_ndarray<T>& a) {
     return static_cast<long long>(a.size());
 }
 
 namespace detail {
-/// Recursively format @p a into nested brackets (each element via `operator<<`).
-template <Numeric T>
+/// Format one element. Real types go through `operator<<`; a complex element is
+/// rendered Python-style as `a+bj` / `a-bj` (not the `std::complex` default
+/// `(a,b)`), so a complex spectrum prints the way a cheatah user expects.
+template <typename T>
+std::string format_scalar(const T& v) {
+    std::ostringstream os;
+    if constexpr (is_complex_v<T>) {
+        using R = real_base_t<T>;
+        // Flush negative zero to +0 so a conjugate prints "1+0j", not "1+-0j".
+        const auto nz = [](R x) -> R { return x == R{0} ? R{0} : x; };
+        os << nz(v.real());
+        if (v.imag() < R{0}) {
+            os << "-" << nz(-v.imag()) << "j";
+        } else {
+            os << "+" << nz(v.imag()) << "j";
+        }
+    } else {
+        os << v;
+    }
+    return os.str();
+}
+
+/// Recursively format @p a into nested brackets (each element via `format_scalar`).
+template <Field T>
 void format_rec(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::size_t dim,
                 std::string& out) {
     if (dim == a.ndim()) {
-        std::ostringstream os;
-        os << a.at(idx);
-        out += os.str();
+        out += format_scalar(a.at(idx));
         return;
     }
     out += "[";
@@ -673,12 +855,10 @@ void format_rec(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::s
  * @crtest NdarrayCompileRun.ToString
  * @systest StdlibE2E.Ndarray
  */
-template <Numeric T>
+template <Field T>
 std::string to_string(const basic_ndarray<T>& a) {
     if (a.ndim() == 0) {
-        std::ostringstream os;
-        os << a.at({});
-        return os.str();
+        return detail::format_scalar(a.at({}));
     }
     std::vector<std::size_t> idx(a.ndim(), 0);
     std::string out;
@@ -686,7 +866,7 @@ std::string to_string(const basic_ndarray<T>& a) {
     return out;
 }
 
-template <Numeric T>
+template <Field T>
 inline std::string basic_ndarray<T>::str() const {
     return to_string(*this);
 }

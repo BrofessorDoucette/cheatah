@@ -39,6 +39,58 @@ NS, CLASS, STRUCT, CONCEPT = "namespace", "class", "struct", "concept"
 XREF_PAGES = {"indexpage", "complexity", "alloc", "test", "crtest", "systest"}
 
 # ---------------------------------------------------------------------------
+# Code syntax highlighting — lightweight, theme-fitting, dependency-free.
+#
+# cheatah's keywords come straight from the compiler lexer (compiler/lexer.cpp,
+# kKeywords); a few Python keywords are added so the side-by-side Python snippets in
+# the guides also read nicely. Tokens are wrapped in <span class="tok-*"> and colored
+# by the site CSS (.tok-kw/.tok-str/… in cheatah-docs.css), so highlighting matches
+# the warm page theme instead of importing a generic highlighter.
+# ---------------------------------------------------------------------------
+_CHEATAH_KW = {"and", "as", "break", "case", "continue", "elif", "else", "except",
+               "false", "fn", "for", "from", "if", "import", "in", "interface", "let",
+               "match", "not", "or", "raise", "return", "struct", "true", "try", "while"}
+# Extra keywords so the guides' Python snippets highlight too (superset, harmless).
+_PYTHON_KW = {"def", "class", "lambda", "with", "yield", "pass", "global", "nonlocal",
+              "del", "assert", "finally", "is", "None", "True", "False", "await", "async"}
+_KEYWORDS = _CHEATAH_KW | (_PYTHON_KW - {"None", "True", "False"})
+_CONSTANTS = {"true", "false", "None", "True", "False"}
+
+_TOKEN_RE = re.compile(r"""
+    (?P<com>\#[^\n]*|//[^\n]*)                       |  # line comment (# or //)
+    (?P<str>"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*') |  # single/double-quoted string
+    (?P<num>\b\d+\.?\d*(?:[eE][+-]?\d+)?\b)          |  # number
+    (?P<id>[A-Za-z_]\w*)                             |  # identifier / keyword
+    (?P<other>.)                                       # any single other char
+""", re.VERBOSE)
+
+
+def highlight_code(text: str) -> str:
+    """Tokenize a line of code and wrap tokens in themed <span>s (HTML-escaped)."""
+    out: list[str] = []
+    for m in _TOKEN_RE.finditer(text):
+        kind, val = m.lastgroup, m.group()
+        esc = html.escape(val)
+        if kind == "com":
+            out.append(f'<span class="tok-com">{esc}</span>')
+        elif kind == "str":
+            out.append(f'<span class="tok-str">{esc}</span>')
+        elif kind == "num":
+            out.append(f'<span class="tok-num">{esc}</span>')
+        elif kind == "id":
+            if val in _KEYWORDS:
+                out.append(f'<span class="tok-kw">{esc}</span>')
+            elif val in _CONSTANTS:
+                out.append(f'<span class="tok-const">{esc}</span>')
+            elif m.end() < len(text) and text[m.end()] == "(":  # call site
+                out.append(f'<span class="tok-fn">{esc}</span>')
+            else:
+                out.append(esc)
+        else:
+            out.append(esc)
+    return "".join(out)
+
+# ---------------------------------------------------------------------------
 # Model
 # ---------------------------------------------------------------------------
 
@@ -294,10 +346,28 @@ class Renderer:
             rows.append(f"<tr>{''.join(cells)}</tr>")
         return f'<table class="dtable">{"".join(rows)}</table>'
 
+    def _code_text(self, el) -> str:
+        # Doxygen encodes EVERY space inside a code block as a <sp/> element (with an
+        # optional `value` = run length), which itertext() would silently drop and
+        # run the tokens together. Walk the tree and turn each <sp/> back into spaces
+        # so indentation and alignment survive.
+        out = []
+        if el.text:
+            out.append(el.text)
+        for child in el:
+            if child.tag == "sp":
+                n = child.get("value")
+                out.append(" " * (int(n) if n and n.isdigit() else 1))
+            else:
+                out.append(self._code_text(child))
+            if child.tail:
+                out.append(child.tail)
+        return "".join(out)
+
     def t_programlisting(self, el) -> str:
         lines = []
         for codeline in el.findall("codeline"):
-            lines.append(html.escape(text_of(codeline)))
+            lines.append(highlight_code(self._code_text(codeline)))
         return f'<pre class="code"><code>{chr(10).join(lines)}</code></pre>'
 
     def t_sect1(self, el) -> str:
@@ -421,10 +491,13 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
 def build_sidebar(compounds: dict[str, Compound]) -> str:
     groups = [("Modules", NS), ("Classes", CLASS), ("Structs", STRUCT), ("Concepts", CONCEPT)]
     parts = ['<a class="side-home" href="index.html">Overview</a>']
-    # Hand-written guide pages (e.g. Performance) — listed first, by title.
+    # Hand-written guide pages (e.g. Performance) — listed first, in a deliberate
+    # reading order (getting-started → porting → performance → security), then any
+    # other guide alphabetically.
+    GUIDE_ORDER = {"getting-started": 0, "porting": 1, "performance": 2, "security": 3}
     guides = sorted((c for c in compounds.values()
                      if c.kind == "page" and c.refid not in XREF_PAGES),
-                    key=lambda c: (c.title or c.short).lower())
+                    key=lambda c: (GUIDE_ORDER.get(c.refid, 99), (c.title or c.short).lower()))
     if guides:
         links = "".join(
             f'<li><a href="{c.refid}.html" data-ref="{c.refid}">{html.escape(c.title or c.short)}</a></li>'

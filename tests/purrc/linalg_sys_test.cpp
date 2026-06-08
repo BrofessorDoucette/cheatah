@@ -72,11 +72,11 @@ io.print(ndarray.to_string(linalg.pinv(d)))
                     "[[1, 2, 0, 0], [3, 4, 0, 0], [0, 0, 1, 2], [0, 0, 3, 4]]\n"
                     "[[2, 0], [0, 3]]\n"
                     "[[-4, 0], [0, -9]]\n"
-                    "[9, 4]\n"
-                    "[9, 4]\n"
-                    "[9, 4]\n"
-                    "[9, 4]\n"
-                    "[9, 4]\n"
+                    "[9, 4]\n"          // svd().s
+                    "[9+0j, 4+0j]\n"    // eig().values   — general -> complex spectrum
+                    "[9+0j, 4+0j]\n"    // eigvals()       — general -> complex spectrum
+                    "[9, 4]\n"          // eigh().values  — Hermitian -> real
+                    "[9, 4]\n"          // eigvalsh()      — Hermitian -> real
                     "5\n"
                     "2.25\n"
                     "-6\n"
@@ -87,4 +87,34 @@ io.print(ndarray.to_string(linalg.pinv(d)))
                     "[[5], [7]]\n"
                     "[[0.25, 0], [0, 0.111111]]\n"
                     "[[0.25, 0], [0, 0.111111]]\n");
+}
+
+// Complex linear algebra exercised together end-to-end: build complex vectors and a
+// matrix, take bilinear (dot) and Hermitian (vdot) inner products, the conjugate
+// transpose, and a complex matmul. M·Mᴴ is Hermitian; vdot(a,a) is the real ‖a‖².
+TEST(StdlibE2E, LinalgComplex) {
+    e2e::expect_e2e("linalg_complex_sys", R"PURR(import io
+import ndarray
+import linalg
+
+let a = ndarray.complex(ndarray.array([1.0, 3.0]), ndarray.array([2.0, -1.0]))
+let b = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, 0.0]))
+let M = ndarray.reshape(ndarray.complex(ndarray.array([1.0, 2.0, 0.0, 3.0]), ndarray.array([1.0, 0.0, 0.0, -1.0])), [2, 2])
+let H = ndarray.reshape(ndarray.complex(ndarray.array([2.0, 1.0, 1.0, 3.0]), ndarray.array([0.0, 1.0, -1.0, 0.0])), [2, 2])
+
+io.print(linalg.dot(a, b))
+io.print(linalg.vdot(a, b))
+io.print(linalg.vdot(a, a))
+io.print(ndarray.to_string(linalg.conj_transpose(M)))
+io.print(ndarray.to_string(linalg.matmul(M, linalg.conj_transpose(M))))
+io.print(ndarray.to_string(linalg.eigvalsh(H)))
+io.print(ndarray.to_string(linalg.eigh(H).values))
+)PURR",
+                    "4-1j\n"
+                    "8+3j\n"
+                    "15+0j\n"
+                    "[[1-1j, 0+0j], [2+0j, 3+1j]]\n"
+                    "[[6+0j, 6+2j], [6-2j, 10+0j]]\n"
+                    "[4, 1]\n"
+                    "[4, 1]\n");
 }

@@ -1,5 +1,6 @@
 #include "ndarray.hpp"
 
+#include <complex>
 #include <stdexcept>
 #include <vector>
 
@@ -82,6 +83,45 @@ TEST(CheatahNDArray, ReshapeSizeMismatchThrows) {
 
 TEST(CheatahNDArray, ToStringScalar) {
     EXPECT_EQ(nd::to_string(nd::scalar(42.0)), "42");
+}
+
+TEST(CheatahNDArray, ComplexElementType) {
+    // A complex (Field) array: stores, accesses, and arithmetic over std::complex.
+    using C = std::complex<double>;
+    static_assert(nd::is_complex_v<C> && !nd::is_complex_v<double>);
+    static_assert(std::is_same_v<nd::real_base_t<C>, double>);
+    static_assert(std::is_same_v<nd::complex_of_t<double>, C>);
+    const nd::basic_ndarray<C> a = nd::array(std::vector<C>{C(1, 2), C(3, -4), C(0, 1)});
+    // Python-style formatting: positive imag -> "a+bj", negative -> "a-bj".
+    EXPECT_EQ(nd::to_string(a), "[1+2j, 3-4j, 0+1j]");
+    EXPECT_EQ(nd::get(a, {1}), C(3, -4));
+    EXPECT_EQ(nd::sum(a), C(4, -1));
+    EXPECT_EQ(nd::to_string(nd::add(a, a)), "[2+4j, 6-8j, 0+2j]");
+    // A 0-d complex scalar formats without brackets.
+    EXPECT_EQ(nd::to_string(nd::scalar(C(5, -6))), "5-6j");
+}
+
+TEST(CheatahNDArray, ComplexConstructAndParts) {
+    using C = std::complex<double>;
+    const nd::NDArray re = nd::array({0.0, 1.0, 2.0});
+    const nd::NDArray im = nd::array({1.0, 0.0, -3.0});
+    const nd::basic_ndarray<C> z = nd::complex(re, im);   // [0+1j, 1+0j, 2-3j]
+    EXPECT_EQ(nd::to_string(z), "[0+1j, 1+0j, 2-3j]");
+    EXPECT_EQ(nd::get(z, {2}), C(2, -3));
+    // real / imag pull the parts back out as real arrays.
+    EXPECT_EQ(nd::to_string(nd::real(z)), "[0, 1, 2]");
+    EXPECT_EQ(nd::to_string(nd::imag(z)), "[1, 0, -3]");
+    // conj negates the imaginary part; the "1+0j" element keeps a clean +0 (not -0).
+    EXPECT_EQ(nd::to_string(nd::conj(z)), "[0-1j, 1+0j, 2+3j]");
+    // On a real array: conj is identity, real is a copy, imag is all zeros.
+    EXPECT_EQ(nd::to_string(nd::conj(re)), "[0, 1, 2]");
+    EXPECT_EQ(nd::to_string(nd::real(re)), "[0, 1, 2]");
+    EXPECT_EQ(nd::to_string(nd::imag(re)), "[0, 0, 0]");
+    // complex() broadcasts a scalar imaginary part against the real vector.
+    EXPECT_EQ(nd::to_string(nd::complex(re, nd::scalar(5.0))), "[0+5j, 1+5j, 2+5j]");
+    // A strided (non-contiguous) view exercises map_array's odometer fallback.
+    const nd::basic_ndarray<C> zb = nd::broadcast_to(nd::scalar(C(1, 2)), {3});
+    EXPECT_EQ(nd::to_string(nd::conj(zb)), "[1-2j, 1-2j, 1-2j]");
 }
 
 TEST(CheatahNDArray, BroadcastTo) {

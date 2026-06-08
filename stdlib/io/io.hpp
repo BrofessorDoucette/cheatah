@@ -14,6 +14,7 @@
  * @note Templated entry points live here (they monomorphize at the call site →
  *       tight machine code); the non-template symbols are compiled into the library.
  */
+#include <complex>
 #include <concepts>
 #include <fstream>
 #include <iostream>
@@ -113,6 +114,8 @@ std::string repr(const char* value);
 template <typename T>
     requires(HasStr<T> && !Streamable<T>)
 std::string repr(const T& value);
+template <std::floating_point T>
+std::string repr(const std::complex<T>& z);
 template <typename T>
     requires Printable<T>
 std::string repr(const std::vector<T>& v);
@@ -132,6 +135,27 @@ template <typename T>
     requires(HasStr<T> && !Streamable<T>)
 std::string str(const T& value) {
     return str(value.str());
+}
+/**
+ * `str()` for a complex number — Python-style `a+bj` / `a-bj` (not `std::complex`'s
+ * default `(a,b)`), so a complex scalar and a complex `ndarray` element read alike.
+ * Negative zero in either part is flushed to `+0` (a conjugate prints `1+0j`).
+ * @param z the complex value.
+ * @return the `a±bj` rendering.
+ * @test CheatahIo.StrRendersComplex
+ * @systest StdlibE2E.Io
+ */
+template <std::floating_point T>
+std::string str(const std::complex<T>& z) {
+    const auto nz = [](T x) -> T { return x == T{0} ? T{0} : x; };
+    std::ostringstream os;
+    os << nz(z.real());
+    if (z.imag() < T{0}) {
+        os << '-' << nz(-z.imag()) << 'j';
+    } else {
+        os << '+' << nz(z.imag()) << 'j';
+    }
+    return os.str();
 }
 /**
  * `str()` for a list — Python `[a, b, c]`. Elements are rendered with repr(), so a
@@ -211,6 +235,16 @@ void print(const Args&... args) {
  */
 template <Streamable T>
 std::string repr(const T& value) { return str(value); }
+/**
+ * `repr()` for a complex number — same Python-style `a±bj` as @ref str (numbers are
+ * not quoted), so a `list[complex]` renders its elements readably.
+ * @param z the complex value.
+ * @return the `a±bj` rendering.
+ * @test CheatahIo.StrRendersComplex
+ * @systest StdlibE2E.Io
+ */
+template <std::floating_point T>
+std::string repr(const std::complex<T>& z) { return str(z); }
 /**
  * `repr()` for a `std::string` — quoted (Python repr).
  *

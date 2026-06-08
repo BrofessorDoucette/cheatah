@@ -211,6 +211,17 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 code { background: var(--code-bg); padding: .12em .4em; border-radius: 5px; font-size: .88em; color: var(--code-fg); }
 pre.code { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; overflow-x: auto; }
 pre.code code { background: none; padding: 0; }
+/* Syntax highlighting (tokens emitted by docs/gen/generate.py) — warm, theme-matched. */
+pre.code .tok-kw    { color: var(--accent); }            /* fn let struct if for … */
+pre.code .tok-str   { color: #9fae6e; }                  /* string literals (olive)  */
+pre.code .tok-num   { color: #cf9b6a; }                  /* numbers (amber)          */
+pre.code .tok-const { color: #cf9b6a; }                  /* true false None          */
+pre.code .tok-fn    { color: #8fb3a8; }                  /* call sites (muted teal)  */
+pre.code .tok-com   { color: var(--fg-faint); font-style: italic; }
+[data-theme="light"] pre.code .tok-str   { color: #5d6b2e; }
+[data-theme="light"] pre.code .tok-num   { color: #9a5f2c; }
+[data-theme="light"] pre.code .tok-const { color: #9a5f2c; }
+[data-theme="light"] pre.code .tok-fn    { color: #3f6f63; }
 .dtable, table.dtable { border-collapse: collapse; width: 100%; margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
 .dtable th, .dtable td { padding: 8px 12px; border-bottom: 1px solid var(--border-soft); text-align: left; }
 .dtable th { background: var(--surface-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-dim); }

@@ -47,6 +47,8 @@ light edits.** Update this as the language grows.
 | Module import | `import io`, `import os.path as p` | same |
 | Member access | `b.close`, `os.path.join(...)` | same |
 | Records | `struct Bar { close: float }` | `@dataclass class Bar:` |
+| Methods | `fn pct(self) { … }` inside the struct, called `b.pct()` | `def pct(self):` |
+| Interfaces | `interface Shape { fn area(self) }` + `struct Circle : Shape { … }` | `Protocol` / ABC |
 | Construction / fields | `Bar(...)`, `b.close` | `Bar(...)`, `b.close` |
 | `print` | `io.print(x)` | `print(x)` |
 | Built-ins | `len(x)`, `hex(n)`, `ord(c)` (no import) | `len`, `hex`, `ord` |
@@ -73,16 +75,36 @@ True / False are written **lowercase** (`true` / `false`).
 
 3. **`fn` instead of `def`.** `fn add(a, b) { return a + b }`.
 
-4. **`struct` instead of `class` (data classes only, for now).**
+4. **`struct` instead of `class` — with methods and interfaces (no inheritance).**
+   A `struct` is more than a data class: it carries **typed fields**, **methods**,
+   and can declare which **interfaces** it fulfills.
    ```python
-   # cheatah                       # Python
-   struct Bar {                       @dataclass
-       date: str                      class Bar:
-       close: float                       date: str
-   }                                      close: float
+   # cheatah                              # Python
+   interface Shape {                         from typing import Protocol
+       fn area(self)                         class Shape(Protocol):
+   }                                             def area(self) -> float: ...
+
+   struct Circle : Shape {                   @dataclass
+       r: float                              class Circle:
+       fn area(self) {                           r: float
+           return 3.14159 * self.r * self.r      def area(self):
+       }                                             return 3.14159 * self.r ** 2
+   }
+
+   let c = Circle(2.0)                       c = Circle(2.0)
+   io.print(c.area())                        print(c.area())
    ```
-   Fields are **typed** (`int float str bool` or another struct). No methods,
-   inheritance, or `__init__` yet — construction is positional (`Bar("d", 1.0)`).
+   - **Fields** are typed (`int float str bool`, a container, or another struct).
+   - **Methods** take `self` as the first parameter (`fn area(self) { … }`) and are
+     called with method syntax (`c.area()`). They compile to real member functions.
+   - **Interfaces** are C++20 *concepts*: `interface Shape { fn area(self) }` lists
+     required methods, and `struct Circle : Shape { … }` makes the compiler **verify
+     statically** that `Circle` fulfills `Shape` (a `static_assert`, checked at
+     compile time — not duck-typed at runtime). A parameter typed by an interface
+     (`fn describe(s: Shape) { … }`) constrains what may be passed.
+   - **No inheritance** (composition over inheritance is the design choice) and **no
+     custom constructor / `__init__`** yet — construction is **positional** over the
+     fields in declaration order (`Circle(2.0)`, `Bar("d", 1.0)`).
 
 5. **Everything is imported — including `print`.** `print` lives in `io`, so
    `import io` then `io.print(...)`. The math functions `abs`/`min`/`max`/`round`/
@@ -122,7 +144,8 @@ True / False are written **lowercase** (`true` / `false`).
 
 ## 🚧 Not yet supported (roadmap)
 
-Comprehensions; typed exceptions & `finally`; classes with methods/inheritance;
+Comprehensions; typed exceptions & `finally`; struct **inheritance** and **custom
+constructors / `__init__`** (structs already have methods + interfaces — see #4);
 f-strings & rich string formatting (use `io.format`); slice **assignment**
 (`a[1:3] = …`) and step slices (`a[::2]`); tuples/unpacking; `with` statements;
 generators/`yield`; keyword/default arguments; `lambda`.

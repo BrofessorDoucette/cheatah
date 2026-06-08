@@ -130,3 +130,35 @@ import ndarray
 io.print(ndarray.to_string(ndarray.reshape(ndarray.array([1.0, 2.0, 3.0, 4.0]), [2, 2])))
 )PURR", "[[1, 2], [3, 4]]\n");
 }
+
+TEST(NdarrayCompileRun, Complex) {
+    e2e::expect_e2e("ndarray_complex", R"PURR(import io
+import ndarray
+let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
+io.print(ndarray.to_string(z))
+)PURR", "[0+1j, 2-3j]\n");
+}
+
+TEST(NdarrayCompileRun, Conj) {
+    e2e::expect_e2e("ndarray_conj", R"PURR(import io
+import ndarray
+let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
+io.print(ndarray.to_string(ndarray.conj(z)))
+)PURR", "[0-1j, 2+3j]\n");
+}
+
+TEST(NdarrayCompileRun, Real) {
+    e2e::expect_e2e("ndarray_real", R"PURR(import io
+import ndarray
+let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
+io.print(ndarray.to_string(ndarray.real(z)))
+)PURR", "[0, 2]\n");
+}
+
+TEST(NdarrayCompileRun, Imag) {
+    e2e::expect_e2e("ndarray_imag", R"PURR(import io
+import ndarray
+let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
+io.print(ndarray.to_string(ndarray.imag(z)))
+)PURR", "[1, -3]\n");
+}

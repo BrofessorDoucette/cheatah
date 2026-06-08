@@ -67,3 +67,24 @@ io.print(ndarray.size_of(m))
                     "2 3\n"
                     "6\n");
 }
+
+// Complex support (complex/real/imag/conj) exercised together end-to-end: build a
+// complex vector from real & imaginary parts, pull the parts back out, conjugate it.
+TEST(StdlibE2E, NdarrayComplex) {
+    e2e::expect_e2e("ndarray_complex_sys", R"PURR(import io
+import ndarray
+
+let re = ndarray.array([0.0, 1.0, 2.0])
+let im = ndarray.array([1.0, 0.0, -3.0])
+let z = ndarray.complex(re, im)
+
+io.print(ndarray.to_string(z))
+io.print(ndarray.to_string(ndarray.conj(z)))
+io.print(ndarray.to_string(ndarray.real(z)))
+io.print(ndarray.to_string(ndarray.imag(z)))
+)PURR",
+                    "[0+1j, 1+0j, 2-3j]\n"
+                    "[0-1j, 1+0j, 2+3j]\n"
+                    "[0, 1, 2]\n"
+                    "[1, 0, -3]\n");
+}

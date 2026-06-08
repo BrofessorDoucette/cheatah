@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>Getting Started · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=fb022564">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="security.html" data-ref="security">Security</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></li><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">html::parser</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1basic__ndarray.html" data-ref="classcheatah_1_1ndarray_1_1basic__ndarray">ndarray::basic_ndarray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Guide</div>
+  <h1>Getting Started</h1>
+  
+</div>
+<div class="overview"><p>🐱 <em>Write Python-shaped code; ship a native module.</em> 🐆</p><p>cheatah is a <strong>compiled, Python-shaped language</strong>. You write a <code>.purr</code> file, compile it with <code>purrc</code> into a native shared module (<code>.so</code>), and the <code>cheatah</code> runtime loads and runs that module. This page walks the whole path: hello-world, then exactly what happens when you press <em>compile</em> — and what &quot;statically linked&quot; and &quot;dynamically
+loaded&quot; mean here.</p><h2>Hello, cheatah</h2><pre class="code"><code><span class="tok-kw">import</span> io
+
+<span class="tok-kw">fn</span> <span class="tok-fn">main</span>() {
+    io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;hello, cheatah&quot;</span>)
+}
+
+<span class="tok-fn">main</span>()</code></pre><p>Save it as <code>hello.purr</code>, then:</p><pre class="code"><code>purrc hello.purr -o hello.so     <span class="tok-com"># compile to a native module</span>
+cheatah hello.so                 <span class="tok-com"># the runtime loads &amp; runs it</span></code></pre><pre class="code"><code>hello, cheatah</code></pre><p><code>purrc</code> is the compiler; <code>cheatah</code> is the runtime host that loads a compiled module. (Build both from source with the <code>release</code> preset: <code>cmake --preset release &amp;&amp; cmake --build --preset release</code>.)</p><h2>What </h2><p><code>purrc</code> is a transpiler in front of your system C++ compiler. It lexes and parses the <code>.purr</code>, generates modern C++, and invokes the C++ backend <strong>directly</strong> (<code>fork</code> + <code>execvp</code>, never a shell — no command injection) to produce the module:</p><pre class="code"><code>hello.purr
+    │
+    │  lex → parse → AST
+    ▼
+┌─────────────────────┐
+│  purrc  (transpiler) │   generates modern C++ (one .cpp)
+└─────────────────────┘
+    │
+    │  emits  hello.purr.cpp   (kept next to the output, so you can read it)
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  C++ backend:  c++ -std=c++<span class="tok-num">20</span> -O3 -march=native -fPIC -shared │
+│                +  libcheatah_&lt;module&gt;.a   (imported modules)  │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+hello.so      ── a native shared object exporting:  extern <span class="tok-str">&quot;C&quot;</span> void <span class="tok-fn">purr_main</span>()</code></pre><p>Two things worth noticing:</p><ul><li><p><strong>It compiles at <code>-O3 -march=native</code>.</strong> The module is real optimized native code for <em>your</em> CPU — that&#x27;s the whole performance bargain (see <a href="performance.html">Performance</a>).</p>
+</li><li><p><strong>It links only what you <code>import</code>.</strong> Each imported stdlib module (<code>io</code>, <code>ndarray</code>, <code>linalg</code>, …) contributes one static archive; a program that imports nothing pulls in nothing.</p>
+</li></ul><h2>Static </h2><p>cheatah&#x27;s module model uses <strong>both</strong> linking styles, each where it pays off:</p><pre class="code"><code>                ┌───────────────────────── hello.so ─────────────────────────┐
+STATIC LINK     │   your compiled code   +   libcheatah_io.a                  │
+(at compile)    │                            libcheatah_ndarray.a   (etc.)    │
+                │   the stdlib you imported <span class="tok-kw">is</span> baked IN — the module <span class="tok-kw">is</span>        │
+                │   self-contained, no separate cheatah libraries at runtime   │
+                └─────────────────────────────────────────────────────────────┘
+                                     ▲
+                                     │  <span class="tok-fn">dlopen</span>(<span class="tok-str">&quot;hello.so&quot;</span>) + <span class="tok-fn">dlsym</span>(<span class="tok-str">&quot;purr_main&quot;</span>)
+                                     │
+DYNAMIC LOAD     ┌──────────────────────────────────────────────────────────┐
+(at run time)    │   cheatah  (the runtime host)                             │
+                 │   validates the file, loads the module, calls <span class="tok-fn">purr_main</span>() │
+                 └──────────────────────────────────────────────────────────┘</code></pre><ul><li><p><strong>Statically linked stdlib (compile time).</strong> The standard-library modules you imported are compiled into the <code>.so</code> as static archives (<code>libcheatah_*.a</code>). The module is self-contained: there is no separate &quot;cheatah runtime library&quot; to ship or find on the load path.</p>
+</li><li><p><strong>Dynamically loaded module (run time).</strong> The <code>.so</code> is <strong>not</strong> a standalone executable — it exports <code>extern &quot;C&quot; void purr_main()</code>. The <code>cheatah</code> host <code>dlopen</code>s the module, resolves <code>purr_main</code>, and calls it. Before loading, the runtime <strong>validates</strong> the file (canonical path, regular file, refuses world-writable, checks the ELF magic — see <a href="security.html">Security</a>).</p>
+</li></ul><p>That <code>dlopen</code> step <em>is</em> the dynamic-loading mechanism interpreted languages use for plugins and hot-reload — except the code being loaded is compiled native, so it runs at full speed. (<a href="performance.html">Performance</a> covers how that gives you interpreter-style dynamism without an interpreter.)</p><h2>Where to go next</h2><ul><li><p><a href="porting.html">Coming from Python</a> — bring an existing Python script over with light edits.</p>
+</li><li><p><a href="performance.html">Performance</a> — why the compile-time cost buys run-time speed, and how the <code>@perf</code> numbers are measured.</p>
+</li><li><p><a href="security.html">Security</a> — what the language protects you from, and what you still own today.</p>
+</li><li><p>Browse the <strong>Modules</strong> in the sidebar (<code>io</code>, <code>ndarray</code>, <code>linalg</code>, <code>string</code>, …) for the full standard-library reference.</p>
+</li></ul></div>
+</main>
+  <aside class="toc" aria-label="On this page"></aside>
+</div>
+<script src="search-index.js?v=366bc213"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
+</body>
+</html>

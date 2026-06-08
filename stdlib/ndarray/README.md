@@ -1,13 +1,17 @@
 # cheatah `ndarray`
 
-Our own numpy-flavored N-dimensional array, **generic over its numeric element
-type**, with full NumPy
+Our own numpy-flavored N-dimensional array, **generic over its element type**,
+with full NumPy
 [broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html).
 
-The array is `basic_ndarray<T>` for any `Numeric` element type `T` (int or float
-family); the element type is **deduced from the literals** — `array([1, 2, 3])`
-is an integer array, `array([1.0, …])` is a `double` array. `NDArray` is the
-default `basic_ndarray<double>`.
+The array is `basic_ndarray<T>` for any `Field` element type `T` — a real
+arithmetic type (int or float family) **or** a `std::complex` of a floating type,
+so complex matrices/vectors (and the complex eigenvalues a real matrix can have)
+are first-class. The element type is **deduced from the literals** —
+`array([1, 2, 3])` is an integer array, `array([1.0, …])` is a `double` array.
+`NDArray` is the default `basic_ndarray<double>`. A complex array prints
+element-wise Python-style, e.g. `[0+1j, 0-1j]`. (Ordering-dependent ops like
+`arange`, and `mean` which returns a `double`, stay real-only.)
 
 Elements live in a shared buffer (`shared_ptr<vector<T>>`); an array is a VIEW
 into it — `{shape, strides, offset}` — so reshape and broadcast are zero-copy
@@ -46,6 +50,17 @@ print(ndarray.to_string(c))
 
 ### Element-wise ops (broadcasting)
 - `add` / `sub` / `mul` / `divide` — `a` op `b` over the common shape.
+
+### Complex
+- `complex(re, im)` — build a complex array from real & imaginary parts (broadcasts).
+- `real(a)` / `imag(a)` — the real / imaginary parts as a real array.
+- `conj(a)` — element-wise complex conjugate (identity on a real array).
+
+```purr
+let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
+io.print(ndarray.to_string(z))            # [0+1j, 2-3j]
+io.print(ndarray.to_string(ndarray.conj(z)))   # [0-1j, 2+3j]
+```
 
 ### Reductions, access, display
 - `sum(a)` / `mean(a)` — reduce all elements.

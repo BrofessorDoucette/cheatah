@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>Coming from Python · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=fb022564">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="security.html" data-ref="security">Security</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></li><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">html::parser</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1basic__ndarray.html" data-ref="classcheatah_1_1ndarray_1_1basic__ndarray">ndarray::basic_ndarray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Guide</div>
+  <h1>Coming from Python</h1>
+  
+</div>
+<div class="overview"><p>🐱 <em>Bring your Python; leave the interpreter behind.</em> 🐆</p><p>cheatah is <strong>Python-shaped</strong>: most scripts port with light, mechanical edits. This guide is the practical checklist for moving a <code>.py</code> file to a <code>.purr</code> file — what maps one-to-one, the handful of deliberate syntax deviations, and the gotchas worth knowing before you hit them. (For <em>why</em> the compiled result is fast, see <a href="performance.html">Performance</a>.)</p><p>The canonical, always-current feature matrix lives in <a href="https://github.com/BrofessorDoucette/cheatah/blob/main/compiler/PYTHON.md" target="_blank" rel="noopener"><code>compiler/PYTHON.md</code></a>; this page is the narrative version.</p><h2>The 60-second diff</h2><table class="dtable"><tr><th><p>Python</p></th><th><p>cheatah</p></th><th><p>Note</p></th></tr><tr><td><p><code>x = 1</code> (first time)</p></td><td><p><code>let x = 1</code></p></td><td><p><code>let</code> <em>declares</em>; bare <code>=</code> reassigns</p></td></tr><tr><td><p><code>def f(a, b):</code></p></td><td><p><code>fn f(a, b) { … }</code></p></td><td><p><code>fn</code>, braces instead of <code>:</code>+indent</p></td></tr><tr><td><p><code>if c:</code> / <code>for x in xs:</code></p></td><td><p><code>if c { … }</code> / <code>for x in xs { … }</code></p></td><td><p>braces, no colon</p></td></tr><tr><td><p><code>class Bar:</code></p></td><td><p><code>struct Bar { … }</code></p></td><td><p>typed fields, methods, interfaces (below)</p></td></tr><tr><td><p><code>print(x)</code></p></td><td><p><code>import io</code> → <code>io.print(x)</code></p></td><td><p>even <code>print</code> is imported</p></td></tr><tr><td><p><code>2 ** 10</code> / <code>a ^ b</code></p></td><td><p><code>2 ** 10</code> / <code>a ^ b</code></p></td><td><p><code>**</code> is power; <code>^</code> is <strong>bitwise-xor</strong>, not power</p></td></tr><tr><td><p><code>7 / 2 == 3.5</code></p></td><td><p><code>7.0 / 2</code> for float division</p></td><td><p><code>int / int</code> is integer division</p></td></tr><tr><td><p><code>True</code> / <code>False</code></p></td><td><p><code>true</code> / <code>false</code></p></td><td><p>lowercase</p></td></tr></table><p>Indentation is purely cosmetic in cheatah — newlines separate statements and <code>{ }</code> groups them. A <code>;</code> is an <em>optional</em> separator, never required.</p><h2>What maps one-to-one</h2><p>These need no rethinking — just the syntax shell above:</p><table class="dtable"><tr><th><p>Concept</p></th><th><p>cheatah</p></th><th><p>Python</p></th></tr><tr><td><p>Lists &amp; growth</p></td><td><p><code>let xs = [1, 2, 3]</code>, <code>xs.append(4)</code></p></td><td><p><code>xs.append(4)</code></p></td></tr><tr><td><p>Dicts</p></td><td><p><code>{&quot;k&quot;: 1}</code>, <code>d[k] = v</code></p></td><td><p>same</p></td></tr><tr><td><p>Indexing &amp; slicing</p></td><td><p><code>s[0]</code>, <code>s[1:3]</code>, <code>xs[i] = v</code></p></td><td><p>same (no step/<code>a[1:3]=…</code> yet)</p></td></tr><tr><td><p>Strings</p></td><td><p><code>&quot;a&quot; + &quot;b&quot;</code>, <code>s.startswith(p)</code>, <code>s.contains(x)</code></p></td><td><p><code>+</code>, <code>.startswith</code>, <code>in</code></p></td></tr><tr><td><p>Loops</p></td><td><p><code>for x in xs { … }</code>, <code>while c { … }</code></p></td><td><p>same logic</p></td></tr><tr><td><p>Control flow</p></td><td><p><code>if/elif/else</code>, <code>break</code>, <code>continue</code>, <code>match</code></p></td><td><p>same</p></td></tr><tr><td><p>Built-ins</p></td><td><p><code>len(x)</code>, <code>hex(n)</code>, <code>ord(c)</code> (no import)</p></td><td><p><code>len</code>, <code>hex</code>, <code>ord</code></p></td></tr><tr><td><p>Errors</p></td><td><p><code>try { … } except e { … }</code>, <code>raise &quot;msg&quot;</code></p></td><td><p>message-based, catch-all</p></td></tr></table><p>Standard-library modules mirror Python names: <code>import math</code> (<code>math.sqrt</code>), <code>import string</code>, <code>import random</code>, <code>import statistics</code>, <code>import hashlib</code>, <code>import os</code> / <code>os.path</code>, <code>import time</code>, <code>import datetime</code>. Numeric work uses <code>import ndarray</code> (numpy-flavored arrays) and <code>import linalg</code> (numpy.linalg-style routines).</p><h2>Structs: more than a dataclass</h2><p>A cheatah <code>struct</code> started life as a <code>@dataclass</code>, but it now carries <strong>typed fields</strong>, <strong>methods</strong>, and <strong>interfaces</strong> — so most small Python classes port directly.</p><p>cheatah:</p><pre class="code"><code><span class="tok-kw">interface</span> Shape {
+    <span class="tok-kw">fn</span> <span class="tok-fn">area</span>(self)
+}
+
+<span class="tok-kw">struct</span> Circle : Shape {
+    r: float
+    <span class="tok-kw">fn</span> <span class="tok-fn">area</span>(self) {
+        <span class="tok-kw">return</span> <span class="tok-num">3.14159</span> * self.r * self.r
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">describe</span>(s: Shape) {
+    <span class="tok-kw">return</span> s.<span class="tok-fn">area</span>()
+}
+
+<span class="tok-kw">let</span> c = <span class="tok-fn">Circle</span>(<span class="tok-num">2.0</span>)
+io.<span class="tok-fn">print</span>(c.<span class="tok-fn">area</span>())</code></pre><p>the same in Python:</p><pre class="code"><code><span class="tok-kw">from</span> typing <span class="tok-kw">import</span> Protocol
+
+<span class="tok-kw">class</span> <span class="tok-fn">Shape</span>(Protocol):
+    <span class="tok-kw">def</span> <span class="tok-fn">area</span>(self) -&gt; float: ...
+
+@dataclass
+<span class="tok-kw">class</span> Circle:
+    r: float
+    <span class="tok-kw">def</span> <span class="tok-fn">area</span>(self):
+        <span class="tok-kw">return</span> <span class="tok-num">3.14159</span> * self.r ** <span class="tok-num">2</span>
+
+<span class="tok-kw">def</span> <span class="tok-fn">describe</span>(s: Shape):
+    <span class="tok-kw">return</span> s.<span class="tok-fn">area</span>()
+
+c = <span class="tok-fn">Circle</span>(<span class="tok-num">2.0</span>)
+<span class="tok-fn">print</span>(c.<span class="tok-fn">area</span>())</code></pre><ul><li><p><strong>Methods</strong> take <code>self</code> first (<code>fn area(self) { … }</code>) and are called with method syntax (<code>c.area()</code>) — they compile to real C++ member functions.</p>
+</li><li><p><strong>Interfaces</strong> are C++20 <em>concepts</em>: <code>interface Shape { fn area(self) }</code> lists the required methods, and <code>struct Circle : Shape { … }</code> makes the compiler <strong>verify at compile time</strong> that <code>Circle</code> fulfills <code>Shape</code> (static, not duck-typed). Typing a parameter by an interface (<code>fn describe(s: Shape)</code>) constrains what may be passed.</p>
+</li><li><p><strong>Construction is positional</strong> over the fields in declaration order (<code>Circle(2.0)</code>). There is <strong>no custom constructor / <code>__init__</code></strong> and <strong>no inheritance</strong> yet (composition is the design choice). Field access is <code>c.r</code>.</p>
+</li></ul><h2>Deliberate deviations (and why)</h2><ol><li><p><strong>Braces, not indentation.</strong> Keeps the lexer simple (no INDENT/DEDENT) and the structure explicit. <em>Porting:</em> replace <code>:</code>+indent with <code>{ … }</code>.</p>
+</li><li><p><strong><code>let</code> declares, <code>=</code> reassigns.</strong> A clear declaration point maps to C++ <code>auto</code>. <em>Porting:</em> add <code>let</code> on a name&#x27;s first assignment.</p>
+</li><li><p><strong>Everything is imported — including <code>print</code>.</strong> <code>print</code> is <code>io.print</code>; math helpers (<code>abs</code>/<code>min</code>/<code>max</code>/<code>pow</code>/<code>round</code>) live in <code>math</code>. <em>Why:</em> the compiler links exactly what you use. Truly global built-ins (<code>len</code>/<code>hex</code>/<code>ord</code>) need no import.</p>
+</li><li><p><strong>Static types under the hood.</strong> <code>let</code>/params use C++ <code>auto</code>, so a name&#x27;s type is fixed by its initializer — no dynamic re-typing (<code>x = 1; x = &quot;s&quot;</code> won&#x27;t compile).</p>
+</li><li><p><strong>Numeric operators are C++.</strong> <code>**</code> is power (<code>std::pow</code>); <code>^</code> is bitwise-xor; <code>int / int</code> truncates (use <code>7.0 / 2</code> for float division).</p>
+</li><li><p><strong>Containers are STL types.</strong> <code>list[T]</code> → <code>std::vector&lt;T&gt;</code>, <code>dict[K,V]</code> → <code>std::unordered_map&lt;K,V&gt;</code>. Literals use type inference, so an <strong>empty</strong> <code>[]</code>/<code>{}</code> needs a type annotation. Iterating a <code>dict</code> yields <strong>key/value pairs</strong>.</p>
+</li><li><p><strong>Exceptions are message-based &amp; catch-all.</strong> <code>except e</code> binds <code>e</code> to the message string; <code>raise &quot;msg&quot;</code> throws. No typed <code>except</code>, <code>as</code>, or <code>finally</code> yet.</p>
+</li></ol><h2>A worked port</h2><p>Python:</p><pre class="code"><code><span class="tok-kw">import</span> statistics
+
+<span class="tok-kw">def</span> <span class="tok-fn">zscores</span>(xs):
+    m = statistics.<span class="tok-fn">mean</span>(xs)
+    sd = statistics.<span class="tok-fn">pstdev</span>(xs)
+    <span class="tok-kw">return</span> [(x - m) / sd <span class="tok-kw">for</span> x <span class="tok-kw">in</span> xs]
+
+<span class="tok-fn">print</span>(<span class="tok-fn">zscores</span>([<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>, <span class="tok-num">4</span>]))</code></pre><p>cheatah:</p><pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> statistics
+
+<span class="tok-kw">fn</span> <span class="tok-fn">zscores</span>(xs) {
+    <span class="tok-kw">let</span> m = statistics.<span class="tok-fn">mean</span>(xs)
+    <span class="tok-kw">let</span> sd = statistics.<span class="tok-fn">pstdev</span>(xs)
+    <span class="tok-kw">let</span> out = []
+    <span class="tok-kw">for</span> x <span class="tok-kw">in</span> xs {
+        out.<span class="tok-fn">append</span>((x - m) / sd)
+    }
+    <span class="tok-kw">return</span> out
+}
+
+io.<span class="tok-fn">print</span>(<span class="tok-fn">zscores</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">4.0</span>]))</code></pre><p>Two edits beyond syntax: the <strong>comprehension</strong> becomes an explicit loop (not yet supported), and the empty <code>out</code> list infers its element type from the first <code>append</code> — if you build it before any append, annotate it (<code>let out: list[float] = []</code>). Float literals (<code>1.0</code>) keep the division floating.</p><h2>Not yet supported (roadmap)</h2><p>Comprehensions; typed exceptions &amp; <code>finally</code>; struct <strong>inheritance</strong> and <strong>custom constructors</strong>; f-strings (use <code>io.format</code>); slice <strong>assignment</strong> and <strong>step</strong> slices; tuples/unpacking; <code>with</code>; generators/<code>yield</code>; keyword/default arguments; <code>lambda</code>. These are tracked toward the goal of frictionless Python → cheatah porting.</p><hr><p>Once it compiles, it runs as optimized native code — see <a href="performance.html">Performance</a> for the compile-time-for-run-time bargain and how the <code>@perf</code> numbers are measured.</p></div>
+</main>
+  <aside class="toc" aria-label="On this page"></aside>
+</div>
+<script src="search-index.js?v=366bc213"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
+</body>
+</html>
