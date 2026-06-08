@@ -141,16 +141,60 @@ sides and the speedup *narrows* — what's left is mostly the interpreter's call
 overhead. Where the Python equivalent is itself Python-level work, the gap widens.
 We report whatever the measurement says; we do not curate for big numbers.
 
+A note on the optimizer: because cheatah is **compiled**, dead work simply
+disappears. A loop whose result is never used is deleted outright (the interpreter is
+forced to run it every iteration); a constant call is computed once; a loop-invariant
+call is hoisted out. That is a real advantage — but it also means a naive
+"call `f(x)` in a loop" benchmark can measure *nothing* and report a meaningless
+"∞× faster". The harness above is deliberately **elision-proof** — it varies the
+input each iteration, accumulates the results, and prints the total — so the numbers
+reflect work that actually happened.
+
 **Honest caveats** (so the numbers stay trustworthy):
 - The figures are **machine- and CPython-version-specific**, so they are
   auto-generated on a fixed reference machine and recorded with that machine +
   interpreter version — treat them as *representative*, and benchmark your own
   hardware for absolutes (the same disclaimer as `@complexity`).
-- **Not everything has an honest Python twin.** numpy-backed numeric ops
-  (`ndarray`/`linalg`) are **not** raced against numpy's BLAS — that would be
-  apples-to-oranges and cheatah would not win — and things like socket internals or
-  `io.input` have no equivalent at all. Those get a **cheatah-only** row (its own
-  speed, no comparison), never a misleading one.
+- **`@perf` compares against pure-CPython work, not against C extensions.** Where the
+  Python equivalent's real work already lives in C (`hashlib.sha256`, `math.sqrt`),
+  the gap narrows to ~1× — we report that honestly. For numpy, see below.
+
+## cheatah `linalg` vs NumPy {#vs-numpy}
+
+The obvious question for the numeric core: *how does it compare to NumPy?* NumPy's
+array ops dispatch to **BLAS/LAPACK** — hand-tuned, vectorized, often multi-threaded
+Fortran kernels — so this is the hard comparison, and we run it honestly: the
+[`scripts/numpy_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/numpy_compare.py)
+harness feeds the **same** fixed-seed, well-conditioned matrix to both libraries,
+runs the **same** operation many times with the result consumed, and checks the two
+answers agree. Representative results (µs per op on the reference machine — your
+hardware will differ):
+
+| op | n | cheatah | NumPy | winner |
+|----|--:|--------:|------:|--------|
+| `matmul` | 32 | 4.5 | 12.8 | **cheatah 2.8×** |
+| `matmul` | 64 | 24 | 109 | **cheatah 4.5×** |
+| `solve`  | 32 | 4.4 | 9.9  | **cheatah 2.3×** |
+| `det`    | 32 | 3.4 | 9.0  | **cheatah 2.6×** |
+| `inv`    | 32 | 26  | 24   | NumPy 1.1× |
+| `eigvalsh` | 32 | 333 | 24 | **NumPy 13.7×** |
+| `dot` | 16384 | 280 | 7.7 | **NumPy 36×** |
+
+The pattern is consistent and unsurprising once you see it:
+
+- **cheatah wins on small-to-medium dense factorizations** (`matmul`, `solve`, `det`,
+  `inv` up to ~n=16–32). At these sizes the work is small, so NumPy's per-call Python
+  dispatch *and* threaded-BLAS startup overhead dominate — cheatah's single-threaded,
+  auto-vectorized C++ just does the arithmetic with no overhead.
+- **BLAS/LAPACK win at scale and on their specialties** — large `dot` (BLAS `ddot`),
+  and **`eigvalsh` at any real size** (LAPACK's reduction-based eigensolver vastly
+  outpaces our cyclic-Jacobi one). We don't pretend otherwise; these are the routines
+  to reach for NumPy on, and the places we have the most headroom (e.g. `dot`/`solve`
+  still copy their inputs into scratch — an avoidable cost).
+
+So: cheatah is **not** trying to out-BLAS BLAS. It wins where avoiding interpreter and
+dispatch overhead matters more than a tuned kernel, and it is honest about where the
+tuned kernel wins.
 
 ## Dynamism without the interpreter: the cheatah runtime
 
