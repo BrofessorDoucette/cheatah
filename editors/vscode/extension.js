@@ -15,7 +15,12 @@ const LANG = "cheatah";
 /** @type {{byQualified: Map<string, any>, byModule: Map<string, any[]>, modules: string[], perfMeta: any}} */
 let db = { byQualified: new Map(), byModule: new Map(), modules: [], perfMeta: {} };
 
+// Set at activation — the extension's own folder, which bundles a copy of the stdlib
+// headers (under `headers/`) so control-click works even outside the cheatah repo.
+let EXT_ROOT = "";
+
 function loadDb(context) {
+  EXT_ROOT = context.extensionPath;
   const file = path.join(context.extensionPath, "data", "functions.json");
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
   const byQualified = new Map();
@@ -212,14 +217,22 @@ const hoverProvider = {
   },
 };
 
-// The cheatah source root that holds the stdlib headers — the `cheatah.root` setting
-// if present, else the open workspace (a dev working in the cheatah repo). Lets
-// control-click on a stdlib call jump straight into its C++ header.
-function cheatahRoot() {
+// Resolve a stdlib header path (e.g. "stdlib/math/math.hpp") to an absolute file that
+// exists, so control-click can open it. Tries, in order: the `cheatah.root` setting
+// (a purrc/runtime install), each open workspace folder (a dev in the cheatah repo),
+// then the headers bundled inside the extension itself (so it works anywhere). The
+// QA gate refreshes both the bundled headers and the installed extension.
+function resolveHeader(srcfile) {
+  const roots = [];
   const cfg = vscode.workspace.getConfiguration("cheatah").get("root");
-  if (cfg) return cfg;
-  const folders = vscode.workspace.workspaceFolders;
-  return folders && folders.length ? folders[0].uri.fsPath : null;
+  if (cfg) roots.push(cfg);
+  for (const wf of vscode.workspace.workspaceFolders || []) roots.push(wf.uri.fsPath);
+  if (EXT_ROOT) roots.push(path.join(EXT_ROOT, "headers"));
+  for (const r of roots) {
+    const abs = path.join(r, srcfile);
+    if (fs.existsSync(abs)) return abs;
+  }
+  return null;
 }
 
 const definitionProvider = {
@@ -239,14 +252,12 @@ const definitionProvider = {
       const ms = defs.methods.get(word);
       if (ms && ms.length) return new vscode.Location(document.uri, new vscode.Position(ms[0].line, 0));
     }
-    // A stdlib function → its C++ header declaration (assumes purrc/headers installed).
+    // A stdlib function → its C++ header declaration (resolved against the setting /
+    // workspace / bundled headers).
     const fn = (prefix && db.byQualified.get(prefix + "." + word)) || db.byQualified.get(word);
     if (fn && fn.srcfile && fn.srcline) {
-      const root = cheatahRoot();
-      const abs = root && path.join(root, fn.srcfile);
-      if (abs && fs.existsSync(abs)) {
-        return new vscode.Location(vscode.Uri.file(abs), new vscode.Position(fn.srcline - 1, 0));
-      }
+      const abs = resolveHeader(fn.srcfile);
+      if (abs) return new vscode.Location(vscode.Uri.file(abs), new vscode.Position(fn.srcline - 1, 0));
     }
     return undefined;
   },

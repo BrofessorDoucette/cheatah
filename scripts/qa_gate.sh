@@ -155,5 +155,18 @@ cmake --build --preset release-benchmarks >/tmp/cheatah_build_bench.log 2>&1 || 
 bold "Running benchmarks (smoke pass, min-time ${MIN_TIME})…"
 ./build/release/bin/cheatah_benchmarks --benchmark_min_time="${MIN_TIME}" || fail "benchmark run"
 
+# 8. Refresh the editor (best-effort, NOT a gate) ----------------------------
+#    The runtime was just rebuilt above; package the VS Code extension with the
+#    current hover DB + a copy of THIS runtime's stdlib headers, and (re)install it,
+#    so the editor never drifts from the built runtime. Never fails the gate: it
+#    no-ops if `code`/vsce are unavailable (headless CI), and errors are swallowed.
+if [ "${QA_GATE_SKIP_EDITOR:-0}" = "1" ]; then
+    bold "Skipping editor refresh (QA_GATE_SKIP_EDITOR=1)."
+else
+    bold "Refreshing the VS Code extension from the freshly-built runtime…"
+    bash editors/vscode/scripts/install-extension.sh || \
+        printf '[qa-gate] editor refresh skipped/failed (non-fatal).\n'
+fi
+
 bold "QA gate PASSED — push may proceed."
 exit 0

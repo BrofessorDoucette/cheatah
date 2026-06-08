@@ -2,7 +2,7 @@
   "name": "cheatah",
   "displayName": "cheatah",
   "description": "Syntax highlighting, language configuration, IntelliSense, and a file icon theme for the cheatah language (.purr).",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "publisher": "cheatah-lang",
   "license": "MIT",
   "engines": {
@@ -115,9 +115,13 @@
         "cheatah.root": {
           "type": "string",
           "default": "",
-          "description": "Path to the cheatah source/install root that contains the stdlib headers (stdlib/<module>/<module>.hpp). Used by Go to Definition (Ctrl-click) on a stdlib call. Defaults to the open workspace folder."
+          "description": "Root of the cheatah runtime/install whose stdlib C++ headers the editor should use for Go to Definition (Ctrl-click). Point this at the cheatah runtime you picked; if unset, the extension uses the open workspace, then the headers bundled with the extension (which the QA gate keeps in sync with the locally-built runtime)."
         }
       }
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrofessorDoucette/cheatah"
   }
 }
