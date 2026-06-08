@@ -1,0 +1,138 @@
+# numpy_compare.purr — cheatah `linalg` vs NumPy, written in PURE CHEATAH.
+# The harness builds a deterministic SPD matrix as a literal, embeds the SAME data in
+# both a cheatah program (linalg op in a timed loop) and a CPython program (the numpy
+# equivalent), runs both, and reports µs/op + the winner. NumPy dispatches to
+# BLAS/LAPACK, so cheatah tends to win small n (no Python/dispatch overhead) and lose
+# large n — the honest crossover. Run from the repo root after a `release` build:
+#     purrc scripts/numpy_compare.purr -o /tmp/numpy_compare.so && cheatah /tmp/numpy_compare.so
+
+import io
+import os
+import string
+
+struct Timing {
+    secs: float
+    result: str
+}
+
+struct Op {
+    name: str
+    ch: str        # cheatah op expression, e.g. "linalg.det(M)"
+    extract: str   # "" for a scalar result, else "[0]" / "[0, 0]"
+    np: str        # numpy scalar expression, e.g. "float(np.linalg.det(M))"
+}
+
+fn write_file(path, content) {
+    let f = io.open(path, "w")
+    f.write(content)
+}
+
+fn time_runs(runcmd, outpath) {
+    let best = -1.0
+    let result = ""
+    for t in range(0, 5) {
+        os.system(runcmd + " > " + outpath + " 2>/dev/null")
+        let lines = string.splitlines(string.strip(io.read_file(outpath)))
+        let n = len(lines)
+        if n >= 2 {
+            result = lines[n - 2]
+            let elapsed = float(lines[n - 1])
+            if best < 0.0 or elapsed < best {
+                best = elapsed
+            }
+        }
+    }
+    return Timing(best, result)
+}
+
+# A diagonally-dominant symmetric (so positive-definite, well-conditioned) n×n matrix
+# as a flat literal: DISTINCT diagonal n+1+i (so eigenvalues are distinct and the
+# cyclic-Jacobi eigensolver converges normally), every off-diagonal 0.5. Deterministic,
+# so both sides get identical data.
+fn spd_literal(n) {
+    let s = "["
+    let first = true
+    for i in range(0, n) {
+        for j in range(0, n) {
+            if not first {
+                s = s + ", "
+            }
+            first = false
+            if i == j {
+                s = s + io.str(n + 1 + i) + ".0"
+            } else {
+                s = s + "0.5"
+            }
+        }
+    }
+    return s + "]"
+}
+
+fn cheatah_prog(op, extract, n, lit, iters) {
+    let s = "import io\nimport time\nimport ndarray\nimport linalg\n"
+    s = s + "let M = ndarray.reshape(ndarray.array(" + lit + "), [" + io.str(n) + ", " + io.str(n) + "])\n"
+    s = s + "let acc = 0.0\nlet t0 = time.monotonic()\n"
+    if extract == "" {
+        s = s + "for i in range(0, " + io.str(iters) + ") {\n    acc = acc + " + op + "\n}\n"
+    } else {
+        s = s + "for i in range(0, " + io.str(iters) + ") {\n    acc = acc + ndarray.get(" + op + ", " + extract + ")\n}\n"
+    }
+    s = s + "let t1 = time.monotonic()\nio.print(acc)\nio.print(t1 - t0)\n"
+    return s
+}
+
+fn python_prog(npop, n, lit, iters) {
+    let s = "import time\nimport numpy as np\n"
+    s = s + "M = np.array(" + lit + ").reshape(" + io.str(n) + ", " + io.str(n) + ")\n"
+    s = s + "acc = 0.0\nt0 = time.monotonic()\n"
+    s = s + "for i in range(" + io.str(iters) + "):\n    acc = acc + " + npop + "\n"
+    s = s + "t1 = time.monotonic()\nprint(acc)\nprint(t1 - t0)\n"
+    return s
+}
+
+# ---- top-level program ----
+let ops: list[Op] = []
+ops.append(Op("matmul", "linalg.matmul(M, M)", "[0, 0]", "float((M @ M)[0, 0])"))
+ops.append(Op("det", "linalg.det(M)", "", "float(np.linalg.det(M))"))
+ops.append(Op("inv", "linalg.inv(M)", "[0, 0]", "float(np.linalg.inv(M)[0, 0])"))
+ops.append(Op("eigvalsh", "linalg.eigvalsh(M)", "[0]", "float(np.linalg.eigvalsh(M)[-1])"))
+
+let sizes: list[int] = []
+sizes.append(8)
+sizes.append(16)
+sizes.append(32)
+sizes.append(64)
+
+io.print("# cheatah linalg vs NumPy (pure-cheatah harness) — us per op, same matrix")
+io.print("# cheatah tends to win small n (no dispatch overhead); BLAS/LAPACK win large n")
+io.print("")
+for op in ops {
+    for n in sizes {
+        let lit = spd_literal(n)
+        let iters = 2000000 / (n * n)
+        if iters < 1000 {
+            iters = 1000
+        }
+        write_file("/tmp/nc.purr", cheatah_prog(op.ch, op.extract, n, lit, iters))
+        write_file("/tmp/nc.py", python_prog(op.np, n, lit, iters))
+        let crc = os.system("build/release/bin/purrc /tmp/nc.purr -o /tmp/nc.so > /tmp/nc_c.log 2>&1")
+        if crc != 0 {
+            io.print(op.name + " n=" + io.str(n) + " - cheatah compile FAILED")
+        } else {
+            let ch = time_runs("build/release/bin/cheatah /tmp/nc.so", "/tmp/nc_ch.out")
+            let py = time_runs("python3 /tmp/nc.py", "/tmp/nc_py.out")
+            let denom = float(io.str(iters))
+            let ch_us = ch.secs / denom * 1000000.0
+            let py_us = py.secs / denom * 1000000.0
+            let winner = "cheatah"
+            let ratio = py.secs / ch.secs
+            if ch.secs > py.secs {
+                winner = "numpy"
+                ratio = ch.secs / py.secs
+            }
+            let line = op.name + " n=" + io.str(n) + " | " + io.str(ch_us) + " us cheatah | "
+            line = line + io.str(py_us) + " us numpy | " + winner + " " + io.str(ratio) + "x"
+            io.print(line)
+        }
+    }
+}
