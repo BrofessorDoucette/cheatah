@@ -33,11 +33,14 @@ OUT = os.path.join(ROOT, "docs", "perf_data.json")
 TRIALS = 3
 
 
-def C(body, py=None, imp="", setup="", py_setup=None, acc="0.0", iters=10_000_000):
+def C(body, py=None, imp="", setup="", py_setup=None, acc="0.0", iters=10_000_000,
+      vs="cpython"):
     """A compared/cheatah-only case. `body`/`py` accumulate into `acc` per iteration.
-    py=None → cheatah-only row (no honest Python twin)."""
+    py=None → cheatah-only row (no honest Python twin). `vs` is the comparison target
+    label ("cpython" or "numpy") — numeric modules with a NumPy equivalent compare
+    against NumPy (the fast baseline), not pure Python."""
     return dict(kind="compared" if py else "cheatah_only", body=body, py=py, imp=imp,
-                setup=setup, py_setup=py_setup, acc=acc, iters=iters)
+                setup=setup, py_setup=py_setup, acc=acc, iters=iters, vs=vs)
 
 
 def NUMPY():
@@ -94,6 +97,156 @@ for k, v in _MATH.items():
     v["imp"] = "math"
     REG[f"math.{k}"] = v
 
+# ---- string: cheatah `string.f(s)` vs Python `s.f()` (str methods) --------
+# These are opaque library calls (string.cpp), so a fixed input is fine — the call
+# runs every iteration. Bool results are consumed via a branch; others via len/+.
+_SS, _PSS = 'let s = "Hello, World! 123 hello"', 's = "Hello, World! 123 hello"'
+_STR = {
+    "upper":      C("acc = acc + len(string.upper(s))", "acc = acc + len(s.upper())"),
+    "lower":      C("acc = acc + len(string.lower(s))", "acc = acc + len(s.lower())"),
+    "capitalize": C("acc = acc + len(string.capitalize(s))", "acc = acc + len(s.capitalize())"),
+    "title":      C("acc = acc + len(string.title(s))", "acc = acc + len(s.title())"),
+    "swapcase":   C("acc = acc + len(string.swapcase(s))", "acc = acc + len(s.swapcase())"),
+    "strip":      C("acc = acc + len(string.strip(s))", "acc = acc + len(s.strip())"),
+    "lstrip":     C("acc = acc + len(string.lstrip(s))", "acc = acc + len(s.lstrip())"),
+    "rstrip":     C("acc = acc + len(string.rstrip(s))", "acc = acc + len(s.rstrip())"),
+    "replace":    C('acc = acc + len(string.replace(s, "l", "L"))', 'acc = acc + len(s.replace("l", "L"))'),
+    "center":     C("acc = acc + len(string.center(s, 40))", "acc = acc + len(s.center(40))"),
+    "ljust":      C("acc = acc + len(string.ljust(s, 40))", "acc = acc + len(s.ljust(40))"),
+    "rjust":      C("acc = acc + len(string.rjust(s, 40))", "acc = acc + len(s.rjust(40))"),
+    "zfill":      C("acc = acc + len(string.zfill(s, 40))", "acc = acc + len(s.zfill(40))"),
+    "count":      C('acc = acc + string.count(s, "l")', 'acc = acc + s.count("l")'),
+    "find":       C('acc = acc + string.find(s, "World")', 'acc = acc + s.find("World")'),
+    "rfind":      C('acc = acc + string.rfind(s, "l")', 'acc = acc + s.rfind("l")'),
+    "split":      C("acc = acc + len(string.split(s))", "acc = acc + len(s.split())"),
+    "splitlines": C("acc = acc + len(string.splitlines(s))", "acc = acc + len(s.splitlines())"),
+    "startswith": C('if string.startswith(s, "Hello") { acc = acc + 1.0 }', "acc = acc + (1.0 if s.startswith('Hello') else 0.0)"),
+    "endswith":   C('if string.endswith(s, "hello") { acc = acc + 1.0 }', "acc = acc + (1.0 if s.endswith('hello') else 0.0)"),
+    "contains":   C('if string.contains(s, "World") { acc = acc + 1.0 }', "acc = acc + (1.0 if 'World' in s else 0.0)"),
+    "isalnum":    C("if string.isalnum(s) { acc = acc + 1.0 }", "acc = acc + (1.0 if s.isalnum() else 0.0)"),
+    "isalpha":    C("if string.isalpha(s) { acc = acc + 1.0 }", "acc = acc + (1.0 if s.isalpha() else 0.0)"),
+    "isdigit":    C("if string.isdigit(s) { acc = acc + 1.0 }", "acc = acc + (1.0 if s.isdigit() else 0.0)"),
+    "islower":    C("if string.islower(s) { acc = acc + 1.0 }", "acc = acc + (1.0 if s.islower() else 0.0)"),
+    "isupper":    C("if string.isupper(s) { acc = acc + 1.0 }", "acc = acc + (1.0 if s.isupper() else 0.0)"),
+    "isspace":    C("if string.isspace(s) { acc = acc + 1.0 }", "acc = acc + (1.0 if s.isspace() else 0.0)"),
+}
+for k, v in _STR.items():
+    v.update(imp="string", setup=_SS, py_setup=_PSS, iters=2_000_000)
+    REG[f"string.{k}"] = v
+# join + capwords need their own operands.
+REG["string.join"] = C('acc = acc + len(string.join(", ", parts))', 'acc = acc + len(", ".join(parts))',
+                        imp="string", setup='let parts = ["alpha", "beta", "gamma", "delta"]',
+                        py_setup='parts = ["alpha", "beta", "gamma", "delta"]', iters=2_000_000)
+REG["string.capwords"] = C("acc = acc + len(string.capwords(s))", "acc = acc + len(string.capwords(s))",
+                           imp="string", setup=_SS, py_setup="import string\n" + _PSS, iters=2_000_000)
+
+# ---- statistics: vs NumPy (the fast numeric baseline; Python's `statistics`
+# module uses slow exact arithmetic, so it's not the honest comparison) -------
+_XS_LIST = "[4.0, 8.0, 15.0, 16.0, 23.0, 42.0, 1.0, 2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 29.0]"
+_XS = f"let xs = {_XS_LIST}"
+# cheatah call -> NumPy equivalent. statistics.hpp is header-only, so a constant list
+# folds; we feed `acc` back into xs[0] (a loop-carried dependency, bounded via fmod)
+# so the O(n) reduction genuinely runs every iteration on BOTH sides.
+_STAT = {
+    "mean":      ("statistics.mean(xs)",      "np.mean(xs)"),
+    "median":    ("statistics.median(xs)",    "np.median(xs)"),
+    "pstdev":    ("statistics.pstdev(xs)",    "np.std(xs)"),
+    "pvariance": ("statistics.pvariance(xs)", "np.var(xs)"),
+    "stdev":     ("statistics.stdev(xs)",     "np.std(xs, ddof=1)"),
+    "variance":  ("statistics.variance(xs)",  "np.var(xs, ddof=1)"),
+    "sum":       ("statistics.sum(xs)",       "np.sum(xs)"),
+    "count":     ("statistics.count(xs)",     "xs.size"),
+}
+for k, (call, npcall) in _STAT.items():
+    REG[f"statistics.{k}"] = C(
+        f"xs[0] = math.fmod(acc, 100.0) + 1.0\n    acc = acc + {call}",
+        f"xs[0] = math.fmod(acc, 100.0) + 1.0; acc = acc + {npcall}",
+        imp="statistics math", setup=_XS,
+        py_setup=f"import numpy as np\nimport math\nxs = np.array({_XS_LIST})",
+        iters=1_000_000, vs="numpy")
+
+# ---- hashlib / html: opaque library calls with clean twins ----------------
+REG["hashlib.sha256"] = C("acc = acc + len(hashlib.sha256(io.str(i)))",
+                          "acc = acc + len(hashlib.sha256(str(i).encode()).hexdigest())",
+                          imp="hashlib", iters=500_000)
+REG["html.escape"] = C("acc = acc + len(html.escape(s))", "acc = acc + len(html.escape(s))",
+                       imp="html", setup='let s = "<a href=\\"x\\">A & B < C > D</a>"',
+                       py_setup='import html\ns = "<a href=\\"x\\">A & B < C > D</a>"', iters=2_000_000)
+REG["html.unescape"] = C("acc = acc + len(html.unescape(s))", "acc = acc + len(html.unescape(s))",
+                         imp="html", setup='let s = "A &amp; B &lt; C &gt; D &quot;q&quot;"',
+                         py_setup='import html\ns = "A &amp; B &lt; C &gt; D &quot;q&quot;"', iters=2_000_000)
+
+# ---- os.path: path-string ops (opaque, clean twins) ----------------------
+_P, _PP = 'let p = "/usr/local/bin/python3.12"', 'import os.path\np = "/usr/local/bin/python3.12"'
+for k in ["basename", "dirname", "normpath", "abspath"]:
+    REG[f"os.path.{k}"] = C(f"acc = acc + len(os.path.{k}(p))", f"acc = acc + len(os.path.{k}(p))",
+                            imp="os", setup=_P, py_setup=_PP, iters=2_000_000)
+REG["os.path.join"] = C('acc = acc + len(os.path.join("/usr/local", "bin"))',
+                        'acc = acc + len(os.path.join("/usr/local", "bin"))',
+                        imp="os", py_setup="import os.path", iters=2_000_000)
+for k in ["exists", "isfile", "isdir"]:   # stat() syscall each call
+    REG[f"os.path.{k}"] = C(f'if os.path.{k}("/usr/bin") {{ acc = acc + 1.0 }}',
+                            f'acc = acc + (1.0 if os.path.{k}("/usr/bin") else 0.0)',
+                            imp="os", py_setup="import os.path", iters=500_000)
+REG["os.path.getsize"] = C('acc = acc + os.path.getsize("/etc/passwd")',
+                           'acc = acc + os.path.getsize("/etc/passwd")',
+                           imp="os", py_setup="import os.path", iters=500_000)
+REG["os.path.splitext"] = NOTE("returns a (root, ext) pair — not reduced to one scalar here")
+
+# ---- os: read-only syscalls (clean twins); mutating ones are noted above --
+REG["os.getpid"] = C("acc = acc + os.getpid()", "acc = acc + os.getpid()", imp="os", py_setup="import os", iters=2_000_000)
+REG["os.getcwd"] = C("acc = acc + len(os.getcwd())", "acc = acc + len(os.getcwd())", imp="os", py_setup="import os", iters=1_000_000)
+REG["os.cpu_count"] = C("acc = acc + os.cpu_count()", "acc = acc + os.cpu_count()", imp="os", py_setup="import os", iters=2_000_000)
+REG["os.getenv"] = C('acc = acc + len(os.getenv("PATH"))', 'acc = acc + len(os.getenv("PATH"))', imp="os", py_setup="import os", iters=1_000_000)
+
+# ---- random: vs NumPy's random (the fast/vectorized equivalent). NumPy's
+# strength is bulk array generation; per-scalar it carries dispatch overhead. -----
+_NPR = "import numpy as np\nrng = np.random.default_rng(1)"
+REG["random.random"] = C("acc = acc + random.random()", "acc = acc + rng.random()",
+                         imp="random", setup="random.seed(1)", py_setup=_NPR, vs="numpy")
+REG["random.randint"] = C("acc = acc + random.randint(1, 100)", "acc = acc + int(rng.integers(1, 101))",
+                          imp="random", setup="random.seed(1)", py_setup=_NPR, vs="numpy")
+REG["random.uniform"] = C("acc = acc + random.uniform(0.0, 1.0)", "acc = acc + rng.uniform(0.0, 1.0)",
+                          imp="random", setup="random.seed(1)", py_setup=_NPR, vs="numpy")
+REG["random.gauss"] = C("acc = acc + random.gauss(0.0, 1.0)", "acc = acc + rng.normal(0.0, 1.0)",
+                        imp="random", setup="random.seed(1)", py_setup=_NPR, vs="numpy")
+REG["random.choice"] = C("acc = acc + random.choice(xs)", "acc = acc + rng.choice(xs)",
+                         imp="random", setup="random.seed(1)\nlet xs = [10.0, 20.0, 30.0, 40.0, 50.0]",
+                         py_setup=_NPR + "\nxs = np.array([10.0, 20.0, 30.0, 40.0, 50.0])", vs="numpy")
+REG["random.seed"] = NOTE("one-time initialization — not a hot path")
+
+# ---- time: clock reads (syscall/vDSO); same on both sides -----------------
+for k in ["monotonic", "perf_counter", "process_time", "time"]:
+    REG[f"time.{k}"] = C(f"acc = acc + time.{k}()", f"acc = acc + time.{k}()",
+                         imp="time", py_setup="import time", iters=2_000_000)
+for k in ["monotonic_ns", "perf_counter_ns", "time_ns"]:
+    REG[f"time.{k}"] = C(f"acc = acc + time.{k}()", f"acc = acc + time.{k}()",
+                         imp="time", py_setup="import time", iters=2_000_000)
+REG["time.sleep"] = NOTE("blocks for a requested duration — not micro-benchmarked")
+
+# ---- io: str/repr have clean twins; format/input/open/read_file noted ------
+REG["io.str"] = C("acc = acc + len(io.str(i))", "acc = acc + len(str(i))", iters=2_000_000)
+REG["io.repr"] = C("acc = acc + len(io.repr(1.0 * i))", "acc = acc + len(repr(1.0 * i))", iters=2_000_000)
+REG["io.format"] = NOTE("string templating — closest CPython twin (f-strings) isn't a function call")
+
+# ---- builtins: int-input ones measure cleanly; string-input ones inline ----
+REG["builtins.hex"] = C("acc = acc + len(hex(i))", "acc = acc + len(hex(i))", iters=5_000_000)
+REG["builtins.bin"] = C("acc = acc + len(bin(i))", "acc = acc + len(bin(i))", iters=5_000_000)
+REG["builtins.oct"] = C("acc = acc + len(oct(i))", "acc = acc + len(oct(i))", iters=5_000_000)
+REG["builtins.chr"] = C("acc = acc + ord(chr(65 + (i - (i / 26) * 26)))",
+                        "acc = acc + ord(chr(65 + i % 26))", iters=5_000_000)
+for k in ["len", "ord", "ascii", "hash", "bool", "int", "float", "contains", "startswith",
+          "endswith", "index", "slice", "range", "append", "to_bool", "to_int", "to_float"]:
+    REG[f"builtins.{k}"] = NOTE("header-inlined to ~sub-nanosecond; the win over CPython "
+                                "is its eliminated ~60 ns per-call interpreter overhead")
+
+# ---- datetime / html.parser: object/structure returns, not one scalar -----
+for k in ["day", "format", "hour", "minute", "month", "now", "second", "timestamp",
+          "today", "utcnow", "weekday", "year"]:
+    REG[f"datetime.{k}"] = NOTE("date/time value handling — not reduced to one scalar here")
+for k in ["get_attr", "has_attr", "parse"]:
+    REG[f"html.parser.{k}"] = NOTE("returns a parse structure — not reduced to one scalar here")
+
 # ---- numeric ops: the honest comparison is vs NumPy (perf page) -----------
 for fn in ["cholesky", "cond", "conj_transpose", "det", "dot", "eig", "eigh", "eigvals",
            "eigvalsh", "inner", "inv", "kron", "lstsq", "matmul", "matrix_power",
@@ -114,7 +267,7 @@ for fn in ["input", "open", "read_file", "print"]:
 for fn in ["accept", "bind", "close", "connect", "last_error", "listen", "local_port",
            "recv", "send", "sendall", "set_reuseaddr", "socket", "tcp_connect", "tcp_listen"]:
     REG[f"socket.{fn}"] = NOTE("network/syscall-bound — not micro-benchmarked")
-for fn in ["chdir", "getcwd", "getenv", "listdir", "makedirs", "mkdir", "remove",
+for fn in ["chdir", "listdir", "makedirs", "mkdir", "remove",
            "rename", "rmdir", "setenv", "system"]:
     REG[f"os.{fn}"] = NOTE("filesystem/process syscall — not micro-benchmarked")
 
@@ -202,19 +355,26 @@ def main():
         if elided:
             row["warn"] = "elided"
         if kind == "compared":
+            row["vs"] = case.get("vs", "cpython")   # comparison target: cpython | numpy
             pt = time_python(case)
             if pt is not None:
-                row["python_ns"] = round(pt / case["iters"] * 1e9, 2)
+                row["compare_ns"] = round(pt / case["iters"] * 1e9, 2)
                 row["speedup"] = round(pt / ct, 1)
         results[key] = row
         extra = f"  ⚠ELIDED" if elided else ""
-        sp = f"  {row.get('speedup','—')}×" if kind == "compared" else "  (cheatah-only)"
+        sp = f"  {row.get('speedup','—')}× vs {row.get('vs','')}" if kind == "compared" else "  (cheatah-only)"
         print(f"{key:<26} {ch_ns:>8.2f} ns{sp}{extra}")
 
+    try:
+        import numpy as _np
+        npv = _np.__version__
+    except Exception:
+        npv = "?"
     meta = {"machine": platform.processor() or platform.machine(),
             "cheatah_commit": commit,
             "cpython": f"{sys.version_info.major}.{sys.version_info.minor}."
                        f"{sys.version_info.micro}",
+            "numpy": npv,
             "generated": time.strftime("%Y-%m-%d")}
     json.dump({"meta": meta, "functions": results}, open(OUT, "w"), indent=1, sort_keys=True)
     print(f"\nwrote {OUT}  ({len([1 for r in results.values() if r.get('kind')=='compared'])} compared, "

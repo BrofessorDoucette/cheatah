@@ -1,5 +1,179 @@
 {
  "functions": {
+  "builtins.append": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.ascii": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.bin": {
+   "cheatah_ns": 71.11,
+   "kind": "compared",
+   "python_ns": 93.77,
+   "speedup": 1.3
+  },
+  "builtins.bool": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.chr": {
+   "cheatah_ns": 1.98,
+   "kind": "compared",
+   "python_ns": 83.34,
+   "speedup": 42.2
+  },
+  "builtins.contains": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.endswith": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.float": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.hash": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.hex": {
+   "cheatah_ns": 20.83,
+   "kind": "compared",
+   "python_ns": 85.31,
+   "speedup": 4.1
+  },
+  "builtins.index": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.int": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.len": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.oct": {
+   "cheatah_ns": 22.96,
+   "kind": "compared",
+   "python_ns": 88.43,
+   "speedup": 3.9
+  },
+  "builtins.ord": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.range": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.slice": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.startswith": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.to_bool": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.to_float": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "builtins.to_int": {
+   "kind": "note",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
+  },
+  "datetime.day": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.format": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.hour": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.minute": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.month": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.now": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.second": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.timestamp": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.today": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.utcnow": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.weekday": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "datetime.year": {
+   "kind": "note",
+   "note": "date/time value handling \u2014 not reduced to one scalar here"
+  },
+  "hashlib.sha256": {
+   "cheatah_ns": 404.93,
+   "kind": "compared",
+   "python_ns": 431.92,
+   "speedup": 1.1
+  },
+  "html.escape": {
+   "cheatah_ns": 90.92,
+   "kind": "compared",
+   "python_ns": 325.29,
+   "speedup": 3.6
+  },
+  "html.parser.get_attr": {
+   "kind": "note",
+   "note": "returns a parse structure \u2014 not reduced to one scalar here"
+  },
+  "html.parser.has_attr": {
+   "kind": "note",
+   "note": "returns a parse structure \u2014 not reduced to one scalar here"
+  },
+  "html.parser.parse": {
+   "kind": "note",
+   "note": "returns a parse structure \u2014 not reduced to one scalar here"
+  },
+  "html.unescape": {
+   "cheatah_ns": 76.76,
+   "kind": "compared",
+   "python_ns": 1463.26,
+   "speedup": 19.1
+  },
+  "io.format": {
+   "kind": "note",
+   "note": "string templating \u2014 closest CPython twin (f-strings) isn't a function call"
+  },
   "io.input": {
    "kind": "note",
    "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked"
@@ -15,6 +189,18 @@
   "io.read_file": {
    "kind": "note",
    "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked"
+  },
+  "io.repr": {
+   "cheatah_ns": 229.67,
+   "kind": "compared",
+   "python_ns": 170.96,
+   "speedup": 0.7
+  },
+  "io.str": {
+   "cheatah_ns": 76.85,
+   "kind": "compared",
+   "python_ns": 94.1,
+   "speedup": 1.2
   },
   "linalg.cholesky": {
    "kind": "numpy"
@@ -100,196 +286,196 @@
    "kind": "numpy"
   },
   "math.abs": {
-   "cheatah_ns": 0.49,
+   "cheatah_ns": 0.45,
    "kind": "compared",
-   "python_ns": 63.24,
-   "speedup": 129.0
+   "python_ns": 58.43,
+   "speedup": 131.0
   },
   "math.acos": {
-   "cheatah_ns": 23.95,
+   "cheatah_ns": 21.87,
    "kind": "compared",
-   "python_ns": 95.35,
+   "python_ns": 87.86,
    "speedup": 4.0
   },
   "math.asin": {
-   "cheatah_ns": 23.57,
+   "cheatah_ns": 21.89,
    "kind": "compared",
-   "python_ns": 93.01,
-   "speedup": 3.9
+   "python_ns": 87.56,
+   "speedup": 4.0
   },
   "math.atan": {
-   "cheatah_ns": 10.09,
+   "cheatah_ns": 9.72,
    "kind": "compared",
-   "python_ns": 66.72,
-   "speedup": 6.6
+   "python_ns": 60.09,
+   "speedup": 6.2
   },
   "math.atan2": {
-   "cheatah_ns": 9.07,
+   "cheatah_ns": 8.48,
    "kind": "compared",
-   "python_ns": 75.95,
-   "speedup": 8.4
-  },
-  "math.cbrt": {
-   "cheatah_ns": 8.53,
-   "kind": "compared",
-   "python_ns": 69.63,
+   "python_ns": 69.67,
    "speedup": 8.2
   },
-  "math.ceil": {
-   "cheatah_ns": 1.96,
+  "math.cbrt": {
+   "cheatah_ns": 8.04,
    "kind": "compared",
-   "python_ns": 75.38,
-   "speedup": 38.5
+   "python_ns": 62.84,
+   "speedup": 7.8
+  },
+  "math.ceil": {
+   "cheatah_ns": 1.87,
+   "kind": "compared",
+   "python_ns": 70.6,
+   "speedup": 37.8
   },
   "math.copysign": {
-   "cheatah_ns": 1.88,
+   "cheatah_ns": 1.99,
    "kind": "compared",
-   "python_ns": 63.93,
-   "speedup": 34.1
+   "python_ns": 58.78,
+   "speedup": 29.5
   },
   "math.cos": {
-   "cheatah_ns": 15.91,
+   "cheatah_ns": 15.02,
    "kind": "compared",
-   "python_ns": 67.44,
+   "python_ns": 63.02,
    "speedup": 4.2
   },
   "math.degrees": {
-   "cheatah_ns": 2.12,
+   "cheatah_ns": 1.94,
    "kind": "compared",
-   "python_ns": 59.48,
-   "speedup": 28.1
+   "python_ns": 55.1,
+   "speedup": 28.3
   },
   "math.exp": {
-   "cheatah_ns": 3.28,
+   "cheatah_ns": 2.94,
    "kind": "compared",
-   "python_ns": 64.28,
-   "speedup": 19.6
+   "python_ns": 60.67,
+   "speedup": 20.7
   },
   "math.fabs": {
-   "cheatah_ns": 2.03,
+   "cheatah_ns": 1.94,
    "kind": "compared",
-   "python_ns": 62.37,
-   "speedup": 30.7
+   "python_ns": 55.56,
+   "speedup": 28.7
   },
   "math.factorial": {
-   "cheatah_ns": 2.13,
+   "cheatah_ns": 1.98,
    "kind": "compared",
-   "python_ns": 58.93,
-   "speedup": 27.7
+   "python_ns": 53.45,
+   "speedup": 26.9
   },
   "math.floor": {
-   "cheatah_ns": 2.25,
+   "cheatah_ns": 1.93,
    "kind": "compared",
-   "python_ns": 73.47,
-   "speedup": 32.6
+   "python_ns": 67.69,
+   "speedup": 35.1
   },
   "math.fmod": {
-   "cheatah_ns": 5.16,
+   "cheatah_ns": 4.51,
    "kind": "compared",
-   "python_ns": 69.52,
-   "speedup": 13.5
+   "python_ns": 62.68,
+   "speedup": 13.9
   },
   "math.gcd": {
-   "cheatah_ns": 5.78,
+   "cheatah_ns": 5.75,
    "kind": "compared",
-   "python_ns": 92.43,
-   "speedup": 16.0
+   "python_ns": 83.62,
+   "speedup": 14.5
   },
   "math.hypot": {
-   "cheatah_ns": 9.12,
+   "cheatah_ns": 8.56,
    "kind": "compared",
-   "python_ns": 85.45,
-   "speedup": 9.4
+   "python_ns": 81.2,
+   "speedup": 9.5
   },
   "math.isfinite": {
-   "cheatah_ns": 2.0,
+   "cheatah_ns": 1.78,
    "kind": "compared",
-   "python_ns": 62.81,
-   "speedup": 31.4
+   "python_ns": 58.86,
+   "speedup": 33.1
   },
   "math.isinf": {
-   "cheatah_ns": 0.75,
+   "cheatah_ns": 0.73,
    "kind": "compared",
-   "python_ns": 61.07,
-   "speedup": 81.6
+   "python_ns": 58.78,
+   "speedup": 80.5
   },
   "math.isnan": {
-   "cheatah_ns": 0.74,
+   "cheatah_ns": 0.82,
    "kind": "compared",
-   "python_ns": 61.25,
-   "speedup": 82.8
+   "python_ns": 57.67,
+   "speedup": 70.0
   },
   "math.log": {
-   "cheatah_ns": 10.57,
+   "cheatah_ns": 9.93,
    "kind": "compared",
-   "python_ns": 66.11,
-   "speedup": 6.3
+   "python_ns": 60.17,
+   "speedup": 6.1
   },
   "math.log10": {
-   "cheatah_ns": 13.85,
+   "cheatah_ns": 12.89,
    "kind": "compared",
-   "python_ns": 68.97,
-   "speedup": 5.0
+   "python_ns": 66.22,
+   "speedup": 5.1
   },
   "math.log2": {
-   "cheatah_ns": 11.19,
+   "cheatah_ns": 10.42,
    "kind": "compared",
-   "python_ns": 65.02,
-   "speedup": 5.8
+   "python_ns": 61.06,
+   "speedup": 5.9
   },
   "math.max": {
-   "cheatah_ns": 0.66,
-   "kind": "compared",
-   "python_ns": 126.06,
-   "speedup": 191.4
-  },
-  "math.min": {
-   "cheatah_ns": 0.52,
-   "kind": "compared",
-   "python_ns": 131.48,
-   "speedup": 253.1
-  },
-  "math.pow": {
    "cheatah_ns": 0.49,
    "kind": "compared",
-   "python_ns": 79.74,
-   "speedup": 164.2
+   "python_ns": 115.97,
+   "speedup": 237.2
+  },
+  "math.min": {
+   "cheatah_ns": 0.44,
+   "kind": "compared",
+   "python_ns": 119.51,
+   "speedup": 269.2
+  },
+  "math.pow": {
+   "cheatah_ns": 0.52,
+   "kind": "compared",
+   "python_ns": 70.44,
+   "speedup": 134.4
   },
   "math.radians": {
-   "cheatah_ns": 1.97,
+   "cheatah_ns": 1.8,
    "kind": "compared",
-   "python_ns": 59.42,
-   "speedup": 30.1
+   "python_ns": 53.95,
+   "speedup": 30.0
   },
   "math.round": {
-   "cheatah_ns": 1.97,
+   "cheatah_ns": 1.78,
    "kind": "compared",
-   "python_ns": 110.88,
-   "speedup": 56.4
+   "python_ns": 101.81,
+   "speedup": 57.3
   },
   "math.sin": {
-   "cheatah_ns": 15.51,
+   "cheatah_ns": 14.62,
    "kind": "compared",
-   "python_ns": 66.25,
+   "python_ns": 62.51,
    "speedup": 4.3
   },
   "math.sqrt": {
-   "cheatah_ns": 1.86,
+   "cheatah_ns": 1.76,
    "kind": "compared",
-   "python_ns": 61.98,
-   "speedup": 33.3
+   "python_ns": 57.15,
+   "speedup": 32.5
   },
   "math.tan": {
-   "cheatah_ns": 23.74,
+   "cheatah_ns": 22.28,
    "kind": "compared",
-   "python_ns": 76.66,
-   "speedup": 3.2
+   "python_ns": 68.96,
+   "speedup": 3.1
   },
   "math.trunc": {
-   "cheatah_ns": 1.91,
+   "cheatah_ns": 2.01,
    "kind": "compared",
-   "python_ns": 79.35,
-   "speedup": 41.5
+   "python_ns": 69.77,
+   "speedup": 34.7
   },
   "ndarray.add": {
    "kind": "numpy"
@@ -370,13 +556,33 @@
    "kind": "note",
    "note": "filesystem/process syscall \u2014 not micro-benchmarked"
   },
+  "os.cpu_count": {
+   "cheatah_ns": 1519.69,
+   "compare_ns": 1655.27,
+   "kind": "compared",
+   "speedup": 1.1,
+   "vs": "cpython"
+  },
   "os.getcwd": {
-   "kind": "note",
-   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+   "cheatah_ns": 371.88,
+   "compare_ns": 314.05,
+   "kind": "compared",
+   "speedup": 0.8,
+   "vs": "cpython"
   },
   "os.getenv": {
-   "kind": "note",
-   "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+   "cheatah_ns": 68.97,
+   "compare_ns": 357.37,
+   "kind": "compared",
+   "speedup": 5.2,
+   "vs": "cpython"
+  },
+  "os.getpid": {
+   "cheatah_ns": 66.51,
+   "compare_ns": 139.58,
+   "kind": "compared",
+   "speedup": 2.1,
+   "vs": "cpython"
   },
   "os.listdir": {
    "kind": "note",
@@ -389,6 +595,73 @@
   "os.mkdir": {
    "kind": "note",
    "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "os.path.abspath": {
+   "cheatah_ns": 164.45,
+   "compare_ns": 306.78,
+   "kind": "compared",
+   "speedup": 1.9,
+   "vs": "cpython"
+  },
+  "os.path.basename": {
+   "cheatah_ns": 96.52,
+   "compare_ns": 215.8,
+   "kind": "compared",
+   "speedup": 2.2,
+   "vs": "cpython"
+  },
+  "os.path.dirname": {
+   "cheatah_ns": 164.9,
+   "compare_ns": 303.42,
+   "kind": "compared",
+   "speedup": 1.8,
+   "vs": "cpython"
+  },
+  "os.path.exists": {
+   "cheatah_ns": 387.35,
+   "compare_ns": 784.49,
+   "kind": "compared",
+   "speedup": 2.0,
+   "vs": "cpython"
+  },
+  "os.path.getsize": {
+   "cheatah_ns": 386.11,
+   "compare_ns": 804.34,
+   "kind": "compared",
+   "speedup": 2.1,
+   "vs": "cpython"
+  },
+  "os.path.isdir": {
+   "cheatah_ns": 378.99,
+   "compare_ns": 809.19,
+   "kind": "compared",
+   "speedup": 2.1,
+   "vs": "cpython"
+  },
+  "os.path.isfile": {
+   "cheatah_ns": 393.82,
+   "compare_ns": 808.35,
+   "kind": "compared",
+   "speedup": 2.1,
+   "vs": "cpython"
+  },
+  "os.path.join": {
+   "cheatah_ns": 136.72,
+   "compare_ns": 393.44,
+   "kind": "compared",
+   "speedup": 2.9,
+   "vs": "cpython"
+  },
+  "os.path.normpath": {
+   "cheatah_ns": 318.29,
+   "compare_ns": 176.39,
+   "kind": "compared",
+   "speedup": 0.6,
+   "vs": "cpython"
+  },
+  "os.path.splitext": {
+   "kind": "note",
+   "note": "returns a (root, ext) pair \u2014 not reduced to one scalar here"
   },
   "os.remove": {
    "kind": "note",
@@ -409,6 +682,45 @@
   "os.system": {
    "kind": "note",
    "note": "filesystem/process syscall \u2014 not micro-benchmarked"
+  },
+  "random.choice": {
+   "cheatah_ns": 3.15,
+   "compare_ns": 4165.2,
+   "kind": "compared",
+   "speedup": 1321.8,
+   "vs": "numpy"
+  },
+  "random.gauss": {
+   "cheatah_ns": 148.6,
+   "compare_ns": 372.17,
+   "kind": "compared",
+   "speedup": 2.5,
+   "vs": "numpy"
+  },
+  "random.randint": {
+   "cheatah_ns": 3.16,
+   "compare_ns": 1124.31,
+   "kind": "compared",
+   "speedup": 356.2,
+   "vs": "numpy"
+  },
+  "random.random": {
+   "cheatah_ns": 48.89,
+   "compare_ns": 249.51,
+   "kind": "compared",
+   "speedup": 5.1,
+   "vs": "numpy"
+  },
+  "random.seed": {
+   "kind": "note",
+   "note": "one-time initialization \u2014 not a hot path"
+  },
+  "random.uniform": {
+   "cheatah_ns": 48.91,
+   "compare_ns": 871.76,
+   "kind": "compared",
+   "speedup": 17.8,
+   "vs": "numpy"
   },
   "socket.accept": {
    "kind": "note",
@@ -465,12 +777,289 @@
   "socket.tcp_listen": {
    "kind": "note",
    "note": "network/syscall-bound \u2014 not micro-benchmarked"
+  },
+  "statistics.count": {
+   "cheatah_ns": 4.91,
+   "compare_ns": 112.81,
+   "kind": "compared",
+   "speedup": 23.0,
+   "vs": "numpy"
+  },
+  "statistics.mean": {
+   "cheatah_ns": 19.37,
+   "compare_ns": 2099.01,
+   "kind": "compared",
+   "speedup": 108.4,
+   "vs": "numpy"
+  },
+  "statistics.median": {
+   "cheatah_ns": 84.19,
+   "compare_ns": 6719.3,
+   "kind": "compared",
+   "speedup": 79.8,
+   "vs": "numpy"
+  },
+  "statistics.pstdev": {
+   "cheatah_ns": 41.41,
+   "compare_ns": 6967.5,
+   "kind": "compared",
+   "speedup": 168.3,
+   "vs": "numpy"
+  },
+  "statistics.pvariance": {
+   "cheatah_ns": 37.21,
+   "compare_ns": 6386.33,
+   "kind": "compared",
+   "speedup": 171.6,
+   "vs": "numpy"
+  },
+  "statistics.stdev": {
+   "cheatah_ns": 45.79,
+   "compare_ns": 7106.84,
+   "kind": "compared",
+   "speedup": 155.2,
+   "vs": "numpy"
+  },
+  "statistics.sum": {
+   "cheatah_ns": 18.55,
+   "compare_ns": 1428.65,
+   "kind": "compared",
+   "speedup": 77.0,
+   "vs": "numpy"
+  },
+  "statistics.variance": {
+   "cheatah_ns": 40.68,
+   "compare_ns": 6488.76,
+   "kind": "compared",
+   "speedup": 159.5,
+   "vs": "numpy"
+  },
+  "string.capitalize": {
+   "cheatah_ns": 46.7,
+   "kind": "compared",
+   "python_ns": 147.18,
+   "speedup": 3.2
+  },
+  "string.capwords": {
+   "cheatah_ns": 198.08,
+   "kind": "compared",
+   "python_ns": 472.92,
+   "speedup": 2.4
+  },
+  "string.center": {
+   "cheatah_ns": 54.65,
+   "kind": "compared",
+   "python_ns": 77.92,
+   "speedup": 1.4
+  },
+  "string.contains": {
+   "cheatah_ns": 6.93,
+   "kind": "compared",
+   "python_ns": 45.31,
+   "speedup": 6.5
+  },
+  "string.count": {
+   "cheatah_ns": 20.22,
+   "kind": "compared",
+   "python_ns": 77.68,
+   "speedup": 3.8
+  },
+  "string.endswith": {
+   "cheatah_ns": 6.7,
+   "kind": "compared",
+   "python_ns": 66.18,
+   "speedup": 9.9
+  },
+  "string.find": {
+   "cheatah_ns": 7.64,
+   "kind": "compared",
+   "python_ns": 77.09,
+   "speedup": 10.1
+  },
+  "string.isalnum": {
+   "cheatah_ns": 5.24,
+   "kind": "compared",
+   "python_ns": 54.45,
+   "speedup": 10.4
+  },
+  "string.isalpha": {
+   "cheatah_ns": 6.3,
+   "kind": "compared",
+   "python_ns": 45.39,
+   "speedup": 7.2
+  },
+  "string.isdigit": {
+   "cheatah_ns": 1.43,
+   "kind": "compared",
+   "python_ns": 42.94,
+   "speedup": 29.9
+  },
+  "string.islower": {
+   "cheatah_ns": 3.16,
+   "kind": "compared",
+   "python_ns": 43.11,
+   "speedup": 13.6
+  },
+  "string.isspace": {
+   "cheatah_ns": 1.99,
+   "kind": "compared",
+   "python_ns": 42.7,
+   "speedup": 21.4
+  },
+  "string.isupper": {
+   "cheatah_ns": 4.04,
+   "kind": "compared",
+   "python_ns": 45.74,
+   "speedup": 11.3
+  },
+  "string.join": {
+   "cheatah_ns": 35.27,
+   "kind": "compared",
+   "python_ns": 91.35,
+   "speedup": 2.6
+  },
+  "string.ljust": {
+   "cheatah_ns": 26.41,
+   "kind": "compared",
+   "python_ns": 74.58,
+   "speedup": 2.8
+  },
+  "string.lower": {
+   "cheatah_ns": 41.18,
+   "kind": "compared",
+   "python_ns": 74.05,
+   "speedup": 1.8
+  },
+  "string.lstrip": {
+   "cheatah_ns": 12.91,
+   "kind": "compared",
+   "python_ns": 62.19,
+   "speedup": 4.8
+  },
+  "string.replace": {
+   "cheatah_ns": 53.46,
+   "kind": "compared",
+   "python_ns": 84.7,
+   "speedup": 1.6
+  },
+  "string.rfind": {
+   "cheatah_ns": 4.07,
+   "kind": "compared",
+   "python_ns": 72.94,
+   "speedup": 17.9
+  },
+  "string.rjust": {
+   "cheatah_ns": 39.82,
+   "kind": "compared",
+   "python_ns": 75.82,
+   "speedup": 1.9
+  },
+  "string.rstrip": {
+   "cheatah_ns": 12.15,
+   "kind": "compared",
+   "python_ns": 60.97,
+   "speedup": 5.0
+  },
+  "string.split": {
+   "cheatah_ns": 113.83,
+   "kind": "compared",
+   "python_ns": 118.89,
+   "speedup": 1.0
+  },
+  "string.splitlines": {
+   "cheatah_ns": 34.3,
+   "kind": "compared",
+   "python_ns": 84.14,
+   "speedup": 2.5
+  },
+  "string.startswith": {
+   "cheatah_ns": 6.06,
+   "kind": "compared",
+   "python_ns": 66.85,
+   "speedup": 11.0
+  },
+  "string.strip": {
+   "cheatah_ns": 29.64,
+   "kind": "compared",
+   "python_ns": 61.69,
+   "speedup": 2.1
+  },
+  "string.swapcase": {
+   "cheatah_ns": 75.72,
+   "kind": "compared",
+   "python_ns": 166.5,
+   "speedup": 2.2
+  },
+  "string.title": {
+   "cheatah_ns": 66.67,
+   "kind": "compared",
+   "python_ns": 153.46,
+   "speedup": 2.3
+  },
+  "string.upper": {
+   "cheatah_ns": 40.54,
+   "kind": "compared",
+   "python_ns": 73.43,
+   "speedup": 1.8
+  },
+  "string.zfill": {
+   "cheatah_ns": 38.9,
+   "kind": "compared",
+   "python_ns": 76.49,
+   "speedup": 2.0
+  },
+  "time.monotonic": {
+   "cheatah_ns": 16.84,
+   "kind": "compared",
+   "python_ns": 61.37,
+   "speedup": 3.6
+  },
+  "time.monotonic_ns": {
+   "cheatah_ns": 13.69,
+   "kind": "compared",
+   "python_ns": 81.24,
+   "speedup": 5.9
+  },
+  "time.perf_counter": {
+   "cheatah_ns": 16.92,
+   "kind": "compared",
+   "python_ns": 61.58,
+   "speedup": 3.6
+  },
+  "time.perf_counter_ns": {
+   "cheatah_ns": 14.08,
+   "kind": "compared",
+   "python_ns": 79.2,
+   "speedup": 5.6
+  },
+  "time.process_time": {
+   "cheatah_ns": 146.07,
+   "kind": "compared",
+   "python_ns": 228.28,
+   "speedup": 1.6
+  },
+  "time.sleep": {
+   "kind": "note",
+   "note": "blocks for a requested duration \u2014 not micro-benchmarked"
+  },
+  "time.time": {
+   "cheatah_ns": 17.03,
+   "kind": "compared",
+   "python_ns": 63.29,
+   "speedup": 3.7
+  },
+  "time.time_ns": {
+   "cheatah_ns": 14.4,
+   "kind": "compared",
+   "python_ns": 83.38,
+   "speedup": 5.8
   }
  },
  "meta": {
-  "cheatah_commit": "96aed1f",
+  "cheatah_commit": "82a478b",
   "cpython": "3.12.3",
   "generated": "2026-06-08",
-  "machine": "x86_64"
+  "machine": "x86_64",
+  "numpy": "1.26.4"
  }
 }

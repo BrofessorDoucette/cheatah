@@ -56,12 +56,19 @@ def perf_row(refid: str, name: str) -> str:
         body = html.escape(e.get("note", ""))
     elif kind in ("compared", "cheatah_only"):
         body = f'<strong>{_fmt_ns(e["cheatah_ns"])}</strong> in cheatah'
-        if kind == "compared" and "python_ns" in e:
-            body += (f' · {_fmt_ns(e["python_ns"])} in CPython '
-                     f'{PERF_META.get("cpython", "3.x")} · '
-                     f'<strong>≈{e["speedup"]:g}× faster</strong>')
+        cmp = e.get("compare_ns", e.get("python_ns"))   # back-compat field name
+        if kind == "compared" and cmp is not None:
+            if e.get("vs") == "numpy":
+                tgt = f'NumPy {PERF_META.get("numpy", "")}'.strip()
+            else:
+                tgt = f'CPython {PERF_META.get("cpython", "3.x")}'
+            faster = e["speedup"] >= 1
+            verb = "faster" if faster else "slower"
+            factor = e["speedup"] if faster else round(1 / e["speedup"], 1)
+            body += (f' · {_fmt_ns(cmp)} in {tgt} · '
+                     f'<strong>≈{factor:g}× {verb}</strong>')
         else:
-            body += ' · <em>(no direct CPython equivalent)</em>'
+            body += ' · <em>(no direct equivalent)</em>'
     else:
         return ""
     return (f'<div class="tag tag-perf"><span class="tag-k">Performance</span>'
