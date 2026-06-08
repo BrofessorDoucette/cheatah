@@ -161,7 +161,11 @@ def main():
               extract="[0, 0]")
 
     # ---- eigvalsh(A) (symmetric eigenvalues) ----
-    for n, iters in [(4, 100000), (16, 20000), (32, 5000), (64, 1000)]:
+    # Small n is the physicist's common case (few-level systems, spin Hamiltonians,
+    # parameter sweeps that solve the same-shape problem millions of times) — measure
+    # finely there to find where cheatah's no-overhead Jacobi beats LAPACK dispatch.
+    for n, iters in [(2, 200000), (3, 200000), (4, 100000), (6, 80000), (8, 60000),
+                     (16, 20000), (32, 5000), (64, 1000)]:
         A = spd(n)
         setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
         # cheatah returns eigenvalues DESCENDING ([0] = largest); NumPy returns them

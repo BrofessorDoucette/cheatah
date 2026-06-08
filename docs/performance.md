@@ -177,7 +177,9 @@ hardware will differ):
 | `solve`  | 32 | 4.4 | 9.9  | **cheatah 2.3×** |
 | `det`    | 32 | 3.4 | 9.0  | **cheatah 2.6×** |
 | `inv`    | 32 | 26  | 24   | NumPy 1.1× |
-| `eigvalsh` | 32 | 333 | 24 | **NumPy 13.7×** |
+| `eigvalsh` | 2 | 0.16 | 1.93 | **cheatah 11.8×** |
+| `eigvalsh` | 4 | 0.93 | 2.53 | **cheatah 2.7×** |
+| `eigvalsh` | 32 | 333 | 24 | NumPy 13.7× |
 | `dot` | 16384 | 280 | 7.7 | **NumPy 36×** |
 
 The pattern is consistent and unsurprising once you see it:
@@ -186,15 +188,23 @@ The pattern is consistent and unsurprising once you see it:
   `inv` up to ~n=16–32). At these sizes the work is small, so NumPy's per-call Python
   dispatch *and* threaded-BLAS startup overhead dominate — cheatah's single-threaded,
   auto-vectorized C++ just does the arithmetic with no overhead.
-- **BLAS/LAPACK win at scale and on their specialties** — large `dot` (BLAS `ddot`),
-  and **`eigvalsh` at any real size** (LAPACK's reduction-based eigensolver vastly
-  outpaces our cyclic-Jacobi one). We don't pretend otherwise; these are the routines
-  to reach for NumPy on, and the places we have the most headroom (e.g. `dot`/`solve`
-  still copy their inputs into scratch — an avoidable cost).
+- **`eigvalsh` is size-dependent — and small is exactly the physics case.** For a
+  **few-level system** (a 2×2 spin-½ Hamiltonian, a 3- or 4-level system, a small
+  effective Hamiltonian you diagonalize while sweeping a parameter), cheatah is
+  *faster* than NumPy: **≈12× at n=2, ≈4× at n=3, ≈2.7× at n=4**, with the crossover
+  around **n≈6–7**. When you're solving the *same small* eigenproblem millions of
+  times — a parameter scan, a Floquet/Brillouin-zone sweep, a Monte-Carlo update —
+  that no-dispatch speed is the number that matters. Beyond ~n=8, LAPACK's
+  reduction-based solver pulls away and wins decisively (≈14× at n=32, ≈35× at n=64);
+  our cyclic-Jacobi kernel does not try to compete there.
+- **BLAS/LAPACK also win large `dot`** (BLAS `ddot`, ≈36× at n=16384). These are the
+  routines to reach for NumPy on at scale, and where cheatah has the most headroom
+  (e.g. `dot`/`solve` still copy their inputs into scratch — an avoidable cost).
 
-So: cheatah is **not** trying to out-BLAS BLAS. It wins where avoiding interpreter and
-dispatch overhead matters more than a tuned kernel, and it is honest about where the
-tuned kernel wins.
+So: cheatah is **not** trying to out-BLAS BLAS at scale. It wins where avoiding
+interpreter and dispatch overhead matters more than a tuned kernel — which, for the
+small, repeated eigenproblems a lot of physics actually runs, is squarely cheatah's
+home turf — and it is honest about where the tuned kernel wins.
 
 ## Dynamism without the interpreter: the cheatah runtime
 
