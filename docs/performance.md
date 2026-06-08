@@ -26,6 +26,55 @@ cheatah targets. (It is also why every emitted template is **constrained by a
 concept** — see @ref constrain-all-templates below — so the extra compiler work buys
 *comprehensible errors*, not just speed.)
 
+## Whole programs: cheatah vs CPython {#vs-cpython-apps}
+
+Micro-benchmarks are easy to game; whole programs are not. So here are four *complete*
+little programs — the kind of compute a scientist actually writes — implemented in the
+**same algorithm** in cheatah and in CPython, run on a real workload, with the result
+**cross-checked between the two languages** (same algorithm → same answer) so the
+comparison is honest. The harness is
+[`scripts/app_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/app_compare.py);
+times are compute-only (startup excluded), the best of several runs on the reference
+machine:
+
+| program | what it does | cheatah | CPython | speedup |
+|---------|--------------|--------:|--------:|--------:|
+| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 58 ms | 4267 ms | **74×** |
+| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 30 ms | 2892 ms | **97×** |
+| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 40 ms | 2549 ms | **64×** |
+| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 170 ms | 2337 ms | **14×** |
+
+These are not cherry-picked kernels handed to a C extension — they are *the program*,
+loops and all, the part CPython has to interpret one bytecode at a time. The integral
+case is "lowest" at 14× only because most of its time is inside `libm`'s `sin`/`exp`
+(native on both sides); the pure-Python-logic programs land at **64–97×**. (Note: a
+*chaotic* system like the Lorenz attractor runs just as fast, but its final state
+diverges between any two floating-point implementations — `-march=native` uses fused
+multiply-add, CPython doesn't — so we integrate a harmonic oscillator and compare its
+conserved **energy**, which both agree on.)
+
+## No garbage collector — and so, no GC pauses {#no-gc}
+
+A big part of why those loops stay fast and *predictable*: **cheatah has no garbage
+collector.** There is no tracing collector, no allocation that silently arms a future
+"stop the world" pause, no `gc` module to tune. All memory safety comes from two
+classic, deterministic mechanisms:
+
+- **Scopes (RAII).** Values live in local variables and STL containers and are freed
+  the instant they go out of scope — the same value-semantics, stack-discipline model
+  as hand-written modern C++. Most allocation in a hot loop is freed deterministically
+  at the brace.
+- **Reference counting** (`shared_ptr`) for the few things that are genuinely shared —
+  e.g. an `ndarray`'s element buffer, which multiple views share — freed the moment the
+  last reference drops.
+
+CPython *also* reference-counts, but it adds a **cyclic garbage collector** on top to
+break reference cycles, and that collector periodically walks the heap and pauses your
+program. cheatah's design sidesteps it entirely: no cycles to collect (no
+runtime-mutable object graph of that kind), so no collector, so **the cost of a GC pause
+is exactly zero** — which is precisely what you want in a tight numeric loop, a
+real-time control step, or a latency-sensitive trading agent.
+
 ## String building: no accidental O(n²), no surplus temporaries
 
 This is the concern that prompted this page, and it is a real trap in naive
