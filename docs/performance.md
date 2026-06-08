@@ -53,98 +53,6 @@ diverges between any two floating-point implementations — `-march=native` uses
 multiply-add, CPython doesn't — so we integrate a harmonic oscillator and compare its
 conserved **energy**, which both agree on.)
 
-## No garbage collector — and so, no GC pauses {#no-gc}
-
-A big part of why those loops stay fast and *predictable*: **cheatah has no garbage
-collector.** There is no tracing collector, no allocation that silently arms a future
-"stop the world" pause, no `gc` module to tune. All memory safety comes from two
-classic, deterministic mechanisms:
-
-- **Scopes (RAII).** Values live in local variables and STL containers and are freed
-  the instant they go out of scope — the same value-semantics, stack-discipline model
-  as hand-written modern C++. Most allocation in a hot loop is freed deterministically
-  at the brace.
-- **Reference counting** (`shared_ptr`) for the few things that are genuinely shared —
-  e.g. an `ndarray`'s element buffer, which multiple views share — freed the moment the
-  last reference drops.
-
-CPython *also* reference-counts, but it adds a **cyclic garbage collector** on top to
-break reference cycles, and that collector periodically walks the heap and pauses your
-program. cheatah's design sidesteps it entirely: no cycles to collect (no
-runtime-mutable object graph of that kind), so no collector, so **the cost of a GC pause
-is exactly zero** — which is precisely what you want in a tight numeric loop, a
-real-time control step, or a latency-sensitive trading agent.
-
-## String building: no accidental O(n²), no surplus temporaries
-
-This is the concern that prompted this page, and it is a real trap in naive
-transpilers. Consider a typical builder — assembling an HTTP response header:
-
-```python
-fn response(status, ctype, body) {
-    let nl = chr(13) + chr(10)
-    let head = "HTTP/1.1 " + status + nl
-    head = head + "Content-Type: " + ctype + nl
-    head = head + "Content-Length: " + io.str(len(body)) + nl
-    head = head + "Connection: close" + nl + nl
-    return head + body
-}
-```
-
-A literal translation of `head = head + "…" + ctype + nl` would **copy the entire
-growing `head`** on every line. Over a header that's `n` bytes when done, that is
-`O(n²)` total copying plus a fresh full-length temporary per statement — exactly the
-death-by-`std::string`-temporaries you'd worry about.
-
-cheatah does **not** emit that. Two things protect you:
-
-1. **Self-append rewrite.** The codegen recognizes the pattern `x = x + e1 + e2 + …`
-   (a plain variable at the head of a `+` chain that the appended operands don't
-   re-read) and lowers it to **in-place appends**:
-
-   ```cpp
-   head += std::string("Content-Type: ");
-   head += ctype;
-   head += nl;
-   ```
-
-   The `head` buffer grows amortized in place; nothing copies the bytes already
-   written. `O(n²)` becomes `O(n)`, and the per-line full-length temporary is gone.
-   (The same rewrite turns numeric accumulators like `total = total + i` into
-   `total += i`.)
-
-2. **rvalue `operator+` chaining.** For a *fresh* left-to-right chain such as
-   `let head = "HTTP/1.1 " + status + nl`, C++'s rvalue overloads of `operator+`
-   reuse the leftmost temporary's buffer and append into it, so a chain of `k`
-   concatenations is one growing buffer — not `k` independent allocations.
-
-Net: the builder above performs work proportional to the **output length**, with the
-allocations a careful C++ programmer would write by hand.
-
-## Numeric speed: zero-cost generics + SIMD
-
-- **`ndarray` is generic over its element type** (`basic_ndarray<T>`, constrained to a
-  `Field` concept — real or complex), monomorphized per type — an `int` array, a
-  `double` array, and a `complex<double>` array are each as tight as a hand-rolled
-  `std::vector<T>` loop, with no shared dynamic base.
-- **Element-wise kernels vectorize declaratively** via `std::transform(std::execution::unseq, …)`
-  and `std::reduce(std::execution::unseq, …)` — we write our *intent to vectorize*
-  in the source, and the compiler emits SIMD for whatever the target supports.
-- **linalg kernels auto-vectorize** at `-O3 -march=native` (contiguous, unit-stride
-  loops; no hand-written intrinsics). See @ref simd.hpp for the full SIMD model,
-  including exactly what happens on a build with **no SIMD** (answer: identical
-  results, just scalar/slower — SIMD is never a correctness dependency).
-
-## Why constrained templates, given the compile-time cost {#constrain-all-templates}
-
-Every generic surface in cheatah — `io.print`'s `Printable`, `ndarray`'s `Numeric`,
-`math`'s `Ordered`, the baseline `Value` on every emitted function parameter — is
-**concept-constrained**. This is a deliberate doubling-down on the compile-time
-investment: we are already asking the compiler to instantiate templates, so we make
-that work also yield *early, named* diagnostics ("`Point` does not satisfy
-`Printable`") instead of pages of instantiation backtrace. Fast code **and** legible
-errors, both bought with the same compile-time spend.
-
 ## Measuring `@perf`: cheatah vs CPython, exactly {#measuring-perf}
 
 Many standard-library functions carry a `@perf` row in their Javadoc — *"how much
@@ -254,6 +162,98 @@ So: cheatah is **not** trying to out-BLAS BLAS at scale. It wins where avoiding
 interpreter and dispatch overhead matters more than a tuned kernel — which, for the
 small, repeated eigenproblems a lot of physics actually runs, is squarely cheatah's
 home turf — and it is honest about where the tuned kernel wins.
+
+## No garbage collector — and so, no GC pauses {#no-gc}
+
+A big part of why those loops stay fast and *predictable*: **cheatah has no garbage
+collector.** There is no tracing collector, no allocation that silently arms a future
+"stop the world" pause, no `gc` module to tune. All memory safety comes from two
+classic, deterministic mechanisms:
+
+- **Scopes (RAII).** Values live in local variables and STL containers and are freed
+  the instant they go out of scope — the same value-semantics, stack-discipline model
+  as hand-written modern C++. Most allocation in a hot loop is freed deterministically
+  at the brace.
+- **Reference counting** (`shared_ptr`) for the few things that are genuinely shared —
+  e.g. an `ndarray`'s element buffer, which multiple views share — freed the moment the
+  last reference drops.
+
+CPython *also* reference-counts, but it adds a **cyclic garbage collector** on top to
+break reference cycles, and that collector periodically walks the heap and pauses your
+program. cheatah's design sidesteps it entirely: no cycles to collect (no
+runtime-mutable object graph of that kind), so no collector, so **the cost of a GC pause
+is exactly zero** — which is precisely what you want in a tight numeric loop, a
+real-time control step, or a latency-sensitive trading agent.
+
+## String building: no accidental O(n²), no surplus temporaries
+
+This is the concern that prompted this page, and it is a real trap in naive
+transpilers. Consider a typical builder — assembling an HTTP response header:
+
+```python
+fn response(status, ctype, body) {
+    let nl = chr(13) + chr(10)
+    let head = "HTTP/1.1 " + status + nl
+    head = head + "Content-Type: " + ctype + nl
+    head = head + "Content-Length: " + io.str(len(body)) + nl
+    head = head + "Connection: close" + nl + nl
+    return head + body
+}
+```
+
+A literal translation of `head = head + "…" + ctype + nl` would **copy the entire
+growing `head`** on every line. Over a header that's `n` bytes when done, that is
+`O(n²)` total copying plus a fresh full-length temporary per statement — exactly the
+death-by-`std::string`-temporaries you'd worry about.
+
+cheatah does **not** emit that. Two things protect you:
+
+1. **Self-append rewrite.** The codegen recognizes the pattern `x = x + e1 + e2 + …`
+   (a plain variable at the head of a `+` chain that the appended operands don't
+   re-read) and lowers it to **in-place appends**:
+
+   ```cpp
+   head += std::string("Content-Type: ");
+   head += ctype;
+   head += nl;
+   ```
+
+   The `head` buffer grows amortized in place; nothing copies the bytes already
+   written. `O(n²)` becomes `O(n)`, and the per-line full-length temporary is gone.
+   (The same rewrite turns numeric accumulators like `total = total + i` into
+   `total += i`.)
+
+2. **rvalue `operator+` chaining.** For a *fresh* left-to-right chain such as
+   `let head = "HTTP/1.1 " + status + nl`, C++'s rvalue overloads of `operator+`
+   reuse the leftmost temporary's buffer and append into it, so a chain of `k`
+   concatenations is one growing buffer — not `k` independent allocations.
+
+Net: the builder above performs work proportional to the **output length**, with the
+allocations a careful C++ programmer would write by hand.
+
+## Numeric speed: zero-cost generics + SIMD
+
+- **`ndarray` is generic over its element type** (`basic_ndarray<T>`, constrained to a
+  `Field` concept — real or complex), monomorphized per type — an `int` array, a
+  `double` array, and a `complex<double>` array are each as tight as a hand-rolled
+  `std::vector<T>` loop, with no shared dynamic base.
+- **Element-wise kernels vectorize declaratively** via `std::transform(std::execution::unseq, …)`
+  and `std::reduce(std::execution::unseq, …)` — we write our *intent to vectorize*
+  in the source, and the compiler emits SIMD for whatever the target supports.
+- **linalg kernels auto-vectorize** at `-O3 -march=native` (contiguous, unit-stride
+  loops; no hand-written intrinsics). See @ref simd.hpp for the full SIMD model,
+  including exactly what happens on a build with **no SIMD** (answer: identical
+  results, just scalar/slower — SIMD is never a correctness dependency).
+
+## Why constrained templates, given the compile-time cost {#constrain-all-templates}
+
+Every generic surface in cheatah — `io.print`'s `Printable`, `ndarray`'s `Numeric`,
+`math`'s `Ordered`, the baseline `Value` on every emitted function parameter — is
+**concept-constrained**. This is a deliberate doubling-down on the compile-time
+investment: we are already asking the compiler to instantiate templates, so we make
+that work also yield *early, named* diagnostics ("`Point` does not satisfy
+`Printable`") instead of pages of instantiation backtrace. Fast code **and** legible
+errors, both bought with the same compile-time spend.
 
 ## Dynamism without the interpreter: the cheatah runtime
 
