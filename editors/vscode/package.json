@@ -2,15 +2,26 @@
   "name": "cheatah",
   "displayName": "cheatah",
   "description": "Syntax highlighting, language configuration, IntelliSense, and a file icon theme for the cheatah language (.purr).",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publisher": "cheatah-lang",
   "license": "MIT",
-  "engines": { "vscode": "^1.74.0" },
-  "categories": ["Programming Languages"],
-  "keywords": ["cheatah", "purr", "edsl", "c++"],
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "cheatah",
+    "purr",
+    "edsl",
+    "c++"
+  ],
   "icon": "icons/cheatah.png",
   "main": "./extension.js",
-  "activationEvents": ["onLanguage:cheatah"],
+  "activationEvents": [
+    "onLanguage:cheatah"
+  ],
   "scripts": {
     "gen-docs": "python3 scripts/gen-hover-docs.py"
   },
@@ -25,8 +36,13 @@
     "languages": [
       {
         "id": "cheatah",
-        "aliases": ["cheatah", "purr"],
-        "extensions": [".purr"],
+        "aliases": [
+          "cheatah",
+          "purr"
+        ],
+        "extensions": [
+          ".purr"
+        ],
         "configuration": "./language-configuration.json",
         "icon": {
           "light": "./icons/cheatah.png",
@@ -54,34 +70,54 @@
             "id": "welcome",
             "title": "Welcome to cheatah",
             "description": "What this extension gives you.",
-            "media": { "markdown": "walkthroughs/welcome.md" }
+            "media": {
+              "markdown": "walkthroughs/welcome.md"
+            }
           },
           {
             "id": "iconTheme",
             "title": "Turn on the cheetah file icon",
             "description": "Select the bundled file icon theme to see the cheetah on .purr files.\n[Select File Icon Theme](command:workbench.action.selectIconTheme)",
-            "media": { "markdown": "walkthroughs/icon-theme.md" }
+            "media": {
+              "markdown": "walkthroughs/icon-theme.md"
+            }
           },
           {
             "id": "tryIt",
             "title": "Open a .purr file",
             "description": "See highlighting and bracket matching in action.",
-            "media": { "markdown": "walkthroughs/try-it.md" }
+            "media": {
+              "markdown": "walkthroughs/try-it.md"
+            }
           },
           {
             "id": "intellisense",
             "title": "Hover docs & autocomplete",
             "description": "Hover any stdlib or builtin function for its docs; type a module name and `.` for completions.",
-            "media": { "markdown": "walkthroughs/intellisense.md" }
+            "media": {
+              "markdown": "walkthroughs/intellisense.md"
+            }
           },
           {
             "id": "docs",
             "title": "Read the docs",
             "description": "Where the full language documentation lives.",
-            "media": { "markdown": "walkthroughs/docs.md" }
+            "media": {
+              "markdown": "walkthroughs/docs.md"
+            }
           }
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "cheatah",
+      "properties": {
+        "cheatah.root": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the cheatah source/install root that contains the stdlib headers (stdlib/<module>/<module>.hpp). Used by Go to Definition (Ctrl-click) on a stdlib call. Defaults to the open workspace folder."
+        }
+      }
+    }
   }
 }

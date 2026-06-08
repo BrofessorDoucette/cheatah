@@ -71,6 +71,35 @@ def parse_detail(detail):
     return params, returns
 
 
+# @xrefitem titles (Doxygen) -> short keys surfaced in the hover popup.
+_XREF = {"Complexity": "complexity", "Allocation": "alloc", "Test": "test",
+         "Compile-run test": "crtest", "System test": "systest"}
+
+
+def parse_tags(detail):
+    """Pull @complexity / @alloc / @test / @crtest / @systest out of a detail block."""
+    tags = {}
+    if detail is None:
+        return tags
+    for xs in detail.iter("xrefsect"):
+        key = _XREF.get(text_of(xs.find("xreftitle")))
+        if key and key not in tags:
+            tags[key] = text_of(xs.find("xrefdescription"))
+    return tags
+
+
+def location_of(member):
+    """Repo-relative header path + declaration line for control-click navigation."""
+    loc = member.find("location")
+    if loc is None:
+        return None, None
+    f = loc.get("declfile") or loc.get("file")
+    ln = loc.get("declline") or loc.get("line")
+    if f and os.path.isabs(f) and f.startswith(REPO + os.sep):
+        f = os.path.relpath(f, REPO)
+    return f, (int(ln) if ln else None)
+
+
 # Language-level builtins that codegen synthesises directly (no stdlib symbol),
 # so they have no Doxygen XML to harvest. Authored by hand here.
 LANG_BUILTINS = [
@@ -114,16 +143,21 @@ def main():
                 continue
             args = (m.findtext("argsstring") or "").strip()
             brief = text_of(m.find("briefdescription"))
-            params, returns = parse_detail(m.find("detaileddescription"))
+            detail = m.find("detaileddescription")
+            params, returns = parse_detail(detail)
             # Overloads collapse to one entry; keep the first that carries a brief.
             if name in bucket and not brief:
                 continue
+            srcfile, srcline = location_of(m)
             bucket[name] = {
                 "name": name,
                 "signature": f"{name}{args}",
                 "brief": brief,
                 "params": params,
                 "returns": returns,
+                "tags": parse_tags(detail),
+                "srcfile": srcfile,
+                "srcline": srcline,
             }
 
     # Alias keyword-spelled conversions onto their harvested builtin doc.
@@ -138,6 +172,14 @@ def main():
     for entry in LANG_BUILTINS:
         builtins.setdefault(entry["name"], dict(entry))
 
+    # Merge the periodic @perf benchmark numbers (docs/perf_data.json), keyed by the
+    # same <module>.<name>, so the hover popup can show the speedup at a glance.
+    perf, perf_meta = {}, {}
+    perf_path = os.path.join(REPO, "docs", "perf_data.json")
+    if os.path.exists(perf_path):
+        pj = json.load(open(perf_path))
+        perf, perf_meta = pj.get("functions", {}), pj.get("meta", {})
+
     # Flatten to a sorted list for stable diffs.
     out = []
     for mod in sorted(modules):
@@ -145,12 +187,15 @@ def main():
             e = dict(modules[mod][name])
             e["module"] = mod
             e["qualified"] = f"{mod}.{name}" if mod else name
+            if e["qualified"] in perf:
+                e["perf"] = perf[e["qualified"]]
             out.append(e)
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
         json.dump(
-            {"functions": out, "modules": sorted(m for m in modules if m)},
+            {"functions": out, "modules": sorted(m for m in modules if m),
+             "perf_meta": perf_meta},
             f,
             indent=2,
             ensure_ascii=False,

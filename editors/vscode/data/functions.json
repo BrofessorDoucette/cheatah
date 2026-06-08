@@ -15,6 +15,15 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "amortized O(1).",
+        "alloc": "reallocates v when it outgrows its capacity.",
+        "test": "CheatahBuiltins.Append",
+        "crtest": "BuiltinsCompileRun.Append",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 301,
       "module": "",
       "qualified": "append"
     },
@@ -29,6 +38,15 @@
         }
       ],
       "returns": "the quoted repr.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahBuiltins.Ascii",
+        "crtest": "BuiltinsCompileRun.Ascii",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 158,
       "module": "",
       "qualified": "ascii"
     },
@@ -43,6 +61,15 @@
         }
       ],
       "returns": "\"0b…\" (with sign).",
+      "tags": {
+        "complexity": "O(log value).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahBuiltins.BaseReprs",
+        "crtest": "BuiltinsCompileRun.Bin",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 142,
       "module": "",
       "qualified": "bin"
     },
@@ -57,6 +84,15 @@
         }
       ],
       "returns": "x != 0.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Conversions",
+        "crtest": "BuiltinsCompileRun.BoolFromNonzero",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 186,
       "module": "",
       "qualified": "bool"
     },
@@ -71,6 +107,15 @@
         }
       ],
       "returns": "the one-character string.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none (1-char small-string optimization).",
+        "test": "CheatahBuiltins.LenOrdChr",
+        "crtest": "BuiltinsCompileRun.Chr",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 99,
       "module": "",
       "qualified": "chr"
     },
@@ -89,6 +134,15 @@
         }
       ],
       "returns": "true iff sub is a substring of s.",
+      "tags": {
+        "complexity": "O(len(s) · len(sub)) worst case.",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.StringPredicates",
+        "crtest": "BuiltinsCompileRun.Contains",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 347,
       "module": "",
       "qualified": "contains"
     },
@@ -107,6 +161,15 @@
         }
       ],
       "returns": "true iff s ends with suffix.",
+      "tags": {
+        "complexity": "O(len(suffix)).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.StringPredicates",
+        "crtest": "BuiltinsCompileRun.EndsWith",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 331,
       "module": "",
       "qualified": "endswith"
     },
@@ -121,6 +184,15 @@
         }
       ],
       "returns": "x as a double.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.ToFloatFromInt",
+        "crtest": "BuiltinsCompileRun.FloatFromInt",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 242,
       "module": "",
       "qualified": "float"
     },
@@ -135,6 +207,15 @@
         }
       ],
       "returns": "std::hash<T>{}(x).",
+      "tags": {
+        "complexity": "O(1) for scalars.",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Hash",
+        "systest": "StdlibE2E.Builtins",
+        "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 277,
       "module": "",
       "qualified": "hash"
     },
@@ -149,6 +230,15 @@
         }
       ],
       "returns": "\"0x…\" (with sign).",
+      "tags": {
+        "complexity": "O(log value).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahBuiltins.BaseReprs",
+        "crtest": "BuiltinsCompileRun.Hex",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 114,
       "module": "",
       "qualified": "hex"
     },
@@ -167,6 +257,15 @@
         }
       ],
       "returns": "a copy of the mapped value (throws std::out_of_range if absent).",
+      "tags": {
+        "complexity": "O(1) average.",
+        "alloc": "none beyond copying the value.",
+        "test": "CheatahBuiltins.IndexDict",
+        "crtest": "BuiltinsCompileRun.IndexDict",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 418,
       "module": "",
       "qualified": "index"
     },
@@ -181,6 +280,15 @@
         }
       ],
       "returns": "x toward zero.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Conversions",
+        "crtest": "BuiltinsCompileRun.IntFromFloat",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 216,
       "module": "",
       "qualified": "int"
     },
@@ -195,6 +303,15 @@
         }
       ],
       "returns": "c.size().",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.LenOrdChr",
+        "crtest": "BuiltinsCompileRun.Len",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 55,
       "module": "",
       "qualified": "len"
     },
@@ -209,6 +326,15 @@
         }
       ],
       "returns": "\"0o…\" (with sign).",
+      "tags": {
+        "complexity": "O(log value).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahBuiltins.BaseReprs",
+        "crtest": "BuiltinsCompileRun.Oct",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 128,
       "module": "",
       "qualified": "oct"
     },
@@ -223,6 +349,15 @@
         }
       ],
       "returns": "its byte value (0 if empty).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.LenOrdChr",
+        "crtest": "BuiltinsCompileRun.Ord",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 84,
       "module": "",
       "qualified": "ord"
     },
@@ -263,6 +398,15 @@
         }
       ],
       "returns": "the slice as a std::vector of the element type.",
+      "tags": {
+        "complexity": "O(hi-lo).",
+        "alloc": "the result vector.",
+        "test": "CheatahBuiltins.SliceList",
+        "crtest": "BuiltinsCompileRun.SliceList",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 460,
       "module": "",
       "qualified": "slice"
     },
@@ -281,6 +425,15 @@
         }
       ],
       "returns": "true iff s starts with prefix.",
+      "tags": {
+        "complexity": "O(len(prefix)).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.StringPredicates",
+        "crtest": "BuiltinsCompileRun.StartsWith",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 316,
       "module": "",
       "qualified": "startswith"
     },
@@ -295,6 +448,15 @@
         }
       ],
       "returns": "x != 0.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Conversions",
+        "crtest": "BuiltinsCompileRun.BoolFromNonzero",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 186,
       "module": "",
       "qualified": "to_bool"
     },
@@ -309,6 +471,15 @@
         }
       ],
       "returns": "x as a double.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.ToFloatFromInt",
+        "crtest": "BuiltinsCompileRun.FloatFromInt",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 242,
       "module": "",
       "qualified": "to_float"
     },
@@ -323,6 +494,15 @@
         }
       ],
       "returns": "x toward zero.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Conversions",
+        "crtest": "BuiltinsCompileRun.IntFromFloat",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 216,
       "module": "",
       "qualified": "to_int"
     },
@@ -337,8 +517,21 @@
         }
       ],
       "returns": "the day, 1..31.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.ComponentsOfKnownEpoch",
+        "crtest": "DatetimeCompileRun.Day",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 136,
       "module": "datetime",
-      "qualified": "datetime.day"
+      "qualified": "datetime.day",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "format",
@@ -355,8 +548,21 @@
         }
       ],
       "returns": "the formatted string.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "allocates a temporary std::string for fmt plus the result.",
+        "test": "CheatahDatetime.Format",
+        "crtest": "DatetimeCompileRun.Format",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 93,
       "module": "datetime",
-      "qualified": "datetime.format"
+      "qualified": "datetime.format",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "hour",
@@ -369,8 +575,21 @@
         }
       ],
       "returns": "the hour, 0..23.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.TimeOfDayComponents",
+        "crtest": "DatetimeCompileRun.Hour",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 150,
       "module": "datetime",
-      "qualified": "datetime.hour"
+      "qualified": "datetime.hour",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "minute",
@@ -383,8 +602,21 @@
         }
       ],
       "returns": "the minute, 0..59.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.TimeOfDayComponents",
+        "crtest": "DatetimeCompileRun.Minute",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 164,
       "module": "datetime",
-      "qualified": "datetime.minute"
+      "qualified": "datetime.minute",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "month",
@@ -397,8 +629,21 @@
         }
       ],
       "returns": "the month, 1..12.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.ComponentsOfKnownEpoch",
+        "crtest": "DatetimeCompileRun.Month",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 122,
       "module": "datetime",
-      "qualified": "datetime.month"
+      "qualified": "datetime.month",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "now",
@@ -406,8 +651,21 @@
       "brief": "Current local time as \"YYYY-MM-DD HH:MM:SS\".",
       "params": [],
       "returns": "the formatted string.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "allocates the result string.",
+        "test": "CheatahDatetime.NowTodayUtcnowTimestamp",
+        "crtest": "DatetimeCompileRun.Now",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 50,
       "module": "datetime",
-      "qualified": "datetime.now"
+      "qualified": "datetime.now",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "second",
@@ -420,8 +678,21 @@
         }
       ],
       "returns": "the second, 0..60 (leap).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.TimeOfDayComponents",
+        "crtest": "DatetimeCompileRun.Second",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 178,
       "module": "datetime",
-      "qualified": "datetime.second"
+      "qualified": "datetime.second",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "timestamp",
@@ -429,8 +700,21 @@
       "brief": "Current time.",
       "params": [],
       "returns": "seconds since the Unix epoch (system_clock).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.NowTodayUtcnowTimestamp",
+        "crtest": "DatetimeCompileRun.Timestamp",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 37,
       "module": "datetime",
-      "qualified": "datetime.timestamp"
+      "qualified": "datetime.timestamp",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "today",
@@ -438,8 +722,21 @@
       "brief": "Current local date as \"YYYY-MM-DD\".",
       "params": [],
       "returns": "the formatted string.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "allocates the result string.",
+        "test": "CheatahDatetime.NowTodayUtcnowTimestamp",
+        "crtest": "DatetimeCompileRun.Today",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 76,
       "module": "datetime",
-      "qualified": "datetime.today"
+      "qualified": "datetime.today",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "utcnow",
@@ -447,8 +744,21 @@
       "brief": "Current UTC time as \"YYYY-MM-DDTHH:MM:SSZ\".",
       "params": [],
       "returns": "the formatted string.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "allocates the result string.",
+        "test": "CheatahDatetime.NowTodayUtcnowTimestamp",
+        "crtest": "DatetimeCompileRun.Utcnow",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 63,
       "module": "datetime",
-      "qualified": "datetime.utcnow"
+      "qualified": "datetime.utcnow",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "weekday",
@@ -461,8 +771,21 @@
         }
       ],
       "returns": "Monday=0 .. Sunday=6 (Python convention).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.ComponentsOfKnownEpoch",
+        "crtest": "DatetimeCompileRun.Weekday",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 192,
       "module": "datetime",
-      "qualified": "datetime.weekday"
+      "qualified": "datetime.weekday",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "year",
@@ -475,8 +798,21 @@
         }
       ],
       "returns": "the 4-digit year.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahDatetime.ComponentsOfKnownEpoch",
+        "crtest": "DatetimeCompileRun.Year",
+        "systest": "StdlibE2E.Datetime"
+      },
+      "srcfile": "stdlib/datetime/datetime.hpp",
+      "srcline": 108,
       "module": "datetime",
-      "qualified": "datetime.year"
+      "qualified": "datetime.year",
+      "perf": {
+        "kind": "note",
+        "note": "date/time value handling — not reduced to one scalar here"
+      }
     },
     {
       "name": "sha256",
@@ -489,8 +825,23 @@
         }
       ],
       "returns": "a 64-char lowercase hex digest.",
+      "tags": {
+        "complexity": "O(n) in the input length.",
+        "alloc": "allocates the 64-char result string and a padded message buffer internally.",
+        "test": "CheatahHashlib.KnownVectors, CheatahHashlib.DigestShape, CheatahHashlib.EmbeddedNulIsHashed",
+        "crtest": "HashlibCompileRun.Sha256",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 36,
       "module": "hashlib",
-      "qualified": "hashlib.sha256"
+      "qualified": "hashlib.sha256",
+      "perf": {
+        "cheatah_ns": 404.93,
+        "kind": "compared",
+        "python_ns": 431.92,
+        "speedup": 1.1
+      }
     },
     {
       "name": "escape",
@@ -507,8 +858,23 @@
         }
       ],
       "returns": "a newly allocated escaped copy.",
+      "tags": {
+        "complexity": "O(n) time in the length of s.",
+        "alloc": "one result string on the heap.",
+        "test": "CheatahHtml.Escape",
+        "crtest": "HtmlCompileRun.Escape",
+        "systest": "StdlibE2E.Html"
+      },
+      "srcfile": "stdlib/html/html.hpp",
+      "srcline": 45,
       "module": "html",
-      "qualified": "html.escape"
+      "qualified": "html.escape",
+      "perf": {
+        "cheatah_ns": 90.92,
+        "kind": "compared",
+        "python_ns": 325.29,
+        "speedup": 3.6
+      }
     },
     {
       "name": "unescape",
@@ -521,8 +887,23 @@
         }
       ],
       "returns": "a newly allocated decoded copy.",
+      "tags": {
+        "complexity": "O(n) time in the length of s.",
+        "alloc": "one result string on the heap.",
+        "test": "CheatahHtml.Unescape",
+        "crtest": "HtmlCompileRun.Unescape",
+        "systest": "StdlibE2E.Html"
+      },
+      "srcfile": "stdlib/html/html.hpp",
+      "srcline": 62,
       "module": "html",
-      "qualified": "html.unescape"
+      "qualified": "html.unescape",
+      "perf": {
+        "cheatah_ns": 76.76,
+        "kind": "compared",
+        "python_ns": 1463.26,
+        "speedup": 19.1
+      }
     },
     {
       "name": "get_attr",
@@ -539,8 +920,21 @@
         }
       ],
       "returns": "the attribute value, or \"\".",
+      "tags": {
+        "complexity": "O(k) in the attribute count of t.",
+        "alloc": "one result string on the heap.",
+        "test": "CheatahHtml.GetAttr",
+        "crtest": "HtmlCompileRun.GetAttr",
+        "systest": "StdlibE2E.Html"
+      },
+      "srcfile": "stdlib/html/html.hpp",
+      "srcline": 124,
       "module": "html.parser",
-      "qualified": "html.parser.get_attr"
+      "qualified": "html.parser.get_attr",
+      "perf": {
+        "kind": "note",
+        "note": "returns a parse structure — not reduced to one scalar here"
+      }
     },
     {
       "name": "has_attr",
@@ -557,8 +951,21 @@
         }
       ],
       "returns": "true if present (even if valueless).",
+      "tags": {
+        "complexity": "O(k) in the attribute count of t.",
+        "alloc": "none.",
+        "test": "CheatahHtml.HasAttr",
+        "crtest": "HtmlCompileRun.HasAttr",
+        "systest": "StdlibE2E.Html"
+      },
+      "srcfile": "stdlib/html/html.hpp",
+      "srcline": 137,
       "module": "html.parser",
-      "qualified": "html.parser.has_attr"
+      "qualified": "html.parser.has_attr",
+      "perf": {
+        "kind": "note",
+        "note": "returns a parse structure — not reduced to one scalar here"
+      }
     },
     {
       "name": "parse",
@@ -571,8 +978,21 @@
         }
       ],
       "returns": "the token list (empty for empty input).",
+      "tags": {
+        "complexity": "O(n) time in the length of html.",
+        "alloc": "the token vector and its strings on the heap.",
+        "test": "CheatahHtml.Parse",
+        "crtest": "HtmlCompileRun.Parse",
+        "systest": "StdlibE2E.Html"
+      },
+      "srcfile": "stdlib/html/html.hpp",
+      "srcline": 111,
       "module": "html.parser",
-      "qualified": "html.parser.parse"
+      "qualified": "html.parser.parse",
+      "perf": {
+        "kind": "note",
+        "note": "returns a parse structure — not reduced to one scalar here"
+      }
     },
     {
       "name": "format",
@@ -589,8 +1009,21 @@
         }
       ],
       "returns": "the formatted string.",
+      "tags": {
+        "complexity": "O(len(fmt) + total arg output).",
+        "alloc": "allocates the result string (via an ostringstream).",
+        "test": "CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs",
+        "crtest": "IoCompileRun.Format",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 361,
       "module": "io",
-      "qualified": "io.format"
+      "qualified": "io.format",
+      "perf": {
+        "kind": "note",
+        "note": "string templating — closest CPython twin (f-strings) isn't a function call"
+      }
     },
     {
       "name": "input",
@@ -603,8 +1036,20 @@
         }
       ],
       "returns": "the line read, with the trailing newline stripped.",
+      "tags": {
+        "complexity": "O(line length).",
+        "alloc": "allocates the returned string.",
+        "test": "CheatahIo.InputReadsALine",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 381,
       "module": "io",
-      "qualified": "io.input"
+      "qualified": "io.input",
+      "perf": {
+        "kind": "note",
+        "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
+      }
     },
     {
       "name": "open",
@@ -621,8 +1066,21 @@
         }
       ],
       "returns": "an open File (move-returned).",
+      "tags": {
+        "complexity": "O(1) plus the OS open.",
+        "alloc": "constructs a File; no heap of our own.",
+        "test": "CheatahIo.FileWriteThenReadWhole",
+        "crtest": "IoCompileRun.OpenWriteRead",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 549,
       "module": "io",
-      "qualified": "io.open"
+      "qualified": "io.open",
+      "perf": {
+        "kind": "note",
+        "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
+      }
     },
     {
       "name": "print",
@@ -635,8 +1093,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(total output length).",
+        "alloc": "each arg is routed through str() so values format the Python way (e.g. bool → True/False), allocating temporary strings.",
+        "test": "CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline",
+        "crtest": "IoCompileRun.Print",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 217,
       "module": "io",
-      "qualified": "io.print"
+      "qualified": "io.print",
+      "perf": {
+        "kind": "note",
+        "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
+      }
     },
     {
       "name": "read_file",
@@ -649,8 +1120,21 @@
         }
       ],
       "returns": "the file's contents, or \"\" if it cannot be opened.",
+      "tags": {
+        "complexity": "O(file size).",
+        "alloc": "allocates the returned string.",
+        "test": "CheatahIo.ReadFileWholeAndBinary",
+        "crtest": "IoCompileRun.ReadFile",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 565,
       "module": "io",
-      "qualified": "io.read_file"
+      "qualified": "io.read_file",
+      "perf": {
+        "kind": "note",
+        "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
+      }
     },
     {
       "name": "repr",
@@ -663,8 +1147,22 @@
         }
       ],
       "returns": "the brace-wrapped rendering, keys/values repr'd.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahIo.StrRendersContainersAndObjects",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 124,
       "module": "io",
-      "qualified": "io.repr"
+      "qualified": "io.repr",
+      "perf": {
+        "cheatah_ns": 229.67,
+        "kind": "compared",
+        "python_ns": 170.96,
+        "speedup": 0.7
+      }
     },
     {
       "name": "str",
@@ -677,8 +1175,20 @@
         }
       ],
       "returns": "the brace-wrapped rendering.",
+      "tags": {
+        "test": "CheatahIo.StrRendersContainersAndObjects",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 190,
       "module": "io",
-      "qualified": "io.str"
+      "qualified": "io.str",
+      "perf": {
+        "cheatah_ns": 76.85,
+        "kind": "compared",
+        "python_ns": 94.1,
+        "speedup": 1.2
+      }
     },
     {
       "name": "cholesky",
@@ -691,8 +1201,20 @@
         }
       ],
       "returns": "lower-triangular L with A = L·Lᵀ.",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.CholeskyAndQR",
+        "crtest": "LinalgCompileRun.Cholesky",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 231,
       "module": "linalg",
-      "qualified": "linalg.cholesky"
+      "qualified": "linalg.cholesky",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "cond",
@@ -705,8 +1227,20 @@
         }
       ],
       "returns": "condition number.",
+      "tags": {
+        "complexity": "iterative O(n³) via SVD.",
+        "alloc": "allocates scratch O(n²) for the factorization; returns a double.",
+        "test": "LinalgRoutines.SlogdetAndCond",
+        "crtest": "LinalgCompileRun.Cond",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 428,
       "module": "linalg",
-      "qualified": "linalg.cond"
+      "qualified": "linalg.cond",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "conj_transpose",
@@ -719,8 +1253,20 @@
         }
       ],
       "returns": "the c×r adjoint of an r×c input; throws on non-2-D input.",
+      "tags": {
+        "complexity": "O(r·c).",
+        "alloc": "allocates a new CNDArray result.",
+        "test": "LinalgRoutines.ComplexProducts",
+        "crtest": "LinalgCompileRun.ConjTranspose",
+        "systest": "StdlibE2E.LinalgComplex"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 181,
       "module": "linalg",
-      "qualified": "linalg.conj_transpose"
+      "qualified": "linalg.conj_transpose",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "det",
@@ -733,8 +1279,20 @@
         }
       ],
       "returns": "det(A).",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates scratch O(n²) for the factorization; returns a double.",
+        "test": "LinalgRoutines.SolveDetInv",
+        "crtest": "LinalgCompileRun.Det",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 443,
       "module": "linalg",
-      "qualified": "linalg.det"
+      "qualified": "linalg.det",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "dot",
@@ -751,8 +1309,20 @@
         }
       ],
       "returns": "Σ aᵢbᵢ as a std::complex<double>; throws on a length mismatch.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "scratch O(n); returns a complex scalar.",
+        "test": "LinalgRoutines.ComplexProducts",
+        "crtest": "LinalgCompileRun.ComplexDot",
+        "systest": "StdlibE2E.LinalgComplex"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 143,
       "module": "linalg",
-      "qualified": "linalg.dot"
+      "qualified": "linalg.dot",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "eig",
@@ -765,8 +1335,20 @@
         }
       ],
       "returns": "EigC with complex values and matching complex eigenvector columns.",
+      "tags": {
+        "complexity": "iterative O(n³) via Hessenberg + shifted QR.",
+        "alloc": "allocates both members.",
+        "test": "LinalgRoutines.GeneralEig",
+        "crtest": "LinalgCompileRun.Eig",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 308,
       "module": "linalg",
-      "qualified": "linalg.eig"
+      "qualified": "linalg.eig",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "eigh",
@@ -779,8 +1361,20 @@
         }
       ],
       "returns": "EighC with descending real values and matching complex eigenvectors.",
+      "tags": {
+        "complexity": "iterative O(n³).",
+        "alloc": "allocates both members.",
+        "test": "LinalgRoutines.ComplexHermitianEigh",
+        "crtest": "LinalgCompileRun.EighComplex",
+        "systest": "StdlibE2E.LinalgComplex"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 382,
       "module": "linalg",
-      "qualified": "linalg.eigh"
+      "qualified": "linalg.eigh",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "eigvals",
@@ -793,8 +1387,20 @@
         }
       ],
       "returns": "length-n complex vector of eigenvalues.",
+      "tags": {
+        "complexity": "iterative O(n³).",
+        "alloc": "allocates a new CNDArray result.",
+        "test": "LinalgRoutines.SvdAndEigh",
+        "crtest": "LinalgCompileRun.Eigvals",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 325,
       "module": "linalg",
-      "qualified": "linalg.eigvals"
+      "qualified": "linalg.eigvals",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "eigvalsh",
@@ -807,8 +1413,20 @@
         }
       ],
       "returns": "length-n real vector of eigenvalues.",
+      "tags": {
+        "complexity": "iterative O(n³).",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.ComplexHermitianEigh",
+        "crtest": "LinalgCompileRun.EigvalshComplex",
+        "systest": "StdlibE2E.LinalgComplex"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 396,
       "module": "linalg",
-      "qualified": "linalg.eigvalsh"
+      "qualified": "linalg.eigvalsh",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "inner",
@@ -825,8 +1443,20 @@
         }
       ],
       "returns": "Σ aᵢbᵢ.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "scratch O(n); returns a double.",
+        "test": "LinalgRoutines.VdotInnerOuterKron",
+        "crtest": "LinalgCompileRun.Inner",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 98,
       "module": "linalg",
-      "qualified": "linalg.inner"
+      "qualified": "linalg.inner",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "inv",
@@ -839,8 +1469,20 @@
         }
       ],
       "returns": "A⁻¹.",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.SolveDetInv",
+        "crtest": "LinalgCompileRun.Inv",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 545,
       "module": "linalg",
-      "qualified": "linalg.inv"
+      "qualified": "linalg.inv",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "kron",
@@ -857,8 +1499,20 @@
         }
       ],
       "returns": "(m·p)×(k·q) block product.",
+      "tags": {
+        "complexity": "O(n⁴) in the output area.",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.VdotInnerOuterKron",
+        "crtest": "LinalgCompileRun.Kron",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 213,
       "module": "linalg",
-      "qualified": "linalg.kron"
+      "qualified": "linalg.kron",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "lstsq",
@@ -875,8 +1529,20 @@
         }
       ],
       "returns": "minimizing x.",
+      "tags": {
+        "complexity": "iterative O(n³) via SVD.",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.Lstsq",
+        "crtest": "LinalgCompileRun.Lstsq",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 530,
       "module": "linalg",
-      "qualified": "linalg.lstsq"
+      "qualified": "linalg.lstsq",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "matmul",
@@ -893,8 +1559,20 @@
         }
       ],
       "returns": "m×p complex product; throws on an inner-dimension mismatch or non-2-D input.",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates a new CNDArray result (plus scratch copies of a and b).",
+        "test": "LinalgRoutines.ComplexProducts",
+        "crtest": "LinalgCompileRun.ComplexMatmul",
+        "systest": "StdlibE2E.LinalgComplex"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 169,
       "module": "linalg",
-      "qualified": "linalg.matmul"
+      "qualified": "linalg.matmul",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "matrix_power",
@@ -911,8 +1589,20 @@
         }
       ],
       "returns": "Aⁿ.",
+      "tags": {
+        "complexity": "O(n³·log|n|) by binary exponentiation.",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.MatrixPower",
+        "crtest": "LinalgCompileRun.MatrixPower",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 197,
       "module": "linalg",
-      "qualified": "linalg.matrix_power"
+      "qualified": "linalg.matrix_power",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "matrix_rank",
@@ -925,8 +1615,20 @@
         }
       ],
       "returns": "rank.",
+      "tags": {
+        "complexity": "iterative O(n³) via SVD.",
+        "alloc": "allocates scratch O(n²) for the factorization.",
+        "test": "LinalgRoutines.NormAndRank",
+        "crtest": "LinalgCompileRun.MatrixRank",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 458,
       "module": "linalg",
-      "qualified": "linalg.matrix_rank"
+      "qualified": "linalg.matrix_rank",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "norm",
@@ -939,8 +1641,20 @@
         }
       ],
       "returns": "√Σ xᵢ².",
+      "tags": {
+        "complexity": "O(n) for vectors / O(n²) for matrices.",
+        "alloc": "copies into scratch; returns a double.",
+        "test": "LinalgRoutines.NormAndRank",
+        "crtest": "LinalgCompileRun.Norm",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 413,
       "module": "linalg",
-      "qualified": "linalg.norm"
+      "qualified": "linalg.norm",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "outer",
@@ -957,8 +1671,20 @@
         }
       ],
       "returns": "n×m matrix aᵢbⱼ.",
+      "tags": {
+        "complexity": "O(n·m).",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.VdotInnerOuterKron",
+        "crtest": "LinalgCompileRun.Outer",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 113,
       "module": "linalg",
-      "qualified": "linalg.outer"
+      "qualified": "linalg.outer",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "pinv",
@@ -971,8 +1697,20 @@
         }
       ],
       "returns": "n×m pseudo-inverse.",
+      "tags": {
+        "complexity": "iterative O(n³) via SVD.",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.PinvCondRankOnWideMatrix",
+        "crtest": "LinalgCompileRun.Pinv",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 561,
       "module": "linalg",
-      "qualified": "linalg.pinv"
+      "qualified": "linalg.pinv",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "qr",
@@ -985,8 +1723,20 @@
         }
       ],
       "returns": "QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates both members.",
+        "test": "LinalgRoutines.CholeskyAndQR",
+        "crtest": "LinalgCompileRun.Qr",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 252,
       "module": "linalg",
-      "qualified": "linalg.qr"
+      "qualified": "linalg.qr",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "simd_features",
@@ -994,8 +1744,17 @@
       "brief": "Instruction sets this build targets, e.g.",
       "params": [],
       "returns": ";-separated feature list.",
+      "tags": {
+        "test": "LinalgSmoke.SimdFeaturesReported"
+      },
+      "srcfile": "stdlib/linalg/simd.hpp",
+      "srcline": 65,
       "module": "linalg",
-      "qualified": "linalg.simd_features"
+      "qualified": "linalg.simd_features",
+      "perf": {
+        "kind": "note",
+        "note": "queries CPU SIMD support — not a hot path"
+      }
     },
     {
       "name": "simd_lane_doubles",
@@ -1003,8 +1762,19 @@
       "brief": "Width, in doubles, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512).",
       "params": [],
       "returns": "lane width.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none. Useful for sizing blocked kernels.",
+        "test": "LinalgSmoke.SimdFeaturesReported"
+      },
+      "srcfile": "stdlib/linalg/simd.hpp",
+      "srcline": 75,
       "module": "linalg",
-      "qualified": "linalg.simd_lane_doubles"
+      "qualified": "linalg.simd_lane_doubles",
+      "perf": {
+        "kind": "note",
+        "note": "queries CPU SIMD width — not a hot path"
+      }
     },
     {
       "name": "slogdet",
@@ -1017,8 +1787,20 @@
         }
       ],
       "returns": "SLogDet.",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates scratch O(n²) for the factorization (the struct members are plain doubles).",
+        "test": "LinalgRoutines.SlogdetAndCond",
+        "crtest": "LinalgCompileRun.Slogdet",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 480,
       "module": "linalg",
-      "qualified": "linalg.slogdet"
+      "qualified": "linalg.slogdet",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "solve",
@@ -1035,8 +1817,20 @@
         }
       ],
       "returns": "solution x.",
+      "tags": {
+        "complexity": "O(n³).",
+        "alloc": "allocates a new NDArray result.",
+        "test": "LinalgRoutines.SolveDetInv",
+        "crtest": "LinalgCompileRun.Solve",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 513,
       "module": "linalg",
-      "qualified": "linalg.solve"
+      "qualified": "linalg.solve",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "svd",
@@ -1049,8 +1843,20 @@
         }
       ],
       "returns": "SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).",
+      "tags": {
+        "complexity": "iterative O(n³).",
+        "alloc": "allocates all members.",
+        "test": "LinalgRoutines.SvdAndEigh",
+        "crtest": "LinalgCompileRun.Svd",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 274,
       "module": "linalg",
-      "qualified": "linalg.svd"
+      "qualified": "linalg.svd",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "trace",
@@ -1063,8 +1869,20 @@
         }
       ],
       "returns": "Σ aᵢᵢ.",
+      "tags": {
+        "complexity": "O(n) summation.",
+        "alloc": "copies the matrix into scratch O(n²) first; returns a double.",
+        "test": "LinalgRoutines.ProductsAndTrace",
+        "crtest": "LinalgCompileRun.Trace",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 494,
       "module": "linalg",
-      "qualified": "linalg.trace"
+      "qualified": "linalg.trace",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "vdot",
@@ -1081,8 +1899,20 @@
         }
       ],
       "returns": "Σ conj(aᵢ)·bᵢ as a std::complex<double>; throws on a length mismatch.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "scratch O(n); returns a complex scalar.",
+        "test": "LinalgRoutines.ComplexProducts",
+        "crtest": "LinalgCompileRun.ComplexVdot",
+        "systest": "StdlibE2E.LinalgComplex"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 157,
       "module": "linalg",
-      "qualified": "linalg.vdot"
+      "qualified": "linalg.vdot",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "abs",
@@ -1095,8 +1925,23 @@
         }
       ],
       "returns": "|x|.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahMath.BuiltinLikeOps",
+        "crtest": "MathCompileRun.Abs",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 55,
       "module": "math",
-      "qualified": "math.abs"
+      "qualified": "math.abs",
+      "perf": {
+        "cheatah_ns": 0.45,
+        "kind": "compared",
+        "python_ns": 58.43,
+        "speedup": 131.0
+      }
     },
     {
       "name": "acos",
@@ -1109,8 +1954,23 @@
         }
       ],
       "returns": "acos(x) in radians.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Acos",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 363,
       "module": "math",
-      "qualified": "math.acos"
+      "qualified": "math.acos",
+      "perf": {
+        "cheatah_ns": 21.87,
+        "kind": "compared",
+        "python_ns": 87.86,
+        "speedup": 4.0
+      }
     },
     {
       "name": "asin",
@@ -1123,8 +1983,23 @@
         }
       ],
       "returns": "asin(x) in radians.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Asin",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 349,
       "module": "math",
-      "qualified": "math.asin"
+      "qualified": "math.asin",
+      "perf": {
+        "cheatah_ns": 21.89,
+        "kind": "compared",
+        "python_ns": 87.56,
+        "speedup": 4.0
+      }
     },
     {
       "name": "atan",
@@ -1137,8 +2012,23 @@
         }
       ],
       "returns": "atan(x) in radians.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Atan",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 377,
       "module": "math",
-      "qualified": "math.atan"
+      "qualified": "math.atan",
+      "perf": {
+        "cheatah_ns": 9.72,
+        "kind": "compared",
+        "python_ns": 60.09,
+        "speedup": 6.2
+      }
     },
     {
       "name": "atan2",
@@ -1155,8 +2045,23 @@
         }
       ],
       "returns": "atan2(y, x) in radians.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Atan2",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 392,
       "module": "math",
-      "qualified": "math.atan2"
+      "qualified": "math.atan2",
+      "perf": {
+        "cheatah_ns": 8.48,
+        "kind": "compared",
+        "python_ns": 69.67,
+        "speedup": 8.2
+      }
     },
     {
       "name": "cbrt",
@@ -1169,8 +2074,23 @@
         }
       ],
       "returns": "∛x.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Cbrt",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 165,
       "module": "math",
-      "qualified": "math.cbrt"
+      "qualified": "math.cbrt",
+      "perf": {
+        "cheatah_ns": 8.04,
+        "kind": "compared",
+        "python_ns": 62.84,
+        "speedup": 7.8
+      }
     },
     {
       "name": "ceil",
@@ -1183,8 +2103,23 @@
         }
       ],
       "returns": "⌈x⌉.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Ceil",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 206,
       "module": "math",
-      "qualified": "math.ceil"
+      "qualified": "math.ceil",
+      "perf": {
+        "cheatah_ns": 1.87,
+        "kind": "compared",
+        "python_ns": 70.6,
+        "speedup": 37.8
+      }
     },
     {
       "name": "copysign",
@@ -1201,8 +2136,23 @@
         }
       ],
       "returns": "|x| with y's sign.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Copysign",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 438,
       "module": "math",
-      "qualified": "math.copysign"
+      "qualified": "math.copysign",
+      "perf": {
+        "cheatah_ns": 1.99,
+        "kind": "compared",
+        "python_ns": 58.78,
+        "speedup": 29.5
+      }
     },
     {
       "name": "cos",
@@ -1215,8 +2165,23 @@
         }
       ],
       "returns": "cos(x).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Cos",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 320,
       "module": "math",
-      "qualified": "math.cos"
+      "qualified": "math.cos",
+      "perf": {
+        "cheatah_ns": 15.02,
+        "kind": "compared",
+        "python_ns": 63.02,
+        "speedup": 4.2
+      }
     },
     {
       "name": "degrees",
@@ -1229,8 +2194,23 @@
         }
       ],
       "returns": "the angle in degrees.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Degrees",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 449,
       "module": "math",
-      "qualified": "math.degrees"
+      "qualified": "math.degrees",
+      "perf": {
+        "cheatah_ns": 1.94,
+        "kind": "compared",
+        "python_ns": 55.1,
+        "speedup": 28.3
+      }
     },
     {
       "name": "exp",
@@ -1243,8 +2223,23 @@
         }
       ],
       "returns": "e^x.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Exp",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 250,
       "module": "math",
-      "qualified": "math.exp"
+      "qualified": "math.exp",
+      "perf": {
+        "cheatah_ns": 2.94,
+        "kind": "compared",
+        "python_ns": 60.67,
+        "speedup": 20.7
+      }
     },
     {
       "name": "fabs",
@@ -1257,8 +2252,23 @@
         }
       ],
       "returns": "|x|.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Fabs",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 176,
       "module": "math",
-      "qualified": "math.fabs"
+      "qualified": "math.fabs",
+      "perf": {
+        "cheatah_ns": 1.94,
+        "kind": "compared",
+        "python_ns": 55.56,
+        "speedup": 28.7
+      }
     },
     {
       "name": "factorial",
@@ -1271,8 +2281,23 @@
         }
       ],
       "returns": "n!.",
+      "tags": {
+        "complexity": "O(n) time.",
+        "alloc": "none.",
+        "test": "CheatahMath.Integer",
+        "crtest": "MathCompileRun.Factorial",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 530,
       "module": "math",
-      "qualified": "math.factorial"
+      "qualified": "math.factorial",
+      "perf": {
+        "cheatah_ns": 1.98,
+        "kind": "compared",
+        "python_ns": 53.45,
+        "speedup": 26.9
+      }
     },
     {
       "name": "floor",
@@ -1285,8 +2310,23 @@
         }
       ],
       "returns": "⌊x⌋.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Floor",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 191,
       "module": "math",
-      "qualified": "math.floor"
+      "qualified": "math.floor",
+      "perf": {
+        "cheatah_ns": 1.93,
+        "kind": "compared",
+        "python_ns": 67.69,
+        "speedup": 35.1
+      }
     },
     {
       "name": "fmod",
@@ -1303,8 +2343,23 @@
         }
       ],
       "returns": "x mod y.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Fmod",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 422,
       "module": "math",
-      "qualified": "math.fmod"
+      "qualified": "math.fmod",
+      "perf": {
+        "cheatah_ns": 4.51,
+        "kind": "compared",
+        "python_ns": 62.68,
+        "speedup": 13.9
+      }
     },
     {
       "name": "gcd",
@@ -1321,8 +2376,23 @@
         }
       ],
       "returns": "gcd(|a|, |b|).",
+      "tags": {
+        "complexity": "O(log min(a,b)) time.",
+        "alloc": "none.",
+        "test": "CheatahMath.Integer",
+        "crtest": "MathCompileRun.Gcd",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 515,
       "module": "math",
-      "qualified": "math.gcd"
+      "qualified": "math.gcd",
+      "perf": {
+        "cheatah_ns": 5.75,
+        "kind": "compared",
+        "python_ns": 83.62,
+        "speedup": 14.5
+      }
     },
     {
       "name": "hypot",
@@ -1339,8 +2409,23 @@
         }
       ],
       "returns": "√(x²+y²) without overflow.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Hypot",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 407,
       "module": "math",
-      "qualified": "math.hypot"
+      "qualified": "math.hypot",
+      "perf": {
+        "cheatah_ns": 8.56,
+        "kind": "compared",
+        "python_ns": 81.2,
+        "speedup": 9.5
+      }
     },
     {
       "name": "isfinite",
@@ -1353,8 +2438,23 @@
         }
       ],
       "returns": "true iff x is neither NaN nor ±∞.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.IsFiniteIsNanIsInf",
+        "crtest": "MathCompileRun.Isfinite",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 499,
       "module": "math",
-      "qualified": "math.isfinite"
+      "qualified": "math.isfinite",
+      "perf": {
+        "cheatah_ns": 1.78,
+        "kind": "compared",
+        "python_ns": 58.86,
+        "speedup": 33.1
+      }
     },
     {
       "name": "isinf",
@@ -1367,8 +2467,23 @@
         }
       ],
       "returns": "true iff x is ±∞.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.IsFiniteIsNanIsInf",
+        "crtest": "MathCompileRun.Isinf",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 488,
       "module": "math",
-      "qualified": "math.isinf"
+      "qualified": "math.isinf",
+      "perf": {
+        "cheatah_ns": 0.73,
+        "kind": "compared",
+        "python_ns": 58.78,
+        "speedup": 80.5
+      }
     },
     {
       "name": "isnan",
@@ -1381,8 +2496,23 @@
         }
       ],
       "returns": "true iff x is NaN.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.IsFiniteIsNanIsInf",
+        "crtest": "MathCompileRun.Isnan",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 474,
       "module": "math",
-      "qualified": "math.isnan"
+      "qualified": "math.isnan",
+      "perf": {
+        "cheatah_ns": 0.82,
+        "kind": "compared",
+        "python_ns": 57.67,
+        "speedup": 70.0
+      }
     },
     {
       "name": "log",
@@ -1395,8 +2525,23 @@
         }
       ],
       "returns": "ln(x).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Log",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 264,
       "module": "math",
-      "qualified": "math.log"
+      "qualified": "math.log",
+      "perf": {
+        "cheatah_ns": 9.93,
+        "kind": "compared",
+        "python_ns": 60.17,
+        "speedup": 6.1
+      }
     },
     {
       "name": "log10",
@@ -1409,8 +2554,23 @@
         }
       ],
       "returns": "log₁₀(x).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Log10",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 292,
       "module": "math",
-      "qualified": "math.log10"
+      "qualified": "math.log10",
+      "perf": {
+        "cheatah_ns": 12.89,
+        "kind": "compared",
+        "python_ns": 66.22,
+        "speedup": 5.1
+      }
     },
     {
       "name": "log2",
@@ -1423,8 +2583,23 @@
         }
       ],
       "returns": "log₂(x).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Log2",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 278,
       "module": "math",
-      "qualified": "math.log2"
+      "qualified": "math.log2",
+      "perf": {
+        "cheatah_ns": 10.42,
+        "kind": "compared",
+        "python_ns": 61.06,
+        "speedup": 5.9
+      }
     },
     {
       "name": "max",
@@ -1445,8 +2620,21 @@
         }
       ],
       "returns": "a reference to the maximum.",
+      "tags": {
+        "test": "CheatahMath.BuiltinLikeOps",
+        "crtest": "MathCompileRun.Max",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 112,
       "module": "math",
-      "qualified": "math.max"
+      "qualified": "math.max",
+      "perf": {
+        "cheatah_ns": 0.49,
+        "kind": "compared",
+        "python_ns": 115.97,
+        "speedup": 237.2
+      }
     },
     {
       "name": "min",
@@ -1467,8 +2655,21 @@
         }
       ],
       "returns": "a reference to the minimum.",
+      "tags": {
+        "test": "CheatahMath.BuiltinLikeOps",
+        "crtest": "MathCompileRun.Min",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 84,
       "module": "math",
-      "qualified": "math.min"
+      "qualified": "math.min",
+      "perf": {
+        "cheatah_ns": 0.44,
+        "kind": "compared",
+        "python_ns": 119.51,
+        "speedup": 269.2
+      }
     },
     {
       "name": "pow",
@@ -1485,8 +2686,23 @@
         }
       ],
       "returns": "base raised to exp (computed as double).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahMath.BuiltinLikeOps",
+        "crtest": "MathCompileRun.Pow",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 131,
       "module": "math",
-      "qualified": "math.pow"
+      "qualified": "math.pow",
+      "perf": {
+        "cheatah_ns": 0.52,
+        "kind": "compared",
+        "python_ns": 70.44,
+        "speedup": 134.4
+      }
     },
     {
       "name": "radians",
@@ -1499,8 +2715,23 @@
         }
       ],
       "returns": "the angle in radians.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Radians",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 460,
       "module": "math",
-      "qualified": "math.radians"
+      "qualified": "math.radians",
+      "perf": {
+        "cheatah_ns": 1.8,
+        "kind": "compared",
+        "python_ns": 53.95,
+        "speedup": 30.0
+      }
     },
     {
       "name": "round",
@@ -1513,8 +2744,23 @@
         }
       ],
       "returns": "rounded x.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Round",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 236,
       "module": "math",
-      "qualified": "math.round"
+      "qualified": "math.round",
+      "perf": {
+        "cheatah_ns": 1.78,
+        "kind": "compared",
+        "python_ns": 101.81,
+        "speedup": 57.3
+      }
     },
     {
       "name": "sin",
@@ -1527,8 +2773,23 @@
         }
       ],
       "returns": "sin(x).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Sin",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 306,
       "module": "math",
-      "qualified": "math.sin"
+      "qualified": "math.sin",
+      "perf": {
+        "cheatah_ns": 14.62,
+        "kind": "compared",
+        "python_ns": 62.51,
+        "speedup": 4.3
+      }
     },
     {
       "name": "sqrt",
@@ -1541,8 +2802,23 @@
         }
       ],
       "returns": "√x.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.ScalarFunctions",
+        "crtest": "MathCompileRun.Sqrt",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 151,
       "module": "math",
-      "qualified": "math.sqrt"
+      "qualified": "math.sqrt",
+      "perf": {
+        "cheatah_ns": 1.76,
+        "kind": "compared",
+        "python_ns": 57.15,
+        "speedup": 32.5
+      }
     },
     {
       "name": "tan",
@@ -1555,8 +2831,23 @@
         }
       ],
       "returns": "tan(x).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.Trigonometry",
+        "crtest": "MathCompileRun.Tan",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 335,
       "module": "math",
-      "qualified": "math.tan"
+      "qualified": "math.tan",
+      "perf": {
+        "cheatah_ns": 22.28,
+        "kind": "compared",
+        "python_ns": 68.96,
+        "speedup": 3.1
+      }
     },
     {
       "name": "trunc",
@@ -1569,8 +2860,23 @@
         }
       ],
       "returns": "x with the fraction dropped.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahMath.TranscendentalAndRounding",
+        "crtest": "MathCompileRun.Trunc",
+        "systest": "StdlibE2E.Math"
+      },
+      "srcfile": "stdlib/math/math.hpp",
+      "srcline": 221,
       "module": "math",
-      "qualified": "math.trunc"
+      "qualified": "math.trunc",
+      "perf": {
+        "cheatah_ns": 2.01,
+        "kind": "compared",
+        "python_ns": 69.77,
+        "speedup": 34.7
+      }
     },
     {
       "name": "add",
@@ -1587,8 +2893,20 @@
         }
       ],
       "returns": "a + b broadcast to the common shape.",
+      "tags": {
+        "complexity": "O(size of result).",
+        "alloc": "allocates the result.",
+        "test": "CheatahNDArray.BroadcastingAdd",
+        "crtest": "NdarrayCompileRun.Add",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 553,
       "module": "ndarray",
-      "qualified": "ndarray.add"
+      "qualified": "ndarray.add",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "arange",
@@ -1609,8 +2927,20 @@
         }
       ],
       "returns": "a 1-D basic_ndarray<T> of the generated values.",
+      "tags": {
+        "complexity": "O(count).",
+        "alloc": "allocates a new buffer; throws if step is zero.",
+        "test": "CheatahNDArray.Arange",
+        "crtest": "NdarrayCompileRun.Arange",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 472,
       "module": "ndarray",
-      "qualified": "ndarray.arange"
+      "qualified": "ndarray.arange",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "array",
@@ -1623,8 +2953,19 @@
         }
       ],
       "returns": "a contiguous 1-D basic_ndarray<T>.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates a new buffer.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 399,
       "module": "ndarray",
-      "qualified": "ndarray.array"
+      "qualified": "ndarray.array",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "binary_op",
@@ -1645,8 +2986,19 @@
         }
       ],
       "returns": "op(a, b) broadcast to the common shape; throws if shapes don't broadcast.",
+      "tags": {
+        "complexity": "O(size of result).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.BroadcastingAdd",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 521,
       "module": "ndarray",
-      "qualified": "ndarray.binary_op"
+      "qualified": "ndarray.binary_op",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "broadcast_shapes",
@@ -1663,8 +3015,19 @@
         }
       ],
       "returns": "the broadcast shape (trailing-aligned).",
+      "tags": {
+        "complexity": "O(max(ndim)).",
+        "alloc": "allocates the small result vector; throws if the shapes are incompatible.",
+        "test": "CheatahNDArray.BroadcastShapeRules",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 319,
       "module": "ndarray",
-      "qualified": "ndarray.broadcast_shapes"
+      "qualified": "ndarray.broadcast_shapes",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "broadcast_to",
@@ -1681,8 +3044,17 @@
         }
       ],
       "returns": "a VIEW sharing a's buffer (no element copy).",
+      "tags": {
+        "test": "CheatahNDArray.BroadcastTo",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 354,
       "module": "ndarray",
-      "qualified": "ndarray.broadcast_to"
+      "qualified": "ndarray.broadcast_to",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "complex",
@@ -1699,8 +3071,20 @@
         }
       ],
       "returns": "a basic_ndarray<std::complex<T>> of re + im·j; throws if the shapes don't broadcast.",
+      "tags": {
+        "complexity": "O(size of result).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ComplexConstructAndParts",
+        "crtest": "NdarrayCompileRun.Complex",
+        "systest": "StdlibE2E.NdarrayComplex"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 637,
       "module": "ndarray",
-      "qualified": "ndarray.complex"
+      "qualified": "ndarray.complex",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "conj",
@@ -1713,8 +3097,20 @@
         }
       ],
       "returns": "a fresh array of the same element type with each element conjugated.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ComplexConstructAndParts",
+        "crtest": "NdarrayCompileRun.Conj",
+        "systest": "StdlibE2E.NdarrayComplex"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 664,
       "module": "ndarray",
-      "qualified": "ndarray.conj"
+      "qualified": "ndarray.conj",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "divide",
@@ -1731,8 +3127,20 @@
         }
       ],
       "returns": "a / b broadcast to the common shape.",
+      "tags": {
+        "complexity": "O(size of result).",
+        "alloc": "allocates the result.",
+        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
+        "crtest": "NdarrayCompileRun.Divide",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 595,
       "module": "ndarray",
-      "qualified": "ndarray.divide"
+      "qualified": "ndarray.divide",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "full",
@@ -1749,8 +3157,20 @@
         }
       ],
       "returns": "a filled basic_ndarray<T>.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer; throws on negative/overflowing dims.",
+        "test": "CheatahNDArray.RejectsMaliciousShapesAndIndices",
+        "crtest": "NdarrayCompileRun.Full",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 456,
       "module": "ndarray",
-      "qualified": "ndarray.full"
+      "qualified": "ndarray.full",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "get",
@@ -1767,8 +3187,20 @@
         }
       ],
       "returns": "the element value (type T); throws on a wrong-rank/out-of-range index.",
+      "tags": {
+        "complexity": "O(ndim).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.Get",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 772,
       "module": "ndarray",
-      "qualified": "ndarray.get"
+      "qualified": "ndarray.get",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "imag",
@@ -1781,8 +3213,20 @@
         }
       ],
       "returns": "a basic_ndarray<real_base_t<T>> of the imaginary parts.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ComplexConstructAndParts",
+        "crtest": "NdarrayCompileRun.Imag",
+        "systest": "StdlibE2E.NdarrayComplex"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 707,
       "module": "ndarray",
-      "qualified": "ndarray.imag"
+      "qualified": "ndarray.imag",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "is_contiguous",
@@ -1795,8 +3239,19 @@
         }
       ],
       "returns": "true if a's strides are the C-order strides for its shape.",
+      "tags": {
+        "complexity": "O(ndim).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.BroadcastingAdd",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 341,
       "module": "ndarray",
-      "qualified": "ndarray.is_contiguous"
+      "qualified": "ndarray.is_contiguous",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "mean",
@@ -1809,8 +3264,20 @@
         }
       ],
       "returns": "the average as a double.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.Mean",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 755,
       "module": "ndarray",
-      "qualified": "ndarray.mean"
+      "qualified": "ndarray.mean",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "mul",
@@ -1827,8 +3294,20 @@
         }
       ],
       "returns": "a * b broadcast to the common shape.",
+      "tags": {
+        "complexity": "O(size of result).",
+        "alloc": "allocates the result.",
+        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
+        "crtest": "NdarrayCompileRun.Mul",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 581,
       "module": "ndarray",
-      "qualified": "ndarray.mul"
+      "qualified": "ndarray.mul",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "ones",
@@ -1841,8 +3320,20 @@
         }
       ],
       "returns": "a one-filled NDArray.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer; throws on negative/overflowing dims.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.Ones",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 441,
       "module": "ndarray",
-      "qualified": "ndarray.ones"
+      "qualified": "ndarray.ones",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "real",
@@ -1855,8 +3346,20 @@
         }
       ],
       "returns": "a basic_ndarray<real_base_t<T>> of the real parts.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.ComplexConstructAndParts",
+        "crtest": "NdarrayCompileRun.Real",
+        "systest": "StdlibE2E.NdarrayComplex"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 685,
       "module": "ndarray",
-      "qualified": "ndarray.real"
+      "qualified": "ndarray.real",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "reshape",
@@ -1873,8 +3376,20 @@
         }
       ],
       "returns": "a new contiguous basic_ndarray<T> with the data in C-order.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer; throws on size mismatch or negative dims.",
+        "test": "CheatahNDArray.BroadcastingAdd, CheatahNDArray.ReshapeSizeMismatchThrows",
+        "crtest": "NdarrayCompileRun.Reshape",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 491,
       "module": "ndarray",
-      "qualified": "ndarray.reshape"
+      "qualified": "ndarray.reshape",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "scalar",
@@ -1887,8 +3402,20 @@
         }
       ],
       "returns": "a 0-d basic_ndarray<T>.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "allocates a one-element buffer.",
+        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
+        "crtest": "NdarrayCompileRun.Scalar",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 413,
       "module": "ndarray",
-      "qualified": "ndarray.scalar"
+      "qualified": "ndarray.scalar",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "shape_of",
@@ -1901,8 +3428,20 @@
         }
       ],
       "returns": "the dimensions as a long long vector.",
+      "tags": {
+        "complexity": "O(ndim).",
+        "alloc": "allocates the result vector.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.ShapeOf",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 786,
       "module": "ndarray",
-      "qualified": "ndarray.shape_of"
+      "qualified": "ndarray.shape_of",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "size_of",
@@ -1915,8 +3454,20 @@
         }
       ],
       "returns": "the number of elements as a long long.",
+      "tags": {
+        "complexity": "O(ndim).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.SizeOf",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 802,
       "module": "ndarray",
-      "qualified": "ndarray.size_of"
+      "qualified": "ndarray.size_of",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "sub",
@@ -1933,8 +3484,20 @@
         }
       ],
       "returns": "a - b broadcast to the common shape.",
+      "tags": {
+        "complexity": "O(size of result).",
+        "alloc": "allocates the result.",
+        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
+        "crtest": "NdarrayCompileRun.Sub",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 567,
       "module": "ndarray",
-      "qualified": "ndarray.sub"
+      "qualified": "ndarray.sub",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "sum",
@@ -1947,8 +3510,20 @@
         }
       ],
       "returns": "the total, as the element type T.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.Sum",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 731,
       "module": "ndarray",
-      "qualified": "ndarray.sum"
+      "qualified": "ndarray.sum",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "to_string",
@@ -1961,8 +3536,20 @@
         }
       ],
       "returns": "the textual representation.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd",
+        "crtest": "NdarrayCompileRun.ToString",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 859,
       "module": "ndarray",
-      "qualified": "ndarray.to_string"
+      "qualified": "ndarray.to_string",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "zeros",
@@ -1975,8 +3562,20 @@
         }
       ],
       "returns": "a zero-filled NDArray.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer; throws on negative/overflowing dims.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
+        "crtest": "NdarrayCompileRun.Zeros",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 428,
       "module": "ndarray",
-      "qualified": "ndarray.zeros"
+      "qualified": "ndarray.zeros",
+      "perf": {
+        "kind": "numpy"
+      }
     },
     {
       "name": "chdir",
@@ -1989,8 +3588,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.MakedirsAndChdir",
+        "crtest": "OsCompileRun.Chdir",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 58,
       "module": "os",
-      "qualified": "os.chdir"
+      "qualified": "os.chdir",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "cpu_count",
@@ -1998,8 +3610,24 @@
       "brief": "Logical CPU count.",
       "params": [],
       "returns": "the number of hardware threads (0 if undetermined).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahOs.CwdAndCpuCount",
+        "crtest": "OsCompileRun.CpuCount",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 200,
       "module": "os",
-      "qualified": "os.cpu_count"
+      "qualified": "os.cpu_count",
+      "perf": {
+        "cheatah_ns": 1519.69,
+        "compare_ns": 1655.27,
+        "kind": "compared",
+        "speedup": 1.1,
+        "vs": "cpython"
+      }
     },
     {
       "name": "getcwd",
@@ -2007,8 +3635,24 @@
       "brief": "Current working directory.",
       "params": [],
       "returns": "the absolute cwd.",
+      "tags": {
+        "complexity": "O(n) + a syscall.",
+        "alloc": "allocates the result string.",
+        "test": "CheatahOs.CwdAndCpuCount",
+        "crtest": "OsCompileRun.Getcwd",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 45,
       "module": "os",
-      "qualified": "os.getcwd"
+      "qualified": "os.getcwd",
+      "perf": {
+        "cheatah_ns": 371.88,
+        "compare_ns": 314.05,
+        "kind": "compared",
+        "speedup": 0.8,
+        "vs": "cpython"
+      }
     },
     {
       "name": "getenv",
@@ -2025,8 +3669,24 @@
         }
       ],
       "returns": "the value, or fallback.",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "allocates the returned string.",
+        "test": "CheatahOs.GetenvFallback, CheatahOs.SetenvThenGetenv",
+        "crtest": "OsCompileRun.Getenv",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 159,
       "module": "os",
-      "qualified": "os.getenv"
+      "qualified": "os.getenv",
+      "perf": {
+        "cheatah_ns": 68.97,
+        "compare_ns": 357.37,
+        "kind": "compared",
+        "speedup": 5.2,
+        "vs": "cpython"
+      }
     },
     {
       "name": "getpid",
@@ -2034,8 +3694,24 @@
       "brief": "Process id.",
       "params": [],
       "returns": "the current process's pid.",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.PidAndSystem",
+        "crtest": "OsCompileRun.Getpid",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 186,
       "module": "os",
-      "qualified": "os.getpid"
+      "qualified": "os.getpid",
+      "perf": {
+        "cheatah_ns": 66.51,
+        "compare_ns": 139.58,
+        "kind": "compared",
+        "speedup": 2.1,
+        "vs": "cpython"
+      }
     },
     {
       "name": "listdir",
@@ -2048,8 +3724,21 @@
         }
       ],
       "returns": "the entry names.",
+      "tags": {
+        "complexity": "O(entries) + syscalls.",
+        "alloc": "allocates a vector of strings.",
+        "test": "CheatahOs.ListdirAndRename",
+        "crtest": "OsCompileRun.Listdir",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 73,
       "module": "os",
-      "qualified": "os.listdir"
+      "qualified": "os.listdir",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "makedirs",
@@ -2062,8 +3751,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(depth) + syscalls.",
+        "alloc": "none.",
+        "test": "CheatahOs.MakedirsAndChdir",
+        "crtest": "OsCompileRun.Makedirs",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 100,
       "module": "os",
-      "qualified": "os.makedirs"
+      "qualified": "os.makedirs",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "mkdir",
@@ -2076,8 +3778,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.MakeDirExistsThenRemove",
+        "crtest": "OsCompileRun.Mkdir",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 87,
       "module": "os",
-      "qualified": "os.mkdir"
+      "qualified": "os.mkdir",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "remove",
@@ -2090,8 +3805,21 @@
         }
       ],
       "returns": "true iff something was removed.",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.FileQueriesIsfileAndGetsize",
+        "crtest": "OsCompileRun.Remove",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 129,
       "module": "os",
-      "qualified": "os.remove"
+      "qualified": "os.remove",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "rename",
@@ -2108,8 +3836,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.ListdirAndRename",
+        "crtest": "OsCompileRun.Rename",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 143,
       "module": "os",
-      "qualified": "os.rename"
+      "qualified": "os.rename",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "rmdir",
@@ -2122,8 +3863,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.MakeDirExistsThenRemove",
+        "crtest": "OsCompileRun.Rmdir",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 114,
       "module": "os",
-      "qualified": "os.rmdir"
+      "qualified": "os.rmdir",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "setenv",
@@ -2144,8 +3898,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "may allocate inside the C library's environment table.",
+        "test": "CheatahOs.SetenvThenGetenv",
+        "crtest": "OsCompileRun.Setenv",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 175,
       "module": "os",
-      "qualified": "os.setenv"
+      "qualified": "os.setenv",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "system",
@@ -2158,8 +3925,21 @@
         }
       ],
       "returns": "the command's exit status.",
+      "tags": {
+        "complexity": "O(1) here + the cost of the spawned process (fork/exec via the shell).",
+        "alloc": "none.",
+        "test": "CheatahOs.PidAndSystem",
+        "crtest": "OsCompileRun.System",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 215,
       "module": "os",
-      "qualified": "os.system"
+      "qualified": "os.system",
+      "perf": {
+        "kind": "note",
+        "note": "filesystem/process syscall — not micro-benchmarked"
+      }
     },
     {
       "name": "abspath",
@@ -2172,8 +3952,24 @@
         }
       ],
       "returns": "p resolved against the cwd.",
+      "tags": {
+        "complexity": "O(n) + a syscall (reads the cwd).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahOs.AbspathAndNormpath",
+        "crtest": "OsCompileRun.PathAbspath",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 328,
       "module": "os.path",
-      "qualified": "os.path.abspath"
+      "qualified": "os.path.abspath",
+      "perf": {
+        "cheatah_ns": 164.45,
+        "compare_ns": 306.78,
+        "kind": "compared",
+        "speedup": 1.9,
+        "vs": "cpython"
+      }
     },
     {
       "name": "basename",
@@ -2186,8 +3982,24 @@
         }
       ],
       "returns": "the basename (filename).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates a path temporary and the result string.",
+        "test": "CheatahOs.PathBasenameDirname",
+        "crtest": "OsCompileRun.PathBasename",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 298,
       "module": "os.path",
-      "qualified": "os.path.basename"
+      "qualified": "os.path.basename",
+      "perf": {
+        "cheatah_ns": 96.52,
+        "compare_ns": 215.8,
+        "kind": "compared",
+        "speedup": 2.2,
+        "vs": "cpython"
+      }
     },
     {
       "name": "dirname",
@@ -2200,8 +4012,24 @@
         }
       ],
       "returns": "the directory portion of p.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates a path temporary and the result string.",
+        "test": "CheatahOs.PathBasenameDirname",
+        "crtest": "OsCompileRun.PathDirname",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 313,
       "module": "os.path",
-      "qualified": "os.path.dirname"
+      "qualified": "os.path.dirname",
+      "perf": {
+        "cheatah_ns": 164.9,
+        "compare_ns": 303.42,
+        "kind": "compared",
+        "speedup": 1.8,
+        "vs": "cpython"
+      }
     },
     {
       "name": "exists",
@@ -2214,8 +4042,24 @@
         }
       ],
       "returns": "true iff p exists.",
+      "tags": {
+        "complexity": "O(n) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.MakeDirExistsThenRemove",
+        "crtest": "OsCompileRun.PathExists",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 255,
       "module": "os.path",
-      "qualified": "os.path.exists"
+      "qualified": "os.path.exists",
+      "perf": {
+        "cheatah_ns": 387.35,
+        "compare_ns": 784.49,
+        "kind": "compared",
+        "speedup": 2.0,
+        "vs": "cpython"
+      }
     },
     {
       "name": "getsize",
@@ -2228,8 +4072,24 @@
         }
       ],
       "returns": "p's size.",
+      "tags": {
+        "complexity": "O(1) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.FileQueriesIsfileAndGetsize",
+        "crtest": "OsCompileRun.PathGetsize",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 353,
       "module": "os.path",
-      "qualified": "os.path.getsize"
+      "qualified": "os.path.getsize",
+      "perf": {
+        "cheatah_ns": 386.11,
+        "compare_ns": 804.34,
+        "kind": "compared",
+        "speedup": 2.1,
+        "vs": "cpython"
+      }
     },
     {
       "name": "isdir",
@@ -2242,8 +4102,24 @@
         }
       ],
       "returns": "true iff p is a directory.",
+      "tags": {
+        "complexity": "O(n) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.MakeDirExistsThenRemove",
+        "crtest": "OsCompileRun.PathIsdir",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 283,
       "module": "os.path",
-      "qualified": "os.path.isdir"
+      "qualified": "os.path.isdir",
+      "perf": {
+        "cheatah_ns": 378.99,
+        "compare_ns": 809.19,
+        "kind": "compared",
+        "speedup": 2.1,
+        "vs": "cpython"
+      }
     },
     {
       "name": "isfile",
@@ -2256,8 +4132,24 @@
         }
       ],
       "returns": "true iff p is a regular file.",
+      "tags": {
+        "complexity": "O(n) + a syscall.",
+        "alloc": "none.",
+        "test": "CheatahOs.FileQueriesIsfileAndGetsize",
+        "crtest": "OsCompileRun.PathIsfile",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 269,
       "module": "os.path",
-      "qualified": "os.path.isfile"
+      "qualified": "os.path.isfile",
+      "perf": {
+        "cheatah_ns": 393.82,
+        "compare_ns": 808.35,
+        "kind": "compared",
+        "speedup": 2.1,
+        "vs": "cpython"
+      }
     },
     {
       "name": "join",
@@ -2274,8 +4166,24 @@
         }
       ],
       "returns": "e.g. join(\"a\",\"b\",\"c\") -> \"a/b/c\".",
+      "tags": {
+        "complexity": "O(total length).",
+        "alloc": "allocates the result string and per-part path temporaries.",
+        "test": "CheatahOs.PathJoin",
+        "crtest": "OsCompileRun.PathJoin",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 236,
       "module": "os.path",
-      "qualified": "os.path.join"
+      "qualified": "os.path.join",
+      "perf": {
+        "cheatah_ns": 136.72,
+        "compare_ns": 393.44,
+        "kind": "compared",
+        "speedup": 2.9,
+        "vs": "cpython"
+      }
     },
     {
       "name": "normpath",
@@ -2288,8 +4196,24 @@
         }
       ],
       "returns": "the normalized path.",
+      "tags": {
+        "complexity": "O(n) (purely lexical, no syscall).",
+        "alloc": "allocates a path temporary and the result string.",
+        "test": "CheatahOs.AbspathAndNormpath",
+        "crtest": "OsCompileRun.PathNormpath",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 339,
       "module": "os.path",
-      "qualified": "os.path.normpath"
+      "qualified": "os.path.normpath",
+      "perf": {
+        "cheatah_ns": 318.29,
+        "compare_ns": 176.39,
+        "kind": "compared",
+        "speedup": 0.6,
+        "vs": "cpython"
+      }
     },
     {
       "name": "splitext",
@@ -2302,8 +4226,21 @@
         }
       ],
       "returns": "e.g. splitext(\"dir/file.purr\") -> {\"dir/file\", \".purr\"} (empty extension when none).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates the two result strings and a path temporary.",
+        "test": "CheatahOs.PathSplitext",
+        "crtest": "OsCompileRun.PathSplitext",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 371,
       "module": "os.path",
-      "qualified": "os.path.splitext"
+      "qualified": "os.path.splitext",
+      "perf": {
+        "kind": "note",
+        "note": "returns a (root, ext) pair — not reduced to one scalar here"
+      }
     },
     {
       "name": "choice",
@@ -2316,8 +4253,24 @@
         }
       ],
       "returns": "a copy of a uniformly chosen element.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none (copies one element; via randint).",
+        "test": "CheatahRandom.Choice",
+        "crtest": "RandomCompileRun.Choice",
+        "systest": "StdlibE2E.Random"
+      },
+      "srcfile": "stdlib/random/random.hpp",
+      "srcline": 110,
       "module": "random",
-      "qualified": "random.choice"
+      "qualified": "random.choice",
+      "perf": {
+        "cheatah_ns": 3.15,
+        "compare_ns": 4165.2,
+        "kind": "compared",
+        "speedup": 1321.8,
+        "vs": "numpy"
+      }
     },
     {
       "name": "gauss",
@@ -2334,8 +4287,24 @@
         }
       ],
       "returns": "a normal sample.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahRandom.GaussIsFiniteAndReproducible",
+        "crtest": "RandomCompileRun.Gauss",
+        "systest": "StdlibE2E.Random"
+      },
+      "srcfile": "stdlib/random/random.hpp",
+      "srcline": 93,
       "module": "random",
-      "qualified": "random.gauss"
+      "qualified": "random.gauss",
+      "perf": {
+        "cheatah_ns": 148.6,
+        "compare_ns": 372.17,
+        "kind": "compared",
+        "speedup": 2.5,
+        "vs": "numpy"
+      }
     },
     {
       "name": "randint",
@@ -2352,8 +4321,24 @@
         }
       ],
       "returns": "an integer in [a, b].",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahRandom.RandintInclusiveRange",
+        "crtest": "RandomCompileRun.Randint",
+        "systest": "StdlibE2E.Random"
+      },
+      "srcfile": "stdlib/random/random.hpp",
+      "srcline": 78,
       "module": "random",
-      "qualified": "random.randint"
+      "qualified": "random.randint",
+      "perf": {
+        "cheatah_ns": 3.16,
+        "compare_ns": 1124.31,
+        "kind": "compared",
+        "speedup": 356.2,
+        "vs": "numpy"
+      }
     },
     {
       "name": "random",
@@ -2361,8 +4346,24 @@
       "brief": "Uniform random double.",
       "params": [],
       "returns": "a value in [0, 1).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahRandom.RandomInUnitInterval",
+        "crtest": "RandomCompileRun.Random",
+        "systest": "StdlibE2E.Random"
+      },
+      "srcfile": "stdlib/random/random.hpp",
+      "srcline": 50,
       "module": "random",
-      "qualified": "random.random"
+      "qualified": "random.random",
+      "perf": {
+        "cheatah_ns": 48.89,
+        "compare_ns": 249.51,
+        "kind": "compared",
+        "speedup": 5.1,
+        "vs": "numpy"
+      }
     },
     {
       "name": "seed",
@@ -2375,8 +4376,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahRandom.SeedMakesTheStreamReproducible",
+        "crtest": "RandomCompileRun.Seed",
+        "systest": "StdlibE2E.Random"
+      },
+      "srcfile": "stdlib/random/random.hpp",
+      "srcline": 37,
       "module": "random",
-      "qualified": "random.seed"
+      "qualified": "random.seed",
+      "perf": {
+        "kind": "note",
+        "note": "one-time initialization — not a hot path"
+      }
     },
     {
       "name": "uniform",
@@ -2393,8 +4407,24 @@
         }
       ],
       "returns": "a value in [a, b].",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahRandom.UniformInRange",
+        "crtest": "RandomCompileRun.Uniform",
+        "systest": "StdlibE2E.Random"
+      },
+      "srcfile": "stdlib/random/random.hpp",
+      "srcline": 64,
       "module": "random",
-      "qualified": "random.uniform"
+      "qualified": "random.uniform",
+      "perf": {
+        "cheatah_ns": 48.91,
+        "compare_ns": 871.76,
+        "kind": "compared",
+        "speedup": 17.8,
+        "vs": "numpy"
+      }
     },
     {
       "name": "accept",
@@ -2407,8 +4437,21 @@
         }
       ],
       "returns": "the connected client fd, or -1 on error.",
+      "tags": {
+        "complexity": "O(1) syscall (blocks until a client arrives).",
+        "alloc": "none.",
+        "test": "CheatahSocket.Loopback",
+        "crtest": "SocketCompileRun.Accept",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 81,
       "module": "socket",
-      "qualified": "socket.accept"
+      "qualified": "socket.accept",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "bind",
@@ -2429,8 +4472,21 @@
         }
       ],
       "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1) + resolution.",
+        "alloc": "none.",
+        "test": "CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure",
+        "crtest": "SocketCompileRun.Bind",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 196,
       "module": "socket",
-      "qualified": "socket.bind"
+      "qualified": "socket.bind",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "close",
@@ -2443,8 +4499,21 @@
         }
       ],
       "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1) syscall.",
+        "alloc": "none.",
+        "test": "CheatahSocket.BadFd",
+        "crtest": "SocketCompileRun.Close",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 148,
       "module": "socket",
-      "qualified": "socket.close"
+      "qualified": "socket.close",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "connect",
@@ -2465,8 +4534,21 @@
         }
       ],
       "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1) + DNS.",
+        "alloc": "none.",
+        "test": "CheatahSocket.ConnectRefused",
+        "crtest": "SocketCompileRun.Connect",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 230,
       "module": "socket",
-      "qualified": "socket.connect"
+      "qualified": "socket.connect",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "last_error",
@@ -2474,8 +4556,21 @@
       "brief": "The message for the current errno.",
       "params": [],
       "returns": "strerror(errno).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "allocates the returned string.",
+        "test": "CheatahSocket.ConnectRefused",
+        "crtest": "SocketCompileRun.LastError",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 259,
       "module": "socket",
-      "qualified": "socket.last_error"
+      "qualified": "socket.last_error",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "listen",
@@ -2492,8 +4587,21 @@
         }
       ],
       "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahSocket.ListenLowLevel",
+        "crtest": "SocketCompileRun.Listen",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 212,
       "module": "socket",
-      "qualified": "socket.listen"
+      "qualified": "socket.listen",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "local_port",
@@ -2506,8 +4614,21 @@
         }
       ],
       "returns": "the port, or -1 on error.",
+      "tags": {
+        "complexity": "O(1) syscall.",
+        "alloc": "none.",
+        "test": "CheatahSocket.Loopback",
+        "crtest": "SocketCompileRun.LocalPort",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 245,
       "module": "socket",
-      "qualified": "socket.local_port"
+      "qualified": "socket.local_port",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "recv",
@@ -2524,8 +4645,21 @@
         }
       ],
       "returns": "the bytes read (binary-safe), or \"\" on EOF/error.",
+      "tags": {
+        "complexity": "O(bufsize).",
+        "alloc": "allocates the returned string.",
+        "test": "CheatahSocket.Loopback",
+        "crtest": "SocketCompileRun.Recv",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 99,
       "module": "socket",
-      "qualified": "socket.recv"
+      "qualified": "socket.recv",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "send",
@@ -2542,8 +4676,21 @@
         }
       ],
       "returns": "bytes actually sent, or -1 on error.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none (MSG_NOSIGNAL, so a broken pipe never raises SIGPIPE).",
+        "test": "CheatahSocket.Sendall",
+        "crtest": "SocketCompileRun.Send",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 115,
       "module": "socket",
-      "qualified": "socket.send"
+      "qualified": "socket.send",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "sendall",
@@ -2560,8 +4707,21 @@
         }
       ],
       "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahSocket.Sendall",
+        "crtest": "SocketCompileRun.Sendall",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 132,
       "module": "socket",
-      "qualified": "socket.sendall"
+      "qualified": "socket.sendall",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "set_reuseaddr",
@@ -2574,8 +4734,21 @@
         }
       ],
       "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahSocket.ListenLowLevel",
+        "crtest": "SocketCompileRun.SetReuseaddr",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 179,
       "module": "socket",
-      "qualified": "socket.set_reuseaddr"
+      "qualified": "socket.set_reuseaddr",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "socket",
@@ -2583,8 +4756,21 @@
       "brief": "Create an IPv4 TCP socket.",
       "params": [],
       "returns": "the new fd, or -1 on error.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahSocket.ListenLowLevel",
+        "crtest": "SocketCompileRun.Socket",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 164,
       "module": "socket",
-      "qualified": "socket.socket"
+      "qualified": "socket.socket",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "tcp_connect",
@@ -2601,8 +4787,21 @@
         }
       ],
       "returns": "the connected fd, or -1 on error.",
+      "tags": {
+        "complexity": "O(1) + DNS resolution.",
+        "alloc": "none.",
+        "test": "CheatahSocket.Loopback",
+        "crtest": "SocketCompileRun.TcpConnect",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 63,
       "module": "socket",
-      "qualified": "socket.tcp_connect"
+      "qualified": "socket.tcp_connect",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "tcp_listen",
@@ -2623,8 +4822,21 @@
         }
       ],
       "returns": "the listening fd, or -1 on error.",
+      "tags": {
+        "complexity": "O(1) (a few syscalls).",
+        "alloc": "none.",
+        "test": "CheatahSocket.Loopback",
+        "crtest": "SocketCompileRun.TcpListen",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 46,
       "module": "socket",
-      "qualified": "socket.tcp_listen"
+      "qualified": "socket.tcp_listen",
+      "perf": {
+        "kind": "note",
+        "note": "network/syscall-bound — not micro-benchmarked"
+      }
     },
     {
       "name": "count",
@@ -2637,8 +4849,24 @@
         }
       ],
       "returns": "the number of elements.",
+      "tags": {
+        "complexity": "O(n) single pass.",
+        "alloc": "none.",
+        "test": "CheatahStatistics.SumCountMean",
+        "crtest": "StatisticsCompileRun.Count",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 63,
       "module": "statistics",
-      "qualified": "statistics.count"
+      "qualified": "statistics.count",
+      "perf": {
+        "cheatah_ns": 4.91,
+        "compare_ns": 112.81,
+        "kind": "compared",
+        "speedup": 23.0,
+        "vs": "numpy"
+      }
     },
     {
       "name": "mean",
@@ -2651,8 +4879,24 @@
         }
       ],
       "returns": "the mean, or 0.0 if empty.",
+      "tags": {
+        "complexity": "O(n) (two passes: count + sum).",
+        "alloc": "none.",
+        "test": "CheatahStatistics.SumCountMean",
+        "crtest": "StatisticsCompileRun.Mean",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 86,
       "module": "statistics",
-      "qualified": "statistics.mean"
+      "qualified": "statistics.mean",
+      "perf": {
+        "cheatah_ns": 19.37,
+        "compare_ns": 2099.01,
+        "kind": "compared",
+        "speedup": 108.4,
+        "vs": "numpy"
+      }
     },
     {
       "name": "median",
@@ -2665,8 +4909,24 @@
         }
       ],
       "returns": "the median, or 0.0 if empty.",
+      "tags": {
+        "complexity": "O(n log n) — copies the elements into a vector and sorts.",
+        "alloc": "allocates a temporary std::vector<double>.",
+        "test": "CheatahStatistics.MedianOddAndEven",
+        "crtest": "StatisticsCompileRun.Median",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 191,
       "module": "statistics",
-      "qualified": "statistics.median"
+      "qualified": "statistics.median",
+      "perf": {
+        "cheatah_ns": 84.19,
+        "compare_ns": 6719.3,
+        "kind": "compared",
+        "speedup": 79.8,
+        "vs": "numpy"
+      }
     },
     {
       "name": "pstdev",
@@ -2679,8 +4939,24 @@
         }
       ],
       "returns": "√pvariance(data).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahStatistics.PopulationVarianceAndStdev",
+        "crtest": "StatisticsCompileRun.Pstdev",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 131,
       "module": "statistics",
-      "qualified": "statistics.pstdev"
+      "qualified": "statistics.pstdev",
+      "perf": {
+        "cheatah_ns": 41.41,
+        "compare_ns": 6967.5,
+        "kind": "compared",
+        "speedup": 168.3,
+        "vs": "numpy"
+      }
     },
     {
       "name": "pvariance",
@@ -2693,8 +4969,24 @@
         }
       ],
       "returns": "the variance, or 0.0 if empty.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahStatistics.PopulationVarianceAndStdev",
+        "crtest": "StatisticsCompileRun.Pvariance",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 106,
       "module": "statistics",
-      "qualified": "statistics.pvariance"
+      "qualified": "statistics.pvariance",
+      "perf": {
+        "cheatah_ns": 37.21,
+        "compare_ns": 6386.33,
+        "kind": "compared",
+        "speedup": 171.6,
+        "vs": "numpy"
+      }
     },
     {
       "name": "stdev",
@@ -2707,8 +4999,24 @@
         }
       ],
       "returns": "√variance(data).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahStatistics.SampleVarianceAndStdev",
+        "crtest": "StatisticsCompileRun.Stdev",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 174,
       "module": "statistics",
-      "qualified": "statistics.stdev"
+      "qualified": "statistics.stdev",
+      "perf": {
+        "cheatah_ns": 45.79,
+        "compare_ns": 7106.84,
+        "kind": "compared",
+        "speedup": 155.2,
+        "vs": "numpy"
+      }
     },
     {
       "name": "sum",
@@ -2721,8 +5029,24 @@
         }
       ],
       "returns": "Σdata as double.",
+      "tags": {
+        "complexity": "O(n) single pass.",
+        "alloc": "none.",
+        "test": "CheatahStatistics.SumCountMean",
+        "crtest": "StatisticsCompileRun.Sum",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 46,
       "module": "statistics",
-      "qualified": "statistics.sum"
+      "qualified": "statistics.sum",
+      "perf": {
+        "cheatah_ns": 18.55,
+        "compare_ns": 1428.65,
+        "kind": "compared",
+        "speedup": 77.0,
+        "vs": "numpy"
+      }
     },
     {
       "name": "variance",
@@ -2735,8 +5059,24 @@
         }
       ],
       "returns": "the variance, or 0.0 if fewer than 2 elements.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahStatistics.SampleVarianceAndStdev",
+        "crtest": "StatisticsCompileRun.Variance",
+        "systest": "StdlibE2E.Statistics"
+      },
+      "srcfile": "stdlib/statistics/statistics.hpp",
+      "srcline": 149,
       "module": "statistics",
-      "qualified": "statistics.variance"
+      "qualified": "statistics.variance",
+      "perf": {
+        "cheatah_ns": 40.68,
+        "compare_ns": 6488.76,
+        "kind": "compared",
+        "speedup": 159.5,
+        "vs": "numpy"
+      }
     },
     {
       "name": "capitalize",
@@ -2749,8 +5089,23 @@
         }
       ],
       "returns": "capitalized s.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Case",
+        "crtest": "StringCompileRun.Capitalize",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 77,
       "module": "string",
-      "qualified": "string.capitalize"
+      "qualified": "string.capitalize",
+      "perf": {
+        "cheatah_ns": 46.7,
+        "kind": "compared",
+        "python_ns": 147.18,
+        "speedup": 3.2
+      }
     },
     {
       "name": "capwords",
@@ -2763,8 +5118,23 @@
         }
       ],
       "returns": "the result.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Transform",
+        "crtest": "StringCompileRun.Capwords",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 321,
       "module": "string",
-      "qualified": "string.capwords"
+      "qualified": "string.capwords",
+      "perf": {
+        "cheatah_ns": 198.08,
+        "kind": "compared",
+        "python_ns": 472.92,
+        "speedup": 2.4
+      }
     },
     {
       "name": "center",
@@ -2785,8 +5155,23 @@
         }
       ],
       "returns": "padded s.",
+      "tags": {
+        "complexity": "O(width).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Padding",
+        "crtest": "StringCompileRun.Center",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 407,
       "module": "string",
-      "qualified": "string.center"
+      "qualified": "string.center",
+      "perf": {
+        "cheatah_ns": 54.65,
+        "kind": "compared",
+        "python_ns": 77.92,
+        "speedup": 1.4
+      }
     },
     {
       "name": "contains",
@@ -2803,8 +5188,23 @@
         }
       ],
       "returns": "true iff sub occurs in s.",
+      "tags": {
+        "complexity": "O(n·m).",
+        "alloc": "none.",
+        "test": "CheatahString.SearchAndTest",
+        "crtest": "StringCompileRun.Contains",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 198,
       "module": "string",
-      "qualified": "string.contains"
+      "qualified": "string.contains",
+      "perf": {
+        "cheatah_ns": 6.93,
+        "kind": "compared",
+        "python_ns": 45.31,
+        "speedup": 6.5
+      }
     },
     {
       "name": "count",
@@ -2821,8 +5221,23 @@
         }
       ],
       "returns": "occurrence count.",
+      "tags": {
+        "complexity": "O(n·m).",
+        "alloc": "none.",
+        "test": "CheatahString.SearchAndTest",
+        "crtest": "StringCompileRun.Count",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 243,
       "module": "string",
-      "qualified": "string.count"
+      "qualified": "string.count",
+      "perf": {
+        "cheatah_ns": 20.22,
+        "kind": "compared",
+        "python_ns": 77.68,
+        "speedup": 3.8
+      }
     },
     {
       "name": "endswith",
@@ -2839,8 +5254,23 @@
         }
       ],
       "returns": "true iff s ends with suffix.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.SearchAndTest",
+        "crtest": "StringCompileRun.Endswith",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 183,
       "module": "string",
-      "qualified": "string.endswith"
+      "qualified": "string.endswith",
+      "perf": {
+        "cheatah_ns": 6.7,
+        "kind": "compared",
+        "python_ns": 66.18,
+        "speedup": 9.9
+      }
     },
     {
       "name": "find",
@@ -2857,8 +5287,23 @@
         }
       ],
       "returns": "index, or -1.",
+      "tags": {
+        "complexity": "O(n·m).",
+        "alloc": "none.",
+        "test": "CheatahString.SearchAndTest",
+        "crtest": "StringCompileRun.Find",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 213,
       "module": "string",
-      "qualified": "string.find"
+      "qualified": "string.find",
+      "perf": {
+        "cheatah_ns": 7.64,
+        "kind": "compared",
+        "python_ns": 77.09,
+        "speedup": 10.1
+      }
     },
     {
       "name": "isalnum",
@@ -2871,8 +5316,23 @@
         }
       ],
       "returns": "true iff non-empty and all letters/digits.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.ClassificationAlnumAndSpace",
+        "crtest": "StringCompileRun.Isalnum",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 467,
       "module": "string",
-      "qualified": "string.isalnum"
+      "qualified": "string.isalnum",
+      "perf": {
+        "cheatah_ns": 5.24,
+        "kind": "compared",
+        "python_ns": 54.45,
+        "speedup": 10.4
+      }
     },
     {
       "name": "isalpha",
@@ -2885,8 +5345,23 @@
         }
       ],
       "returns": "true iff non-empty and all alphabetic.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.Classification",
+        "crtest": "StringCompileRun.Isalpha",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 453,
       "module": "string",
-      "qualified": "string.isalpha"
+      "qualified": "string.isalpha",
+      "perf": {
+        "cheatah_ns": 6.3,
+        "kind": "compared",
+        "python_ns": 45.39,
+        "speedup": 7.2
+      }
     },
     {
       "name": "isdigit",
@@ -2899,8 +5374,23 @@
         }
       ],
       "returns": "true iff non-empty and all 0–9.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.Classification",
+        "crtest": "StringCompileRun.Isdigit",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 439,
       "module": "string",
-      "qualified": "string.isdigit"
+      "qualified": "string.isdigit",
+      "perf": {
+        "cheatah_ns": 1.43,
+        "kind": "compared",
+        "python_ns": 42.94,
+        "speedup": 29.9
+      }
     },
     {
       "name": "islower",
@@ -2913,8 +5403,23 @@
         }
       ],
       "returns": "true iff non-empty and has no uppercase.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.Classification",
+        "crtest": "StringCompileRun.Islower",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 512,
       "module": "string",
-      "qualified": "string.islower"
+      "qualified": "string.islower",
+      "perf": {
+        "cheatah_ns": 3.16,
+        "kind": "compared",
+        "python_ns": 43.11,
+        "speedup": 13.6
+      }
     },
     {
       "name": "isspace",
@@ -2927,8 +5432,23 @@
         }
       ],
       "returns": "true iff non-empty and all whitespace.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.ClassificationAlnumAndSpace",
+        "crtest": "StringCompileRun.Isspace",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 482,
       "module": "string",
-      "qualified": "string.isspace"
+      "qualified": "string.isspace",
+      "perf": {
+        "cheatah_ns": 1.99,
+        "kind": "compared",
+        "python_ns": 42.7,
+        "speedup": 21.4
+      }
     },
     {
       "name": "isupper",
@@ -2941,8 +5461,23 @@
         }
       ],
       "returns": "true iff non-empty and has no lowercase.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.Classification",
+        "crtest": "StringCompileRun.Isupper",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 497,
       "module": "string",
-      "qualified": "string.isupper"
+      "qualified": "string.isupper",
+      "perf": {
+        "cheatah_ns": 4.04,
+        "kind": "compared",
+        "python_ns": 45.74,
+        "speedup": 11.3
+      }
     },
     {
       "name": "join",
@@ -2959,8 +5494,23 @@
         }
       ],
       "returns": "the joined string.",
+      "tags": {
+        "complexity": "O(total length).",
+        "alloc": "allocates the result.",
+        "test": "CheatahString.Transform",
+        "crtest": "StringCompileRun.Join",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 343,
       "module": "string",
-      "qualified": "string.join"
+      "qualified": "string.join",
+      "perf": {
+        "cheatah_ns": 35.27,
+        "kind": "compared",
+        "python_ns": 91.35,
+        "speedup": 2.6
+      }
     },
     {
       "name": "ljust",
@@ -2981,8 +5531,23 @@
         }
       ],
       "returns": "padded s (or s if already ≥ width).",
+      "tags": {
+        "complexity": "O(width).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Padding",
+        "crtest": "StringCompileRun.Ljust",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 373,
       "module": "string",
-      "qualified": "string.ljust"
+      "qualified": "string.ljust",
+      "perf": {
+        "cheatah_ns": 26.41,
+        "kind": "compared",
+        "python_ns": 74.58,
+        "speedup": 2.8
+      }
     },
     {
       "name": "lower",
@@ -2995,8 +5560,23 @@
         }
       ],
       "returns": "s lowercased.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates the result.",
+        "test": "CheatahString.Case",
+        "crtest": "StringCompileRun.Lower",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 63,
       "module": "string",
-      "qualified": "string.lower"
+      "qualified": "string.lower",
+      "perf": {
+        "cheatah_ns": 41.18,
+        "kind": "compared",
+        "python_ns": 74.05,
+        "speedup": 1.8
+      }
     },
     {
       "name": "lstrip",
@@ -3013,8 +5593,23 @@
         }
       ],
       "returns": "left-trimmed s.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Trimming",
+        "crtest": "StringCompileRun.Lstrip",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 138,
       "module": "string",
-      "qualified": "string.lstrip"
+      "qualified": "string.lstrip",
+      "perf": {
+        "cheatah_ns": 12.91,
+        "kind": "compared",
+        "python_ns": 62.19,
+        "speedup": 4.8
+      }
     },
     {
       "name": "replace",
@@ -3035,8 +5630,23 @@
         }
       ],
       "returns": "new string.",
+      "tags": {
+        "complexity": "O(n·m).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Transform",
+        "crtest": "StringCompileRun.Replace",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 260,
       "module": "string",
-      "qualified": "string.replace"
+      "qualified": "string.replace",
+      "perf": {
+        "cheatah_ns": 53.46,
+        "kind": "compared",
+        "python_ns": 84.7,
+        "speedup": 1.6
+      }
     },
     {
       "name": "rfind",
@@ -3053,8 +5663,23 @@
         }
       ],
       "returns": "index, or -1.",
+      "tags": {
+        "complexity": "O(n·m).",
+        "alloc": "none.",
+        "test": "CheatahString.SearchAndTest",
+        "crtest": "StringCompileRun.Rfind",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 228,
       "module": "string",
-      "qualified": "string.rfind"
+      "qualified": "string.rfind",
+      "perf": {
+        "cheatah_ns": 4.07,
+        "kind": "compared",
+        "python_ns": 72.94,
+        "speedup": 17.9
+      }
     },
     {
       "name": "rjust",
@@ -3075,8 +5700,23 @@
         }
       ],
       "returns": "padded s.",
+      "tags": {
+        "complexity": "O(width).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Padding",
+        "crtest": "StringCompileRun.Rjust",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 390,
       "module": "string",
-      "qualified": "string.rjust"
+      "qualified": "string.rjust",
+      "perf": {
+        "cheatah_ns": 39.82,
+        "kind": "compared",
+        "python_ns": 75.82,
+        "speedup": 1.9
+      }
     },
     {
       "name": "rstrip",
@@ -3093,8 +5733,23 @@
         }
       ],
       "returns": "right-trimmed s.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Trimming",
+        "crtest": "StringCompileRun.Rstrip",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 153,
       "module": "string",
-      "qualified": "string.rstrip"
+      "qualified": "string.rstrip",
+      "perf": {
+        "cheatah_ns": 12.15,
+        "kind": "compared",
+        "python_ns": 60.97,
+        "speedup": 5.0
+      }
     },
     {
       "name": "split",
@@ -3107,8 +5762,23 @@
         }
       ],
       "returns": "the non-empty parts.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates a vector of strings.",
+        "test": "CheatahString.Transform",
+        "crtest": "StringCompileRun.SplitWhitespace",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 291,
       "module": "string",
-      "qualified": "string.split"
+      "qualified": "string.split",
+      "perf": {
+        "cheatah_ns": 113.83,
+        "kind": "compared",
+        "python_ns": 118.89,
+        "speedup": 1.0
+      }
     },
     {
       "name": "splitlines",
@@ -3121,8 +5791,23 @@
         }
       ],
       "returns": "the lines (newlines removed).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates a vector of strings.",
+        "test": "CheatahString.Transform",
+        "crtest": "StringCompileRun.Splitlines",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 306,
       "module": "string",
-      "qualified": "string.splitlines"
+      "qualified": "string.splitlines",
+      "perf": {
+        "cheatah_ns": 34.3,
+        "kind": "compared",
+        "python_ns": 84.14,
+        "speedup": 2.5
+      }
     },
     {
       "name": "startswith",
@@ -3139,8 +5824,23 @@
         }
       ],
       "returns": "true iff s starts with prefix.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "none.",
+        "test": "CheatahString.SearchAndTest",
+        "crtest": "StringCompileRun.Startswith",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 169,
       "module": "string",
-      "qualified": "string.startswith"
+      "qualified": "string.startswith",
+      "perf": {
+        "cheatah_ns": 6.06,
+        "kind": "compared",
+        "python_ns": 66.85,
+        "speedup": 11.0
+      }
     },
     {
       "name": "strip",
@@ -3157,8 +5857,23 @@
         }
       ],
       "returns": "trimmed s.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Trimming",
+        "crtest": "StringCompileRun.Strip",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 123,
       "module": "string",
-      "qualified": "string.strip"
+      "qualified": "string.strip",
+      "perf": {
+        "cheatah_ns": 29.64,
+        "kind": "compared",
+        "python_ns": 61.69,
+        "speedup": 2.1
+      }
     },
     {
       "name": "swapcase",
@@ -3171,8 +5886,23 @@
         }
       ],
       "returns": "case-swapped s.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Case",
+        "crtest": "StringCompileRun.Swapcase",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 105,
       "module": "string",
-      "qualified": "string.swapcase"
+      "qualified": "string.swapcase",
+      "perf": {
+        "cheatah_ns": 75.72,
+        "kind": "compared",
+        "python_ns": 166.5,
+        "speedup": 2.2
+      }
     },
     {
       "name": "title",
@@ -3185,8 +5915,23 @@
         }
       ],
       "returns": "title-cased s.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Case",
+        "crtest": "StringCompileRun.Title",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 91,
       "module": "string",
-      "qualified": "string.title"
+      "qualified": "string.title",
+      "perf": {
+        "cheatah_ns": 66.67,
+        "kind": "compared",
+        "python_ns": 153.46,
+        "speedup": 2.3
+      }
     },
     {
       "name": "upper",
@@ -3199,8 +5944,23 @@
         }
       ],
       "returns": "s uppercased.",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "allocates the result.",
+        "test": "CheatahString.Case",
+        "crtest": "StringCompileRun.Upper",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 49,
       "module": "string",
-      "qualified": "string.upper"
+      "qualified": "string.upper",
+      "perf": {
+        "cheatah_ns": 40.54,
+        "kind": "compared",
+        "python_ns": 73.43,
+        "speedup": 1.8
+      }
     },
     {
       "name": "zfill",
@@ -3217,8 +5977,23 @@
         }
       ],
       "returns": "'0'-padded s.",
+      "tags": {
+        "complexity": "O(width).",
+        "alloc": "allocates.",
+        "test": "CheatahString.Padding",
+        "crtest": "StringCompileRun.Zfill",
+        "systest": "StdlibE2E.String"
+      },
+      "srcfile": "stdlib/string/string.hpp",
+      "srcline": 423,
       "module": "string",
-      "qualified": "string.zfill"
+      "qualified": "string.zfill",
+      "perf": {
+        "cheatah_ns": 38.9,
+        "kind": "compared",
+        "python_ns": 76.49,
+        "speedup": 2.0
+      }
     },
     {
       "name": "monotonic",
@@ -3226,8 +6001,23 @@
       "brief": "Monotonic clock; never runs backwards.",
       "params": [],
       "returns": "seconds from steady_clock.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.MonotonicClocksAdvanceAcrossSleep",
+        "crtest": "TimeCompileRun.Monotonic",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 65,
       "module": "time",
-      "qualified": "time.monotonic"
+      "qualified": "time.monotonic",
+      "perf": {
+        "cheatah_ns": 16.84,
+        "kind": "compared",
+        "python_ns": 61.37,
+        "speedup": 3.6
+      }
     },
     {
       "name": "monotonic_ns",
@@ -3235,8 +6025,23 @@
       "brief": "Monotonic clock; never runs backwards.",
       "params": [],
       "returns": "nanoseconds from steady_clock.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.MonotonicClocksAdvanceAcrossSleep",
+        "crtest": "TimeCompileRun.MonotonicNs",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 79,
       "module": "time",
-      "qualified": "time.monotonic_ns"
+      "qualified": "time.monotonic_ns",
+      "perf": {
+        "cheatah_ns": 13.69,
+        "kind": "compared",
+        "python_ns": 81.24,
+        "speedup": 5.9
+      }
     },
     {
       "name": "perf_counter",
@@ -3244,8 +6049,23 @@
       "brief": "Highest-resolution monotonic counter.",
       "params": [],
       "returns": "seconds from steady_clock.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.PerfCounterAdvances",
+        "crtest": "TimeCompileRun.PerfCounter",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 94,
       "module": "time",
-      "qualified": "time.perf_counter"
+      "qualified": "time.perf_counter",
+      "perf": {
+        "cheatah_ns": 16.92,
+        "kind": "compared",
+        "python_ns": 61.58,
+        "speedup": 3.6
+      }
     },
     {
       "name": "perf_counter_ns",
@@ -3253,8 +6073,23 @@
       "brief": "Highest-resolution monotonic counter.",
       "params": [],
       "returns": "nanoseconds from steady_clock.",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.MonotonicClocksAdvanceAcrossSleep",
+        "crtest": "TimeCompileRun.PerfCounterNs",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 108,
       "module": "time",
-      "qualified": "time.perf_counter_ns"
+      "qualified": "time.perf_counter_ns",
+      "perf": {
+        "cheatah_ns": 14.08,
+        "kind": "compared",
+        "python_ns": 79.2,
+        "speedup": 5.6
+      }
     },
     {
       "name": "process_time",
@@ -3262,8 +6097,23 @@
       "brief": "CPU time consumed by this process.",
       "params": [],
       "returns": "seconds of CPU time (std::clock).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.ProcessTimeNonNegative",
+        "crtest": "TimeCompileRun.ProcessTime",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 123,
       "module": "time",
-      "qualified": "time.process_time"
+      "qualified": "time.process_time",
+      "perf": {
+        "cheatah_ns": 146.07,
+        "kind": "compared",
+        "python_ns": 228.28,
+        "speedup": 1.6
+      }
     },
     {
       "name": "sleep",
@@ -3276,8 +6126,21 @@
         }
       ],
       "returns": "",
+      "tags": {
+        "complexity": "O(1) plus the sleep wait.",
+        "alloc": "none.",
+        "test": "CheatahTime.MonotonicClocksAdvanceAcrossSleep",
+        "crtest": "TimeCompileRun.Sleep",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 138,
       "module": "time",
-      "qualified": "time.sleep"
+      "qualified": "time.sleep",
+      "perf": {
+        "kind": "note",
+        "note": "blocks for a requested duration — not micro-benchmarked"
+      }
     },
     {
       "name": "time",
@@ -3285,8 +6148,23 @@
       "brief": "Wall-clock time.",
       "params": [],
       "returns": "seconds since the Unix epoch (system_clock).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.WallClockIsRecent",
+        "crtest": "TimeCompileRun.Time",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 36,
       "module": "time",
-      "qualified": "time.time"
+      "qualified": "time.time",
+      "perf": {
+        "cheatah_ns": 17.03,
+        "kind": "compared",
+        "python_ns": 63.29,
+        "speedup": 3.7
+      }
     },
     {
       "name": "time_ns",
@@ -3294,8 +6172,23 @@
       "brief": "Wall-clock time.",
       "params": [],
       "returns": "nanoseconds since the Unix epoch (system_clock).",
+      "tags": {
+        "complexity": "O(1) time.",
+        "alloc": "none.",
+        "test": "CheatahTime.WallClockIsRecent",
+        "crtest": "TimeCompileRun.TimeNs",
+        "systest": "StdlibE2E.Time"
+      },
+      "srcfile": "stdlib/time/time.hpp",
+      "srcline": 50,
       "module": "time",
-      "qualified": "time.time_ns"
+      "qualified": "time.time_ns",
+      "perf": {
+        "cheatah_ns": 14.4,
+        "kind": "compared",
+        "python_ns": 83.38,
+        "speedup": 5.8
+      }
     }
   ],
   "modules": [
@@ -3314,5 +6207,12 @@
     "statistics",
     "string",
     "time"
-  ]
+  ],
+  "perf_meta": {
+    "cheatah_commit": "82a478b",
+    "cpython": "3.12.3",
+    "generated": "2026-06-08",
+    "machine": "x86_64",
+    "numpy": "1.26.4"
+  }
 }
