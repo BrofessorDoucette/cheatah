@@ -6,7 +6,7 @@
 <meta name="generator" content="cheatah">
 <title>html::parser · cheatah</title>
 <link rel="icon" href="cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="cheatah-docs.css?v=fb022564">
+<link rel="stylesheet" href="cheatah-docs.css?v=5865d6de">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -26,7 +26,7 @@
   <h1><code>html::parser</code></h1>
   <p class="lede">The tokenizing parser — the <code><a href="namespacecheatah_1_1html_1_1parser.html">html.parser</a></code> submodule. </p>
 </div>
-<div class="overview"><p><code>import <a href="namespacecheatah_1_1html.html">html</a></code>, then call <code>html.parser.parse(src)</code>.</p></div>
+<div class="overview"><p><code>import <a href="namespacecheatah_1_1html.html">html</a></code>, then call <code>html.parser.<span class="tok-fn">parse</span>(src)</code>.</p></div>
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1html_1_1parser_1a3133dc4601a2a67aee27aa607945ec54">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
@@ -34,14 +34,14 @@
     <span class="member-actions"><a class="src-link" href="src_stdlib_html_html_cpp.html#L159" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1html_1_1parser_1a3133dc4601a2a67aee27aa607945ec54" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Tokenize an HTML document into the events a callback parser would dispatch. </p>
-  <div class="member-body"><p>Returns one Token per event, in document order. The Token::kind is one of:</p><ul><li><p><code>&quot;starttag&quot;</code> — <code>&lt;div class=&quot;x&quot;&gt;</code>; Token::tag + Token::attrs set.</p>
-</li><li><p><code>&quot;startendtag&quot;</code> — self-closing <code>&lt;br/&gt;</code>; tag + attrs set.</p>
-</li><li><p><code>&quot;endtag&quot;</code> — <code>&lt;/div&gt;</code>; Token::tag set.</p>
-</li><li><p><code>&quot;data&quot;</code> — text between tags; Token::data set (character references decoded, like Python&#x27;s <code>convert_charrefs=True</code>).</p>
-</li><li><p><code>&quot;comment&quot;</code> — <code>&lt;!-- … --&gt;</code>; Token::data is the comment body.</p>
-</li><li><p><code>&quot;decl&quot;</code> — <code>&lt;!DOCTYPE <a href="namespacecheatah_1_1html.html">html</a>&gt;</code>; Token::data is the text after <code>&lt;!</code>.</p>
-</li><li><p><code>&quot;pi&quot;</code> — processing instruction <code>&lt;? … &gt;</code>; Token::data the body.</p>
-</li></ul><p>Tag and attribute names are lowercased. <code>&lt;script&gt;</code> / <code>&lt;style&gt;</code> bodies are emitted as a single raw <code>&quot;data&quot;</code> token (references <strong>not</strong> decoded). Malformed input never throws: unterminated constructs consume to end-of-input.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>html</code></td><td class="pdesc"><p>the document text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the token list (empty for empty input).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) time in the length of <code>html</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the token vector and its strings on the heap.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>CheatahHtml.Parse</code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code>HtmlCompileRun.Parse</code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code>StdlibE2E.Html</code></span></div></div>
+  <div class="member-body"><p>Returns one Token per event, in document order. The Token::kind is one of:</p><ul><li><p><code><span class="tok-str">&quot;starttag&quot;</span></code> — <code>&lt;div <span class="tok-kw">class</span>=<span class="tok-str">&quot;x&quot;</span>&gt;</code>; Token::tag + Token::attrs set.</p>
+</li><li><p><code><span class="tok-str">&quot;startendtag&quot;</span></code> — self-closing <code>&lt;br/&gt;</code>; tag + attrs set.</p>
+</li><li><p><code><span class="tok-str">&quot;endtag&quot;</span></code> — <code>&lt;/div&gt;</code>; Token::tag set.</p>
+</li><li><p><code><span class="tok-str">&quot;data&quot;</span></code> — text between tags; Token::data set (character references decoded, like Python&#x27;s <code>convert_charrefs=<span class="tok-const">True</span></code>).</p>
+</li><li><p><code><span class="tok-str">&quot;comment&quot;</span></code> — <code>&lt;!-- … --&gt;</code>; Token::data is the comment body.</p>
+</li><li><p><code><span class="tok-str">&quot;decl&quot;</span></code> — <code>&lt;!DOCTYPE <a href="namespacecheatah_1_1html.html">html</a>&gt;</code>; Token::data is the text after <code>&lt;!</code>.</p>
+</li><li><p><code><span class="tok-str">&quot;pi&quot;</span></code> — processing instruction <code>&lt;? … &gt;</code>; Token::data the body.</p>
+</li></ul><p>Tag and attribute names are lowercased. <code>&lt;script&gt;</code> / <code>&lt;style&gt;</code> bodies are emitted as a single raw <code><span class="tok-str">&quot;data&quot;</span></code> token (references <strong>not</strong> decoded). Malformed input never throws: unterminated constructs consume to end-of-input.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>html</code></td><td class="pdesc"><p>the document text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the token list (empty for empty input).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) time in the length of <code>html</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the token vector and its strings on the heap.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code>CheatahHtml.Parse</code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code>HtmlCompileRun.Parse</code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code>StdlibE2E.Html</code></span></div></div>
 </section><section class="member" id="namespacecheatah_1_1html_1_1parser_1a2ac219ac3711a4c4d72c2b67a0f4a495">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>

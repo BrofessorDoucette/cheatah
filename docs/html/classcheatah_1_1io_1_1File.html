@@ -6,7 +6,7 @@
 <meta name="generator" content="cheatah">
 <title>io::File · cheatah</title>
 <link rel="icon" href="cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="cheatah-docs.css?v=fb022564">
+<link rel="stylesheet" href="cheatah-docs.css?v=5865d6de">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -26,7 +26,7 @@
   <h1><code>io::File</code></h1>
   <p class="lede">A Python-like file object over <code>std::fstream</code>. </p>
 </div>
-<div class="overview"><p>RAII closes on scope exit — the C++ analog of <code>with open(...) as f:</code>. Move-only (copying a file handle is meaningless), like Python file objects.</p></div>
+<div class="overview"><p>RAII closes on scope exit — the C++ analog of <code><span class="tok-kw">with</span> <span class="tok-fn">open</span>(...) <span class="tok-kw">as</span> f:</code>. Move-only (copying a file handle is meaningless), like Python file objects.</p></div>
 <h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1io_1_1File_1a839f833ef4d63c44d17fd646723a83ef">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
@@ -122,7 +122,7 @@
     <span class="member-actions"><a class="src-link" href="src_stdlib_io_io_cpp.html#L46" title="View source">source</a><a class="anchor" href="#classcheatah_1_1io_1_1File_1aae245627480a697f322a3d95e7702e03" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Read the next line. </p>
-  <div class="member-body"><p>Consumes through the next <code>\n</code> (which is discarded). Because both a genuine empty line and EOF yield &quot;&quot;, the return value alone cannot distinguish them — check <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">is_open()</a>/EOF separately if that matters.</p><div class="ret"><span class="ret-h">Returns</span> <p>the line with its newline stripped; <code>&quot;&quot;</code> at EOF.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(line length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L104"><code>CheatahIo.FileReadlineThenReadlines</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L49"><code>IoCompileRun.Readline</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
+  <div class="member-body"><p>Consumes through the next <code>\n</code> (which is discarded). Because both a genuine empty line and EOF yield &quot;&quot;, the return value alone cannot distinguish them — check <a href="classcheatah_1_1io_1_1File.html#classcheatah_1_1io_1_1File_1a3f4cea89434579d2139345bea086217f">is_open()</a>/EOF separately if that matters.</p><div class="ret"><span class="ret-h">Returns</span> <p>the line with its newline stripped; <code><span class="tok-str">&quot;&quot;</span></code> at EOF.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(line length).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_io_test_cpp.html#L104"><code>CheatahIo.FileReadlineThenReadlines</code></a></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><a href="src_tests_purrc_io_cr_test_cpp.html#L49"><code>IoCompileRun.Readline</code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_io_sys_test_cpp.html#L34"><code>StdlibE2E.Io</code></a></span></div></div>
 </section><section class="member" id="classcheatah_1_1io_1_1File_1a35449102fbc2a90b44017faf753aebd2">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>

@@ -6,7 +6,7 @@
 <meta name="generator" content="cheatah">
 <title>cheatah standard library · cheatah</title>
 <link rel="icon" href="cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="cheatah-docs.css?v=fb022564">
+<link rel="stylesheet" href="cheatah-docs.css?v=5865d6de">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -29,7 +29,7 @@
       <p class="hero-tagline">Programs so fast they purrrrrrrrrrrrr like a kitten.</p>
     </div>
   </div>
-  <p>🐱 <em>Programs so fast they purrrrrrrrrrrrr like a kitten.</em> 🐆</p><p><strong>cheatah</strong> is Python for people who care about performance: you write <code>.purr</code> source, compile it with <code>purrc</code> (lexer → parser → codegen → C++ → <code>.so</code>), and run it on the headless <code>cheatah</code> host. This site documents the <strong>standard library</strong> — the modules a <code>.purr</code> program reaches for.</p><h2>How to read these docs <span class="paw">🐾</span></h2><p>Every standard-library function carries a Doxygen/Javadoc comment with a consistent contract, so you always know what a call costs:</p><ul><li><p>**<code>@param</code> / <code>@return</code>** — what goes in and comes out.</p>
+  <p>🐱 <em>Programs so fast they purrrrrrrrrrrrr like a kitten.</em> 🐆</p><p><strong>cheatah</strong> is Python for people who care about performance: you write <code>.purr</code> source, compile it with <code>purrc</code> (lexer → parser → codegen → C++ → <code>.so</code>), and run it on the headless <code>cheatah</code> host. This site documents the <strong>standard library</strong> — the modules a <code>.purr</code> program reaches for.</p><h2>How to read these docs <span class="paw">🐾</span></h2><p>Every standard-library function carries a Doxygen/Javadoc comment with a consistent contract, so you always know what a call costs:</p><ul><li><p>**<code>@param</code> / <code>@<span class="tok-kw">return</span></code>** — what goes in and comes out.</p>
 </li><li><p>**<code>@complexity</code>** — the <strong>runtime complexity</strong> (Big-O) of the call.</p>
 </li><li><p>**<code>@alloc</code>** — the function&#x27;s <strong>heap behavior</strong>: <code>none</code>, or what it allocates (<code>allocates the result</code>, <code>allocates a temporary</code>, scratch buffers, …). Memory behavior is a first-class part of the contract: cheatah&#x27;s whole reason for existing is memory safety.</p>
 </li><li><p>**<code>@test</code>** — a link to the unit test that exercises the function.</p>

@@ -387,6 +387,11 @@ class Renderer:
 
     # --- inline elements ---
     def t_computeroutput(self, el) -> str:
+        # Inline `code` (backticks, incl. in guide tables) gets the same token
+        # highlighting as block code — as long as it's plain text (only <sp/> spacing
+        # children, no nested links/refs, which would need inline() rendering).
+        if all(c.tag == "sp" for c in el):
+            return f"<code>{highlight_code(self._code_text(el))}</code>"
         return f"<code>{self.inline(el)}</code>"
 
     def t_bold(self, el) -> str:

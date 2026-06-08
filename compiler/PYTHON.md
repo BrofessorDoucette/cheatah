@@ -75,7 +75,7 @@ True / False are written **lowercase** (`true` / `false`).
 
 3. **`fn` instead of `def`.** `fn add(a, b) { return a + b }`.
 
-4. **`struct` instead of `class` — with methods and interfaces (no inheritance).**
+4. **`struct` instead of `class` — with methods and interfaces.**
    A `struct` is more than a data class: it carries **typed fields**, **methods**,
    and can declare which **interfaces** it fulfills.
    ```python
@@ -101,10 +101,16 @@ True / False are written **lowercase** (`true` / `false`).
      required methods, and `struct Circle : Shape { … }` makes the compiler **verify
      statically** that `Circle` fulfills `Shape` (a `static_assert`, checked at
      compile time — not duck-typed at runtime). A parameter typed by an interface
-     (`fn describe(s: Shape) { … }`) constrains what may be passed.
-   - **No inheritance** (composition over inheritance is the design choice) and **no
-     custom constructor / `__init__`** yet — construction is **positional** over the
-     fields in declaration order (`Circle(2.0)`, `Bar("d", 1.0)`).
+     (`fn describe(s: Shape) { … }`) constrains what may be passed — fast (no virtual
+     dispatch) and enough for patterns like the strategy pattern.
+   - **Inheritance lives in interfaces, not structs.** A struct **never inherits** —
+     it stays a simple bag of fields + methods that *implements* an interface.
+     Hierarchies are expressed by **refining interfaces** (one interface building on
+     another): mirroring C++ concept subsumption (*if predicate A holds then B
+     holds*), satisfying a refined interface implies satisfying the ones it refines.
+     So the interface graph carries all the "is-a" structure and structs stay simple.
+   - **No custom constructor / `__init__`** yet — construction is **positional** over
+     the fields in declaration order (`Circle(2.0)`, `Bar("d", 1.0)`).
 
 5. **Everything is imported — including `print`.** `print` lives in `io`, so
    `import io` then `io.print(...)`. The math functions `abs`/`min`/`max`/`round`/
@@ -144,13 +150,16 @@ True / False are written **lowercase** (`true` / `false`).
 
 ## 🚧 Not yet supported (roadmap)
 
-Comprehensions; typed exceptions & `finally`; struct **inheritance** and **custom
-constructors / `__init__`** (structs already have methods + interfaces — see #4);
-f-strings & rich string formatting (use `io.format`); slice **assignment**
-(`a[1:3] = …`) and step slices (`a[::2]`); tuples/unpacking; `with` statements;
-generators/`yield`; keyword/default arguments; `lambda`.
+Comprehensions; typed exceptions & `finally`; **interface refinement** (one
+interface inheriting another) and **custom constructors / `__init__`** (structs
+already have methods + interfaces — see #4); f-strings & rich string formatting (use
+`io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);
+tuples/unpacking; `with` statements; generators/`yield`; keyword/default arguments;
+`lambda`.
 
 These are tracked toward the goal of frictionless Python → cheatah porting.
+**Struct inheritance is a non-goal** by design — structs stay simple and only
+*implement* interfaces; all "is-a" structure lives in the interface graph (#4).
 
 ---
 

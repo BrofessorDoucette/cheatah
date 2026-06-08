@@ -103,10 +103,18 @@ print(c.area())
 - **Interfaces** are C++20 *concepts*: `interface Shape { fn area(self) }` lists the
   required methods, and `struct Circle : Shape { … }` makes the compiler **verify at
   compile time** that `Circle` fulfills `Shape` (static, not duck-typed). Typing a
-  parameter by an interface (`fn describe(s: Shape)`) constrains what may be passed.
+  parameter by an interface (`fn describe(s: Shape)`) constrains what may be passed —
+  fast, no virtual dispatch, and it gives you patterns like the strategy pattern.
+- **Inheritance lives in the interfaces, not the structs.** A struct **never
+  inherits** — it stays a simple bag of fields + methods that *implements* an
+  interface. When you need a hierarchy, you **refine interfaces**: one interface can
+  build on another, and (just like C++ concept subsumption — *if predicate A holds
+  then B holds*) anything satisfying the refined interface also satisfies the ones it
+  refines. So a struct implements a single interface and inherits nothing; the
+  interface graph carries all the "is-a" structure.
 - **Construction is positional** over the fields in declaration order
-  (`Circle(2.0)`). There is **no custom constructor / `__init__`** and **no
-  inheritance** yet (composition is the design choice). Field access is `c.r`.
+  (`Circle(2.0)`); there is **no custom constructor / `__init__`** yet. Field access
+  is `c.r`.
 
 ## Deliberate deviations (and why)
 
@@ -169,11 +177,15 @@ supported), and the empty `out` list infers its element type from the first
 
 ## Not yet supported (roadmap)
 
-Comprehensions; typed exceptions & `finally`; struct **inheritance** and **custom
-constructors**; f-strings (use `io.format`); slice **assignment** and **step**
-slices; tuples/unpacking; `with`; generators/`yield`; keyword/default arguments;
-`lambda`. These are tracked toward the goal of frictionless Python → cheatah
-porting.
+Comprehensions; typed exceptions & `finally`; **interface refinement** (one
+interface inheriting another) and **custom constructors**; f-strings (use
+`io.format`); slice **assignment** and **step** slices; tuples/unpacking; `with`;
+generators/`yield`; keyword/default arguments; `lambda`. These are tracked toward
+the goal of frictionless Python → cheatah porting.
+
+**Struct inheritance is a non-goal**, by design — structs stay simple and only
+*implement* interfaces; any "is-a" hierarchy lives in the interface graph (see
+above).
 
 ---
 
