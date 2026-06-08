@@ -12,8 +12,17 @@ const path = require("path");
 
 const LANG = "cheatah";
 
-/** @type {{byQualified: Map<string, any>, byModule: Map<string, any[]>, modules: string[], perfMeta: any}} */
-let db = { byQualified: new Map(), byModule: new Map(), modules: [], perfMeta: {} };
+/** @type {{byQualified: Map<string, any>, byModule: Map<string, any[]>, moduleHeader: Map<string,string>, modules: string[], perfMeta: any}} */
+let db = { byQualified: new Map(), byModule: new Map(), moduleHeader: new Map(), modules: [], perfMeta: {} };
+
+// If `word` (or `prefix.word`, for dotted modules like os.path) names a stdlib module,
+// return that module key; else null. Lets hover/Ctrl-click treat a module name (in
+// `import math` or the `math` of `math.sqrt`) as a link to the module's header.
+function moduleKeyAt(word, prefix) {
+  if (db.moduleHeader.has(word)) return word;
+  const dotted = prefix ? prefix + "." + word : null;
+  return dotted && db.moduleHeader.has(dotted) ? dotted : null;
+}
 
 // Set at activation — the extension's own folder, which bundles a copy of the stdlib
 // headers (under `headers/`) so control-click works even outside the cheatah repo.
@@ -25,13 +34,17 @@ function loadDb(context) {
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
   const byQualified = new Map();
   const byModule = new Map();
+  const moduleHeader = new Map(); // module name -> its C++ header (from any member's srcfile)
   for (const fn of raw.functions) {
     byQualified.set(fn.qualified, fn);
     const list = byModule.get(fn.module) || [];
     list.push(fn);
     byModule.set(fn.module, list);
+    if (fn.module != null && fn.srcfile && !moduleHeader.has(fn.module)) {
+      moduleHeader.set(fn.module, fn.srcfile);
+    }
   }
-  db = { byQualified, byModule, modules: raw.modules || [], perfMeta: raw.perf_meta || {} };
+  db = { byQualified, byModule, moduleHeader, modules: raw.modules || [], perfMeta: raw.perf_meta || {} };
 }
 
 function fmtNs(ns) {
@@ -70,16 +83,20 @@ function renderDoc(fn) {
     }
   }
   if (fn.returns) md.appendMarkdown(`\n**Returns** — ${fn.returns}\n`);
-  const pl = perfLine(fn.perf, db.perfMeta);
-  if (pl) md.appendMarkdown(`\n**Performance** — ${pl}\n`);
+  // Facts block — @perf / @complexity / @alloc / @test, each on its own line and set
+  // off from the prose above by a divider, so they read at a glance.
   const t = fn.tags || {};
-  if (t.complexity) md.appendMarkdown(`\n**Complexity** — ${t.complexity}\n`);
-  if (t.alloc) md.appendMarkdown(`**Allocation** — ${t.alloc}\n`);
+  const facts = [];
+  const pl = perfLine(fn.perf, db.perfMeta);
+  if (pl) facts.push(`$(zap) **Performance** — ${pl}`);
+  if (t.complexity) facts.push(`$(watch) **Complexity** — ${t.complexity}`);
+  if (t.alloc) facts.push(`$(database) **Allocation** — ${t.alloc}`);
   if (t.test) {
     const extra = [t.crtest, t.systest].filter(Boolean).map((x) => `\`${x}\``).join(", ");
-    md.appendMarkdown(`**Tested by** — \`${t.test}\`${extra ? ", " + extra : ""}\n`);
+    facts.push(`$(beaker) **Tested by** — \`${t.test}\`${extra ? ", " + extra : ""}`);
   }
-  if (fn.srcfile) md.appendMarkdown(`\n*Ctrl-click to open \`${fn.srcfile}\`*\n`);
+  if (facts.length) md.appendMarkdown("\n\n---\n\n" + facts.join("  \n") + "\n");
+  if (fn.srcfile) md.appendMarkdown(`\n\n*Ctrl-click to open \`${fn.srcfile}\`*\n`);
   return md;
 }
 
@@ -188,6 +205,16 @@ function renderMember(m) {
   return md;
 }
 
+function renderModule(modKey) {
+  const md = new vscode.MarkdownString(undefined, true);
+  md.appendCodeblock("import " + modKey, "cheatah");
+  const fns = db.byModule.get(modKey) || [];
+  md.appendMarkdown(`\nThe \`${modKey}\` standard-library module${fns.length ? ` — ${fns.length} functions` : ""}.\n`);
+  const hdr = db.moduleHeader.get(modKey);
+  if (hdr) md.appendMarkdown(`\n*Ctrl-click to open \`${hdr}\`*\n`);
+  return md;
+}
+
 const hoverProvider = {
   provideHover(document, position) {
     const range = document.getWordRangeAtPosition(position, /[A-Za-z_][A-Za-z0-9_]*/);
@@ -198,6 +225,10 @@ const hoverProvider = {
 
     // 1. Hovering a user struct/interface type name → show its definition.
     if (defs.types.has(word)) return new vscode.Hover(renderType(defs.types.get(word)), range);
+
+    // 1b. Hovering a module name (e.g. `math` in `import math` / `math.sqrt`) → the module.
+    const modKey = moduleKeyAt(word, prefix);
+    if (modKey) return new vscode.Hover(renderModule(modKey), range);
 
     // 2. Hovering a member after `obj.` → a user method, or a struct field.
     if (prefix) {
@@ -251,6 +282,12 @@ const definitionProvider = {
     if (prefix) {
       const ms = defs.methods.get(word);
       if (ms && ms.length) return new vscode.Location(document.uri, new vscode.Position(ms[0].line, 0));
+    }
+    // A module name (`import math`, or the `math` of `math.sqrt`) → its C++ header.
+    const modKey = moduleKeyAt(word, prefix);
+    if (modKey) {
+      const abs = resolveHeader(db.moduleHeader.get(modKey));
+      if (abs) return new vscode.Location(vscode.Uri.file(abs), new vscode.Position(0, 0));
     }
     // A stdlib function → its C++ header declaration (resolved against the setting /
     // workspace / bundled headers).

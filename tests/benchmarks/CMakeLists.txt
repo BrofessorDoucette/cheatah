@@ -8,9 +8,11 @@
 # As more primitives land, add a *_bench.cpp here next to its tests.
 add_executable(cheatah_benchmarks
     linalg_bench.cpp
+    ndarray_bench.cpp
 )
 
 target_link_libraries(cheatah_benchmarks PRIVATE
     cheatah::linalg_static
+    cheatah::ndarray_static
     benchmark::benchmark_main
 )

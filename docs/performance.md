@@ -33,7 +33,7 @@ little programs — the kind of compute a scientist actually writes — implemen
 **same algorithm** in cheatah and in CPython, run on a real workload, with the result
 **cross-checked between the two languages** (same algorithm → same answer) so the
 comparison is honest. The harness is
-[`scripts/app_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/app_compare.py);
+[`scripts/app_compare.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/app_compare.purr);
 times are compute-only (startup excluded), the best of several runs on the reference
 machine:
 

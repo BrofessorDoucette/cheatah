@@ -8,6 +8,7 @@
     { "include": "#cpp-block" },
     { "include": "#strings" },
     { "include": "#numbers" },
+    { "include": "#modules" },
     { "include": "#keywords" },
     { "include": "#declaration" },
     { "include": "#constants" },
@@ -68,9 +69,27 @@
       ]
     },
 
+    "modules": {
+      "patterns": [
+        {
+          "comment": "The module path in an import: `import math`, `import os.path`.",
+          "match": "\\b(import|from)\\s+([A-Za-z_][A-Za-z0-9_.]*)",
+          "captures": {
+            "1": { "name": "keyword.control.import.cheatah" },
+            "2": { "name": "entity.name.namespace.cheatah" }
+          }
+        },
+        {
+          "comment": "A known stdlib module used as a `module.` prefix (e.g. the `math` in `math.sqrt`).",
+          "name": "entity.name.namespace.cheatah",
+          "match": "\\b(io|os|string|math|time|datetime|random|statistics|hashlib|socket|ndarray|linalg|html)\\b(?=\\s*\\.)"
+        }
+      ]
+    },
+
     "keywords": {
       "patterns": [
-        { "name": "keyword.control.cheatah", "match": "\\b(if|else|while|for|in|return|try|except|raise)\\b" },
+        { "name": "keyword.control.cheatah", "match": "\\b(if|else|while|for|in|return|try|except|raise|match|case|break|continue|elif|interface)\\b" },
         { "name": "keyword.control.import.cheatah", "match": "\\b(import|from|as)\\b" },
         { "name": "keyword.operator.logical.cheatah", "match": "\\b(and|or|not)\\b" }
       ]

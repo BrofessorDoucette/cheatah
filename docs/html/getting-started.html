@@ -29,12 +29,8 @@
 <div class="overview"><p>🐱 <em>Write Python-shaped code; ship a native module.</em> 🐆</p><p>cheatah is a <strong>compiled, Python-shaped language</strong>. You write a <code>.purr</code> file, compile it with <code>purrc</code> into a native shared module (<code>.so</code>), and the <code>cheatah</code> runtime loads and runs that module. This page walks the whole path: hello-world, then exactly what happens when you press <em>compile</em> — and what &quot;statically linked&quot; and &quot;dynamically
 loaded&quot; mean here.</p><h2>Hello, cheatah</h2><pre class="code"><code><span class="tok-kw">import</span> io
 
-<span class="tok-kw">fn</span> <span class="tok-fn">main</span>() {
-    io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;hello, cheatah&quot;</span>)
-}
-
-<span class="tok-fn">main</span>()</code></pre><p>Save it as <code>hello.purr</code>, then:</p><pre class="code"><code>purrc hello.purr -o hello.so     <span class="tok-com"># compile to a native module</span>
-cheatah hello.so                 <span class="tok-com"># the runtime loads &amp; runs it</span></code></pre><pre class="code"><code>hello, cheatah</code></pre><p><code>purrc</code> is the compiler; <code>cheatah</code> is the runtime host that loads a compiled module. (Build both from source with the <code>release</code> preset: <code>cmake --preset release &amp;&amp; cmake --build --preset release</code>.)</p><h2>What </h2><p><code>purrc</code> is a transpiler in front of your system C++ compiler. It lexes and parses the <code>.purr</code>, generates modern C++, and invokes the C++ backend <strong>directly</strong> (<code>fork</code> + <code>execvp</code>, never a shell — no command injection) to produce the module:</p><pre class="code"><code>hello.purr
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;meow&quot;</span>)</code></pre><p>Save it as <code>hello.purr</code>, then:</p><pre class="code"><code>purrc hello.purr -o hello.so     <span class="tok-com"># compile to a native module</span>
+cheatah hello.so                 <span class="tok-com"># the runtime loads &amp; runs it</span></code></pre><pre class="code"><code>meow</code></pre><p><code>purrc</code> is the compiler; <code>cheatah</code> is the runtime host that loads a compiled module. (Build both from source with the <code>release</code> preset: <code>cmake --preset release &amp;&amp; cmake --build --preset release</code>.)</p><h2>What </h2><p><code>purrc</code> is a transpiler in front of your system C++ compiler. It lexes and parses the <code>.purr</code>, generates modern C++, and invokes the C++ backend <strong>directly</strong> (<code>fork</code> + <code>execvp</code>, never a shell — no command injection) to produce the module:</p><pre class="code"><code>hello.purr
     │
     │  lex → parse → AST
     ▼
@@ -42,7 +38,7 @@ cheatah hello.so                 <span class="tok-com"># the runtime loads &amp;
 │  purrc  (transpiler) │   generates modern C++ (one .cpp)
 └─────────────────────┘
     │
-    │  emits  hello.purr.cpp   (kept next to the output, so you can read it)
+    │  emits  hello.so.gen.cpp   (kept next to the output, so you can read it)
     ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  C++ backend:  c++ -std=c++<span class="tok-num">20</span> -O3 -march=native -fPIC -shared │

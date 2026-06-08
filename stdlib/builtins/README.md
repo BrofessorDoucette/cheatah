@@ -6,10 +6,11 @@ auto-includes this module and resolves bare calls like `len("x")` to
 live in the [`math`](../math/) module.)
 
 ```python
-print(len("purr"))     # 4
-print(chr(65), ord("A"))  # A 65
-print(hex(255))        # 0xff
-print(to_int("42") + 1)   # 43
+import io
+io.print(len("purr"))        # 4
+io.print(chr(65), ord("A"))  # A 65
+io.print(hex(255))           # 0xff
+io.print(int("42") + 1)      # 43
 ```
 
 ## What's here
@@ -18,7 +19,7 @@ print(to_int("42") + 1)   # 43
 - **Characters** — `ord`, `chr`.
 - **Base representations** — `hex`, `oct`, `bin`.
 - **Repr** — `ascii` (printable-ASCII, escaped, single-quoted).
-- **Conversions** — `to_bool`, `to_int`, `to_float` (string and numeric overloads).
+- **Conversions** — `bool`, `int`, `float` (string and numeric overloads).
 - **Hashing** — `hash`.
 - **Growable lists** — `append(list, x)` / `xs.append(x)` (in-place push).
 - **Indexing & slicing** — `index(seq, i)` (`seq[i]`; negative indices; a string

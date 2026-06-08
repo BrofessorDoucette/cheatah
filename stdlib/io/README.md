@@ -8,10 +8,10 @@ object. Mirrors the [Python I/O tutorial](https://docs.python.org/3/tutorial/inp
 ```purr
 import io
 
-io.print("meow", 42, "purr")            # -> meow 42 purr
-s = io.format("{} ate {} fish", "cat", 3)  # -> "cat ate 3 fish"
+io.print("meow", 42, "purr")               # -> meow 42 purr
+let s = io.format("{} ate {} fish", "cat", 3)  # -> "cat ate 3 fish"
 
-f = io.open("notes.txt", "w")
+let f = io.open("notes.txt", "w")
 f.write("hello\n")
 f.close()
 ```

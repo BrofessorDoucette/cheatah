@@ -60,9 +60,9 @@ import ndarray
 import linalg
 
 # A Hermitian operator H = [[2, 1+i], [1-i, 3]] — real eigenvalues 4, 1:
-let H = ndarray.reshape(
-    ndarray.complex(ndarray.array([2.0, 1.0, 1.0, 3.0]),
-                    ndarray.array([0.0, 1.0, -1.0, 0.0])), [2, 2])
+let re = ndarray.array([2.0, 1.0, 1.0, 3.0])
+let im = ndarray.array([0.0, 1.0, -1.0, 0.0])
+let H = ndarray.reshape(ndarray.complex(re, im), [2, 2])
 io.print(ndarray.to_string(linalg.eigvalsh(H)))   # [4, 1]
 
 # Hermitian inner product ⟨a, a⟩ = ‖a‖² is real:

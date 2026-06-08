@@ -15,7 +15,8 @@ let lfd = socket.tcp_listen("127.0.0.1", 8080, 16)   # create + bind + listen
 io.print("listening on", socket.local_port(lfd))
 let conn = socket.accept(lfd)                         # wait for a client
 let request = socket.recv(conn, 8192)
-socket.sendall(conn, "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi")
+let nl = chr(13) + chr(10)                            # CRLF (no `\r` string escape)
+socket.sendall(conn, "HTTP/1.1 200 OK" + nl + "Content-Length: 2" + nl + nl + "hi")
 socket.close(conn)
 socket.close(lfd)
 ```

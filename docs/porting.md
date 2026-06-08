@@ -160,7 +160,7 @@ import statistics
 fn zscores(xs) {
     let m = statistics.mean(xs)
     let sd = statistics.pstdev(xs)
-    let out = []
+    let out: list[float] = []
     for x in xs {
         out.append((x - m) / sd)
     }
@@ -171,9 +171,10 @@ io.print(zscores([1.0, 2.0, 3.0, 4.0]))
 ```
 
 Two edits beyond syntax: the **comprehension** becomes an explicit loop (not yet
-supported), and the empty `out` list infers its element type from the first
-`append` — if you build it before any append, annotate it (`let out: list[float] =
-[]`). Float literals (`1.0`) keep the division floating.
+supported), and an **empty list literal needs a type annotation** (`let out:
+list[float] = []`) — cheatah infers a list's element type from its *literal*
+elements, so an empty `[]` has nothing to infer from. Float literals (`1.0`) keep the
+division floating.
 
 ## Not yet supported (roadmap)
 

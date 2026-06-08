@@ -42,11 +42,12 @@ These you get for free — the compiler and runtime enforce them so you don't ha
 - **Every template is concept-constrained.** Misuse surfaces as an **early, named
   compile error** ("`Point` does not satisfy `Printable`"), not undefined behavior or
   a pages-long instantiation backtrace.
-- **A QA gate that runs on every push.** The suite runs under **AddressSanitizer +
-  UndefinedBehaviorSanitizer** *and* **Valgrind**, with **100% line and function
-  test coverage** enforced — memory errors, UB, and leaks fail the build before they
-  ship. (Caveat: sanitizers only cover *exercised* paths; the historical `ndarray`
-  overflow bugs were caught by manual review, then fixed and regression-tested.)
+- **A QA gate that runs on every push** (a local pre-push hook). The suite runs under
+  **AddressSanitizer + UndefinedBehaviorSanitizer** *and* **Valgrind**, with **100%
+  line and function coverage of the standard library** enforced — memory errors, UB,
+  and leaks fail the build before they ship. (Caveat: sanitizers only cover *exercised*
+  paths; the historical `ndarray` overflow bugs were caught by manual review, then
+  fixed and regression-tested.)
 
 ## What you still have to worry about (for now)
 

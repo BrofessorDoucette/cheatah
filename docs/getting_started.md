@@ -13,11 +13,7 @@ loaded" mean here.
 ```
 import io
 
-fn main() {
-    io.print("hello, cheatah")
-}
-
-main()
+io.print("meow")
 ```
 
 Save it as `hello.purr`, then:
@@ -28,7 +24,7 @@ cheatah hello.so                 # the runtime loads & runs it
 ```
 
 ```
-hello, cheatah
+meow
 ```
 
 `purrc` is the compiler; `cheatah` is the runtime host that loads a compiled module.
@@ -50,7 +46,7 @@ cmake --build --preset release`.)
    │  purrc  (transpiler) │   generates modern C++ (one .cpp)
    └─────────────────────┘
        │
-       │  emits  hello.purr.cpp   (kept next to the output, so you can read it)
+       │  emits  hello.so.gen.cpp   (kept next to the output, so you can read it)
        ▼
    ┌─────────────────────────────────────────────────────────────┐
    │  C++ backend:  c++ -std=c++20 -O3 -march=native -fPIC -shared │

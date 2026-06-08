@@ -25,12 +25,13 @@ correct C-order walk.
 ## Usage
 
 ```purr
+import io
 import ndarray
 
-a = ndarray.array([1.0, 2.0, 3.0])
-b = ndarray.reshape(ndarray.arange(0.0, 6.0, 1.0), [2, 3])
-c = ndarray.add(b, ndarray.scalar(10.0))   # broadcasts the scalar
-print(ndarray.to_string(c))
+let a = ndarray.array([1.0, 2.0, 3.0])
+let b = ndarray.reshape(ndarray.arange(0.0, 6.0, 1.0), [2, 3])
+let c = ndarray.add(b, ndarray.scalar(10.0))   # broadcasts the scalar
+io.print(ndarray.to_string(c))
 ```
 
 `import ndarray` includes `ndarray.hpp` and links `libcheatah_ndarray`.

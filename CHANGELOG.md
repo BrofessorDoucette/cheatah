@@ -3,6 +3,57 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.5.0-alpha — performance, honestly: @perf everywhere, vs-CPython & vs-NumPy, and a smarter editor
+
+This release is about **measuring** cheatah honestly and surfacing those numbers
+where you work. Every standard-library function now carries a measured **Performance**
+row; the benchmarks compare against both interpreted CPython and NumPy/LAPACK (and
+report where cheatah *loses*, not just where it wins); the numeric core gains
+element-wise math; and the VS Code extension becomes a real reference tool.
+
+### Performance & benchmarks
+- **`@perf` on every function.** The reference docs and editor hover now show a measured
+  *Performance* row per function — cheatah ns/call vs the honest baseline (CPython, or
+  **NumPy** for the numeric modules) with the version it was measured against. Numbers
+  live in one provenance-tagged `docs/perf_data.json`, regenerated periodically by
+  `scripts/perf_suite.py` (NOT in the QA gate — benchmarks are noisy/machine-specific).
+- **Honest benchmark methodology.** Benchmarks are **elision-proof** (vary input +
+  accumulate + print, so the optimizer can't delete the work — a naive loop measured a
+  bogus "125000×"). cheatah is ~**20–35×** faster than CPython on real loops, ~**1×**
+  where the work is already native (`hashlib`), and the whole-program suite (Mandelbrot,
+  N-body, RK4, integral) runs **14–97×** faster.
+- **cheatah vs NumPy, by dimension.** cheatah *wins* small/medium dense `matmul`/`solve`/
+  `det`/`inv` and small `eigvalsh` (the few-level-Hamiltonian physics case) by avoiding
+  Python/dispatch overhead; NumPy's BLAS/LAPACK win at scale and on `dot`/large `eigvalsh`.
+  Reported both ways. (Large-dimension speedups are the future **cheatah-gpu** story.)
+- **No garbage collector** — memory safety is RAII scopes + `shared_ptr` refcounting, so
+  there are no GC pauses; documented on the performance page.
+- The benchmark harnesses (`app_compare`, `perf_compare`, `numpy_compare`) are themselves
+  **rewritten in pure cheatah** (dogfooding); the QA gate stays in trusted tooling.
+
+### Numeric core (`ndarray`)
+- **Element-wise math ufuncs** — `sqrt`/`cbrt`/`exp`/`log`/`sin`/`cos`/`tan`/`abs` over a
+  whole array (the array forms of the scalar `math` module; ≈ NumPy ufuncs),
+  SIMD-vectorized on the contiguous fast path.
+
+### VS Code extension
+- **Richer hover** — each function shows a divided facts block: **Performance** (@perf),
+  **Complexity**, **Allocation**, and the **tests** that cover it, with icons.
+- **Go to Definition (Ctrl-click)** on a stdlib call or an imported module opens its C++
+  header — resolved against the cheatah **runtime you pick** (`cheatah.root` setting),
+  the workspace, or headers **bundled with the extension** (kept in sync with the built
+  runtime).
+- **User structs & interfaces** — hover a type for its definition (fields/methods/
+  interfaces), a method/field for its doc; Ctrl-click jumps to the declaration.
+- **Module names are colored**, and the QA gate now **auto-reinstalls the extension**
+  from the freshly-built runtime, so the editor never drifts (it had been stuck on
+  v0.2.0). C++ IntelliSense for the benchmark sources fixed.
+
+### Docs
+- The performance page leads with the three benchmark comparisons grouped together.
+- Audited every doc for accuracy and fixed broken/again-runnable examples across the
+  guides and module READMEs.
+
 ## v0.4.0-alpha — complex linear algebra
 
 cheatah becomes a tool for **complex** linear algebra — the kind physics (quantum,

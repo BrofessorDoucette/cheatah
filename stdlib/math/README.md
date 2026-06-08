@@ -5,11 +5,12 @@ Scalar math: Python's `math` module plus the math-flavored built-ins
 operates on `double` / `long long` by value and never touches the heap.
 
 ```python
+import io
 import math
 
-print(math.sqrt(2.0))        # 1.4142135623730951
-print(math.gcd(48, 18))      # 6
-print(abs(-3), max(1, 9, 4)) # 3 9
+io.print(math.sqrt(2.0))             # 1.4142135623730951
+io.print(math.gcd(48, 18))           # 6
+io.print(math.abs(-3), math.max(1, 9, 4)) # 3 9
 ```
 
 ## What's here
