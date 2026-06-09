@@ -237,9 +237,20 @@ So across dense linear algebra at small-to-moderate `n` — the regime most scie
 code actually runs in — cheatah now **matches or beats** NumPy's BLAS/LAPACK on every
 routine measured: it wins outright on the products, the LU factorizations, the SVD and
 its `pinv`/`cond`/`matrix_rank` derivatives, and the element-wise math, and ties on the
-symmetric eigensolver and bare singular values. NumPy's remaining edge is only the very
-large dense problems where threaded BLAS scales across cores — a single-thread vs
-many-thread gap, not an algorithmic one.
+symmetric eigensolver and bare singular values.
+
+And it does all of this on **one core, by design.** cheatah's linear algebra is
+deliberately **single-threaded** — that's a feature, not a shortfall. There are no
+hidden worker threads spinning up in the background, no surprise contention with the
+rest of your program, no thread-count to tune; the same code runs the same way every
+time. NumPy's one remaining edge is the very large dense problems where its BLAS spreads
+across many cores — but that's a *different operating point*, not a faster algorithm. Our
+bet is the opposite one: make a single core as fast as it can possibly be, and let *you*
+decide when to multiply that by your core count. If you have 8 cores and an
+embarrassingly parallel sweep — a parameter scan, a batch of small eigenproblems, a
+Monte-Carlo run — you get an honest ~8× by running eight cheatah problems at once,
+explicitly, with no magic. Predictable single-core speed composes; opaque
+auto-parallelism doesn't.
 
 ## No garbage collector — and so, no GC pauses {#no-gc}
 
