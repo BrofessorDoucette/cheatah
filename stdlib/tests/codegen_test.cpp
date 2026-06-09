@@ -73,6 +73,29 @@ TEST(CheatahCodegen, EmitsStructDefinition) {
     EXPECT_TRUE(contains(cg.source, "double close;"));
 }
 
+TEST(CheatahCodegen, EmitsScopedEnumClass) {
+    const ParseResult pr = parse_source("enum Color {\n  RED\n  GREEN\n  BLUE\n}\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "enum class Color {"));  // scoped, not a plain enum
+    EXPECT_TRUE(contains(cg.source, "RED,"));
+    EXPECT_TRUE(contains(cg.source, "BLUE,"));
+    // A streamable debug form so io.print(Color.RED) shows "Color.RED".
+    EXPECT_TRUE(contains(cg.source, "std::ostream& operator<<(std::ostream& os_, Color"));
+    EXPECT_TRUE(contains(cg.source, "return os_ << \"Color.RED\""));
+}
+
+TEST(CheatahCodegen, EnumExplicitValuesAndScopedMemberAccess) {
+    const ParseResult pr = parse_source(
+        "enum Status {\n  OK = 0\n  FAIL = 1\n}\nlet s = Status.FAIL\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "OK = 0LL,"));            // explicit value
+    EXPECT_TRUE(contains(cg.source, "auto s = Status::FAIL;"));  // EnumName.MEMBER -> ::
+}
+
 TEST(CheatahCodegen, EmitsFunctionAndCall) {
     const ParseResult pr = parse_source("fn add(a, b) {\n  return a + b\n}\nlet x = add(1, 2)\n");
     ASSERT_TRUE(pr.ok());

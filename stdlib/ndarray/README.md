@@ -28,18 +28,24 @@ correct C-order walk.
 import io
 import ndarray
 
-let a = ndarray.array([1.0, 2.0, 3.0])
-let b = ndarray.reshape(ndarray.arange(0.0, 6.0, 1.0), [2, 3])
-let c = ndarray.add(b, ndarray.scalar(10.0))   # broadcasts the scalar
+let a = ndarray.array([1.0, 2.0, 3.0])                  # 1-D
+let m = ndarray.array([[1.0, 2.0], [3.0, 4.0]])         # 2-D, shape read off the nesting
+let t = ndarray.array([[[1.0], [2.0]], [[3.0], [4.0]]]) # 3-D — nests to any depth
+let c = ndarray.add(m, ndarray.scalar(10.0))            # broadcasts the scalar
 io.print(ndarray.to_string(c))
 ```
+
+An `ndarray` is genuinely **N-dimensional**: `array(...)` infers the shape from a nested
+list to any rank (a ragged list is rejected, as in numpy), and broadcasting/reductions
+work at every rank — `reshape` is the other way to set a shape.
 
 `import ndarray` includes `ndarray.hpp` and links `libcheatah_ndarray`.
 
 ## API
 
 ### Factories
-- `array(values)` — 1-D array from a list.
+- `array(values)` — array from a list; a **nested** list builds an N-D array
+  (`array([[1,2],[3,4]])` is 2-D), with the shape inferred from the nesting.
 - `scalar(value)` — 0-D array (broadcasts to anything).
 - `zeros(shape)` / `ones(shape)` / `full(shape, value)` — filled arrays.
 - `arange(start, stop, step)` — 1-D range, like Python `range`.

@@ -40,13 +40,17 @@ add_executable(cheatah_purrc_tests
     app_integrity_test.cpp
     app_montecarlo_test.cpp
     app_netcat_test.cpp
+    # linalg vs NumPy: run checked-in .purr programs and cross-check against python.
+    linalg_vs_python_test.cpp
 )
 target_link_libraries(cheatah_purrc_tests PRIVATE GTest::gmock_main)
 
 target_compile_definitions(cheatah_purrc_tests PRIVATE
     PURRC_PATH="$<TARGET_FILE:purrc>"
     CHEATAH_RUNTIME_PATH="$<TARGET_FILE:cheatah>"
-    PURR_TEST_TMP="${CMAKE_CURRENT_BINARY_DIR}")
+    PURR_TEST_TMP="${CMAKE_CURRENT_BINARY_DIR}"
+    # Source dir holding the editable linalg .purr/.py program pairs.
+    LINALG_PROGRAMS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/linalg_programs")
 
 # The test shells out to these at run time, and purrc links the stdlib libs into
 # the module it builds — so all must exist before the test runs.

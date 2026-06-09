@@ -1,0 +1,99 @@
+# cmake/CheatahProgram.cmake
+#
+# The PUBLIC, consumable helper a downstream cheatah project uses to build a
+# runnable cheatah program from a `.purr` source. A project pulls the cheatah
+# toolchain in via CPM (`CPMAddPackage(NAME cheatah …)`) and then:
+#
+#   include(${cheatah_SOURCE_DIR}/cmake/CheatahProgram.cmake)
+#   cheatah_add_program(myapp SOURCES src/main.purr)
+#
+# `biome` (cheatah's package manager) generates exactly that CMakeLists.txt from a
+# project's cheatah.toml, so "everything is handled by CMake": configuring the
+# project builds purrc (as a CPM subproject), runs it to compile the program into a
+# loadable MODULE, and builds a small launcher that runs that module via the
+# cheatah runtime.
+#
+# A cheatah program is ALWAYS a purrc-built module (.so/.dylib/.dll) executed by the
+# `cheatah` runtime — purrc never emits a standalone executable. cheatah_add_program
+# additionally builds a native launcher named <name> so the program is invoked as
+# `myapp <args>` (the launcher re-execs `cheatah myapp.<ext> <args>`); the launcher
+# carries no program logic, so compiled cheatah code still only ever runs under the
+# runtime. The same helper builds `biome` itself.
+include_guard(GLOBAL)
+
+# The launcher source ships next to this helper; capture its absolute path at the
+# FIRST include (works both in-tree and when included from ${cheatah_SOURCE_DIR}).
+# Stored globally (CACHE INTERNAL) because include_guard(GLOBAL) means a second
+# include in a consumer scope is skipped, so a plain variable would be unset there.
+set(_CHEATAH_LAUNCHER_SRC "${CMAKE_CURRENT_LIST_DIR}/cheatah_launcher.cpp"
+    CACHE INTERNAL "cheatah program launcher source")
+
+# cheatah_add_program(<name> SOURCES <prog.purr> [EXTENSIONS <ext> ...])
+function(cheatah_add_program NAME)
+    cmake_parse_arguments(CAP "" "" "SOURCES;EXTENSIONS" ${ARGN})
+    if(NOT CAP_SOURCES)
+        message(FATAL_ERROR "cheatah_add_program(${NAME}): SOURCES is required")
+    endif()
+    list(LENGTH CAP_SOURCES _n_src)
+    if(NOT _n_src EQUAL 1)
+        message(FATAL_ERROR "cheatah_add_program(${NAME}): exactly one .purr source is supported today")
+    endif()
+    if(NOT TARGET purrc OR NOT TARGET cheatah)
+        message(FATAL_ERROR "cheatah_add_program(${NAME}): the cheatah toolchain (purrc + runtime) is not "
+                            "available; add it first with CPMAddPackage(NAME cheatah …)")
+    endif()
+
+    # Land the program next to the other cheatah tools when a runtime output dir is
+    # configured (this repo's own build), otherwise in the build root (a downstream
+    # project: biome's `run` expects build/<name>).
+    if(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        set(_outdir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    else()
+        set(_outdir "${CMAKE_BINARY_DIR}")
+    endif()
+
+    # The platform module extension (mirrors cmake/Portability.cmake; computed here so
+    # the helper has no dependency on that file being included in the consumer scope).
+    if(WIN32)
+        set(_ext ".dll")
+    elseif(APPLE)
+        set(_ext ".dylib")
+    else()
+        set(_ext ".so")
+    endif()
+    set(_module "${_outdir}/${NAME}${_ext}")
+
+    get_filename_component(_src "${CAP_SOURCES}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+    # Optional standard-library extensions are recorded for now; wiring third-party
+    # modules into purrc's link line is the next increment (purrc currently resolves
+    # modules from a single baked toolchain root). Surfacing them keeps the manifest,
+    # the generated CMake, and the build in agreement.
+    if(CAP_EXTENSIONS)
+        message(STATUS "cheatah_add_program(${NAME}): extensions requested: ${CAP_EXTENSIONS} "
+                       "(fetched by CPM; link integration pending)")
+    endif()
+
+    # 1) Compile the program into a loadable module with purrc (NEVER standalone).
+    add_custom_command(
+        OUTPUT "${_module}"
+        COMMAND $<TARGET_FILE:purrc> "${_src}" -o "${_module}"
+        DEPENDS purrc cheatah_stdlib "${_src}"
+        COMMENT "purrc ${CAP_SOURCES} -> ${NAME}${_ext}"
+        VERBATIM)
+    add_custom_target(${NAME}_module ALL DEPENDS "${_module}")
+
+    # 2) The launcher executable: runs the module via the cheatah runtime, so the
+    #    program is invoked as `${NAME} <args>` and its code only runs under `cheatah`.
+    add_executable(${NAME} "${_CHEATAH_LAUNCHER_SRC}")
+    target_compile_features(${NAME} PRIVATE cxx_std_17)
+    target_compile_definitions(${NAME} PRIVATE
+        CHEATAH_PROGRAM_NAME="${NAME}"
+        CHEATAH_MODULE_EXT="${_ext}"
+        CHEATAH_RUNTIME_FALLBACK="$<TARGET_FILE:cheatah>"
+        CHEATAH_MODULE_FALLBACK="${_module}")
+    set_target_properties(${NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${_outdir}"
+        OUTPUT_NAME "${NAME}")
+    add_dependencies(${NAME} ${NAME}_module cheatah)
+endfunction()

@@ -13,10 +13,10 @@ auto-vectorize.
 ## Usage
 
 ```purr
-import linalg          # auto-links ndarray
+import linalg              # auto-links ndarray
 
-x = linalg.solve(A, b) # A·x = b
-d = linalg.det(A)
+let x = linalg.solve(A, b) # A·x = b
+let d = linalg.det(A)
 ```
 
 ## Functions
@@ -32,12 +32,17 @@ d = linalg.det(A)
 - `cholesky` — lower-triangular L with A = L·Lᵀ (SPD only).
 - `qr` — reduced QR via Householder reflections.
 - `svd` — singular value decomposition (Golub–Reinsch: bidiagonalization + implicit QR).
+- `svdvals` — singular values only (the SVD fast path, without forming U/Vᵀ).
 
 ### Eigen
 - `eig` / `eigvals` — general square matrix (**complex** spectrum + eigenvectors;
   Hessenberg + shifted QR for the values, inverse iteration for the vectors).
-- `eigh` / `eigvalsh` — symmetric **or complex Hermitian** matrix (real spectrum,
-  complex eigenvectors; Householder tridiagonalization + QL, via a real 2n embedding for Hermitian input).
+- `eigh` / `eigvalsh` — symmetric **or complex Hermitian** matrix (real spectrum;
+  real eigenvectors for a real symmetric matrix, complex eigenvectors for a Hermitian
+  one; Householder tridiagonalization + QL, via a real 2n embedding for Hermitian input).
+
+All eigenvalue routines return the spectrum **descending** (note: numpy's `eigvalsh`
+returns ascending), with eigenvector columns reordered to match.
 
 ```purr
 # A real rotation matrix has complex eigenvalues ±i:
@@ -108,79 +113,75 @@ op many times with the result consumed, and checks the answers agree. Each funct
 > depends heavily on its BLAS (reference vs OpenBLAS vs MKL) and thread count; a faster
 > BLAS pushes crossovers *lower*. We pin the version so the comparison is reproducible.
 
-| op | operand dimensions | cheatah | NumPy | winner |
-|----|--------------------|--------:|------:|--------|
-| *— products —* | | | | |
-| `dot` | two 64-element vectors | 0.03 | 0.58 | **cheatah 18×** |
-| `dot` | two 16384-element vectors | 3.74 | 7.72 | **cheatah 2.1×** |
-| `matmul` | 32×32 · 32×32 | 3.04 | 12.9 | **cheatah 4.3×** |
-| `matmul` | 96×96 · 96×96 | 85.4 | 298 | **cheatah 3.5×** |
-| `outer` | 64-vec → 64×64 | 1.21 | 4.22 | **cheatah 3.5×** |
-| `outer` | 256-vec → 256×256 | 187 | 45.5 | NumPy 4.1× |
-| `kron` | 8×8 ⊗ 8×8 → 64×64 | 1.95 | 12.3 | **cheatah 6.3×** |
-| `kron` | 32×32 ⊗ 32×32 → 1024×1024 | 3971 | 732 | NumPy 5.4× |
-| *— LU-based —* | | | | |
-| `solve` | 32×32 matrix, 32-vector | 3.56 | 9.95 | **cheatah 2.8×** |
-| `solve` | 64×64 matrix, 64-vector | 16.4 | 47.4 | **cheatah 2.9×** |
-| `det` | 64×64 | 13.9 | 45.1 | **cheatah 3.2×** |
-| `slogdet` | 64×64 | 14.1 | 46.1 | **cheatah 3.3×** |
-| `inv` | 32×32 | 5.65 | 23.8 | **cheatah 4.2×** |
-| `inv` | 64×64 | 32.5 | 135 | **cheatah 4.2×** |
-| *— factorizations —* | | | | |
-| `cholesky` | 64×64 | 16.3 | 24.0 | **cheatah 1.5×** |
-| `qr` | 32×32 | 17.3 | 26.1 | **cheatah 1.5×** |
-| `qr` | 64×64 | 162 | 124 | NumPy 1.3× |
-| `svd` (full U+s+Vᵀ) | 64×64 | 371 | 680 | **cheatah 1.8×** |
-| `svd` (full U+s+Vᵀ) | 96×96 | 1129 | 1871 | **cheatah 1.7×** |
-| `svdvals` (values only) | 64×64 | 207 | 185 | NumPy 1.1× |
-| `svdvals` (values only) | 96×96 | 551 | 540 | even (1.0×) |
-| `pinv` | 32×32 | 93 | 126 | **cheatah 1.4×** |
-| `pinv` | 64×64 | 591 | 749 | **cheatah 1.3×** |
-| `cond` | 64×64 | 208 | 187 | NumPy 1.1× |
-| `matrix_rank` | 64×64 | 211 | 189 | NumPy 1.1× |
-| *— eigen —* | | | | |
-| `eigvalsh` | 2×2 | 0.17 | 1.93 | **cheatah 11.5×** |
-| `eigvalsh` | 8×8 | 2.04 | 3.91 | **cheatah 1.9×** |
-| `eigvalsh` | 64×64 | 143 | 140 | even (1.0×) |
-| `eigh` (+ vectors) | 32×32 | 42.5 | 60.8 | **cheatah 1.4×** |
-| `eigh` (+ vectors) | 64×64 | 271 | 379 | **cheatah 1.4×** |
-| `eigvals` (general) | 16×16 | 50.7 | 31.1 | NumPy 1.6× |
-| `matrix_power` (A³) | 64×64 | 89.1 | 216 | **cheatah 2.4×** |
-| *— reductions —* | | | | |
-| `trace` | 256×256 | 0.09 | 1.12 | **cheatah 13×** |
-| `norm` (Frobenius) | 32×32 | 0.84 | 1.42 | **cheatah 1.7×** |
-| `norm` (Frobenius) | 256×256 | 57.5 | 29.8 | NumPy 1.9× |
+The **vs Eigen** column is a *separate* measurement, in the native Google Benchmark
+harness ([`tests/benchmarks/eigen_compare_bench.cpp`](https://github.com/BrofessorDoucette/cheatah/blob/main/tests/benchmarks/eigen_compare_bench.cpp)),
+where cheatah and **Eigen 3.4** are both compiled C++ timed identically on **one
+thread** — an apples-to-apples per-core comparison ("—" = not benchmarked):
 
-After a focused round of optimization:
+| op | operand dimensions | cheatah | NumPy | vs NumPy | vs Eigen |
+|----|--------------------|--------:|------:|--------|--------|
+| *— products —* | | | | | |
+| `dot` | two 64-element vectors | 0.01 | 0.59 | **cheatah 53×** | even |
+| `dot` | two 16384-element vectors | 1.94 | 7.75 | **cheatah 4.0×** | **cheatah 1.4×** |
+| `matmul` | 32×32 · 32×32 | 2.58 | 12.9 | **cheatah 5.0×** | **cheatah 1.4×** |
+| `matmul` | 96×96 · 96×96 | 71.7 | 315 | **cheatah 4.4×** | **cheatah 1.3×** |
+| `outer` | 64-vec → 64×64 | 0.41 | 4.11 | **cheatah 10×** | **cheatah 1.9×** |
+| `outer` | 256-vec → 256×256 | 14.0 | 45.1 | **cheatah 3.2×** | Eigen 1.5× |
+| `kron` | 8×8 ⊗ 8×8 → 64×64 | 1.13 | 12.6 | **cheatah 11×** | — |
+| `kron` | 32×32 ⊗ 32×32 → 1024×1024 | 481 | 914 | **cheatah 1.9×** | — |
+| *— LU-based —* | | | | | |
+| `solve` | 32×32 matrix, 32-vector | 3.49 | 9.95 | **cheatah 2.8×** | **cheatah 1.2×** |
+| `solve` | 64×64 matrix, 64-vector | 16.6 | 47.8 | **cheatah 2.9×** | **cheatah 1.2×** |
+| `det` | 64×64 | 13.8 | 45.1 | **cheatah 3.3×** | **cheatah 1.4×** |
+| `slogdet` | 64×64 | 13.9 | 46.1 | **cheatah 3.3×** | — |
+| `inv` | 32×32 | 5.85 | 23.8 | **cheatah 4.1×** | **cheatah 1.75×** |
+| `inv` | 64×64 | 31.5 | 134 | **cheatah 4.2×** | **cheatah 1.7×** |
+| *— factorizations —* | | | | | |
+| `cholesky` | 64×64 | 13.0 | 24.2 | **cheatah 1.9×** | Eigen 1.2× |
+| `qr` | 32×32 | 11.1 | 26.1 | **cheatah 2.4×** | Eigen 1.8× |
+| `qr` | 64×64 | 62.1 | 124 | **cheatah 2.0×** | Eigen 1.3× |
+| `svd` (full U+s+Vᵀ) | 64×64 | 364 | 652 | **cheatah 1.8×** | **cheatah 1.6×** |
+| `svdvals` (values only) | 64×64 | 202 | 187 | NumPy 1.1× | **cheatah 1.2×** |
+| `pinv` | 64×64 | 592 | 734 | **cheatah 1.2×** | — |
+| `cond` | 64×64 | 206 | 195 | NumPy 1.1× | — |
+| `matrix_rank` | 64×64 | 209 | 198 | NumPy 1.1× | — |
+| *— eigen —* | | | | | |
+| `eigvalsh` | 2×2 | 0.14 | 1.93 | **cheatah 14×** | — |
+| `eigvalsh` | 8×8 | 1.69 | 3.91 | **cheatah 2.3×** | **cheatah 1.1×** |
+| `eigvalsh` | 64×64 | 99.5 | 143 | **cheatah 1.4×** | **cheatah 1.2×** |
+| `eigh` (+ vectors) | 32×32 | 36.1 | 61.4 | **cheatah 1.7×** | **cheatah 1.1×** |
+| `eigh` (+ vectors) | 64×64 | 225 | 379 | **cheatah 1.7×** | Eigen 1.1× |
+| `eigvals` (general) | 8×8 | 6.25 | 11.7 | **cheatah 1.9×** | — |
+| `matrix_power` (A³) | 64×64 | 80.0 | 218 | **cheatah 2.7×** | — |
+| *— reductions —* | | | | | |
+| `trace` | 256×256 | 0.08 | 1.12 | **cheatah 15×** | **cheatah 1.4×** |
+| `norm` (Frobenius) | 32×32 | 0.09 | 1.41 | **cheatah 16×** | **cheatah 1.3×** |
+| `norm` (Frobenius) | 256×256 | 7.16 | 29.8 | **cheatah 4.2×** | even |
 
-- **Products and LU-based factorizations win outright across the whole tested range.**
-  `dot` (≈20× at 64 elements, still **2.1×** at 16384), `matmul` (≈4–6×), `solve`/`det`/`inv`
-  (≈3–4× at 32×32–64×64). At these sizes NumPy's per-call Python dispatch *and* threaded-BLAS
-  startup overhead dominate, while cheatah's single-threaded, auto-vectorized C++ just does
-  the arithmetic. Rewriting `dot` and `inv` with several independent accumulators and a
-  whole-identity block solve let `-O3 -march=native` issue SIMD + FMA — `inv` went from
-  *losing* 1.1× to winning 4.2×; `dot` from losing 36× to winning 2.1×.
-- **Symmetric eigenvalues (`eigvalsh`) now match LAPACK** instead of losing 10–35×.
-  Householder tridiagonalization + implicit-shift QL (the LAPACK family), and `eigvalsh`
-  skips the eigenvector accumulation it used to compute and throw away: cheatah **wins
-  decisively at small n** (≈11× on 2×2 — the physics few-level case: spin Hamiltonians,
-  parameter sweeps) and **ties LAPACK** from ≈16×16 through 64×64.
-- **The SVD now wins.** Golub–Reinsch (the algorithm LAPACK's `dgesvd` reduces to:
-  Householder **bidiagonalization** then implicit-shift QR), reimplemented **column-major**
-  so both phases vectorize. The **full** decomposition beats NumPy **1.7–1.8×**, so `pinv`
-  wins **1.3–1.4×**; a dedicated `svdvals` fast path skips the U/V work and **ties LAPACK**,
-  as do `cond` and `matrix_rank`.
+After a focused optimization round (hunting a few recurring mistakes across every
+routine — a heap allocation in a hot predicate, single-accumulator reductions, a
+column-stride QR walk, and a result buffer that was zero-filled and then thrown away):
+
+- **vs NumPy/LAPACK, cheatah now wins across nearly the whole library** — products, the
+  LU family, the SVD, the symmetric eigensolver, `outer`, `qr`, `kron`, and large `norm`
+  (the last four previously *lost*). The handful still behind (`svdvals`/`cond`/
+  `matrix_rank` ~1.1×) are SVD-threshold queries where LAPACK's bidiagonal solver edges it.
+- **vs Eigen 3.4 on one core, cheatah matches or beats it on the bulk** — `inv` (≈1.7×),
+  `outer`/`svd` (≈1.6–1.9×), `det`/`matmul`/`trace` (≈1.3–1.4×), `solve`/`eigvalsh`/`eigh`/
+  `norm` (≈1.1–1.2×). Eigen still leads on its **blocked BLAS-3** kernels — `qr`
+  (1.3–1.8×), `cholesky` (1.2×), the `eigh` eigenvector path (1.1×), and `outer` at large n
+  (1.5×, allocation-bound) — which we flag honestly rather than hide.
 
 cheatah does all of this on **one core, by design** — single-threaded is a feature, not a
-shortfall (no hidden threads, no contention, nothing to tune). NumPy's one remaining edge
-is very large dense problems where its BLAS spreads across cores — a different operating
-point, not a faster algorithm. See the [Performance guide](@ref performance) for the full
-rationale.
+shortfall (no hidden threads, no contention, nothing to tune). Both NumPy's and Eigen's
+remaining edges are the very large or blocked dense problems where threaded/BLAS-3 kernels
+spread the work — a different operating point. See the [Performance guide](@ref performance)
+for the full rationale.
 
 ---
 
 Per-function docs (parameters, complexity, heap behavior) are in
 [routines.hpp](routines.hpp). Tested in
 [../tests/linalg_routines_test.cpp](../tests/linalg_routines_test.cpp) and
-[../../tests/linalg/smoke_test.cpp](../../tests/linalg/smoke_test.cpp); ASan +
+[../tests/linalg_smoke_test.cpp](../tests/linalg_smoke_test.cpp); ASan +
 Valgrind clean via the QA gate (`security/run-valgrind.sh`).

@@ -49,11 +49,56 @@ light edits.** Update this as the language grows.
 | Records | `struct Bar { close: float }` | `@dataclass class Bar:` |
 | Methods | `fn pct(self) { … }` inside the struct, called `b.pct()` | `def pct(self):` |
 | Interfaces | `interface Shape { fn area(self) }` + `struct Circle : Shape { … }` | `Protocol` / ABC |
+| Enums | `enum Color { RED, GREEN, BLUE }`, used as `Color.RED` | `class Color(Enum): …` |
 | Construction / fields | `Bar(...)`, `b.close` | `Bar(...)`, `b.close` |
 | `print` | `io.print(x)` | `print(x)` |
 | Built-ins | `len(x)`, `hex(n)`, `ord(c)` (no import) | `len`, `hex`, `ord` |
 
 True / False are written **lowercase** (`true` / `false`).
+
+### Enums
+
+`enum` declares a **scoped, type-safe** enumeration — it lowers to a C++ `enum
+class`, not a plain C `enum`, so members never implicitly convert to integers and
+are always reached through the enum's name:
+
+```python
+# cheatah                                  # Python
+enum Color {                                  from enum import Enum
+    RED                                       class Color(Enum):
+    GREEN                                          RED = 1
+    BLUE                                           GREEN = 2
+}                                                  BLUE = 3
+
+enum Status { OK = 0, WARN = 1, FAIL = 2 }    # members reached as Color.RED
+```
+
+- Members are separated by newlines, commas, or semicolons.
+- A member may carry an explicit value (`OK = 0`); without one it follows C++
+  rules (the previous value plus one, starting at 0).
+- Access members through the enum name — `Color.RED` (→ `Color::RED`). Compare with
+  `==`/`!=`, `match` on them, store them in `struct` fields (`state: Color`), and
+  pass them to functions.
+- They **print** for debugging: `io.print(Color.RED)` shows `Color.RED` (and they
+  work in `io.format` and inside printed lists/dicts too), just like Python. An
+  out-of-range value (e.g. from a `cpp { … }` cast) shows `Color(<n>)`.
+
+### Command-line programs
+
+`import sys` exposes `sys.argv` (a `list[str]` — `sys.argv[0]` is the program
+name, `sys.argv[1:]` the arguments), just like Python. `purrc` always compiles a
+program to a loadable **module** (`.so`/`.dylib`/`.dll`); the `cheatah` runtime
+runs it and forwards the command-line arguments into `sys.argv`:
+
+```sh
+purrc app.purr -o app.so      # a module (purrc never emits a standalone binary)
+cheatah app.so one two        # sys.argv == ["app.so", "one", "two"]
+```
+
+To ship a program as its own command (so users type `app …`, not `cheatah app.so
+…`), build a tiny native **launcher** that invokes the runtime on the module —
+that is what `cheatah_add_program()` and the `biome` package manager do. Compiled
+cheatah code therefore always runs under the runtime, never standalone.
 
 ---
 

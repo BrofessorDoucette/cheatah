@@ -1,0 +1,11 @@
+# linalg.svdvals — singular values (Golub–Reinsch, values-only fast path).
+# Cross-checked vs numpy.linalg.svd(..., compute_uv=False).
+import io
+import ndarray
+import linalg
+
+let A = ndarray.array([[4.0, 1.0, 0.0, 1.0],
+                       [1.0, 5.0, 1.0, 0.0],
+                       [0.0, 1.0, 6.0, 1.0],
+                       [1.0, 0.0, 1.0, 7.0]])
+io.print(ndarray.to_string(linalg.svdvals(A)))

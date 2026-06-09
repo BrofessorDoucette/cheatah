@@ -3,7 +3,7 @@
 Syntax highlighting and editor configuration for the [cheatah](../../README.md)
 language (`.purr`).
 
-- Highlights cheatah's keywords (`let`, `fn`, `struct`, `if`/`else`, `while`,
+- Highlights cheatah's keywords (`let`, `fn`, `struct`, `enum`, `if`/`else`, `while`,
   `for`/`in`, `try`/`except`/`raise`, `import`/`as`, `and`/`or`/`not`), strings,
   numbers, both comment styles (`#` and `//`), operators, types, and built-ins.
 - **The `cpp { … }` escape hatch is highlighted as real C++** — the block body uses
@@ -12,6 +12,10 @@ language (`.purr`).
   `string.split`, `io.print`, `len`, `range`, …) for its signature, parameters,
   and return value; type `<module>.` for autocomplete. The docs are generated
   from the stdlib's Doxygen comments into [`data/functions.json`](data/functions.json).
+- **Your own code, too** — hovering a `fn`, `struct`, `interface`, or `enum` defined
+  in the same `.purr` file shows the comment written above it (its "docstring"),
+  with go-to-definition and completion. Enum members (`Color.RED`) hover and
+  autocomplete as well.
 - Bracket matching, auto-closing pairs, and comment toggling for `.purr`.
 - **A cheetah 🐆 file icon for `.purr`** via the bundled **"cheatah (Seti + cheetah)"**
   file icon theme. VS Code's default *Seti* theme overrides per-language icons, so to

@@ -90,6 +90,7 @@ private:
         if (check(TokenKind::CppBlock)) return std::make_unique<RawCpp>(advance().text);
         if (check_kw("import")) return parse_import();
         if (check_kw("interface")) return parse_interface();
+        if (check_kw("enum")) return parse_enum();
         if (check_kw("struct")) return parse_struct();
         if (check_kw("fn")) return parse_fn();
         if (check_kw("let")) return parse_let();
@@ -205,6 +206,50 @@ private:
             advance();
         }
         return s;
+    }
+
+    // enum Name { A [= expr], B, … } — a scoped enumeration (-> C++ `enum class`).
+    // Members are separated by newlines, commas, or semicolons; each may carry an
+    // optional `= <expr>` value.
+    StmtPtr parse_enum() {
+        advance();  // enum
+        auto e = std::make_unique<EnumDef>();
+        if (!check(TokenKind::Identifier)) {
+            error("expected an enum name");
+            synchronize();
+            return nullptr;
+        }
+        e->name = advance().text;
+        if (!check(TokenKind::LBrace)) {
+            error("expected '{' after enum name");
+            synchronize();
+            return nullptr;
+        }
+        advance();  // {
+        skip_separators();
+        while (!at_end() && !check(TokenKind::RBrace)) {
+            if (!check(TokenKind::Identifier)) {
+                error("expected an enum member name");
+                synchronize();
+                skip_separators();
+                continue;
+            }
+            Enumerator en;
+            en.name = advance().text;
+            if (check(TokenKind::Assign)) {  // optional explicit value: A = 1
+                advance();
+                en.value = parse_expr();
+            }
+            e->enumerators.push_back(std::move(en));
+            if (check(TokenKind::Comma) || check(TokenKind::Semicolon)) advance();
+            skip_separators();
+        }
+        if (!check(TokenKind::RBrace)) {
+            error("expected '}' to close enum");
+        } else {
+            advance();
+        }
+        return e;
     }
 
     StmtPtr parse_fn() {

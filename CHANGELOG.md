@@ -3,6 +3,112 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.9.0-alpha — enums, the `sys` module, and the `biome` package manager
+
+A scoped, printable `enum` type joins the language; a new `sys` module plus runtime
+argument forwarding gives programs their `sys.argv`; and **biome**, a CMake/CPM-based
+package manager written largely in cheatah, lands in `pkg-manager/`. The VS Code
+extension learns all of it, and gains hover docs for your own same-file definitions.
+
+### Language — enums
+- **`enum` declares a scoped, type-safe enumeration** that lowers to a C++ `enum
+  class` (not a plain C `enum`): `enum Color { RED, GREEN, BLUE }`. Members are
+  reached through the enum name (`Color.RED`), separated by newlines, commas, or
+  semicolons, and may carry an explicit value (`enum Status { OK = 0, WARN, FAIL }`,
+  with the rest auto-incrementing as in C++).
+- Enums compare with `==`/`!=`, work in `match`/`case`, and serve as `struct` field
+  and function-parameter types.
+- **Enums print for debugging.** `io.print(Color.RED)` shows `Color.RED` (Python's
+  style); they also render inside `io.format` and printed lists/dicts. An
+  out-of-range value (e.g. from a `cpp { … }` cast) shows `Color(<n>)`.
+
+### Numeric core — a performance pass that now beats Eigen
+
+A focused optimization round on `linalg`/`ndarray`, benchmarked against **Eigen 3.4**
+(the reference single-threaded C++ dense-linear-algebra library) as well as NumPy. The
+recurring villains were the same few mistakes, hunted down across every function:
+
+- **A heap allocation hidden in a hot predicate.** `is_contiguous` rebuilt the reference
+  strides — a `std::vector` allocation — on *every* call, and the products/reductions
+  call it per operand. Made it allocation-free; this one fix lifted every contiguous op.
+- **Single-accumulator reductions.** A lone running sum serializes on FP-add latency
+  (the compiler can't reassociate without `-ffast-math`). `dot`/`norm`/`sum`/`cholesky`/
+  `trace` and the symmetric-eigensolver tridiagonalization now use several independent
+  accumulators, so `-O3 -march=native` issues SIMD+FMA and reaches memory bandwidth.
+- **`matmul` re-streamed B per output row** → 4-row register blocking (real *and* complex)
+  reuses each B element four times.
+- **`qr` walked columns of a row-major matrix** (stride-n, un-vectorizable) → it now works
+  on the transpose so the Householder reductions/updates are contiguous.
+- **The symmetric eigensolver's tridiagonalization** kept the active block full-symmetric
+  so its matrix–vector product vectorizes (no packed column-stride walk).
+- **`make_matrix`/`make_vector` zero-filled a full-size result buffer and then threw it
+  away**, replacing it with the computed data — a wasted O(n²) pass that dominated
+  memory-bound ops. They now build the result directly from the buffer.
+
+Result: on one core, cheatah **matches or beats Eigen on most dense routines** (matmul,
+inv, solve, det, the SVD, the symmetric eigensolver, dot at scale, outer, trace, norm),
+and now **beats NumPy/LAPACK across nearly the whole library** — including `outer`, `qr`,
+`kron`, and large `norm`, which previously lost. The honest comparison (Eigen ratios, the
+NumPy table) and a reproducible benchmark harness ship in `tests/benchmarks/`
+(`eigen_compare_bench.cpp`) and `scripts/numpy_compare.py`. A few routines (blocked QR /
+Cholesky, the eigenvector path) remain behind Eigen's blocked BLAS-3 kernels — flagged
+honestly, not hidden.
+
+### Numeric core — N-dimensional `ndarray` construction
+
+- **`ndarray.array(...)` now builds an array of any rank from a nested list** —
+  `array([[1, 2], [3, 4]])` is 2-D, `array([[[1],[2]],[[3],[4]]])` is 3-D, and so on to
+  any depth. The shape is inferred from the nesting and the leaf type deduced; a ragged
+  list is rejected, exactly as numpy rejects one. (Previously only `reshape` could make a
+  >1-D array.) Broadcasting and reductions already worked at every rank.
+- **New cross-checks:** the `linalg` routines are verified op-by-op against NumPy by a
+  system-test suite that loads editable `.purr` programs from `tests/purrc/linalg_programs/`.
+
+### Standard library — `sys` (command-line arguments)
+- **New `sys` module exposes `sys.argv`** — a `list[str]` of the program's
+  command-line arguments (`sys.argv[0]` is the program, `sys.argv[1:]` the
+  arguments), exactly like Python. Index it, slice it, `len(...)` it, iterate it.
+- **The `cheatah` runtime forwards arguments to the program.** Running
+  `cheatah app.so one two` populates `sys.argv` via an exported `cheatah_set_argv`
+  hook the `sys` module provides; programs that do not `import sys` are unaffected.
+  purrc still emits **only** loadable modules — compiled code always runs under the
+  runtime.
+
+### Tooling — `biome`, the package manager
+- **New `biome` package manager** (in `pkg-manager/`) — most of it written in
+  cheatah itself (`biome.purr`, compiled to a module by purrc), driven by a small
+  native launcher so it is invoked as `biome <command> <args>` while its compiled
+  code still runs only under the cheatah runtime.
+- Commands: `init` (scaffold a project with a `cheatah.toml` manifest, generated
+  `CMakeLists.txt`, and a CPM bootstrap), `add`/`remove`/`list` (manage optional
+  standard-library extensions — `cheatah-gpu`/`cheatah-plot`/`cheatah-space`/
+  `cheatah-learn`), and `build`/`run` (drive **CMake + CPM**, so the whole build is
+  handled by CMake).
+- **New `cmake/CheatahProgram.cmake` helper** — `cheatah_add_program(NAME SOURCES
+  x.purr …)` compiles a `.purr` to a module with purrc and builds a launcher that
+  runs it via the runtime. Downstream projects fetch the toolchain with
+  `CPMAddPackage(NAME cheatah …)` and use this helper. A cheatah pulled in as a
+  sub-project no longer builds its own test suite (tests default on only when
+  cheatah is the top-level project).
+- *Status:* core flow works end-to-end (configure → purrc module → launcher, via
+  CMake/CPM); wiring third-party extension archives into purrc's link line, and
+  publishing the extension repos + release tags, are follow-ups.
+
+### Editor — VS Code extension
+- **`enum` is highlighted** (the keyword and the enum name as a type), and the
+  extension's IntelliSense understands enums declared in your file: hover an enum
+  type or a member (`Color.RED`), autocomplete members after `Color.`, and
+  go-to-definition jumps to the declaration.
+- **Hover docs for your own same-file definitions.** Hovering a `fn`, `struct`,
+  `interface`, or `enum` defined in the open `.purr` file now shows the comment
+  written above it (its "docstring") — taking priority over the stdlib database, so
+  a local function no longer shows an unrelated same-named header.
+
+### Project
+- **Added [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md)** crediting the open-source work
+  (Python, the C++ standard, NumPy/SciPy/Matplotlib, BLAS/LAPACK, Eigen, GLM, …)
+  that informed cheatah's design — the author first, then the prior art.
+
 ## v0.8.0-alpha — Python-3 division + the whole library, documented
 
 The `/` operator is now **true division** (always a float, even `int / int`), matching

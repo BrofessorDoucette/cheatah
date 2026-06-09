@@ -92,32 +92,35 @@ std::vector<double> as_vector(const NDArray& a, std::size_t& n) {
         pack_corder(a, v.data());
     return v;
 }
+// Wrap an already-computed buffer as a contiguous NDArray WITHOUT the throwaway
+// zero-init that `NDArray(shape)` would do (it value-fills `product(shape)` elements
+// that we then immediately overwrite — a full wasted pass, ruinous for big results
+// like `outer`). Build straight from the buffer + C-order strides instead.
+template <typename T>
+ndarray::basic_ndarray<T> wrap_buffer(std::vector<std::size_t> shape, std::vector<T> data) {
+    auto strides = ndarray::detail::contiguous_strides(shape);
+    return ndarray::basic_ndarray<T>(
+        std::make_shared<std::vector<T>>(std::move(data)), std::move(shape),
+        std::move(strides), 0);
+}
 NDArray make_matrix(std::size_t rows, std::size_t cols, std::vector<double> data) {
-    NDArray out(std::vector<std::size_t>{rows, cols});
-    *out.buffer() = std::move(data);
-    return out;
+    return wrap_buffer<double>({rows, cols}, std::move(data));
 }
 NDArray make_vector(std::vector<double> data) {
-    NDArray out(std::vector<std::size_t>{data.size()});
-    *out.buffer() = std::move(data);
-    return out;
+    const std::size_t n = data.size();
+    return wrap_buffer<double>({n}, std::move(data));
 }
 CNDArray make_cvector(std::vector<Cplx> data) {
-    CNDArray out(std::vector<std::size_t>{data.size()});
-    *out.buffer() = std::move(data);
-    return out;
+    const std::size_t n = data.size();
+    return wrap_buffer<Cplx>({n}, std::move(data));
 }
 CNDArray make_cmatrix(std::size_t rows, std::size_t cols, std::vector<Cplx> data) {
-    CNDArray out(std::vector<std::size_t>{rows, cols});
-    *out.buffer() = std::move(data);
-    return out;
+    return wrap_buffer<Cplx>({rows, cols}, std::move(data));
 }
 // Promote a freshly-built (contiguous, offset-0) real result to complex (imag 0).
 CNDArray to_complex(const NDArray& a) {
-    CNDArray out(a.shape());
     const std::vector<double>& src = *a.buffer();
-    *out.buffer() = std::vector<Cplx>(src.begin(), src.end());
-    return out;
+    return wrap_buffer<Cplx>(a.shape(), std::vector<Cplx>(src.begin(), src.end()));
 }
 // Descending order for a complex spectrum: by real part, then imaginary part.
 bool cgreater(const Cplx& x, const Cplx& y) {
@@ -475,22 +478,37 @@ void symmetric_eig(std::vector<double> z, std::size_t n, std::vector<double>& va
                 e[i] = scale * g;
                 h -= f * g;
                 z[i * n + l] = f - g;
+                // The active block [0..l]×[0..l] is kept FULL-symmetric (the rank-2
+                // update below writes both triangles), so the matrix–vector product
+                // p = A·u is a single contiguous, vectorizing row·u dot — no
+                // column-stride walk. u is the Householder vector (row i). 2× the
+                // update flops vs the packed form, but both phases now hit SIMD.
                 f = 0.0;
+                const double* ui = &z[i * n];   // Householder vector u (= row i)
                 for (std::size_t j = 0; j <= l; ++j) {
-                    z[j * n + i] = z[i * n + j] / h;   // store u/h in column i
-                    g = 0.0;
-                    for (std::size_t k = 0; k <= j; ++k) g += z[j * n + k] * z[i * n + k];
-                    for (std::size_t k = j + 1; k <= l; ++k) g += z[k * n + j] * z[i * n + k];
+                    z[j * n + i] = z[i * n + j] / h;   // store u/h in column i (for Q)
+                    const double* zj = &z[j * n];
+                    // full row · u, four independent accumulators so it vectorizes
+                    // (a single running sum is FMA-latency-bound — the dot mistake).
+                    double g0 = 0, g1 = 0, g2 = 0, g3 = 0;
+                    std::size_t k = 0;
+                    for (; k + 4 <= l + 1; k += 4) {
+                        g0 += zj[k] * ui[k];         g1 += zj[k + 1] * ui[k + 1];
+                        g2 += zj[k + 2] * ui[k + 2]; g3 += zj[k + 3] * ui[k + 3];
+                    }
+                    g = (g0 + g1) + (g2 + g3);
+                    for (; k <= l; ++k) g += zj[k] * ui[k];
                     e[j] = g / h;
-                    f += e[j] * z[i * n + j];
+                    f += e[j] * ui[j];
                 }
                 const double hh = f / (h + h);
+                for (std::size_t j = 0; j <= l; ++j) e[j] -= hh * ui[j];   // e := w = p/h − hh·u
+                // Symmetric rank-2 update A −= u·wᵀ + w·uᵀ over the full block (w fully
+                // formed above, so no in-place hazard); contiguous inner loop.
                 for (std::size_t j = 0; j <= l; ++j) {
-                    f = z[i * n + j];
-                    g = e[j] - hh * f;
-                    e[j] = g;
-                    for (std::size_t k = 0; k <= j; ++k)
-                        z[j * n + k] -= (f * e[k] + g * z[i * n + k]);
+                    const double uj = ui[j], wj = e[j];
+                    double* zj = &z[j * n];
+                    for (std::size_t k = 0; k <= l; ++k) zj[k] -= uj * e[k] + wj * ui[k];
                 }
             }
         } else {
@@ -817,15 +835,24 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
 // FADD latency. Independent lanes break that dependency chain, letting -O3
 // -march=native issue SIMD + FMA and hit memory bandwidth instead of add latency.
 double ddot(const double* x, const double* y, std::size_t n) {
-    double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+    // EIGHT independent accumulators (vs four) so -O3 -march=native emits TWO
+    // SIMD FMA chains instead of one. Without -ffast-math the compiler may not
+    // reassociate FP adds, so the parallelism has to be written explicitly: a single
+    // chain serializes on FMA latency (~4 cycles) and stalls well short of memory
+    // bandwidth; two in-flight chains overlap loads with arithmetic and reach it.
+    double s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0;
     std::size_t i = 0;
-    for (; i + 4 <= n; i += 4) {
-        s0 += x[i] * y[i];
+    for (; i + 8 <= n; i += 8) {
+        s0 += x[i + 0] * y[i + 0];
         s1 += x[i + 1] * y[i + 1];
         s2 += x[i + 2] * y[i + 2];
         s3 += x[i + 3] * y[i + 3];
+        s4 += x[i + 4] * y[i + 4];
+        s5 += x[i + 5] * y[i + 5];
+        s6 += x[i + 6] * y[i + 6];
+        s7 += x[i + 7] * y[i + 7];
     }
-    double s = (s0 + s1) + (s2 + s3);
+    double s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
     for (; i < n; ++i) s += x[i] * y[i];
     return s;
 }
@@ -833,10 +860,13 @@ double ddot(const double* x, const double* y, std::size_t n) {
 double dot(const NDArray& a, const NDArray& b) {
     const std::size_t n = vector_len(a), m = vector_len(b);
     if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
+    // Contiguous fast path: read straight from the buffers, no scratch vectors at all
+    // (their construction/destruction is pure overhead on a small dot). The general
+    // path only materializes scratch for a strided/broadcast view.
+    if (ndarray::is_contiguous(a) && ndarray::is_contiguous(b))
+        return ddot(a.buffer()->data() + a.offset(), b.buffer()->data() + b.offset(), n);
     std::vector<double> sa, sb;
-    const double* x = contig(a, sa);
-    const double* y = contig(b, sb);
-    return ddot(x, y, n);
+    return ddot(contig(a, sa), contig(b, sb), n);
 }
 double vdot(const NDArray& a, const NDArray& b) { return dot(a, b); }
 double inner(const NDArray& a, const NDArray& b) { return dot(a, b); }
@@ -864,22 +894,19 @@ Cplx cdot(const Cplx* x, const Cplx* y, std::size_t n, bool conjugate) {
     for (; i < n; ++i) s += (conjugate ? std::conj(x[i]) : x[i]) * y[i];
     return s;
 }
-Cplx dot(const CNDArray& a, const CNDArray& b) {
+// Contiguous fast path (the common case) reads straight from the buffers — no scratch
+// vectors. Only a strided/broadcast view falls through to a packed copy.
+Cplx cdot_dispatch(const CNDArray& a, const CNDArray& b, bool conjugate) {
     const std::size_t n = vector_len(a), m = vector_len(b);
     if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
+    if (ndarray::is_contiguous(a) && ndarray::is_contiguous(b))
+        return cdot(a.buffer()->data() + a.offset(), b.buffer()->data() + b.offset(), n,
+                    conjugate);
     std::vector<Cplx> sa, sb;
-    const Cplx* x = contig(a, sa);
-    const Cplx* y = contig(b, sb);
-    return cdot(x, y, n, /*conjugate=*/false);
+    return cdot(contig(a, sa), contig(b, sb), n, conjugate);
 }
-Cplx vdot(const CNDArray& a, const CNDArray& b) {
-    const std::size_t n = vector_len(a), m = vector_len(b);
-    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
-    std::vector<Cplx> sa, sb;
-    const Cplx* x = contig(a, sa);
-    const Cplx* y = contig(b, sb);
-    return cdot(x, y, n, /*conjugate=*/true);
-}
+Cplx dot(const CNDArray& a, const CNDArray& b) { return cdot_dispatch(a, b, /*conjugate=*/false); }
+Cplx vdot(const CNDArray& a, const CNDArray& b) { return cdot_dispatch(a, b, /*conjugate=*/true); }
 
 NDArray outer(const NDArray& a, const NDArray& b) {
     const std::size_t n = vector_len(a), m = vector_len(b);
@@ -887,8 +914,12 @@ NDArray outer(const NDArray& a, const NDArray& b) {
     const double* x = contig(a, sa);
     const double* y = contig(b, sb);
     std::vector<double> r(n * m);
-    for (std::size_t i = 0; i < n; ++i)
-        for (std::size_t j = 0; j < m; ++j) r[i * m + j] = x[i] * y[j];
+    double* rp = r.data();
+    for (std::size_t i = 0; i < n; ++i) {
+        const double xi = x[i];          // loop-invariant scalar…
+        double* ri = rp + i * m;         // …and a clean row pointer, so the inner
+        for (std::size_t j = 0; j < m; ++j) ri[j] = xi * y[j];  // store vectorizes
+    }
     return make_matrix(n, m, std::move(r));
 }
 
@@ -902,11 +933,38 @@ NDArray matmul(const NDArray& a, const NDArray& b) {
     const double* A = contig(a, sa);  // zero-copy when contiguous
     const double* B = contig(b, sb);
     std::vector<double> C(ar * bc, 0.0);
-    for (std::size_t i = 0; i < ar; ++i)  // ikj order -> contiguous inner loop (vectorizes)
+    // ikj keeps the inner (j) loop contiguous so it vectorizes; blocking FOUR rows of
+    // A together reuses each B[k][j] load across four C rows, so the O(n^3) hot loop
+    // does 4 FMAs per B load instead of 1 — 4× the arithmetic per byte of B streamed,
+    // which is what was leaving throughput on the table at small/medium n. (Plain row
+    // blocking, not a packed microkernel — same result, just better load reuse.)
+    std::size_t i = 0;
+    for (; i + 4 <= ar; i += 4) {
+        double* c0 = &C[(i + 0) * bc];
+        double* c1 = &C[(i + 1) * bc];
+        double* c2 = &C[(i + 2) * bc];
+        double* c3 = &C[(i + 3) * bc];
+        for (std::size_t k = 0; k < ac; ++k) {
+            const double a0 = A[(i + 0) * ac + k], a1 = A[(i + 1) * ac + k];
+            const double a2 = A[(i + 2) * ac + k], a3 = A[(i + 3) * ac + k];
+            const double* bk = &B[k * bc];
+            for (std::size_t j = 0; j < bc; ++j) {
+                const double bkj = bk[j];
+                c0[j] += a0 * bkj;
+                c1[j] += a1 * bkj;
+                c2[j] += a2 * bkj;
+                c3[j] += a3 * bkj;
+            }
+        }
+    }
+    for (; i < ar; ++i) {  // remainder rows (ar not a multiple of 4)
+        double* ci = &C[i * bc];
         for (std::size_t k = 0; k < ac; ++k) {
             const double aik = A[i * ac + k];
-            for (std::size_t j = 0; j < bc; ++j) C[i * bc + j] += aik * B[k * bc + j];
+            const double* bk = &B[k * bc];
+            for (std::size_t j = 0; j < bc; ++j) ci[j] += aik * bk[j];
         }
+    }
     return make_matrix(ar, bc, std::move(C));
 }
 
@@ -920,11 +978,30 @@ CNDArray matmul(const CNDArray& a, const CNDArray& b) {
     const Cplx* A = contig(a, sa);  // zero-copy when contiguous
     const Cplx* B = contig(b, sb);
     std::vector<Cplx> C(ar * bc, Cplx{});
-    for (std::size_t i = 0; i < ar; ++i)
+    // Same 4-row register blocking as the real matmul: reuse each B[k][j] load across
+    // four C rows (4 complex FMAs per load) for far better arithmetic intensity.
+    std::size_t i = 0;
+    for (; i + 4 <= ar; i += 4) {
+        Cplx* c0 = &C[(i + 0) * bc]; Cplx* c1 = &C[(i + 1) * bc];
+        Cplx* c2 = &C[(i + 2) * bc]; Cplx* c3 = &C[(i + 3) * bc];
+        for (std::size_t k = 0; k < ac; ++k) {
+            const Cplx a0 = A[(i + 0) * ac + k], a1 = A[(i + 1) * ac + k];
+            const Cplx a2 = A[(i + 2) * ac + k], a3 = A[(i + 3) * ac + k];
+            const Cplx* bk = &B[k * bc];
+            for (std::size_t j = 0; j < bc; ++j) {
+                const Cplx bkj = bk[j];
+                c0[j] += a0 * bkj; c1[j] += a1 * bkj; c2[j] += a2 * bkj; c3[j] += a3 * bkj;
+            }
+        }
+    }
+    for (; i < ar; ++i) {
+        Cplx* ci = &C[i * bc];
         for (std::size_t k = 0; k < ac; ++k) {
             const Cplx aik = A[i * ac + k];
-            for (std::size_t j = 0; j < bc; ++j) C[i * bc + j] += aik * B[k * bc + j];
+            const Cplx* bk = &B[k * bc];
+            for (std::size_t j = 0; j < bc; ++j) ci[j] += aik * bk[j];
         }
+    }
     return make_cmatrix(ar, bc, std::move(C));
 }
 
@@ -982,19 +1059,31 @@ double trace(const NDArray& a) {
     const double* base = a.buffer()->data();
     const std::ptrdiff_t off = static_cast<std::ptrdiff_t>(a.offset());
     const std::ptrdiff_t step = a.strides()[0] + a.strides()[1];  // (i,i) advances by s0+s1
-    double s = 0.0;
-    for (std::size_t i = 0; i < std::min(r, c); ++i)
-        s += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
+    const std::size_t d = std::min(r, c);
+    double s0 = 0, s1 = 0, s2 = 0, s3 = 0;   // independent lanes break the add-latency chain
+    std::size_t i = 0;
+    for (; i + 4 <= d; i += 4) {
+        s0 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
+        s1 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 1) * step)];
+        s2 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 2) * step)];
+        s3 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 3) * step)];
+    }
+    double s = (s0 + s1) + (s2 + s3);
+    for (; i < d; ++i) s += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
     return s;
 }
 
 double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same flat sum
+    // Frobenius/L2 norm is sqrt(x·x); reuse the multi-accumulator ddot kernel so the
+    // squared-sum reaches memory bandwidth instead of serializing on FP-add latency.
+    // Contiguous fast path reads straight from the buffer (no scratch allocation).
+    if (ndarray::is_contiguous(a)) {
+        const double* p = a.buffer()->data() + a.offset();
+        return std::sqrt(ddot(p, p, a.size()));
+    }
     std::vector<double> scratch;
-    const double* p = contig(a, scratch);  // zero-copy when contiguous
-    const std::size_t n = a.size();
-    double s = 0.0;
-    for (std::size_t i = 0; i < n; ++i) s += p[i] * p[i];
-    return std::sqrt(s);
+    const double* p = contig(a, scratch);
+    return std::sqrt(ddot(p, p, a.size()));
 }
 
 // ---- LU-based: solve / det / slogdet / inv / lstsq ----
@@ -1079,9 +1168,19 @@ NDArray cholesky(const NDArray& a) {
     const double* A = contig(a, scratch);  // read-only — zero-copy when contiguous
     std::vector<double> L(n * n, 0.0);
     for (std::size_t i = 0; i < n; ++i) {
+        const double* Li = &L[i * n];
         for (std::size_t j = 0; j <= i; ++j) {
-            double s = A[i * n + j];
-            for (std::size_t k = 0; k < j; ++k) s -= L[i * n + k] * L[j * n + k];
+            // s = A[i][j] − (row i · row j over k<j): four accumulators so the O(n³)
+            // inner dot vectorizes instead of serializing on FP-sub latency.
+            const double* Lj = &L[j * n];
+            double d0 = 0, d1 = 0, d2 = 0, d3 = 0;
+            std::size_t k = 0;
+            for (; k + 4 <= j; k += 4) {
+                d0 += Li[k] * Lj[k];         d1 += Li[k + 1] * Lj[k + 1];
+                d2 += Li[k + 2] * Lj[k + 2]; d3 += Li[k + 3] * Lj[k + 3];
+            }
+            double s = A[i * n + j] - ((d0 + d1) + (d2 + d3));
+            for (; k < j; ++k) s -= Li[k] * Lj[k];
             if (i == j) {
                 if (s <= 0.0) throw std::runtime_error("linalg: matrix is not positive-definite");
                 L[i * n + i] = std::sqrt(s);
@@ -1098,38 +1197,50 @@ QR qr(const NDArray& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: qr requires rows >= cols");
+    // Work on the TRANSPOSE At (n×m, row-major). A Householder QR repeatedly reads and
+    // updates COLUMNS of A, which stride by n in row-major and don't vectorize (the
+    // original cost ~3× Eigen); as ROWS of At those same operations are contiguous, and
+    // the reductions are multi-accumulated like ddot.
+    std::vector<double> At(n * m);
+    for (std::size_t i = 0; i < m; ++i)
+        for (std::size_t j = 0; j < n; ++j) At[j * m + i] = A[i * n + j];
     std::vector<double> Q(m * m, 0.0);
     for (std::size_t i = 0; i < m; ++i) Q[i * m + i] = 1.0;
     std::vector<double> u(m);  // Householder vector, reused per column (entries < k unused)
+    // Reflect: s = u · row (4 accumulators), then row -= (2 s / ‖u‖²) u — contiguous.
+    auto reflect = [&u](double* row, std::size_t k, std::size_t m, double inv) {
+        double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+        std::size_t i = k;
+        for (; i + 4 <= m; i += 4) {
+            s0 += u[i] * row[i];         s1 += u[i + 1] * row[i + 1];
+            s2 += u[i + 2] * row[i + 2]; s3 += u[i + 3] * row[i + 3];
+        }
+        double s = (s0 + s1) + (s2 + s3);
+        for (; i < m; ++i) s += u[i] * row[i];
+        s *= inv;
+        for (i = k; i < m; ++i) row[i] -= s * u[i];
+    };
     for (std::size_t k = 0; k < n; ++k) {
+        double* Atk = &At[k * m];                 // column k of A == row k of At
         double nrm = 0.0;
-        for (std::size_t i = k; i < m; ++i) nrm += A[i * n + k] * A[i * n + k];
+        for (std::size_t i = k; i < m; ++i) nrm += Atk[i] * Atk[i];
         nrm = std::sqrt(nrm);
         if (nrm == 0.0) continue;
-        const double alpha = A[k * n + k] >= 0 ? -nrm : nrm;
-        for (std::size_t i = k; i < m; ++i) u[i] = A[i * n + k];
+        const double alpha = Atk[k] >= 0 ? -nrm : nrm;
+        for (std::size_t i = k; i < m; ++i) u[i] = Atk[i];
         u[k] -= alpha;
         double unorm2 = 0.0;
         for (std::size_t i = k; i < m; ++i) unorm2 += u[i] * u[i];
         if (unorm2 == 0.0) continue;
-        for (std::size_t j = k; j < n; ++j) {
-            double s = 0.0;
-            for (std::size_t i = k; i < m; ++i) s += u[i] * A[i * n + j];
-            s = 2.0 * s / unorm2;
-            for (std::size_t i = k; i < m; ++i) A[i * n + j] -= s * u[i];
-        }
-        for (std::size_t j = 0; j < m; ++j) {  // Q = Q · Hₖ
-            double s = 0.0;
-            for (std::size_t i = k; i < m; ++i) s += u[i] * Q[j * m + i];
-            s = 2.0 * s / unorm2;
-            for (std::size_t i = k; i < m; ++i) Q[j * m + i] -= s * u[i];
-        }
+        const double inv = 2.0 / unorm2;
+        for (std::size_t j = k; j < n; ++j) reflect(&At[j * m], k, m, inv);  // A's cols j≥k
+        for (std::size_t j = 0; j < m; ++j) reflect(&Q[j * m], k, m, inv);   // Q = Q · Hₖ
     }
     std::vector<double> Qr(m * n), Rr(n * n, 0.0);  // reduced
     for (std::size_t i = 0; i < m; ++i)
         for (std::size_t j = 0; j < n; ++j) Qr[i * n + j] = Q[i * m + j];
     for (std::size_t i = 0; i < n; ++i)
-        for (std::size_t j = i; j < n; ++j) Rr[i * n + j] = A[i * n + j];
+        for (std::size_t j = i; j < n; ++j) Rr[i * n + j] = At[j * m + i];  // R[i][j]=A[i][j]=At[j][i]
     return {make_matrix(m, n, std::move(Qr)), make_matrix(n, n, std::move(Rr))};
 }
 
@@ -1267,11 +1378,15 @@ NDArray eigvalsh(const CNDArray& a) {
 }
 EigC eig(const NDArray& a) {
     std::size_t n, c;
-    const std::vector<double> A = as_matrix(a, n, c);
+    std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     if (is_symmetric(A, n)) {                // symmetric -> real spectrum + eigenvectors
-        const Eig r = eigh(a);
-        return {to_complex(r.values), to_complex(r.vectors)};
+        // Reuse the matrix we already extracted (eigh(a) would re-extract it — a
+        // wasted O(n²) copy); the symmetric branch returns here, so moving A is safe.
+        std::vector<double> rvals, rvecs;
+        symmetric_eig(std::move(A), n, rvals, rvecs, /*want_vectors=*/true);
+        return {to_complex(make_vector(std::move(rvals))),
+                to_complex(make_matrix(n, n, std::move(rvecs)))};
     }
     std::vector<Cplx> vals = eigvals_general(A, n);
     std::sort(vals.begin(), vals.end(), cgreater);

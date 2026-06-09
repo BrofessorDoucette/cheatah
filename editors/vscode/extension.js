@@ -112,16 +112,19 @@ function prefixBefore(document, range) {
   return line.slice(i, end).replace(/\.+$/, "");
 }
 
-// --- User-defined struct/interface parsing (from the open .purr file) --------
+// --- User-defined struct/interface/enum + function parsing (from the open .purr file)
 // A lightweight, brace-depth line scanner — enough to power hover docs for the
-// types, fields, and methods a user declares in their own program. Returns:
-//   { types: Map<name, def>, methods: Map<methodName, def[]> }
+// types, enums, fields, methods, and top-level functions a user declares in their own
+// program. Returns:
+//   { types: Map<name, def>, methods: Map<methodName, def[]>, functions: Map<name, fn> }
 // where def = { name, kind, fulfills[], fields:[{name,type}], methods:[{name,sig,doc}],
-//               doc, text } and method entries carry their owning type name.
+//               members:[{name,value,doc}] (enums only), doc, text }, method entries
+//   carry their owning type name, and fn = { name, sig, doc, line }.
 function parseDefs(text) {
   const lines = text.split(/\r?\n/);
   const types = new Map();
   const methods = new Map();
+  const functions = new Map(); // top-level `fn` definitions, with their leading comment
   let pendingDoc = []; // contiguous leading `#` comment lines
 
   const docOf = () => pendingDoc.join("\n").trim();
@@ -132,6 +135,57 @@ function parseDefs(text) {
     const line = raw.trim();
     const cm = line.match(/^#\s?(.*)$/);
     if (cm) { pendingDoc.push(cm[1]); continue; }
+
+    // A top-level function: capture its signature and the contiguous `#` comment block
+    // right above it (the "docstring" the equivalent Python would carry), so a hover
+    // over a call to a function defined in THIS file shows that comment instead of
+    // falling through to a same-named stdlib header.
+    const fnHead = line.match(/^fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)/);
+    if (fnHead) {
+      functions.set(fnHead[1], { name: fnHead[1], sig: `fn ${fnHead[1]}(${fnHead[2]})`, doc: docOf(), line: i });
+      pendingDoc = [];
+      continue;
+    }
+
+    // An enum: `enum Name { A [= v], … }` — members may share the head line
+    // (comma/semicolon-separated) or sit on their own lines, each with an optional
+    // leading `#` comment. Stored in `types` with kind "enum".
+    const enumHead = line.match(/^enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*{(.*)$/);
+    if (enumHead) {
+      const ename = enumHead[1];
+      const edef = { name: ename, kind: "enum", fulfills: [], fields: [], methods: [], members: [], doc: docOf(), text: raw, line: i };
+      pendingDoc = [];
+      let memberDoc = [];
+      const addMembers = (chunk) => {
+        // Peel off a trailing inline `# comment` (its own doc for the members here),
+        // then anything from a closing brace onward, before splitting into members.
+        let inlineDoc = "";
+        const hash = chunk.indexOf("#");
+        if (hash !== -1) { inlineDoc = chunk.slice(hash + 1).trim(); chunk = chunk.slice(0, hash); }
+        chunk = chunk.replace(/}.*$/, "");
+        for (const tok of chunk.split(/[,;]/)) {
+          const m = tok.trim().match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:=\s*(.+))?$/);
+          if (m) edef.members.push({ name: m[1], value: m[2] ? m[2].trim() : null, doc: memberDoc.join("\n").trim() || inlineDoc });
+        }
+        memberDoc = [];
+      };
+      addMembers(enumHead[2]); // members sharing the head line after `{`
+      let depth = countBraces(raw);
+      const bodyLines = [raw];
+      for (i = i + 1; i < lines.length && depth > 0; i++) {
+        const ln = lines[i];
+        bodyLines.push(ln);
+        const t = ln.trim();
+        const mc = t.match(/^#\s?(.*)$/);
+        if (mc) { memberDoc.push(mc[1]); depth += countBraces(ln); continue; }
+        addMembers(t);
+        depth += countBraces(ln);
+      }
+      i -= 1; // the for-loop will ++; we consumed up to the closing brace
+      edef.text = bodyLines.join("\n");
+      types.set(ename, edef);
+      continue;
+    }
 
     const head = line.match(/^(struct|interface)\s+([A-Za-z_][A-Za-z0-9_]*)\s*(:\s*([A-Za-z0-9_,\s]+))?\s*{/);
     if (!head) { if (line) pendingDoc = []; continue; }
@@ -172,7 +226,7 @@ function parseDefs(text) {
     def.text = bodyLines.join("\n");
     types.set(name, def);
   }
-  return { types, methods };
+  return { types, methods, functions };
 }
 
 function renderType(def) {
@@ -180,6 +234,18 @@ function renderType(def) {
   const head = def.kind + " " + def.name + (def.fulfills.length ? " : " + def.fulfills.join(", ") : "");
   md.appendCodeblock(head + " { … }", "cheatah");
   if (def.doc) md.appendMarkdown("\n" + def.doc + "\n");
+  if (def.kind === "enum") {
+    if (def.members && def.members.length) {
+      md.appendMarkdown("\n**Members**\n");
+      for (const m of def.members) {
+        const val = m.value != null ? " = " + m.value : "";
+        const note = m.doc ? " — " + m.doc.split("\n")[0] : "";
+        md.appendMarkdown(`- \`${def.name}.${m.name}\`${val}${note}\n`);
+      }
+    }
+    md.appendMarkdown("\n*A scoped enum (a C++ `enum class`).*\n");
+    return md;
+  }
   if (def.fields.length) {
     md.appendMarkdown("\n**Fields**\n");
     for (const f of def.fields) md.appendMarkdown(`- \`${f.name}: ${f.type}\`\n`);
@@ -202,6 +268,25 @@ function renderMember(m) {
   md.appendCodeblock(m.sig, "cheatah");
   if (m.doc) md.appendMarkdown("\n" + m.doc + "\n");
   md.appendMarkdown(`\nMethod of \`${m.type}\`.\n`);
+  return md;
+}
+
+// A top-level user function: its signature plus the comment block above its `fn`
+// definition (the local "docstring"), so same-file calls get real hover docs.
+function renderFunction(f) {
+  const md = new vscode.MarkdownString(undefined, true);
+  md.appendCodeblock(f.sig, "cheatah");
+  if (f.doc) md.appendMarkdown("\n" + f.doc + "\n");
+  md.appendMarkdown("\n*Defined in this file.*\n");
+  return md;
+}
+
+// A scoped-enum member: `Color.RED [= value]`, plus any comment above it.
+function renderEnumMember(edef, mem) {
+  const md = new vscode.MarkdownString(undefined, true);
+  md.appendCodeblock(`${edef.name}.${mem.name}${mem.value != null ? " = " + mem.value : ""}`, "cheatah");
+  if (mem.doc) md.appendMarkdown("\n" + mem.doc + "\n");
+  md.appendMarkdown(`\nMember of enum \`${edef.name}\`.\n`);
   return md;
 }
 
@@ -230,8 +315,13 @@ const hoverProvider = {
     const modKey = moduleKeyAt(word, prefix);
     if (modKey) return new vscode.Hover(renderModule(modKey), range);
 
-    // 2. Hovering a member after `obj.` → a user method, or a struct field.
+    // 2. Hovering a member after `obj.` → an enum member, a user method, or a struct field.
     if (prefix) {
+      const et = defs.types.get(prefix);
+      if (et && et.kind === "enum") {
+        const mem = et.members.find((x) => x.name === word);
+        if (mem) return new vscode.Hover(renderEnumMember(et, mem), range);
+      }
       const ms = defs.methods.get(word);
       if (ms && ms.length) return new vscode.Hover(renderMember(ms[0]), range);
       for (const def of defs.types.values()) {
@@ -240,7 +330,13 @@ const hoverProvider = {
       }
     }
 
-    // 3. Fall back to the stdlib/builtins database (modules + UFCS builtins).
+    // 3. A top-level function defined in THIS file → its nearby comment. Checked before
+    // the stdlib database so a local function never shows an unrelated same-named header.
+    if (!prefix && defs.functions.has(word)) {
+      return new vscode.Hover(renderFunction(defs.functions.get(word)), range);
+    }
+
+    // 4. Fall back to the stdlib/builtins database (modules + UFCS builtins).
     const fn =
       (prefix && db.byQualified.get(prefix + "." + word)) || db.byQualified.get(word);
     if (fn) return new vscode.Hover(renderDoc(fn), range);
@@ -278,10 +374,18 @@ const definitionProvider = {
     if (defs.types.has(word)) {
       return new vscode.Location(document.uri, new vscode.Position(defs.types.get(word).line, 0));
     }
-    // A user method after `obj.` → its `fn` line in this file.
+    // A user method after `obj.`, or an enum member after `Enum.` → its line in this file.
     if (prefix) {
       const ms = defs.methods.get(word);
       if (ms && ms.length) return new vscode.Location(document.uri, new vscode.Position(ms[0].line, 0));
+      const et = defs.types.get(prefix);
+      if (et && et.kind === "enum" && et.members.some((x) => x.name === word)) {
+        return new vscode.Location(document.uri, new vscode.Position(et.line, 0));
+      }
+    }
+    // A top-level function defined in this file → its `fn` line (before any stdlib header).
+    if (!prefix && defs.functions.has(word)) {
+      return new vscode.Location(document.uri, new vscode.Position(defs.functions.get(word).line, 0));
     }
     // A module name (`import math`, or the `math` of `math.sqrt`) → its C++ header.
     const modKey = moduleKeyAt(word, prefix);
@@ -311,17 +415,28 @@ const completionProvider = {
   provideCompletionItems(document, position) {
     const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
 
-    // After `module.` (incl. dotted like `os.path.`) → that module's functions.
+    // After `Name.` — offer a local enum's members before falling back to modules.
     const dotted = linePrefix.match(/([A-Za-z_][A-Za-z0-9_.]*)\.$/);
     if (dotted) {
-      const mod = dotted[1];
-      const items = (db.byModule.get(mod) || []).map(functionItem);
+      const head = dotted[1];
+      const defs = parseDefs(document.getText());
+      const et = defs.types.get(head);
+      if (et && et.kind === "enum") {
+        return et.members.map((m) => {
+          const it = new vscode.CompletionItem(m.name, vscode.CompletionItemKind.EnumMember);
+          it.detail = `${et.name}.${m.name}${m.value != null ? " = " + m.value : ""}`;
+          it.documentation = renderEnumMember(et, m);
+          return it;
+        });
+      }
+      // After `module.` (incl. dotted like `os.path.`) → that module's functions.
+      const items = (db.byModule.get(head) || []).map(functionItem);
       // Surface sub-modules (e.g. `os.` should also offer `path`).
       for (const m of db.modules) {
-        if (m.startsWith(mod + ".") && m.slice(mod.length + 1).indexOf(".") === -1) {
+        if (m.startsWith(head + ".") && m.slice(head.length + 1).indexOf(".") === -1) {
           items.push(
             new vscode.CompletionItem(
-              m.slice(mod.length + 1),
+              m.slice(head.length + 1),
               vscode.CompletionItemKind.Module
             )
           );
@@ -330,7 +445,7 @@ const completionProvider = {
       return items.length ? items : undefined;
     }
 
-    // Bare context → top-level module names + builtins.
+    // Bare context → top-level module names + builtins + this file's enums & functions.
     const items = [];
     for (const m of db.modules) {
       if (m.indexOf(".") === -1) {
@@ -338,6 +453,17 @@ const completionProvider = {
       }
     }
     for (const fn of db.byModule.get("") || []) items.push(functionItem(fn));
+    const defs = parseDefs(document.getText());
+    for (const [name, def] of defs.types) {
+      const kind = def.kind === "enum" ? vscode.CompletionItemKind.Enum : vscode.CompletionItemKind.Struct;
+      items.push(new vscode.CompletionItem(name, kind));
+    }
+    for (const [name, f] of defs.functions) {
+      const it = new vscode.CompletionItem(name, vscode.CompletionItemKind.Function);
+      it.detail = f.sig;
+      it.documentation = renderFunction(f);
+      items.push(it);
+    }
     return items;
   },
 };

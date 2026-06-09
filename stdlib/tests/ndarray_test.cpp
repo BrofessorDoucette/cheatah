@@ -199,3 +199,111 @@ TEST(CheatahNDArray, BinaryOpScalarAndBroadcast) {
     EXPECT_EQ(nd::to_string(nd::mul(m, v)), "[[0, 0, 0], [10, 20, 30]]");
     EXPECT_NEAR(nd::get(nd::divide(m, v), {1, 1}), 5.0, 1e-12);
 }
+
+// ==========================================================================
+//  N-dimensional construction (1-D vector → 5-D), the whole point of an NDArray.
+//  array([...]) reads the shape off the nesting and flattens C-order; shape/get/
+//  reductions and numpy-style broadcasting then work at every rank.
+// ==========================================================================
+TEST(CheatahNDArray, Dim1Vector) {
+    // 1-D — a plain vector.
+    const nd::NDArray v = nd::array(std::vector<double>{1.0, 2.0, 3.0});
+    EXPECT_EQ(nd::shape_of(v), (std::vector<long long>{3}));
+    EXPECT_EQ(nd::to_string(v), "[1, 2, 3]");
+    EXPECT_DOUBLE_EQ(nd::get(v, {2}), 3.0);
+}
+
+TEST(CheatahNDArray, Dim2Matrix) {
+    // 2-D — a matrix (a vector of equal-length rows).
+    const nd::NDArray m =
+        nd::array(std::vector<std::vector<double>>{{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}});
+    EXPECT_EQ(nd::shape_of(m), (std::vector<long long>{2, 3}));
+    EXPECT_EQ(nd::to_string(m), "[[1, 2, 3], [4, 5, 6]]");
+    EXPECT_DOUBLE_EQ(nd::get(m, {1, 2}), 6.0);
+}
+
+TEST(CheatahNDArray, Dim3VectorOfMatrices) {
+    // 3-D — a vector of 2×2 matrices (shape 2×2×2).
+    using M = std::vector<std::vector<double>>;
+    const nd::NDArray t = nd::array(std::vector<M>{
+        {{1.0, 2.0}, {3.0, 4.0}}, {{5.0, 6.0}, {7.0, 8.0}}});
+    EXPECT_EQ(nd::shape_of(t), (std::vector<long long>{2, 2, 2}));
+    EXPECT_DOUBLE_EQ(nd::get(t, {1, 0, 1}), 6.0);
+    EXPECT_DOUBLE_EQ(nd::sum(t), 36.0);
+    // numpy-style broadcasting at 3-D: a [2,1] column stretches over each plane's rows.
+    const nd::NDArray col = nd::array(std::vector<std::vector<double>>{{10.0}, {20.0}});
+    EXPECT_EQ(nd::to_string(nd::add(t, col)),
+              "[[[11, 12], [23, 24]], [[15, 16], [27, 28]]]");
+}
+
+TEST(CheatahNDArray, Dim4VectorOfVectorsOfMatrices) {
+    // 4-D — a vector of vectors of 2×2 matrices (shape 2×1×2×2).
+    using M = std::vector<std::vector<double>>;   // 2-D
+    using T3 = std::vector<M>;                     // 3-D
+    const nd::NDArray a = nd::array(std::vector<T3>{
+        {{{1.0, 2.0}, {3.0, 4.0}}},
+        {{{5.0, 6.0}, {7.0, 8.0}}}});
+    EXPECT_EQ(nd::shape_of(a), (std::vector<long long>{2, 1, 2, 2}));
+    EXPECT_DOUBLE_EQ(nd::get(a, {1, 0, 1, 1}), 8.0);
+    EXPECT_DOUBLE_EQ(nd::sum(a), 36.0);
+    // a 0-d scalar broadcasts across the whole 4-D array.
+    EXPECT_DOUBLE_EQ(nd::get(nd::mul(a, nd::scalar(2.0)), {0, 0, 1, 0}), 6.0);
+}
+
+TEST(CheatahNDArray, Dim5VectorOfVectorsOfVectorsOfMatrices) {
+    // 5-D — a vector of vectors of vectors of 2×2 matrices (shape 2×1×1×2×2).
+    using M = std::vector<std::vector<double>>;
+    using T3 = std::vector<M>;
+    using T4 = std::vector<T3>;
+    const nd::NDArray a = nd::array(std::vector<T4>{
+        {{{{1.0, 2.0}, {3.0, 4.0}}}},
+        {{{{5.0, 6.0}, {7.0, 8.0}}}}});
+    EXPECT_EQ(nd::shape_of(a), (std::vector<long long>{2, 1, 1, 2, 2}));
+    EXPECT_DOUBLE_EQ(nd::get(a, {1, 0, 0, 0, 1}), 6.0);
+    EXPECT_DOUBLE_EQ(nd::sum(a), 36.0);
+    // 5-D broadcasting: a trailing [2,2] matrix adds into every plane.
+    const nd::NDArray bias =
+        nd::array(std::vector<std::vector<double>>{{100.0, 200.0}, {300.0, 400.0}});
+    EXPECT_DOUBLE_EQ(nd::get(nd::add(a, bias), {0, 0, 0, 1, 1}), 404.0);
+}
+
+TEST(CheatahNDArray, NestedArrayConstruction) {
+    // Shape inferred from the nesting; the leaf scalar type is deduced (integer here).
+    const auto m =
+        nd::array(std::vector<std::vector<long long>>{{1, 2, 3}, {4, 5, 6}});
+    EXPECT_EQ(nd::shape_of(m), (std::vector<long long>{2, 3}));
+    EXPECT_EQ(nd::to_string(m), "[[1, 2, 3], [4, 5, 6]]");
+    // Ragged nested lists are rejected, exactly as numpy rejects them — at the top
+    // level (rows differ)…
+    EXPECT_THROW(nd::array(std::vector<std::vector<double>>{{1.0, 2.0}, {3.0}}),
+                 std::runtime_error);
+    // …and deeper (inner planes differ).
+    using M = std::vector<std::vector<double>>;
+    EXPECT_THROW(nd::array(std::vector<M>{{{1.0, 2.0}}, {{3.0}}}), std::runtime_error);
+}
+
+TEST(CheatahNDArray, NestedArrayRaggedAtEveryDepth) {
+    // The rectangularity check is in the `nested_collect` template, so each rank gets
+    // its OWN throw — trigger ragged at 3-D, 4-D, 5-D so every instantiation is covered.
+    using M = std::vector<std::vector<double>>;   // 2-D
+    using T3 = std::vector<M>;                     // 3-D
+    using T4 = std::vector<T3>;                    // 4-D
+    // Mismatch the NUMBER OF SUB-BLOCKS at each rank (not just leaf-row lengths) so each
+    // nested_collect<U=…> instantiation's rectangularity throw is exercised.
+    EXPECT_THROW(nd::array(std::vector<M>{M{{1.0}}, M{{1.0}, {2.0}}}), std::runtime_error);
+    EXPECT_THROW(nd::array(std::vector<T3>{T3{M{{1.0}}}, T3{M{{1.0}}, M{{2.0}}}}),
+                 std::runtime_error);
+    EXPECT_THROW(
+        nd::array(std::vector<T4>{T4{T3{M{{1.0}}}}, T4{T3{M{{1.0}}}, T3{M{{2.0}}}}}),
+        std::runtime_error);
+}
+
+TEST(CheatahNDArray, ReshapeStridedSource) {
+    // Reshaping a NON-contiguous (broadcast, stride-0) source takes the odometer
+    // fallback, not the contiguous memcpy fast path.
+    const nd::NDArray b = nd::broadcast_to(nd::scalar(2.0), {6});  // stride-0 view, size 6
+    const nd::NDArray r = nd::reshape(b, {2, 3});
+    EXPECT_EQ(nd::shape_of(r), (std::vector<long long>{2, 3}));
+    EXPECT_DOUBLE_EQ(nd::get(r, {1, 2}), 2.0);
+    EXPECT_DOUBLE_EQ(nd::sum(r), 12.0);
+}

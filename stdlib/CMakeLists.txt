@@ -17,6 +17,7 @@ add_subdirectory(random)
 add_subdirectory(statistics)
 add_subdirectory(hashlib)
 add_subdirectory(socket)
+add_subdirectory(sys)
 # ndarray + linalg are added at the root (before this dir) so linalg sees ndarray.
 
 # Convenience aggregate: `cmake --build … --target cheatah_stdlib` builds EVERY

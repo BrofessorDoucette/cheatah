@@ -118,8 +118,9 @@ NDArray outer(const NDArray& a, const NDArray& b);
  * Matrix multiply.
  *
  * Requires both operands to be 2-D with matching inner dimensions (a's cols ==
- * b's rows), throwing on a mismatch or a non-2-D input; the inner loop runs in
- * ikj order so the contiguous accumulation auto-vectorizes.
+ * b's rows), throwing on a mismatch or a non-2-D input. The kernel runs in ikj
+ * order (contiguous inner loop → auto-vectorizes) and blocks four rows of `a` at a
+ * time so each `b` element loaded is reused across four output rows.
  * @param a m×k matrix.
  * @param b k×p matrix.
  * @return m×p product.

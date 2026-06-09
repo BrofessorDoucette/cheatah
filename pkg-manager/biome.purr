@@ -1,0 +1,415 @@
+# biome — the cheatah package manager.
+#
+# "biome" because both pythons and cheetahs roam the African savanna: it is where
+# a cheatah project and its (Python-like) dependencies live together.
+#
+# biome is itself a cheatah program: purrc compiles this file to a module
+# (biome.so) and a small native launcher named `biome` runs it through the cheatah
+# runtime. It manages a project's `cheatah.toml` manifest and drives CMake/CPM so
+# that, ultimately, EVERYTHING is built by CMake: `biome
+# build` regenerates the project's CMakeLists.txt from the manifest and invokes
+# cmake, which uses CPM to fetch the cheatah toolchain plus whichever optional
+# standard-library extensions (cheatah-gpu, cheatah-plot, cheatah-space,
+# cheatah-learn, …) the user chose.
+#
+# Commands:
+#   biome init <name>     scaffold a new project
+#   biome add <ext>       add an optional stdlib extension to the manifest
+#   biome remove <ext>    remove an extension
+#   biome list            list available extensions (✓ = in this project)
+#   biome build           regenerate CMakeLists.txt and build via cmake
+#   biome run             build, then run the produced executable
+#   biome help            usage
+#   biome version         print the biome version
+
+import io
+import os
+import string
+import sys
+
+# The default cheatah toolchain version a new project pins. Kept in step with the
+# language release; `biome build` writes it into the generated CMake as the git tag.
+fn cheatah_version() { return "0.9.0" }
+
+# Default version a freshly added extension is pinned at.
+fn extension_version() { return "0.1.0" }
+
+# The GitHub owner that hosts the cheatah toolchain and the official extensions.
+fn github_owner() { return "BrofessorDoucette" }
+
+fn biome_version() { return "0.1.0-alpha" }
+
+fn manifest_path() { return "cheatah.toml" }
+
+# ---- the registry of optional standard-library extensions ------------------
+# Each is a separate git repository, fetched by CPM at build time. This is the
+# single source of truth biome consults; `add`/`list` validate names against it.
+fn known_extensions() {
+    let xs: list[str] = []
+    xs.append("cheatah-gpu")
+    xs.append("cheatah-plot")
+    xs.append("cheatah-space")
+    xs.append("cheatah-learn")
+    return xs
+}
+
+fn extension_desc(name) {
+    if name == "cheatah-gpu" { return "GPU arrays and compute kernels" }
+    elif name == "cheatah-plot" { return "Plotting and charting" }
+    elif name == "cheatah-space" { return "Astronomy and spatial math" }
+    elif name == "cheatah-learn" { return "Machine learning" }
+    else { return "(unregistered extension)" }
+}
+
+# owner/repo for an extension — every official extension lives under the same owner.
+fn extension_repo(name) {
+    return github_owner() + "/" + name
+}
+
+fn is_known_extension(name) {
+    for x in known_extensions() {
+        if x == name { return true }
+    }
+    return false
+}
+
+fn list_contains(xs, v) {
+    for x in xs {
+        if x == v { return true }
+    }
+    return false
+}
+
+# ---- the parsed manifest ---------------------------------------------------
+# A cheatah.toml carries the project name, the cheatah toolchain version, and the
+# chosen extensions. biome parses it into this record, edits the record, and
+# re-serializes — deterministically (comments are not preserved).
+struct Manifest {
+    name: str
+    cheatah: str
+    extensions: list[str]
+}
+
+fn write_file(path, content) {
+    let f = io.open(path, "w")
+    f.write(content)
+    f.close()
+}
+
+# Strip surrounding whitespace, then surrounding double quotes, from a TOML value.
+fn unquote(s) {
+    return string.strip(string.strip(s), "\"")
+}
+
+# Parse cheatah.toml into a Manifest. A missing/empty file yields an empty record;
+# callers that require a project guard with os.path.exists(manifest_path()) first.
+fn load_manifest() {
+    let name = ""
+    let cver = cheatah_version()
+    let exts: list[str] = []
+    let section = ""
+    let content = io.read_file(manifest_path())
+    let lines = string.split(content, "\n")
+    for raw in lines {
+        let line = string.strip(raw)
+        if len(line) == 0 { continue }
+        if string.startswith(line, "#") { continue }
+        if string.startswith(line, "[") {
+            section = string.strip(line, "[]")
+            continue
+        }
+        let eq = string.find(line, "=")
+        if eq < 0 { continue }
+        let key = string.strip(line[:eq])
+        let val = unquote(line[eq + 1:])
+        if section == "project" and key == "name" {
+            name = val
+        } elif section == "cheatah" and key == "version" {
+            cver = val
+        } elif section == "extensions" {
+            exts.append(key)
+        }
+    }
+    return Manifest(name, cver, exts)
+}
+
+# The cheatah.toml a fresh `biome init` writes (no extensions yet).
+fn default_manifest(name) {
+    let s = "# cheatah project manifest — managed by biome.\n\n"
+    s = s + "[project]\n"
+    s = s + "name = \"" + name + "\"\n\n"
+    s = s + "[cheatah]\n"
+    s = s + "version = \"" + cheatah_version() + "\"\n\n"
+    s = s + "[extensions]\n"
+    return s
+}
+
+# Re-serialize a Manifest to cheatah.toml.
+fn save_manifest(m) {
+    let s = "# cheatah project manifest — managed by biome.\n\n"
+    s = s + "[project]\n"
+    s = s + "name = \"" + m.name + "\"\n\n"
+    s = s + "[cheatah]\n"
+    s = s + "version = \"" + m.cheatah + "\"\n\n"
+    s = s + "[extensions]\n"
+    for e in m.extensions {
+        s = s + e + " = \"" + extension_version() + "\"\n"
+    }
+    write_file(manifest_path(), s)
+}
+
+# ---- generated files -------------------------------------------------------
+# The CPM bootstrap: downloads a pinned CPM.cmake at configure time if absent.
+# This is what makes "everything handled by CMake" true — CPM (a CMake module)
+# fetches the cheatah toolchain and the chosen extensions.
+fn template_cpm() {
+    let v = "0.40.2"
+    let s = "# Auto-downloads CPM.cmake (the CMake package manager) — managed by biome.\n"
+    s = s + "set(CPM_DOWNLOAD_VERSION " + v + ")\n"
+    s = s + "set(CPM_DOWNLOAD_LOCATION \"${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake\")\n"
+    s = s + "if(NOT EXISTS \"${CPM_DOWNLOAD_LOCATION}\")\n"
+    s = s + "  message(STATUS \"biome: downloading CPM.cmake v${CPM_DOWNLOAD_VERSION}\")\n"
+    s = s + "  file(DOWNLOAD\n"
+    s = s + "    https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake\n"
+    s = s + "    \"${CPM_DOWNLOAD_LOCATION}\")\n"
+    s = s + "endif()\n"
+    s = s + "include(\"${CPM_DOWNLOAD_LOCATION}\")\n"
+    return s
+}
+
+# A hello-world starter program for a fresh project.
+fn template_main(name) {
+    let s = "# " + name + " — a cheatah program.\n"
+    s = s + "import io\n"
+    s = s + "import sys\n\n"
+    s = s + "io.print(\"hello from " + name + "!\")\n"
+    s = s + "if len(sys.argv) > 1 {\n"
+    s = s + "    io.print(\"args:\", sys.argv[1:])\n"
+    s = s + "}\n"
+    return s
+}
+
+fn template_gitignore() {
+    let s = "build/\n"
+    s = s + "*.gen.cpp\n"
+    s = s + "*.so\n"
+    return s
+}
+
+# Generate the project CMakeLists.txt from the manifest. It pulls in the cheatah
+# toolchain via CPM, then each chosen extension, then uses cheatah's own
+# CheatahProgram helper to compile src/main.purr into a native executable.
+fn generate_cmake(m) {
+    let s = "# Generated by biome from cheatah.toml — do not edit by hand.\n"
+    s = s + "# Re-run `biome build` (or `biome add`/`biome remove`) to regenerate.\n"
+    s = s + "cmake_minimum_required(VERSION 3.24)\n"
+    s = s + "project(" + m.name + " LANGUAGES CXX)\n"
+    s = s + "set(CMAKE_CXX_STANDARD 20)\n\n"
+    s = s + "include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)\n\n"
+    s = s + "# The cheatah language toolchain (purrc + runtime + stdlib).\n"
+    s = s + "CPMAddPackage(NAME cheatah GITHUB_REPOSITORY " + github_owner() + "/cheatah GIT_TAG v" + m.cheatah + ")\n\n"
+    if len(m.extensions) > 0 {
+        s = s + "# Optional standard-library extensions chosen in cheatah.toml.\n"
+        for e in m.extensions {
+            s = s + "CPMAddPackage(NAME " + e + " GITHUB_REPOSITORY " + extension_repo(e) + " GIT_TAG v" + extension_version() + ")\n"
+        }
+        s = s + "\n"
+    }
+    s = s + "# cheatah_add_program(): compile src/main.purr to a module + a launcher.\n"
+    s = s + "include(${cheatah_SOURCE_DIR}/cmake/CheatahProgram.cmake)\n\n"
+    s = s + "cheatah_add_program(" + m.name + " SOURCES src/main.purr"
+    if len(m.extensions) > 0 {
+        s = s + " EXTENSIONS"
+        for e in m.extensions {
+            s = s + " " + e
+        }
+    }
+    s = s + ")\n"
+    return s
+}
+
+# ---- commands --------------------------------------------------------------
+fn require_project() {
+    if os.path.exists(manifest_path()) {
+        return true
+    }
+    io.print("biome: no cheatah.toml in", os.getcwd())
+    io.print("       run `biome init <name>` to create a project")
+    return false
+}
+
+fn cmd_init(name) {
+    if os.path.exists(name) {
+        io.print("biome: path already exists:", name)
+        return 1
+    }
+    os.makedirs(os.path.join(name, "src"))
+    os.makedirs(os.path.join(name, "cmake"))
+
+    let exts: list[str] = []
+    let m = Manifest(name, cheatah_version(), exts)
+
+    write_file(os.path.join(name, "cheatah.toml"), default_manifest(name))
+    write_file(os.path.join(name, os.path.join("src", "main.purr")), template_main(name))
+    write_file(os.path.join(name, os.path.join("cmake", "CPM.cmake")), template_cpm())
+    write_file(os.path.join(name, "CMakeLists.txt"), generate_cmake(m))
+    write_file(os.path.join(name, ".gitignore"), template_gitignore())
+
+    io.print("biome: created project", name)
+    io.print("  next:  cd", name)
+    io.print("         biome add cheatah-plot   # optional")
+    io.print("         biome run")
+    return 0
+}
+
+fn cmd_add(name) {
+    if not require_project() { return 1 }
+    if not is_known_extension(name) {
+        io.print("biome: unknown extension:", name)
+        io.print("       run `biome list` to see available extensions")
+        return 1
+    }
+    let m = load_manifest()
+    if list_contains(m.extensions, name) {
+        io.print("biome: already added:", name)
+        return 0
+    }
+    m.extensions.append(name)
+    save_manifest(m)
+    write_file("CMakeLists.txt", generate_cmake(m))
+    io.print("biome: added", name, "—", extension_desc(name))
+    io.print("       run `biome build` to fetch and build it")
+    return 0
+}
+
+fn cmd_remove(name) {
+    if not require_project() { return 1 }
+    let m = load_manifest()
+    if not list_contains(m.extensions, name) {
+        io.print("biome: not in this project:", name)
+        return 0
+    }
+    let kept: list[str] = []
+    for e in m.extensions {
+        if e != name {
+            kept.append(e)
+        }
+    }
+    let updated = Manifest(m.name, m.cheatah, kept)
+    save_manifest(updated)
+    write_file("CMakeLists.txt", generate_cmake(updated))
+    io.print("biome: removed", name)
+    return 0
+}
+
+fn cmd_list() {
+    let installed: list[str] = []
+    if os.path.exists(manifest_path()) {
+        let m = load_manifest()
+        installed = m.extensions
+    }
+    io.print("available cheatah extensions:")
+    for e in known_extensions() {
+        let mark = "  "
+        if list_contains(installed, e) {
+            mark = "* "
+        }
+        io.print(mark + string.ljust(e, 16) + extension_desc(e))
+    }
+    io.print("")
+    io.print("(* = used by this project; `biome add <name>` to add one)")
+    return 0
+}
+
+fn cmd_build() {
+    if not require_project() { return 1 }
+    let m = load_manifest()
+    # Regenerate the CMakeLists from the manifest so the two never drift.
+    write_file("CMakeLists.txt", generate_cmake(m))
+    io.print("biome: configuring (cmake -S . -B build)")
+    let rc = os.system("cmake -S . -B build")
+    if rc != 0 {
+        io.print("biome: cmake configure failed")
+        return 1
+    }
+    io.print("biome: building (cmake --build build)")
+    let brc = os.system("cmake --build build")
+    if brc != 0 {
+        io.print("biome: build failed")
+        return 1
+    }
+    io.print("biome: built", os.path.join("build", m.name))
+    return 0
+}
+
+fn cmd_run() {
+    let rc = cmd_build()
+    if rc != 0 { return 1 }
+    let m = load_manifest()
+    let exe = os.path.join("build", m.name)
+    io.print("biome: running", exe)
+    let code = os.system("./" + exe)
+    if code != 0 { return 1 }
+    return 0
+}
+
+fn cmd_help() {
+    io.print("biome — the cheatah package manager")
+    io.print("")
+    io.print("usage: biome <command> [args]")
+    io.print("")
+    io.print("commands:")
+    io.print("  init <name>     scaffold a new cheatah project")
+    io.print("  add <ext>       add an optional standard-library extension")
+    io.print("  remove <ext>    remove an extension")
+    io.print("  list            list available extensions")
+    io.print("  build           regenerate CMakeLists.txt and build via cmake")
+    io.print("  run             build, then run the produced executable")
+    io.print("  version         print the biome version")
+    io.print("  help            show this message")
+    return 0
+}
+
+# ---- dispatch --------------------------------------------------------------
+fn need_arg(cmd) {
+    if len(sys.argv) < 3 {
+        io.print("biome:", cmd, "needs an argument")
+        return false
+    }
+    return true
+}
+
+fn run() {
+    if len(sys.argv) < 2 {
+        cmd_help()
+        return 1
+    }
+    let cmd = sys.argv[1]
+    if cmd == "init" {
+        if not need_arg("init") { return 1 }
+        return cmd_init(sys.argv[2])
+    } elif cmd == "add" {
+        if not need_arg("add") { return 1 }
+        return cmd_add(sys.argv[2])
+    } elif cmd == "remove" {
+        if not need_arg("remove") { return 1 }
+        return cmd_remove(sys.argv[2])
+    } elif cmd == "list" {
+        return cmd_list()
+    } elif cmd == "build" {
+        return cmd_build()
+    } elif cmd == "run" {
+        return cmd_run()
+    } elif cmd == "version" or cmd == "--version" or cmd == "-v" {
+        io.print("biome", biome_version())
+        return 0
+    } elif cmd == "help" or cmd == "--help" or cmd == "-h" {
+        return cmd_help()
+    } else {
+        io.print("biome: unknown command:", cmd)
+        cmd_help()
+        return 1
+    }
+}
+
+run()

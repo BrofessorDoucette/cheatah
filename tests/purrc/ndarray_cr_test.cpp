@@ -183,3 +183,15 @@ import ndarray
 io.print(ndarray.to_string(ndarray.sin(ndarray.array([0.0]))))
 )PURR", "[0]\n");
 }
+
+TEST(NdarrayCompileRun, NestedArray) {
+    // Nested list literals build N-D arrays directly: 2-D and 3-D from source.
+    e2e::expect_e2e("ndarray_nested", R"PURR(import io
+import ndarray
+let m = ndarray.array([[1.0, 2.0], [3.0, 4.0]])
+io.print(ndarray.shape_of(m)[0], ndarray.shape_of(m)[1])
+io.print(ndarray.to_string(m))
+let t = ndarray.array([[[1.0], [2.0]], [[3.0], [4.0]]])
+io.print(ndarray.to_string(t))
+)PURR", "2 2\n[[1, 2], [3, 4]]\n[[[1], [2]], [[3], [4]]]\n");
+}

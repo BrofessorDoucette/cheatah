@@ -26,6 +26,10 @@
 namespace {
 
 using PurrMain = void (*)();
+// The optional argv hook exported by the `sys` module (present in programs that
+// `import sys`). The runtime forwards the program's command-line arguments through
+// it before running, so `sys.argv` reflects how the program was invoked.
+using SetArgv = void (*)(int, char**);
 
 // Accept the host platform's native loadable-module format by its leading magic bytes:
 // ELF on Linux/BSD, Mach-O (incl. fat/universal) on macOS, PE ("MZ") on Windows.
@@ -118,8 +122,11 @@ int main(int argc, char** argv) {
         }
     }
     if (argc < 2) {
-        std::cerr << "usage: cheatah <program>   (a .so / .dylib / .dll built by purrc)\n"
-                     "       cheatah --version\n";
+        std::cerr << "usage: cheatah <program> [args...]   (a .so / .dylib / .dll built by purrc)\n"
+                     "       cheatah --version\n"
+                     "\n"
+                     "Any [args...] after the program are forwarded to it as sys.argv\n"
+                     "(sys.argv[0] is the program; sys.argv[1:] are the arguments).\n";
         return 2;
     }
     const std::string module_path = sanitize_module_path(argv[1]);
@@ -138,6 +145,13 @@ int main(int argc, char** argv) {
         std::cerr << "cheatah: '" << module_path << "' has no purr_main entry point\n";
         module_close(handle);
         return 1;
+    }
+
+    // Forward the program's command-line arguments (the module path plus anything
+    // after it) into the module, if it imported `sys`. argv+1 makes sys.argv[0] the
+    // program and sys.argv[1:] the user arguments — Python's convention.
+    if (auto set_argv = reinterpret_cast<SetArgv>(module_sym(handle, "cheatah_set_argv"))) {
+        set_argv(argc - 1, argv + 1);
     }
 
     int rc = 0;

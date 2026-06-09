@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.24)
 # library (io/os/string/math/time/datetime/random/statistics/hashlib + the
 # numeric core ndarray/linalg).
 project(cheatah
-    VERSION 0.8.0
+    VERSION 0.9.0
     DESCRIPTION "cheatah — a fast, Python-like programming language (.purr)"
     LANGUAGES CXX)
 
@@ -34,7 +34,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # ---- Options ---------------------------------------------------------------
-option(CHEATAH_BUILD_TESTS      "Build the unit/integration test suites" ON)
+# Tests default ON only when cheatah is the top-level project; when a downstream
+# project pulls cheatah in (e.g. via CPM, as `biome`-generated projects do), its
+# own test suite (and the GoogleTest fetch) is off by default so consumption stays
+# lightweight. Override explicitly with -DCHEATAH_BUILD_TESTS=ON if desired.
+option(CHEATAH_BUILD_TESTS      "Build the unit/integration test suites" ${PROJECT_IS_TOP_LEVEL})
 option(CHEATAH_BUILD_BENCHMARKS "Build Google Benchmark micro-benchmarks" OFF)
 option(CHEATAH_SANITIZE         "Build with AddressSanitizer + UndefinedBehaviorSanitizer" OFF)
 
@@ -68,6 +72,19 @@ if(CHEATAH_BUILD_BENCHMARKS)
         GIT_REPOSITORY https://github.com/google/benchmark.git
         GIT_TAG        192ef10025eb2c4cdd392bc502f0c852196baa48) # pinned
     FetchContent_MakeAvailable(benchmark)
+
+    # Eigen (header-only) — the reference C++ dense linear-algebra library we bench
+    # cheatah's single-threaded numeric core against. It is headers ONLY: download it
+    # but do NOT run its CMake project (FetchContent_MakeAvailable would add Eigen's
+    # own blas/lapack/test/bench targets to our build and clobber our cache options).
+    # The benchmark target just adds ${eigen_SOURCE_DIR} as a system include dir.
+    FetchContent_Declare(eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG        3.4.0) # pinned release
+    FetchContent_GetProperties(eigen)
+    if(NOT eigen_POPULATED)
+        FetchContent_Populate(eigen)
+    endif()
 endif()
 
 # ---- The language ----------------------------------------------------------
@@ -97,8 +114,16 @@ add_dependencies(purrc
     cheatah_statistics_static
     cheatah_hashlib_static
     cheatah_socket_static
+    cheatah_sys_static
     cheatah_ndarray_static
     cheatah_linalg_static)
+
+# ---- The package manager (biome) -------------------------------------------
+# `biome` is cheatah's package manager — itself a cheatah program compiled to a
+# standalone native executable by purrc (--exe). It wraps CPM/CMake so a user
+# project pulls in cheatah + optional stdlib extensions declaratively. Added
+# after purrc + the stdlib modules exist (it is built BY purrc).
+add_subdirectory(pkg-manager)
 
 if(CHEATAH_BUILD_TESTS)
     add_subdirectory(tests)

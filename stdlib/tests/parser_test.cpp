@@ -64,6 +64,22 @@ TEST(CheatahParser, ParsesStructWithTypedFields) {
     EXPECT_EQ(sd->fields[1].type.name, "float");
 }
 
+TEST(CheatahParser, ParsesEnumWithOptionalValues) {
+    const ParseResult r = parse_source("enum Status {\nOK = 0\nWARN\nFAIL = 2\n}\n");
+    ASSERT_TRUE(r.ok()) << (r.diagnostics.empty() ? "" : r.diagnostics.front().message);
+    ASSERT_EQ(r.program.body.size(), 1u);
+    auto* ed = dynamic_cast<EnumDef*>(r.program.body[0].get());
+    ASSERT_NE(ed, nullptr);
+    EXPECT_EQ(ed->name, "Status");
+    ASSERT_EQ(ed->enumerators.size(), 3u);
+    EXPECT_EQ(ed->enumerators[0].name, "OK");
+    EXPECT_NE(ed->enumerators[0].value, nullptr);    // OK = 0
+    EXPECT_EQ(ed->enumerators[1].name, "WARN");
+    EXPECT_EQ(ed->enumerators[1].value, nullptr);    // no explicit value
+    EXPECT_EQ(ed->enumerators[2].name, "FAIL");
+    EXPECT_NE(ed->enumerators[2].value, nullptr);    // FAIL = 2
+}
+
 TEST(CheatahParser, ParsesFunctionWithParamsAndReturn) {
     const ParseResult r = parse_source("fn add(a, b) {\nreturn a + b\n}\n");
     ASSERT_TRUE(r.ok());

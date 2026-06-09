@@ -1,0 +1,10 @@
+# linalg.inv — matrix inverse (LU). Cross-checked vs numpy.linalg.inv.
+import io
+import ndarray
+import linalg
+
+let A = ndarray.array([[4.0, 1.0, 0.0, 1.0],
+                       [1.0, 5.0, 1.0, 0.0],
+                       [0.0, 1.0, 6.0, 1.0],
+                       [1.0, 0.0, 1.0, 7.0]])
+io.print(ndarray.to_string(linalg.inv(A)))

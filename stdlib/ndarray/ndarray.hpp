@@ -141,6 +141,37 @@ inline bool next_index(std::vector<std::size_t>& idx, const std::vector<std::siz
     }
     return false;
 }
+
+/// Peel `std::vector<>` layers off a (possibly deeply nested) list type to reach the
+/// leaf scalar — `nested_scalar_t<std::vector<std::vector<double>>>` is `double`.
+template <typename V> struct nested_scalar { using type = V; };
+template <typename U> struct nested_scalar<std::vector<U>> {
+    using type = typename nested_scalar<U>::type;
+};
+template <typename V> using nested_scalar_t = typename nested_scalar<V>::type;
+
+/// Whether `V` is a `std::vector<…>` (used to tell a nested list from a scalar leaf).
+template <typename V> inline constexpr bool is_std_vector_v = false;
+template <typename U> inline constexpr bool is_std_vector_v<std::vector<U>> = true;
+
+/// Flatten a scalar leaf into the C-order buffer (recursion base case).
+template <Field T>
+void nested_collect(const T& x, std::vector<T>& flat, std::vector<std::size_t>&, std::size_t) {
+    flat.push_back(x);
+}
+/// Walk a nested list: record each axis length the first time it is seen, reject a
+/// ragged list (a row whose length differs from its siblings — numpy does too), and
+/// flatten the leaves in C-order. The leaf scalar must be a @ref Field.
+template <typename U>
+    requires Field<nested_scalar_t<U>>
+void nested_collect(const std::vector<U>& v, std::vector<nested_scalar_t<U>>& flat,
+                    std::vector<std::size_t>& shape, std::size_t depth) {
+    if (depth == shape.size()) shape.push_back(v.size());
+    else if (shape[depth] != v.size())
+        throw std::runtime_error("ndarray: array(...) ragged nested list (a row's length "
+                                 "differs from its siblings)");
+    for (const U& e : v) nested_collect(e, flat, shape, depth + 1);
+}
 }  // namespace detail
 
 /**
@@ -354,7 +385,19 @@ std::vector<std::size_t> broadcast_shapes(const std::vector<std::size_t>& a,
  */
 template <Field T>
 inline bool is_contiguous(const basic_ndarray<T>& a) {
-    return a.strides() == detail::contiguous_strides(a.shape());
+    // C-order contiguity WITHOUT materializing the reference strides: walk the dims
+    // back-to-front and check each stride equals the running size product. The old
+    // `strides() == contiguous_strides(shape())` heap-allocated a vector on every call
+    // — a fixed cost that dominated small-n reductions (e.g. dot, where it ran twice
+    // per call). Same result as the comparison, zero allocation. O(ndim).
+    const std::vector<std::size_t>& shape = a.shape();
+    const std::vector<std::ptrdiff_t>& strides = a.strides();
+    std::ptrdiff_t expect = 1;
+    for (std::size_t i = shape.size(); i-- > 0;) {
+        if (strides[i] != expect) return false;
+        expect *= static_cast<std::ptrdiff_t>(shape[i]);
+    }
+    return true;
 }
 
 /**
@@ -398,6 +441,34 @@ template <Field T>
 basic_ndarray<T> array(const std::vector<T>& values) {
     basic_ndarray<T> a(std::vector<std::size_t>{values.size()});
     *a.buffer() = values;
+    return a;
+}
+/**
+ * N-dimensional array from a **nested** list — `array([[1, 2], [3, 4]])` is 2-D,
+ * `array([[[1],[2]],[[3],[4]]])` is 3-D, and so on to any depth. The shape is read off
+ * the nesting (outer list = axis 0, …) and the leaf scalar type is deduced; the list
+ * must be **rectangular** (every sibling row the same length) or it throws, exactly as
+ * numpy rejects a ragged array. Selected only when the argument is itself a list of
+ * lists, so it never competes with the 1-D @ref array overload above.
+ * @tparam V the element type of the outer list — itself a `std::vector<…>` whose leaf
+ *   is a @ref Field.
+ * @param values the nested list (rows, planes, …), copied into a fresh C-order buffer.
+ * @return a contiguous `basic_ndarray<T>` of the inferred shape.
+ * @complexity O(size).
+ * @alloc allocates one buffer of `product(shape)` elements; throws on a ragged list.
+ * @test CheatahNDArray.NestedArrayConstruction
+ * @crtest NdarrayCompileRun.NestedArray
+ * @systest StdlibE2E.Ndarray
+ */
+template <typename V>
+    requires detail::is_std_vector_v<V> && Field<detail::nested_scalar_t<V>>
+basic_ndarray<detail::nested_scalar_t<V>> array(const std::vector<V>& values) {
+    using T = detail::nested_scalar_t<V>;
+    std::vector<std::size_t> shape;
+    std::vector<T> flat;
+    detail::nested_collect(values, flat, shape, 0);
+    basic_ndarray<T> a(shape);
+    *a.buffer() = std::move(flat);
     return a;
 }
 /**
@@ -510,6 +581,14 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
     }
     basic_ndarray<T> out(ns);
     auto& buf = *out.buffer();
+    // Contiguous source (the common case — e.g. reshaping a freshly built array): copy
+    // the flat block in one shot instead of walking a per-element bounds-checked
+    // odometer.
+    if (is_contiguous(a)) {
+        const T* src = a.buffer()->data() + a.offset();
+        std::copy(src, src + a.size(), buf.begin());
+        return out;
+    }
     std::vector<std::size_t> idx(a.ndim(), 0);
     std::size_t flat = 0;
     do {
@@ -895,9 +974,20 @@ basic_ndarray<T> abs(const basic_ndarray<T>& a) {
 template <Field T>
 T sum(const basic_ndarray<T>& a) {
     if (is_contiguous(a)) {
-        const auto& buf = *a.buffer();
-        return std::reduce(CHEATAH_UNSEQ buf.begin() + a.offset(),
-                           buf.begin() + a.offset() + a.size(), T{});
+        // Eight independent accumulators so the reduction vectorizes (a single running
+        // sum — or a plain std::reduce, which libstdc++ left-folds for FP without
+        // -ffast-math — serializes on FP-add latency, the dot/norm mistake).
+        const T* p = a.buffer()->data() + a.offset();
+        const std::size_t n = a.size();
+        T s0{}, s1{}, s2{}, s3{}, s4{}, s5{}, s6{}, s7{};
+        std::size_t i = 0;
+        for (; i + 8 <= n; i += 8) {
+            s0 += p[i + 0]; s1 += p[i + 1]; s2 += p[i + 2]; s3 += p[i + 3];
+            s4 += p[i + 4]; s5 += p[i + 5]; s6 += p[i + 6]; s7 += p[i + 7];
+        }
+        T s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
+        for (; i < n; ++i) s += p[i];
+        return s;
     }
     T s{};
     std::vector<std::size_t> idx(a.ndim(), 0);

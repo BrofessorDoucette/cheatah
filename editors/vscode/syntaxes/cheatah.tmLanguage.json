@@ -81,7 +81,7 @@
         {
           "comment": "A known stdlib module used as a `module.` prefix (e.g. the `math` in `math.sqrt`).",
           "name": "entity.name.namespace.cheatah",
-          "match": "\\b(io|os|string|math|time|datetime|random|statistics|hashlib|socket|ndarray|linalg|html)\\b(?=\\s*\\.)"
+          "match": "\\b(io|os|sys|string|math|time|datetime|random|statistics|hashlib|socket|ndarray|linalg|html)\\b(?=\\s*\\.)"
         }
       ]
     },
@@ -107,6 +107,13 @@
           "match": "\\b(struct)\\s+([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
             "1": { "name": "storage.type.struct.cheatah" },
+            "2": { "name": "entity.name.type.cheatah" }
+          }
+        },
+        {
+          "match": "\\b(enum)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.enum.cheatah" },
             "2": { "name": "entity.name.type.cheatah" }
           }
         },

@@ -1,0 +1,13 @@
+# linalg.solve — solve A·x = b (LU with partial pivoting).
+# Cross-checked against numpy.linalg.solve by LinalgVsPython.Solve.
+# The matrix is built directly from a nested list (an N-D ndarray literal).
+import io
+import ndarray
+import linalg
+
+let A = ndarray.array([[4.0, 1.0, 0.0, 1.0],
+                       [1.0, 5.0, 1.0, 0.0],
+                       [0.0, 1.0, 6.0, 1.0],
+                       [1.0, 0.0, 1.0, 7.0]])
+let b = ndarray.array([1.0, 2.0, 3.0, 4.0])
+io.print(ndarray.to_string(linalg.solve(A, b)))

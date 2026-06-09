@@ -189,6 +189,8 @@ public:
                 struct_names_.insert(static_cast<const StructDef&>(*s).name);
             } else if (s->kind == StmtKind::InterfaceDef) {
                 interface_names_.insert(static_cast<const InterfaceDef&>(*s).name);
+            } else if (s->kind == StmtKind::EnumDef) {
+                enum_names_.insert(static_cast<const EnumDef&>(*s).name);
             }
         }
 
@@ -197,6 +199,9 @@ public:
         os << "#include <array>\n#include <cmath>\n#include <concepts>\n#include <memory>\n"
               "#include <stdexcept>\n#include <string>\n#include <unordered_map>\n"
               "#include <utility>\n#include <vector>\n";
+        // Enums generate an operator<< (their debug text form) using std::ostream, so
+        // pull it in even when the program does not `import io`.
+        if (!enum_names_.empty()) os << "#include <ostream>\n";
         os << "#include \"builtins.hpp\"\n";  // built-ins are always available
         for (const std::string& root : roots_) {
             os << "#include \"" << root << ".hpp\"\n";
@@ -219,7 +224,13 @@ public:
             }
         }
 
-        // Interfaces (concepts) first — structs static_assert against them and
+        // Enums (scoped `enum class`) first — struct fields, function params, and
+        // expressions may all refer to an enum type or its members.
+        for (const StmtPtr& s : prog.body) {
+            if (s->kind == StmtKind::EnumDef) gen_enum(os, static_cast<const EnumDef&>(*s));
+        }
+
+        // Interfaces (concepts) next — structs static_assert against them and
         // functions constrain parameters by them.
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::InterfaceDef)
@@ -239,7 +250,7 @@ public:
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::Import || s->kind == StmtKind::StructDef ||
                 s->kind == StmtKind::FnDef || s->kind == StmtKind::RawCpp ||
-                s->kind == StmtKind::InterfaceDef) {
+                s->kind == StmtKind::InterfaceDef || s->kind == StmtKind::EnumDef) {
                 continue;  // emitted above (imports -> includes; top-level cpp -> file scope)
             }
             gen_stmt(os, *s, "    ");
@@ -265,6 +276,35 @@ private:
 
     // interface -> a C++20 concept: every method must be callable on the type, so a
     // `struct S : Iface` whose methods don't match fails the static_assert below.
+    // enum Name { A [= v], … } -> a scoped, type-safe `enum class`. The underlying
+    // type is left implicit (int), as for a plain C++ `enum class`. An explicit value
+    // is emitted as a C++ constant expression (so `A = 1`, or `B = A + 1` referring to
+    // an earlier member, both work). Members are reached scoped (Name::A) — see the
+    // Member case in gen_expr.
+    void gen_enum(std::ostringstream& os, const EnumDef& ed) {
+        os << "enum class " << ed.name << " {\n";
+        for (const Enumerator& en : ed.enumerators) {
+            os << "    " << en.name;
+            if (en.value) os << " = " << gen_expr(*en.value);
+            os << ",\n";  // a trailing comma is valid in a C++ enumerator list
+        }
+        os << "};\n";
+
+        // A streamable text form for debugging — `io.print(c)` shows `Name.MEMBER`
+        // (Python's `Color.RED` style). An if-chain (not a switch) so two members that
+        // share a value — aliases — don't produce duplicate `case` labels; an unknown
+        // value (e.g. from a cpp{} cast) prints `Name(<int>)`. This makes the enum
+        // `Streamable`, so print/format/str-of-containers all pick it up via ADL.
+        os << "inline std::ostream& operator<<(std::ostream& os_, " << ed.name << " v_) {\n";
+        for (const Enumerator& en : ed.enumerators) {
+            os << "    if (v_ == " << ed.name << "::" << en.name << ") return os_ << \""
+               << ed.name << "." << en.name << "\";\n";
+        }
+        os << "    return os_ << \"" << ed.name
+           << "(\" << static_cast<long long>(v_) << \")\";\n";
+        os << "}\n\n";
+    }
+
     void gen_interface(std::ostringstream& os, const InterfaceDef& id) {
         os << "template <typename Self>\n";
         os << "concept " << id.name << " =";
@@ -596,6 +636,11 @@ private:
             }
             case ExprKind::Member: {
                 const auto& m = static_cast<const Member&>(e);
+                // A scoped enum member: EnumName.MEMBER -> EnumName::MEMBER.
+                if (m.object->kind == ExprKind::Ident &&
+                    enum_names_.count(static_cast<const Ident&>(*m.object).name)) {
+                    return static_cast<const Ident&>(*m.object).name + "::" + m.name;
+                }
                 if (auto path = resolve_module_path(m)) return module_namespace(*path);
                 return gen_expr(*m.object) + "." + m.name;
             }
@@ -695,6 +740,7 @@ private:
     std::set<std::string> roots_;
     std::set<std::string> struct_names_;
     std::set<std::string> interface_names_;
+    std::set<std::string> enum_names_;
     std::vector<std::string> diags_;
     int match_id_ = 0;     // unique suffix for the temp in each lowered `match`
     bool in_method_ = false;  // inside a struct method body, so `self` -> `(*this)`

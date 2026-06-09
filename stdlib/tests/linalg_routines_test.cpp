@@ -405,3 +405,64 @@ TEST(LinalgRoutines, SvdCancellationPath) {
     (void)la::svd(mat(4, 4, {1, 9, 0, 0, 0, 0, 9, 0, 0, 0, 0, 9, 0, 0, 0, 1}));
     SUCCEED();
 }
+
+// Exercise the WIDE-UNROLL main loops of the multi-accumulator/blocked kernels: the
+// existing tests use tiny matrices that only ever run the scalar remainder, leaving the
+// 4-/8-wide vectorized bodies (ddot, real+complex matmul row-blocking, cholesky/qr/
+// tred2/trace reductions) uncovered. These use n≥8 so the main loops run.
+TEST(LinalgRoutines, WideKernelPaths) {
+    // 8×8 SPD: diag 10, off-diag 1 (= 9·I + J). Eigenvalues {17, 9×7}, trace 80.
+    std::vector<double> a8(64);
+    for (std::size_t i = 0; i < 8; ++i)
+        for (std::size_t j = 0; j < 8; ++j) a8[i * 8 + j] = (i == j) ? 10.0 : 1.0;
+    const nd::NDArray A = mat(8, 8, a8);
+
+    // dot over ≥8 elements → ddot 8-wide body.
+    EXPECT_DOUBLE_EQ(la::dot(nd::array(std::vector<double>(10, 1.0)),
+                             nd::array(std::vector<double>(10, 2.0))), 20.0);
+    // trace 8×8 → trace 4-wide body.
+    EXPECT_DOUBLE_EQ(la::trace(A), 80.0);
+    // matmul 8×8 → real 4-row block. A·I == A.
+    std::vector<double> id8(64, 0.0);
+    for (std::size_t i = 0; i < 8; ++i) id8[i * 8 + i] = 1.0;
+    const nd::NDArray AI = la::matmul(A, mat(8, 8, id8));
+    EXPECT_DOUBLE_EQ(nd::get(AI, {0, 0}), 10.0);
+    EXPECT_DOUBLE_EQ(nd::get(AI, {1, 0}), 1.0);
+    // cholesky 8×8 (j reaches ≥4 → 4-wide inner dot). Reconstruct A = L·Lᵀ.
+    const nd::NDArray L = la::cholesky(A);
+    double a00 = 0;
+    for (long long k = 0; k < 8; ++k) a00 += nd::get(L, {0, k}) * nd::get(L, {0, k});
+    EXPECT_NEAR(a00, 10.0, 1e-9);
+    // qr 8×4 → reflect 4-wide body. R upper-triangular, Q·R == A_panel.
+    std::vector<double> p(32);
+    for (std::size_t i = 0; i < 8; ++i)
+        for (std::size_t j = 0; j < 4; ++j) p[i * 4 + j] = a8[i * 8 + j];
+    const la::QR qr = la::qr(mat(8, 4, p));
+    EXPECT_NEAR(nd::get(qr.r, {1, 0}), 0.0, 1e-9);  // upper-triangular
+    // eigvalsh 8×8 → tred2 mat-vec 4-wide body. Largest eigenvalue 17, sum 80.
+    const nd::NDArray w = la::eigvalsh(A);
+    EXPECT_NEAR(nd::get(w, {0}), 17.0, 1e-7);
+    double sw = 0;
+    for (long long i = 0; i < 8; ++i) sw += nd::get(w, {i});
+    EXPECT_NEAR(sw, 80.0, 1e-7);
+    // eig() on a symmetric matrix → the reuse-the-extracted-A symmetric branch.
+    const la::EigC e = la::eig(A);
+    EXPECT_NEAR(cget(e.values, {0}).real(), 17.0, 1e-6);
+
+    // complex matmul 8×8 → complex 4-row block.
+    std::vector<C> z(64), zi(64, C{0, 0});
+    for (std::size_t i = 0; i < 8; ++i) { z[i * 8 + i] = C{2, 0}; zi[i * 8 + i] = C{1, 0}; }
+    const la::CNDArray Z = cmat(8, 8, z), I = cmat(8, 8, zi);
+    EXPECT_TRUE(cclose(cget(la::matmul(Z, I), {3, 3}), C{2, 0}));
+}
+
+// Non-contiguous (broadcast/strided) operands take the scratch-packing fallback in the
+// products/reductions, not the zero-copy fast path.
+TEST(LinalgRoutines, StridedOperandFallback) {
+    const nd::NDArray s = nd::broadcast_to(nd::scalar(2.0), {10});  // stride-0 view, len 10
+    EXPECT_DOUBLE_EQ(la::dot(s, s), 40.0);                          // 10 · (2·2)
+    EXPECT_NEAR(la::norm(s), std::sqrt(40.0), 1e-9);
+    const la::CNDArray cs = nd::broadcast_to(nd::scalar(C{2, 0}), {6});
+    EXPECT_TRUE(cclose(la::dot(cs, cs), C{24, 0}));   // 6·(2·2)
+    EXPECT_TRUE(cclose(la::vdot(cs, cs), C{24, 0}));  // conj path, strided
+}

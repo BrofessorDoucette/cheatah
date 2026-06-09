@@ -113,7 +113,7 @@ struct Field {
 // ---- Statements ----
 enum class StmtKind {
     Import, ExprStmt, Let, Assign, If, While, For, Return, Try, Raise, StructDef, FnDef, RawCpp,
-    Break, Continue, Match, InterfaceDef,
+    Break, Continue, Match, InterfaceDef, EnumDef,
 };
 
 struct Stmt {
@@ -237,6 +237,20 @@ struct InterfaceDef : Stmt {
     std::string name;
     std::vector<InterfaceMethod> methods;
     InterfaceDef() : Stmt(StmtKind::InterfaceDef) {}
+};
+
+// enum Name { A [= expr], B, … } — a scoped, type-safe enumeration that lowers to a
+// C++ `enum class`. Members are accessed scoped (`Name.A` -> `Name::A`); a value is
+// an optional explicit initializer (an integer literal or a constant expression,
+// which may reference earlier members of the same enum).
+struct Enumerator {
+    std::string name;
+    ExprPtr value;  // null if no explicit `= …` value
+};
+struct EnumDef : Stmt {
+    std::string name;
+    std::vector<Enumerator> enumerators;
+    EnumDef() : Stmt(StmtKind::EnumDef) {}
 };
 
 // Raw C++ escape hatch: `cpp { … }`. `code` is the verbatim body. Emitted at FILE
