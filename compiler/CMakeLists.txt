@@ -37,10 +37,18 @@ set_target_properties(cheatah_compiler PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_executable(purrc purrc.cpp)
 target_link_libraries(purrc PRIVATE cheatah::compiler cheatah::version)
 
+# Bake the platform-computed flag lists in as '|'-joined strings (purrc splits them and
+# execs the compiler with no shell). Centralizing them in cmake/Portability.cmake keeps
+# purrc itself platform-clean — Linux/macOS/Windows differ only in what CMake computed.
+string(JOIN "|" _cheatah_cxxflags_str ${CHEATAH_PURRC_CXXFLAGS})
+string(JOIN "|" _cheatah_mathlink_str ${CHEATAH_PURRC_MATHLINK})
 target_compile_definitions(purrc PRIVATE
     CHEATAH_ROOT="${PROJECT_SOURCE_DIR}/stdlib"
     CHEATAH_LIB_DIR="${CMAKE_BINARY_DIR}/lib"
-    CHEATAH_CXX="${CMAKE_CXX_COMPILER}")
+    CHEATAH_CXX="${CMAKE_CXX_COMPILER}"
+    CHEATAH_CXXFLAGS="${_cheatah_cxxflags_str}"
+    CHEATAH_MATHLINK="${_cheatah_mathlink_str}"
+    CHEATAH_MODULE_EXT="${CHEATAH_MODULE_EXT}")
 
 # purrc links the stdlib module archives into the programs it compiles, so those
 # must be built whenever purrc is. The module targets live in stdlib/ (added after

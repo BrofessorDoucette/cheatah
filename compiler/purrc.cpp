@@ -16,8 +16,12 @@
 #include <string>
 #include <vector>
 
+#if defined(_WIN32)
+#include <process.h>  // _spawnvp / _P_WAIT
+#else
 #include <sys/wait.h>
 #include <unistd.h>
+#endif
 
 #include "codegen.hpp"
 #include "parser.hpp"
@@ -32,20 +36,34 @@
 #ifndef CHEATAH_CXX
 #define CHEATAH_CXX "c++"
 #endif
+// Platform-computed by cmake/Portability.cmake; '|'-joined flag lists + the loadable
+// module extension. The defaults below are the Linux fallback (e.g. a non-CMake build).
+#ifndef CHEATAH_CXXFLAGS
+#define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-march=native|-fPIC|-shared|-pthread|-w"
+#endif
+#ifndef CHEATAH_MATHLINK
+#define CHEATAH_MATHLINK "-lm"
+#endif
+#ifndef CHEATAH_MODULE_EXT
+#define CHEATAH_MODULE_EXT ".so"
+#endif
 
 using namespace cheatah;
 
 namespace {
 
-// Run a program directly (fork + execvp, NO shell) so arguments are passed
-// verbatim — file paths can't be interpreted as shell syntax. Returns the exit
-// code, or -1 on failure.
+// Run a program directly (NO shell) so arguments are passed verbatim — file paths can't
+// be interpreted as shell syntax. POSIX uses fork + execvp; Windows has no fork, so it
+// uses _spawnvp (also PATH-searching, also waits). Returns the exit code, or -1.
 int run_process(const std::vector<std::string>& args) {
     std::vector<char*> argv;
     argv.reserve(args.size() + 1);
     for (const std::string& a : args) argv.push_back(const_cast<char*>(a.c_str()));
     argv.push_back(nullptr);
-
+#if defined(_WIN32)
+    const intptr_t rc = _spawnvp(_P_WAIT, argv[0], argv.data());
+    return rc < 0 ? -1 : static_cast<int>(rc);
+#else
     const pid_t pid = fork();
     if (pid < 0) return -1;
     if (pid == 0) {
@@ -56,16 +74,29 @@ int run_process(const std::vector<std::string>& args) {
     int status = 0;
     if (waitpid(pid, &status, 0) < 0) return -1;
     return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+#endif
 }
 
-// Default output: drop a trailing ".purr", append ".so".
+// Split a '|'-joined flag string (baked in by CMake) into args, dropping empties.
+// '|' never appears in a compiler flag, so this is unambiguous.
+std::vector<std::string> split_flags(const std::string& joined) {
+    std::vector<std::string> out;
+    std::string cur;
+    std::istringstream ss(joined);
+    while (std::getline(ss, cur, '|'))
+        if (!cur.empty()) out.push_back(cur);
+    return out;
+}
+
+// Default output: drop a trailing ".purr", append the platform module extension
+// (.so / .dylib / .dll).
 std::string default_output(const std::string& input) {
     std::string base = input;
     const std::string ext = ".purr";
     if (base.size() >= ext.size() && base.compare(base.size() - ext.size(), ext.size(), ext) == 0) {
         base.erase(base.size() - ext.size());
     }
-    return base + ".so";
+    return base + CHEATAH_MODULE_EXT;
 }
 
 } // namespace
@@ -148,18 +179,14 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Build the C++ backend argv as a LIST and exec it directly — NO shell — so
-    // file paths can never be interpreted as shell metacharacters (no command
-    // injection). Maximum optimization: programs run on the same machine, so
-    // -march=native unlocks the host's SIMD; -w because generated code legitimately
-    // has redundant parens (the language guarantees correctness). -fno-math-errno lets
-    // sqrt and the algebraic math functions vectorize (the vector ISA can't also set
-    // errno) — errno-on-math is virtually never read, so this is a safe, standard win;
-    // it does NOT relax IEEE results the way -ffast-math would.
-    std::vector<std::string> args = {
-        CHEATAH_CXX, "-std=c++20", "-O3", "-march=native", "-DNDEBUG", "-fno-math-errno",
-        "-fno-semantic-interposition", "-fPIC", "-shared", "-pthread", "-w",
-    };
+    // Build the C++ backend argv as a LIST and exec it directly — NO shell — so file
+    // paths can never be interpreted as shell metacharacters (no command injection).
+    // The compile+link flags (optimization, the native-arch flag, -shared/-fPIC, the
+    // module extension, the vector-math link) are platform-computed in
+    // cmake/Portability.cmake and baked in as '|'-joined strings, so this stays
+    // platform-clean: Linux/macOS/Windows differ only in what CMake supplied.
+    std::vector<std::string> args = {CHEATAH_CXX};
+    for (const std::string& f : split_flags(CHEATAH_CXXFLAGS)) args.push_back(f);
     for (const std::string& m : modules) {
         args.push_back(std::string("-I") + CHEATAH_ROOT + "/" + m);
     }
@@ -167,10 +194,10 @@ int main(int argc, char** argv) {
     for (const std::string& m : modules) {
         args.push_back(std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a");
     }
-    // After the module archives so their references resolve: libm carries glibc's
-    // vector-math (libmvec) symbols (_ZGVdN4v_exp, …) that ndarray's SIMD ufunc kernels
-    // call, so the loaded .so declares the dependency and dlopen resolves it.
-    args.push_back("-lm");
+    // After the module archives so their references resolve: the platform's vector libm
+    // (glibc libmvec via -lm on Linux, the Accelerate framework on macOS) carries the
+    // SIMD symbols ndarray's ufunc kernels call.
+    for (const std::string& f : split_flags(CHEATAH_MATHLINK)) args.push_back(f);
     args.push_back("-o");
     args.push_back(output);
 

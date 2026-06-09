@@ -2,18 +2,50 @@
 
 #include <cerrno>
 #include <cstring>
+#include <string>
 
+#if defined(_WIN32)
+// Windows: the BSD socket API lives in Winsock2 (closesocket, WSAStartup, SOCKET type).
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#else
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
+
+// Suppress SIGPIPE on send() to a closed peer. Linux passes MSG_NOSIGNAL per-call; macOS/
+// BSD have no such flag and instead use the SO_NOSIGPIPE socket option (set in socket()).
+// Define MSG_NOSIGNAL to 0 where it's absent (macOS, Windows) so the send() calls stay portable.
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
 
 namespace cheatah::socket {
 namespace {
 
+#if defined(_WIN32)
+// Winsock must be initialized once per process before any socket call. A function-local
+// static does it lazily and tears it down at exit.
+void ensure_winsock() {
+    struct WinsockInit {
+        WinsockInit() { WSADATA d; WSAStartup(MAKEWORD(2, 2), &d); }
+        ~WinsockInit() { WSACleanup(); }
+    };
+    static WinsockInit init;
+}
+SOCKET as_fd(long long fd) { return static_cast<SOCKET>(fd); }
+#else
+void ensure_winsock() {}
+int as_fd(long long fd) { return static_cast<int>(fd); }
+#endif
+
 // Resolve host:port to an IPv4 TCP address. Returns true and fills `out`/`len` on
 // success. Used by bind/connect so "localhost", dotted IPs, and DNS names all work.
 bool resolve(const std::string& host, long long port, sockaddr_storage& out, socklen_t& len) {
+    ensure_winsock();
     addrinfo hints{};
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -30,17 +62,31 @@ bool resolve(const std::string& host, long long port, sockaddr_storage& out, soc
     return true;
 }
 
-int as_fd(long long fd) { return static_cast<int>(fd); }
-
 } // namespace
 
 long long socket() {
-    return ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    ensure_winsock();
+    const auto fd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+#if defined(_WIN32)
+    if (fd == INVALID_SOCKET) return -1;  // Winsock signals failure with INVALID_SOCKET
+#else
+#ifdef SO_NOSIGPIPE
+    // macOS/BSD: ask the kernel not to raise SIGPIPE on this socket (Linux uses
+    // MSG_NOSIGNAL per send() instead — SO_NOSIGPIPE isn't defined there).
+    if (fd >= 0) {
+        int on = 1;
+        ::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on));
+    }
+#endif
+#endif
+    return static_cast<long long>(fd);
 }
 
 long long set_reuseaddr(long long fd) {
     int yes = 1;
-    return ::setsockopt(as_fd(fd), SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+    // optval is const void* on POSIX, const char* on Winsock — char* converts to both.
+    return ::setsockopt(as_fd(fd), SOL_SOCKET, SO_REUSEADDR,
+                        reinterpret_cast<const char*>(&yes), sizeof(yes));
 }
 
 long long bind(long long fd, const std::string& host, long long port) {
@@ -62,7 +108,11 @@ long long connect(long long fd, const std::string& host, long long port) {
 }
 
 long long accept(long long fd) {
-    return ::accept(as_fd(fd), nullptr, nullptr);
+    const auto c = ::accept(as_fd(fd), nullptr, nullptr);
+#if defined(_WIN32)
+    if (c == INVALID_SOCKET) return -1;
+#endif
+    return static_cast<long long>(c);
 }
 
 long long local_port(long long fd) {
@@ -75,13 +125,17 @@ long long local_port(long long fd) {
 }
 
 long long send(long long fd, const std::string& data) {
-    return ::send(as_fd(fd), data.data(), data.size(), MSG_NOSIGNAL);
+    // send() returns ssize_t on POSIX, int on Winsock — long long holds both.
+    const long long n = ::send(as_fd(fd), data.data(),
+                               static_cast<int>(data.size()), MSG_NOSIGNAL);
+    return n;
 }
 
 long long sendall(long long fd, const std::string& data) {
     std::size_t sent = 0;
     while (sent < data.size()) {
-        ssize_t n = ::send(as_fd(fd), data.data() + sent, data.size() - sent, MSG_NOSIGNAL);
+        const long long n = ::send(as_fd(fd), data.data() + sent,
+                                   static_cast<int>(data.size() - sent), MSG_NOSIGNAL);
         if (n <= 0) return -1;
         sent += static_cast<std::size_t>(n);
     }
@@ -91,14 +145,18 @@ long long sendall(long long fd, const std::string& data) {
 std::string recv(long long fd, long long bufsize) {
     if (bufsize <= 0) return std::string();
     std::string buf(static_cast<std::size_t>(bufsize), '\0');
-    ssize_t n = ::recv(as_fd(fd), buf.data(), buf.size(), 0);
+    const long long n = ::recv(as_fd(fd), buf.data(), static_cast<int>(buf.size()), 0);
     if (n <= 0) return std::string();
     buf.resize(static_cast<std::size_t>(n));
     return buf;
 }
 
 long long close(long long fd) {
+#if defined(_WIN32)
+    return ::closesocket(as_fd(fd));
+#else
     return ::close(as_fd(fd));
+#endif
 }
 
 long long tcp_listen(const std::string& host, long long port, long long backlog) {
@@ -123,7 +181,11 @@ long long tcp_connect(const std::string& host, long long port) {
 }
 
 std::string last_error() {
+#if defined(_WIN32)
+    return "Winsock error " + std::to_string(::WSAGetLastError());
+#else
     return std::strerror(errno);
+#endif
 }
 
 } // namespace cheatah::socket

@@ -3,6 +3,39 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.7.0-alpha — cross-platform: Linux, macOS, and Windows
+
+cheatah now builds and runs on **Linux, macOS, and Windows**. The language, the `purrc`
+interface, and every standard-library API are **unchanged** — this release is purely
+structural: the compile → link → load pipeline became platform-aware, so a `.purr`
+program compiles to the host's native loadable module and the runtime loads it, on each
+OS. (Linux is verified end-to-end; macOS and Windows use standard platform APIs behind
+detection and want on-device confirmation.)
+
+### Portability
+- **One place for the differences** — new `cmake/Portability.cmake` detects, per
+  compiler/OS/arch: the native-arch flag (`-march=native`, falling back to `-mcpu=native`
+  on Apple Silicon), the loadable-module extension (`.so` / `.dylib` / `.dll`), the
+  vector-math library, and the flag/link lists `purrc` passes the C++ backend. The rest
+  of the build (and `purrc`) just consumes them, so no `#ifdef` sprawl.
+- **`purrc`** consumes the baked flags; spawns the compiler via `fork`+`execvp` (POSIX)
+  or `_spawnvp` (Windows); emits the platform module extension.
+- **Runtime** validates the host's binary format — **ELF** (Linux), **Mach-O** incl.
+  fat/universal (macOS), **PE** (Windows) — and loads via `dlopen` (POSIX) or
+  `LoadLibrary` (Windows). *(Fixes "refusing to load … not an ELF shared object" on
+  macOS, where a `.so` is really a Mach-O dylib.)*
+- **Codegen** exports `purr_main` through a portable macro (`extern "C"`, plus
+  `__declspec(dllexport)` so a Windows DLL exposes the entry point).
+- **stdlib** — `socket` gains `SO_NOSIGPIPE` (macOS) and a Winsock backend (Windows);
+  `os` gains the Windows `getpid`/`setenv` shims.
+
+### SIMD acceleration, per platform
+- **Auto-vectorization on every platform** via the detected native-arch flag (the bulk:
+  products, factorizations, `sqrt`).
+- **Vector transcendentals** through the platform's vector libm where one ships:
+  **libmvec** (Linux), **Accelerate** (macOS), opt-in **SVML** (Windows,
+  `-DCHEATAH_WIN_SVML=ON`); scalar-but-correct fallback otherwise.
+
 ## v0.6.0-alpha — winning the numerics: world-class linear algebra + SIMD ufuncs
 
 This release is a ground-up performance pass on the numeric core. We benchmarked every

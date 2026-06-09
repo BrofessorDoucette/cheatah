@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.24)
 # library (io/os/string/math/time/datetime/random/statistics/hashlib + the
 # numeric core ndarray/linalg).
 project(cheatah
-    VERSION 0.6.0
+    VERSION 0.7.0
     DESCRIPTION "cheatah — a fast, Python-like programming language (.purr)"
     LANGUAGES CXX)
 
@@ -18,6 +18,10 @@ project(cheatah
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Cross-platform knobs (arch flag, module extension, the flags purrc passes to the C++
+# compiler, the math/veclib link). Centralized so Linux/macOS/Windows differ in one file.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Portability.cmake)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)

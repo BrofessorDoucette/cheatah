@@ -7,8 +7,6 @@
 // Fully headless: the program is self-contained (it statically links the stdlib
 // modules it imported), so the host just validates, loads, and runs it.
 
-#include <dlfcn.h>
-
 #include <array>
 #include <cstdio>
 #include <filesystem>
@@ -16,7 +14,12 @@
 #include <string>
 #include <system_error>
 
-#include <sys/stat.h>
+#if defined(_WIN32)
+#include <windows.h>          // LoadLibrary / GetProcAddress / FreeLibrary
+#else
+#include <dlfcn.h>            // dlopen / dlsym / dlclose
+#include <sys/stat.h>        // POSIX permission bits (world-writable check)
+#endif
 
 #include "version.hpp"
 
@@ -24,12 +27,36 @@ namespace {
 
 using PurrMain = void (*)();
 
-// Validate a module path before we hand it to dlopen() — which executes native
-// code in-process. We can't make loading "safe" (it runs code by design), but we
-// refuse to silently load the WRONG / tampered file: resolve to a canonical path
-// (so dlopen never does a library-search-path lookup of a bare name), require a
-// regular file, reject world-writable modules, and sniff the ELF magic.
-// Returns the canonical path, or empty string on rejection (message already printed).
+// Accept the host platform's native loadable-module format by its leading magic bytes:
+// ELF on Linux/BSD, Mach-O (incl. fat/universal) on macOS, PE ("MZ") on Windows.
+bool has_module_magic(const std::array<unsigned char, 4>& m) {
+#if defined(__APPLE__)
+    const unsigned mag = unsigned(m[0]) | (unsigned(m[1]) << 8) |
+                         (unsigned(m[2]) << 16) | (unsigned(m[3]) << 24);
+    return mag == 0xfeedface || mag == 0xfeedfacf ||  // MH_MAGIC / MH_MAGIC_64
+           mag == 0xcefaedfe || mag == 0xcffaedfe ||  // byte-swapped
+           mag == 0xcafebabe || mag == 0xbebafeca;    // fat / universal
+#elif defined(_WIN32)
+    return m[0] == 'M' && m[1] == 'Z';                // PE: a .dll opens with the DOS stub
+#else
+    return m[0] == 0x7f && m[1] == 'E' && m[2] == 'L' && m[3] == 'F';  // ELF
+#endif
+}
+const char* module_format_name() {
+#if defined(__APPLE__)
+    return "Mach-O dynamic library";
+#elif defined(_WIN32)
+    return "PE dynamic-link library";
+#else
+    return "ELF shared object";
+#endif
+}
+
+// Validate a module path before loading — which executes native code in-process. We
+// can't make loading "safe" (it runs code by design), but we refuse to silently load the
+// WRONG / tampered file: resolve to a canonical path (so the loader never does a search-
+// path lookup of a bare name), require a regular file, reject a world-writable module
+// (POSIX), and sniff the platform's binary magic. Returns the canonical path, or empty.
 std::string sanitize_module_path(const std::string& raw) {
     std::error_code ec;
     const std::filesystem::path canonical = std::filesystem::canonical(raw, ec);
@@ -37,33 +64,48 @@ std::string sanitize_module_path(const std::string& raw) {
         std::cerr << "cheatah: cannot resolve '" << raw << "': " << ec.message() << "\n";
         return {};
     }
-    struct stat st {};
-    if (::stat(canonical.c_str(), &st) != 0) {
-        std::cerr << "cheatah: cannot stat '" << canonical.string() << "'\n";
-        return {};
-    }
-    if (!S_ISREG(st.st_mode)) {
+    if (!std::filesystem::is_regular_file(canonical, ec) || ec) {
         std::cerr << "cheatah: refusing to load '" << canonical.string()
                   << "': not a regular file\n";
         return {};
     }
-    if (st.st_mode & S_IWOTH) {
+#if !defined(_WIN32)
+    struct stat st {};
+    if (::stat(canonical.c_str(), &st) == 0 && (st.st_mode & S_IWOTH)) {
         std::cerr << "cheatah: refusing to load world-writable module '"
                   << canonical.string() << "'\n";
         return {};
     }
+#endif
     std::array<unsigned char, 4> magic{};
-    std::FILE* f = std::fopen(canonical.c_str(), "rb");
-    const bool elf = f && std::fread(magic.data(), 1, magic.size(), f) == magic.size() &&
-                     magic[0] == 0x7f && magic[1] == 'E' && magic[2] == 'L' && magic[3] == 'F';
+    std::FILE* f = std::fopen(canonical.string().c_str(), "rb");
+    const bool ok = f && std::fread(magic.data(), 1, magic.size(), f) == magic.size() &&
+                    has_module_magic(magic);
     if (f) std::fclose(f);
-    if (!elf) {
+    if (!ok) {
         std::cerr << "cheatah: refusing to load '" << canonical.string()
-                  << "': not an ELF shared object\n";
+                  << "': not a " << module_format_name() << "\n";
         return {};
     }
     return canonical.string();
 }
+
+// --- portable dynamic loading ----------------------------------------------------------
+#if defined(_WIN32)
+using ModuleHandle = HMODULE;
+ModuleHandle module_open(const std::string& p) { return ::LoadLibraryA(p.c_str()); }
+void* module_sym(ModuleHandle h, const char* n) {
+    return reinterpret_cast<void*>(::GetProcAddress(h, n));
+}
+void module_close(ModuleHandle h) { ::FreeLibrary(h); }
+std::string module_error() { return "LoadLibrary error " + std::to_string(::GetLastError()); }
+#else
+using ModuleHandle = void*;
+ModuleHandle module_open(const std::string& p) { return ::dlopen(p.c_str(), RTLD_NOW | RTLD_LOCAL); }
+void* module_sym(ModuleHandle h, const char* n) { return ::dlsym(h, n); }
+void module_close(ModuleHandle h) { ::dlclose(h); }
+std::string module_error() { const char* e = ::dlerror(); return e ? e : "unknown error"; }
+#endif
 
 } // namespace
 
@@ -76,7 +118,7 @@ int main(int argc, char** argv) {
         }
     }
     if (argc < 2) {
-        std::cerr << "usage: cheatah <program.so>\n"
+        std::cerr << "usage: cheatah <program>   (a .so / .dylib / .dll built by purrc)\n"
                      "       cheatah --version\n";
         return 2;
     }
@@ -85,17 +127,16 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    void* handle = dlopen(module_path.c_str(), RTLD_NOW | RTLD_LOCAL);
+    ModuleHandle handle = module_open(module_path);
     if (handle == nullptr) {
-        std::cerr << "cheatah: cannot load '" << module_path << "': " << dlerror() << "\n";
+        std::cerr << "cheatah: cannot load '" << module_path << "': " << module_error() << "\n";
         return 1;
     }
 
-    dlerror();  // clear any stale error
-    auto purr_main = reinterpret_cast<PurrMain>(dlsym(handle, "purr_main"));
-    if (const char* err = dlerror()) {
-        std::cerr << "cheatah: '" << module_path << "' has no purr_main: " << err << "\n";
-        dlclose(handle);
+    auto purr_main = reinterpret_cast<PurrMain>(module_sym(handle, "purr_main"));
+    if (purr_main == nullptr) {
+        std::cerr << "cheatah: '" << module_path << "' has no purr_main entry point\n";
+        module_close(handle);
         return 1;
     }
 
@@ -107,6 +148,6 @@ int main(int argc, char** argv) {
         rc = 1;
     }
 
-    dlclose(handle);
+    module_close(handle);
     return rc;
 }

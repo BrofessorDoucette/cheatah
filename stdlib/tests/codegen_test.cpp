@@ -20,7 +20,10 @@ TEST(CheatahCodegen, EmitsPurrMainWithNamespaceQualifiedCall) {
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "#include \"io.hpp\""));
-    EXPECT_TRUE(contains(cg.source, "extern \"C\" void purr_main()"));
+    // purr_main is emitted through the portable export macro (C linkage everywhere,
+    // dllexport on Windows so the DLL exposes the entry point).
+    EXPECT_TRUE(contains(cg.source, "PURR_EXPORT void purr_main()"));
+    EXPECT_TRUE(contains(cg.source, "#define PURR_EXPORT extern \"C\""));
     EXPECT_TRUE(contains(cg.source, "cheatah::io::print(std::string(\"meow\"));"));
 
     ASSERT_EQ(cg.modules.size(), 1u);

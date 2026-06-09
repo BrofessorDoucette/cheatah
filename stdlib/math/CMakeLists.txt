@@ -4,4 +4,4 @@
 # FUTURE: when this gains vector/matrix ops it will link cheatah's linalg core:
 #   target_link_libraries(cheatah_math_obj PUBLIC cheatah::linalg_static)
 add_cheatah_library(math SOURCES math.cpp)
-target_compile_options(cheatah_math_obj PRIVATE -O3 -march=native -funroll-loops)
+target_compile_options(cheatah_math_obj PRIVATE ${CHEATAH_MODULE_OPTFLAGS})

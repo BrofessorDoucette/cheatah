@@ -3,7 +3,11 @@
 #include <cstdlib>
 #include <thread>
 
-#include <unistd.h>  // getpid
+#if defined(_WIN32)
+#include <process.h>  // _getpid
+#else
+#include <unistd.h>   // getpid
+#endif
 
 // Compiled (non-template) symbols of the os module. Linked into a cheatah
 // executable only when the program `import os`s.
@@ -33,10 +37,19 @@ std::string getenv(const std::string& name, const std::string& fallback) {
     return (v != nullptr) ? std::string(v) : fallback;
 }
 void setenv(const std::string& name, const std::string& value, bool overwrite) {
+#if defined(_WIN32)
+    if (!overwrite && std::getenv(name.c_str()) != nullptr) return;  // _putenv_s always overwrites
+    ::_putenv_s(name.c_str(), value.c_str());
+#else
     ::setenv(name.c_str(), value.c_str(), overwrite ? 1 : 0);
+#endif
 }
 
+#if defined(_WIN32)
+int getpid() { return static_cast<int>(::_getpid()); }
+#else
 int getpid() { return static_cast<int>(::getpid()); }
+#endif
 unsigned cpu_count() { return std::thread::hardware_concurrency(); }
 int system(const std::string& command) { return std::system(command.c_str()); }
 

@@ -12,4 +12,4 @@ foreach(_lib cheatah_linalg_static cheatah_linalg_shared)
 endforeach()
 
 # Force SIMD optimization on the numeric hot paths regardless of build type.
-target_compile_options(cheatah_linalg_obj PRIVATE -O3 -march=native -funroll-loops)
+target_compile_options(cheatah_linalg_obj PRIVATE ${CHEATAH_MODULE_OPTFLAGS})

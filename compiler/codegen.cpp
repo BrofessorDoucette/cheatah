@@ -201,6 +201,13 @@ public:
         for (const std::string& root : roots_) {
             os << "#include \"" << root << ".hpp\"\n";
         }
+        // purr_main is the symbol the runtime resolves; on Windows a DLL only exposes
+        // dllexport'd symbols, so wrap the linkage in a portable macro (no-op elsewhere).
+        os << "#if defined(_WIN32)\n"
+              "#define PURR_EXPORT extern \"C\" __declspec(dllexport)\n"
+              "#else\n"
+              "#define PURR_EXPORT extern \"C\"\n"
+              "#endif\n";
         os << "\n";
 
         // Raw C++ escape hatch: top-level `cpp { … }` blocks are emitted at FILE
@@ -227,8 +234,8 @@ public:
             if (s->kind == StmtKind::FnDef) gen_fn(os, static_cast<const FnDef&>(*s));
         }
 
-        // The runtime dlopens this symbol and calls it.
-        os << "extern \"C\" void purr_main() {\n";
+        // The runtime resolves this symbol and calls it.
+        os << "PURR_EXPORT void purr_main() {\n";
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::Import || s->kind == StmtKind::StructDef ||
                 s->kind == StmtKind::FnDef || s->kind == StmtKind::RawCpp ||
