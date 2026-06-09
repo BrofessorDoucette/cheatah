@@ -30,7 +30,7 @@ on its page, and the linalg-vs-NumPy numbers live beside the functions they meas
 - **Tighter prose.** A pass over the guides trimmed wordiness without dropping facts,
   examples, or the single-threaded-by-design framing.
 
-
+## v0.7.0-alpha — cross-platform: Linux, macOS, and Windows
 
 cheatah now builds and runs on **Linux, macOS, and Windows**. The language, the `purrc`
 interface, and every standard-library API are **unchanged** — this release is purely
