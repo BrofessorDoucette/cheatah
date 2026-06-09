@@ -3,6 +3,78 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.6.0-alpha — winning the numerics: world-class linear algebra + SIMD ufuncs
+
+This release is a ground-up performance pass on the numeric core. We benchmarked every
+`linalg` and `ndarray` routine honestly against NumPy/LAPACK, hunted down *why* we lost
+where we lost, and fixed the causes. The result: cheatah now **matches or beats** NumPy
+on every dense linear-algebra routine measured at the small-to-moderate sizes most
+scientific code runs at — products, the LU family, the SVD (and its `pinv`/`cond`/
+`matrix_rank` derivatives), and the symmetric eigensolver — and the element-wise math
+ufuncs now beat NumPy's too. The recurring villains were two: heap allocations hiding in
+element access, and inner loops that couldn't vectorize.
+
+### Linear algebra — algorithms and kernels
+- **Killed the per-element heap allocation in matrix/vector extraction.** The extractors
+  read elements through `a.at({i, j})`, and the `{i, j}` braced index **heap-allocated a
+  `std::vector` per element** — pulling out an n×n matrix did n² allocations before any
+  math. Replaced with direct contiguous reads (`memcpy` fast path; strided walk for
+  views). This alone is a large speedup across *every* routine.
+- **Zero-copy reads for the read-only routines.** `dot`/`matmul`/`outer`/`trace`/`norm`/
+  `cholesky`/`kron`/`conj_transpose` (real **and** complex) now operate straight on the
+  array's own buffer when it's contiguous — they allocate only their result.
+- **`dot` beats BLAS `ddot`.** The reduction was a serial floating-point dependency chain
+  that can't vectorize without `-ffast-math`; rewritten with independent accumulators so
+  `-O3 -march=native` issues SIMD+FMA. 16384-element `dot`: **280µs → 3.7µs**, from 36×
+  *slower* than NumPy to **2.1× faster**.
+- **`inv` wins.** It was `n` serial-reduction back-substitutions (un-vectorizable);
+  rewritten as a whole-identity block solve whose inner loops are vectorizable SAXPYs.
+  32×32: **26µs → 5.7µs**, from NumPy-1.1× to **cheatah 4.2×**. (`det` already won — same
+  LU, but its SAXPY update vectorizes; that contrast was the tell.)
+- **Symmetric eigensolver: cyclic Jacobi → Householder tridiagonalization + implicit-shift
+  QL** (the method LAPACK uses). `eigvalsh` went from losing **10–35×** to **tying
+  LAPACK** from 16×16 up, winning decisively below; it also skips the eigenvector
+  accumulation it used to compute and throw away. The complex-Hermitian path rides the
+  same solver via the 2n real embedding.
+- **SVD: one-sided Jacobi → Golub–Reinsch** (Householder bidiagonalization + implicit-shift
+  QR), reimplemented entirely **column-major** so the bidiagonalization reflectors and the
+  QR's whole-column U/V rotations vectorize. The full decomposition now **beats NumPy
+  1.7–1.8×** (so `pinv` wins 1.3–1.4×); a new values-only path **ties LAPACK**, and so do
+  `cond`/`matrix_rank`. Replacing the correctly-rounded `std::hypot` in the O(n²) Givens
+  rotations with the faster EISPACK `pythag` was the final unlock. 64×64 `svd` went from
+  **3505µs (NumPy 18.8×) to a 1.8× win**.
+- **New `linalg.svdvals(a)`** — singular values only (≈ `numpy.linalg.svd(compute_uv=False)`):
+  skips U/V accumulation and the dominant U/V rotations.
+- **Fewer allocations everywhere:** hoisted per-iteration working buffers out of loops
+  (`inv`, `qr`, the general eigensolver), factor-the-complex-LU-once in inverse iteration,
+  single-copy hand-off into the eigen solvers.
+
+### ndarray — element-wise math beats NumPy
+- **SIMD transcendentals via libmvec.** `ndarray.exp`/`sin`/`cos`/`log`/`tan`/`sqrt`/`cbrt`
+  for contiguous `double` arrays route through an isolated kernel TU (`ufunc_simd.cpp`)
+  compiled `-fveclib=libmvec -fno-math-errno`, so they vectorize through glibc's vector
+  math — **without** `-ffast-math`, so results stay strictly IEEE and the rest of cheatah's
+  arithmetic is untouched. `exp` now wins ≈3×, `sin` ≈5× at 16384 elements.
+- **`array ⊕ scalar` broadcasting fast path.** It was doing a bounds-checked `at()` per
+  element (no SIMD); a contiguous fast path took `ndarray.add` from **≈20× slower than
+  NumPy to ~even**, speeding up every scalar-broadcast op.
+- **`purrc` now passes `-fno-math-errno`** (lets `sqrt`/algebraic math vectorize; strictly
+  IEEE, unlike `-ffast-math`) and links `-lm` for the libmvec symbols.
+
+### Docs, benchmarks & tooling
+- **Honest, comprehensive vs-NumPy comparison** on the performance page: ~25 routines
+  across dimensions, full operand shapes stated (a 2×2 matrix, a 16384-element vector,
+  n×n ⊗ n×n), green/red speedup styling, and the NumPy version compared against.
+- `scripts/numpy_compare.py` expanded to the whole library and made **fair** (full-SVD vs
+  full-SVD, values-vs-values); new `scripts/linalg_sweep.py` finds per-function crossovers.
+- Doc accuracy pass: `@alloc` rows now match the code (zero-copy where it is), algorithm
+  names updated (Golub–Reinsch, tridiagonal QL), test names highlighted in the rendered
+  tables.
+
+### Fixes
+- Corrected stale `@alloc`/behavior annotations found in an audit (e.g. `dot`'s "2-D
+  matmul" comment — it rejects non-vector 2-D input; complex `dot`/`vdot` scratch claims).
+
 ## v0.5.0-alpha — performance, honestly: @perf everywhere, vs-CPython & vs-NumPy, and a smarter editor
 
 This release is about **measuring** cheatah honestly and surfacing those numbers

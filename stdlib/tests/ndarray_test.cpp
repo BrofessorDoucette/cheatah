@@ -166,3 +166,36 @@ TEST(CheatahNDArray, ContiguousFastPathAndStridedReduce) {
     const nd::NDArray v = nd::broadcast_to(nd::scalar(2.0), {3});  // [2, 2, 2], stride 0
     EXPECT_DOUBLE_EQ(nd::sum(v), 6.0);
 }
+
+// ---- coverage: ufunc scalar-walk fallback + binary-op scalar/broadcast paths ----
+TEST(CheatahNDArray, UfuncStridedFallback) {
+    // A broadcast (non-contiguous) array forces the scalar map fallback in each ufunc
+    // (the contiguous-double path runs the precompiled SIMD kernel instead).
+    EXPECT_NEAR(nd::get(nd::sqrt(nd::broadcast_to(nd::scalar(4.0), {3})), {0}), 2.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::cbrt(nd::broadcast_to(nd::scalar(8.0), {2})), {0}), 2.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::exp(nd::broadcast_to(nd::scalar(0.0), {2})), {0}), 1.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::log(nd::broadcast_to(nd::scalar(1.0), {2})), {0}), 0.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::sin(nd::broadcast_to(nd::scalar(0.0), {2})), {0}), 0.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::cos(nd::broadcast_to(nd::scalar(0.0), {2})), {0}), 1.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::tan(nd::broadcast_to(nd::scalar(0.0), {2})), {0}), 0.0, 1e-12);
+}
+
+TEST(CheatahNDArray, BinaryOpScalarAndBroadcast) {
+    const nd::NDArray v = nd::array({1.0, 2.0, 3.0});
+    const nd::NDArray s = nd::scalar(10.0);
+    // array ⊕ scalar (fast path) and scalar ⊕ array (reverse fast path) for each op
+    EXPECT_EQ(nd::to_string(nd::add(v, s)), "[11, 12, 13]");
+    EXPECT_EQ(nd::to_string(nd::add(s, v)), "[11, 12, 13]");
+    EXPECT_EQ(nd::to_string(nd::sub(v, s)), "[-9, -8, -7]");
+    EXPECT_EQ(nd::to_string(nd::sub(s, v)), "[9, 8, 7]");
+    EXPECT_EQ(nd::to_string(nd::mul(v, s)), "[10, 20, 30]");
+    EXPECT_EQ(nd::to_string(nd::mul(s, v)), "[10, 20, 30]");
+    EXPECT_NEAR(nd::get(nd::divide(v, nd::scalar(2.0)), {1}), 1.0, 1e-12);
+    EXPECT_NEAR(nd::get(nd::divide(nd::scalar(6.0), v), {2}), 2.0, 1e-12);
+    // a genuine (non-scalar) broadcast: 2x3 ⊕ length-3 row -> the strided C-order walk
+    const nd::NDArray m = nd::reshape(nd::array({0.0, 0.0, 0.0, 10.0, 10.0, 10.0}), {2, 3});
+    EXPECT_EQ(nd::to_string(nd::add(m, v)), "[[1, 2, 3], [11, 12, 13]]");
+    EXPECT_EQ(nd::to_string(nd::sub(m, v)), "[[-1, -2, -3], [9, 8, 7]]");
+    EXPECT_EQ(nd::to_string(nd::mul(m, v)), "[[0, 0, 0], [10, 20, 30]]");
+    EXPECT_NEAR(nd::get(nd::divide(m, v), {1, 1}), 5.0, 1e-12);
+}

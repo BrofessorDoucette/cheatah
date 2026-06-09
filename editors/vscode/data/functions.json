@@ -1191,6 +1191,18 @@
       }
     },
     {
+      "name": "cdot",
+      "signature": "cdot(const Cplx *x, const Cplx *y, std::size_t n, bool conjugate)",
+      "brief": "",
+      "params": [],
+      "returns": "",
+      "tags": {},
+      "srcfile": "stdlib/linalg/routines.cpp",
+      "srcline": 847,
+      "module": "linalg",
+      "qualified": "linalg.cdot"
+    },
+    {
       "name": "cholesky",
       "signature": "cholesky(const NDArray &a)",
       "brief": "Cholesky factor of a symmetric positive-definite matrix (throws otherwise).",
@@ -1209,7 +1221,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 231,
+      "srcline": 237,
       "module": "linalg",
       "qualified": "linalg.cholesky",
       "perf": {
@@ -1235,7 +1247,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 428,
+      "srcline": 454,
       "module": "linalg",
       "qualified": "linalg.cond",
       "perf": {
@@ -1261,12 +1273,24 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 181,
+      "srcline": 187,
       "module": "linalg",
       "qualified": "linalg.conj_transpose",
       "perf": {
         "kind": "numpy"
       }
+    },
+    {
+      "name": "ddot",
+      "signature": "ddot(const double *x, const double *y, std::size_t n)",
+      "brief": "",
+      "params": [],
+      "returns": "",
+      "tags": {},
+      "srcfile": "stdlib/linalg/routines.cpp",
+      "srcline": 819,
+      "module": "linalg",
+      "qualified": "linalg.ddot"
     },
     {
       "name": "det",
@@ -1287,7 +1311,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 443,
+      "srcline": 469,
       "module": "linalg",
       "qualified": "linalg.det",
       "perf": {
@@ -1311,13 +1335,13 @@
       "returns": "Σ aᵢbᵢ as a std::complex<double>; throws on a length mismatch.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "scratch O(n); returns a complex scalar.",
+        "alloc": "none for contiguous operands (read in place); a non-contiguous view packs once O(n). Returns a complex scalar.",
         "test": "LinalgRoutines.ComplexProducts",
         "crtest": "LinalgCompileRun.ComplexDot",
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 143,
+      "srcline": 148,
       "module": "linalg",
       "qualified": "linalg.dot",
       "perf": {
@@ -1343,7 +1367,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 308,
+      "srcline": 331,
       "module": "linalg",
       "qualified": "linalg.eig",
       "perf": {
@@ -1369,7 +1393,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 382,
+      "srcline": 407,
       "module": "linalg",
       "qualified": "linalg.eigh",
       "perf": {
@@ -1395,7 +1419,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 325,
+      "srcline": 348,
       "module": "linalg",
       "qualified": "linalg.eigvals",
       "perf": {
@@ -1421,7 +1445,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 396,
+      "srcline": 421,
       "module": "linalg",
       "qualified": "linalg.eigvalsh",
       "perf": {
@@ -1445,13 +1469,13 @@
       "returns": "Σ aᵢbᵢ.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "scratch O(n); returns a double.",
+        "alloc": "none for contiguous operands; non-contiguous packs once O(n). Returns a double.",
         "test": "LinalgRoutines.VdotInnerOuterKron",
         "crtest": "LinalgCompileRun.Inner",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 98,
+      "srcline": 101,
       "module": "linalg",
       "qualified": "linalg.inner",
       "perf": {
@@ -1477,7 +1501,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 545,
+      "srcline": 571,
       "module": "linalg",
       "qualified": "linalg.inv",
       "perf": {
@@ -1507,7 +1531,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 213,
+      "srcline": 219,
       "module": "linalg",
       "qualified": "linalg.kron",
       "perf": {
@@ -1537,7 +1561,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 530,
+      "srcline": 556,
       "module": "linalg",
       "qualified": "linalg.lstsq",
       "perf": {
@@ -1561,13 +1585,13 @@
       "returns": "m×p complex product; throws on an inner-dimension mismatch or non-2-D input.",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new CNDArray result (plus scratch copies of a and b).",
+        "alloc": "allocates only the m×p result; operands read in place when contiguous.",
         "test": "LinalgRoutines.ComplexProducts",
         "crtest": "LinalgCompileRun.ComplexMatmul",
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 169,
+      "srcline": 175,
       "module": "linalg",
       "qualified": "linalg.matmul",
       "perf": {
@@ -1597,7 +1621,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 197,
+      "srcline": 203,
       "module": "linalg",
       "qualified": "linalg.matrix_power",
       "perf": {
@@ -1623,7 +1647,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 458,
+      "srcline": 484,
       "module": "linalg",
       "qualified": "linalg.matrix_rank",
       "perf": {
@@ -1643,13 +1667,13 @@
       "returns": "√Σ xᵢ².",
       "tags": {
         "complexity": "O(n) for vectors / O(n²) for matrices.",
-        "alloc": "copies into scratch; returns a double.",
+        "alloc": "none for a contiguous operand (summed in place); a non-contiguous view packs once. Returns a double.",
         "test": "LinalgRoutines.NormAndRank",
         "crtest": "LinalgCompileRun.Norm",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 413,
+      "srcline": 439,
       "module": "linalg",
       "qualified": "linalg.norm",
       "perf": {
@@ -1673,13 +1697,13 @@
       "returns": "n×m matrix aᵢbⱼ.",
       "tags": {
         "complexity": "O(n·m).",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates only the n×m result; operands read in place when contiguous.",
         "test": "LinalgRoutines.VdotInnerOuterKron",
         "crtest": "LinalgCompileRun.Outer",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 113,
+      "srcline": 116,
       "module": "linalg",
       "qualified": "linalg.outer",
       "perf": {
@@ -1705,7 +1729,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 561,
+      "srcline": 587,
       "module": "linalg",
       "qualified": "linalg.pinv",
       "perf": {
@@ -1731,7 +1755,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 252,
+      "srcline": 258,
       "module": "linalg",
       "qualified": "linalg.qr",
       "perf": {
@@ -1795,7 +1819,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 480,
+      "srcline": 506,
       "module": "linalg",
       "qualified": "linalg.slogdet",
       "perf": {
@@ -1825,7 +1849,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 513,
+      "srcline": 539,
       "module": "linalg",
       "qualified": "linalg.solve",
       "perf": {
@@ -1835,7 +1859,7 @@
     {
       "name": "svd",
       "signature": "svd(const NDArray &a)",
-      "brief": "Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).",
+      "brief": "Singular value decomposition (Golub–Reinsch; requires rows ≥ cols).",
       "params": [
         {
           "name": "a",
@@ -1851,9 +1875,35 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 274,
+      "srcline": 281,
       "module": "linalg",
       "qualified": "linalg.svd",
+      "perf": {
+        "kind": "numpy"
+      }
+    },
+    {
+      "name": "svdvals",
+      "signature": "svdvals(const NDArray &a)",
+      "brief": "Singular values only (≈ numpy.linalg.svd(a, compute_uv=False) / svdvals).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "m×n matrix."
+        }
+      ],
+      "returns": "length-min(m,n) vector of singular values, descending.",
+      "tags": {
+        "complexity": "iterative O(n³), but a large constant factor below svd.",
+        "alloc": "allocates a new NDArray result (no U/V scratch).",
+        "test": "LinalgRoutines.SvdAndEigh",
+        "crtest": "LinalgCompileRun.Svdvals",
+        "systest": "StdlibE2E.Linalg"
+      },
+      "srcfile": "stdlib/linalg/routines.hpp",
+      "srcline": 297,
+      "module": "linalg",
+      "qualified": "linalg.svdvals",
       "perf": {
         "kind": "numpy"
       }
@@ -1871,13 +1921,13 @@
       "returns": "Σ aᵢᵢ.",
       "tags": {
         "complexity": "O(n) summation.",
-        "alloc": "copies the matrix into scratch O(n²) first; returns a double.",
+        "alloc": "none — reads the diagonal straight from the buffer. Returns a double.",
         "test": "LinalgRoutines.ProductsAndTrace",
         "crtest": "LinalgCompileRun.Trace",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 494,
+      "srcline": 520,
       "module": "linalg",
       "qualified": "linalg.trace",
       "perf": {
@@ -1901,13 +1951,13 @@
       "returns": "Σ conj(aᵢ)·bᵢ as a std::complex<double>; throws on a length mismatch.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "scratch O(n); returns a complex scalar.",
+        "alloc": "none for contiguous operands (read in place); a non-contiguous view packs once O(n). Returns a complex scalar.",
         "test": "LinalgRoutines.ComplexProducts",
         "crtest": "LinalgCompileRun.ComplexVdot",
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 157,
+      "srcline": 163,
       "module": "linalg",
       "qualified": "linalg.vdot",
       "perf": {
@@ -2896,7 +2946,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 820,
+      "srcline": 865,
       "module": "ndarray",
       "qualified": "ndarray.abs",
       "perf": {
@@ -2926,7 +2976,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 554,
+      "srcline": 570,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
@@ -3099,7 +3149,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 746,
+      "srcline": 791,
       "module": "ndarray",
       "qualified": "ndarray.cbrt",
       "perf": {
@@ -3129,7 +3179,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 638,
+      "srcline": 681,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
@@ -3155,7 +3205,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 665,
+      "srcline": 708,
       "module": "ndarray",
       "qualified": "ndarray.conj",
       "perf": {
@@ -3180,7 +3230,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 796,
+      "srcline": 841,
       "module": "ndarray",
       "qualified": "ndarray.cos",
       "perf": {
@@ -3210,7 +3260,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 596,
+      "srcline": 612,
       "module": "ndarray",
       "qualified": "ndarray.divide",
       "perf": {
@@ -3236,7 +3286,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 759,
+      "srcline": 804,
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
@@ -3296,7 +3346,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 878,
+      "srcline": 923,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3322,7 +3372,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 708,
+      "srcline": 751,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3372,7 +3422,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 771,
+      "srcline": 816,
       "module": "ndarray",
       "qualified": "ndarray.log",
       "perf": {
@@ -3398,7 +3448,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 861,
+      "srcline": 906,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -3428,7 +3478,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 582,
+      "srcline": 598,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -3480,7 +3530,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 686,
+      "srcline": 729,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -3562,7 +3612,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 892,
+      "srcline": 937,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
       "perf": {
@@ -3588,7 +3638,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 784,
+      "srcline": 829,
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
@@ -3614,7 +3664,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 908,
+      "srcline": 953,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
       "perf": {
@@ -3640,7 +3690,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 734,
+      "srcline": 779,
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
@@ -3670,7 +3720,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 568,
+      "srcline": 584,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -3696,7 +3746,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 837,
+      "srcline": 882,
       "module": "ndarray",
       "qualified": "ndarray.sum",
       "perf": {
@@ -3721,7 +3771,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 808,
+      "srcline": 853,
       "module": "ndarray",
       "qualified": "ndarray.tan",
       "perf": {
@@ -3747,7 +3797,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 965,
+      "srcline": 1010,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {

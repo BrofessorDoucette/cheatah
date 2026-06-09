@@ -45,6 +45,12 @@ def spd(n):
     return A @ A.T + n * np.eye(n)
 
 
+def gen(n):
+    """A general (non-symmetric) well-conditioned n×n matrix — for the general
+    eigenvalues and matrix_power (which must not route through the symmetric path)."""
+    return rng.standard_normal((n, n)) * 0.3 + np.eye(n)
+
+
 def run(argv):
     return subprocess.run(argv, capture_output=True, text=True)
 
@@ -195,6 +201,114 @@ def main():
             bench(f"ndarray.{fn}", n, iters, setup, expr,
                   lambda v=v: (v,),
                   lambda o, i, f=npfn: float(f(o[0] + 0.000001 * i)[0]), extract="[0]")
+
+    # ---- Cholesky factor (SPD) ----
+    for n, iters in [(8, 50000), (32, 8000), (64, 2000)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("cholesky", n, iters, setup, "linalg.cholesky(A)",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.cholesky(o[0])[0, 0]),
+              extract="[0, 0]")
+
+    # ---- QR (R[0,0]) ----
+    for n, iters in [(8, 40000), (32, 6000), (64, 1500)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("qr", n, iters, setup, "linalg.qr(A).r",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.qr(o[0])[1][0, 0]),
+              extract="[0, 0]")
+
+    # ---- SVD — compared FAIRLY on both sides ----
+    # values-only: cheatah `svdvals` vs numpy `svd(compute_uv=False)`
+    for n, iters in [(8, 20000), (32, 3000), (64, 800)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("svdvals", n, iters, setup, "linalg.svdvals(A)",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.svd(o[0], compute_uv=False)[0]),
+              extract="[0]")
+    # full decomposition: cheatah `svd` vs numpy `svd` (both compute U and Vᵀ)
+    for n, iters in [(8, 20000), (32, 2000), (64, 500)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("svd (full)", n, iters, setup, "linalg.svd(A).s",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.svd(o[0])[1][0]), extract="[0]")
+
+    # ---- pseudo-inverse (SVD-based) ----
+    for n, iters in [(8, 20000), (32, 3000), (64, 800)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("pinv", n, iters, setup, "linalg.pinv(A)",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.pinv(o[0])[0, 0]),
+              extract="[0, 0]")
+
+    # ---- condition number / matrix_rank (SVD-based) ----
+    for n, iters in [(8, 20000), (32, 3000), (64, 800)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("cond", n, iters, setup, "linalg.cond(A)",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.cond(o[0])), extract="")
+    for n, iters in [(8, 20000), (32, 3000), (64, 800)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("matrix_rank", n, iters, setup, "linalg.matrix_rank(A)",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.matrix_rank(o[0])), extract="")
+
+    # ---- slogdet (log|det|, LU-based) ----
+    for n, iters in [(8, 80000), (32, 15000), (64, 4000)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("slogdet", n, iters, setup, "linalg.slogdet(A).logabsdet",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.slogdet(o[0])[1]), extract="")
+
+    # ---- eigh (symmetric, eigenvalues AND eigenvectors) ----
+    for n, iters in [(8, 40000), (32, 4000), (64, 1000)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("eigh", n, iters, setup, "linalg.eigh(A).values",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.eigh(o[0])[0][-1]), extract="[0]")
+
+    # ---- eigvals (GENERAL, non-symmetric -> Hessenberg + shifted QR) ----
+    for n, iters in [(8, 8000), (16, 2000), (32, 400)]:
+        G = gen(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(G)}), [{n}, {n}])"
+        bench("eigvals", n, iters, setup, "ndarray.real(linalg.eigvals(A))",
+              lambda G=G: (G,), lambda o, i: float(np.sort(np.linalg.eigvals(o[0]).real)[-1]),
+              extract="[0]")
+
+    # ---- matrix_power A³ (general) ----
+    for n, iters in [(8, 40000), (32, 5000), (64, 1500)]:
+        G = gen(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(G)}), [{n}, {n}])"
+        bench("matrix_power", n, iters, setup, "linalg.matrix_power(A, 3)",
+              lambda G=G: (G,), lambda o, i: float(np.linalg.matrix_power(o[0], 3)[0, 0]),
+              extract="[0, 0]")
+
+    # ---- trace / Frobenius norm (cheap O(n²) reductions) ----
+    for n, iters in [(32, 100000), (256, 20000)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("trace", n, iters, setup, "linalg.trace(A)",
+              lambda A=A: (A,), lambda o, i: float(np.trace(o[0])), extract="")
+    for n, iters in [(32, 100000), (256, 10000)]:
+        A = spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])"
+        bench("norm(matrix)", n, iters, setup, "linalg.norm(A)",
+              lambda A=A: (A,), lambda o, i: float(np.linalg.norm(o[0])), extract="")
+
+    # ---- outer product / Kronecker product ----
+    for n, iters in [(64, 50000), (256, 4000)]:
+        u, v = rng.standard_normal(n), rng.standard_normal(n)
+        setup = f"let u = ndarray.array({lit(u)})\nlet v = ndarray.array({lit(v)})"
+        bench("outer", n, iters, setup, "linalg.outer(u, v)",
+              lambda u=u, v=v: (u, v), lambda o, i: float(np.outer(o[0], o[1])[0, 0]),
+              extract="[0, 0]")
+    for n, iters in [(8, 40000), (16, 8000), (32, 1500)]:
+        A, B = spd(n), spd(n)
+        setup = f"let A = ndarray.reshape(ndarray.array({lit(A)}), [{n}, {n}])\n" \
+                f"let B = ndarray.reshape(ndarray.array({lit(B)}), [{n}, {n}])"
+        bench("kron", n, iters, setup, "linalg.kron(A, B)",
+              lambda A=A, B=B: (A, B), lambda o, i: float(np.kron(o[0], o[1])[0, 0]),
+              extract="[0, 0]")
 
     print("\nNote: NumPy calls BLAS/LAPACK (often threaded). cheatah's kernels are "
           "single-threaded\nauto-vectorized C++. Small n favors cheatah (no Python/"

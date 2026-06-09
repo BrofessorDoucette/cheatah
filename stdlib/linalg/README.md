@@ -31,13 +31,13 @@ d = linalg.det(A)
 ### Decompositions
 - `cholesky` — lower-triangular L with A = L·Lᵀ (SPD only).
 - `qr` — reduced QR via Householder reflections.
-- `svd` — singular value decomposition (one-sided Jacobi).
+- `svd` — singular value decomposition (Golub–Reinsch: bidiagonalization + implicit QR).
 
 ### Eigen
 - `eig` / `eigvals` — general square matrix (**complex** spectrum + eigenvectors;
   Hessenberg + shifted QR for the values, inverse iteration for the vectors).
 - `eigh` / `eigvalsh` — symmetric **or complex Hermitian** matrix (real spectrum,
-  complex eigenvectors; cyclic Jacobi, via a real 2n embedding for Hermitian input).
+  complex eigenvectors; Householder tridiagonalization + QL, via a real 2n embedding for Hermitian input).
 
 ```purr
 # A real rotation matrix has complex eigenvalues ±i:

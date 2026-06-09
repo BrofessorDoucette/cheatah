@@ -65,8 +65,9 @@ def perf_row(refid: str, name: str) -> str:
             faster = e["speedup"] >= 1
             verb = "faster" if faster else "slower"
             factor = e["speedup"] if faster else round(1 / e["speedup"], 1)
+            cls = "perf-faster" if faster else "perf-slower"
             body += (f' · {_fmt_ns(cmp)} in {tgt} · '
-                     f'<strong>≈{factor:g}× {verb}</strong>')
+                     f'<strong class="{cls}">≈{factor:g}× {verb}</strong>')
         else:
             body += ' · <em>(no direct equivalent)</em>'
     else:
@@ -330,12 +331,23 @@ class Renderer:
         return (f'<div class="tag tag-{cls}"><span class="tag-k">{html.escape(label)}</span>'
                 f'<span class="tag-v">{body}</span></div>')
 
+    @staticmethod
+    def _test_name_html(name: str) -> str:
+        """Color a gtest `Suite.Case` like a highlighted qualified name (suite as a
+        namespace, case as a member) so the @test rows read as code, not flat text."""
+        if "." in name:
+            suite, case = name.split(".", 1)
+            return (f'<span class="tn-suite">{html.escape(suite)}</span>.'
+                    f'<span class="tn-case">{html.escape(case)}</span>')
+        return f'<span class="tn-case">{html.escape(name)}</span>'
+
     def link_test(self, name: str) -> str:
         """One gtest `Suite.Name` rendered as a link to its source (if known)."""
+        inner = self._test_name_html(name)
         loc = self.test_index.get(name)
         if loc and loc[0] in self.src_map:
-            return f'<a href="{self.src_link(loc[0], loc[1])}"><code>{html.escape(name)}</code></a>'
-        return f"<code>{html.escape(name)}</code>"
+            return f'<a href="{self.src_link(loc[0], loc[1])}"><code>{inner}</code></a>'
+        return f"<code>{inner}</code>"
 
     def render_tests(self, text: str) -> str:
         """Render @test/@crtest value(s) as links to the test's source location."""
@@ -377,6 +389,17 @@ class Renderer:
         out.append("</dl>")
         return "".join(out)
 
+    # Verdict phrases in any performance table get the warm green/red treatment:
+    # "cheatah 2.8×" / "N× faster" → green; "NumPy 1.1×" / "N× slower" → red.
+    _PERF_UP_RE = re.compile(r"(cheatah\s+[\d.]+×|≈?[\d.]+×\s+faster)")
+    _PERF_DOWN_RE = re.compile(r"(NumPy\s+[\d.]+×|≈?[\d.]+×\s+slower)")
+
+    @classmethod
+    def _color_verdict(cls, inner: str) -> str:
+        inner = cls._PERF_UP_RE.sub(r'<span class="perf-faster">\1</span>', inner)
+        inner = cls._PERF_DOWN_RE.sub(r'<span class="perf-slower">\1</span>', inner)
+        return inner
+
     def t_table(self, el) -> str:
         rows = []
         for r in el.findall("row"):
@@ -388,6 +411,8 @@ class Renderer:
                 key = text_of(c).strip()
                 if tag == "td" and key in self.modules:
                     inner = f'<a href="{self.modules[key]}.html" class="mod-link">{inner}</a>'
+                elif tag == "td":
+                    inner = self._color_verdict(inner)
                 cells.append(f"<{tag}>{inner}</{tag}>")
             rows.append(f"<tr>{''.join(cells)}</tr>")
         return f'<table class="dtable">{"".join(rows)}</table>'

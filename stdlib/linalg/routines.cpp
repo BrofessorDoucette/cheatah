@@ -9,7 +9,7 @@
 
 // Dense linear-algebra routines on ndarray::NDArray. Algorithms reimplemented from
 // standard numerical methods (LU w/ partial pivoting, Cholesky, Householder QR,
-// one-sided Jacobi SVD, cyclic Jacobi symmetric eigen, Hessenberg+shifted-QR for
+// Golub–Reinsch SVD (bidiagonalization + implicit QR), Householder-tridiagonal + QL symmetric eigen, Hessenberg+shifted-QR for
 // the general real spectrum). Hot loops are contiguous so -O3 -march=native
 // auto-vectorizes them (SIMD). The matrices are real (double) but the general
 // eigensolvers return a COMPLEX spectrum (CNDArray) — a real matrix can have
@@ -23,31 +23,74 @@ using ndarray::NDArray;
 namespace {
 
 // ---- extract / build contiguous row-major matrices & vectors ----
+//
+// IMPORTANT: read the shared buffer directly. The element accessor `a.at({i, j})`
+// constructs a `std::vector` index *per call* (one heap allocation per element), so
+// the old extractors did rows*cols allocations just to read a matrix. These pack
+// C-order with a flat `copy_n` when the array is already contiguous (the common
+// case — a freshly built matrix/vector), and a direct strided walk otherwise. No
+// per-element allocation either way.
+
+// Pack `a`'s elements into `out` (size a.size()) in C-order via direct buffer
+// indexing. Used only for the non-contiguous (view/broadcast/permuted) fallback.
+template <ndarray::Field T>
+void pack_corder(const ndarray::basic_ndarray<T>& a, T* out) {
+    const T* base = a.buffer()->data();
+    const auto& shp = a.shape();
+    const auto& st = a.strides();
+    const std::size_t nd = shp.size();
+    const std::ptrdiff_t off0 = static_cast<std::ptrdiff_t>(a.offset());
+    std::vector<std::size_t> idx(nd, 0);
+    const std::size_t total = a.size();
+    for (std::size_t lin = 0; lin < total; ++lin) {
+        std::ptrdiff_t off = off0;
+        for (std::size_t d = 0; d < nd; ++d)
+            off += static_cast<std::ptrdiff_t>(idx[d]) * st[d];
+        out[lin] = base[static_cast<std::size_t>(off)];
+        for (std::size_t d = nd; d-- > 0;) {  // C-order increment
+            if (++idx[d] < shp[d]) break;
+            idx[d] = 0;
+        }
+    }
+}
+
+// A read-only contiguous C-order pointer to `a`'s data. Zero-copy when `a` is
+// already contiguous (returns straight into its buffer); otherwise packs into
+// `scratch`. Use for routines that only READ their operands (the products).
+template <ndarray::Field T>
+const T* contig(const ndarray::basic_ndarray<T>& a, std::vector<T>& scratch) {
+    if (ndarray::is_contiguous(a)) return a.buffer()->data() + a.offset();
+    scratch.resize(a.size());
+    pack_corder(a, scratch.data());
+    return scratch.data();
+}
+
 std::vector<double> as_matrix(const NDArray& a, std::size_t& rows, std::size_t& cols) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     rows = a.shape()[0];
     cols = a.shape()[1];
     std::vector<double> m(rows * cols);
-    for (std::size_t i = 0; i < rows; ++i)
-        for (std::size_t j = 0; j < cols; ++j) m[i * cols + j] = a.at({i, j});
+    if (ndarray::is_contiguous(a))
+        std::copy_n(a.buffer()->data() + a.offset(), rows * cols, m.data());
+    else
+        pack_corder(a, m.data());
     return m;
 }
-std::vector<double> as_vector(const NDArray& a, std::size_t& n) {
-    if (a.ndim() == 1) {
-        n = a.shape()[0];
-        std::vector<double> v(n);
-        for (std::size_t i = 0; i < n; ++i) v[i] = a.at({i});
-        return v;
-    }
-    if (a.ndim() == 2 && (a.shape()[0] == 1 || a.shape()[1] == 1)) {
-        n = a.size();
-        std::vector<double> v;
-        v.reserve(n);
-        for (std::size_t i = 0; i < a.shape()[0]; ++i)
-            for (std::size_t j = 0; j < a.shape()[1]; ++j) v.push_back(a.at({i, j}));
-        return v;
-    }
+// Validate that `a` is vector-shaped (1-D, or a 2-D row/column) and return its length.
+template <ndarray::Field T>
+std::size_t vector_len(const ndarray::basic_ndarray<T>& a) {
+    if (a.ndim() == 1) return a.shape()[0];
+    if (a.ndim() == 2 && (a.shape()[0] == 1 || a.shape()[1] == 1)) return a.size();
     throw std::runtime_error("linalg: expected a 1-D vector");
+}
+std::vector<double> as_vector(const NDArray& a, std::size_t& n) {
+    n = vector_len(a);
+    std::vector<double> v(n);
+    if (ndarray::is_contiguous(a))
+        std::copy_n(a.buffer()->data() + a.offset(), n, v.data());
+    else
+        pack_corder(a, v.data());
+    return v;
 }
 NDArray make_matrix(std::size_t rows, std::size_t cols, std::vector<double> data) {
     NDArray out(std::vector<std::size_t>{rows, cols});
@@ -87,26 +130,11 @@ std::vector<Cplx> as_cmatrix(const CNDArray& a, std::size_t& rows, std::size_t& 
     rows = a.shape()[0];
     cols = a.shape()[1];
     std::vector<Cplx> m(rows * cols);
-    for (std::size_t i = 0; i < rows; ++i)
-        for (std::size_t j = 0; j < cols; ++j) m[i * cols + j] = a.at({i, j});
+    if (ndarray::is_contiguous(a))
+        std::copy_n(a.buffer()->data() + a.offset(), rows * cols, m.data());
+    else
+        pack_corder(a, m.data());
     return m;
-}
-std::vector<Cplx> as_cvector(const CNDArray& a, std::size_t& n) {
-    if (a.ndim() == 1) {
-        n = a.shape()[0];
-        std::vector<Cplx> v(n);
-        for (std::size_t i = 0; i < n; ++i) v[i] = a.at({i});
-        return v;
-    }
-    if (a.ndim() == 2 && (a.shape()[0] == 1 || a.shape()[1] == 1)) {
-        n = a.size();
-        std::vector<Cplx> v;
-        v.reserve(n);
-        for (std::size_t i = 0; i < a.shape()[0]; ++i)
-            for (std::size_t j = 0; j < a.shape()[1]; ++j) v.push_back(a.at({i, j}));
-        return v;
-    }
-    throw std::runtime_error("linalg: expected a 1-D vector");
 }
 void require_square(std::size_t r, std::size_t c) {
     if (r != c) throw std::runtime_error("linalg: expected a square matrix");
@@ -168,109 +196,379 @@ void lu_solve(const LU& lu, std::vector<double>& b) {
     }
 }
 
-// ---- one-sided Jacobi SVD: A(m×n) = U(m×n) diag(w) V(n×n)ᵀ ----
+// ---- Golub–Reinsch SVD: A(m×n) = U(m×n) diag(w) V(n×n)ᵀ, requires m ≥ n ----
 struct SVDc {
     std::vector<double> u, w, v;
     std::size_t m, n;
 };
-SVDc svd_jacobi(std::vector<double> b, std::size_t m, std::size_t n) {
-    std::vector<double> v(n * n, 0.0);
-    for (std::size_t i = 0; i < n; ++i) v[i * n + i] = 1.0;
-    const double eps = 1e-15;
-    for (int sweep = 0; sweep < 80; ++sweep) {
-        bool rotated = false;
-        for (std::size_t p = 0; p < n; ++p) {
-            for (std::size_t q = p + 1; q < n; ++q) {
-                double alpha = 0, beta = 0, gamma = 0;
-                for (std::size_t i = 0; i < m; ++i) {
-                    const double bp = b[i * n + p], bq = b[i * n + q];
-                    alpha += bp * bp;
-                    beta += bq * bq;
-                    gamma += bp * bq;
+// Overflow-safe √(a²+b²) for the QR sweeps. std::hypot is correctly-rounded and several
+// times slower; called once per Givens rotation (O(n²) of them) it dominated the
+// values-only SVD. This EISPACK form is plenty accurate and much faster.
+inline double pythag(double a, double b) {
+    const double aa = std::fabs(a), ab = std::fabs(b);
+    if (aa > ab) { const double r = ab / aa; return aa * std::sqrt(1.0 + r * r); }
+    if (ab == 0.0) return 0.0;
+    const double r = aa / ab;
+    return ab * std::sqrt(1.0 + r * r);
+}
+// The world-standard dense SVD (what LAPACK's dgesvd reduces to): Householder
+// bidiagonalization to an upper-bidiagonal B = Uᵦᵀ A Vᵦ, then diagonalization of B by
+// implicit-shift QR, accumulating the orthogonal factors. One reduction plus a
+// quadratically-converging QR sweep — vastly fewer flops than one-sided Jacobi's
+// repeated full passes. On input `a` is m×n row-major; on output it holds U (m×n).
+SVDc svd_golub_reinsch(std::vector<double> a_rm, std::size_t m, std::size_t n,
+                       bool want_uv = true) {
+    // When @p want_uv is false only the singular values are produced: the U/V
+    // accumulation and the (dominant) U/V Givens rotations in the QR sweep are skipped
+    // — the same values-only fast path NumPy's `svd(compute_uv=False)` / `svdvals` take,
+    // and what `cond`/`matrix_rank` need.
+    // Work entirely COLUMN-MAJOR: U(r,c) = uc[c*m + r], V(r,c) = vc[c*n + r]. The bulk
+    // of Golub–Reinsch is the length-m LEFT Householder reflectors — the column
+    // reductions and their trailing-column updates. Column-major makes those unit-stride
+    // so -O3 -march=native vectorizes them (FMA over contiguous columns); in row-major
+    // they were stride-n and ran scalar, which is what left the bare SVD behind LAPACK.
+    // The QR sweep (rotating whole U/V columns) is contiguous for the same reason.
+    // Input arrives row-major; transpose it in once; uc holds U on output.
+    std::vector<double> uc(n * m), vc(n * n, 0.0), w(n, 0.0), rv1(n, 0.0), tbuf(m, 0.0);
+    for (std::size_t r = 0; r < m; ++r)
+        for (std::size_t c = 0; c < n; ++c) uc[c * m + r] = a_rm[r * n + c];
+    auto sign = [](double x, double s) { return s >= 0.0 ? std::fabs(x) : -std::fabs(x); };
+    // `g` and `scale` carry across iterations: the super-diagonal rv1[i] is the previous
+    // row-reflector's `scale * g`.
+    double g = 0.0, scale = 0.0, anorm = 0.0;
+
+    // --- Householder reduction to bidiagonal form (diagonal w, super-diagonal rv1) ---
+    for (std::size_t i = 0; i < n; ++i) {
+        const std::size_t l = i + 1;
+        rv1[i] = scale * g;
+        g = 0.0; scale = 0.0;
+        double s = 0.0;
+        double* Ui = &uc[i * m];                          // column i — contiguous
+        for (std::size_t k = i; k < m; ++k) scale += std::fabs(Ui[k]);
+        if (scale != 0.0) {                               // left (column) reflector -> w[i]
+            for (std::size_t k = i; k < m; ++k) { Ui[k] /= scale; s += Ui[k] * Ui[k]; }
+            double f = Ui[i];
+            g = -sign(std::sqrt(s), f);
+            const double h = f * g - s;
+            Ui[i] = f - g;
+            for (std::size_t j = l; j < n; ++j) {         // apply to trailing columns
+                double* Uj = &uc[j * m];
+                double sum = 0.0;
+                for (std::size_t k = i; k < m; ++k) sum += Ui[k] * Uj[k];   // contiguous → SIMD
+                const double fr = sum / h;
+                for (std::size_t k = i; k < m; ++k) Uj[k] += fr * Ui[k];     // contiguous → SIMD
+            }
+            for (std::size_t k = i; k < m; ++k) Ui[k] *= scale;
+        }
+        w[i] = scale * g;
+        g = 0.0; scale = 0.0; s = 0.0;
+        // right (row) reflector over columns l..n — length n, the minor half (strided)
+        if (l < n) {
+            for (std::size_t k = l; k < n; ++k) scale += std::fabs(uc[k * m + i]);
+            if (scale != 0.0) {
+                for (std::size_t k = l; k < n; ++k) { uc[k * m + i] /= scale; s += uc[k * m + i] * uc[k * m + i]; }
+                double f = uc[l * m + i];
+                g = -sign(std::sqrt(s), f);
+                const double h = f * g - s;
+                uc[l * m + i] = f - g;
+                for (std::size_t k = l; k < n; ++k) rv1[k] = uc[k * m + i] / h;
+                // Trailing update A(l:m, l:n) += (A·u)·rv1ᵀ, done COLUMN-by-column so the
+                // inner loops sweep contiguous rows of a column (vectorize) — the naive
+                // row-by-row form strode across columns (stride m) and ran scalar.
+                for (std::size_t j = l; j < m; ++j) tbuf[j] = 0.0;
+                for (std::size_t k = l; k < n; ++k) {           // t[j] = Σ_k A(j,k)·u[k]
+                    const double uk = uc[k * m + i];
+                    const double* Ck = &uc[k * m];
+                    for (std::size_t j = l; j < m; ++j) tbuf[j] += Ck[j] * uk;
                 }
-                if (gamma == 0.0 || std::fabs(gamma) <= eps * std::sqrt(alpha * beta)) continue;
-                rotated = true;
-                const double zeta = (beta - alpha) / (2.0 * gamma);
-                const double t = (zeta >= 0 ? 1.0 : -1.0) / (std::fabs(zeta) + std::sqrt(zeta * zeta + 1.0));
-                const double c = 1.0 / std::sqrt(t * t + 1.0), s = c * t;
-                for (std::size_t i = 0; i < m; ++i) {
-                    const double bp = b[i * n + p], bq = b[i * n + q];
-                    b[i * n + p] = c * bp - s * bq;
-                    b[i * n + q] = s * bp + c * bq;
+                for (std::size_t k = l; k < n; ++k) {           // A(j,k) += t[j]·rv1[k]
+                    const double r = rv1[k];
+                    double* Ck = &uc[k * m];
+                    for (std::size_t j = l; j < m; ++j) Ck[j] += tbuf[j] * r;
                 }
-                for (std::size_t i = 0; i < n; ++i) {
-                    const double vp = v[i * n + p], vq = v[i * n + q];
-                    v[i * n + p] = c * vp - s * vq;
-                    v[i * n + q] = s * vp + c * vq;
-                }
+                for (std::size_t k = l; k < n; ++k) uc[k * m + i] *= scale;
             }
         }
-        if (!rotated) break;
+        anorm = std::max(anorm, std::fabs(w[i]) + std::fabs(rv1[i]));
     }
-    std::vector<double> w(n), u(m * n);
-    for (std::size_t j = 0; j < n; ++j) {
-        double nrm = 0.0;
-        for (std::size_t i = 0; i < m; ++i) nrm += b[i * n + j] * b[i * n + j];
-        nrm = std::sqrt(nrm);
-        w[j] = nrm;
-        for (std::size_t i = 0; i < m; ++i) u[i * n + j] = nrm > 0 ? b[i * n + j] / nrm : 0.0;
+
+    // --- accumulate the right-hand transformations into V (column-major vc) ---
+    if (want_uv)
+    for (std::size_t i = n; i-- > 0;) {
+        const std::size_t l = i + 1;
+        if (l < n) {
+            if (g != 0.0) {
+                for (std::size_t j = l; j < n; ++j)            // V(j,i); double division guards overflow
+                    vc[i * n + j] = (uc[j * m + i] / uc[l * m + i]) / g;
+                for (std::size_t j = l; j < n; ++j) {
+                    double sum = 0.0;
+                    for (std::size_t k = l; k < n; ++k) sum += uc[k * m + i] * vc[j * n + k];
+                    for (std::size_t k = l; k < n; ++k) vc[j * n + k] += sum * vc[i * n + k];
+                }
+            }
+            for (std::size_t j = l; j < n; ++j) { vc[j * n + i] = 0.0; vc[i * n + j] = 0.0; }
+        }
+        vc[i * n + i] = 1.0;
+        g = rv1[i];
     }
+
+    // --- accumulate the left-hand transformations into U (held in uc) ---
+    if (want_uv)
+    for (std::size_t i = n; i-- > 0;) {   // min(m,n) == n since m >= n
+        const std::size_t l = i + 1;
+        g = w[i];
+        for (std::size_t j = l; j < n; ++j) uc[j * m + i] = 0.0;
+        double* Ui = &uc[i * m];
+        if (g != 0.0) {
+            g = 1.0 / g;
+            for (std::size_t j = l; j < n; ++j) {
+                double* Uj = &uc[j * m];
+                double sum = 0.0;
+                for (std::size_t k = l; k < m; ++k) sum += Ui[k] * Uj[k];   // contiguous → SIMD
+                const double f = (sum / Ui[i]) * g;
+                for (std::size_t k = i; k < m; ++k) Uj[k] += f * Ui[k];      // contiguous → SIMD
+            }
+            for (std::size_t k = i; k < m; ++k) Ui[k] *= g;
+        } else {
+            for (std::size_t k = i; k < m; ++k) Ui[k] = 0.0;
+        }
+        Ui[i] += 1.0;
+    }
+
+    // U (uc) and V (vc) are already column-major, so the QR sweep's whole-column
+    // rotations below are contiguous and vectorizable — no repacking needed.
+    // --- diagonalize the bidiagonal form: implicit-shift QR with deflation ---
+    const double eps = std::numeric_limits<double>::epsilon();
+    for (std::size_t k = n; k-- > 0;) {
+        for (int its = 0; its < 60; ++its) {
+            bool flag = true;
+            std::size_t l = k, nm = 0;
+            while (true) {                 // find a negligible super-diagonal to split at
+                if (l == 0) { flag = false; break; }     // rv1[0] is structurally 0
+                if (std::fabs(rv1[l]) <= eps * anorm) { flag = false; break; }
+                nm = l - 1;
+                if (std::fabs(w[nm]) <= eps * anorm) break;
+                --l;
+            }
+            if (flag) {                    // cancel rv1[l] via Givens rotations in U
+                double c = 0.0, s = 1.0;
+                for (std::size_t i = l; i <= k; ++i) {
+                    double f = s * rv1[i];
+                    rv1[i] = c * rv1[i];
+                    if (std::fabs(f) <= eps * anorm) break;
+                    double gg = w[i];
+                    double h = pythag(f, gg);
+                    w[i] = h; h = 1.0 / h;
+                    c = gg * h; s = -f * h;
+                    if (want_uv) {
+                        double* Unm = &uc[nm * m];
+                        double* Ui = &uc[i * m];
+                        for (std::size_t j = 0; j < m; ++j) {
+                            const double y = Unm[j], z = Ui[j];
+                            Unm[j] = y * c + z * s;
+                            Ui[j] = z * c - y * s;
+                        }
+                    }
+                }
+            }
+            double z = w[k];
+            if (l == k) {                  // converged: make the singular value non-negative
+                if (z < 0.0) {
+                    w[k] = -z;
+                    if (want_uv) { double* Vk = &vc[k * n]; for (std::size_t j = 0; j < n; ++j) Vk[j] = -Vk[j]; }
+                }
+                break;
+            }
+            if (its == 59) throw std::runtime_error("linalg: SVD did not converge");
+            double x = w[l];
+            nm = k - 1;
+            double y = w[nm], gg = rv1[nm], h = rv1[k];
+            double f = ((y - z) * (y + z) + (gg - h) * (gg + h)) / (2.0 * h * y);
+            gg = pythag(f, 1.0);
+            f = ((x - z) * (x + z) + h * ((y / (f + sign(gg, f))) - h)) / x;
+            double c = 1.0, s = 1.0;
+            for (std::size_t j = l; j <= nm; ++j) {  // QR sweep: chase the bulge
+                const std::size_t i = j + 1;
+                gg = rv1[i]; y = w[i]; h = s * gg; gg = c * gg;
+                z = pythag(f, h);
+                rv1[j] = z; c = f / z; s = h / z;
+                f = x * c + gg * s; gg = gg * c - x * s; h = y * s; y *= c;
+                if (want_uv) {
+                    double* Vj = &vc[j * n];
+                    double* Vi = &vc[i * n];
+                    for (std::size_t jj = 0; jj < n; ++jj) {  // rotate V columns j, i (contiguous)
+                        const double vx = Vj[jj], vz = Vi[jj];
+                        Vj[jj] = vx * c + vz * s;
+                        Vi[jj] = vz * c - vx * s;
+                    }
+                }
+                z = pythag(f, h);
+                w[j] = z;
+                if (z != 0.0) { z = 1.0 / z; c = f * z; s = h * z; }
+                f = c * gg + s * y; x = c * y - s * gg;
+                if (want_uv) {
+                    double* Uj = &uc[j * m];
+                    double* Ui = &uc[i * m];
+                    for (std::size_t jj = 0; jj < m; ++jj) {  // rotate U columns j, i (contiguous)
+                        const double uy = Uj[jj], uz = Ui[jj];
+                        Uj[jj] = uy * c + uz * s;
+                        Ui[jj] = uz * c - uy * s;
+                    }
+                }
+            }
+            rv1[l] = 0.0; rv1[k] = f; w[k] = x;
+        }
+    }
+
+    // singular values come out non-negative but unordered — sort descending, carrying
+    // the matching columns of U and V (read straight from the column-major buffers).
     std::vector<std::size_t> idx(n);
     for (std::size_t i = 0; i < n; ++i) idx[i] = i;
     std::sort(idx.begin(), idx.end(), [&](std::size_t x, std::size_t y) { return w[x] > w[y]; });
-    SVDc out{std::vector<double>(m * n), std::vector<double>(n), std::vector<double>(n * n), m, n};
-    for (std::size_t j = 0; j < n; ++j) {
-        const std::size_t src = idx[j];
-        out.w[j] = w[src];
-        for (std::size_t i = 0; i < m; ++i) out.u[i * n + j] = u[i * n + src];
-        for (std::size_t i = 0; i < n; ++i) out.v[i * n + j] = v[i * n + src];
-    }
+    SVDc out{std::vector<double>(want_uv ? m * n : 0), std::vector<double>(n),
+             std::vector<double>(want_uv ? n * n : 0), m, n};
+    for (std::size_t j = 0; j < n; ++j) out.w[j] = w[idx[j]];
+    if (want_uv)
+        for (std::size_t j = 0; j < n; ++j) {
+            const std::size_t src = idx[j];
+            const double* Uc = &uc[src * m];
+            for (std::size_t i = 0; i < m; ++i) out.u[i * n + j] = Uc[i];
+            const double* Vc = &vc[src * n];
+            for (std::size_t i = 0; i < n; ++i) out.v[i * n + j] = Vc[i];
+        }
     return out;
 }
 
-// ---- cyclic Jacobi for a real symmetric matrix ----
-void jacobi_symmetric(std::vector<double> a, std::size_t n, std::vector<double>& values,
-                      std::vector<double>& vectors) {
-    std::vector<double> v(n * n, 0.0);
-    for (std::size_t i = 0; i < n; ++i) v[i * n + i] = 1.0;
-    for (int sweep = 0; sweep < 100; ++sweep) {
-        double off = 0.0;
-        for (std::size_t p = 0; p < n; ++p)
-            for (std::size_t q = p + 1; q < n; ++q) off += a[p * n + q] * a[p * n + q];
-        if (off == 0.0) break;
-        for (std::size_t p = 0; p < n; ++p) {
-            for (std::size_t q = p + 1; q < n; ++q) {
-                const double apq = a[p * n + q];
-                if (apq == 0.0) continue;
-                const double theta = (a[q * n + q] - a[p * n + p]) / (2.0 * apq);
-                const double t = (theta >= 0 ? 1.0 : -1.0) / (std::fabs(theta) + std::sqrt(theta * theta + 1.0));
-                const double c = 1.0 / std::sqrt(t * t + 1.0), s = t * c, tau = s / (1.0 + c);
-                a[p * n + p] -= t * apq;
-                a[q * n + q] += t * apq;
-                a[p * n + q] = a[q * n + p] = 0.0;
-                for (std::size_t r = 0; r < n; ++r) {
-                    if (r == p || r == q) continue;
-                    const double arp = a[r * n + p], arq = a[r * n + q];
-                    a[r * n + p] = a[p * n + r] = arp - s * (arq + tau * arp);
-                    a[r * n + q] = a[q * n + r] = arq + s * (arp - tau * arq);
+// ---- real symmetric eigensolver: Householder tridiagonalization (tred2) + ----
+// ---- implicit-shift QL (tql2). ------------------------------------------------
+// The O(n³) method LAPACK uses (one reduction + a QL sweep that converges in O(n)
+// rotations), far cheaper than cyclic Jacobi's repeated full-matrix sweeps. `a` is a
+// row-major n×n matrix ASSUMED symmetric (only the working triangle is used). Returns
+// eigenvalues DESCENDING in `values`, with the matching orthonormal eigenvector as
+// column j of the row-major `vectors` (vectors[i*n+j] = component i of eigenvector j).
+void symmetric_eig(std::vector<double> z, std::size_t n, std::vector<double>& values,
+                   std::vector<double>& vectors, bool want_vectors = true) {
+    values.assign(n, 0.0);
+    vectors.assign(want_vectors ? n * n : 0, 0.0);
+    if (n == 0) return;
+    if (n == 1) { values[0] = z[0]; if (want_vectors) vectors[0] = 1.0; return; }
+
+    std::vector<double> d(n, 0.0), e(n, 0.0);
+
+    // --- tred2: reduce symmetric z -> tridiagonal (d diagonal, e subdiagonal),
+    //     leaving the accumulated orthogonal transform in z. ---
+    for (std::size_t i = n - 1; i >= 1; --i) {
+        const std::size_t l = i - 1;
+        double h = 0.0;
+        if (l > 0) {
+            double scale = 0.0;
+            for (std::size_t k = 0; k <= l; ++k) scale += std::fabs(z[i * n + k]);
+            if (scale == 0.0) {
+                e[i] = z[i * n + l];
+            } else {
+                for (std::size_t k = 0; k <= l; ++k) {
+                    z[i * n + k] /= scale;
+                    h += z[i * n + k] * z[i * n + k];
                 }
-                for (std::size_t r = 0; r < n; ++r) {
-                    const double vrp = v[r * n + p], vrq = v[r * n + q];
-                    v[r * n + p] = vrp - s * (vrq + tau * vrp);
-                    v[r * n + q] = vrq + s * (vrp - tau * vrq);
+                double f = z[i * n + l];
+                double g = (f >= 0.0) ? -std::sqrt(h) : std::sqrt(h);
+                e[i] = scale * g;
+                h -= f * g;
+                z[i * n + l] = f - g;
+                f = 0.0;
+                for (std::size_t j = 0; j <= l; ++j) {
+                    z[j * n + i] = z[i * n + j] / h;   // store u/h in column i
+                    g = 0.0;
+                    for (std::size_t k = 0; k <= j; ++k) g += z[j * n + k] * z[i * n + k];
+                    for (std::size_t k = j + 1; k <= l; ++k) g += z[k * n + j] * z[i * n + k];
+                    e[j] = g / h;
+                    f += e[j] * z[i * n + j];
+                }
+                const double hh = f / (h + h);
+                for (std::size_t j = 0; j <= l; ++j) {
+                    f = z[i * n + j];
+                    g = e[j] - hh * f;
+                    e[j] = g;
+                    for (std::size_t k = 0; k <= j; ++k)
+                        z[j * n + k] -= (f * e[k] + g * z[i * n + k]);
                 }
             }
+        } else {
+            e[i] = z[i * n + l];
         }
+        d[i] = h;
     }
+    d[0] = 0.0;
+    e[0] = 0.0;
+    if (want_vectors) {
+        for (std::size_t i = 0; i < n; ++i) {       // accumulate the transform into z
+            if (d[i] != 0.0) {
+                for (std::size_t j = 0; j < i; ++j) {
+                    double g = 0.0;
+                    for (std::size_t k = 0; k < i; ++k) g += z[i * n + k] * z[k * n + j];
+                    for (std::size_t k = 0; k < i; ++k) z[k * n + j] -= g * z[k * n + i];
+                }
+            }
+            d[i] = z[i * n + i];
+            z[i * n + i] = 1.0;
+            for (std::size_t j = 0; j < i; ++j) { z[j * n + i] = 0.0; z[i * n + j] = 0.0; }
+        }
+    } else {
+        for (std::size_t i = 0; i < n; ++i) d[i] = z[i * n + i];  // values only — skip Q
+    }
+
+    // --- tql2: implicit-shift QL on the tridiagonal (d, e), rotating z alongside. ---
+    for (std::size_t i = 1; i < n; ++i) e[i - 1] = e[i];
+    e[n - 1] = 0.0;
+    for (std::size_t l = 0; l < n; ++l) {
+        int iter = 0;
+        std::size_t m;
+        do {
+            for (m = l; m + 1 < n; ++m) {
+                const double dd = std::fabs(d[m]) + std::fabs(d[m + 1]);
+                if (std::fabs(e[m]) <= 2.2e-16 * dd) break;
+            }
+            if (m != l) {
+                if (iter++ == 50)
+                    throw std::runtime_error("linalg: symmetric eigen QL did not converge");
+                double g = (d[l + 1] - d[l]) / (2.0 * e[l]);
+                double r = pythag(g, 1.0);
+                g = d[m] - d[l] + e[l] / (g + (g >= 0.0 ? std::fabs(r) : -std::fabs(r)));
+                double s = 1.0, c = 1.0, p = 0.0;
+                bool zeroed = false;
+                for (std::size_t i = m; i-- > l;) {        // i = m-1 … l
+                    double f = s * e[i];
+                    const double b = c * e[i];
+                    r = pythag(f, g);
+                    e[i + 1] = r;
+                    if (r == 0.0) { d[i + 1] -= p; e[m] = 0.0; zeroed = true; break; }
+                    s = f / r;
+                    c = g / r;
+                    g = d[i + 1] - p;
+                    r = (d[i] - g) * s + 2.0 * c * b;
+                    p = s * r;
+                    d[i + 1] = g + p;
+                    g = c * r - b;
+                    if (want_vectors)
+                        for (std::size_t k = 0; k < n; ++k) {   // rotate eigenvector columns
+                            f = z[k * n + i + 1];
+                            z[k * n + i + 1] = s * z[k * n + i] + c * f;
+                            z[k * n + i] = c * z[k * n + i] - s * f;
+                        }
+                }
+                if (!zeroed) { d[l] -= p; e[l] = g; e[m] = 0.0; }
+            }
+        } while (m != l);
+    }
+
+    // sort DESCENDING, carrying the matching eigenvector columns.
     std::vector<std::size_t> idx(n);
     for (std::size_t i = 0; i < n; ++i) idx[i] = i;
-    std::sort(idx.begin(), idx.end(), [&](std::size_t x, std::size_t y) { return a[x * n + x] > a[y * n + y]; });
-    values.resize(n);
-    vectors.assign(n * n, 0.0);
-    for (std::size_t j = 0; j < n; ++j) {
-        values[j] = a[idx[j] * n + idx[j]];
-        for (std::size_t i = 0; i < n; ++i) vectors[i * n + j] = v[i * n + idx[j]];
-    }
+    std::sort(idx.begin(), idx.end(), [&](std::size_t x, std::size_t y) { return d[x] > d[y]; });
+    for (std::size_t j = 0; j < n; ++j) values[j] = d[idx[j]];
+    if (want_vectors)
+        for (std::size_t j = 0; j < n; ++j)
+            for (std::size_t i = 0; i < n; ++i) vectors[i * n + j] = z[i * n + idx[j]];
 }
 
 bool is_symmetric(const std::vector<double>& a, std::size_t n) {
@@ -282,7 +580,7 @@ bool is_symmetric(const std::vector<double>& a, std::size_t n) {
 }
 
 // Complex Hermitian eigensolver with REAL eigenvalues and COMPLEX eigenvectors,
-// reusing the real symmetric Jacobi solver via the standard 2n×2n real embedding:
+// reusing the real symmetric tridiagonal-QL solver via the standard 2n×2n real embedding:
 // for H = A + iB (A symmetric, B antisymmetric), the real symmetric matrix
 //   M = [[A, -B], [B, A]]
 // has each eigenvalue of H twice, and a real eigenvector [x; y] of M corresponds to
@@ -302,7 +600,7 @@ void hermitian_eig(const std::vector<Cplx>& H, std::size_t n, std::vector<double
             M[(i + n) * N + j] = im;            // bottom-left B
         }
     std::vector<double> w, V;
-    jacobi_symmetric(M, N, w, V);               // 2n eigenvalues (desc, paired) + vectors
+    symmetric_eig(M, N, w, V, want_vectors); // 2n eigenvalues (desc, paired) + vectors
     evals.resize(n);
     for (std::size_t k = 0; k < n; ++k) evals[k] = w[2 * k];  // one of each equal pair
     if (want_vectors) {
@@ -317,38 +615,46 @@ void hermitian_eig(const std::vector<Cplx>& H, std::size_t n, std::vector<double
     }
 }
 
-// Solve the complex linear system M·x = b (M row-major n×n) by LU with partial
-// pivoting. Used by inverse iteration; M there is deliberately near-singular, which
-// LU handles (it yields a large solution pointing along the eigenvector).
-std::vector<Cplx> complex_solve(std::vector<Cplx> M, std::vector<Cplx> b, std::size_t n) {
+// Complex LU with partial pivoting, factored in place on M (row-major n×n): the unit
+// lower factor's multipliers are stored below the diagonal, U on/above it. Returns the
+// pivot vector. Factor ONCE, then `complex_lu_solve` for each right-hand side — inverse
+// iteration reuses the same (deliberately near-singular) M across several RHS.
+std::vector<std::size_t> complex_lu(std::vector<Cplx>& M, std::size_t n) {
+    std::vector<std::size_t> piv(n);
     for (std::size_t k = 0; k < n; ++k) {
-        std::size_t piv = k;
+        std::size_t p = k;
         double best = std::abs(M[k * n + k]);
         for (std::size_t i = k + 1; i < n; ++i) {
             const double m = std::abs(M[i * n + k]);
-            if (m > best) {
-                best = m;
-                piv = i;
-            }
+            if (m > best) { best = m; p = i; }
         }
-        if (piv != k) {
-            for (std::size_t j = 0; j < n; ++j) std::swap(M[k * n + j], M[piv * n + j]);
-            std::swap(b[k], b[piv]);
-        }
+        piv[k] = p;
+        if (p != k)
+            for (std::size_t j = 0; j < n; ++j) std::swap(M[k * n + j], M[p * n + j]);
         const Cplx d = M[k * n + k];
         for (std::size_t i = k + 1; i < n; ++i) {
             const Cplx f = M[i * n + k] / d;
-            for (std::size_t j = k; j < n; ++j) M[i * n + j] -= f * M[k * n + j];
-            b[i] -= f * b[k];
+            M[i * n + k] = f;
+            for (std::size_t j = k + 1; j < n; ++j) M[i * n + j] -= f * M[k * n + j];
         }
     }
-    std::vector<Cplx> x(n);
-    for (std::size_t ii = n; ii-- > 0;) {
-        Cplx s = b[ii];
-        for (std::size_t j = ii + 1; j < n; ++j) s -= M[ii * n + j] * x[j];
-        x[ii] = s / M[ii * n + ii];
+    return piv;
+}
+// Solve (already-factored) M·x = b in place on @p b (forward unit-L, then back-U).
+void complex_lu_solve(const std::vector<Cplx>& M, const std::vector<std::size_t>& piv,
+                      std::vector<Cplx>& b, std::size_t n) {
+    for (std::size_t k = 0; k < n; ++k)
+        if (piv[k] != k) std::swap(b[k], b[piv[k]]);
+    for (std::size_t i = 0; i < n; ++i) {
+        Cplx s = b[i];
+        for (std::size_t j = 0; j < i; ++j) s -= M[i * n + j] * b[j];
+        b[i] = s;
     }
-    return x;
+    for (std::size_t i = n; i-- > 0;) {
+        Cplx s = b[i];
+        for (std::size_t j = i + 1; j < n; ++j) s -= M[i * n + j] * b[j];
+        b[i] = s / M[i * n + i];
+    }
 }
 
 // Eigenvector of the real matrix @p A for (complex) eigenvalue @p lambda, by inverse
@@ -371,12 +677,12 @@ std::vector<Cplx> eigvector_inverse_iteration(const std::vector<double>& A, std:
         nrm = std::sqrt(nrm);
         for (Cplx& z : x) z /= nrm;
     };
+    const std::vector<std::size_t> piv = complex_lu(C, n);  // factor ONCE, reuse per step
     std::vector<Cplx> v(n, Cplx(1.0, 0.0));
     normalize(v);
     for (int it = 0; it < 5; ++it) {
-        std::vector<Cplx> w = complex_solve(C, v, n);
-        normalize(w);
-        v = std::move(w);
+        complex_lu_solve(C, piv, v, n);  // in place on v — no per-step copy or re-factor
+        normalize(v);
     }
     std::size_t mi = 0;
     double mb = 0.0;
@@ -398,12 +704,12 @@ std::vector<Cplx> eigvector_inverse_iteration(const std::vector<double>& A, std:
 // eigenvalues are complex.
 std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
     // Householder reduction to upper Hessenberg.
+    std::vector<double> u(n);  // reflector, reused per column (entries < k unused)
     for (std::size_t k = 1; k + 1 < n; ++k) {
         double scale = 0.0;
         for (std::size_t i = k; i < n; ++i) scale += std::fabs(a[i * n + (k - 1)]);
         if (scale == 0.0) continue;
         double h = 0.0;
-        std::vector<double> u(n, 0.0);
         for (std::size_t i = k; i < n; ++i) {
             u[i] = a[i * n + (k - 1)] / scale;
             h += u[i] * u[i];
@@ -431,6 +737,7 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
     // Shifted QR on the Hessenberg matrix. A 1×1 block is a real eigenvalue; a 2×2
     // block is two reals (disc ≥ 0) or a complex conjugate pair (disc < 0).
     std::vector<Cplx> w(n);
+    std::vector<double> cs, sn;  // Givens rotations, reused per QR sweep (clear keeps capacity)
     long long hi = static_cast<long long>(n) - 1;
     const double eps = 1e-14;
     int iter = 0;
@@ -467,10 +774,11 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
             const double shift = a[hi * n + hi];
             for (long long i = l; i <= hi; ++i) a[i * n + i] -= shift;
             // one explicit QR step via Givens rotations on the Hessenberg block
-            std::vector<double> cs, sn;
+            cs.clear();
+            sn.clear();
             for (long long i = l; i < hi; ++i) {
                 const double x = a[i * n + i], y = a[(i + 1) * n + i];
-                const double r = std::hypot(x, y);
+                const double r = pythag(x, y);
                 const double c = r == 0 ? 1.0 : x / r, s = r == 0 ? 0.0 : y / r;
                 cs.push_back(c);
                 sn.push_back(s);
@@ -499,39 +807,85 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
 // ================= public routines =================
 
 // ---- products ----
-double dot(const NDArray& a, const NDArray& b) {
-    std::size_t n, m;
-    const std::vector<double> x = as_vector(a, n), y = as_vector(b, m);
-    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
-    double s = 0.0;
-    for (std::size_t i = 0; i < n; ++i) s += x[i] * y[i];
+// The products only READ their operands, so they take a zero-copy `contig` pointer
+// (straight into the array's own buffer when it is contiguous — the common case)
+// and allocate nothing but the result.
+//
+// Reduction kernels use several independent accumulators. A single running sum
+// serializes the loop on floating-point-add latency (the compiler may not reassociate
+// FP adds without -ffast-math), so a plain `s += x[i]*y[i]` runs at ~one element per
+// FADD latency. Independent lanes break that dependency chain, letting -O3
+// -march=native issue SIMD + FMA and hit memory bandwidth instead of add latency.
+double ddot(const double* x, const double* y, std::size_t n) {
+    double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+    std::size_t i = 0;
+    for (; i + 4 <= n; i += 4) {
+        s0 += x[i] * y[i];
+        s1 += x[i + 1] * y[i + 1];
+        s2 += x[i + 2] * y[i + 2];
+        s3 += x[i + 3] * y[i + 3];
+    }
+    double s = (s0 + s1) + (s2 + s3);
+    for (; i < n; ++i) s += x[i] * y[i];
     return s;
+}
+
+double dot(const NDArray& a, const NDArray& b) {
+    const std::size_t n = vector_len(a), m = vector_len(b);
+    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
+    std::vector<double> sa, sb;
+    const double* x = contig(a, sa);
+    const double* y = contig(b, sb);
+    return ddot(x, y, n);
 }
 double vdot(const NDArray& a, const NDArray& b) { return dot(a, b); }
 double inner(const NDArray& a, const NDArray& b) { return dot(a, b); }
 
 // Complex products. `dot`/`inner` are bilinear (Σ aᵢbᵢ, no conjugation, like numpy);
 // `vdot` is the conjugate-linear Hermitian inner product Σ conj(aᵢ)·bᵢ = ⟨a, b⟩.
-Cplx dot(const CNDArray& a, const CNDArray& b) {
-    std::size_t n, m;
-    const std::vector<Cplx> x = as_cvector(a, n), y = as_cvector(b, m);
-    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
-    Cplx s{};
-    for (std::size_t i = 0; i < n; ++i) s += x[i] * y[i];
+// Zero-copy reads (no `as_cvector`) with the same multi-accumulator reduction.
+Cplx cdot(const Cplx* x, const Cplx* y, std::size_t n, bool conjugate) {
+    Cplx s0{}, s1{}, s2{}, s3{};
+    std::size_t i = 0;
+    for (; i + 4 <= n; i += 4) {
+        if (conjugate) {
+            s0 += std::conj(x[i]) * y[i];
+            s1 += std::conj(x[i + 1]) * y[i + 1];
+            s2 += std::conj(x[i + 2]) * y[i + 2];
+            s3 += std::conj(x[i + 3]) * y[i + 3];
+        } else {
+            s0 += x[i] * y[i];
+            s1 += x[i + 1] * y[i + 1];
+            s2 += x[i + 2] * y[i + 2];
+            s3 += x[i + 3] * y[i + 3];
+        }
+    }
+    Cplx s = (s0 + s1) + (s2 + s3);
+    for (; i < n; ++i) s += (conjugate ? std::conj(x[i]) : x[i]) * y[i];
     return s;
 }
-Cplx vdot(const CNDArray& a, const CNDArray& b) {
-    std::size_t n, m;
-    const std::vector<Cplx> x = as_cvector(a, n), y = as_cvector(b, m);
+Cplx dot(const CNDArray& a, const CNDArray& b) {
+    const std::size_t n = vector_len(a), m = vector_len(b);
     if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
-    Cplx s{};
-    for (std::size_t i = 0; i < n; ++i) s += std::conj(x[i]) * y[i];
-    return s;
+    std::vector<Cplx> sa, sb;
+    const Cplx* x = contig(a, sa);
+    const Cplx* y = contig(b, sb);
+    return cdot(x, y, n, /*conjugate=*/false);
+}
+Cplx vdot(const CNDArray& a, const CNDArray& b) {
+    const std::size_t n = vector_len(a), m = vector_len(b);
+    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
+    std::vector<Cplx> sa, sb;
+    const Cplx* x = contig(a, sa);
+    const Cplx* y = contig(b, sb);
+    return cdot(x, y, n, /*conjugate=*/true);
 }
 
 NDArray outer(const NDArray& a, const NDArray& b) {
-    std::size_t n, m;
-    const std::vector<double> x = as_vector(a, n), y = as_vector(b, m);
+    const std::size_t n = vector_len(a), m = vector_len(b);
+    std::vector<double> sa, sb;
+    const double* x = contig(a, sa);
+    const double* y = contig(b, sb);
     std::vector<double> r(n * m);
     for (std::size_t i = 0; i < n; ++i)
         for (std::size_t j = 0; j < m; ++j) r[i * m + j] = x[i] * y[j];
@@ -539,10 +893,14 @@ NDArray outer(const NDArray& a, const NDArray& b) {
 }
 
 NDArray matmul(const NDArray& a, const NDArray& b) {
-    std::size_t ar, ac, br, bc;
-    const std::vector<double> A = as_matrix(a, ar, ac);
-    const std::vector<double> B = as_matrix(b, br, bc);
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: matmul expects 2-D matrices");
+    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
+    const std::size_t br = b.shape()[0], bc = b.shape()[1];
     if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
+    std::vector<double> sa, sb;
+    const double* A = contig(a, sa);  // zero-copy when contiguous
+    const double* B = contig(b, sb);
     std::vector<double> C(ar * bc, 0.0);
     for (std::size_t i = 0; i < ar; ++i)  // ikj order -> contiguous inner loop (vectorizes)
         for (std::size_t k = 0; k < ac; ++k) {
@@ -553,10 +911,14 @@ NDArray matmul(const NDArray& a, const NDArray& b) {
 }
 
 CNDArray matmul(const CNDArray& a, const CNDArray& b) {
-    std::size_t ar, ac, br, bc;
-    const std::vector<Cplx> A = as_cmatrix(a, ar, ac);
-    const std::vector<Cplx> B = as_cmatrix(b, br, bc);
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: matmul expects 2-D matrices");
+    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
+    const std::size_t br = b.shape()[0], bc = b.shape()[1];
     if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
+    std::vector<Cplx> sa, sb;
+    const Cplx* A = contig(a, sa);  // zero-copy when contiguous
+    const Cplx* B = contig(b, sb);
     std::vector<Cplx> C(ar * bc, Cplx{});
     for (std::size_t i = 0; i < ar; ++i)
         for (std::size_t k = 0; k < ac; ++k) {
@@ -568,8 +930,10 @@ CNDArray matmul(const CNDArray& a, const CNDArray& b) {
 
 // Conjugate transpose (Hermitian adjoint) Aᴴ: transpose, then conjugate every entry.
 CNDArray conj_transpose(const CNDArray& a) {
-    std::size_t r, c;
-    const std::vector<Cplx> A = as_cmatrix(a, r, c);
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t r = a.shape()[0], c = a.shape()[1];
+    std::vector<Cplx> sa;
+    const Cplx* A = contig(a, sa);  // read-only — zero-copy when contiguous
     std::vector<Cplx> T(c * r);
     for (std::size_t i = 0; i < r; ++i)
         for (std::size_t j = 0; j < c; ++j) T[j * r + i] = std::conj(A[i * c + j]);
@@ -577,12 +941,12 @@ CNDArray conj_transpose(const CNDArray& a) {
 }
 
 NDArray matrix_power(const NDArray& a, long long p) {
-    std::size_t r, c;
-    as_matrix(a, r, c);
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t r = a.shape()[0], c = a.shape()[1];  // dims only — no copy
     require_square(r, c);
     std::vector<double> result(r * r, 0.0);
     for (std::size_t i = 0; i < r; ++i) result[i * r + i] = 1.0;  // identity
-    NDArray acc = make_matrix(r, r, result);
+    NDArray acc = make_matrix(r, r, std::move(result));
     NDArray base = (p < 0) ? inv(a) : a;
     long long e = p < 0 ? -p : p;
     while (e > 0) {
@@ -594,9 +958,13 @@ NDArray matrix_power(const NDArray& a, long long p) {
 }
 
 NDArray kron(const NDArray& a, const NDArray& b) {
-    std::size_t ar, ac, br, bc;
-    const std::vector<double> A = as_matrix(a, ar, ac);
-    const std::vector<double> B = as_matrix(b, br, bc);
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: kron expects 2-D matrices");
+    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
+    const std::size_t br = b.shape()[0], bc = b.shape()[1];
+    std::vector<double> sa, sb;
+    const double* A = contig(a, sa);  // read-only — zero-copy when contiguous
+    const double* B = contig(b, sb);
     std::vector<double> K(ar * br * ac * bc, 0.0);
     const std::size_t kc = ac * bc;
     for (std::size_t i = 0; i < ar; ++i)
@@ -608,24 +976,24 @@ NDArray kron(const NDArray& a, const NDArray& b) {
 }
 
 double trace(const NDArray& a) {
-    std::size_t r, c;
-    const std::vector<double> A = as_matrix(a, r, c);
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t r = a.shape()[0], c = a.shape()[1];
+    // Read the diagonal straight from the buffer — no copy, even for a strided view.
+    const double* base = a.buffer()->data();
+    const std::ptrdiff_t off = static_cast<std::ptrdiff_t>(a.offset());
+    const std::ptrdiff_t step = a.strides()[0] + a.strides()[1];  // (i,i) advances by s0+s1
     double s = 0.0;
-    for (std::size_t i = 0; i < std::min(r, c); ++i) s += A[i * c + i];
+    for (std::size_t i = 0; i < std::min(r, c); ++i)
+        s += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
     return s;
 }
 
-double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors)
+double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same flat sum
+    std::vector<double> scratch;
+    const double* p = contig(a, scratch);  // zero-copy when contiguous
+    const std::size_t n = a.size();
     double s = 0.0;
-    if (a.ndim() <= 1) {
-        std::size_t n;
-        const std::vector<double> v = as_vector(a, n);
-        for (double x : v) s += x * x;
-    } else {
-        std::size_t r, c;
-        const std::vector<double> m = as_matrix(a, r, c);
-        for (double x : m) s += x * x;
-    }
+    for (std::size_t i = 0; i < n; ++i) s += p[i] * p[i];
     return std::sqrt(s);
 }
 
@@ -671,14 +1039,31 @@ NDArray inv(const NDArray& a) {
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     const LU lu = lu_decompose(std::move(A), n);
-    std::vector<double> result(n * n, 0.0);
-    for (std::size_t col = 0; col < n; ++col) {
-        std::vector<double> e(n, 0.0);
-        e[col] = 1.0;
-        lu_solve(lu, e);
-        for (std::size_t i = 0; i < n; ++i) result[i * n + col] = e[i];
+    const std::vector<double>& M = lu.a;  // L (unit, below diag) + U (on/above), row-major
+    // Invert by solving L·U·X = P·I for the WHOLE identity at once. Doing the forward
+    // and back substitution across all n columns turns each inner loop into a SAXPY
+    // over a contiguous row (`X[i,:] -= M[i,j]·X[j,:]`), which auto-vectorizes — unlike
+    // n separate single-RHS solves, whose substitution is a serial-reduction dot that
+    // cannot vectorize (the reason a naive `inv` lost to LAPACK while `det` won).
+    std::vector<double> X(n * n, 0.0);
+    for (std::size_t i = 0; i < n; ++i) X[i * n + i] = 1.0;   // identity
+    for (std::size_t k = 0; k < n; ++k)                       // apply LU's row pivots: X = P·I
+        if (lu.piv[k] != k)
+            for (std::size_t col = 0; col < n; ++col) std::swap(X[k * n + col], X[lu.piv[k] * n + col]);
+    for (std::size_t i = 0; i < n; ++i)                       // forward: unit-lower L·Y = P
+        for (std::size_t j = 0; j < i; ++j) {
+            const double f = M[i * n + j];
+            for (std::size_t col = 0; col < n; ++col) X[i * n + col] -= f * X[j * n + col];
+        }
+    for (std::size_t i = n; i-- > 0;) {                       // back: upper U·X = Y
+        for (std::size_t j = i + 1; j < n; ++j) {
+            const double f = M[i * n + j];
+            for (std::size_t col = 0; col < n; ++col) X[i * n + col] -= f * X[j * n + col];
+        }
+        const double d = M[i * n + i];
+        for (std::size_t col = 0; col < n; ++col) X[i * n + col] /= d;
     }
-    return make_matrix(n, n, std::move(result));
+    return make_matrix(n, n, std::move(X));
 }
 
 NDArray lstsq(const NDArray& a, const NDArray& b) {  // min ‖Ax−b‖ via the pseudo-inverse
@@ -687,9 +1072,11 @@ NDArray lstsq(const NDArray& a, const NDArray& b) {  // min ‖Ax−b‖ via the
 
 // ---- Cholesky ----
 NDArray cholesky(const NDArray& a) {
-    std::size_t n, c;
-    const std::vector<double> A = as_matrix(a, n, c);
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t n = a.shape()[0], c = a.shape()[1];
     require_square(n, c);
+    std::vector<double> scratch;
+    const double* A = contig(a, scratch);  // read-only — zero-copy when contiguous
     std::vector<double> L(n * n, 0.0);
     for (std::size_t i = 0; i < n; ++i) {
         for (std::size_t j = 0; j <= i; ++j) {
@@ -713,13 +1100,13 @@ QR qr(const NDArray& a) {
     if (m < n) throw std::runtime_error("linalg: qr requires rows >= cols");
     std::vector<double> Q(m * m, 0.0);
     for (std::size_t i = 0; i < m; ++i) Q[i * m + i] = 1.0;
+    std::vector<double> u(m);  // Householder vector, reused per column (entries < k unused)
     for (std::size_t k = 0; k < n; ++k) {
         double nrm = 0.0;
         for (std::size_t i = k; i < m; ++i) nrm += A[i * n + k] * A[i * n + k];
         nrm = std::sqrt(nrm);
         if (nrm == 0.0) continue;
         const double alpha = A[k * n + k] >= 0 ? -nrm : nrm;
-        std::vector<double> u(m, 0.0);
         for (std::size_t i = k; i < m; ++i) u[i] = A[i * n + k];
         u[k] -= alpha;
         double unorm2 = 0.0;
@@ -751,7 +1138,7 @@ SVD svd(const NDArray& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: svd requires rows >= cols (transpose otherwise)");
-    const SVDc s = svd_jacobi(std::move(A), m, n);
+    const SVDc s = svd_golub_reinsch(std::move(A), m, n);
     // vh = Vᵀ
     std::vector<double> vh(n * n);
     for (std::size_t i = 0; i < n; ++i)
@@ -759,11 +1146,26 @@ SVD svd(const NDArray& a) {
     return {make_matrix(m, n, s.u), make_vector(s.w), make_matrix(n, n, std::move(vh))};
 }
 
+NDArray svdvals(const NDArray& a) {  // singular values only — skips the U/V work entirely
+    std::size_t m, n;
+    std::vector<double> A = as_matrix(a, m, n);
+    SVDc s;
+    if (m >= n) {
+        s = svd_golub_reinsch(std::move(A), m, n, /*want_uv=*/false);
+    } else {                          // A and Aᵀ share singular values; reduce the tall one
+        std::vector<double> At(n * m);
+        for (std::size_t i = 0; i < m; ++i)
+            for (std::size_t j = 0; j < n; ++j) At[j * m + i] = A[i * n + j];
+        s = svd_golub_reinsch(std::move(At), n, m, /*want_uv=*/false);
+    }
+    return make_vector(std::move(s.w));
+}
+
 NDArray pinv(const NDArray& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m >= n) {
-        const SVDc s = svd_jacobi(std::move(A), m, n);  // A = U(m×n) diag(w) V(n×n)ᵀ
+        const SVDc s = svd_golub_reinsch(std::move(A), m, n);  // A = U(m×n) diag(w) V(n×n)ᵀ
         const double tsh = 0.5 * std::sqrt(double(m + n + 1)) * (s.w.empty() ? 0 : s.w[0]) * 1e-15;
         std::vector<double> p(n * m, 0.0);  // pinv = V diag(1/w) Uᵀ  -> n×m
         for (std::size_t i = 0; i < n; ++i)
@@ -779,7 +1181,7 @@ NDArray pinv(const NDArray& a) {
     std::vector<double> At(n * m);
     for (std::size_t i = 0; i < m; ++i)
         for (std::size_t j = 0; j < n; ++j) At[j * m + i] = A[i * n + j];
-    const SVDc s = svd_jacobi(std::move(At), n, m);  // Aᵀ = U(n×m) diag(w) V(m×m)ᵀ
+    const SVDc s = svd_golub_reinsch(std::move(At), n, m);  // Aᵀ = U(n×m) diag(w) V(m×m)ᵀ
     const double tsh = 0.5 * std::sqrt(double(n + m + 1)) * (s.w.empty() ? 0 : s.w[0]) * 1e-15;
     std::vector<double> res(n * m, 0.0);  // pinv(A) = (V diag(1/w) Uᵀ)ᵀ -> n×m
     for (std::size_t i = 0; i < m; ++i)
@@ -797,12 +1199,12 @@ double cond(const NDArray& a) {
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
     if (m >= n) {
-        s = svd_jacobi(std::move(A), m, n);
+        s = svd_golub_reinsch(std::move(A), m, n, /*want_uv=*/false);
     } else {
         std::vector<double> At(n * m);
         for (std::size_t i = 0; i < m; ++i)
             for (std::size_t j = 0; j < n; ++j) At[j * m + i] = A[i * n + j];
-        s = svd_jacobi(std::move(At), n, m);
+        s = svd_golub_reinsch(std::move(At), n, m, /*want_uv=*/false);
     }
     const double wmin = s.w.empty() ? 0 : s.w.back();
     return wmin == 0 ? std::numeric_limits<double>::infinity() : s.w.front() / wmin;
@@ -817,9 +1219,9 @@ long long matrix_rank(const NDArray& a) {
         std::vector<double> At(n * m);
         for (std::size_t i = 0; i < m; ++i)
             for (std::size_t j = 0; j < n; ++j) At[j * m + i] = A[i * n + j];
-        s = svd_jacobi(std::move(At), n, m);
+        s = svd_golub_reinsch(std::move(At), n, m, /*want_uv=*/false);
     } else {
-        s = svd_jacobi(std::move(A), m, n);
+        s = svd_golub_reinsch(std::move(A), m, n, /*want_uv=*/false);
     }
     const double tsh = 0.5 * std::sqrt(double(m + n + 1)) * (s.w.empty() ? 0 : s.w[0]) * 1e-15;
     long long r = 0;
@@ -831,18 +1233,18 @@ long long matrix_rank(const NDArray& a) {
 // ---- eigenvalues ----
 Eig eigh(const NDArray& a) {
     std::size_t n, c;
-    const std::vector<double> A = as_matrix(a, n, c);
+    std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<double> vals, vecs;
-    jacobi_symmetric(A, n, vals, vecs);
+    symmetric_eig(std::move(A), n, vals, vecs);  // solver owns the copy — no second one
     return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
 }
 NDArray eigvalsh(const NDArray& a) {
     std::size_t n, c;
-    const std::vector<double> A = as_matrix(a, n, c);
+    std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<double> vals, vecs;
-    jacobi_symmetric(A, n, vals, vecs);
+    symmetric_eig(std::move(A), n, vals, vecs, /*want_vectors=*/false);
     return make_vector(std::move(vals));
 }
 EighC eigh(const CNDArray& a) {
@@ -883,15 +1285,15 @@ EigC eig(const NDArray& a) {
 }
 CNDArray eigvals(const NDArray& a) {
     std::size_t n, c;
-    const std::vector<double> A = as_matrix(a, n, c);
+    std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<Cplx> vals;
-    if (is_symmetric(A, n)) {                // symmetric -> real spectrum via Jacobi
+    if (is_symmetric(A, n)) {                // symmetric -> real spectrum, values only
         std::vector<double> rvals, vecs;
-        jacobi_symmetric(A, n, rvals, vecs);
+        symmetric_eig(std::move(A), n, rvals, vecs, /*want_vectors=*/false);
         vals.assign(rvals.begin(), rvals.end());
     } else {
-        vals = eigvals_general(A, n);
+        vals = eigvals_general(std::move(A), n);
     }
     std::sort(vals.begin(), vals.end(), cgreater);
     return make_cvector(std::move(vals));

@@ -30,8 +30,11 @@
   --c-alloc: #a3937c;
   --c-test: #8f938b;
   --c-perf: #d6ad73;
+  --perf-up: #93b06b;       /* faster — muted sage-green, warm-theme friendly */
+  --perf-down: #cf8470;     /* slower — muted terracotta-red                  */
 }
 [data-theme="light"] {
+  --perf-up: #4f7a32; --perf-down: #b14d38;   /* darker for light theme legibility */
   --bg: #f7f3ea; --bg-2: #f1ebde; --surface: #fffdf8; --surface-2: #f4eee2;
   --border: #e0d7c5; --border-soft: #ebe3d4;
   --fg: #2c2820; --fg-dim: #5f584b; --fg-faint: #6b6151;
@@ -199,6 +202,11 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .tag-test { border-left-color: var(--c-test); }
 .tag-perf { border-left-color: var(--c-perf); }
 .tag-perf .tag-v strong { color: var(--accent); }
+/* @test rows: a gtest Suite.Case read as a warm-toned qualified symbol (no blue). */
+.tn-suite { color: var(--fg-faint); }
+.tn-case  { color: var(--accent); }
+.tag-perf .tag-v strong.perf-faster, .perf-faster { color: var(--perf-up); }
+.tag-perf .tag-v strong.perf-slower, .perf-slower { color: var(--perf-down); }
 .tag-crtest { border-left-color: #8c9488; }       /* neutral slate-grey */
 .tag-systest { border-left-color: #97918a; }      /* neutral warm-grey */
 .tag-test .tag-v, .tag-crtest .tag-v, .tag-systest .tag-v { font-family: var(--mono); font-size: .85rem; }

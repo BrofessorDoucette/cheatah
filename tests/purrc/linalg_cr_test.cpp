@@ -104,6 +104,15 @@ io.print(ndarray.to_string(f.s))
 )PURR", "[9, 4]\n");
 }
 
+TEST(LinalgCompileRun, Svdvals) {
+    e2e::expect_e2e("linalg_svdvals", R"PURR(import io
+import ndarray
+import linalg
+let a = ndarray.reshape(ndarray.array([4.0, 0.0, 0.0, 9.0]), [2, 2])
+io.print(ndarray.to_string(linalg.svdvals(a)))
+)PURR", "[9, 4]\n");
+}
+
 // ---- Matrix eigenvalues ----
 
 TEST(LinalgCompileRun, Eig) {

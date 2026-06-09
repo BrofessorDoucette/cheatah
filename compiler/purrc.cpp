@@ -152,9 +152,12 @@ int main(int argc, char** argv) {
     // file paths can never be interpreted as shell metacharacters (no command
     // injection). Maximum optimization: programs run on the same machine, so
     // -march=native unlocks the host's SIMD; -w because generated code legitimately
-    // has redundant parens (the language guarantees correctness).
+    // has redundant parens (the language guarantees correctness). -fno-math-errno lets
+    // sqrt and the algebraic math functions vectorize (the vector ISA can't also set
+    // errno) — errno-on-math is virtually never read, so this is a safe, standard win;
+    // it does NOT relax IEEE results the way -ffast-math would.
     std::vector<std::string> args = {
-        CHEATAH_CXX, "-std=c++20", "-O3", "-march=native", "-DNDEBUG",
+        CHEATAH_CXX, "-std=c++20", "-O3", "-march=native", "-DNDEBUG", "-fno-math-errno",
         "-fno-semantic-interposition", "-fPIC", "-shared", "-pthread", "-w",
     };
     for (const std::string& m : modules) {
@@ -164,6 +167,10 @@ int main(int argc, char** argv) {
     for (const std::string& m : modules) {
         args.push_back(std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a");
     }
+    // After the module archives so their references resolve: libm carries glibc's
+    // vector-math (libmvec) symbols (_ZGVdN4v_exp, …) that ndarray's SIMD ufunc kernels
+    // call, so the loaded .so declares the dependency and dlopen resolves it.
+    args.push_back("-lm");
     args.push_back("-o");
     args.push_back(output);
 

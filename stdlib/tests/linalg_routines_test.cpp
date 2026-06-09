@@ -80,6 +80,10 @@ TEST(LinalgRoutines, SvdAndEigh) {
     const la::SVD s = la::svd(A);
     EXPECT_TRUE(close(nd::get(s.s, {0}), 3.0, 1e-6));  // singular values 3, 2 (descending)
     EXPECT_TRUE(close(nd::get(s.s, {1}), 2.0, 1e-6));
+    // svdvals (values-only fast path) agrees with svd().s
+    const nd::NDArray sv = la::svdvals(A);
+    EXPECT_TRUE(close(nd::get(sv, {0}), 3.0, 1e-6));
+    EXPECT_TRUE(close(nd::get(sv, {1}), 2.0, 1e-6));
 
     // symmetric eigen: [[2,1],[1,2]] -> eigenvalues 3, 1
     const la::Eig e = la::eigh(mat(2, 2, {2, 1, 1, 2}));
@@ -331,4 +335,73 @@ TEST(LinalgRoutines, PinvCondRankOnWideMatrix) {
     EXPECT_EQ(nd::shape_of(P), (std::vector<long long>{3, 2}));
     EXPECT_GE(la::cond(W), 1.0);
     EXPECT_EQ(la::matrix_rank(W), 2);
+}
+
+// ---- coverage: non-contiguous inputs, edge branches, and defensive throws ----
+TEST(LinalgRoutines, NonContiguousInputs) {
+    // A broadcast (stride-0) view is non-contiguous, exercising the packing fallback in
+    // contig/as_matrix/as_vector/as_cmatrix (the contiguous fast path runs everywhere else).
+    const nd::NDArray ncvec = nd::broadcast_to(nd::scalar(2.0), {4});       // [2,2,2,2]
+    EXPECT_TRUE(close(la::dot(ncvec, ncvec), 16.0, 1e-12));                 // contig() pack path
+    EXPECT_TRUE(close(la::norm(nd::broadcast_to(nd::scalar(3.0), {2, 2})), 6.0, 1e-12));
+    const nd::NDArray ncmat = nd::broadcast_to(nd::array({1.0, 2.0, 3.0}), {3, 3});
+    EXPECT_TRUE(close(la::det(ncmat), 0.0, 1e-9));                          // as_matrix pack path
+    const nd::NDArray I3 = mat(3, 3, {1, 0, 0, 0, 1, 0, 0, 0, 1});
+    const nd::NDArray x = la::solve(I3, nd::broadcast_to(nd::scalar(5.0), {3}));  // as_vector pack
+    EXPECT_TRUE(close(nd::get(x, {0}), 5.0, 1e-9));
+    const la::CNDArray nccx = nd::broadcast_to(nd::scalar(C(1, 1)), {2, 2});
+    EXPECT_EQ(la::conj_transpose(nccx).ndim(), 2u);                        // complex contig() pack
+    // complex eigvalsh extracts via as_cmatrix — a broadcast [[2,2],[2,2]] (Hermitian) packs.
+    EXPECT_TRUE(close(nd::get(la::eigvalsh(nd::broadcast_to(nd::scalar(C(2, 0)), {2, 2})), {0}),
+                      4.0, 1e-9));
+}
+
+TEST(LinalgRoutines, ComplexDotFourPlusElements) {
+    // 4+ elements drives the multi-accumulator loop in cdot (both dot and the conjugating vdot).
+    const la::CNDArray a = cvec({C(1, 1), C(2, 0), C(0, 1), C(1, -1), C(2, 2)});
+    const la::CNDArray b = cvec({C(1, 0), C(0, 1), C(1, 1), C(2, 0), C(0, -1)});
+    C dotref{}, vdotref{};
+    for (long long i = 0; i < 5; ++i) {
+        const C ai = cget(a, {i}), bi = cget(b, {i});
+        dotref += ai * bi;
+        vdotref += std::conj(ai) * bi;
+    }
+    EXPECT_TRUE(cclose(la::dot(a, b), dotref));     // non-conjugating multi-accumulator
+    EXPECT_TRUE(cclose(la::vdot(a, b), vdotref));   // conjugating multi-accumulator
+}
+
+TEST(LinalgRoutines, ShapeAndConvergenceGuards) {
+    const nd::NDArray v = nd::array({1.0, 2.0});
+    EXPECT_THROW(la::matmul(v, v), std::runtime_error);                    // real matmul non-2D
+    EXPECT_THROW(la::kron(v, v), std::runtime_error);                      // kron non-2D
+    const la::CNDArray cv = cvec({C(1, 0), C(2, 0)});
+    EXPECT_THROW(la::matmul(cv, cv), std::runtime_error);                  // complex matmul non-2D
+    // inv that requires a row pivot (zero leading pivot)
+    const nd::NDArray inv = la::inv(mat(2, 2, {0, 1, 1, 0}));
+    EXPECT_TRUE(close(nd::get(inv, {0, 1}), 1.0, 1e-9));
+    // values-only SVD on a WIDE matrix routes through the transpose branch
+    EXPECT_TRUE(close(nd::get(la::svdvals(mat(2, 3, {1, 0, 0, 0, 1, 0})), {0}), 1.0, 1e-9));
+    // NaN input never converges -> the defensive "did not converge" throws fire
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    EXPECT_THROW(la::eigvalsh(mat(2, 2, {nan, 0, 0, 1})), std::runtime_error);   // symmetric QL
+    EXPECT_THROW(la::svdvals(mat(2, 2, {nan, 0, 0, 1})), std::runtime_error);    // SVD QR
+}
+
+TEST(LinalgRoutines, RankDeficientAndDiagonalPaths) {
+    // A matrix with an exactly-zero column gives an exactly-zero singular value, which
+    // drives the g==0 branch in U accumulation and the bulge cancellation in the SVD QR.
+    const la::SVD s = la::svd(mat(3, 3, {1, 4, 0, 2, 5, 0, 3, 6, 0}));
+    EXPECT_TRUE(close(nd::get(s.s, {2}), 0.0, 1e-9));
+    // A diagonal symmetric matrix has all-zero off-diagonals -> the scale==0 branch in tred2.
+    const la::Eig e = la::eigh(mat(3, 3, {2, 0, 0, 0, 5, 0, 0, 0, 7}));
+    EXPECT_TRUE(close(nd::get(e.values, {0}), 7.0, 1e-9));
+}
+
+TEST(LinalgRoutines, SvdCancellationPath) {
+    // An upper-bidiagonal matrix with an interior zero diagonal (w[1]=0) but a
+    // non-negligible super-diagonal triggers the QR "cancel rv1" Givens sweep in U.
+    (void)la::svd(mat(3, 3, {2, 3, 0, 0, 0, 4, 0, 0, 5}));
+    (void)la::svd(mat(3, 3, {0, 5, 0, 0, 0, 5, 0, 0, 0}));
+    (void)la::svd(mat(4, 4, {1, 9, 0, 0, 0, 0, 9, 0, 0, 0, 0, 9, 0, 0, 0, 1}));
+    SUCCEED();
 }

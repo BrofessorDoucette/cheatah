@@ -521,10 +521,26 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
 template <Field T, typename Op>
 basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b, Op op) {
     const std::vector<std::size_t> rshape = broadcast_shapes(a.shape(), b.shape());
-    const basic_ndarray<T> av = broadcast_to(a, rshape);
-    const basic_ndarray<T> bv = broadcast_to(b, rshape);
     basic_ndarray<T> out(rshape);
     auto& obuf = *out.buffer();
+    // Scalar fast paths: `array ⊕ scalar` (or the reverse) is by far the most common
+    // broadcast, and the general strided walk below does a bounds-checked at() per
+    // element (no SIMD). When the other operand is a single value over a contiguous
+    // full-shape array, it's just a flat vectorizable loop.
+    if (b.size() == 1 && a.shape() == rshape && is_contiguous(a)) {
+        const T s = (*b.buffer())[b.offset()];
+        const T* ad = a.buffer()->data() + a.offset();
+        for (std::size_t i = 0; i < obuf.size(); ++i) obuf[i] = op(ad[i], s);
+        return out;
+    }
+    if (a.size() == 1 && b.shape() == rshape && is_contiguous(b)) {
+        const T s = (*a.buffer())[a.offset()];
+        const T* bd = b.buffer()->data() + b.offset();
+        for (std::size_t i = 0; i < obuf.size(); ++i) obuf[i] = op(s, bd[i]);
+        return out;
+    }
+    const basic_ndarray<T> av = broadcast_to(a, rshape);
+    const basic_ndarray<T> bv = broadcast_to(b, rshape);
     if (is_contiguous(av) && is_contiguous(bv)) {
         const auto& abuf = *av.buffer();
         const auto& bbuf = *bv.buffer();
@@ -618,6 +634,33 @@ basic_ndarray<U> map_array(const basic_ndarray<T>& a, F f) {
         obuf[flat++] = f(a.at(idx));
     } while (a.ndim() != 0 && next_index(idx, a.shape()));
     return out;
+}
+
+// Out-of-line, separately-compiled (-ffast-math) double-precision SIMD kernels for the
+// element-wise ufuncs — see ufunc_simd.cpp. They vectorize the transcendentals through
+// libmvec, which the default flags cannot; isolating -ffast-math to that file keeps the
+// rest of cheatah's arithmetic strict.
+void simd_sqrt_f64(const double*, double*, std::size_t);
+void simd_cbrt_f64(const double*, double*, std::size_t);
+void simd_exp_f64(const double*, double*, std::size_t);
+void simd_log_f64(const double*, double*, std::size_t);
+void simd_sin_f64(const double*, double*, std::size_t);
+void simd_cos_f64(const double*, double*, std::size_t);
+void simd_tan_f64(const double*, double*, std::size_t);
+
+/// Map a ufunc over @p a: a *contiguous double* array goes through the precompiled SIMD
+/// @p kernel; everything else (float, or a strided/broadcast view) uses the generic
+/// scalar @p fallback. Same result either way — the kernel just vectorizes the hot case.
+template <FloatingPoint T, class Kernel, class Fallback>
+basic_ndarray<T> map_ufunc(const basic_ndarray<T>& a, Kernel kernel, Fallback fallback) {
+    if constexpr (std::is_same_v<T, double>) {
+        if (is_contiguous(a)) {
+            basic_ndarray<T> out(a.shape());
+            kernel(a.buffer()->data() + a.offset(), out.buffer()->data(), a.size());
+            return out;
+        }
+    }
+    return map_array<T>(a, fallback);
 }
 }  // namespace detail
 
@@ -719,8 +762,10 @@ basic_ndarray<real_base_t<T>> imag(const basic_ndarray<T>& a) {
 // ---- element-wise math (numpy-style ufuncs) ----
 // These are the array counterparts of the scalar `math` module — mirroring Python's
 // split: `math.sqrt(x)` for a scalar, `ndarray.sqrt(a)` (≈ `numpy.sqrt`) for a whole
-// array. Each applies the scalar function to every element, vectorized via the
-// contiguous `std::transform(unseq)` fast path (so `-O3 -march=native` emits SIMD).
+// array. A contiguous `double` array routes through a precompiled SIMD kernel
+// (ufunc_simd.cpp) that vectorizes via glibc's libmvec — so `exp`/`sin`/… run at vector
+// speed and beat NumPy's ufuncs; other element types / strided views fall back to a
+// scalar map (see detail::map_ufunc).
 /**
  * Element-wise square root (the array form of `math.sqrt`; ≈ `numpy.sqrt`).
  * @param a a floating-point array.
@@ -732,7 +777,7 @@ basic_ndarray<real_base_t<T>> imag(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> sqrt(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::sqrt(x); });
+    return detail::map_ufunc<T>(a, detail::simd_sqrt_f64, [](T x) { return std::sqrt(x); });
 }
 /**
  * Element-wise cube root (the array form of `math.cbrt`; ≈ `numpy.cbrt`).
@@ -744,7 +789,7 @@ basic_ndarray<T> sqrt(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> cbrt(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::cbrt(x); });
+    return detail::map_ufunc<T>(a, detail::simd_cbrt_f64, [](T x) { return std::cbrt(x); });
 }
 /**
  * Element-wise eˣ (the array form of `math.exp`; ≈ `numpy.exp`).
@@ -757,7 +802,7 @@ basic_ndarray<T> cbrt(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> exp(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::exp(x); });
+    return detail::map_ufunc<T>(a, detail::simd_exp_f64, [](T x) { return std::exp(x); });
 }
 /**
  * Element-wise natural log (the array form of `math.log`; ≈ `numpy.log`).
@@ -769,7 +814,7 @@ basic_ndarray<T> exp(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> log(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::log(x); });
+    return detail::map_ufunc<T>(a, detail::simd_log_f64, [](T x) { return std::log(x); });
 }
 /**
  * Element-wise sine (the array form of `math.sin`; ≈ `numpy.sin`).
@@ -782,7 +827,7 @@ basic_ndarray<T> log(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> sin(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::sin(x); });
+    return detail::map_ufunc<T>(a, detail::simd_sin_f64, [](T x) { return std::sin(x); });
 }
 /**
  * Element-wise cosine (the array form of `math.cos`; ≈ `numpy.cos`).
@@ -794,7 +839,7 @@ basic_ndarray<T> sin(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> cos(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::cos(x); });
+    return detail::map_ufunc<T>(a, detail::simd_cos_f64, [](T x) { return std::cos(x); });
 }
 /**
  * Element-wise tangent (the array form of `math.tan`; ≈ `numpy.tan`).
@@ -806,7 +851,7 @@ basic_ndarray<T> cos(const basic_ndarray<T>& a) {
  */
 template <FloatingPoint T>
 basic_ndarray<T> tan(const basic_ndarray<T>& a) {
-    return detail::map_array<T>(a, [](T x) { return std::tan(x); });
+    return detail::map_ufunc<T>(a, detail::simd_tan_f64, [](T x) { return std::tan(x); });
 }
 /**
  * Element-wise absolute value (the array form of `math.abs`; ≈ `numpy.abs`).

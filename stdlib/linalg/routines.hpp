@@ -13,7 +13,7 @@
  * Routines operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). They mirror
  * https://numpy.org/doc/stable/reference/routines.linalg.html and are implemented
  * in routines.cpp (LU w/ partial pivoting, Cholesky, Householder QR, one-sided
- * Jacobi SVD, cyclic Jacobi symmetric eigen, Hessenberg + shifted-QR general
+ * Golub–Reinsch SVD, Householder-tridiagonal + QL symmetric eigen, Hessenberg + shifted-QR general
  * eigen) at -O3 -march=native so the hot loops auto-vectorize.
  *
  * SIMD here is pure compiler auto-vectorization (no intrinsics). On a scalar build
@@ -24,9 +24,11 @@
  * @note `n` below is the matrix dimension. The general eigensolvers `eig`/`eigvals`
  *       return a **complex** spectrum (@ref CNDArray) — a real matrix can have
  *       complex conjugate eigenvalue pairs — while the Hermitian solvers
- *       `eigh`/`eigvalsh` return a guaranteed-real spectrum. Routines that extract
- *       a working copy "allocate scratch O(n²) for the factorization" even when
- *       they return a scalar.
+ *       `eigh`/`eigvalsh` return a guaranteed-real spectrum. The LU/SVD-based scalar
+ *       routines (`det`/`slogdet`/`cond`/`matrix_rank`) allocate scratch O(n²) for the
+ *       factorization even though they return a scalar; the products and reductions
+ *       (`dot`/`matmul`/`trace`/`norm`/…) read their operands in place — zero-copy
+ *       when contiguous, packing a strided view once.
  */
 #include <complex>
 #include <vector>
@@ -61,12 +63,13 @@ using CNDArray = ndarray::basic_ndarray<Cplx>;
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
  * @complexity O(n).
- * @alloc copies both operands into scratch O(n); returns a double.
+ * @alloc none for contiguous operands (read in place); a non-contiguous view is
+ *        packed once into scratch O(n). Returns a double.
  * @test LinalgRoutines.ProductsAndTrace
  * @crtest LinalgCompileRun.Dot
  * @systest StdlibE2E.Linalg
  */
-double dot(const NDArray& a, const NDArray& b);          // 1-D dot / 2-D matmul
+double dot(const NDArray& a, const NDArray& b);          // flattened 1-D inner product
 /**
  * Vector dot product (alias of @ref dot; flattens N×1/1×N).
  *
@@ -76,7 +79,7 @@ double dot(const NDArray& a, const NDArray& b);          // 1-D dot / 2-D matmul
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
  * @complexity O(n).
- * @alloc scratch O(n); returns a double.
+ * @alloc none for contiguous operands; non-contiguous packs once O(n). Returns a double.
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Vdot
  * @systest StdlibE2E.Linalg
@@ -90,7 +93,7 @@ double vdot(const NDArray& a, const NDArray& b);
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ.
  * @complexity O(n).
- * @alloc scratch O(n); returns a double.
+ * @alloc none for contiguous operands; non-contiguous packs once O(n). Returns a double.
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Inner
  * @systest StdlibE2E.Linalg
@@ -105,7 +108,7 @@ double inner(const NDArray& a, const NDArray& b);
  * @param b length-m vector.
  * @return n×m matrix aᵢbⱼ.
  * @complexity O(n·m).
- * @alloc allocates a new NDArray result.
+ * @alloc allocates only the n×m result; operands read in place when contiguous.
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Outer
  * @systest StdlibE2E.Linalg
@@ -121,7 +124,8 @@ NDArray outer(const NDArray& a, const NDArray& b);
  * @param b k×p matrix.
  * @return m×p product.
  * @complexity O(n³).
- * @alloc allocates a new NDArray result (plus scratch copies of @p a and @p b).
+ * @alloc allocates only the m×p result; the operands are read in place from their
+ *        own buffers (a non-contiguous view is packed once into scratch).
  * @test LinalgRoutines.ProductsAndTrace
  * @crtest LinalgCompileRun.Matmul
  * @systest StdlibE2E.Linalg
@@ -135,7 +139,8 @@ NDArray matmul(const NDArray& a, const NDArray& b);
  * @param a,b same-length complex vectors.
  * @return Σ aᵢbᵢ as a `std::complex<double>`; throws on a length mismatch.
  * @complexity O(n).
- * @alloc scratch O(n); returns a complex scalar.
+ * @alloc none for contiguous operands (read in place); a non-contiguous view packs
+ *        once O(n). Returns a complex scalar.
  * @test LinalgRoutines.ComplexProducts
  * @crtest LinalgCompileRun.ComplexDot
  * @systest StdlibE2E.LinalgComplex
@@ -149,7 +154,8 @@ Cplx dot(const CNDArray& a, const CNDArray& b);
  * @param a,b same-length complex vectors.
  * @return Σ conj(aᵢ)·bᵢ as a `std::complex<double>`; throws on a length mismatch.
  * @complexity O(n).
- * @alloc scratch O(n); returns a complex scalar.
+ * @alloc none for contiguous operands (read in place); a non-contiguous view packs
+ *        once O(n). Returns a complex scalar.
  * @test LinalgRoutines.ComplexProducts
  * @crtest LinalgCompileRun.ComplexVdot
  * @systest StdlibE2E.LinalgComplex
@@ -161,7 +167,7 @@ Cplx vdot(const CNDArray& a, const CNDArray& b);
  * @param b k×p complex matrix.
  * @return m×p complex product; throws on an inner-dimension mismatch or non-2-D input.
  * @complexity O(n³).
- * @alloc allocates a new CNDArray result (plus scratch copies of @p a and @p b).
+ * @alloc allocates only the m×p result; operands read in place when contiguous.
  * @test LinalgRoutines.ComplexProducts
  * @crtest LinalgCompileRun.ComplexMatmul
  * @systest StdlibE2E.LinalgComplex
@@ -257,12 +263,13 @@ struct SVD {
     NDArray vh;  ///< Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).
 };
 /**
- * Singular value decomposition (one-sided Jacobi; requires rows ≥ cols).
+ * Singular value decomposition (Golub–Reinsch; requires rows ≥ cols).
  *
- * Iterates one-sided Jacobi rotations (capped at 80 sweeps) to orthogonalize the
- * columns, then normalizes them into u and sorts the singular values descending;
- * throws "svd requires rows >= cols" for wide matrices (transpose first). Exact
- * zero singular values yield a zero u column.
+ * Reduces @p a to upper-bidiagonal form by Householder reflections, then diagonalizes
+ * it with implicit-shift QR (accumulating U and V), and sorts the singular values
+ * descending — the world-standard dense SVD (what LAPACK's dgesvd reduces to). Throws
+ * "svd requires rows >= cols" for wide matrices (transpose first); singular values come
+ * out non-negative.
  * @param a m×n matrix.
  * @return @ref SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).
  * @complexity iterative O(n³).
@@ -272,6 +279,22 @@ struct SVD {
  * @systest StdlibE2E.Linalg
  */
 SVD svd(const NDArray& a);
+/**
+ * Singular values only (≈ `numpy.linalg.svd(a, compute_uv=False)` / `svdvals`).
+ *
+ * Runs the same Golub–Reinsch reduction as @ref svd but takes the **values-only** fast
+ * path — it never accumulates U or V, and skips the (dominant) U/V Givens rotations in
+ * the QR sweep — so it is several times faster than the full decomposition. Accepts any
+ * shape (singular values of `a` and `aᵀ` coincide).
+ * @param a m×n matrix.
+ * @return length-min(m,n) vector of singular values, descending.
+ * @complexity iterative O(n³), but a large constant factor below @ref svd.
+ * @alloc allocates a new NDArray result (no U/V scratch).
+ * @test LinalgRoutines.SvdAndEigh
+ * @crtest LinalgCompileRun.Svdvals
+ * @systest StdlibE2E.Linalg
+ */
+NDArray svdvals(const NDArray& a);
 
 // ---- Matrix eigenvalues ----
 /** Result of eigh(): a real spectrum — column j of vectors is the eigenvector for values[j]. */
@@ -309,7 +332,7 @@ EigC eig(const NDArray& a);                               // general square matr
 /**
  * Eigenvalues of a general square matrix (**complex**), descending.
  *
- * Routes symmetric input through cyclic Jacobi and everything else through
+ * Routes symmetric input through tridiagonal QL and everything else through
  * Hessenberg + shifted QR, then sorts the result descending (by real part, then by
  * imaginary part). A real matrix with a complex conjugate pair yields those complex
  * eigenvalues rather than throwing. Throws on a non-square matrix or non-convergence
@@ -324,12 +347,13 @@ EigC eig(const NDArray& a);                               // general square matr
  */
 CNDArray eigvals(const NDArray& a);
 /**
- * Eigen-decomposition of a symmetric matrix (cyclic Jacobi).
+ * Eigen-decomposition of a symmetric matrix (Householder tridiagonalization + QL).
  *
- * Runs cyclic Jacobi (capped at 100 sweeps) to diagonalize @p a, returning real
- * eigenvalues sorted descending with matching eigenvector columns; it reads the
- * full matrix and assumes symmetry rather than checking it, so asymmetric input
- * yields meaningless results. Throws on a non-square matrix.
+ * Reduces @p a to tridiagonal form by Householder reflections, then diagonalizes it
+ * with implicit-shift QL, returning real eigenvalues sorted descending with matching
+ * eigenvector columns; it reads the full matrix and assumes symmetry rather than
+ * checking it, so asymmetric input yields meaningless results. Throws on a non-square
+ * matrix (or if the QL iteration fails to converge).
  * @param a square symmetric matrix.
  * @return @ref Eig with descending values and matching eigenvectors.
  * @complexity iterative O(n³).
@@ -340,10 +364,11 @@ CNDArray eigvals(const NDArray& a);
  */
 Eig eigh(const NDArray& a);                               // symmetric / Hermitian
 /**
- * Eigenvalues of a symmetric matrix, descending (cyclic Jacobi).
+ * Eigenvalues of a symmetric matrix, descending (tridiagonal QL).
  *
- * Same cyclic-Jacobi diagonalization as @ref eigh but discards the eigenvectors;
- * assumes (does not verify) symmetry and throws on a non-square matrix.
+ * Same tridiagonalization + QL as @ref eigh but **skips the eigenvector accumulation
+ * entirely** (the bulk of the work), so it is roughly twice as fast as `eigh`; assumes
+ * (does not verify) symmetry and throws on a non-square matrix.
  * @param a square symmetric matrix.
  * @return length-n vector of eigenvalues.
  * @complexity iterative O(n³).
@@ -368,7 +393,7 @@ struct EighC {
  *
  * The quantum-mechanics workhorse: a Hermitian operator (`conj_transpose(a) == a`)
  * has a guaranteed-real spectrum and orthonormal complex eigenvectors. Computed by
- * the real symmetric Jacobi solver on the 2n×2n real embedding
+ * the real symmetric tridiagonal-QL solver on the 2n×2n real embedding
  * `[[Re a, -Im a], [Im a, Re a]]`. Assumes (does not verify) that @p a is Hermitian;
  * throws on a non-square matrix.
  * @param a square complex Hermitian matrix.
@@ -383,7 +408,7 @@ EighC eigh(const CNDArray& a);
 /**
  * Eigenvalues of a **complex Hermitian** matrix, descending and **real**.
  *
- * Same 2n-embedding Jacobi diagonalization as the complex @ref eigh but discards the
+ * Same 2n-embedding tridiagonal-QL diagonalization as the complex @ref eigh but discards the
  * eigenvectors; assumes (does not verify) Hermitian and throws on a non-square matrix.
  * @param a square complex Hermitian matrix.
  * @return length-n real vector of eigenvalues.
@@ -405,7 +430,8 @@ NDArray eigvalsh(const CNDArray& a);
  * @param a vector or matrix.
  * @return √Σ xᵢ².
  * @complexity O(n) for vectors / O(n²) for matrices.
- * @alloc copies into scratch; returns a double.
+ * @alloc none for a contiguous operand (summed in place); a non-contiguous view packs
+ *        once. Returns a double.
  * @test LinalgRoutines.NormAndRank
  * @crtest LinalgCompileRun.Norm
  * @systest StdlibE2E.Linalg
@@ -414,7 +440,7 @@ double norm(const NDArray& a);                            // default: Frobenius 
 /**
  * 2-norm condition number σ_max/σ_min (∞ if singular).
  *
- * Takes the ratio of largest to smallest singular value from a Jacobi SVD
+ * Takes the ratio of largest to smallest singular value from a Golub–Reinsch SVD
  * (transposing internally for wide matrices); returns +infinity when the
  * smallest singular value is exactly zero (singular/rank-deficient).
  * @param a matrix.
@@ -486,7 +512,7 @@ SLogDet slogdet(const NDArray& a);
  * @param a matrix.
  * @return Σ aᵢᵢ.
  * @complexity O(n) summation.
- * @alloc copies the matrix into scratch O(n²) first; returns a double.
+ * @alloc none — reads the diagonal straight from the buffer. Returns a double.
  * @test LinalgRoutines.ProductsAndTrace
  * @crtest LinalgCompileRun.Trace
  * @systest StdlibE2E.Linalg
@@ -546,7 +572,7 @@ NDArray inv(const NDArray& a);
 /**
  * Moore–Penrose pseudo-inverse via SVD (any shape).
  *
- * Computes V·diag(1/σ)·Uᵀ from a Jacobi SVD, transposing wide matrices
+ * Computes V·diag(1/σ)·Uᵀ from a Golub–Reinsch SVD, transposing wide matrices
  * internally so any shape works; singular values at or below a size-scaled
  * tolerance are dropped (treated as zero) so it stays well-defined for
  * rank-deficient input.
