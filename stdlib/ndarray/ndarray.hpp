@@ -23,7 +23,6 @@
 #include <complex>
 #include <concepts>
 #include <cstddef>
-#include <execution>
 #include <initializer_list>
 #include <limits>
 #include <memory>
@@ -32,7 +31,22 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <version>  // __cpp_lib_execution feature-test macro
 #include <vector>
+
+// The unsequenced execution policy lets std::transform/std::reduce vectorize. libstdc++
+// provides it; Apple's libc++ historically ships no usable <execution>, so guard on the
+// feature-test macro and fall back to the plain (policy-less) overloads where it's
+// absent. This is speed-neutral: `unseq` is unsequenced (no threads, no TBB) and for
+// these simple element-wise loops the -O3 -march=native auto-vectorizer produces the
+// same SIMD either way — the transcendental vectorization comes from ufunc_simd.cpp's
+// libmvec/Accelerate kernels, not from this policy.
+#if defined(__cpp_lib_execution)
+#include <execution>
+#define CHEATAH_UNSEQ std::execution::unseq,
+#else
+#define CHEATAH_UNSEQ
+#endif
 
 namespace cheatah::ndarray {
 
@@ -544,7 +558,7 @@ basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b,
     if (is_contiguous(av) && is_contiguous(bv)) {
         const auto& abuf = *av.buffer();
         const auto& bbuf = *bv.buffer();
-        std::transform(std::execution::unseq, abuf.begin() + av.offset(),
+        std::transform(CHEATAH_UNSEQ abuf.begin() + av.offset(),
                        abuf.begin() + av.offset() + obuf.size(), bbuf.begin() + bv.offset(),
                        obuf.begin(), op);
         return out;
@@ -624,7 +638,7 @@ basic_ndarray<U> map_array(const basic_ndarray<T>& a, F f) {
     auto& obuf = *out.buffer();
     if (is_contiguous(a)) {
         const auto& abuf = *a.buffer();
-        std::transform(std::execution::unseq, abuf.begin() + a.offset(),
+        std::transform(CHEATAH_UNSEQ abuf.begin() + a.offset(),
                        abuf.begin() + a.offset() + a.size(), obuf.begin(), f);
         return out;
     }
@@ -882,7 +896,7 @@ template <Field T>
 T sum(const basic_ndarray<T>& a) {
     if (is_contiguous(a)) {
         const auto& buf = *a.buffer();
-        return std::reduce(std::execution::unseq, buf.begin() + a.offset(),
+        return std::reduce(CHEATAH_UNSEQ buf.begin() + a.offset(),
                            buf.begin() + a.offset() + a.size(), T{});
     }
     T s{};

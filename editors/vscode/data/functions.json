@@ -2946,7 +2946,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 865,
+      "srcline": 879,
       "module": "ndarray",
       "qualified": "ndarray.abs",
       "perf": {
@@ -2976,7 +2976,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 570,
+      "srcline": 584,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
@@ -3010,7 +3010,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 473,
+      "srcline": 487,
       "module": "ndarray",
       "qualified": "ndarray.arange",
       "perf": {
@@ -3035,7 +3035,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 400,
+      "srcline": 414,
       "module": "ndarray",
       "qualified": "ndarray.array",
       "perf": {
@@ -3068,7 +3068,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 522,
+      "srcline": 536,
       "module": "ndarray",
       "qualified": "ndarray.binary_op",
       "perf": {
@@ -3097,7 +3097,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 320,
+      "srcline": 334,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes",
       "perf": {
@@ -3124,7 +3124,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 355,
+      "srcline": 369,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to",
       "perf": {
@@ -3149,7 +3149,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 791,
+      "srcline": 805,
       "module": "ndarray",
       "qualified": "ndarray.cbrt",
       "perf": {
@@ -3179,7 +3179,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 681,
+      "srcline": 695,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
@@ -3205,7 +3205,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 708,
+      "srcline": 722,
       "module": "ndarray",
       "qualified": "ndarray.conj",
       "perf": {
@@ -3230,7 +3230,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 841,
+      "srcline": 855,
       "module": "ndarray",
       "qualified": "ndarray.cos",
       "perf": {
@@ -3260,7 +3260,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 612,
+      "srcline": 626,
       "module": "ndarray",
       "qualified": "ndarray.divide",
       "perf": {
@@ -3286,7 +3286,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 804,
+      "srcline": 818,
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
@@ -3316,7 +3316,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 457,
+      "srcline": 471,
       "module": "ndarray",
       "qualified": "ndarray.full",
       "perf": {
@@ -3346,7 +3346,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 923,
+      "srcline": 937,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3372,7 +3372,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 751,
+      "srcline": 765,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3397,7 +3397,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 342,
+      "srcline": 356,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous",
       "perf": {
@@ -3422,7 +3422,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 816,
+      "srcline": 830,
       "module": "ndarray",
       "qualified": "ndarray.log",
       "perf": {
@@ -3448,7 +3448,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 906,
+      "srcline": 920,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -3478,7 +3478,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 598,
+      "srcline": 612,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -3504,7 +3504,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 442,
+      "srcline": 456,
       "module": "ndarray",
       "qualified": "ndarray.ones",
       "perf": {
@@ -3530,7 +3530,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 729,
+      "srcline": 743,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -3560,7 +3560,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 492,
+      "srcline": 506,
       "module": "ndarray",
       "qualified": "ndarray.reshape",
       "perf": {
@@ -3586,7 +3586,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 414,
+      "srcline": 428,
       "module": "ndarray",
       "qualified": "ndarray.scalar",
       "perf": {
@@ -3612,7 +3612,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 937,
+      "srcline": 951,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
       "perf": {
@@ -3638,7 +3638,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 829,
+      "srcline": 843,
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
@@ -3664,7 +3664,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 953,
+      "srcline": 967,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
       "perf": {
@@ -3690,7 +3690,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 779,
+      "srcline": 793,
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
@@ -3720,7 +3720,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 584,
+      "srcline": 598,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -3746,7 +3746,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 882,
+      "srcline": 896,
       "module": "ndarray",
       "qualified": "ndarray.sum",
       "perf": {
@@ -3771,7 +3771,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 853,
+      "srcline": 867,
       "module": "ndarray",
       "qualified": "ndarray.tan",
       "perf": {
@@ -3797,7 +3797,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1010,
+      "srcline": 1024,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {
@@ -3823,7 +3823,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 429,
+      "srcline": 443,
       "module": "ndarray",
       "qualified": "ndarray.zeros",
       "perf": {
