@@ -24,7 +24,7 @@ enum class TokenKind {
     Assign,              // =
 
     // Operators.
-    Plus, Minus, Star, Slash, Caret, Power,  // + - * / ^ **
+    Plus, Minus, Star, Slash, FloorDiv, Caret, Power,  // + - * / // ^ **
     EqualEqual, BangEqual,            // == !=
     Less, LessEqual, Greater, GreaterEqual,  // < <= > >=
 

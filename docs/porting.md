@@ -3,10 +3,9 @@
 <div class="cheetah-slogan">🐱 <em>Bring your Python; leave the interpreter behind.</em> 🐆</div>
 
 cheatah is **Python-shaped**: most scripts port with light, mechanical edits. This
-guide is the practical checklist for moving a `.py` file to a `.purr` file — what
-maps one-to-one, the handful of deliberate syntax deviations, and the gotchas worth
-knowing before you hit them. (For *why* the compiled result is fast, see
-@ref performance.)
+is the practical checklist for moving a `.py` file to a `.purr` — what maps
+one-to-one, the deliberate syntax deviations, and the gotchas worth knowing. (For
+*why* the compiled result is fast, see @ref performance.)
 
 The canonical, always-current feature matrix lives in
 [`compiler/PYTHON.md`](https://github.com/BrofessorDoucette/cheatah/blob/main/compiler/PYTHON.md);
@@ -22,7 +21,7 @@ this page is the narrative version.
 | `class Bar:` | `struct Bar { … }` | typed fields, methods, interfaces (below) |
 | `print(x)` | `import io` → `io.print(x)` | even `print` is imported |
 | `2 ** 10` / `a ^ b` | `2 ** 10` / `a ^ b` | `**` is power; `^` is **bitwise-xor**, not power |
-| `7 / 2 == 3.5` | `7.0 / 2` for float division | `int / int` is integer division |
+| `7 / 2` / `7 // 2` | `7 / 2` / `7 // 2` | identical to Python 3: `/` always floats, `//` floor-divides |
 | `True` / `False` | `true` / `false` | lowercase |
 
 Indentation is purely cosmetic in cheatah — newlines separate statements and `{ }`
@@ -30,7 +29,7 @@ groups them. A `;` is an *optional* separator, never required.
 
 ## What maps one-to-one
 
-These need no rethinking — just the syntax shell above:
+No rethinking needed — just the syntax shell above:
 
 | Concept | cheatah | Python |
 |---------|---------|--------|
@@ -51,9 +50,8 @@ routines).
 
 ## Structs: more than a dataclass
 
-A cheatah `struct` started life as a `@dataclass`, but it now carries **typed
-fields**, **methods**, and **interfaces** — so most small Python classes port
-directly.
+A cheatah `struct` started as a `@dataclass`, but now carries **typed fields**,
+**methods**, and **interfaces** — so most small Python classes port directly.
 
 cheatah:
 
@@ -104,14 +102,14 @@ print(c.area())
   required methods, and `struct Circle : Shape { … }` makes the compiler **verify at
   compile time** that `Circle` fulfills `Shape` (static, not duck-typed). Typing a
   parameter by an interface (`fn describe(s: Shape)`) constrains what may be passed —
-  fast, no virtual dispatch, and it gives you patterns like the strategy pattern.
+  fast, no virtual dispatch, and enables patterns like strategy.
 - **Inheritance lives in the interfaces, not the structs.** A struct **never
-  inherits** — it stays a simple bag of fields + methods that *implements* an
-  interface. When you need a hierarchy, you **refine interfaces**: one interface can
-  build on another, and (just like C++ concept subsumption — *if predicate A holds
-  then B holds*) anything satisfying the refined interface also satisfies the ones it
-  refines. So a struct implements a single interface and inherits nothing; the
-  interface graph carries all the "is-a" structure.
+  inherits** — it stays a bag of fields + methods that *implements* an interface. For
+  a hierarchy, you **refine interfaces**: one interface builds on another, and (like
+  C++ concept subsumption — *if predicate A holds then B holds*) anything satisfying
+  the refined interface also satisfies the ones it refines. So a struct implements a
+  single interface and inherits nothing; the interface graph carries all the "is-a"
+  structure.
 - **Construction is positional** over the fields in declaration order
   (`Circle(2.0)`); there is **no custom constructor / `__init__`** yet. Field access
   is `c.r`.
@@ -124,12 +122,12 @@ print(c.area())
    *Porting:* add `let` on a name's first assignment.
 3. **Everything is imported — including `print`.** `print` is `io.print`; math
    helpers (`abs`/`min`/`max`/`pow`/`round`) live in `math`. *Why:* the compiler
-   links exactly what you use. Truly global built-ins (`len`/`hex`/`ord`) need no
-   import.
+   links exactly what you use. Global built-ins (`len`/`hex`/`ord`) need no import.
 4. **Static types under the hood.** `let`/params use C++ `auto`, so a name's type is
    fixed by its initializer — no dynamic re-typing (`x = 1; x = "s"` won't compile).
-5. **Numeric operators are C++.** `**` is power (`std::pow`); `^` is bitwise-xor;
-   `int / int` truncates (use `7.0 / 2` for float division).
+5. **Numeric operators.** `**` is power (`std::pow`); `^` is bitwise-xor. Division
+   matches Python 3: `/` is **true division** (always a float, even `int / int`),
+   and `//` is **floor division** (floors toward −∞).
 6. **Containers are STL types.** `list[T]` → `std::vector<T>`, `dict[K,V]` →
    `std::unordered_map<K,V>`. Literals use type inference, so an **empty** `[]`/`{}`
    needs a type annotation. Iterating a `dict` yields **key/value pairs**.
@@ -172,17 +170,16 @@ io.print(zscores([1.0, 2.0, 3.0, 4.0]))
 
 Two edits beyond syntax: the **comprehension** becomes an explicit loop (not yet
 supported), and an **empty list literal needs a type annotation** (`let out:
-list[float] = []`) — cheatah infers a list's element type from its *literal*
-elements, so an empty `[]` has nothing to infer from. Float literals (`1.0`) keep the
-division floating.
+list[float] = []`) — cheatah infers a list's element type from its literal elements,
+so an empty `[]` has nothing to infer from.
 
 ## Not yet supported (roadmap)
 
 Comprehensions; typed exceptions & `finally`; **interface refinement** (one
 interface inheriting another) and **custom constructors**; f-strings (use
 `io.format`); slice **assignment** and **step** slices; tuples/unpacking; `with`;
-generators/`yield`; keyword/default arguments; `lambda`. These are tracked toward
-the goal of frictionless Python → cheatah porting.
+generators/`yield`; keyword/default arguments; `lambda`. All tracked toward
+frictionless Python → cheatah porting.
 
 **Struct inheritance is a non-goal**, by design — structs stay simple and only
 *implement* interfaces; any "is-a" hierarchy lives in the interface graph (see

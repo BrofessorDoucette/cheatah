@@ -109,7 +109,7 @@ io.print("")
 for op in ops {
     for n in sizes {
         let lit = spd_literal(n)
-        let iters = 2000000 / (n * n)
+        let iters = 2000000 // (n * n)
         if iters < 1000 {
             iters = 1000
         }

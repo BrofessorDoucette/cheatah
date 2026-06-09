@@ -4,9 +4,8 @@
 
 cheatah is a **compiled, Python-shaped language**. You write a `.purr` file, compile
 it with `purrc` into a native shared module (`.so`), and the `cheatah` runtime loads
-and runs that module. This page walks the whole path: hello-world, then exactly what
-happens when you press *compile* — and what "statically linked" and "dynamically
-loaded" mean here.
+and runs that module. This page walks the whole path: hello-world, then what happens
+when you compile — and what "statically linked" and "dynamically loaded" mean here.
 
 ## Hello, cheatah
 
@@ -35,7 +34,7 @@ cmake --build --preset release`.)
 
 `purrc` is a transpiler in front of your system C++ compiler. It lexes and parses the
 `.purr`, generates modern C++, and invokes the C++ backend **directly** (`fork` +
-`execvp`, never a shell — no command injection) to produce the module:
+`execvp`, never a shell — no command injection):
 
 ```
    hello.purr
@@ -59,11 +58,10 @@ cmake --build --preset release`.)
 
 Two things worth noticing:
 
-- **It compiles at `-O3 -march=native`.** The module is real optimized native code
-  for *your* CPU — that's the whole performance bargain (see @ref performance).
+- **It compiles at `-O3 -march=native`.** The module is optimized native code for
+  *your* CPU — that's the whole performance bargain (see @ref performance).
 - **It links only what you `import`.** Each imported stdlib module (`io`, `ndarray`,
-  `linalg`, …) contributes one static archive; a program that imports nothing pulls
-  in nothing.
+  `linalg`, …) contributes one static archive; import nothing, pull in nothing.
 
 ## Static *and* dynamic: the two kinds of linking
 
@@ -85,10 +83,9 @@ cheatah's module model uses **both** linking styles, each where it pays off:
                     └──────────────────────────────────────────────────────────┘
 ```
 
-- **Statically linked stdlib (compile time).** The standard-library modules you
-  imported are compiled into the `.so` as static archives (`libcheatah_*.a`). The
-  module is self-contained: there is no separate "cheatah runtime library" to ship or
-  find on the load path.
+- **Statically linked stdlib (compile time).** The modules you imported are compiled
+  into the `.so` as static archives (`libcheatah_*.a`). The module is self-contained:
+  no separate "cheatah runtime library" to ship or find on the load path.
 - **Dynamically loaded module (run time).** The `.so` is **not** a standalone
   executable — it exports `extern "C" void purr_main()`. The `cheatah` host
   `dlopen`s the module, resolves `purr_main`, and calls it. Before loading, the
@@ -96,7 +93,7 @@ cheatah's module model uses **both** linking styles, each where it pays off:
   world-writable, checks the ELF magic — see @ref security).
 
 That `dlopen` step *is* the dynamic-loading mechanism interpreted languages use for
-plugins and hot-reload — except the code being loaded is compiled native, so it runs
+plugins and hot-reload — except here the loaded code is compiled native, so it runs
 at full speed. (@ref performance covers how that gives you interpreter-style
 dynamism without an interpreter.)
 

@@ -108,3 +108,16 @@ TEST(CheatahBuiltins, SliceList) {
     EXPECT_EQ(b::slice(xs, -2, b::slice_end), (std::vector<long long>{4, 5}));
     EXPECT_TRUE(b::slice(xs, 3, 1).empty());
 }
+
+TEST(CheatahBuiltins, Division) {
+    // truediv (the `/` operator) is ALWAYS floating-point, like Python 3.
+    EXPECT_DOUBLE_EQ(b::truediv(6, 4), 1.5);        // int / int -> float
+    EXPECT_DOUBLE_EQ(b::truediv(6, 2), 3.0);        // exact, but still a double
+    EXPECT_DOUBLE_EQ(b::truediv(7.0, 2.0), 3.5);
+    // floordiv (the `//` operator) floors toward -inf, the way Python does.
+    EXPECT_EQ(b::floordiv(7, 2), 3);                // a%b != 0, same sign -> no adjust
+    EXPECT_EQ(b::floordiv(-7, 2), -4);              // different signs -> floor adjust
+    EXPECT_EQ(b::floordiv(6, 2), 3);                // exact (a%b == 0) -> no adjust
+    EXPECT_DOUBLE_EQ(b::floordiv(7.0, 2.0), 3.0);   // floating operands -> floored double
+    EXPECT_DOUBLE_EQ(b::floordiv(7.0, 2), 3.0);     // mixed -> floored double
+}

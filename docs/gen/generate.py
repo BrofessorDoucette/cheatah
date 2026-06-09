@@ -38,9 +38,16 @@ _perf = json.loads(_PERF_FILE.read_text()) if _PERF_FILE.exists() else {}
 PERF = _perf.get("functions", {})
 PERF_META = _perf.get("meta", {})
 MOD_SHORT: dict[str, str] = {}   # namespace refid -> dotted module name (e.g. "os.path")
+# A module's README.md (stdlib/<mod>/README.md) is merged in as the overview of that
+# module's page instead of becoming a standalone page: {module short -> detail XML}.
+MODULE_README: dict[str, object] = {}
+_MOD_README_RE = re.compile(r"stdlib/(\w+)/README\.md$")
 
 def _fmt_ns(ns: float) -> str:
     return f"{ns:.2f} ns/call" if ns < 100 else f"{ns:.0f} ns/call"
+
+def _fmt_us(us: float) -> str:
+    return f"{us:.2f} µs/op" if us < 100 else f"{us:.0f} µs/op"
 
 def perf_row(refid: str, name: str) -> str:
     """Render the 'Performance' tag row for <module>.<name>, if perf_data covers it."""
@@ -49,9 +56,23 @@ def perf_row(refid: str, name: str) -> str:
     if not e:
         return ""
     kind = e.get("kind")
-    if kind == "numpy":
-        body = ('numeric — the honest comparison is vs NumPy/LAPACK (not a pure-Python '
-                'loop); see the <a href="performance.html#vs-numpy">NumPy comparison</a>')
+    if kind == "numpy_cmp":
+        # Per-function vs-NumPy measurement (µs/op at a representative size; the full
+        # size-dependence is in the vs-NumPy table on this same module page).
+        cu, nu = e["cheatah_us"], e["numpy_us"]
+        speed = nu / cu if cu else 0.0
+        faster = speed >= 1
+        factor = speed if faster else (1 / speed if speed else 0.0)
+        verb = "faster" if faster else "slower"
+        cls = "perf-faster" if faster else "perf-slower"
+        tgt = f'NumPy {PERF_META.get("numpy", "")}'.strip()
+        dims = e.get("dims", "")
+        body = (f'<strong>{_fmt_us(cu)}</strong> in cheatah · {_fmt_us(nu)} in {tgt} · '
+                f'<strong class="{cls}">≈{round(factor, 1):g}× {verb}</strong>'
+                + (f' <span class="perf-dims">({html.escape(dims)})</span>' if dims else ''))
+    elif kind == "numpy":
+        body = ('numeric — the honest baseline is NumPy/LAPACK, not a pure-Python loop; '
+                'see the vs-NumPy table on this page')
     elif kind == "note":
         body = html.escape(e.get("note", ""))
     elif kind in ("compared", "cheatah_only"):
@@ -102,7 +123,7 @@ _KEYWORDS = _CHEATAH_KW | (_PYTHON_KW - {"None", "True", "False"})
 _CONSTANTS = {"true", "false", "None", "True", "False"}
 
 _TOKEN_RE = re.compile(r"""
-    (?P<com>\#[^\n]*|//[^\n]*)                       |  # line comment (# or //)
+    (?P<com>\#[^\n]*)                                |  # line comment (#); // is floor-division
     (?P<str>"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*') |  # single/double-quoted string
     (?P<num>\b\d+\.?\d*(?:[eE][+-]?\d+)?\b)          |  # number
     (?P<id>[A-Za-z_]\w*)                             |  # identifier / keyword
@@ -170,6 +191,14 @@ def load() -> tuple[dict[str, Compound], dict[str, str]]:
         cdef = ET.parse(XML / f"{refid}.xml").getroot().find("compounddef")
         if cdef is None:
             continue
+        # A per-module README is diverted into its module page (see render_compound_page),
+        # not rendered as its own page.
+        if kind == "page":
+            loc = cdef.find("location")
+            mm = _MOD_README_RE.search(loc.get("file") if loc is not None else "")
+            if mm:
+                MODULE_README[mm.group(1)] = cdef.find("detaileddescription")
+                continue
         name = cdef.findtext("compoundname") or c.findtext("name") or refid
         # Skip internal namespaces: anonymous (`anonymous_namespace{...}`) and `detail`.
         segs = name.split("::")
@@ -570,7 +599,8 @@ def build_sidebar(compounds: dict[str, Compound]) -> str:
     # Hand-written guide pages (e.g. Performance) — listed first, in a deliberate
     # reading order (getting-started → porting → performance → security), then any
     # other guide alphabetically.
-    GUIDE_ORDER = {"getting-started": 0, "porting": 1, "performance": 2, "security": 3}
+    GUIDE_ORDER = {"getting-started": 0, "md_compiler_2PYTHON": 1, "porting": 2,
+                   "performance": 3, "security": 4, "md_CHANGELOG": 8}
     guides = sorted((c for c in compounds.values()
                      if c.kind == "page" and c.refid not in XREF_PAGES),
                     key=lambda c: (GUIDE_ORDER.get(c.refid, 99), (c.title or c.short).lower()))
@@ -609,7 +639,10 @@ def render_compound_page(r: Renderer, comp: Compound, sidebar: str) -> str:
                   CONCEPT: "Concept"}.get(comp.kind, "Guide")
     r.cur_module = comp.short   # module context for @systest app-usage lookup
     brief = r.brief(comp.brief_xml)
-    detail = r.render(comp.detail_xml)
+    # A module page leads with its README.md (examples + prose), then any namespace
+    # doc block, then the auto-generated reference for its members.
+    readme = MODULE_README.get(comp.short) if comp.kind == NS else None
+    detail = r.render(readme) + r.render(comp.detail_xml)
     # Group members.
     funcs = [m for m in comp.members if m.kind == "function"]
     vars_ = [m for m in comp.members if m.kind == "variable"]

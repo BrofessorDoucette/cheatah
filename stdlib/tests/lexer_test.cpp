@@ -107,8 +107,10 @@ TEST(CheatahLexer, LexesDotForMemberAccess) {
                         }));
 }
 
-TEST(CheatahLexer, SkipsHashAndSlashComments) {
-    const LexResult r = tokenize("let a = 1  # trailing\n// whole line\nreturn");
+TEST(CheatahLexer, SkipsHashCommentsAndLexesFloorDiv) {
+    // `#` starts a comment (Python-style); `//` is the floor-division operator, NOT a
+    // comment — so a `// 2` is lexed as `FloorDiv Number`, not skipped.
+    const LexResult r = tokenize("let a = 1  # trailing\nlet b = 7 // 2\nreturn");
     EXPECT_TRUE(r.ok());
     EXPECT_EQ(kinds(r), (std::vector<TokenKind>{
                             TokenKind::Keyword,     // let
@@ -116,6 +118,12 @@ TEST(CheatahLexer, SkipsHashAndSlashComments) {
                             TokenKind::Assign,      // =
                             TokenKind::Number,      // 1
                             TokenKind::Newline,
+                            TokenKind::Keyword,     // let
+                            TokenKind::Identifier,  // b
+                            TokenKind::Assign,      // =
+                            TokenKind::Number,      // 7
+                            TokenKind::FloorDiv,    // //
+                            TokenKind::Number,      // 2
                             TokenKind::Newline,
                             TokenKind::Keyword,     // return
                         }));

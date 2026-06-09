@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 301,
+      "srcline": 361,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 158,
+      "srcline": 159,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 142,
+      "srcline": 143,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 186,
+      "srcline": 187,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 99,
+      "srcline": 100,
       "module": "",
       "qualified": "chr"
     },
@@ -142,7 +142,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 347,
+      "srcline": 407,
       "module": "",
       "qualified": "contains"
     },
@@ -169,7 +169,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 331,
+      "srcline": 391,
       "module": "",
       "qualified": "endswith"
     },
@@ -192,9 +192,36 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 242,
+      "srcline": 243,
       "module": "",
       "qualified": "float"
+    },
+    {
+      "name": "floordiv",
+      "signature": "floordiv(A a, B b)",
+      "brief": "Floor division (//) for floating-point operands: floors the quotient toward −∞.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "numerator."
+        },
+        {
+          "name": "b",
+          "desc": "denominator."
+        }
+      ],
+      "returns": "std::floor(double(a) / double(b)).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Division",
+        "crtest": "BuiltinsCompileRun.FloorDivision",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 300,
+      "module": "",
+      "qualified": "floordiv"
     },
     {
       "name": "hash",
@@ -215,7 +242,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 277,
+      "srcline": 337,
       "module": "",
       "qualified": "hash"
     },
@@ -238,7 +265,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 114,
+      "srcline": 115,
       "module": "",
       "qualified": "hex"
     },
@@ -265,7 +292,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 418,
+      "srcline": 478,
       "module": "",
       "qualified": "index"
     },
@@ -288,7 +315,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 216,
+      "srcline": 217,
       "module": "",
       "qualified": "int"
     },
@@ -311,7 +338,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 55,
+      "srcline": 56,
       "module": "",
       "qualified": "len"
     },
@@ -334,7 +361,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 128,
+      "srcline": 129,
       "module": "",
       "qualified": "oct"
     },
@@ -357,7 +384,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 84,
+      "srcline": 85,
       "module": "",
       "qualified": "ord"
     },
@@ -406,7 +433,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 460,
+      "srcline": 520,
       "module": "",
       "qualified": "slice"
     },
@@ -433,7 +460,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 316,
+      "srcline": 376,
       "module": "",
       "qualified": "startswith"
     },
@@ -456,7 +483,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 186,
+      "srcline": 187,
       "module": "",
       "qualified": "to_bool"
     },
@@ -479,7 +506,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 242,
+      "srcline": 243,
       "module": "",
       "qualified": "to_float"
     },
@@ -502,9 +529,36 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 216,
+      "srcline": 217,
       "module": "",
       "qualified": "to_int"
+    },
+    {
+      "name": "truediv",
+      "signature": "truediv(A a, B b)",
+      "brief": "True division — the cheatah / operator (like Python 3): always floating-point, so 6 / 2 is 3.0, not 3, and integer operands never silently truncate.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "numerator."
+        },
+        {
+          "name": "b",
+          "desc": "denominator."
+        }
+      ],
+      "returns": "double(a) / double(b).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Division",
+        "crtest": "BuiltinsCompileRun.TrueDivision",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 260,
+      "module": "",
+      "qualified": "truediv"
     },
     {
       "name": "day",
@@ -1225,7 +1279,10 @@
       "module": "linalg",
       "qualified": "linalg.cholesky",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 16.3,
+        "numpy_us": 24.0
       }
     },
     {
@@ -1251,7 +1308,10 @@
       "module": "linalg",
       "qualified": "linalg.cond",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 208.0,
+        "numpy_us": 187.0
       }
     },
     {
@@ -1315,7 +1375,10 @@
       "module": "linalg",
       "qualified": "linalg.det",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 13.9,
+        "numpy_us": 45.1
       }
     },
     {
@@ -1345,7 +1408,10 @@
       "module": "linalg",
       "qualified": "linalg.dot",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "16384-elt vectors",
+        "cheatah_us": 3.74,
+        "numpy_us": 7.72
       }
     },
     {
@@ -1397,7 +1463,10 @@
       "module": "linalg",
       "qualified": "linalg.eigh",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64, with vectors",
+        "cheatah_us": 271.0,
+        "numpy_us": 379.0
       }
     },
     {
@@ -1423,7 +1492,10 @@
       "module": "linalg",
       "qualified": "linalg.eigvals",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "16×16, general",
+        "cheatah_us": 50.7,
+        "numpy_us": 31.1
       }
     },
     {
@@ -1449,7 +1521,10 @@
       "module": "linalg",
       "qualified": "linalg.eigvalsh",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "8×8",
+        "cheatah_us": 2.04,
+        "numpy_us": 3.91
       }
     },
     {
@@ -1505,7 +1580,10 @@
       "module": "linalg",
       "qualified": "linalg.inv",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 32.5,
+        "numpy_us": 135.0
       }
     },
     {
@@ -1535,7 +1613,10 @@
       "module": "linalg",
       "qualified": "linalg.kron",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "8×8 ⊗ 8×8",
+        "cheatah_us": 1.95,
+        "numpy_us": 12.3
       }
     },
     {
@@ -1595,7 +1676,10 @@
       "module": "linalg",
       "qualified": "linalg.matmul",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "96×96 · 96×96",
+        "cheatah_us": 85.4,
+        "numpy_us": 298.0
       }
     },
     {
@@ -1625,7 +1709,10 @@
       "module": "linalg",
       "qualified": "linalg.matrix_power",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64, A³",
+        "cheatah_us": 89.1,
+        "numpy_us": 216.0
       }
     },
     {
@@ -1651,7 +1738,10 @@
       "module": "linalg",
       "qualified": "linalg.matrix_rank",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 211.0,
+        "numpy_us": 189.0
       }
     },
     {
@@ -1677,7 +1767,10 @@
       "module": "linalg",
       "qualified": "linalg.norm",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "32×32 Frobenius",
+        "cheatah_us": 0.84,
+        "numpy_us": 1.42
       }
     },
     {
@@ -1707,7 +1800,10 @@
       "module": "linalg",
       "qualified": "linalg.outer",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64-vec → 64×64",
+        "cheatah_us": 1.21,
+        "numpy_us": 4.22
       }
     },
     {
@@ -1733,7 +1829,10 @@
       "module": "linalg",
       "qualified": "linalg.pinv",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 591.0,
+        "numpy_us": 749.0
       }
     },
     {
@@ -1759,7 +1858,10 @@
       "module": "linalg",
       "qualified": "linalg.qr",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 162.0,
+        "numpy_us": 124.0
       }
     },
     {
@@ -1823,7 +1925,10 @@
       "module": "linalg",
       "qualified": "linalg.slogdet",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 14.1,
+        "numpy_us": 46.1
       }
     },
     {
@@ -1853,7 +1958,10 @@
       "module": "linalg",
       "qualified": "linalg.solve",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64",
+        "cheatah_us": 16.4,
+        "numpy_us": 47.4
       }
     },
     {
@@ -1879,7 +1987,10 @@
       "module": "linalg",
       "qualified": "linalg.svd",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64, full U+s+Vᵀ",
+        "cheatah_us": 371.0,
+        "numpy_us": 680.0
       }
     },
     {
@@ -1905,7 +2016,10 @@
       "module": "linalg",
       "qualified": "linalg.svdvals",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "64×64, values only",
+        "cheatah_us": 207.0,
+        "numpy_us": 185.0
       }
     },
     {
@@ -1931,7 +2045,10 @@
       "module": "linalg",
       "qualified": "linalg.trace",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "256×256",
+        "cheatah_us": 0.09,
+        "numpy_us": 1.12
       }
     },
     {
@@ -2980,7 +3097,10 @@
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "16384-elt array + scalar",
+        "cheatah_us": 4.15,
+        "numpy_us": 2.77
       }
     },
     {
@@ -3290,7 +3410,10 @@
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "16384-elt array",
+        "cheatah_us": 14.7,
+        "numpy_us": 46.3
       }
     },
     {
@@ -3642,7 +3765,10 @@
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "16384-elt array",
+        "cheatah_us": 15.8,
+        "numpy_us": 84.5
       }
     },
     {
@@ -3694,7 +3820,10 @@
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
-        "kind": "numpy"
+        "kind": "numpy_cmp",
+        "dims": "16384-elt array",
+        "cheatah_us": 16.2,
+        "numpy_us": 13.9
       }
     },
     {

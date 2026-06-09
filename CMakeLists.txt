@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.24)
 # library (io/os/string/math/time/datetime/random/statistics/hashlib + the
 # numeric core ndarray/linalg).
 project(cheatah
-    VERSION 0.7.0
+    VERSION 0.8.0
     DESCRIPTION "cheatah — a fast, Python-like programming language (.purr)"
     LANGUAGES CXX)
 

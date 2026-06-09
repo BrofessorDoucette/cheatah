@@ -56,13 +56,21 @@ WARN_NO_PARAMDOC       = NO
 
 #---------------------------------------------------------------------------
 # Input — headers (the API) + implementations (so call/reference graphs have
-# real data) + the hand-written main page. Tests/scripts/READMEs excluded.
+# real data) + the hand-written guides + the per-module READMEs (merged into each
+# module's page by the site generator) + the feature matrix + the changelog.
+# Tests/scripts and the project-overview stdlib/README.md (a homepage duplicate)
+# are excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md docs/getting_started.md docs/performance.md docs/porting.md docs/security.md
+INPUT                  = stdlib docs/mainpage.md docs/getting_started.md docs/performance.md docs/porting.md docs/security.md compiler/PYTHON.md CHANGELOG.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
-EXCLUDE_PATTERNS       = */tests/* */scripts/* */README.md
+# Treat a module's README.md as a normal documentation page (whose body the site
+# generator merges into that module's page), NOT as the enclosing directory's docs
+# (the default, which would swallow the content and emit nothing usable in XML).
+IMPLICIT_DIR_DOCS      = NO
+EXCLUDE                = stdlib/README.md
+EXCLUDE_PATTERNS       = */tests/* */scripts/*
 # Internal implementation helpers (any `detail` namespace) are NOT public API: the
 # site generator and the hover index already hide them, so they are excluded here
 # too (and from the 100%-Javadoc gate).

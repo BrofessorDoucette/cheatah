@@ -3,7 +3,34 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
-## v0.7.0-alpha — cross-platform: Linux, macOS, and Windows
+## v0.8.0-alpha — Python-3 division + the whole library, documented
+
+The `/` operator is now **true division** (always a float, even `int / int`), matching
+Python 3, and integer/floor division moves to an opt-in `//` operator. Alongside it, the
+docs site grew to cover the **entire** standard library: every module's README now ships
+on its page, and the linalg-vs-NumPy numbers live beside the functions they measure.
+
+### Language — division (**breaking**)
+- **`/` is true division.** `6 / 4 == 1.5`, and even an exact `6 / 2` is a `double`. The
+  operator lowers to `cheatah::builtins::truediv`.
+- **`//` is opt-in floor division**, flooring toward −∞ like Python (`-7 // 2 == -4`,
+  `7.0 // 2.0 == 3.0`) — `cheatah::builtins::floordiv`. As a result `//` is **no longer a
+  comment**; comments are `#` only.
+- *Porting:* a `/` that you relied on for integer division becomes `//`.
+
+### Docs — the whole library on the site
+- **Per-module READMEs now render on each module's page.** The examples and prose from
+  `stdlib/<mod>/README.md` are merged in as the overview above that module's reference, so
+  the worked examples and explanations that previously lived only in the repo are now
+  served. (`compiler/PYTHON.md` and the changelog are guide pages too.)
+- **The linalg-vs-NumPy comparison moved to the linalg page**, beside the functions it
+  measures (element-wise array math to the ndarray page). Each numeric function's
+  **Performance** row now shows its own measured vs-NumPy number (µs/op + operand size +
+  faster/slower), instead of a generic pointer.
+- **Tighter prose.** A pass over the guides trimmed wordiness without dropping facts,
+  examples, or the single-threaded-by-design framing.
+
+
 
 cheatah now builds and runs on **Linux, macOS, and Windows**. The language, the `purrc`
 interface, and every standard-library API are **unchanged** — this release is purely

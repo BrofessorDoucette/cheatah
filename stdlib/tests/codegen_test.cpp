@@ -52,6 +52,17 @@ TEST(CheatahCodegen, BuiltinsResolveWithoutImport) {
 }
 
 
+TEST(CheatahCodegen, DivisionLowersToTrueDivAndFloorDiv) {
+    // `/` is Python-3 true division (always float) -> builtins::truediv;
+    // `//` is opt-in floor division -> builtins::floordiv. Both pull in builtins.
+    const ParseResult pr = parse_source("let a = 7 / 2\nlet b = 7 // 2\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "cheatah::builtins::truediv(7LL, 2LL)"));
+    EXPECT_TRUE(contains(cg.source, "cheatah::builtins::floordiv(7LL, 2LL)"));
+}
+
 TEST(CheatahCodegen, EmitsStructDefinition) {
     const ParseResult pr = parse_source("struct Bar {\n  date: str\n  close: float\n}\n");
     ASSERT_TRUE(pr.ok());

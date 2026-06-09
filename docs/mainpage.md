@@ -4,8 +4,7 @@
 
 **cheatah** is Python for people who care about performance: you write `.purr`
 source, compile it with `purrc` (lexer → parser → codegen → C++ → `.so`), and run
-it on the headless `cheatah` host. This site documents the **standard library** —
-the modules a `.purr` program reaches for.
+it on the headless `cheatah` host. This site documents the **standard library**.
 
 ## How to read these docs 🐾
 
@@ -16,23 +15,21 @@ contract, so you always know what a call costs:
 - **`@complexity`** — the **runtime complexity** (Big-O) of the call.
 - **`@alloc`** — the function's **heap behavior**: `none`, or what it allocates
   (`allocates the result`, `allocates a temporary`, scratch buffers, …). Memory
-  behavior is a first-class part of the contract: cheatah's whole reason for
-  existing is memory safety.
+  behavior is a first-class part of the contract — cheatah exists for memory safety.
 - **`@test`** — a link to the unit test that exercises the function.
 
 > **On `@complexity`:** this is the *algorithmic* (Big-O) cost — how the work
-> scales with input size. The actual wall-clock time is **machine-dependent**, and
-> the constant factors can also shift with the **C runtime / standard library**
-> that gets linked when your program runs. Treat Big-O as the contract; benchmark
-> for absolute numbers.
+> scales with input size. Wall-clock time is **machine-dependent**, and the
+> constant factors can shift with the **C runtime / standard library** linked at
+> run time. Treat Big-O as the contract; benchmark for absolute numbers.
 
 The entire library is verified on every QA-gate run under **AddressSanitizer**
 (the `asan` preset) and **Valgrind** (`security/run-valgrind.sh`), with **100% line
 and function coverage** of the stdlib.
 
 See the **[Performance](performance.html)** guide for how cheatah delivers
-hand-written-C++ speed — zero-cost generic abstractions, declarative SIMD, and the
-compiler's automatic string-concatenation optimization — at the cost of compile time.
+hand-written-C++ speed — zero-cost generic abstractions, declarative SIMD, and
+automatic string-concatenation optimization — at the cost of compile time.
 
 ## Modules 🐆
 

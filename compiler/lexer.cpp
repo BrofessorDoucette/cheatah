@@ -85,8 +85,9 @@ private:
             push(TokenKind::Newline, "\n", start);
             return;
         }
-        // Comments: `#…` or `//…` to end of line.
-        if (c == '#' || (c == '/' && peek_next() == '/')) {
+        // Comments: `#…` to end of line (Python-style). `//` is the floor-division
+        // operator, not a comment.
+        if (c == '#') {
             while (!at_end() && peek() != '\n') {
                 advance();
             }
@@ -287,7 +288,10 @@ private:
                 if (peek() == '*') { advance(); push(TokenKind::Power, "**", start); }
                 else { push(TokenKind::Star, "*", start); }
                 return;
-            case '/': push(TokenKind::Slash, "/", start); return;
+            case '/':
+                if (peek() == '/') { advance(); push(TokenKind::FloorDiv, "//", start); }
+                else { push(TokenKind::Slash, "/", start); }
+                return;
             case '^': push(TokenKind::Caret, "^", start); return;
             default:
                 error(std::string("unexpected character '") + c + "'", start);

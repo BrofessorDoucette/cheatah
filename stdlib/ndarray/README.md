@@ -87,6 +87,28 @@ The `NDArray` class exposes `shape()`, `strides()`, `ndim()`, `size()`, `at(inde
 Negative dims/indices and size-overflowing shapes throw rather than corrupting
 memory.
 
+## Performance vs NumPy
+
+The element-wise math ufuncs are benchmarked against NumPy's vectorized equivalents
+(same fixed-seed array to both, op run many times, results cross-checked) by
+[`scripts/numpy_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/numpy_compare.py).
+Each function's **Performance** row above carries its own number; representative results
+(µs per op, vs **NumPy 1.26.4** on `x86_64`; your hardware will differ):
+
+| op | operand dimensions | cheatah | NumPy | winner |
+|----|--------------------|--------:|------:|--------|
+| `ndarray.sqrt` | 64-element array | 0.18 | 0.80 | **cheatah 4.4×** |
+| `ndarray.sqrt` | 16384-element array | 16.2 | 13.9 | NumPy 1.2× |
+| `ndarray.exp` | 16384-element array | 14.7 | 46.3 | **cheatah 3.1×** |
+| `ndarray.sin` | 16384-element array | 15.8 | 84.5 | **cheatah 5.4×** |
+| `ndarray.add` | 16384-element array + scalar | 4.15 | 2.77 | NumPy 1.5× |
+
+`exp`/`sin` route their contiguous-`double` case through glibc's **libmvec** vector math
+(`_ZGVdN4v_exp`, …) compiled with `-fveclib=libmvec -fno-math-errno` — *without*
+`-ffast-math`, so results stay strictly IEEE — and so beat NumPy ≈3–5× at 16384 elements.
+`sqrt` is memory-bandwidth-bound (wins small, ties large). See the
+[Performance guide](@ref performance) for the single-core-by-design rationale.
+
 Per-function docs (parameters, complexity, heap behavior) are in [ndarray.hpp](ndarray.hpp).
 Tested in [../tests/ndarray_test.cpp](../tests/ndarray_test.cpp); ASan + Valgrind
 clean via the QA gate (`security/run-valgrind.sh`).

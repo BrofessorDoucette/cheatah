@@ -94,3 +94,17 @@ TEST(BuiltinsCompileRun, BoolFromNonzero) {
 io.print(bool(7))
 )PURR", "True\n");
 }
+
+TEST(BuiltinsCompileRun, TrueDivision) {
+    e2e::expect_e2e("builtins_truediv", R"PURR(import io
+io.print(6 / 4)
+io.print(6 / 2)
+)PURR", "1.5\n3\n");
+}
+
+TEST(BuiltinsCompileRun, FloorDivision) {
+    e2e::expect_e2e("builtins_floordiv", R"PURR(import io
+io.print(7 // 2)
+io.print(-7 // 2)
+)PURR", "3\n-4\n");
+}

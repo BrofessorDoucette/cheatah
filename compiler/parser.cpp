@@ -644,7 +644,8 @@ private:
         for (;;) {
             std::string op;
             if (check(TokenKind::Star)) op = "*";
-            else if (check(TokenKind::Slash)) op = "/";
+            else if (check(TokenKind::Slash)) op = "/";        // true (float) division
+            else if (check(TokenKind::FloorDiv)) op = "//";    // floor division
             else if (check(TokenKind::Caret)) op = "^";
             else break;
             advance();

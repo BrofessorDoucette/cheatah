@@ -11,6 +11,7 @@
  * suite runs under AddressSanitizer (the `asan` preset) and Valgrind
  * (`security/run-valgrind.sh`) on every QA-gate run.
  */
+#include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <functional>
@@ -240,6 +241,65 @@ double to_float(std::string_view s);
  * @systest StdlibE2E.Builtins
  */
 double to_float(long long x);
+
+/**
+ * True division — the cheatah `/` operator (like Python 3): **always floating-point**,
+ * so `6 / 2` is `3.0`, not `3`, and integer operands never silently truncate. Use the
+ * `//` operator (@ref floordiv) when you want integer/floor division.
+ * @param a numerator.
+ * @param b denominator.
+ * @return `double(a) / double(b)`.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahBuiltins.Division
+ * @crtest BuiltinsCompileRun.TrueDivision
+ * @systest StdlibE2E.Builtins
+ */
+template <typename A, typename B>
+    requires std::is_arithmetic_v<A> && std::is_arithmetic_v<B>
+double truediv(A a, B b) {
+    return static_cast<double>(a) / static_cast<double>(b);
+}
+/**
+ * Floor division — the cheatah `//` operator (like Python): the quotient floored toward
+ * −∞. Integer operands give an integer (`7 // 2 == 3`, `-7 // 2 == -4`, flooring the way
+ * Python does, not truncating toward zero like raw C++); a floating operand gives a
+ * floored double (`7.0 // 2 == 3.0`).
+ * @param a numerator.
+ * @param b denominator.
+ * @return `floor(a / b)`, integral for integral operands.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahBuiltins.Division
+ * @crtest BuiltinsCompileRun.FloorDivision
+ * @systest StdlibE2E.Builtins
+ */
+template <std::integral A, std::integral B>
+std::common_type_t<A, B> floordiv(A a, B b) {
+    std::common_type_t<A, B> q = a / b;                 // C++ truncates toward zero…
+    if ((a % b != 0) && ((a < 0) != (b < 0))) --q;      // …adjust to floor toward −∞
+    return q;
+}
+/**
+ * Floor division (`//`) for floating-point operands: floors the quotient toward −∞.
+ *
+ * Selected when at least one operand is floating-point (the all-integer case uses the
+ * @ref floordiv overload above). Mirrors Python, where `7.0 // 2.0 == 3.0`.
+ * @param a numerator.
+ * @param b denominator.
+ * @return `std::floor(double(a) / double(b))`.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahBuiltins.Division
+ * @crtest BuiltinsCompileRun.FloorDivision
+ * @systest StdlibE2E.Builtins
+ */
+template <typename A, typename B>
+    requires(std::is_arithmetic_v<A> && std::is_arithmetic_v<B> &&
+             !(std::integral<A> && std::integral<B>))
+double floordiv(A a, B b) {
+    return std::floor(static_cast<double>(a) / static_cast<double>(b));
+}
 
 /**
  * Content hash of a string.

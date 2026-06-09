@@ -620,10 +620,15 @@ private:
             }
             case ExprKind::Binary: {
                 const auto& b = static_cast<const Binary&>(e);
-                if (b.op == "**") {  // no C++ infix power -> std::pow
-                    return "std::pow(" + gen_expr(*b.lhs) + ", " + gen_expr(*b.rhs) + ")";
-                }
-                return "(" + gen_expr(*b.lhs) + " " + b.op + " " + gen_expr(*b.rhs) + ")";
+                const std::string L = gen_expr(*b.lhs), R = gen_expr(*b.rhs);
+                if (b.op == "**")  // no C++ infix power -> std::pow
+                    return "std::pow(" + L + ", " + R + ")";
+                // `/` is TRUE division (always float, like Python 3); `//` is FLOOR
+                // division (opt-in). Both go through builtins helpers so integer
+                // operands don't silently truncate the way raw C++ `/` would.
+                if (b.op == "/") return "cheatah::builtins::truediv(" + L + ", " + R + ")";
+                if (b.op == "//") return "cheatah::builtins::floordiv(" + L + ", " + R + ")";
+                return "(" + L + " " + b.op + " " + R + ")";
             }
             case ExprKind::ListLit: {
                 const auto& lst = static_cast<const ListLit&>(e);
