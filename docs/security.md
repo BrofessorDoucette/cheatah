@@ -62,11 +62,53 @@ executing it — in **three independent layers**, all **opt-in** (zero cost when
 all backed by crypto **implemented from scratch in the standard library** (`hashlib`,
 `ed25519`), no external dependency.
 
-### Tier 1 — checksum (accidental corruption)
+### First, the key model — the same as RSA, just smaller and faster
 
-A `<module>.sha256` sidecar (sha256sum-compatible) is **auto-verified when present**: if
+If you've signed anything with **RSA** or GPG, you already know the model; **Ed25519**
+only swaps the underlying math. Signing is **asymmetric** — you hold a **keypair**:
+
+- a **secret key** (what RSA calls the *private* key) — kept **offline**; it **signs**.
+- a **public key** — shared freely; it **verifies**.
+
+You sign an artifact once with the secret key. Anyone holding the public key can then
+confirm the artifact came from you and hasn't changed — but **cannot forge** a new
+signature, because they don't have the secret key. That's identical to RSA. Ed25519 is
+simply a modern signature scheme (elliptic-curve EdDSA) that does it with **32-byte keys**
+and **sub-millisecond** verification instead of RSA's multi-kilobit keys — which is why a
+small runtime can ship its own implementation.
+
+`purrc --keygen <name>` writes the pair (and prints the public key):
+
+- **`<name>.key`** — the **secret** key, created mode `0600`. Guard it like an SSH private
+  key; anyone who has it can sign **as you**.
+- **`<name>.pub`** — the **public** key. Hand it to whoever runs your modules; they pin it
+  in a **trust file** so the runtime will accept signatures made by its matching secret key.
+
+### The files at a glance
+
+Compiling `app.purr` produces the module `app.so`. Each protection you turn on writes a
+small **sidecar file** right next to it, which the runtime reads automatically if it's
+present. The naming is consistent — **`X.sig` always means "the signature of `X`"**:
+
+| File | Written by | What it is | Verified with | Catches |
+|------|-----------|-----------|---------------|---------|
+| `app.so` | `purrc … -o app.so` | the compiled module (native code) | — | — |
+| `app.so.sha256` | `--checksum` | a SHA-256 **checksum** of the module (no key) | re-hash the file | accidental corruption |
+| `app.so.sig` | `--sign code.key` | an Ed25519 **signature of `app.so`** | `code.pub` | tampering with the **code** |
+| `app.so.rt` | `--runtime` | a text **manifest** of the build runtime (arch, glibc, libstdc++) | — (compared to the live host) | an **incompatible** host |
+| `app.so.rt.sig` | `--sign-runtime rt.key` | an Ed25519 **signature of `app.so.rt`** | `rt.pub` | tampering with the **manifest** |
+
+So there are **two separate signatures** — `app.so.sig` over the code and `app.so.rt.sig`
+over the runtime manifest — made with **two different keys**. (Tier 3 explains why they're
+kept distinct.) The three tiers below are just *when* each of these files is produced and
+checked — and which of them you must actually **protect with filesystem permissions** (and
+which you can leave wide open) is its own short section: *File permissions*, below.
+
+### Tier 1 — `app.so.sha256`: a checksum (accidental corruption)
+
+The `.sha256` sidecar (sha256sum-compatible) is **auto-verified whenever it's present**: if
 the bytes don't match, the runtime refuses — catching disk corruption, a truncated
-download, or a botched copy.
+download, or a botched copy. No key is involved; it's a plain integrity hash.
 
 ```sh
 purrc app.purr -o app.so --checksum     # writes app.so.sha256
@@ -74,12 +116,12 @@ cheatah app.so                          # auto-checks the checksum, then runs
 sha256sum -c app.so.sha256              # …and ordinary tools can check it too
 ```
 
-### Tier 2 — Ed25519 signature (deliberate tampering)
+### Tier 2 — `app.so.sig`: a code signature (deliberate tampering)
 
-A signature proves the module was produced by the holder of a **secret key** and has
-not changed since. You sign with a private key kept **offline**; the runtime verifies
-with the matching **public key**, which you pin in a trust file. An attacker who cannot
-sign with a trusted key cannot get a tampered module accepted.
+The `.sig` sidecar is the **Ed25519 signature of the module bytes**. It proves the module
+was produced by the holder of the secret key and has **not changed since** — a checksum
+catches accidental corruption, but only a signature stops a *deliberate* swap, because an
+attacker can recompute a `.sha256` but can't forge a `.sig` without the secret key.
 
 ```sh
 purrc --keygen release            # -> release.key (SECRET, mode 0600) + release.pub
@@ -98,39 +140,76 @@ off, so `CHEATAH_VERIFY=strict` can't be weakened by a wrapper prepending argume
 runtime loads the **same file descriptor it hashed** (`/proc/self/fd`, or `/dev/fd` on
 macOS), so there's no verify-then-load race; the read is size-capped.
 
-### Tier 3 — build-runtime compatibility (a separate key)
+### Tier 3 — `app.so.rt` (+ `app.so.rt.sig`): build-runtime compatibility
 
-A module dynamically links the host's C/C++ runtime (glibc, libstdc++); built against a
-**newer** runtime than the host provides, `dlopen` fails cryptically or misbehaves. cheatah
-records the build runtime — CPU arch, glibc version, libstdc++ ABI — in a small text sidecar
-next to the module called the **runtime manifest**, named **`<module>.rt`** (`.rt` for
-run**t**ime), and checks it against the **live host** before loading, refusing with a
-readable reason.
+This tier answers a different question from Tiers 1–2: not *"is this the right code?"* but
+*"was it built for **this** machine?"* A module dynamically links the host's C/C++ runtime
+(glibc, libstdc++); built against a **newer** runtime than the host provides, `dlopen`
+fails cryptically or misbehaves. So `--runtime` records the build environment — CPU arch,
+glibc version, libstdc++ ABI — in a small **text manifest** named **`app.so.rt`** (`.rt`
+for run**t**ime), and the runtime compares it to the **live host** before loading, refusing
+with a readable reason.
 
 ```sh
 purrc app.purr -o app.so --runtime    # writes app.so.rt  (the runtime manifest)
 cheatah app.so                        # refuses e.g. "needs glibc >= 2.39, host has 2.31"
 ```
 
-The manifest can be signed with a **key separate from the code-signing key** — so *what the
-code is* and *what it was built against* are vouched for independently, and neither key can
-stand in for the other:
+On its own, `app.so.rt` is plain text — anyone could edit it. To vouch for it, sign it too,
+with **`app.so.rt.sig`** (literally "the `.sig` of the `.rt`"). Crucially this uses a key
+**separate from the code-signing key**, so *what the code is* and *what it was built
+against* are attested **independently**, and neither key can stand in for the other (e.g. a
+build farm can certify the runtime without holding the key that signs releases):
 
 ```sh
-purrc --keygen code-key            # the code-signing keypair
-purrc --keygen runtime-key         # a DISTINCT runtime keypair
-# --sign writes app.so.sig (code); --sign-runtime writes app.so.rt + app.so.rt.sig (runtime)
+purrc --keygen code-key            # the code-signing keypair  (code-key.key / code-key.pub)
+purrc --keygen runtime-key         # a DISTINCT runtime keypair (runtime-key.key / .pub)
+
+# --sign        writes app.so.sig      (code, signed with code-key)
+# --sign-runtime writes app.so.rt + app.so.rt.sig  (manifest, signed with runtime-key)
 purrc app.purr -o app.so --sign code-key.key --sign-runtime runtime-key.key
 
 export CHEATAH_VERIFY=strict
-export CHEATAH_TRUST=code-key.pub             # the code-signing trust
-export CHEATAH_RT_TRUST=runtime-key.pub       # the SEPARATE runtime trust
+export CHEATAH_TRUST=code-key.pub             # trust for the code signature (app.so.sig)
+export CHEATAH_RT_TRUST=runtime-key.pub       # SEPARATE trust for the manifest (app.so.rt.sig)
 cheatah app.so
 ```
 
-The compatibility check runs whenever a `.rt` is present (it prevents a crash, so it isn't
-gated on strict mode); the *signature* is required only in strict mode when a runtime trust
-(`CHEATAH_RT_TRUST` / `--trust-runtime`) is set.
+The compatibility *check* runs whenever an `app.so.rt` is present (it prevents a crash, so
+it isn't gated on strict mode); the manifest *signature* (`app.so.rt.sig`) is required only
+in strict mode when a runtime trust (`CHEATAH_RT_TRUST` / `--trust-runtime`) is set.
+
+### File permissions: what actually has to be protected
+
+This is the part that surprises people. **Signing changes *what you must guard.*** You no
+longer have to protect the module's bytes from being overwritten — a tampered `app.so`
+just fails verification and is refused. Instead the whole scheme reduces to a few files
+whose **filesystem permissions** are the real control. Get these wrong and an attacker
+walks straight through; get them right and forging a module is computationally infeasible.
+
+| File | On whose machine | Permission that matters | If an attacker can write (or read) it |
+|------|------------------|-------------------------|----------------------------------------|
+| `release.key` — the **secret key** | the **signer's** | **read-only to you** — `purrc` creates it `0600`; better still, keep it **offline** | reads it → **signs as you**; every downstream check then passes for *their* malware. A leaked secret key defeats Tiers 2 **and** 3 at once. |
+| the **trust file** — the `.pub` you pin (`CHEATAH_TRUST` / `CHEATAH_RT_TRUST`) | the **runner's** | **writable only by you / root** | adds **their own** public key, then signs malware with its secret half → **full bypass**. The trust file is the anchor; the runtime believes whatever keys are in it. |
+| the **`cheatah` runtime** binary + its directory | the **runner's** | **writable only by you / root** | rewrites the verifier itself → it can be patched to accept anything. Nothing below the trust anchor can defend the trust anchor. |
+| `app.so` — the module | the **runner's** | the runtime **refuses to load it if it is world-writable** (`o+w`) | (refused outright) — but keep it non-world-writable so that refusal isn't your *only* line, and so a local user can't stage a swap. |
+
+And the flip side — files whose permissions you **don't** need to fret over, because they
+either can't be forged or aren't a security control:
+
+- **`app.so.sig` / `app.so.rt.sig`** — leave them world-writable if you like. A signature an
+  attacker didn't produce with a **trusted secret key** simply won't verify. The hard part
+  is forgery, not file access.
+- **`app.so.sha256`** — anyone who can change the module can recompute its checksum, so the
+  `.sha256` is only ever a **corruption** check, never a tamper defense. Permissions on it
+  buy you nothing.
+- **an unsigned `app.so.rt`** — plain text anyone can edit; it only prevents a *crash*, so a
+  doctored manifest at worst lets an incompatible module *try* to load and fail. Sign it
+  (`app.so.rt.sig`) and set a runtime trust if you need it to be trustworthy.
+
+In one line: **protect the secret key on the signing side, and the trust file plus the
+`cheatah` binary on the running side.** Those are the trust anchors; everything else is
+either unforgeable or not a security boundary, so its permissions don't change the outcome.
 
 ### What this does and does NOT guarantee
 
