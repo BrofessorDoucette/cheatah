@@ -143,11 +143,13 @@ def main():
                 continue
             args = (m.findtext("argsstring") or "").strip()
             brief = text_of(m.find("briefdescription"))
+            # Skip undocumented functions: a public namespace may expose internal helpers
+            # (e.g. the linalg SIMD dot kernels) that carry no Javadoc. Emitting them would
+            # produce an empty, broken hover popup, so leave them out entirely.
+            if not brief:
+                continue
             detail = m.find("detaileddescription")
             params, returns = parse_detail(detail)
-            # Overloads collapse to one entry; keep the first that carries a brief.
-            if name in bucket and not brief:
-                continue
             srcfile, srcline = location_of(m)
             bucket[name] = {
                 "name": name,

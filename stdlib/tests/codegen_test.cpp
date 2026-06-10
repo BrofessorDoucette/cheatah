@@ -20,10 +20,12 @@ TEST(CheatahCodegen, EmitsPurrMainWithNamespaceQualifiedCall) {
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "#include \"io.hpp\""));
-    // purr_main is emitted through the portable export macro (C linkage everywhere,
-    // dllexport on Windows so the DLL exposes the entry point).
+    // The prelude (std headers + built-ins + the PURR_EXPORT macro) comes in through
+    // one consolidated include rather than a dozen repeated #includes per file.
+    EXPECT_TRUE(contains(cg.source, "#include \"cheatah.hpp\""));
+    // purr_main is emitted through the portable export macro (defined in the prelude:
+    // C linkage everywhere, dllexport on Windows so the DLL exposes the entry point).
     EXPECT_TRUE(contains(cg.source, "PURR_EXPORT void purr_main()"));
-    EXPECT_TRUE(contains(cg.source, "#define PURR_EXPORT extern \"C\""));
     // The program lives in a dedicated namespace and the exported entry is a trampoline
     // into it — this is what keeps the module aliases from clashing with global symbols.
     EXPECT_TRUE(contains(cg.source, "namespace cheatah_program {"));
@@ -95,7 +97,8 @@ TEST(CheatahCodegen, BuiltinsResolveWithoutImport) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "#include \"builtins.hpp\""));
+    // builtins arrives through the prelude (cheatah.hpp), not a direct include.
+    EXPECT_TRUE(contains(cg.source, "#include \"cheatah.hpp\""));
     // builtins is aliased like every other module, so calls read `builtins::len`.
     EXPECT_TRUE(contains(cg.source, "namespace builtins = ::cheatah::builtins;"));
     EXPECT_TRUE(contains(cg.source, "builtins::len(std::string(\"meow\"));"));

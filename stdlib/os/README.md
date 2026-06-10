@@ -18,6 +18,7 @@ Working directory & process:
 - `getcwd()`, `chdir(path)` — read / change the cwd.
 - `getpid()`, `cpu_count()`, `system(command)` — process id, logical CPU count,
   run a shell command.
+- `urandom(n)` — `n` cryptographically secure random bytes (from the OS CSPRNG).
 
 Directories & files:
 - `listdir(path=".")` — entry basenames in a directory.

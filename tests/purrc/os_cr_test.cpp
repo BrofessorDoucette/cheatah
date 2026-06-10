@@ -235,3 +235,13 @@ io.print(os.system("true"))
 io.print(os.system("false") != 0)
 )PURR", "0\nTrue\n");
 }
+
+TEST(OsCompileRun, Urandom) {
+    // urandom returns real entropy (non-deterministic), so assert its PROPERTIES: the
+    // requested length, and that two independent draws don't match.
+    e2e::expect_e2e("os_urandom", R"PURR(import io
+import os
+io.print(len(os.urandom(32)))
+io.print(os.urandom(16) != os.urandom(16))
+)PURR", "32\nTrue\n");
+}

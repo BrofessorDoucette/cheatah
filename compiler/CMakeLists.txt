@@ -35,7 +35,10 @@ set_target_properties(cheatah_compiler PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # at stdlib/ — purrc resolves `import <m>` to that module's header and the
 # libcheatah_<m> archive built from there.
 add_executable(purrc purrc.cpp)
-target_link_libraries(purrc PRIVATE cheatah::compiler cheatah::version)
+# purrc links the same self-contained crypto the runtime verifies with: ed25519 (sign /
+# keygen) over hashlib (SHA-256 checksum). ed25519 before hashlib for static link order.
+target_link_libraries(purrc PRIVATE
+    cheatah::compiler cheatah::version cheatah::ed25519_static cheatah::hashlib_static)
 
 # Bake the platform-computed flag lists in as '|'-joined strings (purrc splits them and
 # execs the compiler with no shell). Centralizing them in cmake/Portability.cmake keeps

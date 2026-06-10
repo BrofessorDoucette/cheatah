@@ -6,6 +6,10 @@
 source, compile it with `purrc` (lexer → parser → codegen → C++ → `.so`), and run
 it on the headless `cheatah` host. This site documents the **standard library**.
 
+> **New here?** If you want to know *why* cheatah exists despite the world already having
+> too many languages, read **[Why cheatah?](why.html)**. If you'd rather just start
+> writing code, jump to **[Getting started](getting-started.html)**.
+
 ## How to read these docs 🐾
 
 Every standard-library function carries a Doxygen/Javadoc comment with a consistent
@@ -39,12 +43,14 @@ automatic string-concatenation optimization — at the cost of compile time.
 | `string`   | Text ops + Python's `string` constants. |
 | `math`     | Scalar math (pure, allocation-free) + `abs`/`min`/`max`/`pow`. |
 | `io`        | `print`, `str`/`repr`/`format`, `input`, file I/O. |
-| `os`        | Environment, process, and filesystem (`os.path`) helpers. |
+| `os`        | Environment, process, and filesystem (`os.path`) helpers, plus `os.urandom` (CSPRNG). |
+| `sys`       | Command-line arguments (`sys.argv`), Python-style. |
 | `time`      | Monotonic / wall clocks and sleeping. |
 | `datetime`  | Civil date & time values and formatting. |
 | `random`    | Pseudo-random numbers and selection. |
 | `statistics`| Mean, median, variance, standard deviation. |
-| `hashlib`   | SHA-256 digests. |
+| `hashlib`   | SHA-256 and SHA-512 digests (hex and raw). |
+| `ed25519`   | Ed25519 public-key signatures (RFC 8032), from scratch — sign, verify, keygen. Backs cheatah's [module-integrity](security.html) check. |
 | `ndarray`   | N-dimensional arrays **generic over the numeric element type** (deduced from the literals), with broadcasting + declarative SIMD. |
 | `linalg`    | numpy-style linear algebra on `ndarray`, SIMD-accelerated. |
 | `socket`    | TCP sockets — a small BSD-socket wrapper (Python-`socket`-flavored). |

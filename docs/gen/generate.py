@@ -487,9 +487,9 @@ class Renderer:
         return "".join(out)
 
     # Verdict phrases in any performance table get the warm green/red treatment:
-    # "cheatah 2.8×" / "N× faster" → green; "NumPy 1.1×" / "N× slower" → red.
+    # "cheatah 2.8×" / "N× faster" → green; "NumPy 1.1×" / "Eigen 1.5×" / "N× slower" → red.
     _PERF_UP_RE = re.compile(r"(cheatah\s+[\d.]+×|≈?[\d.]+×\s+faster)")
-    _PERF_DOWN_RE = re.compile(r"(NumPy\s+[\d.]+×|≈?[\d.]+×\s+slower)")
+    _PERF_DOWN_RE = re.compile(r"(NumPy\s+[\d.]+×|Eigen\s+[\d.]+×|≈?[\d.]+×\s+slower)")
 
     @classmethod
     def _color_verdict(cls, inner: str) -> str:
@@ -628,8 +628,27 @@ def render_member(r: Renderer, m: Member) -> str:
   <div class="member-body">{detail}</div>
 </section>"""
 
+# A guide can place two code blocks side by side: a paragraph `SIDEBYSIDE: left | right`
+# immediately followed by two fenced code blocks becomes a two-column grid with those
+# labels (reusing the transpiler page's .xpile styling). Raw HTML in a markdown page is
+# stripped by Doxygen, so this marker-in-prose approach is what survives.
+_SXS_RE = re.compile(
+    r'<p>\s*SIDEBYSIDE:\s*([^|<]+?)\s*\|\s*([^<]+?)\s*</p>\s*'
+    r'(<pre class="code"><code>.*?</code></pre>)\s*'
+    r'(<pre class="code"><code>.*?</code></pre>)',
+    re.S)
+
+def apply_sidebyside(content: str) -> str:
+    def pane(label: str, code: str) -> str:
+        return (f'<figure class="xpile-pane">{code}<figcaption>'
+                f'<span class="fname">{html.escape(label)}</span></figcaption></figure>')
+    return _SXS_RE.sub(
+        lambda m: f'<div class="xpile">{pane(m.group(1), m.group(3))}{pane(m.group(2), m.group(4))}</div>',
+        content)
+
 def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) -> str:
     content = content.replace("🐾", '<span class="paw">🐾</span>')  # recolor blue system paw emoji
+    content = apply_sidebyside(content)
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -667,8 +686,8 @@ def build_sidebar(compounds: dict[str, Compound]) -> str:
     # Hand-written guide pages (e.g. Performance) — listed first, in a deliberate
     # reading order (getting-started → porting → performance → security), then any
     # other guide alphabetically.
-    GUIDE_ORDER = {"getting-started": 0, "md_compiler_2PYTHON": 1, "porting": 2,
-                   "performance": 3, "security": 4, "md_CHANGELOG": 8}
+    GUIDE_ORDER = {"why": 0, "getting-started": 1, "md_compiler_2PYTHON": 2, "porting": 3,
+                   "performance": 4, "security": 5, "md_CHANGELOG": 8}
     guides = sorted((c for c in compounds.values()
                      if c.kind == "page" and c.refid not in XREF_PAGES),
                     key=lambda c: (GUIDE_ORDER.get(c.refid, 99), (c.title or c.short).lower()))
@@ -832,9 +851,9 @@ TRANSPILER_EXAMPLES = [
 
 def _xpile_pane(fname: str, lang_label: str, code_html: str) -> str:
     return (f'<figure class="xpile-pane">'
+            f'<pre class="code"><code>{code_html}</code></pre>'
             f'<figcaption><span class="fname">{html.escape(fname)}</span>'
-            f'<span class="xpile-lang">{html.escape(lang_label)}</span></figcaption>'
-            f'<pre class="code"><code>{code_html}</code></pre></figure>')
+            f'<span class="xpile-lang">{html.escape(lang_label)}</span></figcaption></figure>')
 
 def render_transpiler_page(sidebar: str) -> str:
     gen_dir = ROOT / "gen"

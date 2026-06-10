@@ -15,10 +15,10 @@ add_subdirectory(time)
 add_subdirectory(datetime)
 add_subdirectory(random)
 add_subdirectory(statistics)
-add_subdirectory(hashlib)
 add_subdirectory(socket)
 add_subdirectory(sys)
-# ndarray + linalg are added at the root (before this dir) so linalg sees ndarray.
+# ndarray + linalg AND the crypto modules (hashlib, ed25519) are added at the root
+# (before this dir): linalg links ndarray, and purrc + the runtime both link the crypto.
 
 # Convenience aggregate: `cmake --build … --target cheatah_stdlib` builds EVERY
 # stdlib module's static + shared library at once (registered by add_cheatah_library,

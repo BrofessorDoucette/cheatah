@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.24)
 # library (io/os/string/math/time/datetime/random/statistics/hashlib + the
 # numeric core ndarray/linalg).
 project(cheatah
-    VERSION 1.0.0
+    VERSION 1.1.0
     DESCRIPTION "cheatah — a fast, Python-like programming language (.purr)"
     LANGUAGES CXX)
 
@@ -94,6 +94,12 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahLibrary.cmake)
 # Numeric core: ndarray must be built before linalg (linalg links it).
 add_subdirectory(stdlib/ndarray)
 add_subdirectory(stdlib/linalg)
+
+# Crypto modules are added before the compiler + runtime because BOTH link them (purrc
+# to sign/checksum, the runtime to verify a module before loading it). ed25519 links
+# hashlib, so hashlib comes first.
+add_subdirectory(stdlib/hashlib)
+add_subdirectory(stdlib/ed25519)
 
 add_subdirectory(compiler)  # language toolchain (cheatah::compiler) + purrc
 add_subdirectory(stdlib)    # the standard-library modules + the unit tests

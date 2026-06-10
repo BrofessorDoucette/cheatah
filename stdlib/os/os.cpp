@@ -1,12 +1,17 @@
 #include "os.hpp"
 
+#include <algorithm>
 #include <cstdlib>
+#include <stdexcept>
 #include <thread>
 
 #if defined(_WIN32)
 #include <process.h>  // _getpid
+#include <windows.h>
+#include <bcrypt.h>   // BCryptGenRandom
 #else
 #include <unistd.h>   // getpid
+#include <sys/random.h>  // getentropy
 #endif
 
 // Compiled (non-template) symbols of the os module. Linked into a cheatah
@@ -52,6 +57,29 @@ int getpid() { return static_cast<int>(::getpid()); }
 #endif
 unsigned cpu_count() { return std::thread::hardware_concurrency(); }
 int system(const std::string& command) { return std::system(command.c_str()); }
+
+std::string urandom(int n) {
+    if (n < 0) throw std::invalid_argument("os.urandom: negative byte count");
+    std::string out(static_cast<std::size_t>(n), '\0');
+    if (n == 0) return out;
+#if defined(_WIN32)
+    if (::BCryptGenRandom(nullptr, reinterpret_cast<PUCHAR>(out.data()),
+                          static_cast<ULONG>(out.size()),
+                          BCRYPT_USE_SYSTEM_PREFERRED_RNG) != 0)
+        throw std::runtime_error("os.urandom: BCryptGenRandom failed");
+#else
+    // getentropy is limited to 256 bytes per call; loop for larger requests. A nonzero
+    // return means the OS could not supply randomness — fail loudly rather than hand back
+    // predictable bytes that a caller might turn into a key.
+    std::size_t off = 0;
+    while (off < out.size()) {
+        const std::size_t chunk = std::min<std::size_t>(out.size() - off, 256);
+        if (::getentropy(out.data() + off, chunk) != 0) throw std::runtime_error("os.urandom: getentropy failed");
+        off += chunk;
+    }
+#endif
+    return out;
+}
 
 namespace path {
 

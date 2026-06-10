@@ -4,7 +4,6 @@
  * @file io.hpp
  * @brief cheatah `io` — Python-like input/output, surfaced as free functions and a
  *        `File` object (a .purr program writes `io.print(...)`, `io.open(...)`).
- *        Mirrors https://docs.python.org/3/tutorial/inputoutput.html.
  *
  * `import io` includes this header AND links the io library (libcheatah_io); a
  * program that doesn't import io neither sees nor links it. Unit tests:

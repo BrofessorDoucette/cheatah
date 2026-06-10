@@ -14,9 +14,9 @@
 // `false`) are asserted as PROPERTIES (pid > 0, cpu_count >= 1, cwd basename,
 // false != 0) rather than printed raw.
 //
-// Coverage (all 23 public functions):
+// Coverage (all 24 public functions):
 //   os.*       getcwd chdir listdir mkdir makedirs rmdir remove rename
-//              getenv setenv cpu_count system getpid
+//              getenv setenv cpu_count system getpid urandom
 //   os.path.*  join exists isfile isdir basename dirname abspath getsize
 //              splitext normpath
 //
@@ -89,6 +89,8 @@ io.print("pid positive:", os.getpid() > 0)
 io.print("cpu>=1:", os.cpu_count() >= 1)
 io.print("system true:", os.system("true"))
 io.print("system false nonzero:", os.system("false") != 0)
+io.print("urandom len:", len(os.urandom(32)))
+io.print("urandom varies:", os.urandom(16) != os.urandom(16))
 
 # --- teardown: remove files and dirs ----------------------------------------
 io.print("remove f2:", os.remove(f2))
@@ -122,6 +124,8 @@ io.print("root gone:", os.path.exists(root))
                    "cpu>=1: True\n"
                    "system true: 0\n"
                    "system false nonzero: True\n"
+                   "urandom len: 32\n"
+                   "urandom varies: True\n"
                    "remove f2: True\n"
                    "root gone: False\n");
 }

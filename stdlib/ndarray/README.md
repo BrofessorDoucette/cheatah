@@ -59,9 +59,9 @@ work at every rank — `reshape` is the other way to set a shape.
 - `add` / `sub` / `mul` / `divide` — `a` op `b` over the common shape.
 
 ### Element-wise math (numpy-style ufuncs)
-The array forms of the scalar `math` module — mirroring Python's `math.sqrt(x)` (a
-scalar) vs `numpy.sqrt(array)` (a whole array). Each applies the function to every
-element, SIMD-vectorized on the contiguous fast path:
+The array forms of the scalar `math` module: where `math.sqrt(x)` takes one number,
+`ndarray.sqrt(a)` applies the function to every element of an array, SIMD-vectorized
+on the contiguous fast path:
 - `sqrt` / `cbrt` / `exp` / `log` — roots, exponential, natural log.
 - `sin` / `cos` / `tan` — trigonometric (radians).
 - `abs` — absolute value.
@@ -103,17 +103,20 @@ Each function's **Performance** row above carries its own number; representative
 
 | op | operand dimensions | cheatah | NumPy | winner |
 |----|--------------------|--------:|------:|--------|
-| `ndarray.sqrt` | 64-element array | 0.18 | 0.80 | **cheatah 4.4×** |
-| `ndarray.sqrt` | 16384-element array | 16.2 | 13.9 | NumPy 1.2× |
-| `ndarray.exp` | 16384-element array | 14.7 | 46.3 | **cheatah 3.1×** |
-| `ndarray.sin` | 16384-element array | 15.8 | 84.5 | **cheatah 5.4×** |
-| `ndarray.add` | 16384-element array + scalar | 4.15 | 2.77 | NumPy 1.5× |
+| `ndarray.sqrt` | 64-element array | 0.16 | 0.80 | **cheatah 5.1×** |
+| `ndarray.sqrt` | 16384-element array | 13.9 | 13.9 | even |
+| `ndarray.exp` | 16384-element array | 11.7 | 46.5 | **cheatah 4.0×** |
+| `ndarray.sin` | 16384-element array | 12.1 | 85.4 | **cheatah 7.0×** |
+| `ndarray.add` | 16384-element array + scalar | 2.24 | 2.71 | **cheatah 1.2×** |
 
 `exp`/`sin` route their contiguous-`double` case through glibc's **libmvec** vector math
 (`_ZGVdN4v_exp`, …) compiled with `-fveclib=libmvec -fno-math-errno` — *without*
-`-ffast-math`, so results stay strictly IEEE — and so beat NumPy ≈3–5× at 16384 elements.
-`sqrt` is memory-bandwidth-bound (wins small, ties large). See the
-[Performance guide](@ref performance) for the single-core-by-design rationale.
+`-ffast-math`, so results stay strictly IEEE — and so beat NumPy ≈4–7× at 16384 elements.
+`sqrt` is memory-bandwidth-bound (wins small, ties large). The plain element-wise ops like
+`add` are bandwidth-bound too: their result buffer is allocated **uninitialized** (no
+throwaway zero-fill before the overwrite), so they read once and write once — matching or
+beating NumPy. See the [Performance guide](@ref performance) for the single-core-by-design
+rationale.
 
 Per-function docs (parameters, complexity, heap behavior) are in [ndarray.hpp](ndarray.hpp).
 Tested in [../tests/ndarray_test.cpp](../tests/ndarray_test.cpp); ASan + Valgrind

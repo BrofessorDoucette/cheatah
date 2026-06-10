@@ -36,15 +36,15 @@ machine:
 
 | program | what it does | cheatah | CPython | speedup |
 |---------|--------------|--------:|--------:|--------:|
-| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 58 ms | 4267 ms | **74×** |
-| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 30 ms | 2892 ms | **97×** |
-| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 40 ms | 2549 ms | **64×** |
-| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 170 ms | 2337 ms | **14×** |
+| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 60 ms | 4262 ms | **71×** |
+| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 30 ms | 2854 ms | **96×** |
+| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 40 ms | 2589 ms | **65×** |
+| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 174 ms | 2504 ms | **14×** |
 
 These aren't cherry-picked kernels handed to a C extension — they are *the program*,
 loops and all, the part CPython interprets one bytecode at a time. The integral case is
 "lowest" at 14× only because most of its time is inside `libm`'s `sin`/`exp` (native on
-both sides); the pure-Python-logic programs land at **64–97×**. (A *chaotic* system like
+both sides); the pure-Python-logic programs land at **65–96×**. (A *chaotic* system like
 Lorenz runs just as fast, but its final state diverges between floating-point
 implementations — `-march=native` uses FMA, CPython doesn't — so we integrate a harmonic
 oscillator and cross-check its conserved **energy** instead.)
@@ -112,17 +112,30 @@ reflect work that actually happened.
   equivalent (`hashlib.sha256`, `math.sqrt`) the gap narrows to ~1×, reported honestly.
   For the numpy comparison, see below.
 
-## Numerics vs NumPy {#vs-numpy}
+## Numerics vs NumPy and Eigen {#vs-numpy}
 
-The hard comparison for the numeric core is **NumPy**, whose array ops dispatch to
-hand-tuned, often multi-threaded **BLAS/LAPACK**. We run it honestly — same fixed-seed
-input to both, same op many times, answers cross-checked — and across dense linear
-algebra at small-to-moderate `n` (the regime most scientific code runs in) cheatah
-**matches or beats** NumPy on every routine measured. The full op-by-op table —
-methodology, the exact NumPy version, and the µs-per-op numbers — now lives on the
-[linalg reference](@ref cheatah::linalg), beside the functions it measures (and the
-element-wise array math on the [ndarray reference](@ref cheatah::ndarray)), where each
-function's **Performance** row also carries its own vs-NumPy number.
+The numeric core is measured against two references: **NumPy** (whose array ops dispatch
+to hand-tuned, often multi-threaded **BLAS/LAPACK**) and, as a single-thread C++
+apples-to-apples baseline, **Eigen 3.4**. We run both honestly — same fixed-seed input,
+same op many times, answers cross-checked.
+
+- **vs NumPy**, across dense linear algebra at small-to-moderate `n` (the regime most
+  scientific code runs in), cheatah **matches or beats** it on most routines (no
+  Python/dispatch overhead to pay), and stays **within a small constant factor (≈1.1×)**
+  on the few where NumPy's tuned BLAS/SIMD loops edge ahead — chiefly the SVD-derived
+  threshold queries (`cond`, `matrix_rank`, `svdvals`). The element-wise array ops are
+  competitive too: bandwidth-bound ones (`ndarray.add`, large `ndarray.sqrt`) match NumPy
+  by allocating their result buffer uninitialized, and the transcendental ufuncs
+  (`exp`/`sin`) win **≈4–7×** through libmvec.
+- **vs Eigen on one core**, cheatah matches or beats it on the bulk (`inv`, `solve`,
+  `matmul`, `dot`, `trace`, `norm`, `outer`), with Eigen leading only on its blocked
+  **BLAS-3** kernels (`qr`, `cholesky`).
+
+The full op-by-op table — methodology, the exact NumPy/Eigen versions, and the µs-per-op
+numbers — lives on the [linalg reference](@ref cheatah::linalg), beside the functions it
+measures (and the element-wise array math on the [ndarray reference](@ref cheatah::ndarray));
+each linalg **Performance** row carries its own vs-NumPy number, and the reference table
+its **vs-Eigen** column.
 
 And cheatah does it on **one core, by design.** Its linear algebra is deliberately
 **single-threaded** — a feature, not a shortfall: no hidden worker threads, no surprise
@@ -211,7 +224,11 @@ allocations a careful C++ programmer would write by hand.
   `std::vector<T>` loop, with no shared dynamic base.
 - **Element-wise kernels vectorize declaratively** via `std::transform(std::execution::unseq, …)`
   and `std::reduce(std::execution::unseq, …)` — we write our *intent to vectorize*
-  in the source, and the compiler emits SIMD for whatever the target supports.
+  in the source, and the compiler emits SIMD for whatever the target supports. The policy
+  is feature-test-guarded (`__cpp_lib_execution`), so on a toolchain without `<execution>`
+  (e.g. Apple libc++) it falls back to the policy-less overloads — same results, and the
+  `-O3 -march=native` auto-vectorizer still produces the SIMD; `unseq` adds no threads or
+  TBB dependency.
 - **linalg kernels auto-vectorize** at `-O3 -march=native` (contiguous, unit-stride
   loops; no hand-written intrinsics). See @ref simd.hpp for the full SIMD model,
   including exactly what happens on a build with **no SIMD** (answer: identical

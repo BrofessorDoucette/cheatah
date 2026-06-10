@@ -1,6 +1,7 @@
 #include "os.hpp"
 
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -112,4 +113,14 @@ TEST(CheatahOs, PidAndSystem) {
     EXPECT_GT(os::getpid(), 0);
     EXPECT_EQ(os::system("true"), 0);
     EXPECT_NE(os::system("false"), 0);
+}
+
+TEST(CheatahOs, Urandom) {
+    EXPECT_EQ(os::urandom(0).size(), 0u);
+    EXPECT_EQ(os::urandom(32).size(), 32u);
+    // A request larger than one getentropy() chunk (256 bytes) must still be filled.
+    EXPECT_EQ(os::urandom(300).size(), 300u);
+    // Two draws of real entropy are astronomically unlikely to collide.
+    EXPECT_NE(os::urandom(32), os::urandom(32));
+    EXPECT_THROW(os::urandom(-1), std::invalid_argument);
 }

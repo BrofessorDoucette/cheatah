@@ -202,6 +202,17 @@ def main():
                   lambda v=v: (v,),
                   lambda o, i, f=npfn: float(f(o[0] + 0.000001 * i)[0]), extract="[0]")
 
+    # ---- element-wise add of a broadcast scalar — a memory-bandwidth-bound op (one read,
+    #      one write). This is where allocating the result buffer UNINITIALIZED instead of
+    #      zero-filling it before the overwrite (see ndarray::buffer_t) matters most. ----
+    for n, iters in [(64, 200000), (16384, 4000)]:
+        v = rng.random(n) + 0.1
+        setup = f"let v = ndarray.array({lit(v)})"
+        expr = "ndarray.add(v, ndarray.scalar(0.000001 * i))"
+        bench("ndarray.add", n, iters, setup, expr,
+              lambda v=v: (v,),
+              lambda o, i: float((o[0] + 0.000001 * i)[0]), extract="[0]")
+
     # ---- Cholesky factor (SPD) ----
     for n, iters in [(8, 50000), (32, 8000), (64, 2000)]:
         A = spd(n)

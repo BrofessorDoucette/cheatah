@@ -53,9 +53,9 @@ routines).
 A cheatah `struct` started as a `@dataclass`, but now carries **typed fields**,
 **methods**, and **interfaces** — so most small Python classes port directly.
 
-cheatah:
+SIDEBYSIDE: cheatah | Python
 
-```
+```purr
 interface Shape {
     fn area(self)
 }
@@ -74,8 +74,6 @@ fn describe(s: Shape) {
 let c = Circle(2.0)
 io.print(c.area())
 ```
-
-the same in Python:
 
 ```python
 from typing import Protocol
@@ -136,22 +134,9 @@ print(c.area())
 
 ## A worked port
 
-Python:
+SIDEBYSIDE: cheatah | Python
 
-```python
-import statistics
-
-def zscores(xs):
-    m = statistics.mean(xs)
-    sd = statistics.pstdev(xs)
-    return [(x - m) / sd for x in xs]
-
-print(zscores([1, 2, 3, 4]))
-```
-
-cheatah:
-
-```
+```purr
 import io
 import statistics
 
@@ -168,10 +153,92 @@ fn zscores(xs) {
 io.print(zscores([1.0, 2.0, 3.0, 4.0]))
 ```
 
+```python
+import statistics
+
+def zscores(xs):
+    m = statistics.mean(xs)
+    sd = statistics.pstdev(xs)
+    return [(x - m) / sd for x in xs]
+
+print(zscores([1, 2, 3, 4]))
+```
+
 Two edits beyond syntax: the **comprehension** becomes an explicit loop (not yet
 supported), and an **empty list literal needs a type annotation** (`let out:
 list[float] = []`) — cheatah infers a list's element type from its literal elements,
 so an empty `[]` has nothing to infer from.
+
+## More side-by-side ports
+
+**Error handling** — `try` / `except` work as you'd expect; the exception name binds a
+variable (typed exceptions aren't in yet, so you catch them all):
+
+SIDEBYSIDE: cheatah | Python
+
+```purr
+import io
+
+fn parse(s) {
+    try {
+        return int(s)
+    } except e {
+        return -1
+    }
+}
+
+io.print(parse("42"), parse("oops"))
+```
+
+```python
+def parse(s):
+    try:
+        return int(s)
+    except ValueError:
+        return -1
+
+print(parse("42"), parse("oops"))
+```
+
+**Numerics** — NumPy's array ops map onto the `ndarray` + `linalg` core (literals carry
+their element type, so write `2.0`, not `2`):
+
+SIDEBYSIDE: cheatah | Python (NumPy)
+
+```purr
+import io
+import ndarray
+import linalg
+
+let A = ndarray.array([[2.0, 1.0], [1.0, 3.0]])
+let b = ndarray.array([1.0, 2.0])
+io.print(ndarray.to_string(linalg.solve(A, b)))
+```
+
+```python
+import numpy as np
+
+A = np.array([[2.0, 1.0], [1.0, 3.0]])
+b = np.array([1.0, 2.0])
+print(np.linalg.solve(A, b))
+```
+
+**Dicts** — `{k: v}` literals and `d[k]` indexing are the same; the key/value types are
+inferred from the literal:
+
+SIDEBYSIDE: cheatah | Python
+
+```purr
+import io
+
+let ages = {"ada": 36, "linus": 54}
+io.print(ages["ada"])
+```
+
+```python
+ages = {"ada": 36, "linus": 54}
+print(ages["ada"])
+```
 
 ## Not yet supported (roadmap)
 

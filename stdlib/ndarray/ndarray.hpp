@@ -26,11 +26,13 @@
 #include <initializer_list>
 #include <limits>
 #include <memory>
+#include <new>  // placement new, for the default-init buffer allocator
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>  // std::forward / std::move
 #include <version>  // __cpp_lib_execution feature-test macro
 #include <vector>
 
@@ -101,6 +103,37 @@ template <typename T>
 using complex_of_t = std::complex<real_base_t<T>>;
 
 namespace detail {
+/// \cond INTERNAL
+/// An allocator identical to `std::allocator<T>` in every respect EXCEPT that
+/// DEFAULT (no-value) construction — what `vector(n)` / `resize(n)` perform — leaves a
+/// trivially-constructible element UNINITIALIZED instead of value-initializing it to 0.
+///
+/// Every ndarray op that allocates a result buffer it then overwrites in full (binary
+/// ops, ufuncs, reshape, array()) would otherwise pay a throwaway zero-fill of the whole
+/// buffer first. That wasted write pass is hidden on compute-heavy ops but DOMINATES
+/// bandwidth-bound ones — `add` was ≈1.5× of NumPy purely from the extra memset. With
+/// this allocator the sizing path skips it; the value-filling forms (`assign(n, v)`,
+/// `vector(n, v)` used by zeros/full/scalar) are untouched and still initialize.
+template <typename T>
+struct default_init_allocator : std::allocator<T> {
+    using std::allocator<T>::allocator;
+    template <typename U>
+    struct rebind {
+        using other = default_init_allocator<U>;
+    };
+    /// Default construction: a trivially-constructible element is left uninitialized.
+    template <typename U>
+    void construct(U* p) noexcept(std::is_nothrow_default_constructible_v<U>) {
+        ::new (static_cast<void*>(p)) U;  // default-init (no `()`): no zeroing for trivial U
+    }
+    /// Every other construction (value-fill, copy, emplace) behaves exactly as normal.
+    template <typename U, typename... Args>
+    void construct(U* p, Args&&... args) {
+        ::new (static_cast<void*>(p)) U(std::forward<Args>(args)...);
+    }
+};
+/// \endcond
+
 /// C-order (row-major) strides for a shape.
 inline std::vector<std::ptrdiff_t> contiguous_strides(const std::vector<std::size_t>& shape) {
     std::vector<std::ptrdiff_t> s(shape.size());
@@ -174,6 +207,13 @@ void nested_collect(const std::vector<U>& v, std::vector<nested_scalar_t<U>>& fl
 }
 }  // namespace detail
 
+/// The backing store of an ndarray: a flat, contiguous, shared element buffer. It uses
+/// @ref detail::default_init_allocator so a freshly-sized result buffer that an op is
+/// about to overwrite in full is not needlessly zero-filled first. zeros/full/scalar,
+/// which value-fill, are unaffected — only the no-value sizing path skips initialization.
+template <Field T>
+using buffer_t = std::vector<T, detail::default_init_allocator<T>>;
+
 /**
  * @brief An N-dimensional array of `T` (a @ref Field element type — real or complex):
  *        a view ({shape, strides, offset}) over a shared element buffer.
@@ -199,7 +239,7 @@ public:
      * @test CheatahNDArray.ToStringScalar
      * @systest StdlibE2E.Ndarray
      */
-    basic_ndarray() : data_(std::make_shared<std::vector<T>>()) {}
+    basic_ndarray() : data_(std::make_shared<buffer_t<T>>()) {}
     /**
      * Construct a contiguous array of @p shape filled with @p fill.
      *
@@ -214,9 +254,32 @@ public:
      * @systest StdlibE2E.Ndarray
      */
     explicit basic_ndarray(std::vector<std::size_t> shape, T fill = T{})  // contiguous
-        : data_(std::make_shared<std::vector<T>>()), shape_(std::move(shape)) {
-        data_->assign(detail::product(shape_), fill);
+        : data_(std::make_shared<buffer_t<T>>()), shape_(std::move(shape)) {
+        // resize (default-init: no zero pass) then std::fill — the fill goes through
+        // operator= on built elements, which keeps libstdc++'s memset/SIMD fast path.
+        // (vector::assign(n, v) would route through the allocator's construct, which a
+        // default-init allocator forces element-by-element — measurably slower.)
+        data_->resize(detail::product(shape_));
+        std::fill(data_->begin(), data_->end(), fill);
         strides_ = detail::contiguous_strides(shape_);
+    }
+    /**
+     * Build a contiguous array of @p shape whose buffer is sized but left
+     * UNINITIALIZED — for internal ops (binary ops, ufuncs, reshape, array) that
+     * immediately write every element, so paying for a zero-fill first is pure waste.
+     * @param shape the dimensions.
+     * @return an array of @p shape with an uninitialized buffer.
+     * @complexity O(1) beyond the allocation (no element initialization).
+     * @alloc allocates an uninitialized `product(shape)`-element buffer; overflow-checked.
+     * @test CheatahNDArray.BroadcastingAdd
+     * @systest StdlibE2E.Ndarray
+     */
+    static basic_ndarray uninitialized(std::vector<std::size_t> shape) {
+        basic_ndarray out;
+        out.shape_ = std::move(shape);
+        out.data_->resize(detail::product(out.shape_));  // default-init alloc -> no zero-fill
+        out.strides_ = detail::contiguous_strides(out.shape_);
+        return out;
     }
     /**
      * Construct a view from explicit buffer/shape/strides/offset (used by views).
@@ -233,7 +296,7 @@ public:
      * @test CheatahNDArray.BroadcastTo
      * @systest StdlibE2E.Ndarray
      */
-    basic_ndarray(std::shared_ptr<std::vector<T>> data, std::vector<std::size_t> shape,
+    basic_ndarray(std::shared_ptr<buffer_t<T>> data, std::vector<std::size_t> shape,
                   std::vector<std::ptrdiff_t> strides, std::size_t offset)
         : data_(std::move(data)), shape_(std::move(shape)), strides_(std::move(strides)),
           offset_(offset) {}
@@ -313,7 +376,7 @@ public:
      * @test CheatahNDArray.BroadcastingAdd
      * @systest StdlibE2E.Ndarray
      */
-    const std::shared_ptr<std::vector<T>>& buffer() const { return data_; }
+    const std::shared_ptr<buffer_t<T>>& buffer() const { return data_; }
     /**
      * The flat offset into the buffer where this view starts.
      * @return the offset.
@@ -337,7 +400,7 @@ public:
     std::string str() const;
 
 private:
-    std::shared_ptr<std::vector<T>> data_;
+    std::shared_ptr<buffer_t<T>> data_;
     std::vector<std::size_t> shape_;
     std::vector<std::ptrdiff_t> strides_;  // element strides
     std::size_t offset_ = 0;
@@ -439,8 +502,8 @@ basic_ndarray<T> broadcast_to(const basic_ndarray<T>& a, const std::vector<std::
  */
 template <Field T>
 basic_ndarray<T> array(const std::vector<T>& values) {
-    basic_ndarray<T> a(std::vector<std::size_t>{values.size()});
-    *a.buffer() = values;
+    basic_ndarray<T> a = basic_ndarray<T>::uninitialized({values.size()});
+    std::copy(values.begin(), values.end(), a.buffer()->begin());
     return a;
 }
 /**
@@ -467,8 +530,8 @@ basic_ndarray<detail::nested_scalar_t<V>> array(const std::vector<V>& values) {
     std::vector<std::size_t> shape;
     std::vector<T> flat;
     detail::nested_collect(values, flat, shape, 0);
-    basic_ndarray<T> a(shape);
-    *a.buffer() = std::move(flat);
+    basic_ndarray<T> a = basic_ndarray<T>::uninitialized(shape);
+    std::move(flat.begin(), flat.end(), a.buffer()->begin());
     return a;
 }
 /**
@@ -579,7 +642,7 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
     if (detail::product(ns) != a.size()) {
         throw std::runtime_error("ndarray: cannot reshape, size mismatch");
     }
-    basic_ndarray<T> out(ns);
+    basic_ndarray<T> out = basic_ndarray<T>::uninitialized(ns);  // every element is written below
     auto& buf = *out.buffer();
     // Contiguous source (the common case — e.g. reshaping a freshly built array): copy
     // the flat block in one shot instead of walking a per-element bounds-checked
@@ -614,22 +677,25 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
 template <Field T, typename Op>
 basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b, Op op) {
     const std::vector<std::size_t> rshape = broadcast_shapes(a.shape(), b.shape());
-    basic_ndarray<T> out(rshape);
+    basic_ndarray<T> out = basic_ndarray<T>::uninitialized(rshape);  // every element written below
     auto& obuf = *out.buffer();
     // Scalar fast paths: `array ⊕ scalar` (or the reverse) is by far the most common
     // broadcast, and the general strided walk below does a bounds-checked at() per
     // element (no SIMD). When the other operand is a single value over a contiguous
-    // full-shape array, it's just a flat vectorizable loop.
+    // full-shape array, it's a flat loop we hand to the unseq transform so it vectorizes
+    // the same way the array⊕array path does.
     if (b.size() == 1 && a.shape() == rshape && is_contiguous(a)) {
         const T s = (*b.buffer())[b.offset()];
-        const T* ad = a.buffer()->data() + a.offset();
-        for (std::size_t i = 0; i < obuf.size(); ++i) obuf[i] = op(ad[i], s);
+        const auto first = a.buffer()->begin() + a.offset();
+        std::transform(CHEATAH_UNSEQ first, first + obuf.size(), obuf.begin(),
+                       [s, op](T x) { return op(x, s); });
         return out;
     }
     if (a.size() == 1 && b.shape() == rshape && is_contiguous(b)) {
         const T s = (*a.buffer())[a.offset()];
-        const T* bd = b.buffer()->data() + b.offset();
-        for (std::size_t i = 0; i < obuf.size(); ++i) obuf[i] = op(s, bd[i]);
+        const auto first = b.buffer()->begin() + b.offset();
+        std::transform(CHEATAH_UNSEQ first, first + obuf.size(), obuf.begin(),
+                       [s, op](T x) { return op(s, x); });
         return out;
     }
     const basic_ndarray<T> av = broadcast_to(a, rshape);
@@ -713,7 +779,7 @@ namespace detail {
 /// fast path via `std::transform(unseq)`; otherwise a C-order walk.
 template <typename U, Field T, typename F>
 basic_ndarray<U> map_array(const basic_ndarray<T>& a, F f) {
-    basic_ndarray<U> out(a.shape());
+    basic_ndarray<U> out = basic_ndarray<U>::uninitialized(a.shape());  // fully written below
     auto& obuf = *out.buffer();
     if (is_contiguous(a)) {
         const auto& abuf = *a.buffer();
@@ -748,7 +814,7 @@ template <FloatingPoint T, class Kernel, class Fallback>
 basic_ndarray<T> map_ufunc(const basic_ndarray<T>& a, Kernel kernel, Fallback fallback) {
     if constexpr (std::is_same_v<T, double>) {
         if (is_contiguous(a)) {
-            basic_ndarray<T> out(a.shape());
+            basic_ndarray<T> out = basic_ndarray<T>::uninitialized(a.shape());  // kernel fills it
             kernel(a.buffer()->data() + a.offset(), out.buffer()->data(), a.size());
             return out;
         }

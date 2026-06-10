@@ -1,7 +1,7 @@
 # cheatah `statistics`
 
-Descriptive statistics over numeric sequences, mirroring Python's `statistics`
-module.
+Descriptive statistics over numeric sequences — mean, median, variance, and standard
+deviation (population and sample).
 
 ```purr
 import statistics

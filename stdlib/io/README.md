@@ -1,7 +1,7 @@
 # cheatah `io`
 
 Python-like input/output, surfaced as free functions plus a Python-style `File`
-object. Mirrors the [Python I/O tutorial](https://docs.python.org/3/tutorial/inputoutput.html).
+object.
 
 ## Usage
 

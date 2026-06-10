@@ -1,10 +1,9 @@
 # cheatah `time`
 
-High-accuracy timing — the timing core of Python's `time` module, built on C++
-`<chrono>` clocks (`system_clock` for wall-clock, `steady_clock` for monotonic
-counters).
+High-accuracy timing built on C++ `<chrono>` clocks (`system_clock` for wall-clock,
+`steady_clock` for monotonic counters).
 
-```python
+```purr
 import time
 
 start = time.perf_counter()

@@ -213,6 +213,23 @@ unsigned cpu_count();
  * @systest StdlibE2E.Os
  */
 int system(const std::string& command);
+/**
+ * Cryptographically secure random bytes (like Python's `os.urandom`).
+ *
+ * Reads @p n bytes from the operating system's CSPRNG — `getentropy`/`/dev/urandom`
+ * on POSIX, `BCryptGenRandom` on Windows — suitable for keys and signatures. Unlike
+ * the `random` module (a deterministic, seedable PRNG), this is NOT reproducible and
+ * must not be seeded. Throws `std::runtime_error` if the OS source cannot be read
+ * (so a key is never built from non-random bytes).
+ * @param n the number of bytes to return.
+ * @return a string of @p n random bytes (may contain embedded NULs).
+ * @complexity O(n) plus a syscall.
+ * @alloc allocates the n-byte result.
+ * @test CheatahOs.Urandom
+ * @crtest OsCompileRun.Urandom
+ * @systest StdlibE2E.Os
+ */
+std::string urandom(int n);
 
 /// os.path — the path-manipulation submodule.
 namespace path {

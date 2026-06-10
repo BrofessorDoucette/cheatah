@@ -583,8 +583,11 @@
       "module": "datetime",
       "qualified": "datetime.day",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 33.26,
+        "compare_ns": 267.19,
+        "kind": "compared",
+        "speedup": 8.0,
+        "vs": "cpython"
       }
     },
     {
@@ -614,8 +617,11 @@
       "module": "datetime",
       "qualified": "datetime.format",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 111.41,
+        "compare_ns": 1437.3,
+        "kind": "compared",
+        "speedup": 12.9,
+        "vs": "cpython"
       }
     },
     {
@@ -641,8 +647,11 @@
       "module": "datetime",
       "qualified": "datetime.hour",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 32.37,
+        "compare_ns": 256.26,
+        "kind": "compared",
+        "speedup": 7.9,
+        "vs": "cpython"
       }
     },
     {
@@ -668,8 +677,11 @@
       "module": "datetime",
       "qualified": "datetime.minute",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 34.08,
+        "compare_ns": 252.86,
+        "kind": "compared",
+        "speedup": 7.4,
+        "vs": "cpython"
       }
     },
     {
@@ -695,8 +707,11 @@
       "module": "datetime",
       "qualified": "datetime.month",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 32.88,
+        "compare_ns": 258.67,
+        "kind": "compared",
+        "speedup": 7.9,
+        "vs": "cpython"
       }
     },
     {
@@ -717,8 +732,11 @@
       "module": "datetime",
       "qualified": "datetime.now",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 109.55,
+        "compare_ns": 679.95,
+        "kind": "compared",
+        "speedup": 6.2,
+        "vs": "cpython"
       }
     },
     {
@@ -744,8 +762,11 @@
       "module": "datetime",
       "qualified": "datetime.second",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 32.67,
+        "compare_ns": 254.88,
+        "kind": "compared",
+        "speedup": 7.8,
+        "vs": "cpython"
       }
     },
     {
@@ -766,8 +787,11 @@
       "module": "datetime",
       "qualified": "datetime.timestamp",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 17.46,
+        "compare_ns": 330.34,
+        "kind": "compared",
+        "speedup": 18.9,
+        "vs": "cpython"
       }
     },
     {
@@ -788,8 +812,11 @@
       "module": "datetime",
       "qualified": "datetime.today",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 76.85,
+        "compare_ns": 707.15,
+        "kind": "compared",
+        "speedup": 9.2,
+        "vs": "cpython"
       }
     },
     {
@@ -810,8 +837,11 @@
       "module": "datetime",
       "qualified": "datetime.utcnow",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 93.9,
+        "compare_ns": 911.35,
+        "kind": "compared",
+        "speedup": 9.7,
+        "vs": "cpython"
       }
     },
     {
@@ -837,8 +867,11 @@
       "module": "datetime",
       "qualified": "datetime.weekday",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 33.0,
+        "compare_ns": 264.47,
+        "kind": "compared",
+        "speedup": 8.0,
+        "vs": "cpython"
       }
     },
     {
@@ -864,14 +897,116 @@
       "module": "datetime",
       "qualified": "datetime.year",
       "perf": {
-        "kind": "note",
-        "note": "date/time value handling — not reduced to one scalar here"
+        "cheatah_ns": 32.65,
+        "compare_ns": 262.26,
+        "kind": "compared",
+        "speedup": 8.0,
+        "vs": "cpython"
       }
+    },
+    {
+      "name": "generate",
+      "signature": "generate()",
+      "brief": "Generate a fresh 32-byte secret seed from the OS CSPRNG, as 64 hex chars.",
+      "params": [],
+      "returns": "a 64-char lowercase hex string (32 random bytes).",
+      "tags": {
+        "complexity": "O(1) plus a syscall.",
+        "alloc": "allocates the result string.",
+        "test": "CheatahEd25519.GenerateRoundTrip",
+        "crtest": "Ed25519CompileRun.Generate",
+        "systest": "StdlibE2E.Ed25519"
+      },
+      "srcfile": "stdlib/ed25519/ed25519.hpp",
+      "srcline": 47,
+      "module": "ed25519",
+      "qualified": "ed25519.generate"
+    },
+    {
+      "name": "public_key",
+      "signature": "public_key(std::string_view secret_hex)",
+      "brief": "Derive the 32-byte public key (hex) from a 32-byte secret seed (hex).",
+      "params": [
+        {
+          "name": "secret_hex",
+          "desc": "the secret seed as 64 hex chars."
+        }
+      ],
+      "returns": "the public key as 64 hex chars.",
+      "tags": {
+        "complexity": "O(1) (one fixed-base scalar multiplication).",
+        "alloc": "allocates the result string.",
+        "test": "CheatahEd25519.KnownVectors, CheatahEd25519.GenerateRoundTrip",
+        "crtest": "Ed25519CompileRun.PublicKey",
+        "systest": "StdlibE2E.Ed25519"
+      },
+      "srcfile": "stdlib/ed25519/ed25519.hpp",
+      "srcline": 63,
+      "module": "ed25519",
+      "qualified": "ed25519.public_key"
+    },
+    {
+      "name": "sign",
+      "signature": "sign(std::string_view secret_hex, std::string_view message)",
+      "brief": "Sign message with the secret seed secret_hex; returns a 64-byte signature (hex).",
+      "params": [
+        {
+          "name": "secret_hex",
+          "desc": "the secret seed as 64 hex chars."
+        },
+        {
+          "name": "message",
+          "desc": "the bytes to sign."
+        }
+      ],
+      "returns": "the signature as 128 hex chars (64 bytes).",
+      "tags": {
+        "complexity": "O(n) in the message length (a SHA-512) plus one scalar multiplication.",
+        "alloc": "allocates the signature string and an internal buffer.",
+        "test": "CheatahEd25519.KnownVectors, CheatahEd25519.SignVerifyRoundTrip",
+        "crtest": "Ed25519CompileRun.SignVerify",
+        "systest": "StdlibE2E.Ed25519"
+      },
+      "srcfile": "stdlib/ed25519/ed25519.hpp",
+      "srcline": 80,
+      "module": "ed25519",
+      "qualified": "ed25519.sign"
+    },
+    {
+      "name": "verify",
+      "signature": "verify(std::string_view public_hex, std::string_view message, std::string_view signature_hex)",
+      "brief": "Verify that signature_hex is a valid Ed25519 signature of message under the public key public_hex.",
+      "params": [
+        {
+          "name": "public_hex",
+          "desc": "the public key as 64 hex chars."
+        },
+        {
+          "name": "message",
+          "desc": "the signed bytes."
+        },
+        {
+          "name": "signature_hex",
+          "desc": "the signature as 128 hex chars."
+        }
+      ],
+      "returns": "true iff the signature verifies.",
+      "tags": {
+        "complexity": "O(n) in the message length plus two scalar multiplications.",
+        "alloc": "allocates internal buffers.",
+        "test": "CheatahEd25519.KnownVectors, CheatahEd25519.RejectsTamperAndWrongKey",
+        "crtest": "Ed25519CompileRun.SignVerify",
+        "systest": "StdlibE2E.Ed25519"
+      },
+      "srcfile": "stdlib/ed25519/ed25519.hpp",
+      "srcline": 99,
+      "module": "ed25519",
+      "qualified": "ed25519.verify"
     },
     {
       "name": "sha256",
       "signature": "sha256(std::string_view data)",
-      "brief": "SHA-256 digest of data.",
+      "brief": "SHA-256 digest of data, as hex.",
       "params": [
         {
           "name": "data",
@@ -887,15 +1022,85 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 36,
+      "srcline": 38,
       "module": "hashlib",
       "qualified": "hashlib.sha256",
       "perf": {
-        "cheatah_ns": 404.93,
+        "cheatah_ns": 394.39,
+        "compare_ns": 430.05,
         "kind": "compared",
-        "python_ns": 431.92,
-        "speedup": 1.1
+        "speedup": 1.1,
+        "vs": "cpython"
       }
+    },
+    {
+      "name": "sha256_digest",
+      "signature": "sha256_digest(std::string_view data)",
+      "brief": "SHA-256 of data as the raw 32 bytes (Python's .digest()), not hex.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the bytes to hash."
+        }
+      ],
+      "returns": "a 32-byte string (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(n) in the input length.",
+        "alloc": "allocates the 32-byte result and a padded message buffer.",
+        "test": "CheatahHashlib.RawDigestMatchesHex",
+        "crtest": "HashlibCompileRun.Sha256Digest",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 66,
+      "module": "hashlib",
+      "qualified": "hashlib.sha256_digest"
+    },
+    {
+      "name": "sha512",
+      "signature": "sha512(std::string_view data)",
+      "brief": "SHA-512 digest of data, as hex.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the bytes to hash (an embedded NUL is part of the input)."
+        }
+      ],
+      "returns": "a 128-char lowercase hex digest.",
+      "tags": {
+        "complexity": "O(n) in the input length.",
+        "alloc": "allocates the 128-char result string and a padded message buffer internally.",
+        "test": "CheatahHashlib.Sha512KnownVectors, CheatahHashlib.Sha512DigestShape",
+        "crtest": "HashlibCompileRun.Sha512",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 54,
+      "module": "hashlib",
+      "qualified": "hashlib.sha512"
+    },
+    {
+      "name": "sha512_digest",
+      "signature": "sha512_digest(std::string_view data)",
+      "brief": "SHA-512 of data as the raw 64 bytes (Python's .digest()), not hex.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the bytes to hash."
+        }
+      ],
+      "returns": "a 64-byte string (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(n) in the input length.",
+        "alloc": "allocates the 64-byte result and a padded message buffer.",
+        "test": "CheatahHashlib.RawDigestMatchesHex",
+        "crtest": "HashlibCompileRun.Sha512Digest",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 79,
+      "module": "hashlib",
+      "qualified": "hashlib.sha512_digest"
     },
     {
       "name": "escape",
@@ -924,10 +1129,11 @@
       "module": "html",
       "qualified": "html.escape",
       "perf": {
-        "cheatah_ns": 90.92,
+        "cheatah_ns": 75.96,
+        "compare_ns": 330.68,
         "kind": "compared",
-        "python_ns": 325.29,
-        "speedup": 3.6
+        "speedup": 4.4,
+        "vs": "cpython"
       }
     },
     {
@@ -953,10 +1159,11 @@
       "module": "html",
       "qualified": "html.unescape",
       "perf": {
-        "cheatah_ns": 76.76,
+        "cheatah_ns": 97.42,
+        "compare_ns": 1517.79,
         "kind": "compared",
-        "python_ns": 1463.26,
-        "speedup": 19.1
+        "speedup": 15.6,
+        "vs": "cpython"
       }
     },
     {
@@ -1071,7 +1278,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 361,
+      "srcline": 360,
       "module": "io",
       "qualified": "io.format",
       "perf": {
@@ -1097,7 +1304,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 381,
+      "srcline": 380,
       "module": "io",
       "qualified": "io.input",
       "perf": {
@@ -1128,7 +1335,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 549,
+      "srcline": 548,
       "module": "io",
       "qualified": "io.open",
       "perf": {
@@ -1155,7 +1362,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 217,
+      "srcline": 216,
       "module": "io",
       "qualified": "io.print",
       "perf": {
@@ -1182,7 +1389,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 565,
+      "srcline": 564,
       "module": "io",
       "qualified": "io.read_file",
       "perf": {
@@ -1208,14 +1415,15 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 124,
+      "srcline": 123,
       "module": "io",
       "qualified": "io.repr",
       "perf": {
-        "cheatah_ns": 229.67,
+        "cheatah_ns": 236.69,
+        "compare_ns": 179.79,
         "kind": "compared",
-        "python_ns": 170.96,
-        "speedup": 0.7
+        "speedup": 0.8,
+        "vs": "cpython"
       }
     },
     {
@@ -1234,39 +1442,16 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 190,
+      "srcline": 189,
       "module": "io",
       "qualified": "io.str",
       "perf": {
-        "cheatah_ns": 76.85,
+        "cheatah_ns": 78.61,
+        "compare_ns": 96.95,
         "kind": "compared",
-        "python_ns": 94.1,
-        "speedup": 1.2
+        "speedup": 1.2,
+        "vs": "cpython"
       }
-    },
-    {
-      "name": "cdot",
-      "signature": "cdot(const Cplx *x, const Cplx *y, std::size_t n, bool conjugate)",
-      "brief": "",
-      "params": [],
-      "returns": "",
-      "tags": {},
-      "srcfile": "stdlib/linalg/routines.cpp",
-      "srcline": 877,
-      "module": "linalg",
-      "qualified": "linalg.cdot"
-    },
-    {
-      "name": "cdot_dispatch",
-      "signature": "cdot_dispatch(const CNDArray &a, const CNDArray &b, bool conjugate)",
-      "brief": "",
-      "params": [],
-      "returns": "",
-      "tags": {},
-      "srcfile": "stdlib/linalg/routines.cpp",
-      "srcline": 899,
-      "module": "linalg",
-      "qualified": "linalg.cdot_dispatch"
     },
     {
       "name": "cholesky",
@@ -1291,9 +1476,9 @@
       "module": "linalg",
       "qualified": "linalg.cholesky",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 12.99,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 24.22
       }
     },
@@ -1320,9 +1505,9 @@
       "module": "linalg",
       "qualified": "linalg.cond",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 206.12,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 195.0
       }
     },
@@ -1353,18 +1538,6 @@
       }
     },
     {
-      "name": "ddot",
-      "signature": "ddot(const double *x, const double *y, std::size_t n)",
-      "brief": "",
-      "params": [],
-      "returns": "",
-      "tags": {},
-      "srcfile": "stdlib/linalg/routines.cpp",
-      "srcline": 837,
-      "module": "linalg",
-      "qualified": "linalg.ddot"
-    },
-    {
       "name": "det",
       "signature": "det(const NDArray &a)",
       "brief": "Determinant via LU with partial pivoting.",
@@ -1387,9 +1560,9 @@
       "module": "linalg",
       "qualified": "linalg.det",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 13.76,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 45.14
       }
     },
@@ -1420,9 +1593,9 @@
       "module": "linalg",
       "qualified": "linalg.dot",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "16384-elt vectors",
         "cheatah_us": 1.94,
+        "dims": "16384-elt vectors",
+        "kind": "numpy_cmp",
         "numpy_us": 7.75
       }
     },
@@ -1475,9 +1648,9 @@
       "module": "linalg",
       "qualified": "linalg.eigh",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64, with vectors",
         "cheatah_us": 225.35,
+        "dims": "64×64, with vectors",
+        "kind": "numpy_cmp",
         "numpy_us": 379.38
       }
     },
@@ -1504,9 +1677,9 @@
       "module": "linalg",
       "qualified": "linalg.eigvals",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "16×16, general",
         "cheatah_us": 6.25,
+        "dims": "16×16, general",
+        "kind": "numpy_cmp",
         "numpy_us": 11.67
       }
     },
@@ -1533,9 +1706,9 @@
       "module": "linalg",
       "qualified": "linalg.eigvalsh",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "8×8",
         "cheatah_us": 1.69,
+        "dims": "8×8",
+        "kind": "numpy_cmp",
         "numpy_us": 3.91
       }
     },
@@ -1592,9 +1765,9 @@
       "module": "linalg",
       "qualified": "linalg.inv",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 31.47,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 133.6
       }
     },
@@ -1625,10 +1798,10 @@
       "module": "linalg",
       "qualified": "linalg.kron",
       "perf": {
-        "kind": "numpy_cmp",
+        "cheatah_us": 1.01,
         "dims": "8×8 ⊗ 8×8",
-        "cheatah_us": 1.13,
-        "numpy_us": 12.63
+        "kind": "numpy_cmp",
+        "numpy_us": 11.81
       }
     },
     {
@@ -1688,9 +1861,9 @@
       "module": "linalg",
       "qualified": "linalg.matmul",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "96×96 · 96×96",
         "cheatah_us": 71.69,
+        "dims": "96×96 · 96×96",
+        "kind": "numpy_cmp",
         "numpy_us": 315.07
       }
     },
@@ -1721,9 +1894,9 @@
       "module": "linalg",
       "qualified": "linalg.matrix_power",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64, A³",
         "cheatah_us": 79.99,
+        "dims": "64×64, A³",
+        "kind": "numpy_cmp",
         "numpy_us": 218.48
       }
     },
@@ -1750,9 +1923,9 @@
       "module": "linalg",
       "qualified": "linalg.matrix_rank",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 209.11,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 197.71
       }
     },
@@ -1779,9 +1952,9 @@
       "module": "linalg",
       "qualified": "linalg.norm",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "32×32 Frobenius",
         "cheatah_us": 0.09,
+        "dims": "32×32 Frobenius",
+        "kind": "numpy_cmp",
         "numpy_us": 1.41
       }
     },
@@ -1812,10 +1985,10 @@
       "module": "linalg",
       "qualified": "linalg.outer",
       "perf": {
-        "kind": "numpy_cmp",
+        "cheatah_us": 0.47,
         "dims": "64-vec → 64×64",
-        "cheatah_us": 0.41,
-        "numpy_us": 4.11
+        "kind": "numpy_cmp",
+        "numpy_us": 3.56
       }
     },
     {
@@ -1841,9 +2014,9 @@
       "module": "linalg",
       "qualified": "linalg.pinv",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 592.08,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 733.54
       }
     },
@@ -1870,9 +2043,9 @@
       "module": "linalg",
       "qualified": "linalg.qr",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 62.13,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 123.8
       }
     },
@@ -1937,9 +2110,9 @@
       "module": "linalg",
       "qualified": "linalg.slogdet",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 13.91,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 46.14
       }
     },
@@ -1970,9 +2143,9 @@
       "module": "linalg",
       "qualified": "linalg.solve",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64",
         "cheatah_us": 16.58,
+        "dims": "64×64",
+        "kind": "numpy_cmp",
         "numpy_us": 47.83
       }
     },
@@ -1999,9 +2172,9 @@
       "module": "linalg",
       "qualified": "linalg.svd",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64, full U+s+Vᵀ",
         "cheatah_us": 363.81,
+        "dims": "64×64, full U+s+Vᵀ",
+        "kind": "numpy_cmp",
         "numpy_us": 652.36
       }
     },
@@ -2028,9 +2201,9 @@
       "module": "linalg",
       "qualified": "linalg.svdvals",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "64×64, values only",
         "cheatah_us": 201.66,
+        "dims": "64×64, values only",
+        "kind": "numpy_cmp",
         "numpy_us": 187.19
       }
     },
@@ -2057,9 +2230,9 @@
       "module": "linalg",
       "qualified": "linalg.trace",
       "perf": {
-        "kind": "numpy_cmp",
-        "dims": "256×256",
         "cheatah_us": 0.08,
+        "dims": "256×256",
+        "kind": "numpy_cmp",
         "numpy_us": 1.12
       }
     },
@@ -2116,10 +2289,11 @@
       "module": "math",
       "qualified": "math.abs",
       "perf": {
-        "cheatah_ns": 0.45,
+        "cheatah_ns": 0.44,
+        "compare_ns": 59.09,
         "kind": "compared",
-        "python_ns": 58.43,
-        "speedup": 131.0
+        "speedup": 134.2,
+        "vs": "cpython"
       }
     },
     {
@@ -2145,10 +2319,11 @@
       "module": "math",
       "qualified": "math.acos",
       "perf": {
-        "cheatah_ns": 21.87,
+        "cheatah_ns": 22.18,
+        "compare_ns": 89.94,
         "kind": "compared",
-        "python_ns": 87.86,
-        "speedup": 4.0
+        "speedup": 4.1,
+        "vs": "cpython"
       }
     },
     {
@@ -2174,10 +2349,11 @@
       "module": "math",
       "qualified": "math.asin",
       "perf": {
-        "cheatah_ns": 21.89,
+        "cheatah_ns": 22.04,
+        "compare_ns": 88.14,
         "kind": "compared",
-        "python_ns": 87.56,
-        "speedup": 4.0
+        "speedup": 4.0,
+        "vs": "cpython"
       }
     },
     {
@@ -2203,10 +2379,11 @@
       "module": "math",
       "qualified": "math.atan",
       "perf": {
-        "cheatah_ns": 9.72,
+        "cheatah_ns": 9.54,
+        "compare_ns": 59.56,
         "kind": "compared",
-        "python_ns": 60.09,
-        "speedup": 6.2
+        "speedup": 6.2,
+        "vs": "cpython"
       }
     },
     {
@@ -2236,10 +2413,11 @@
       "module": "math",
       "qualified": "math.atan2",
       "perf": {
-        "cheatah_ns": 8.48,
+        "cheatah_ns": 8.77,
+        "compare_ns": 68.0,
         "kind": "compared",
-        "python_ns": 69.67,
-        "speedup": 8.2
+        "speedup": 7.8,
+        "vs": "cpython"
       }
     },
     {
@@ -2265,10 +2443,11 @@
       "module": "math",
       "qualified": "math.cbrt",
       "perf": {
-        "cheatah_ns": 8.04,
+        "cheatah_ns": 7.97,
+        "compare_ns": 64.02,
         "kind": "compared",
-        "python_ns": 62.84,
-        "speedup": 7.8
+        "speedup": 8.0,
+        "vs": "cpython"
       }
     },
     {
@@ -2294,10 +2473,11 @@
       "module": "math",
       "qualified": "math.ceil",
       "perf": {
-        "cheatah_ns": 1.87,
+        "cheatah_ns": 1.8,
+        "compare_ns": 69.3,
         "kind": "compared",
-        "python_ns": 70.6,
-        "speedup": 37.8
+        "speedup": 38.5,
+        "vs": "cpython"
       }
     },
     {
@@ -2327,10 +2507,11 @@
       "module": "math",
       "qualified": "math.copysign",
       "perf": {
-        "cheatah_ns": 1.99,
+        "cheatah_ns": 1.77,
+        "compare_ns": 58.74,
         "kind": "compared",
-        "python_ns": 58.78,
-        "speedup": 29.5
+        "speedup": 33.2,
+        "vs": "cpython"
       }
     },
     {
@@ -2356,10 +2537,11 @@
       "module": "math",
       "qualified": "math.cos",
       "perf": {
-        "cheatah_ns": 15.02,
+        "cheatah_ns": 15.05,
+        "compare_ns": 62.42,
         "kind": "compared",
-        "python_ns": 63.02,
-        "speedup": 4.2
+        "speedup": 4.1,
+        "vs": "cpython"
       }
     },
     {
@@ -2385,10 +2567,11 @@
       "module": "math",
       "qualified": "math.degrees",
       "perf": {
-        "cheatah_ns": 1.94,
+        "cheatah_ns": 1.95,
+        "compare_ns": 55.36,
         "kind": "compared",
-        "python_ns": 55.1,
-        "speedup": 28.3
+        "speedup": 28.4,
+        "vs": "cpython"
       }
     },
     {
@@ -2415,9 +2598,10 @@
       "qualified": "math.exp",
       "perf": {
         "cheatah_ns": 2.94,
+        "compare_ns": 59.39,
         "kind": "compared",
-        "python_ns": 60.67,
-        "speedup": 20.7
+        "speedup": 20.2,
+        "vs": "cpython"
       }
     },
     {
@@ -2443,10 +2627,11 @@
       "module": "math",
       "qualified": "math.fabs",
       "perf": {
-        "cheatah_ns": 1.94,
+        "cheatah_ns": 1.87,
+        "compare_ns": 58.59,
         "kind": "compared",
-        "python_ns": 55.56,
-        "speedup": 28.7
+        "speedup": 31.4,
+        "vs": "cpython"
       }
     },
     {
@@ -2472,10 +2657,11 @@
       "module": "math",
       "qualified": "math.factorial",
       "perf": {
-        "cheatah_ns": 1.98,
+        "cheatah_ns": 2.2,
+        "compare_ns": 53.75,
         "kind": "compared",
-        "python_ns": 53.45,
-        "speedup": 26.9
+        "speedup": 24.5,
+        "vs": "cpython"
       }
     },
     {
@@ -2501,10 +2687,11 @@
       "module": "math",
       "qualified": "math.floor",
       "perf": {
-        "cheatah_ns": 1.93,
+        "cheatah_ns": 1.94,
+        "compare_ns": 70.17,
         "kind": "compared",
-        "python_ns": 67.69,
-        "speedup": 35.1
+        "speedup": 36.2,
+        "vs": "cpython"
       }
     },
     {
@@ -2534,10 +2721,11 @@
       "module": "math",
       "qualified": "math.fmod",
       "perf": {
-        "cheatah_ns": 4.51,
+        "cheatah_ns": 4.95,
+        "compare_ns": 63.02,
         "kind": "compared",
-        "python_ns": 62.68,
-        "speedup": 13.9
+        "speedup": 12.7,
+        "vs": "cpython"
       }
     },
     {
@@ -2567,10 +2755,11 @@
       "module": "math",
       "qualified": "math.gcd",
       "perf": {
-        "cheatah_ns": 5.75,
+        "cheatah_ns": 5.25,
+        "compare_ns": 83.47,
         "kind": "compared",
-        "python_ns": 83.62,
-        "speedup": 14.5
+        "speedup": 15.9,
+        "vs": "cpython"
       }
     },
     {
@@ -2600,10 +2789,11 @@
       "module": "math",
       "qualified": "math.hypot",
       "perf": {
-        "cheatah_ns": 8.56,
+        "cheatah_ns": 8.53,
+        "compare_ns": 76.94,
         "kind": "compared",
-        "python_ns": 81.2,
-        "speedup": 9.5
+        "speedup": 9.0,
+        "vs": "cpython"
       }
     },
     {
@@ -2629,10 +2819,11 @@
       "module": "math",
       "qualified": "math.isfinite",
       "perf": {
-        "cheatah_ns": 1.78,
+        "cheatah_ns": 1.91,
+        "compare_ns": 60.02,
         "kind": "compared",
-        "python_ns": 58.86,
-        "speedup": 33.1
+        "speedup": 31.4,
+        "vs": "cpython"
       }
     },
     {
@@ -2658,10 +2849,11 @@
       "module": "math",
       "qualified": "math.isinf",
       "perf": {
-        "cheatah_ns": 0.73,
+        "cheatah_ns": 0.68,
+        "compare_ns": 61.5,
         "kind": "compared",
-        "python_ns": 58.78,
-        "speedup": 80.5
+        "speedup": 90.8,
+        "vs": "cpython"
       }
     },
     {
@@ -2687,10 +2879,11 @@
       "module": "math",
       "qualified": "math.isnan",
       "perf": {
-        "cheatah_ns": 0.82,
+        "cheatah_ns": 0.75,
+        "compare_ns": 58.58,
         "kind": "compared",
-        "python_ns": 57.67,
-        "speedup": 70.0
+        "speedup": 78.3,
+        "vs": "cpython"
       }
     },
     {
@@ -2716,10 +2909,11 @@
       "module": "math",
       "qualified": "math.log",
       "perf": {
-        "cheatah_ns": 9.93,
+        "cheatah_ns": 9.94,
+        "compare_ns": 61.57,
         "kind": "compared",
-        "python_ns": 60.17,
-        "speedup": 6.1
+        "speedup": 6.2,
+        "vs": "cpython"
       }
     },
     {
@@ -2745,10 +2939,11 @@
       "module": "math",
       "qualified": "math.log10",
       "perf": {
-        "cheatah_ns": 12.89,
+        "cheatah_ns": 12.96,
+        "compare_ns": 63.2,
         "kind": "compared",
-        "python_ns": 66.22,
-        "speedup": 5.1
+        "speedup": 4.9,
+        "vs": "cpython"
       }
     },
     {
@@ -2774,10 +2969,11 @@
       "module": "math",
       "qualified": "math.log2",
       "perf": {
-        "cheatah_ns": 10.42,
+        "cheatah_ns": 10.47,
+        "compare_ns": 60.78,
         "kind": "compared",
-        "python_ns": 61.06,
-        "speedup": 5.9
+        "speedup": 5.8,
+        "vs": "cpython"
       }
     },
     {
@@ -2809,10 +3005,11 @@
       "module": "math",
       "qualified": "math.max",
       "perf": {
-        "cheatah_ns": 0.49,
+        "cheatah_ns": 0.7,
+        "compare_ns": 117.03,
         "kind": "compared",
-        "python_ns": 115.97,
-        "speedup": 237.2
+        "speedup": 168.0,
+        "vs": "cpython"
       }
     },
     {
@@ -2845,9 +3042,10 @@
       "qualified": "math.min",
       "perf": {
         "cheatah_ns": 0.44,
+        "compare_ns": 122.18,
         "kind": "compared",
-        "python_ns": 119.51,
-        "speedup": 269.2
+        "speedup": 274.9,
+        "vs": "cpython"
       }
     },
     {
@@ -2877,10 +3075,11 @@
       "module": "math",
       "qualified": "math.pow",
       "perf": {
-        "cheatah_ns": 0.52,
+        "cheatah_ns": 0.54,
+        "compare_ns": 70.29,
         "kind": "compared",
-        "python_ns": 70.44,
-        "speedup": 134.4
+        "speedup": 129.1,
+        "vs": "cpython"
       }
     },
     {
@@ -2906,10 +3105,11 @@
       "module": "math",
       "qualified": "math.radians",
       "perf": {
-        "cheatah_ns": 1.8,
+        "cheatah_ns": 1.78,
+        "compare_ns": 54.6,
         "kind": "compared",
-        "python_ns": 53.95,
-        "speedup": 30.0
+        "speedup": 30.6,
+        "vs": "cpython"
       }
     },
     {
@@ -2935,10 +3135,11 @@
       "module": "math",
       "qualified": "math.round",
       "perf": {
-        "cheatah_ns": 1.78,
+        "cheatah_ns": 1.95,
+        "compare_ns": 103.71,
         "kind": "compared",
-        "python_ns": 101.81,
-        "speedup": 57.3
+        "speedup": 53.3,
+        "vs": "cpython"
       }
     },
     {
@@ -2964,10 +3165,11 @@
       "module": "math",
       "qualified": "math.sin",
       "perf": {
-        "cheatah_ns": 14.62,
+        "cheatah_ns": 14.68,
+        "compare_ns": 62.54,
         "kind": "compared",
-        "python_ns": 62.51,
-        "speedup": 4.3
+        "speedup": 4.3,
+        "vs": "cpython"
       }
     },
     {
@@ -2993,10 +3195,11 @@
       "module": "math",
       "qualified": "math.sqrt",
       "perf": {
-        "cheatah_ns": 1.76,
+        "cheatah_ns": 1.8,
+        "compare_ns": 58.51,
         "kind": "compared",
-        "python_ns": 57.15,
-        "speedup": 32.5
+        "speedup": 32.6,
+        "vs": "cpython"
       }
     },
     {
@@ -3022,10 +3225,11 @@
       "module": "math",
       "qualified": "math.tan",
       "perf": {
-        "cheatah_ns": 22.28,
+        "cheatah_ns": 22.33,
+        "compare_ns": 69.5,
         "kind": "compared",
-        "python_ns": 68.96,
-        "speedup": 3.1
+        "speedup": 3.1,
+        "vs": "cpython"
       }
     },
     {
@@ -3051,10 +3255,11 @@
       "module": "math",
       "qualified": "math.trunc",
       "perf": {
-        "cheatah_ns": 2.01,
+        "cheatah_ns": 1.9,
+        "compare_ns": 69.53,
         "kind": "compared",
-        "python_ns": 69.77,
-        "speedup": 34.7
+        "speedup": 36.6,
+        "vs": "cpython"
       }
     },
     {
@@ -3075,7 +3280,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 958,
+      "srcline": 1024,
       "module": "ndarray",
       "qualified": "ndarray.abs",
       "perf": {
@@ -3105,14 +3310,14 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 663,
+      "srcline": 729,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
-        "kind": "numpy_cmp",
+        "cheatah_us": 2.24,
         "dims": "16384-elt array + scalar",
-        "cheatah_us": 4.15,
-        "numpy_us": 2.77
+        "kind": "numpy_cmp",
+        "numpy_us": 2.71
       }
     },
     {
@@ -3142,7 +3347,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 558,
+      "srcline": 621,
       "module": "ndarray",
       "qualified": "ndarray.arange",
       "perf": {
@@ -3167,7 +3372,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 485,
+      "srcline": 548,
       "module": "ndarray",
       "qualified": "ndarray.array",
       "perf": {
@@ -3200,7 +3405,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 615,
+      "srcline": 678,
       "module": "ndarray",
       "qualified": "ndarray.binary_op",
       "perf": {
@@ -3229,7 +3434,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 365,
+      "srcline": 428,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes",
       "perf": {
@@ -3256,7 +3461,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 412,
+      "srcline": 475,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to",
       "perf": {
@@ -3281,7 +3486,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 884,
+      "srcline": 950,
       "module": "ndarray",
       "qualified": "ndarray.cbrt",
       "perf": {
@@ -3311,7 +3516,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 774,
+      "srcline": 840,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
@@ -3337,7 +3542,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 801,
+      "srcline": 867,
       "module": "ndarray",
       "qualified": "ndarray.conj",
       "perf": {
@@ -3362,7 +3567,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 934,
+      "srcline": 1000,
       "module": "ndarray",
       "qualified": "ndarray.cos",
       "perf": {
@@ -3392,7 +3597,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 705,
+      "srcline": 771,
       "module": "ndarray",
       "qualified": "ndarray.divide",
       "perf": {
@@ -3418,14 +3623,14 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 897,
+      "srcline": 963,
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
-        "kind": "numpy_cmp",
+        "cheatah_us": 11.73,
         "dims": "16384-elt array",
-        "cheatah_us": 16.46,
-        "numpy_us": 46.21
+        "kind": "numpy_cmp",
+        "numpy_us": 46.54
       }
     },
     {
@@ -3451,7 +3656,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 542,
+      "srcline": 605,
       "module": "ndarray",
       "qualified": "ndarray.full",
       "perf": {
@@ -3481,7 +3686,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1027,
+      "srcline": 1093,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3507,7 +3712,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 844,
+      "srcline": 910,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3532,7 +3737,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 387,
+      "srcline": 450,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous",
       "perf": {
@@ -3557,7 +3762,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 909,
+      "srcline": 975,
       "module": "ndarray",
       "qualified": "ndarray.log",
       "perf": {
@@ -3583,7 +3788,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1010,
+      "srcline": 1076,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -3613,7 +3818,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 691,
+      "srcline": 757,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -3639,7 +3844,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 527,
+      "srcline": 590,
       "module": "ndarray",
       "qualified": "ndarray.ones",
       "perf": {
@@ -3665,7 +3870,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 822,
+      "srcline": 888,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -3695,7 +3900,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 577,
+      "srcline": 640,
       "module": "ndarray",
       "qualified": "ndarray.reshape",
       "perf": {
@@ -3721,7 +3926,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 499,
+      "srcline": 562,
       "module": "ndarray",
       "qualified": "ndarray.scalar",
       "perf": {
@@ -3747,7 +3952,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1041,
+      "srcline": 1107,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
       "perf": {
@@ -3773,14 +3978,14 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 922,
+      "srcline": 988,
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
-        "kind": "numpy_cmp",
+        "cheatah_us": 12.14,
         "dims": "16384-elt array",
-        "cheatah_us": 17.32,
-        "numpy_us": 84.97
+        "kind": "numpy_cmp",
+        "numpy_us": 85.44
       }
     },
     {
@@ -3802,7 +4007,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1057,
+      "srcline": 1123,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
       "perf": {
@@ -3828,14 +4033,14 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 872,
+      "srcline": 938,
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
-        "kind": "numpy_cmp",
+        "cheatah_us": 13.87,
         "dims": "16384-elt array",
-        "cheatah_us": 17.37,
-        "numpy_us": 13.78
+        "kind": "numpy_cmp",
+        "numpy_us": 13.91
       }
     },
     {
@@ -3861,7 +4066,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 677,
+      "srcline": 743,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -3887,7 +4092,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 975,
+      "srcline": 1041,
       "module": "ndarray",
       "qualified": "ndarray.sum",
       "perf": {
@@ -3912,7 +4117,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 946,
+      "srcline": 1012,
       "module": "ndarray",
       "qualified": "ndarray.tan",
       "perf": {
@@ -3938,7 +4143,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1114,
+      "srcline": 1180,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {
@@ -3964,7 +4169,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 514,
+      "srcline": 577,
       "module": "ndarray",
       "qualified": "ndarray.zeros",
       "perf": {
@@ -4016,8 +4221,8 @@
       "module": "os",
       "qualified": "os.cpu_count",
       "perf": {
-        "cheatah_ns": 1519.69,
-        "compare_ns": 1655.27,
+        "cheatah_ns": 1520.73,
+        "compare_ns": 1647.02,
         "kind": "compared",
         "speedup": 1.1,
         "vs": "cpython"
@@ -4041,10 +4246,10 @@
       "module": "os",
       "qualified": "os.getcwd",
       "perf": {
-        "cheatah_ns": 371.88,
-        "compare_ns": 314.05,
+        "cheatah_ns": 365.43,
+        "compare_ns": 316.17,
         "kind": "compared",
-        "speedup": 0.8,
+        "speedup": 0.9,
         "vs": "cpython"
       }
     },
@@ -4075,10 +4280,10 @@
       "module": "os",
       "qualified": "os.getenv",
       "perf": {
-        "cheatah_ns": 68.97,
-        "compare_ns": 357.37,
+        "cheatah_ns": 65.29,
+        "compare_ns": 357.06,
         "kind": "compared",
-        "speedup": 5.2,
+        "speedup": 5.5,
         "vs": "cpython"
       }
     },
@@ -4100,8 +4305,8 @@
       "module": "os",
       "qualified": "os.getpid",
       "perf": {
-        "cheatah_ns": 66.51,
-        "compare_ns": 139.58,
+        "cheatah_ns": 66.3,
+        "compare_ns": 141.86,
         "kind": "compared",
         "speedup": 2.1,
         "vs": "cpython"
@@ -4336,6 +4541,29 @@
       }
     },
     {
+      "name": "urandom",
+      "signature": "urandom(int n)",
+      "brief": "Cryptographically secure random bytes (like Python's os.urandom).",
+      "params": [
+        {
+          "name": "n",
+          "desc": "the number of bytes to return."
+        }
+      ],
+      "returns": "a string of n random bytes (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(n) plus a syscall.",
+        "alloc": "allocates the n-byte result.",
+        "test": "CheatahOs.Urandom",
+        "crtest": "OsCompileRun.Urandom",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 232,
+      "module": "os",
+      "qualified": "os.urandom"
+    },
+    {
       "name": "abspath",
       "signature": "abspath(const std::string &p)",
       "brief": "Absolute path.",
@@ -4354,12 +4582,12 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 328,
+      "srcline": 345,
       "module": "os.path",
       "qualified": "os.path.abspath",
       "perf": {
-        "cheatah_ns": 164.45,
-        "compare_ns": 306.78,
+        "cheatah_ns": 159.22,
+        "compare_ns": 308.54,
         "kind": "compared",
         "speedup": 1.9,
         "vs": "cpython"
@@ -4384,14 +4612,14 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 298,
+      "srcline": 315,
       "module": "os.path",
       "qualified": "os.path.basename",
       "perf": {
-        "cheatah_ns": 96.52,
-        "compare_ns": 215.8,
+        "cheatah_ns": 92.33,
+        "compare_ns": 213.82,
         "kind": "compared",
-        "speedup": 2.2,
+        "speedup": 2.3,
         "vs": "cpython"
       }
     },
@@ -4414,12 +4642,12 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 313,
+      "srcline": 330,
       "module": "os.path",
       "qualified": "os.path.dirname",
       "perf": {
-        "cheatah_ns": 164.9,
-        "compare_ns": 303.42,
+        "cheatah_ns": 163.64,
+        "compare_ns": 295.86,
         "kind": "compared",
         "speedup": 1.8,
         "vs": "cpython"
@@ -4444,12 +4672,12 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 255,
+      "srcline": 272,
       "module": "os.path",
       "qualified": "os.path.exists",
       "perf": {
-        "cheatah_ns": 387.35,
-        "compare_ns": 784.49,
+        "cheatah_ns": 378.38,
+        "compare_ns": 772.43,
         "kind": "compared",
         "speedup": 2.0,
         "vs": "cpython"
@@ -4474,12 +4702,12 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 353,
+      "srcline": 370,
       "module": "os.path",
       "qualified": "os.path.getsize",
       "perf": {
-        "cheatah_ns": 386.11,
-        "compare_ns": 804.34,
+        "cheatah_ns": 378.84,
+        "compare_ns": 796.31,
         "kind": "compared",
         "speedup": 2.1,
         "vs": "cpython"
@@ -4504,12 +4732,12 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 283,
+      "srcline": 300,
       "module": "os.path",
       "qualified": "os.path.isdir",
       "perf": {
-        "cheatah_ns": 378.99,
-        "compare_ns": 809.19,
+        "cheatah_ns": 380.93,
+        "compare_ns": 807.56,
         "kind": "compared",
         "speedup": 2.1,
         "vs": "cpython"
@@ -4534,12 +4762,12 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 269,
+      "srcline": 286,
       "module": "os.path",
       "qualified": "os.path.isfile",
       "perf": {
-        "cheatah_ns": 393.82,
-        "compare_ns": 808.35,
+        "cheatah_ns": 380.0,
+        "compare_ns": 793.28,
         "kind": "compared",
         "speedup": 2.1,
         "vs": "cpython"
@@ -4568,14 +4796,14 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 236,
+      "srcline": 253,
       "module": "os.path",
       "qualified": "os.path.join",
       "perf": {
-        "cheatah_ns": 136.72,
-        "compare_ns": 393.44,
+        "cheatah_ns": 127.93,
+        "compare_ns": 378.79,
         "kind": "compared",
-        "speedup": 2.9,
+        "speedup": 3.0,
         "vs": "cpython"
       }
     },
@@ -4598,14 +4826,14 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 339,
+      "srcline": 356,
       "module": "os.path",
       "qualified": "os.path.normpath",
       "perf": {
-        "cheatah_ns": 318.29,
-        "compare_ns": 176.39,
+        "cheatah_ns": 315.27,
+        "compare_ns": 170.81,
         "kind": "compared",
-        "speedup": 0.6,
+        "speedup": 0.5,
         "vs": "cpython"
       }
     },
@@ -4628,7 +4856,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 371,
+      "srcline": 388,
       "module": "os.path",
       "qualified": "os.path.splitext",
       "perf": {
@@ -4659,10 +4887,10 @@
       "module": "random",
       "qualified": "random.choice",
       "perf": {
-        "cheatah_ns": 3.15,
-        "compare_ns": 4165.2,
+        "cheatah_ns": 3.16,
+        "compare_ns": 4246.55,
         "kind": "compared",
-        "speedup": 1321.8,
+        "speedup": 1344.0,
         "vs": "numpy"
       }
     },
@@ -4693,10 +4921,10 @@
       "module": "random",
       "qualified": "random.gauss",
       "perf": {
-        "cheatah_ns": 148.6,
-        "compare_ns": 372.17,
+        "cheatah_ns": 147.69,
+        "compare_ns": 378.87,
         "kind": "compared",
-        "speedup": 2.5,
+        "speedup": 2.6,
         "vs": "numpy"
       }
     },
@@ -4727,10 +4955,10 @@
       "module": "random",
       "qualified": "random.randint",
       "perf": {
-        "cheatah_ns": 3.16,
-        "compare_ns": 1124.31,
+        "cheatah_ns": 3.13,
+        "compare_ns": 1139.77,
         "kind": "compared",
-        "speedup": 356.2,
+        "speedup": 363.6,
         "vs": "numpy"
       }
     },
@@ -4752,10 +4980,10 @@
       "module": "random",
       "qualified": "random.random",
       "perf": {
-        "cheatah_ns": 48.89,
-        "compare_ns": 249.51,
+        "cheatah_ns": 48.8,
+        "compare_ns": 252.28,
         "kind": "compared",
-        "speedup": 5.1,
+        "speedup": 5.2,
         "vs": "numpy"
       }
     },
@@ -4813,10 +5041,10 @@
       "module": "random",
       "qualified": "random.uniform",
       "perf": {
-        "cheatah_ns": 48.91,
-        "compare_ns": 871.76,
+        "cheatah_ns": 50.29,
+        "compare_ns": 898.88,
         "kind": "compared",
-        "speedup": 17.8,
+        "speedup": 17.9,
         "vs": "numpy"
       }
     },
@@ -5255,10 +5483,10 @@
       "module": "statistics",
       "qualified": "statistics.count",
       "perf": {
-        "cheatah_ns": 4.91,
-        "compare_ns": 112.81,
+        "cheatah_ns": 5.87,
+        "compare_ns": 114.63,
         "kind": "compared",
-        "speedup": 23.0,
+        "speedup": 19.5,
         "vs": "numpy"
       }
     },
@@ -5285,10 +5513,10 @@
       "module": "statistics",
       "qualified": "statistics.mean",
       "perf": {
-        "cheatah_ns": 19.37,
-        "compare_ns": 2099.01,
+        "cheatah_ns": 21.52,
+        "compare_ns": 2086.53,
         "kind": "compared",
-        "speedup": 108.4,
+        "speedup": 97.0,
         "vs": "numpy"
       }
     },
@@ -5315,10 +5543,10 @@
       "module": "statistics",
       "qualified": "statistics.median",
       "perf": {
-        "cheatah_ns": 84.19,
-        "compare_ns": 6719.3,
+        "cheatah_ns": 89.6,
+        "compare_ns": 6857.59,
         "kind": "compared",
-        "speedup": 79.8,
+        "speedup": 76.5,
         "vs": "numpy"
       }
     },
@@ -5345,10 +5573,10 @@
       "module": "statistics",
       "qualified": "statistics.pstdev",
       "perf": {
-        "cheatah_ns": 41.41,
-        "compare_ns": 6967.5,
+        "cheatah_ns": 42.01,
+        "compare_ns": 7188.82,
         "kind": "compared",
-        "speedup": 168.3,
+        "speedup": 171.1,
         "vs": "numpy"
       }
     },
@@ -5375,10 +5603,10 @@
       "module": "statistics",
       "qualified": "statistics.pvariance",
       "perf": {
-        "cheatah_ns": 37.21,
-        "compare_ns": 6386.33,
+        "cheatah_ns": 40.14,
+        "compare_ns": 6588.72,
         "kind": "compared",
-        "speedup": 171.6,
+        "speedup": 164.1,
         "vs": "numpy"
       }
     },
@@ -5405,10 +5633,10 @@
       "module": "statistics",
       "qualified": "statistics.stdev",
       "perf": {
-        "cheatah_ns": 45.79,
-        "compare_ns": 7106.84,
+        "cheatah_ns": 43.46,
+        "compare_ns": 7242.12,
         "kind": "compared",
-        "speedup": 155.2,
+        "speedup": 166.7,
         "vs": "numpy"
       }
     },
@@ -5435,10 +5663,10 @@
       "module": "statistics",
       "qualified": "statistics.sum",
       "perf": {
-        "cheatah_ns": 18.55,
-        "compare_ns": 1428.65,
+        "cheatah_ns": 18.96,
+        "compare_ns": 1433.62,
         "kind": "compared",
-        "speedup": 77.0,
+        "speedup": 75.6,
         "vs": "numpy"
       }
     },
@@ -5465,10 +5693,10 @@
       "module": "statistics",
       "qualified": "statistics.variance",
       "perf": {
-        "cheatah_ns": 40.68,
-        "compare_ns": 6488.76,
+        "cheatah_ns": 39.45,
+        "compare_ns": 6405.73,
         "kind": "compared",
-        "speedup": 159.5,
+        "speedup": 162.4,
         "vs": "numpy"
       }
     },
@@ -5495,10 +5723,11 @@
       "module": "string",
       "qualified": "string.capitalize",
       "perf": {
-        "cheatah_ns": 46.7,
+        "cheatah_ns": 49.19,
+        "compare_ns": 145.26,
         "kind": "compared",
-        "python_ns": 147.18,
-        "speedup": 3.2
+        "speedup": 3.0,
+        "vs": "cpython"
       }
     },
     {
@@ -5524,10 +5753,11 @@
       "module": "string",
       "qualified": "string.capwords",
       "perf": {
-        "cheatah_ns": 198.08,
+        "cheatah_ns": 203.04,
+        "compare_ns": 472.94,
         "kind": "compared",
-        "python_ns": 472.92,
-        "speedup": 2.4
+        "speedup": 2.3,
+        "vs": "cpython"
       }
     },
     {
@@ -5561,10 +5791,11 @@
       "module": "string",
       "qualified": "string.center",
       "perf": {
-        "cheatah_ns": 54.65,
+        "cheatah_ns": 53.91,
+        "compare_ns": 77.81,
         "kind": "compared",
-        "python_ns": 77.92,
-        "speedup": 1.4
+        "speedup": 1.4,
+        "vs": "cpython"
       }
     },
     {
@@ -5594,10 +5825,11 @@
       "module": "string",
       "qualified": "string.contains",
       "perf": {
-        "cheatah_ns": 6.93,
+        "cheatah_ns": 7.34,
+        "compare_ns": 44.66,
         "kind": "compared",
-        "python_ns": 45.31,
-        "speedup": 6.5
+        "speedup": 6.1,
+        "vs": "cpython"
       }
     },
     {
@@ -5627,10 +5859,11 @@
       "module": "string",
       "qualified": "string.count",
       "perf": {
-        "cheatah_ns": 20.22,
+        "cheatah_ns": 19.28,
+        "compare_ns": 78.43,
         "kind": "compared",
-        "python_ns": 77.68,
-        "speedup": 3.8
+        "speedup": 4.1,
+        "vs": "cpython"
       }
     },
     {
@@ -5660,10 +5893,11 @@
       "module": "string",
       "qualified": "string.endswith",
       "perf": {
-        "cheatah_ns": 6.7,
+        "cheatah_ns": 5.57,
+        "compare_ns": 66.6,
         "kind": "compared",
-        "python_ns": 66.18,
-        "speedup": 9.9
+        "speedup": 12.0,
+        "vs": "cpython"
       }
     },
     {
@@ -5693,10 +5927,11 @@
       "module": "string",
       "qualified": "string.find",
       "perf": {
-        "cheatah_ns": 7.64,
+        "cheatah_ns": 5.65,
+        "compare_ns": 75.93,
         "kind": "compared",
-        "python_ns": 77.09,
-        "speedup": 10.1
+        "speedup": 13.4,
+        "vs": "cpython"
       }
     },
     {
@@ -5722,10 +5957,11 @@
       "module": "string",
       "qualified": "string.isalnum",
       "perf": {
-        "cheatah_ns": 5.24,
+        "cheatah_ns": 5.11,
+        "compare_ns": 52.6,
         "kind": "compared",
-        "python_ns": 54.45,
-        "speedup": 10.4
+        "speedup": 10.3,
+        "vs": "cpython"
       }
     },
     {
@@ -5751,10 +5987,11 @@
       "module": "string",
       "qualified": "string.isalpha",
       "perf": {
-        "cheatah_ns": 6.3,
+        "cheatah_ns": 5.47,
+        "compare_ns": 45.83,
         "kind": "compared",
-        "python_ns": 45.39,
-        "speedup": 7.2
+        "speedup": 8.4,
+        "vs": "cpython"
       }
     },
     {
@@ -5780,10 +6017,11 @@
       "module": "string",
       "qualified": "string.isdigit",
       "perf": {
-        "cheatah_ns": 1.43,
+        "cheatah_ns": 0.86,
+        "compare_ns": 41.97,
         "kind": "compared",
-        "python_ns": 42.94,
-        "speedup": 29.9
+        "speedup": 48.9,
+        "vs": "cpython"
       }
     },
     {
@@ -5809,10 +6047,11 @@
       "module": "string",
       "qualified": "string.islower",
       "perf": {
-        "cheatah_ns": 3.16,
+        "cheatah_ns": 3.29,
+        "compare_ns": 42.02,
         "kind": "compared",
-        "python_ns": 43.11,
-        "speedup": 13.6
+        "speedup": 12.8,
+        "vs": "cpython"
       }
     },
     {
@@ -5838,10 +6077,11 @@
       "module": "string",
       "qualified": "string.isspace",
       "perf": {
-        "cheatah_ns": 1.99,
+        "cheatah_ns": 2.35,
+        "compare_ns": 41.79,
         "kind": "compared",
-        "python_ns": 42.7,
-        "speedup": 21.4
+        "speedup": 17.8,
+        "vs": "cpython"
       }
     },
     {
@@ -5867,10 +6107,11 @@
       "module": "string",
       "qualified": "string.isupper",
       "perf": {
-        "cheatah_ns": 4.04,
+        "cheatah_ns": 3.11,
+        "compare_ns": 45.15,
         "kind": "compared",
-        "python_ns": 45.74,
-        "speedup": 11.3
+        "speedup": 14.5,
+        "vs": "cpython"
       }
     },
     {
@@ -5900,10 +6141,11 @@
       "module": "string",
       "qualified": "string.join",
       "perf": {
-        "cheatah_ns": 35.27,
+        "cheatah_ns": 34.32,
+        "compare_ns": 91.32,
         "kind": "compared",
-        "python_ns": 91.35,
-        "speedup": 2.6
+        "speedup": 2.7,
+        "vs": "cpython"
       }
     },
     {
@@ -5937,10 +6179,11 @@
       "module": "string",
       "qualified": "string.ljust",
       "perf": {
-        "cheatah_ns": 26.41,
+        "cheatah_ns": 25.27,
+        "compare_ns": 74.54,
         "kind": "compared",
-        "python_ns": 74.58,
-        "speedup": 2.8
+        "speedup": 2.9,
+        "vs": "cpython"
       }
     },
     {
@@ -5966,10 +6209,11 @@
       "module": "string",
       "qualified": "string.lower",
       "perf": {
-        "cheatah_ns": 41.18,
+        "cheatah_ns": 40.79,
+        "compare_ns": 73.18,
         "kind": "compared",
-        "python_ns": 74.05,
-        "speedup": 1.8
+        "speedup": 1.8,
+        "vs": "cpython"
       }
     },
     {
@@ -5999,10 +6243,11 @@
       "module": "string",
       "qualified": "string.lstrip",
       "perf": {
-        "cheatah_ns": 12.91,
+        "cheatah_ns": 11.84,
+        "compare_ns": 61.77,
         "kind": "compared",
-        "python_ns": 62.19,
-        "speedup": 4.8
+        "speedup": 5.2,
+        "vs": "cpython"
       }
     },
     {
@@ -6036,10 +6281,11 @@
       "module": "string",
       "qualified": "string.replace",
       "perf": {
-        "cheatah_ns": 53.46,
+        "cheatah_ns": 49.63,
+        "compare_ns": 85.15,
         "kind": "compared",
-        "python_ns": 84.7,
-        "speedup": 1.6
+        "speedup": 1.7,
+        "vs": "cpython"
       }
     },
     {
@@ -6069,10 +6315,11 @@
       "module": "string",
       "qualified": "string.rfind",
       "perf": {
-        "cheatah_ns": 4.07,
+        "cheatah_ns": 3.25,
+        "compare_ns": 75.99,
         "kind": "compared",
-        "python_ns": 72.94,
-        "speedup": 17.9
+        "speedup": 23.4,
+        "vs": "cpython"
       }
     },
     {
@@ -6106,10 +6353,11 @@
       "module": "string",
       "qualified": "string.rjust",
       "perf": {
-        "cheatah_ns": 39.82,
+        "cheatah_ns": 39.62,
+        "compare_ns": 76.43,
         "kind": "compared",
-        "python_ns": 75.82,
-        "speedup": 1.9
+        "speedup": 1.9,
+        "vs": "cpython"
       }
     },
     {
@@ -6139,10 +6387,11 @@
       "module": "string",
       "qualified": "string.rstrip",
       "perf": {
-        "cheatah_ns": 12.15,
+        "cheatah_ns": 13.17,
+        "compare_ns": 64.06,
         "kind": "compared",
-        "python_ns": 60.97,
-        "speedup": 5.0
+        "speedup": 4.9,
+        "vs": "cpython"
       }
     },
     {
@@ -6168,10 +6417,11 @@
       "module": "string",
       "qualified": "string.split",
       "perf": {
-        "cheatah_ns": 113.83,
+        "cheatah_ns": 113.89,
+        "compare_ns": 118.36,
         "kind": "compared",
-        "python_ns": 118.89,
-        "speedup": 1.0
+        "speedup": 1.0,
+        "vs": "cpython"
       }
     },
     {
@@ -6197,10 +6447,11 @@
       "module": "string",
       "qualified": "string.splitlines",
       "perf": {
-        "cheatah_ns": 34.3,
+        "cheatah_ns": 34.2,
+        "compare_ns": 88.25,
         "kind": "compared",
-        "python_ns": 84.14,
-        "speedup": 2.5
+        "speedup": 2.6,
+        "vs": "cpython"
       }
     },
     {
@@ -6230,10 +6481,11 @@
       "module": "string",
       "qualified": "string.startswith",
       "perf": {
-        "cheatah_ns": 6.06,
+        "cheatah_ns": 6.46,
+        "compare_ns": 66.83,
         "kind": "compared",
-        "python_ns": 66.85,
-        "speedup": 11.0
+        "speedup": 10.3,
+        "vs": "cpython"
       }
     },
     {
@@ -6263,10 +6515,11 @@
       "module": "string",
       "qualified": "string.strip",
       "perf": {
-        "cheatah_ns": 29.64,
+        "cheatah_ns": 29.07,
+        "compare_ns": 63.75,
         "kind": "compared",
-        "python_ns": 61.69,
-        "speedup": 2.1
+        "speedup": 2.2,
+        "vs": "cpython"
       }
     },
     {
@@ -6292,10 +6545,11 @@
       "module": "string",
       "qualified": "string.swapcase",
       "perf": {
-        "cheatah_ns": 75.72,
+        "cheatah_ns": 70.34,
+        "compare_ns": 160.01,
         "kind": "compared",
-        "python_ns": 166.5,
-        "speedup": 2.2
+        "speedup": 2.3,
+        "vs": "cpython"
       }
     },
     {
@@ -6321,10 +6575,11 @@
       "module": "string",
       "qualified": "string.title",
       "perf": {
-        "cheatah_ns": 66.67,
+        "cheatah_ns": 63.72,
+        "compare_ns": 151.69,
         "kind": "compared",
-        "python_ns": 153.46,
-        "speedup": 2.3
+        "speedup": 2.4,
+        "vs": "cpython"
       }
     },
     {
@@ -6350,10 +6605,11 @@
       "module": "string",
       "qualified": "string.upper",
       "perf": {
-        "cheatah_ns": 40.54,
+        "cheatah_ns": 41.67,
+        "compare_ns": 74.72,
         "kind": "compared",
-        "python_ns": 73.43,
-        "speedup": 1.8
+        "speedup": 1.8,
+        "vs": "cpython"
       }
     },
     {
@@ -6383,10 +6639,11 @@
       "module": "string",
       "qualified": "string.zfill",
       "perf": {
-        "cheatah_ns": 38.9,
+        "cheatah_ns": 39.55,
+        "compare_ns": 79.7,
         "kind": "compared",
-        "python_ns": 76.49,
-        "speedup": 2.0
+        "speedup": 2.0,
+        "vs": "cpython"
       }
     },
     {
@@ -6432,10 +6689,11 @@
       "module": "time",
       "qualified": "time.monotonic",
       "perf": {
-        "cheatah_ns": 16.84,
+        "cheatah_ns": 16.85,
+        "compare_ns": 61.31,
         "kind": "compared",
-        "python_ns": 61.37,
-        "speedup": 3.6
+        "speedup": 3.6,
+        "vs": "cpython"
       }
     },
     {
@@ -6456,10 +6714,11 @@
       "module": "time",
       "qualified": "time.monotonic_ns",
       "perf": {
-        "cheatah_ns": 13.69,
+        "cheatah_ns": 13.6,
+        "compare_ns": 79.43,
         "kind": "compared",
-        "python_ns": 81.24,
-        "speedup": 5.9
+        "speedup": 5.8,
+        "vs": "cpython"
       }
     },
     {
@@ -6480,10 +6739,11 @@
       "module": "time",
       "qualified": "time.perf_counter",
       "perf": {
-        "cheatah_ns": 16.92,
+        "cheatah_ns": 17.88,
+        "compare_ns": 61.65,
         "kind": "compared",
-        "python_ns": 61.58,
-        "speedup": 3.6
+        "speedup": 3.4,
+        "vs": "cpython"
       }
     },
     {
@@ -6504,10 +6764,11 @@
       "module": "time",
       "qualified": "time.perf_counter_ns",
       "perf": {
-        "cheatah_ns": 14.08,
+        "cheatah_ns": 14.44,
+        "compare_ns": 84.22,
         "kind": "compared",
-        "python_ns": 79.2,
-        "speedup": 5.6
+        "speedup": 5.8,
+        "vs": "cpython"
       }
     },
     {
@@ -6528,10 +6789,11 @@
       "module": "time",
       "qualified": "time.process_time",
       "perf": {
-        "cheatah_ns": 146.07,
+        "cheatah_ns": 146.14,
+        "compare_ns": 227.52,
         "kind": "compared",
-        "python_ns": 228.28,
-        "speedup": 1.6
+        "speedup": 1.6,
+        "vs": "cpython"
       }
     },
     {
@@ -6579,10 +6841,11 @@
       "module": "time",
       "qualified": "time.time",
       "perf": {
-        "cheatah_ns": 17.03,
+        "cheatah_ns": 16.92,
+        "compare_ns": 64.28,
         "kind": "compared",
-        "python_ns": 63.29,
-        "speedup": 3.7
+        "speedup": 3.8,
+        "vs": "cpython"
       }
     },
     {
@@ -6603,15 +6866,17 @@
       "module": "time",
       "qualified": "time.time_ns",
       "perf": {
-        "cheatah_ns": 14.4,
+        "cheatah_ns": 13.66,
+        "compare_ns": 82.27,
         "kind": "compared",
-        "python_ns": 83.38,
-        "speedup": 5.8
+        "speedup": 6.0,
+        "vs": "cpython"
       }
     }
   ],
   "modules": [
     "datetime",
+    "ed25519",
     "hashlib",
     "html",
     "html.parser",
@@ -6629,9 +6894,9 @@
     "time"
   ],
   "perf_meta": {
-    "cheatah_commit": "0842d8c",
+    "cheatah_commit": "dffe895",
     "cpython": "3.12.3",
-    "generated": "2026-06-08",
+    "generated": "2026-06-10",
     "machine": "x86_64",
     "numpy": "1.26.4"
   }

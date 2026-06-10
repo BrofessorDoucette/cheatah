@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "cheatah custom Javadoc tags",
+  "scopeName": "documentation.cheatah-tags.injection",
+  "comment": "Highlights cheatah's custom Doxygen/Javadoc tags (@complexity, @alloc, @test, @crtest, @systest) inside C++ doc comments, scoped like the standard @param/@return tags so they take the same theme color. Injected into C++ (and cheatah `cpp { … }` blocks) via package.json grammars[].injectTo.",
+  "injectionSelector": "L:comment.block.documentation, L:comment.block, L:comment.line.double-slash, L:comment",
+  "patterns": [
+    {
+      "match": "(?i)(?<=[\\s*/])([@\\\\])(complexity|alloc|test|crtest|systest)\\b",
+      "name": "storage.type.class.doxygen.cheatah",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.documentation.cheatah"
+        }
+      }
+    }
+  ]
+}

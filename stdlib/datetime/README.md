@@ -1,11 +1,10 @@
 # cheatah `datetime`
 
-Practical date/time helpers over epoch seconds — the useful core of Python's
-`datetime` module. Times are epoch seconds (`double`, from `time`/`timestamp`);
-formatting and component extraction use the C library calendar (local time,
-except `utcnow`).
+Practical date/time helpers over epoch seconds. Times are epoch seconds (`double`,
+from `time`/`timestamp`); formatting and component extraction use the C library
+calendar (local time, except `utcnow`).
 
-```python
+```purr
 import datetime
 
 stamp = datetime.timestamp()

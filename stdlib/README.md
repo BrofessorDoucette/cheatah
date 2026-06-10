@@ -198,8 +198,9 @@ in headers; non-template symbols compile into the library.
   strides; SIMD element-wise ops).
 - **`linalg`** — the SIMD linear-algebra core: `matmul`/`solve`/`inv`/`det`/`qr`/
   `svd`/`eig`/`norm`/… over `ndarray`.
-- **`datetime`**, **`random`**, **`statistics`**, **`hashlib`** — dates/epochs,
-  Mersenne-Twister RNG, summary statistics, and a self-contained SHA-256.
+- **`datetime`**, **`random`**, **`statistics`**, **`hashlib`**, **`ed25519`** —
+  dates/epochs, Mersenne-Twister RNG, summary statistics, self-contained SHA-256/512,
+  and from-scratch Ed25519 public-key signatures.
 
 ## Escape hatch: raw C++ (`cpp { … }`)
 By default cheatah looks like Python. When you need the full power of the host

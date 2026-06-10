@@ -199,6 +199,29 @@ REG["os.getcwd"] = C("acc = acc + len(os.getcwd())", "acc = acc + len(os.getcwd(
 REG["os.cpu_count"] = C("acc = acc + os.cpu_count()", "acc = acc + os.cpu_count()", imp="os", py_setup="import os", iters=2_000_000)
 REG["os.getenv"] = C('acc = acc + len(os.getenv("PATH"))', 'acc = acc + len(os.getenv("PATH"))', imp="os", py_setup="import os", iters=1_000_000)
 
+# ---- datetime: calendar ops over an epoch. format() builds a medium-length
+# timestamp string (the natural string workload here); the component extractors run
+# on the same representative epoch. vs CPython's datetime (fromtimestamp + strftime /
+# the component attributes). ----------------------------------------------------
+_DT = 'let e = 1700000000.0\nlet fmt = "%a %b %d %H:%M:%S %Y"'   # -> "Tue Nov 14 22:13:20 2023" (24 chars)
+_DTP = 'import datetime as _dt\ne = 1700000000.0\nfmt = "%a %b %d %H:%M:%S %Y"'
+REG["datetime.format"] = C('acc = acc + len(datetime.format(e, fmt))',
+                           'acc = acc + len(_dt.datetime.fromtimestamp(e).strftime(fmt))',
+                           imp="datetime", setup=_DT, py_setup=_DTP, iters=1_000_000)
+for k in ["year", "month", "day", "hour", "minute", "second", "weekday"]:
+    _pyattr = "weekday()" if k == "weekday" else k
+    REG[f"datetime.{k}"] = C(f"acc = acc + datetime.{k}(e)",
+                             f"acc = acc + _dt.datetime.fromtimestamp(e).{_pyattr}",
+                             imp="datetime", setup=_DT, py_setup=_DTP, iters=2_000_000)
+REG["datetime.now"] = C("acc = acc + len(datetime.now())", "acc = acc + len(str(_dt.datetime.now()))",
+                        imp="datetime", py_setup="import datetime as _dt", iters=300_000)
+REG["datetime.utcnow"] = C("acc = acc + len(datetime.utcnow())", "acc = acc + len(str(_dt.datetime.utcnow()))",
+                           imp="datetime", py_setup="import datetime as _dt", iters=300_000)
+REG["datetime.today"] = C("acc = acc + len(datetime.today())", "acc = acc + len(str(_dt.date.today()))",
+                          imp="datetime", py_setup="import datetime as _dt", iters=300_000)
+REG["datetime.timestamp"] = C("acc = acc + datetime.timestamp()", "acc = acc + _dt.datetime.now().timestamp()",
+                              imp="datetime", py_setup="import datetime as _dt", iters=500_000)
+
 # ---- random: vs NumPy's random (the fast/vectorized equivalent). NumPy's
 # strength is bulk array generation; per-scalar it carries dispatch overhead. -----
 _NPR = "import numpy as np\nrng = np.random.default_rng(1)"
@@ -240,10 +263,8 @@ for k in ["len", "ord", "ascii", "hash", "bool", "int", "float", "contains", "st
     REG[f"builtins.{k}"] = NOTE("header-inlined to ~sub-nanosecond; the win over CPython "
                                 "is its eliminated ~60 ns per-call interpreter overhead")
 
-# ---- datetime / html.parser: object/structure returns, not one scalar -----
-for k in ["day", "format", "hour", "minute", "month", "now", "second", "timestamp",
-          "today", "utcnow", "weekday", "year"]:
-    REG[f"datetime.{k}"] = NOTE("date/time value handling — not reduced to one scalar here")
+# ---- html.parser: object/structure returns, not one scalar (datetime is
+# benchmarked above against CPython's datetime) -----------------------------
 for k in ["get_attr", "has_attr", "parse"]:
     REG[f"html.parser.{k}"] = NOTE("returns a parse structure — not reduced to one scalar here")
 

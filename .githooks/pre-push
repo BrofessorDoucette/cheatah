@@ -5,17 +5,22 @@
 # or `QA_GATE_SKIP=1 git push`.
 #
 # After a PASSING gate, and ONLY when pushing `main`, it regenerates the docs site
-# (Doxygen XML -> docs/gen generator -> docs/html). Never on a failing gate, never
-# on other branches, never on a manual `scripts/qa_gate.sh` run.
+# (Doxygen XML -> docs/gen generator -> docs/html). When a version TAG (refs/tags/v*) is
+# pushed — i.e. a release actually goes to GitHub — it archives that version's review
+# bundle. Never on a failing gate, never on a manual `scripts/qa_gate.sh` run.
 set -uo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 
 # pre-push receives "<local_ref> <local_sha> <remote_ref> <remote_sha>" lines on
-# stdin; note whether main is among the refs being pushed.
+# stdin; note whether main, and/or a version tag (refs/tags/v*), is being pushed.
 pushing_main=0
+pushed_tag=""
 while read -r _local_ref _local_sha remote_ref _remote_sha; do
     [ "$remote_ref" = "refs/heads/main" ] && pushing_main=1
+    case "$remote_ref" in
+        refs/tags/v*) pushed_tag="${remote_ref#refs/tags/}" ;;
+    esac
 done
 
 # 1. QA gate — blocks the push on failure.
@@ -29,5 +34,14 @@ if [ "$pushing_main" = "1" ] && [ "${QA_GATE_SKIP:-0}" != "1" ]; then
     if ! git -C "$repo_root" diff --quiet -- docs/html; then
         printf '[pre-push] docs/html was refreshed — commit the update to publish it.\n'
     fi
+fi
+
+# 3. Pushing a version tag = the release actually goes to GitHub: archive its review
+#    bundle into archive/<name>.tar.gz (the gate already staged review/ on the release
+#    commit). Non-fatal — a hiccup here must not abort a release push.
+if [ -n "$pushed_tag" ] && [ "${QA_GATE_SKIP:-0}" != "1" ]; then
+    printf '\n\033[1m[pre-push] pushing release tag %s — archiving its review bundle…\033[0m\n' "$pushed_tag"
+    bash "$repo_root/scripts/archive_release.sh" --pushing "$pushed_tag" \
+        || echo "[pre-push] archive step skipped/failed (non-fatal)."
 fi
 exit 0

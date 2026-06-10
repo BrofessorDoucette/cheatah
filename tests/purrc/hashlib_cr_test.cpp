@@ -13,3 +13,28 @@ import hashlib
 io.print(hashlib.sha256("abc"))
 )PURR", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n");
 }
+
+// Standard NIST/FIPS-180 SHA-512 test vector for "abc".
+TEST(HashlibCompileRun, Sha512) {
+    e2e::expect_e2e("hashlib_sha512", R"PURR(import io
+import hashlib
+io.print(hashlib.sha512("abc"))
+)PURR", "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a"
+        "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f\n");
+}
+
+// The raw digest forms return the bytes (32 / 64), not hex — assert their length so the
+// program output stays deterministic.
+TEST(HashlibCompileRun, Sha256Digest) {
+    e2e::expect_e2e("hashlib_sha256_digest", R"PURR(import io
+import hashlib
+io.print(len(hashlib.sha256_digest("abc")))
+)PURR", "32\n");
+}
+
+TEST(HashlibCompileRun, Sha512Digest) {
+    e2e::expect_e2e("hashlib_sha512_digest", R"PURR(import io
+import hashlib
+io.print(len(hashlib.sha512_digest("abc")))
+)PURR", "64\n");
+}

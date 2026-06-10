@@ -130,7 +130,7 @@ TEST(LinalgRoutines, GeneralEigVectors) {
     // For a real matrix, eig() returns complex eigenvalues AND eigenvectors (via
     // inverse iteration). Verify A·v_k = λ_k·v_k for each column (phase-independent),
     // building a complex copy Ac of A so we can multiply the complex eigenvectors.
-    const auto check = [](std::vector<double> data, std::size_t n) {
+    const auto check = [](const std::vector<double>& data, std::size_t n) {
         const nd::NDArray A = mat(n, n, data);
         std::vector<C> cdata;
         for (double x : data) cdata.push_back(C(x, 0.0));

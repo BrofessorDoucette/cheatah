@@ -3,7 +3,75 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
-## v1.0.0-alpha — per-module namespace aliasing in generated code
+## v1.1.0-alpha (2026-06-10) — module integrity: from-scratch crypto + signed binaries
+
+cheatah can now verify a compiled module against **corruption and tampering** before the
+runtime loads it, backed by cryptography **implemented from scratch in the standard
+library** (no external dependency). Additive and opt-in — existing programs are
+unaffected and pay nothing unless they turn it on.
+
+### New stdlib crypto (no external dependency)
+- **`hashlib` gains SHA-512** (`sha512`) alongside SHA-256, plus raw-digest forms
+  (`sha256_digest`/`sha512_digest`, like Python's `.digest()` vs `.hexdigest()`).
+- **New `ed25519` module** — RFC 8032 public-key signatures (`generate`, `public_key`,
+  `sign`, `verify`), hand-implemented and **validated byte-for-byte against OpenSSL** and
+  the RFC 8032 known-answer vectors. Strict verification rejects non-canonical signatures
+  (`S ≥ L`). The runtime links this same code to verify modules.
+- **`os.urandom(n)`** — a CSPRNG (`getentropy` / `BCryptGenRandom`), fail-closed.
+
+### Module integrity (opt-in, fail-closed)
+- **`purrc --keygen <prefix>`** writes an Ed25519 keypair (secret key created `0600`);
+  **`purrc --sign <key>`** signs a built module (writes `<mod>.sig`); **`purrc --checksum`**
+  writes a sha256sum-compatible `<mod>.sha256`.
+- The **runtime verifies before `dlopen`**: a `.sha256` sidecar is **auto-checked** for
+  corruption; with **`CHEATAH_VERIFY=strict`** (or `--verify`) a valid `.sig` from a key
+  in the **trust file** (`CHEATAH_TRUST` / `--trust`) is **required**, else the module is
+  refused. Verification binds the load to the exact bytes it hashed (`/proc/self/fd`, no
+  verify-then-load race), is **non-downgradable** by argv, caps the module size, and is
+  **off by default with zero overhead**. See the [Security](docs/security.md) guide; the
+  runtime header documents the per-call `@complexity`/`@alloc`.
+- **C-runtime compatibility check.** `purrc --runtime` records the build's CPU arch, glibc
+  version, and libstdc++ ABI in a **`<mod>.rt`** manifest; the runtime checks it against
+  the **live host** before loading (e.g. refuses *"module needs glibc >= 2.39, but this
+  host has glibc 2.31"* instead of a cryptic `dlopen` failure). **`purrc --sign-runtime
+  <key>`** signs the manifest with a key **separate from the code-signing key**
+  (`--trust-runtime` / `CHEATAH_RT_TRUST`), so code authenticity and build-runtime
+  provenance are vouched for independently and the two keys are not interchangeable.
+
+### Tooling
+- `purrc` and `cheatah` now accept **`--help` / `-h`** (usage to stdout, exit 0), in
+  addition to `--version` / `-v`.
+- The QA gate now runs **cppcheck** (performance + security) across the repo.
+- The VS Code extension highlights cheatah's custom Javadoc tags
+  (`@complexity`/`@alloc`/`@test`/`@crtest`/`@systest`) like the standard ones.
+
+### Performance & codegen
+- **`ndarray` result buffers are now allocated uninitialized** (a small default-init
+  allocator) instead of being zero-filled and then immediately overwritten. The throwaway
+  zero pass was invisible on compute-heavy ops but dominated the bandwidth-bound ones:
+  element-wise `add` goes from **1.5× *slower*** than NumPy to **1.2× faster** (16384
+  elements), `sqrt` ties NumPy at large `n`, and `exp`/`sin` widen to **≈4–7×**. The
+  `linalg` results that are as big as their own work — `outer`, `kron`, the conjugate
+  transpose — build straight into that buffer and are moved in **zero-copy**, so `outer`
+  now **beats Eigen** (was behind) and `kron` is ~1.5× faster than before. Verified ASan +
+  Valgrind clean.
+- **Generated code now `#include`s a single `cheatah.hpp` prelude** instead of repeating a
+  dozen standard-library `#include`s (plus the export macro) at the top of every file. The
+  built-in runtime already pulled in most of them; modules still map one-to-one to their
+  own headers.
+
+### Docs
+- New **“Why cheatah?”** guide (the motivation: a transpiled, statically-typed,
+  memory-safe, transparent language for an AI-threat world), reached from the overview.
+- The **Security** page documents the integrity feature and threat model; the
+  **Performance** page now compares against both NumPy and Eigen and is precise about the
+  few routines where their tuned kernels edge ahead. Benchmarks regenerated.
+
+### Notes
+- A security audit of the feature was performed; findings (downgrade hardening, fd-bound
+  strict loading, size caps, canonical-`S` rejection, key-file permissions) are fixed.
+
+## v1.0.0-alpha (2026-06-09) — per-module namespace aliasing in generated code
 
 The transpiler now shortens every module reference in the C++ it emits. This is a
 **codegen-shape change** — the generated `.gen.cpp` looks different (the runtime
@@ -43,7 +111,7 @@ behavior of any program is unchanged) — so the version steps to 1.0.0.
   generated C++ itself — each module aliased distinctly, libc-named modules aliased
   safely, and collisions staying explicit — alongside compiling and running each program.
 
-## v0.9.1-alpha — tighter string codegen, enum highlighting
+## v0.9.1-alpha (2026-06-09) — tighter string codegen, enum highlighting
 
 A small follow-up: the transpiler emits leaner string-building code, and `enum` now
 syntax-highlights in the docs.
@@ -62,7 +130,7 @@ syntax-highlights in the docs.
 - **`enum` now syntax-highlights** in the generated docs site — the highlighter's keyword
   set had drifted out of sync with the lexer.
 
-## v0.9.0-alpha — enums, the `sys` module, and the `biome` package manager
+## v0.9.0-alpha (2026-06-09) — enums, the `sys` module, and the `biome` package manager
 
 A scoped, printable `enum` type joins the language; a new `sys` module plus runtime
 argument forwarding gives programs their `sys.argv`; and **biome**, a CMake/CPM-based
@@ -168,7 +236,7 @@ honestly, not hidden.
   (Python, the C++ standard, NumPy/SciPy/Matplotlib, BLAS/LAPACK, Eigen, GLM, …)
   that informed cheatah's design — the author first, then the prior art.
 
-## v0.8.0-alpha — Python-3 division + the whole library, documented
+## v0.8.0-alpha (2026-06-09) — Python-3 division + the whole library, documented
 
 The `/` operator is now **true division** (always a float, even `int / int`), matching
 Python 3, and integer/floor division moves to an opt-in `//` operator. Alongside it, the
@@ -195,7 +263,7 @@ on its page, and the linalg-vs-NumPy numbers live beside the functions they meas
 - **Tighter prose.** A pass over the guides trimmed wordiness without dropping facts,
   examples, or the single-threaded-by-design framing.
 
-## v0.7.0-alpha — cross-platform: Linux, macOS, and Windows
+## v0.7.0-alpha (2026-06-08) — cross-platform: Linux, macOS, and Windows
 
 cheatah now builds and runs on **Linux, macOS, and Windows**. The language, the `purrc`
 interface, and every standard-library API are **unchanged** — this release is purely
@@ -228,7 +296,7 @@ detection and want on-device confirmation.)
   **libmvec** (Linux), **Accelerate** (macOS), opt-in **SVML** (Windows,
   `-DCHEATAH_WIN_SVML=ON`); scalar-but-correct fallback otherwise.
 
-## v0.6.0-alpha — winning the numerics: world-class linear algebra + SIMD ufuncs
+## v0.6.0-alpha (2026-06-08) — winning the numerics: world-class linear algebra + SIMD ufuncs
 
 This release is a ground-up performance pass on the numeric core. We benchmarked every
 `linalg` and `ndarray` routine honestly against NumPy/LAPACK, hunted down *why* we lost
@@ -300,7 +368,7 @@ element access, and inner loops that couldn't vectorize.
 - Corrected stale `@alloc`/behavior annotations found in an audit (e.g. `dot`'s "2-D
   matmul" comment — it rejects non-vector 2-D input; complex `dot`/`vdot` scratch claims).
 
-## v0.5.0-alpha — performance, honestly: @perf everywhere, vs-CPython & vs-NumPy, and a smarter editor
+## v0.5.0-alpha (2026-06-08) — performance, honestly: @perf everywhere, vs-CPython & vs-NumPy, and a smarter editor
 
 This release is about **measuring** cheatah honestly and surfacing those numbers
 where you work. Every standard-library function now carries a measured **Performance**
@@ -351,7 +419,7 @@ element-wise math; and the VS Code extension becomes a real reference tool.
 - Audited every doc for accuracy and fixed broken/again-runnable examples across the
   guides and module READMEs.
 
-## v0.4.0-alpha — complex linear algebra
+## v0.4.0-alpha (2026-06-08) — complex linear algebra
 
 cheatah becomes a tool for **complex** linear algebra — the kind physics (quantum,
 plasma) and signal processing actually need. The numeric core can now store and
@@ -396,7 +464,7 @@ new guides (Getting Started, Coming from Python, Security).
   type (float32) is deferred to a follow-up — float arrays aren't constructible from
   cheatah source yet.
 
-## v0.3.0-alpha — a real language: methods, interfaces, generic numerics, and IntelliSense
+## v0.3.0-alpha (2026-06-07) — a real language: methods, interfaces, generic numerics, and IntelliSense
 
 Third pre-alpha, and the largest yet. This release turns cheatah from a small
 scripting core into a **statically-typed, concept-driven language**: structs gain
@@ -466,7 +534,7 @@ a named error, never template spam.
 - **100% unit-test line + function coverage** and **100% Javadoc** maintained across
   all the new code, under the existing ASan + UBSan + Valgrind QA gate.
 
-## v0.2.0-alpha — networking, a bespoke docs site, and a three-tier test system
+## v0.2.0-alpha (2026-06-07) — networking, a bespoke docs site, and a three-tier test system
 
 Second pre-alpha. The language core is unchanged; this release adds **networking**
 to the standard library, replaces the documentation pipeline with our **own
@@ -508,7 +576,7 @@ a stricter QA gate.
   so the default gate stays fast.
 - On a passing push to `main`, the docs site is **auto-regenerated**.
 
-## v0.1.0-prealpha — first pre-alpha
+## v0.1.0-prealpha (2026-06-06) — first pre-alpha
 
 The first tagged pre-alpha of the cheatah language: it compiles and runs, with a
 standard library, an editor extension, and CI that runs every test under two memory

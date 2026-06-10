@@ -1,7 +1,7 @@
 # cheatah `socket` 🐆
 
 A small wrapper around BSD/POSIX **TCP sockets**, in the spirit of Python's
-[`socket`](https://docs.python.org/3/library/socket.html). Because cheatah has no
+`socket` module. Because cheatah has no
 methods yet, the API is **flat and file-descriptor based** (like the C layer): you
 pass the integer `fd` from `socket()` / `tcp_listen()` / `accept()` to the other
 calls. IPv4 + TCP only; hosts are resolved with `getaddrinfo`, so `"localhost"`,

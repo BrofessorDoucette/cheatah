@@ -1,10 +1,10 @@
 # cheatah `random`
 
-Pseudo-random numbers — the core of Python's `random` module. Backed by a
-seedable Mersenne Twister (`std::mt19937_64`); `gauss` gives normal deviates for
-Monte Carlo.
+Pseudo-random numbers from a seedable Mersenne Twister (`std::mt19937_64`); `gauss`
+gives normal deviates for Monte Carlo. (For cryptographic randomness use
+`os.urandom` / `ed25519`, not this module.)
 
-```python
+```purr
 import random
 
 random.seed(42)          # reproducible stream

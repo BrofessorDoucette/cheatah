@@ -96,12 +96,28 @@ std::vector<double> as_vector(const NDArray& a, std::size_t& n) {
 // zero-init that `NDArray(shape)` would do (it value-fills `product(shape)` elements
 // that we then immediately overwrite — a full wasted pass, ruinous for big results
 // like `outer`). Build straight from the buffer + C-order strides instead.
+// Zero-copy: the result is ALREADY in the ndarray storage type (see ndarray::buffer_t),
+// so move its buffer straight in — no element copy, no second large allocation. Use this
+// for memory-bound results (outer, transpose, kron) where the result is as big as the
+// work and an extra copy would dominate (and, for >128 KiB results, trip glibc's mmap
+// threshold so the copy's fresh pages fault in one by one).
+template <typename T>
+ndarray::basic_ndarray<T> wrap_buffer(std::vector<std::size_t> shape, ndarray::buffer_t<T> data) {
+    auto strides = ndarray::detail::contiguous_strides(shape);
+    auto buf = std::make_shared<ndarray::buffer_t<T>>(std::move(data));
+    return ndarray::basic_ndarray<T>(std::move(buf), std::move(shape), std::move(strides), 0);
+}
+// Plain-std::vector result: one bulk copy into the ndarray storage type. resize
+// (default-init: no zero pass) + std::copy keeps libstdc++'s memmove fast path, so it is a
+// single contiguous pass — negligible next to the O(n³) work of the routines that use it
+// (matmul, inv, the SVD/eig family). (vector::assign through the default-init allocator
+// would instead force an element-by-element copy, which is much slower.)
 template <typename T>
 ndarray::basic_ndarray<T> wrap_buffer(std::vector<std::size_t> shape, std::vector<T> data) {
-    auto strides = ndarray::detail::contiguous_strides(shape);
-    return ndarray::basic_ndarray<T>(
-        std::make_shared<std::vector<T>>(std::move(data)), std::move(shape),
-        std::move(strides), 0);
+    ndarray::buffer_t<T> buf;
+    buf.resize(data.size());
+    std::copy(data.begin(), data.end(), buf.begin());
+    return wrap_buffer<T>(std::move(shape), std::move(buf));
 }
 NDArray make_matrix(std::size_t rows, std::size_t cols, std::vector<double> data) {
     return wrap_buffer<double>({rows, cols}, std::move(data));
@@ -119,7 +135,7 @@ CNDArray make_cmatrix(std::size_t rows, std::size_t cols, std::vector<Cplx> data
 }
 // Promote a freshly-built (contiguous, offset-0) real result to complex (imag 0).
 CNDArray to_complex(const NDArray& a) {
-    const std::vector<double>& src = *a.buffer();
+    const auto& src = *a.buffer();
     return wrap_buffer<Cplx>(a.shape(), std::vector<Cplx>(src.begin(), src.end()));
 }
 // Descending order for a complex spectrum: by real part, then imaginary part.
@@ -913,14 +929,15 @@ NDArray outer(const NDArray& a, const NDArray& b) {
     std::vector<double> sa, sb;
     const double* x = contig(a, sa);
     const double* y = contig(b, sb);
-    std::vector<double> r(n * m);
+    ndarray::buffer_t<double> r;  // every element written below -> leave it uninitialized
+    r.resize(n * m);
     double* rp = r.data();
     for (std::size_t i = 0; i < n; ++i) {
         const double xi = x[i];          // loop-invariant scalar…
         double* ri = rp + i * m;         // …and a clean row pointer, so the inner
         for (std::size_t j = 0; j < m; ++j) ri[j] = xi * y[j];  // store vectorizes
     }
-    return make_matrix(n, m, std::move(r));
+    return wrap_buffer<double>({n, m}, std::move(r));  // zero-copy: r is already buffer_t
 }
 
 NDArray matmul(const NDArray& a, const NDArray& b) {
@@ -1011,10 +1028,11 @@ CNDArray conj_transpose(const CNDArray& a) {
     const std::size_t r = a.shape()[0], c = a.shape()[1];
     std::vector<Cplx> sa;
     const Cplx* A = contig(a, sa);  // read-only — zero-copy when contiguous
-    std::vector<Cplx> T(c * r);
+    ndarray::buffer_t<Cplx> T;  // every element written below -> leave it uninitialized
+    T.resize(c * r);
     for (std::size_t i = 0; i < r; ++i)
         for (std::size_t j = 0; j < c; ++j) T[j * r + i] = std::conj(A[i * c + j]);
-    return make_cmatrix(c, r, std::move(T));
+    return wrap_buffer<Cplx>({c, r}, std::move(T));  // zero-copy: T is already buffer_t
 }
 
 NDArray matrix_power(const NDArray& a, long long p) {
@@ -1042,14 +1060,15 @@ NDArray kron(const NDArray& a, const NDArray& b) {
     std::vector<double> sa, sb;
     const double* A = contig(a, sa);  // read-only — zero-copy when contiguous
     const double* B = contig(b, sb);
-    std::vector<double> K(ar * br * ac * bc, 0.0);
+    ndarray::buffer_t<double> K;  // every element written below -> leave it uninitialized
+    K.resize(ar * br * ac * bc);
     const std::size_t kc = ac * bc;
     for (std::size_t i = 0; i < ar; ++i)
         for (std::size_t j = 0; j < ac; ++j)
             for (std::size_t p = 0; p < br; ++p)
                 for (std::size_t q = 0; q < bc; ++q)
                     K[(i * br + p) * kc + (j * bc + q)] = A[i * ac + j] * B[p * bc + q];
-    return make_matrix(ar * br, kc, std::move(K));
+    return wrap_buffer<double>({ar * br, kc}, std::move(K));  // zero-copy: K is already buffer_t
 }
 
 double trace(const NDArray& a) {

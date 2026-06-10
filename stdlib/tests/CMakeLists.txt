@@ -19,6 +19,7 @@ add_executable(cheatah_tests
     random_test.cpp
     statistics_test.cpp
     hashlib_test.cpp
+    ed25519_test.cpp
     ndarray_test.cpp
     linalg_routines_test.cpp
     linalg_smoke_test.cpp
@@ -37,6 +38,7 @@ target_link_libraries(cheatah_tests PRIVATE
     cheatah::random_static
     cheatah::statistics_static
     cheatah::hashlib_static
+    cheatah::ed25519_static
     cheatah::socket_static
     cheatah::ndarray_static
     cheatah::linalg_static

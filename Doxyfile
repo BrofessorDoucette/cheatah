@@ -61,7 +61,7 @@ WARN_NO_PARAMDOC       = NO
 # Tests/scripts and the project-overview stdlib/README.md (a homepage duplicate)
 # are excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md docs/getting_started.md docs/performance.md docs/porting.md docs/security.md compiler/PYTHON.md CHANGELOG.md
+INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/porting.md docs/security.md compiler/PYTHON.md CHANGELOG.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES

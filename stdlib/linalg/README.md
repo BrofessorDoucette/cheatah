@@ -34,7 +34,7 @@ let d = linalg.det(A)
 - `svd` — singular value decomposition (Golub–Reinsch: bidiagonalization + implicit QR).
 - `svdvals` — singular values only (the SVD fast path, without forming U/Vᵀ).
 
-### Eigen
+### Eigenvalues
 - `eig` / `eigvals` — general square matrix (**complex** spectrum + eigenvectors;
   Hessenberg + shifted QR for the values, inverse iteration for the vectors).
 - `eigh` / `eigvalsh` — symmetric **or complex Hermitian** matrix (real spectrum;
@@ -125,10 +125,10 @@ thread** — an apples-to-apples per-core comparison ("—" = not benchmarked):
 | `dot` | two 16384-element vectors | 1.94 | 7.75 | **cheatah 4.0×** | **cheatah 1.4×** |
 | `matmul` | 32×32 · 32×32 | 2.58 | 12.9 | **cheatah 5.0×** | **cheatah 1.4×** |
 | `matmul` | 96×96 · 96×96 | 71.7 | 315 | **cheatah 4.4×** | **cheatah 1.3×** |
-| `outer` | 64-vec → 64×64 | 0.41 | 4.11 | **cheatah 10×** | **cheatah 1.9×** |
-| `outer` | 256-vec → 256×256 | 14.0 | 45.1 | **cheatah 3.2×** | Eigen 1.5× |
-| `kron` | 8×8 ⊗ 8×8 → 64×64 | 1.13 | 12.6 | **cheatah 11×** | — |
-| `kron` | 32×32 ⊗ 32×32 → 1024×1024 | 481 | 914 | **cheatah 1.9×** | — |
+| `outer` | 64-vec → 64×64 | 0.47 | 3.56 | **cheatah 7.6×** | **cheatah 1.2×** |
+| `outer` | 256-vec → 256×256 | 8.04 | 47.1 | **cheatah 5.9×** | **cheatah 1.3×** |
+| `kron` | 8×8 ⊗ 8×8 → 64×64 | 1.01 | 11.8 | **cheatah 12×** | — |
+| `kron` | 32×32 ⊗ 32×32 → 1024×1024 | 325 | 799 | **cheatah 2.5×** | — |
 | *— LU-based —* | | | | | |
 | `solve` | 32×32 matrix, 32-vector | 3.49 | 9.95 | **cheatah 2.8×** | **cheatah 1.2×** |
 | `solve` | 64×64 matrix, 64-vector | 16.6 | 47.8 | **cheatah 2.9×** | **cheatah 1.2×** |
@@ -167,10 +167,11 @@ column-stride QR walk, and a result buffer that was zero-filled and then thrown 
   (the last four previously *lost*). The handful still behind (`svdvals`/`cond`/
   `matrix_rank` ~1.1×) are SVD-threshold queries where LAPACK's bidiagonal solver edges it.
 - **vs Eigen 3.4 on one core, cheatah matches or beats it on the bulk** — `inv` (≈1.7×),
-  `outer`/`svd` (≈1.6–1.9×), `det`/`matmul`/`trace` (≈1.3–1.4×), `solve`/`eigvalsh`/`eigh`/
+  `svd` (≈1.6×), `det`/`matmul`/`trace` (≈1.3–1.4×), `outer` (≈1.2–1.3×, now that the
+  result buffer is built uninitialized and moved in zero-copy), `solve`/`eigvalsh`/`eigh`/
   `norm` (≈1.1–1.2×). Eigen still leads on its **blocked BLAS-3** kernels — `qr`
-  (1.3–1.8×), `cholesky` (1.2×), the `eigh` eigenvector path (1.1×), and `outer` at large n
-  (1.5×, allocation-bound) — which we flag honestly rather than hide.
+  (1.3–1.8×), `cholesky` (1.2×), and the `eigh` eigenvector path (1.1×) — which we flag
+  honestly rather than hide.
 
 cheatah does all of this on **one core, by design** — single-threaded is a feature, not a
 shortfall (no hidden threads, no contention, nothing to tune). Both NumPy's and Eigen's

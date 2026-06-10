@@ -168,5 +168,18 @@ else
         printf '[qa-gate] editor refresh skipped/failed (non-fatal).\n'
 fi
 
+# 8b. Static analysis: cppcheck for performance + security problems ----------
+bold "Running cppcheck (performance + security)…"
+bash scripts/cppcheck.sh || fail "cppcheck (performance/security findings)"
+
+# 9. Stage the release for review (only on a release commit) -----------------
+#    review/ then holds a copy of the latest release to inspect before pushing; it is
+#    archived (per version) when the release tag is actually pushed — see the pre-push
+#    hook. Best-effort — never fails the gate.
+if git log -1 --format=%s | grep -qE '^release: '; then
+    bold "Staging the release into review/ (release commit)…"
+    bash scripts/stage_review.sh || printf '[qa-gate] review staging skipped/failed (non-fatal).\n'
+fi
+
 bold "QA gate PASSED — push may proceed."
 exit 0

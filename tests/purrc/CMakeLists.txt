@@ -2,6 +2,7 @@
 # purrc compiles a .purr to a loadable module, cheatah loads and runs it.
 add_executable(cheatah_purrc_tests
     compile_run_test.cpp
+    cli_test.cpp                # --help / -h / --version usage for purrc + cheatah
     lang_features_test.cpp
     linalg_lsq_e2e_test.cpp
     # Comprehensive per-module system tests (suite StdlibE2E): each exercises
@@ -19,6 +20,7 @@ add_executable(cheatah_purrc_tests
     random_sys_test.cpp
     statistics_sys_test.cpp
     hashlib_sys_test.cpp
+    ed25519_sys_test.cpp
     # Per-function compile-run tests (one file per stdlib module).
     builtins_cr_test.cpp
     io_cr_test.cpp
@@ -33,6 +35,7 @@ add_executable(cheatah_purrc_tests
     random_cr_test.cpp
     statistics_cr_test.cpp
     hashlib_cr_test.cpp
+    ed25519_cr_test.cpp
     # System-level tests: real multi-module mini-apps (suite SystemApps).
     app_grades_test.cpp
     app_matrix_test.cpp
@@ -43,6 +46,9 @@ add_executable(cheatah_purrc_tests
     # Namespace aliasing of the generated C++ (suite NamespaceAliasing): proves the
     # alias is emitted when safe and skipped on a name collision — both compile & run.
     namespace_alias_test.cpp
+    # Module integrity (suite ModuleIntegrity): sign a real .so, then prove the runtime
+    # runs a genuine module and REFUSES a corrupted / tampered / untrusted one.
+    integrity_e2e_test.cpp
     # linalg vs NumPy: run checked-in .purr programs and cross-check against python.
     linalg_vs_python_test.cpp
 )
@@ -70,6 +76,7 @@ add_dependencies(cheatah_purrc_tests
     cheatah_random_static
     cheatah_statistics_static
     cheatah_hashlib_static
+    cheatah_ed25519_static
     cheatah_socket_static
     cheatah_ndarray_static
     cheatah_linalg_static)

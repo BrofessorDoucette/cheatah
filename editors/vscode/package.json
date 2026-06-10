@@ -2,7 +2,7 @@
   "name": "cheatah",
   "displayName": "cheatah",
   "description": "Syntax highlighting, language configuration, IntelliSense, and a file icon theme for the cheatah language (.purr).",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "cheatah-lang",
   "license": "MIT",
   "engines": {
@@ -58,6 +58,15 @@
         "embeddedLanguages": {
           "meta.embedded.block.cpp.cheatah": "cpp"
         }
+      },
+      {
+        "scopeName": "documentation.cheatah-tags.injection",
+        "path": "./syntaxes/cheatah-doxygen-tags.tmLanguage.json",
+        "injectTo": [
+          "source.cpp",
+          "source.c",
+          "source.cheatah"
+        ]
       }
     ],
     "walkthroughs": [

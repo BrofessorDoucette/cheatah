@@ -14,12 +14,19 @@ opening a public issue.
 
 ## Current threat model (today)
 
-cheatah today is a **single-trust** system, exactly like Python or a C++ compiler:
+cheatah is **single-trust by default**, like Python or a C++ compiler — there is no
+sandbox, so any module you run has your full privileges:
 
-> **`.purr` source and the compiled `.so` modules are FULLY TRUSTED.** The person
-> who writes/compiles/runs the program is the same person whose machine it runs on.
+> By default, the `.purr` source and the compiled `.so` you run are **fully trusted**.
+> The person who writes/compiles/runs the program is whose machine it runs on.
 
-Under that model these are **features, not bugs**:
+Since **v1.1.0**, modules can be **signed** (`purrc --sign`, with from-scratch Ed25519)
+and the runtime can **verify** them before loading (`CHEATAH_VERIFY=strict`), so trust can
+be delegated to a signer you pin rather than auditing every byte — see
+[docs/security.md](docs/security.md). That is *authenticity and integrity*, **not** a
+sandbox: a signed module still runs with full privileges, so you must trust the signer.
+
+Under the default (unsigned) model these are **features, not bugs**:
 
 - **`os.system`, raw filesystem access, process/env access** — Python-parity
   conveniences for your own scripts.
@@ -29,17 +36,22 @@ Under that model these are **features, not bugs**:
 
 What we still hold ourselves to *even under full trust* — because bugs are bugs:
 
-- **Generated code is memory-safe** by construction (value types, STL containers,
-  smart pointers; no raw `new`/`delete`) — except inside `cpp { … }`.
+- **Generated code is memory-safe** by construction (value types and STL containers;
+  no raw `new`/`delete`, no manual pointer arithmetic) — except inside `cpp { … }`.
 - **No command injection in the toolchain.** `purrc` invokes the C++ backend with
   `fork` + `execvp` (no shell), so paths can never be reinterpreted as shell syntax.
 - **The runtime validates a module before `dlopen`** (`runtime/main.cpp`):
   canonicalizes the path, requires a regular file, refuses world-writable modules,
   and checks the ELF magic.
+- **Optional integrity verification before load** (`runtime/integrity.cpp`): a
+  SHA-256 checksum (corruption) and an Ed25519 signature (tampering), plus a
+  build-runtime compatibility check — opt-in, fail-closed, and fd-bound to the bytes
+  it verified.
 - **Standard-library bounds/overflow checks** so malformed inputs raise instead of
   corrupting memory (see the review below).
-- **CI runs the whole suite under ASan + UBSan** (`-DCHEATAH_SANITIZE=ON`, the
-  `asan` preset, and the QA gate) — memory errors and UB fail the build.
+- **The QA gate runs the whole suite under ASan + UBSan *and* Valgrind**
+  (`security/run-valgrind.sh`), with 100% stdlib line+function coverage — memory
+  errors, UB, and leaks fail the build.
 
 ## Standing security review
 
@@ -48,12 +60,13 @@ What we still hold ourselves to *even under full trust* — because bugs are bug
 | `ndarray` shape math | `product()` could overflow `size_t` → under-allocation → OOB writes | **Fixed** — overflow-checked, throws |
 | `ndarray` dims/indices | negative `long long` → huge `size_t`; no index bounds check (OOB read) | **Fixed** — rejects negatives, bounds-checks `at()` |
 | `purrc` backend invocation | shell metacharacter / command injection | **Safe** — `fork`+`execvp`, no shell |
-| runtime module load | loading a wrong/tampered `.so` | **Mitigated** — canonical path + regular-file + world-writable + ELF-magic checks. *Known gap:* a TOCTOU window between check and `dlopen` (acceptable under full trust; see hardening below) |
+| runtime module load | loading a wrong/tampered `.so` | **Mitigated** — canonical path + regular-file + world-writable + ELF-magic checks; plus **optional** SHA-256 + Ed25519 verification before load (`CHEATAH_VERIFY=strict`). The path-sniff checks have a small TOCTOU window; the integrity verification does **not** — it hashes and loads the same open fd (`/proc/self/fd`). |
+| module authenticity | running a substituted/untrusted-signer module | **Mitigated (opt-in)** — strict mode requires a valid Ed25519 signature from a pinned trusted key, fail-closed and non-downgradable. Not a defense if the attacker can rewrite the runtime or the trust file. |
 | `cpp { … }` escape hatch | arbitrary C++ / no memory safety | **By design** under full trust; **disabled** in the sandboxed mode proposed below |
 | `os.system` / raw fs / env | arbitrary host effects | **By design** under full trust; **capability-gated** in sandboxed mode |
 
-ASan+UBSan: **all tests pass clean.** The `ndarray` issues were latent (no test
-reached them) and were found by manual review, not the sanitizers — a reminder
+ASan + UBSan + Valgrind: **all tests pass clean.** The `ndarray` issues were latent (no
+test reached them) and were found by manual review, not the sanitizers — a reminder
 that sanitizers only cover exercised paths.
 
 ---

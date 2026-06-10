@@ -5,6 +5,10 @@
 namespace cheatah::linalg {
 
 namespace detail {
+// By-value is intentional: the sole caller std::move()s into it, so the argument is
+// move-constructed (no copy) and the result moves out — passing by value is the efficient
+// choice here, not a redundant copy.
+// cppcheck-suppress passedByValue
 std::string scalar_if_empty(std::string features) {
     if (features.empty()) return "scalar";
     return features;
