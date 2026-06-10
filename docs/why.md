@@ -64,7 +64,7 @@ memory-safe**, built for the world we are actually in:
   performance in the neighborhood of hand-written C++ — see the
   [Performance](performance.html) guide.
 - **Tamper-evident binaries, optionally.** cheatah ships **just enough lightweight,
-  modern cryptography** — a SHA-256 checksum, Ed25519 code signatures, and a signed
+  modern cryptography** — a SHA-512 checksum, Ed25519 code signatures, and a signed
   build-runtime manifest, all implemented from scratch in the standard library with **no
   external crypto dependency** — to verify a compiled module against **corruption,
   injection, and an incompatible C runtime** before it loads. Off by default; turn it on

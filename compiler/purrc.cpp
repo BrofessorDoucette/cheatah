@@ -153,10 +153,12 @@ std::string base_name(const std::string& p) {
     return slash == std::string::npos ? p : p.substr(slash + 1);
 }
 
-// Write <output>.sha256 in sha256sum format (so `sha256sum -c` also validates it).
+// Write <output>.sha512 in sha512sum format (so `sha512sum -c` also validates it).
+// Module integrity uses SHA-512 — a 512-bit digest — throughout; SHA-256 remains in the
+// `hashlib` stdlib module for applications that want it, but is not used for signing.
 bool write_checksum(const std::string& output) {
-    const std::string hex = cheatah::hashlib::sha256(read_binary(output));
-    return write_file(output + ".sha256", hex + "  " + base_name(output) + "\n");
+    const std::string hex = cheatah::hashlib::sha512(read_binary(output));
+    return write_file(output + ".sha512", hex + "  " + base_name(output) + "\n");
 }
 
 // Sign @p data with the Ed25519 secret seed in @p keyfile, writing @p sigpath in the
@@ -184,7 +186,8 @@ int sign_blob(const std::string& keyfile, const std::string& data, const std::st
     return 0;
 }
 
-// Sign <output> with the CODE-signing key in @p keyfile (writes <output>.sig + checksum).
+// Sign <output> with the CODE-signing key in @p keyfile (writes <output>.sig + a SHA-512
+// checksum sidecar).
 int sign_output(const std::string& output, const std::string& keyfile) {
     write_checksum(output);
     return sign_blob(keyfile, read_binary(output), output + ".sig", "signed " + output);
@@ -229,7 +232,7 @@ int keygen(const std::string& prefix) {
 
 void print_usage(std::ostream& os) {
     os << "usage: purrc <input.purr> [-o <output>]\n"
-          "         [--checksum]               write <output>.sha256 (corruption check)\n"
+          "         [--checksum]               write <output>.sha512 (corruption check)\n"
           "         [--sign <keyfile>]         Ed25519-sign the module (code-signing key)\n"
           "         [--runtime]                write <output>.rt (build C-runtime manifest)\n"
           "         [--sign-runtime <keyfile>] sign <output>.rt (a SEPARATE runtime key)\n"
@@ -247,7 +250,7 @@ int main(int argc, char** argv) {
     std::string sign_key;          // --sign <keyfile>: Ed25519-sign the built module (code key)
     std::string sign_runtime_key;  // --sign-runtime <keyfile>: sign the build-runtime manifest
     std::string keygen_prefix;     // --keygen <prefix>: just generate a keypair and exit
-    bool want_checksum = false;    // --checksum: emit the <output>.sha256 sidecar
+    bool want_checksum = false;    // --checksum: emit the <output>.sha512 sidecar
     bool want_runtime = false;     // --runtime: emit the <output>.rt build-runtime manifest
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -379,10 +382,10 @@ int main(int argc, char** argv) {
         if (const int srv = sign_output(output, sign_key); srv != 0) return srv;
     } else if (want_checksum) {
         if (!write_checksum(output)) {
-            std::cerr << "purrc: cannot write '" << output << ".sha256'\n";
+            std::cerr << "purrc: cannot write '" << output << ".sha512'\n";
             return 1;
         }
-        std::cerr << "purrc: wrote " << output << ".sha256\n";
+        std::cerr << "purrc: wrote " << output << ".sha512\n";
     }
     if (!sign_runtime_key.empty()) {
         if (const int rrv = sign_runtime(output, sign_runtime_key); rrv != 0) return rrv;

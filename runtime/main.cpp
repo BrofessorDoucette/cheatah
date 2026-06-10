@@ -146,7 +146,7 @@ void print_usage(std::ostream& os) {
           "A <program> is a .so / .dylib / .dll built by purrc. Any [args...] after it are\n"
           "forwarded as sys.argv (sys.argv[0] is the program).\n"
           "\n"
-          "Integrity: a <program>.sha256 sidecar is auto-verified (corruption), and a\n"
+          "Integrity: a <program>.sha512 sidecar is auto-verified (corruption), and a\n"
           "<program>.rt build-runtime manifest is checked against this host (refused if the\n"
           "module needs a newer C runtime). With --verify (or CHEATAH_VERIFY=strict) a valid\n"
           "<program>.sig from a key in the trust file (--trust / CHEATAH_TRUST) is REQUIRED;\n"

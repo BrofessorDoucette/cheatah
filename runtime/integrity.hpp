@@ -5,8 +5,10 @@
 // Before the runtime dlopen()s a module (which runs native code in-process), it can
 // check two sidecar files placed next to `<module>`:
 //
-//   <module>.sha256   a plain SHA-256 of the module (sha256sum-compatible). Detects
-//                     ACCIDENTAL corruption. Auto-checked whenever it is present.
+//   <module>.sha512   a plain SHA-512 of the module (sha512sum-compatible). Detects
+//                     ACCIDENTAL corruption. Auto-checked whenever it is present. Module
+//                     integrity uses a 512-bit digest throughout; SHA-256 stays in the
+//                     `hashlib` stdlib module for applications but is not used for signing.
 //   <module>.sig      an Ed25519 signature over the module's bytes, plus the signer's
 //                     public key. Detects deliberate TAMPERING — only the holder of the
 //                     matching secret key could have produced it. Enforced only in
@@ -28,7 +30,7 @@
 namespace cheatah::integrity {
 
 enum class Policy {
-    Off,     // default: only the basic .sha256 checksum is enforced (when present).
+    Off,     // default: only the basic .sha512 checksum is enforced (when present).
     Strict,  // additionally REQUIRE a valid .sig from a trusted key (fail-closed).
 };
 
@@ -49,7 +51,7 @@ struct Result {
  * PERFORMANCE — paid ONCE at load, never during execution; this is the whole cost of
  * turning verification on (consult it before doing so):
  * @complexity Off policy with no sidecars present: O(1) — the module is not even read.
- *   Otherwise O(n) in the module size for one SHA-256 pass (memory-bandwidth bound,
+ *   Otherwise O(n) in the module size for one SHA-512 pass (memory-bandwidth bound,
  *   ~GB/s), plus O(n) again for one Ed25519 verification when a signature is checked
  *   (the verify hashes the bytes once more, then two fixed-cost scalar multiplications,
  *   well under a millisecond).
@@ -57,7 +59,7 @@ struct Result {
  *   the module's bytes (read from the fd) plus small sidecar/text buffers; all freed
  *   before this returns.
  * @param canonical_path the already-sanitized module path.
- * @param policy Off (only an existing .sha256 is enforced) or Strict (a valid signature
+ * @param policy Off (only an existing .sha512 is enforced) or Strict (a valid signature
  *   from a trusted key is REQUIRED).
  * @param trusted_keys the pinned code-signing Ed25519 public keys (64 hex each).
  * @param trusted_runtime_keys the pinned RUNTIME public keys — a SEPARATE set used only

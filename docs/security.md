@@ -41,7 +41,7 @@ These you get for free — the compiler and runtime enforce them so you don't ha
   the path, requires a **regular file**, **refuses world-writable** modules, and checks
   the **ELF magic** — so a stray or tampered `.so` is rejected, not blindly loaded.
 - **Optional integrity verification of the module.** Before loading, the runtime can
-  check a **SHA-256 checksum** (corruption), an **Ed25519 signature** (tampering), and a
+  check a **SHA-512 checksum** (corruption), an **Ed25519 signature** (tampering), and a
   **build-runtime manifest** (an incompatible C runtime) — see *Verifying a binary before
   it loads* below. Off by default, so it costs nothing unless you opt in.
 - **Every template is concept-constrained.** Misuse surfaces as an **early, named
@@ -93,7 +93,7 @@ present. The naming is consistent — **`X.sig` always means "the signature of `
 | File | Written by | What it is | Verified with | Catches |
 |------|-----------|-----------|---------------|---------|
 | `app.so` | `purrc … -o app.so` | the compiled module (native code) | — | — |
-| `app.so.sha256` | `--checksum` | a SHA-256 **checksum** of the module (no key) | re-hash the file | accidental corruption |
+| `app.so.sha512` | `--checksum` | a SHA-512 **checksum** of the module (no key) | re-hash the file | accidental corruption |
 | `app.so.sig` | `--sign code.key` | an Ed25519 **signature of `app.so`** | `code.pub` | tampering with the **code** |
 | `app.so.rt` | `--runtime` | a text **manifest** of the build runtime (arch, glibc, libstdc++) | — (compared to the live host) | an **incompatible** host |
 | `app.so.rt.sig` | `--sign-runtime rt.key` | an Ed25519 **signature of `app.so.rt`** | `rt.pub` | tampering with the **manifest** |
@@ -104,16 +104,18 @@ kept distinct.) The three tiers below are just *when* each of these files is pro
 checked — and which of them you must actually **protect with filesystem permissions** (and
 which you can leave wide open) is its own short section: *File permissions*, below.
 
-### Tier 1 — `app.so.sha256`: a checksum (accidental corruption)
+### Tier 1 — `app.so.sha512`: a checksum (accidental corruption)
 
-The `.sha256` sidecar (sha256sum-compatible) is **auto-verified whenever it's present**: if
+The `.sha512` sidecar (sha512sum-compatible) is **auto-verified whenever it's present**: if
 the bytes don't match, the runtime refuses — catching disk corruption, a truncated
-download, or a botched copy. No key is involved; it's a plain integrity hash.
+download, or a botched copy. No key is involved; it's a plain integrity hash. Module
+integrity uses **SHA-512** (a 512-bit digest) end to end; the `hashlib` module still
+exposes **SHA-256** for your own applications — it just isn't used for signing.
 
 ```sh
-purrc app.purr -o app.so --checksum     # writes app.so.sha256
+purrc app.purr -o app.so --checksum     # writes app.so.sha512
 cheatah app.so                          # auto-checks the checksum, then runs
-sha256sum -c app.so.sha256              # …and ordinary tools can check it too
+sha512sum -c app.so.sha512              # …and ordinary tools can check it too
 ```
 
 ### Tier 2 — `app.so.sig`: a code signature (deliberate tampering)
@@ -121,11 +123,11 @@ sha256sum -c app.so.sha256              # …and ordinary tools can check it too
 The `.sig` sidecar is the **Ed25519 signature of the module bytes**. It proves the module
 was produced by the holder of the secret key and has **not changed since** — a checksum
 catches accidental corruption, but only a signature stops a *deliberate* swap, because an
-attacker can recompute a `.sha256` but can't forge a `.sig` without the secret key.
+attacker can recompute a `.sha512` but can't forge a `.sig` without the secret key.
 
 ```sh
 purrc --keygen release            # -> release.key (SECRET, mode 0600) + release.pub
-purrc app.purr -o app.so --sign release.key   # writes app.so.sig (+ app.so.sha256)
+purrc app.purr -o app.so --sign release.key   # writes app.so.sig (+ app.so.sha512)
 
 # On the machine that runs it: trust the public key, and require a valid signature.
 cp release.pub ~/.config/cheatah/trusted.pub
@@ -200,8 +202,8 @@ either can't be forged or aren't a security control:
 - **`app.so.sig` / `app.so.rt.sig`** — leave them world-writable if you like. A signature an
   attacker didn't produce with a **trusted secret key** simply won't verify. The hard part
   is forgery, not file access.
-- **`app.so.sha256`** — anyone who can change the module can recompute its checksum, so the
-  `.sha256` is only ever a **corruption** check, never a tamper defense. Permissions on it
+- **`app.so.sha512`** — anyone who can change the module can recompute its checksum, so the
+  `.sha512` is only ever a **corruption** check, never a tamper defense. Permissions on it
   buy you nothing.
 - **an unsigned `app.so.rt`** — plain text anyone can edit; it only prevents a *crash*, so a
   doctored manifest at worst lets an incompatible module *try* to load and fail. Sign it
@@ -220,14 +222,33 @@ either unforgeable or not a security boundary, so its permissions don't change t
   `cheatah` runtime binary itself, or your trust file — the runtime is the trust anchor.
   Keep the secret key offline; anyone who has it can sign as you.
 
-### Performance
+### Performance — what each tier costs
 
-Verification is **off by default and zero-overhead** when there are no sidecars: the
-runtime doesn't even read the module to hash it. When enabled, the cost is one SHA-256
-pass over the file (memory-bandwidth bound, ~GB/s) plus, for the signed tier, a single
-Ed25519 verification (well under a millisecond) — paid once at load, never during
-execution. The runtime header (`runtime/integrity.hpp`) documents the per-call
-`@complexity` and `@alloc` so you can judge the cost before turning it on.
+Verification is **paid once, when the module loads** — *before* `dlopen`, never during the
+program's execution. So it's a fixed startup cost, not a per-call tax; for anything that
+runs longer than a handful of milliseconds it disappears into the noise.
+
+Measured with [`tests/benchmarks/integrity_bench.cpp`](https://github.com/BrofessorDoucette/cheatah/blob/main/tests/benchmarks/integrity_bench.cpp)
+(Google Benchmark, calling `verify_module` directly — no process spawn), on `x86_64`; your
+hardware will differ. Each row is the **total** load-time check, not just the increment:
+
+| Tier enabled | 64 KiB module | 1 MiB module | what it adds |
+|--------------|--------------:|-------------:|--------------|
+| **Off** (no sidecars) | ~1.6 µs | ~1.6 µs | nothing — the module isn't even read |
+| **+ checksum** (`.sha512`) | ~0.16 ms | ~2.8 ms | one **SHA-512** pass over the bytes (~400 MiB/s, scales with size) |
+| **+ signature** (`.sig`, strict) | ~2.4 ms | ~7.4 ms | an **Ed25519 verify** (~2 ms, ~fixed) + the signature's own SHA-512 pass |
+| **+ runtime manifest** (`.rt` + `.rt.sig`) | ~4.4 ms | ~9.2 ms | a **second Ed25519 verify** over the small manifest (~2 ms) |
+
+Two things drive the numbers: the **SHA-512** pass scales with module size (cheatah's
+from-scratch SHA-512 runs ~400 MiB/s — there's no SHA-512 CPU instruction on x86 the way
+there is for SHA-256), and each **Ed25519 verification** is a roughly **fixed ~2 ms**.
+cheatah's Ed25519 is implemented from scratch for **auditability and zero dependencies**,
+not for raw throughput — an optimized library would verify in tens of microseconds, so if
+you sign **many** modules in one short-lived process this is the cost to weigh. The runtime
+header (`runtime/integrity.hpp`) documents the per-call `@complexity` and `@alloc` too.
+
+The default stays **zero-overhead**: with no sidecars and no strict flag, the runtime never
+reads the module to hash it (~1.6 µs is just the path canonicalization it already did).
 
 ## What you still have to worry about (for now)
 

@@ -3,6 +3,30 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.1.1-alpha (2026-06-10) — 512-bit module integrity + verification benchmarks
+
+A hardening pass on the v1.1.0 integrity feature: the binary and runtime signing path is
+now **512-bit throughout**, and the per-tier verification cost is measured, not guessed.
+
+### Signing now uses SHA-512 (512-bit), not SHA-256
+- The module **checksum sidecar is now `<module>.sha512`** (sha512sum-compatible), written
+  by `purrc --checksum`/`--sign` and auto-verified by the runtime. Ed25519 signatures
+  already hashed with SHA-512 internally, so **all** of code- and runtime-signing is now
+  512-bit. **SHA-256 stays in the `hashlib` stdlib module** for your own applications — it
+  is simply no longer used for signing.
+- *Breaking (alpha):* a `<module>.sha256` produced by v1.1.0 is no longer recognized;
+  re-run `purrc --checksum` (or `--sign`) to emit the `.sha512` sidecar.
+
+### Verification benchmarks
+- New [`tests/benchmarks/integrity_bench.cpp`](tests/benchmarks/integrity_bench.cpp) times
+  `verify_module` per tier. Verification is paid **once at load**, never during execution,
+  and is **zero-overhead** when off. Representative `x86_64` cost: a 64 KiB module is
+  ~0.16 ms with the SHA-512 checksum, ~2.4 ms with a strict Ed25519 signature, ~4.4 ms with
+  the signed runtime manifest as well. The SHA-512 pass scales with module size; each
+  Ed25519 verify is a roughly fixed ~2 ms (the from-scratch crypto is audit-oriented, not
+  throughput-tuned). The numbers now back the **Security** page's Performance section and a
+  table in `SECURITY.md`.
+
 ## v1.1.0-alpha (2026-06-10) — module integrity: from-scratch crypto + signed binaries
 
 cheatah can now verify a compiled module against **corruption and tampering** before the

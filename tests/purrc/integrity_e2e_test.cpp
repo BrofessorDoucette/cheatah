@@ -4,12 +4,12 @@
 //
 //   purrc --keygen <prefix>          generate an Ed25519 signing keypair
 //   purrc app.purr -o app.so --sign  build a module and sign it (writes app.so.sig +
-//                                    app.so.sha256)
+//                                    app.so.sha512)
 //   cheatah [--verify] app.so        the runtime verifies BEFORE it loads/runs
 //
 // The story they tell: a genuine signed module runs; flip a single byte (an injection
 // into the binary) and the runtime REFUSES to load it; demand a signature and an
-// unsigned or untrusted-signer module is refused. This is the same Ed25519 + SHA-256
+// unsigned or untrusted-signer module is refused. This is the same Ed25519 + SHA-512
 // exercised by ed25519_sys_test.cpp / hashlib_sys_test.cpp, now guarding the loader.
 //
 // Suite name ModuleIntegrity (not *CompileRun*) so the QA gate always runs it.
@@ -101,7 +101,7 @@ TEST(ModuleIntegrity, SignedModuleVerifiesAndRuns) {
     ASSERT_EQ(run_cmd(std::string(PURRC_PATH) + " --keygen " + q(key)).code, 0);
     const std::string so = build_module("genuine_app", "--sign " + q(key + ".key"));
     ASSERT_TRUE(exists(so + ".sig"));
-    ASSERT_TRUE(exists(so + ".sha256"));
+    ASSERT_TRUE(exists(so + ".sha512"));
 
     const Proc r = run_cmd("CHEATAH_TRUST=" + q(key + ".pub") + " " + CH("--verify " + q(so)));
     EXPECT_EQ(r.code, 0) << r.out;
@@ -112,7 +112,7 @@ TEST(ModuleIntegrity, SignedModuleVerifiesAndRuns) {
 // checksum catches the corruption and the runtime refuses to load it.
 TEST(ModuleIntegrity, InjectedByteFailsChecksum) {
     const std::string so = build_module("corrupt_app", "--checksum");
-    ASSERT_TRUE(exists(so + ".sha256"));
+    ASSERT_TRUE(exists(so + ".sha512"));
     flip_a_byte(so);
 
     const Proc r = run_cmd(CH(q(so)));
@@ -126,7 +126,7 @@ TEST(ModuleIntegrity, InjectedByteFailsSignature) {
     const std::string key = kTmp + "/sigtamper";
     ASSERT_EQ(run_cmd(std::string(PURRC_PATH) + " --keygen " + q(key)).code, 0);
     const std::string so = build_module("sigtamper_app", "--sign " + q(key + ".key"));
-    remove_file(so + ".sha256");  // isolate the signature as the only gate
+    remove_file(so + ".sha512");  // isolate the signature as the only gate
     flip_a_byte(so);
 
     const Proc r = run_cmd("CHEATAH_TRUST=" + q(key + ".pub") + " " + CH("--verify " + q(so)));
@@ -283,15 +283,15 @@ TEST(ModuleIntegrity, ArgsForwardedUnderVerify) {
     EXPECT_EQ(r.out, "4\nalpha beta gamma\n");
 }
 
-// The .sha256 sidecar is plain sha256sum format, so standard coreutils validate it too.
-TEST(ModuleIntegrity, ChecksumSidecarIsSha256sumCompatible) {
-    if (run_cmd("command -v sha256sum").code != 0) GTEST_SKIP() << "sha256sum not available";
-    const std::string name = "sha256sum_app";
+// The .sha512 sidecar is plain sha512sum format, so standard coreutils validate it too.
+TEST(ModuleIntegrity, ChecksumSidecarIsSha512sumCompatible) {
+    if (run_cmd("command -v sha512sum").code != 0) GTEST_SKIP() << "sha512sum not available";
+    const std::string name = "sha512sum_app";
     const std::string so = build_module(name, "--checksum");
-    // sha256sum -c resolves the filename relative to its cwd, so run it in the temp dir.
-    EXPECT_EQ(run_cmd("cd " + q(kTmp) + " && sha256sum -c " + q(name + ".so.sha256")).code, 0);
+    // sha512sum -c resolves the filename relative to its cwd, so run it in the temp dir.
+    EXPECT_EQ(run_cmd("cd " + q(kTmp) + " && sha512sum -c " + q(name + ".so.sha512")).code, 0);
     flip_a_byte(so);
-    EXPECT_NE(run_cmd("cd " + q(kTmp) + " && sha256sum -c " + q(name + ".so.sha256")).code, 0);
+    EXPECT_NE(run_cmd("cd " + q(kTmp) + " && sha512sum -c " + q(name + ".so.sha512")).code, 0);
 }
 
 // ============================================================================

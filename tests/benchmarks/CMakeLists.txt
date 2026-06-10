@@ -12,13 +12,24 @@ add_executable(cheatah_benchmarks
     # Native C++ comparisons: cheatah's numeric core vs the reference libraries.
     eigen_compare_bench.cpp   # vs Eigen — dynamic dense linear algebra
     glm_compare_bench.cpp     # vs GLM  — small fixed-size vector/matrix math
+    # Per-tier cost of module-integrity verification — compiles the runtime's
+    # integrity.cpp directly so it times the exact code path the host uses.
+    integrity_bench.cpp
+    ${PROJECT_SOURCE_DIR}/runtime/integrity.cpp
 )
 
 target_link_libraries(cheatah_benchmarks PRIVATE
     cheatah::linalg_static
     cheatah::ndarray_static
+    cheatah::ed25519_static   # ed25519 BEFORE hashlib (static archives resolve left-to-right)
+    cheatah::hashlib_static
     benchmark::benchmark_main
 )
+target_include_directories(cheatah_benchmarks PRIVATE
+    ${PROJECT_SOURCE_DIR}/runtime      # integrity.hpp
+    ${PROJECT_SOURCE_DIR}/compiler     # build_fingerprint.hpp (the host runtime manifest)
+    ${PROJECT_SOURCE_DIR}/stdlib/hashlib
+    ${PROJECT_SOURCE_DIR}/stdlib/ed25519)
 
 # Eigen (header-only, fetched in the top-level CMakeLists) and GLM (system headers).
 if(DEFINED eigen_SOURCE_DIR)

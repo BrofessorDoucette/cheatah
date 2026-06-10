@@ -10,7 +10,7 @@ target_include_directories(cheatah PRIVATE
 
 # cheatah::version (defined in compiler/, added before this dir) gives the runtime
 # the SAME version string purrc reports, with no duplication. The runtime links the
-# SAME self-contained crypto the stdlib exposes (hashlib SHA-256, ed25519 verify) to
+# SAME self-contained crypto the stdlib exposes (hashlib SHA-512, ed25519 verify) to
 # check a module's integrity before loading it — no separate/external crypto. ed25519
 # is listed before hashlib so its references resolve (static archives, left-to-right).
 target_link_libraries(cheatah PRIVATE

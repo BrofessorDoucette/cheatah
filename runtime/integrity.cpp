@@ -57,7 +57,7 @@ bool is_hex(const std::string& s) {
     return true;
 }
 
-// The first whitespace-delimited token (sha256sum format is "<hex>  <name>"); also
+// The first whitespace-delimited token (sha512sum format is "<hex>  <name>"); also
 // handles a bare "<hex>".
 std::string first_token(const std::string& s) {
     std::string tok;
@@ -238,7 +238,7 @@ Result verify_module(const std::string& canonical_path, Policy policy,
                      const std::vector<std::string>& trusted_runtime_keys) {
     Result r;
     auto exists = [](const std::string& p) { std::ifstream f(p, std::ios::binary); return f.good(); };
-    const bool has_sum = exists(canonical_path + ".sha256");
+    const bool has_sum = exists(canonical_path + ".sha512");
     const bool has_sig = exists(canonical_path + ".sig");
     const bool has_rt = exists(canonical_path + ".rt");
 
@@ -273,15 +273,15 @@ Result verify_module(const std::string& canonical_path, Policy policy,
     }
 #endif
 
-    // --- Basic tier: SHA-256 checksum (auto when the sidecar is present) ---
-    const std::string sum_text = read_text_file(canonical_path + ".sha256");
+    // --- Basic tier: SHA-512 checksum (auto when the sidecar is present) ---
+    const std::string sum_text = read_text_file(canonical_path + ".sha512");
     if (!sum_text.empty()) {
         std::string want = first_token(sum_text);
         for (char& c : want) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-        const std::string got = hashlib::sha256(o.bytes);
+        const std::string got = hashlib::sha512(o.bytes);
         if (want != got) {
             release(r);
-            r.error = "checksum mismatch (corrupt or altered): " + canonical_path + ".sha256";
+            r.error = "checksum mismatch (corrupt or altered): " + canonical_path + ".sha512";
             return r;
         }
     }

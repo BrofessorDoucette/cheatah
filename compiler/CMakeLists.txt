@@ -36,7 +36,7 @@ set_target_properties(cheatah_compiler PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # libcheatah_<m> archive built from there.
 add_executable(purrc purrc.cpp)
 # purrc links the same self-contained crypto the runtime verifies with: ed25519 (sign /
-# keygen) over hashlib (SHA-256 checksum). ed25519 before hashlib for static link order.
+# keygen) over hashlib (SHA-512 checksum). ed25519 before hashlib for static link order.
 target_link_libraries(purrc PRIVATE
     cheatah::compiler cheatah::version cheatah::ed25519_static cheatah::hashlib_static)
 

@@ -44,14 +44,30 @@ What we still hold ourselves to *even under full trust* — because bugs are bug
   canonicalizes the path, requires a regular file, refuses world-writable modules,
   and checks the ELF magic.
 - **Optional integrity verification before load** (`runtime/integrity.cpp`): a
-  SHA-256 checksum (corruption) and an Ed25519 signature (tampering), plus a
+  **SHA-512** checksum (corruption) and an Ed25519 signature (tampering), plus a
   build-runtime compatibility check — opt-in, fail-closed, and fd-bound to the bytes
-  it verified.
+  it verified. Module integrity uses a **512-bit digest throughout**; SHA-256 remains in
+  the `hashlib` stdlib module for applications but is not used for signing.
 - **Standard-library bounds/overflow checks** so malformed inputs raise instead of
   corrupting memory (see the review below).
 - **The QA gate runs the whole suite under ASan + UBSan *and* Valgrind**
   (`security/run-valgrind.sh`), with 100% stdlib line+function coverage — memory
   errors, UB, and leaks fail the build.
+
+Integrity verification is paid **once at load**, never during execution, and is
+**zero-overhead** when off (the module isn't even read). Per-tier cost on `x86_64`
+([`tests/benchmarks/integrity_bench.cpp`](tests/benchmarks/integrity_bench.cpp)):
+
+| Tier enabled | 64 KiB module | 1 MiB module |
+|--------------|--------------:|-------------:|
+| off (default) | ~1.6 µs | ~1.6 µs |
+| + SHA-512 checksum | ~0.16 ms | ~2.8 ms |
+| + Ed25519 signature (strict) | ~2.4 ms | ~7.4 ms |
+| + signed runtime manifest | ~4.4 ms | ~9.2 ms |
+
+The SHA-512 pass scales with module size; each Ed25519 verify is a roughly fixed ~2 ms
+(the crypto is from-scratch and audit-oriented, not throughput-tuned). See
+[docs/security.md](docs/security.md) for the full breakdown.
 
 ## Standing security review
 
@@ -60,7 +76,7 @@ What we still hold ourselves to *even under full trust* — because bugs are bug
 | `ndarray` shape math | `product()` could overflow `size_t` → under-allocation → OOB writes | **Fixed** — overflow-checked, throws |
 | `ndarray` dims/indices | negative `long long` → huge `size_t`; no index bounds check (OOB read) | **Fixed** — rejects negatives, bounds-checks `at()` |
 | `purrc` backend invocation | shell metacharacter / command injection | **Safe** — `fork`+`execvp`, no shell |
-| runtime module load | loading a wrong/tampered `.so` | **Mitigated** — canonical path + regular-file + world-writable + ELF-magic checks; plus **optional** SHA-256 + Ed25519 verification before load (`CHEATAH_VERIFY=strict`). The path-sniff checks have a small TOCTOU window; the integrity verification does **not** — it hashes and loads the same open fd (`/proc/self/fd`). |
+| runtime module load | loading a wrong/tampered `.so` | **Mitigated** — canonical path + regular-file + world-writable + ELF-magic checks; plus **optional** SHA-512 + Ed25519 verification before load (`CHEATAH_VERIFY=strict`). The path-sniff checks have a small TOCTOU window; the integrity verification does **not** — it hashes and loads the same open fd (`/proc/self/fd`). |
 | module authenticity | running a substituted/untrusted-signer module | **Mitigated (opt-in)** — strict mode requires a valid Ed25519 signature from a pinned trusted key, fail-closed and non-downgradable. Not a defense if the attacker can rewrite the runtime or the trust file. |
 | `cpp { … }` escape hatch | arbitrary C++ / no memory safety | **By design** under full trust; **disabled** in the sandboxed mode proposed below |
 | `os.system` / raw fs / env | arbitrary host effects | **By design** under full trust; **capability-gated** in sandboxed mode |
@@ -101,7 +117,7 @@ rule is:
 cheatah already links *only the modules a program imports*. We make the sandbox
 profile the authority on *which modules `purrc` is even allowed to link*:
 - Sandboxed builds link only safe modules (`math`, `string`, `statistics`,
-  `ndarray`, `linalg`, pure `datetime`, seeded `random`, `hashlib`, and a
+  `ndarray`, `linalg`, pure `datetime`, seeded `random`, `hashlib`, `ed25519`, and a
   **capability-mediated** `io`/`fs`).
 - Dangerous capabilities (`proc:spawn`/`os.system`, `net:*`, unrestricted `fs:*`,
   `env:*`) are **not linked at all** unless the host grants them — so they're absent
