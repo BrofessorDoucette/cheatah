@@ -113,50 +113,52 @@ op many times with the result consumed, and checks the answers agree. Each funct
 > depends heavily on its BLAS (reference vs OpenBLAS vs MKL) and thread count; a faster
 > BLAS pushes crossovers *lower*. We pin the version so the comparison is reproducible.
 
-The **vs Eigen** column is a *separate* measurement, in the native Google Benchmark
-harness ([`tests/benchmarks/eigen_compare_bench.cpp`](https://github.com/BrofessorDoucette/cheatah/blob/main/tests/benchmarks/eigen_compare_bench.cpp)),
+The **Eigen** time and **vs Eigen** verdict are a *separate* measurement, in the native
+Google Benchmark harness ([`tests/benchmarks/eigen_compare_bench.cpp`](https://github.com/BrofessorDoucette/cheatah/blob/main/tests/benchmarks/eigen_compare_bench.cpp)),
 where cheatah and **Eigen 3.4** are both compiled C++ timed identically on **one
-thread** — an apples-to-apples per-core comparison ("—" = not benchmarked):
+thread** — an apples-to-apples per-core comparison ("—" = not benchmarked). (Because it is
+a different harness from the NumPy columns, the `Eigen ÷ cheatah` ratio is taken there, not
+against the `cheatah` column on the left.)
 
-| op | operand dimensions | cheatah | NumPy | vs NumPy | vs Eigen |
-|----|--------------------|--------:|------:|--------|--------|
-| *— products —* | | | | | |
-| `dot` | two 64-element vectors | 0.01 | 0.59 | **cheatah 53×** | even |
-| `dot` | two 16384-element vectors | 1.94 | 7.75 | **cheatah 4.0×** | **cheatah 1.4×** |
-| `matmul` | 32×32 · 32×32 | 2.58 | 12.9 | **cheatah 5.0×** | **cheatah 1.4×** |
-| `matmul` | 96×96 · 96×96 | 71.7 | 315 | **cheatah 4.4×** | **cheatah 1.3×** |
-| `outer` | 64-vec → 64×64 | 0.47 | 3.56 | **cheatah 7.6×** | **cheatah 1.2×** |
-| `outer` | 256-vec → 256×256 | 8.04 | 47.1 | **cheatah 5.9×** | **cheatah 1.3×** |
-| `kron` | 8×8 ⊗ 8×8 → 64×64 | 1.01 | 11.8 | **cheatah 12×** | — |
-| `kron` | 32×32 ⊗ 32×32 → 1024×1024 | 325 | 799 | **cheatah 2.5×** | — |
-| *— LU-based —* | | | | | |
-| `solve` | 32×32 matrix, 32-vector | 3.49 | 9.95 | **cheatah 2.8×** | **cheatah 1.2×** |
-| `solve` | 64×64 matrix, 64-vector | 16.6 | 47.8 | **cheatah 2.9×** | **cheatah 1.2×** |
-| `det` | 64×64 | 13.8 | 45.1 | **cheatah 3.3×** | **cheatah 1.4×** |
-| `slogdet` | 64×64 | 13.9 | 46.1 | **cheatah 3.3×** | — |
-| `inv` | 32×32 | 5.85 | 23.8 | **cheatah 4.1×** | **cheatah 1.75×** |
-| `inv` | 64×64 | 31.5 | 134 | **cheatah 4.2×** | **cheatah 1.7×** |
-| *— factorizations —* | | | | | |
-| `cholesky` | 64×64 | 13.0 | 24.2 | **cheatah 1.9×** | Eigen 1.2× |
-| `qr` | 32×32 | 11.1 | 26.1 | **cheatah 2.4×** | Eigen 1.8× |
-| `qr` | 64×64 | 62.1 | 124 | **cheatah 2.0×** | Eigen 1.3× |
-| `svd` (full U+s+Vᵀ) | 64×64 | 364 | 652 | **cheatah 1.8×** | **cheatah 1.6×** |
-| `svdvals` (values only) | 64×64 | 202 | 187 | NumPy 1.1× | **cheatah 1.2×** |
-| `pinv` | 64×64 | 592 | 734 | **cheatah 1.2×** | — |
-| `cond` | 64×64 | 206 | 195 | NumPy 1.1× | — |
-| `matrix_rank` | 64×64 | 209 | 198 | NumPy 1.1× | — |
-| *— eigen —* | | | | | |
-| `eigvalsh` | 2×2 | 0.14 | 1.93 | **cheatah 14×** | — |
-| `eigvalsh` | 8×8 | 1.69 | 3.91 | **cheatah 2.3×** | **cheatah 1.1×** |
-| `eigvalsh` | 64×64 | 99.5 | 143 | **cheatah 1.4×** | **cheatah 1.2×** |
-| `eigh` (+ vectors) | 32×32 | 36.1 | 61.4 | **cheatah 1.7×** | **cheatah 1.1×** |
-| `eigh` (+ vectors) | 64×64 | 225 | 379 | **cheatah 1.7×** | Eigen 1.1× |
-| `eigvals` (general) | 8×8 | 6.25 | 11.7 | **cheatah 1.9×** | — |
-| `matrix_power` (A³) | 64×64 | 80.0 | 218 | **cheatah 2.7×** | — |
-| *— reductions —* | | | | | |
-| `trace` | 256×256 | 0.08 | 1.12 | **cheatah 15×** | **cheatah 1.4×** |
-| `norm` (Frobenius) | 32×32 | 0.09 | 1.41 | **cheatah 16×** | **cheatah 1.3×** |
-| `norm` (Frobenius) | 256×256 | 7.16 | 29.8 | **cheatah 4.2×** | even |
+| op | operand dimensions | cheatah | Eigen | NumPy | vs Eigen | vs NumPy |
+|----|--------------------|--------:|------:|------:|--------|--------|
+| *— products —* | | | | | | |
+| `dot` | two 64-element vectors | 0.01 | 0.01 | 0.59 | even | **cheatah 53×** |
+| `dot` | two 16384-element vectors | 1.94 | 2.52 | 7.75 | **cheatah 1.4×** | **cheatah 4.0×** |
+| `matmul` | 32×32 · 32×32 | 2.58 | 3.73 | 12.9 | **cheatah 1.4×** | **cheatah 5.0×** |
+| `matmul` | 96×96 · 96×96 | 71.7 | 94.0 | 315 | **cheatah 1.3×** | **cheatah 4.4×** |
+| `outer` | 64-vec → 64×64 | 0.47 | 0.57 | 3.56 | **cheatah 1.2×** | **cheatah 7.6×** |
+| `outer` | 256-vec → 256×256 | 8.04 | 9.04 | 47.1 | **cheatah 1.3×** | **cheatah 5.9×** |
+| `kron` | 8×8 ⊗ 8×8 → 64×64 | 1.01 | — | 11.8 | — | **cheatah 12×** |
+| `kron` | 32×32 ⊗ 32×32 → 1024×1024 | 325 | — | 799 | — | **cheatah 2.5×** |
+| *— LU-based —* | | | | | | |
+| `solve` | 32×32 matrix, 32-vector | 3.49 | 4.00 | 9.95 | **cheatah 1.2×** | **cheatah 2.8×** |
+| `solve` | 64×64 matrix, 64-vector | 16.6 | 20.0 | 47.8 | **cheatah 1.2×** | **cheatah 2.9×** |
+| `det` | 64×64 | 13.8 | 19.1 | 45.1 | **cheatah 1.4×** | **cheatah 3.3×** |
+| `slogdet` | 64×64 | 13.9 | — | 46.1 | — | **cheatah 3.3×** |
+| `inv` | 32×32 | 5.85 | 11.1 | 23.8 | **cheatah 1.75×** | **cheatah 4.1×** |
+| `inv` | 64×64 | 31.5 | 65.4 | 134 | **cheatah 1.7×** | **cheatah 4.2×** |
+| *— factorizations —* | | | | | | |
+| `cholesky` | 64×64 | 13.0 | 10.9 | 24.2 | Eigen 1.2× | **cheatah 1.9×** |
+| `qr` | 32×32 | 11.1 | 6.48 | 26.1 | Eigen 1.8× | **cheatah 2.4×** |
+| `qr` | 64×64 | 62.1 | 54.1 | 124 | Eigen 1.3× | **cheatah 2.0×** |
+| `svd` (full U+s+Vᵀ) | 64×64 | 364 | 375 | 652 | **cheatah 1.6×** | **cheatah 1.8×** |
+| `svdvals` (values only) | 64×64 | 202 | 138 | 187 | **cheatah 1.2×** | NumPy 1.1× |
+| `pinv` | 64×64 | 592 | — | 734 | — | **cheatah 1.2×** |
+| `cond` | 64×64 | 206 | — | 195 | — | NumPy 1.1× |
+| `matrix_rank` | 64×64 | 209 | — | 198 | — | NumPy 1.1× |
+| *— eigen —* | | | | | | |
+| `eigvalsh` | 2×2 | 0.14 | — | 1.93 | — | **cheatah 14×** |
+| `eigvalsh` | 8×8 | 1.69 | 2.16 | 3.91 | **cheatah 1.1×** | **cheatah 2.3×** |
+| `eigvalsh` | 64×64 | 99.5 | 108 | 143 | **cheatah 1.2×** | **cheatah 1.4×** |
+| `eigh` (+ vectors) | 32×32 | 36.1 | 38.8 | 61.4 | **cheatah 1.1×** | **cheatah 1.7×** |
+| `eigh` (+ vectors) | 64×64 | 225 | 191 | 379 | Eigen 1.1× | **cheatah 1.7×** |
+| `eigvals` (general) | 8×8 | 6.25 | — | 11.7 | — | **cheatah 1.9×** |
+| `matrix_power` (A³) | 64×64 | 80.0 | — | 218 | — | **cheatah 2.7×** |
+| *— reductions —* | | | | | | |
+| `trace` | 256×256 | 0.08 | 0.08 | 1.12 | **cheatah 1.4×** | **cheatah 15×** |
+| `norm` (Frobenius) | 32×32 | 0.09 | 0.11 | 1.41 | **cheatah 1.3×** | **cheatah 16×** |
+| `norm` (Frobenius) | 256×256 | 7.16 | 7.27 | 29.8 | even | **cheatah 4.2×** |
 
 After a focused optimization round (hunting a few recurring mistakes across every
 routine — a heap allocation in a hot predicate, single-accumulator reductions, a
