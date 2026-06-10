@@ -3,6 +3,25 @@
 All notable changes to cheatah. This project is **pre-alpha** — expect breaking
 changes between releases.
 
+## v0.9.1-alpha — tighter string codegen, enum highlighting
+
+A small follow-up: the transpiler emits leaner string-building code, and `enum` now
+syntax-highlights in the docs.
+
+### Codegen — self-append builds in place, in one statement
+- **A `+`-chain self-append now lowers to a single chained statement** with no
+  intermediate `std::string`. `head = head + "Content-Type: " + ctype + nl` becomes
+  `((head += "Content-Type: ") += ctype) += nl;` — three in-place appends, no temporary
+  per piece, and a string **literal appends as a bare `const char*`** (so `operator+=`
+  takes it directly rather than constructing a throwaway `std::string`). Chaining is used
+  only where it's valid (`operator+=` returns a reference — std::string and arithmetic
+  accumulators, the only types a `+` self-append fires on); a single appended operand
+  stays a plain `x += e;`.
+
+### Docs
+- **`enum` now syntax-highlights** in the generated docs site — the highlighter's keyword
+  set had drifted out of sync with the lexer.
+
 ## v0.9.0-alpha — enums, the `sys` module, and the `biome` package manager
 
 A scoped, printable `enum` type joins the language; a new `sys` module plus runtime

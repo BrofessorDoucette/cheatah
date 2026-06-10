@@ -448,9 +448,23 @@ private:
                         if (refers_to(*ops[i], name)) safe = false;
                     }
                     if (safe) {
+                        // Collapse the appends into ONE chained statement when possible:
+                        //   `((x += a) += b) += c;`
+                        // `operator+=` returns a reference to `x` — true for std::string
+                        // and every arithmetic accumulator, the only types a `+` self-append
+                        // fires on — so the appends chain in place: no temporaries, no
+                        // repeated `x +=`. A string literal appends as a bare `const char*`
+                        // (no throwaway std::string built just to append a literal).
+                        std::string expr;
                         for (std::size_t i = 1; i < ops.size(); ++i) {
-                            os << indent << name << " += " << gen_expr(*ops[i]) << ";\n";
+                            const std::string operand =
+                                ops[i]->kind == ExprKind::StringLit
+                                    ? cpp_string_literal(static_cast<const StringLit&>(*ops[i]).value)
+                                    : gen_expr(*ops[i]);
+                            expr = (i == 1) ? name + " += " + operand
+                                            : "(" + expr + ") += " + operand;
                         }
+                        os << indent << expr << ";\n";
                         return;
                     }
                 }

@@ -63,6 +63,24 @@ TEST(CheatahCodegen, DivisionLowersToTrueDivAndFloorDiv) {
     EXPECT_TRUE(contains(cg.source, "cheatah::builtins::floordiv(7LL, 2LL)"));
 }
 
+TEST(CheatahCodegen, SelfAppendChainsIntoOneStatement) {
+    // `x = x + "lit" + y` lowers to a single CHAINED in-place append —
+    // `(x += "lit") += y;` — not three `x += …` lines and not an intermediate
+    // std::string. The literal appends as a bare const char*; operator+= chains
+    // because it returns a reference to x.
+    const ParseResult pr =
+        parse_source("let head = \"a\"\nlet y = \"b\"\nhead = head + \"lit\" + y\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "(head += \"lit\") += y;"));   // one chained statement
+    EXPECT_FALSE(contains(cg.source, "std::string(\"lit\")"));     // no temporary
+    // A single appended operand stays a plain `x += e;` (nothing to chain).
+    const CodegenResult one = codegen(parse_source("let s = \"a\"\ns = s + \"b\"\n").program);
+    ASSERT_TRUE(one.ok());
+    EXPECT_TRUE(contains(one.source, "s += \"b\";"));
+}
+
 TEST(CheatahCodegen, EmitsStructDefinition) {
     const ParseResult pr = parse_source("struct Bar {\n  date: str\n  close: float\n}\n");
     ASSERT_TRUE(pr.ok());

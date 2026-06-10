@@ -113,7 +113,7 @@ XREF_PAGES = {"indexpage", "complexity", "alloc", "test", "crtest", "systest"}
 # by the site CSS (.tok-kw/.tok-str/… in cheatah-docs.css), so highlighting matches
 # the warm page theme instead of importing a generic highlighter.
 # ---------------------------------------------------------------------------
-_CHEATAH_KW = {"and", "as", "break", "case", "continue", "elif", "else", "except",
+_CHEATAH_KW = {"and", "as", "break", "case", "continue", "elif", "else", "enum", "except",
                "false", "fn", "for", "from", "if", "import", "in", "interface", "let",
                "match", "not", "or", "raise", "return", "struct", "true", "try", "while"}
 # Extra keywords so the guides' Python snippets highlight too (superset, harmless).

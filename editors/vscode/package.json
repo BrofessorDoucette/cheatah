@@ -2,7 +2,7 @@
   "name": "cheatah",
   "displayName": "cheatah",
   "description": "Syntax highlighting, language configuration, IntelliSense, and a file icon theme for the cheatah language (.purr).",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "cheatah-lang",
   "license": "MIT",
   "engines": {
