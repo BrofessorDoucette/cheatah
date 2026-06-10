@@ -86,6 +86,34 @@ TEST(CheatahNDArray, ToStringScalar) {
     EXPECT_EQ(nd::to_string(nd::scalar(42.0)), "42");
 }
 
+TEST(CheatahNDArray, StreamableOperator) {
+    // An NDArray is directly Streamable (operator<<) — the FULL form, like str()/to_string.
+    std::ostringstream os;
+    os << nd::array({1.0, 2.0, 3.0});
+    EXPECT_EQ(os.str(), "[1, 2, 3]");
+}
+
+TEST(CheatahNDArray, PrettyPrintAbbreviatesLarge) {
+    // io.print's hook: a small array prints in full; a large one (past the threshold)
+    // abbreviates each long axis with "..." (numpy-style edge items).
+    std::ostringstream small;
+    nd::arange(0.0, 6.0, 1.0).cheatah_pretty_print(small, 0);
+    EXPECT_EQ(small.str(), "[0, 1, 2, 3, 4, 5]");
+    EXPECT_EQ(small.str().find("..."), std::string::npos);
+
+    std::ostringstream big;
+    nd::arange(0.0, 1500.0, 1.0).cheatah_pretty_print(big, 0);
+    EXPECT_NE(big.str().find("..."), std::string::npos);            // abbreviated
+    EXPECT_EQ(big.str().rfind("[0, 1, 2, ...,", 0), 0u);            // first edge items kept
+}
+
+TEST(CheatahNDArray, RprintFormIsFullNeverAbbreviated) {
+    // The rprint/str/to_string path shows the WHOLE array, even when large (no "...").
+    const std::string full = nd::to_string(nd::arange(0.0, 1500.0, 1.0));
+    EXPECT_EQ(full.find("..."), std::string::npos);
+    EXPECT_NE(full.find("750"), std::string::npos);  // a middle element io.print would omit
+}
+
 TEST(CheatahNDArray, ComplexElementType) {
     // A complex (Field) array: stores, accesses, and arithmetic over std::complex.
     using C = std::complex<double>;

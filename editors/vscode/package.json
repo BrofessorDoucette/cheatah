@@ -2,7 +2,7 @@
   "name": "cheatah",
   "displayName": "cheatah",
   "description": "Syntax highlighting, language configuration, IntelliSense, and a file icon theme for the cheatah language (.purr).",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "publisher": "cheatah-lang",
   "license": "MIT",
   "engines": {
@@ -125,6 +125,16 @@
           "type": "string",
           "default": "",
           "description": "Root of the cheatah runtime/install whose stdlib C++ headers the editor should use for Go to Definition (Ctrl-click). Point this at the cheatah runtime you picked; if unset, the extension uses the open workspace, then the headers bundled with the extension (which the QA gate keeps in sync with the locally-built runtime)."
+        },
+        "cheatah.purrc": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the `purrc` compiler used to type-check the open .purr for live error squiggles (a forgotten `let`, an unresolved symbol, a wrong argument count or type). If unset, the extension tries `<cheatah.root>/bin/purrc`, then `purrc` on your PATH."
+        },
+        "cheatah.diagnostics.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show compiler error/warning squiggles in .purr files by type-checking the live buffer with `purrc --check`. Disable to turn off the language-server-style diagnostics."
         }
       }
     }

@@ -46,8 +46,11 @@ TEST(CheatahCodegen, StreamingCallsTakeBareStringLiterals) {
     // accept a literal as a bare const char*, no intermediate std::string. A literal
     // bound to a variable or concatenated still becomes a std::string (it must, to be a
     // first-class cheatah string).
-    const CodegenResult cg =
-        codegen(parse_source("import io\nio.print(\"a\", io.format(\"{}\", 1))\nlet s = \"b\"\n").program);
+    // Lowering test: keep the unused `let s` by disabling dead-variable removal (DCE has
+    // its own tests) so the bound-literal -> std::string lowering is observable.
+    const CodegenResult cg = codegen(
+        parse_source("import io\nio.print(\"a\", io.format(\"{}\", 1))\nlet s = \"b\"\n").program,
+        "", false);
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "io::print(\"a\""));
     EXPECT_TRUE(contains(cg.source, "io::format(\"{}\""));
@@ -111,7 +114,7 @@ TEST(CheatahCodegen, DivisionLowersToTrueDivAndFloorDiv) {
     // `//` is opt-in floor division -> builtins::floordiv. Both pull in builtins.
     const ParseResult pr = parse_source("let a = 7 / 2\nlet b = 7 // 2\n");
     ASSERT_TRUE(pr.ok());
-    const CodegenResult cg = codegen(pr.program);
+    const CodegenResult cg = codegen(pr.program, "", false);  // keep unused a/b to see the lowering
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "builtins::truediv(7LL, 2LL)"));
     EXPECT_TRUE(contains(cg.source, "builtins::floordiv(7LL, 2LL)"));
@@ -162,7 +165,7 @@ TEST(CheatahCodegen, EnumExplicitValuesAndScopedMemberAccess) {
     const ParseResult pr = parse_source(
         "enum Status {\n  OK = 0\n  FAIL = 1\n}\nlet s = Status.FAIL\n");
     ASSERT_TRUE(pr.ok());
-    const CodegenResult cg = codegen(pr.program);
+    const CodegenResult cg = codegen(pr.program, "", false);  // keep unused s to see the lowering
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "OK = 0LL,"));            // explicit value
     EXPECT_TRUE(contains(cg.source, "auto s = Status::FAIL;"));  // EnumName.MEMBER -> ::
@@ -171,7 +174,7 @@ TEST(CheatahCodegen, EnumExplicitValuesAndScopedMemberAccess) {
 TEST(CheatahCodegen, EmitsFunctionAndCall) {
     const ParseResult pr = parse_source("fn add(a, b) {\n  return a + b\n}\nlet x = add(1, 2)\n");
     ASSERT_TRUE(pr.ok());
-    const CodegenResult cg = codegen(pr.program);
+    const CodegenResult cg = codegen(pr.program, "", false);  // keep unused x to see the call binding
     ASSERT_TRUE(cg.ok());
     // C++20 abbreviated template, each param constrained by the baseline `Value`
     // concept (no generated template is left unconstrained).
@@ -198,7 +201,7 @@ TEST(CheatahCodegen, EmitsControlFlow) {
 TEST(CheatahCodegen, StructConstructionUsesAggregateBraces) {
     const ParseResult pr = parse_source("struct P {\nx: int\ny: int\n}\nlet p = P(1, 2)\n");
     ASSERT_TRUE(pr.ok());
-    const CodegenResult cg = codegen(pr.program);
+    const CodegenResult cg = codegen(pr.program, "", false);  // keep unused p to see the construction
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "auto p = P{1LL, 2LL};"));  // P{...} not P(...)
 }
@@ -208,7 +211,7 @@ TEST(CheatahCodegen, StructMethodBecomesMemberFunction) {
         "struct Circle {\nr: float\nfn area(self) {\nreturn self.r * self.r\n}\n}\n"
         "let c = Circle(2.0)\nlet a = c.area()\n");
     ASSERT_TRUE(pr.ok());
-    const CodegenResult cg = codegen(pr.program);
+    const CodegenResult cg = codegen(pr.program, "", false);  // keep unused a to see the member call
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "double r;"));
     EXPECT_TRUE(contains(cg.source, "auto area() const {"));     // non-mutating -> const; self is (*this)
@@ -244,10 +247,61 @@ TEST(CheatahCodegen, ContainerFieldTypes) {
 TEST(CheatahCodegen, ListAndDictLiterals) {
     const ParseResult pr = parse_source("let xs = [1, 2, 3]\nlet m = {\"a\": 1}\n");
     ASSERT_TRUE(pr.ok());
-    const CodegenResult cg = codegen(pr.program);
+    const CodegenResult cg = codegen(pr.program, "", false);  // keep unused xs/m to see the literals
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "auto xs = std::vector{1LL, 2LL, 3LL};"));  // CTAD -> vector<int>
     EXPECT_TRUE(contains(cg.source, "std::unordered_map{std::pair{std::string(\"a\"), 1LL}}"));
+}
+
+// ---- Dead-variable elimination (default ON; purrc --no-remove-variables opts out) ----
+
+TEST(CheatahCodegen, RemovesUnusedPureLocal) {
+    // An unused `let` with a side-effect-free initializer is dropped entirely.
+    const ParseResult pr = parse_source("let unused = 5\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);  // default remove_unused = true
+    ASSERT_TRUE(cg.ok());
+    EXPECT_FALSE(contains(cg.source, "unused"));
+}
+
+TEST(CheatahCodegen, UnusedLocalKeepsSideEffectingCall) {
+    // The variable is removed but a call initializer is preserved as an expression
+    // statement, so side effects survive: `let A = f()` -> `f();`.
+    const ParseResult pr = parse_source("fn f() {\nreturn 1\n}\nlet A = f()\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_FALSE(contains(cg.source, "auto A = f();"));  // the unused variable is gone
+    EXPECT_TRUE(contains(cg.source, "    f();"));          // the call is kept
+}
+
+TEST(CheatahCodegen, KeepsReturnedLocal) {
+    // A returned local is read by its `return`, so it is never removed — an exported
+    // function's result must survive even if nothing else in the body uses it.
+    const ParseResult pr = parse_source("fn g() {\nlet r = 7\nreturn r\n}\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "auto r = 7LL;"));
+    EXPECT_TRUE(contains(cg.source, "return r;"));
+}
+
+TEST(CheatahCodegen, KeepsUsedLocal) {
+    const ParseResult pr = parse_source("import io\nlet x = 5\nio.print(x)\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "auto x = 5LL;"));
+}
+
+TEST(CheatahCodegen, NoRemoveVariablesKeepsUnusedLocal) {
+    // remove_unused=false (the path purrc's --no-remove-variables / --no-optimize-cpp take)
+    // emits every binding verbatim.
+    const ParseResult pr = parse_source("let unused = 5\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program, "", false);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "auto unused = 5LL;"));
 }
 
 TEST(CheatahCodegen, IteratesOverContainer) {

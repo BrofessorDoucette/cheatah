@@ -204,16 +204,46 @@ std::string str(const std::unordered_map<K, V, H, E, A>& m) {
  *
  * Inserts a single space between consecutive arguments (none before the first) and always
  * ends with a trailing `\n`; with no arguments it writes just that newline (blank line).
- * @param args zero or more streamable values.
+ * Output is meant to be NICE AND READABLE by default: a struct (which the compiler gives a
+ * `cheatah_pretty_print` member) is rendered over multiple indented lines, e.g.
+ * `Point(\n    x = 1,\n    y = 2\n)`. Use @ref rprint to print a struct in its compact form.
+ * @param args zero or more printable values.
  * @complexity O(total output length).
- * @alloc each arg is routed through str() so values format the Python way (e.g. bool →
- *   True/False), allocating temporary strings.
+ * @alloc each arg is routed through str()/its pretty-printer, allocating temporary strings.
  * @test CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline
  * @crtest IoCompileRun.Print
  * @systest StdlibE2E.Io
  */
 template <Printable... Args>
 void print(const Args&... args) {
+    std::size_t i = 0;
+    // A struct exposes a `cheatah_pretty_print` member (the compiler generates it): use it for
+    // the readable multi-line layout. Everything else uses str() (the compact Python form).
+    auto one = [&](const auto& v) {
+        std::cout << (i++ ? " " : "");
+        if constexpr (requires(std::ostream& o) { v.cheatah_pretty_print(o, 0LL); })
+            v.cheatah_pretty_print(std::cout, 0LL);
+        else
+            std::cout << str(v);
+    };
+    (one(args), ...);
+    std::cout << '\n';
+}
+
+/**
+ * Python `print` but RAW: a struct prints in its COMPACT `Name(field=value, …)` form (exactly
+ * as stored) instead of the pretty multi-line layout @ref print uses; otherwise identical
+ * (space-separated, newline-terminated). Reach for it when you want a struct exactly as it is
+ * rather than the default human-readable formatting.
+ * @param args zero or more printable values.
+ * @complexity O(total output length).
+ * @alloc each arg is routed through str(), allocating temporary strings.
+ * @test CheatahIo.RprintIsCompact
+ * @crtest IoCompileRun.Rprint
+ * @systest StdlibE2E.Io
+ */
+template <Printable... Args>
+void rprint(const Args&... args) {
     std::size_t i = 0;
     ((std::cout << (i++ ? " " : "") << str(args)), ...);
     std::cout << '\n';

@@ -29,6 +29,46 @@ io.print("meow", 42, "purr")
 )PURR", "meow 42 purr\n");
 }
 
+// io.print renders a struct PRETTY (nice + readable by default): on multiple indented lines.
+TEST(IoCompileRun, PrintPrettyStruct) {
+    e2e::expect_e2e("io_print_pretty", R"PURR(import io
+struct Point {
+    x: float
+    y: float
+}
+let p = Point({.x = 1, .y = 2})
+io.print(p)
+)PURR",
+                    "Point(\n    x = 1,\n    y = 2\n)\n");
+}
+
+// io.rprint prints a struct RAW — its compact `Name(field=value, …)` form, exactly as stored.
+TEST(IoCompileRun, Rprint) {
+    e2e::expect_e2e("io_rprint", R"PURR(import io
+struct Point {
+    x: float
+    y: float
+}
+let p = Point({.x = 1, .y = 2})
+io.rprint(p)
+)PURR",
+                    "Point(x=1, y=2)\n");
+}
+
+// Nested structs pretty-print recursively, each level indented under its parent.
+TEST(IoCompileRun, PrintPrettyNestedStruct) {
+    e2e::expect_e2e("io_print_pretty_nested", R"PURR(import io
+struct Inner { a: float }
+struct Outer {
+    inner: Inner
+    b: float
+}
+let o = Outer({.inner = Inner({.a = 5}), .b = 7})
+io.print(o)
+)PURR",
+                    "Outer(\n    inner = Inner(\n        a = 5\n    ),\n    b = 7\n)\n");
+}
+
 TEST(IoCompileRun, Format) {
     e2e::expect_e2e("io_format", R"PURR(import io
 io.print(io.format("{} ate {} fish", "cat", 3))

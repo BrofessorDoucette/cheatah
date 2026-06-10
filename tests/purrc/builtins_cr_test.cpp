@@ -23,6 +23,17 @@ io.print(ord("A"))
 )PURR", "65\n");
 }
 
+TEST(BuiltinsCompileRun, Str) {
+    // Bare str() (no import, no module prefix): int, float, bool, and inside a concat where
+    // it is redundant ("n=" + 7 auto-stringifies to the same thing).
+    e2e::expect_e2e("builtins_str", R"PURR(import io
+io.print(str(42))
+io.print(str(3.14))
+io.print(str(true))
+io.print("n=" + str(7))
+)PURR", "42\n3.14\nTrue\nn=7\n");
+}
+
 TEST(BuiltinsCompileRun, Chr) {
     e2e::expect_e2e("builtins_chr", R"PURR(import io
 io.print(chr(65))

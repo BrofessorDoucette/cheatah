@@ -16,6 +16,8 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
+#include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -241,6 +243,50 @@ double to_float(std::string_view s);
  * @systest StdlibE2E.Builtins
  */
 double to_float(long long x);
+
+/// Streamable<T>: T can be written to a `std::ostream` with `operator<<` — the requirement
+/// for str() to render it. (Mirrors io's Printable, so bare `str(x)` and `io.str(x)` agree.)
+template <typename T>
+concept Streamable = requires(std::ostream& os, const T& v) {
+    { os << v } -> std::convertible_to<std::ostream&>;
+};
+
+/**
+ * Python `str()`: stringify any streamable value (an always-available built-in, so it needs
+ * no `import` — bare `str(x)` resolves here, like `int()`/`float()`/`bool()`).
+ *
+ * Renders @p value via its `operator<<` into a fresh `ostringstream`, so the text matches
+ * whatever that stream insertion produces (e.g. default 6-significant-digit float precision),
+ * agreeing with `io.print`/`io.str`.
+ * @param value the value to render.
+ * @return @p value formatted as text.
+ * @complexity O(n) in the output length.
+ * @alloc allocates the result string (via an ostringstream).
+ * @test CheatahBuiltins.Str
+ * @crtest BuiltinsCompileRun.Str
+ * @systest StdlibE2E.Builtins
+ */
+template <Streamable T>
+std::string str(const T& value) {
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}
+
+/**
+ * `str()` for a bool — Python's capitalized spelling.
+ *
+ * Overrides the default streaming of a bool (`1`/`0`) to emit `True`/`False`, matching
+ * `io.str` and `io.print`.
+ * @param b the boolean.
+ * @return `"True"` or `"False"`.
+ * @complexity O(1).
+ * @alloc allocates the small result string.
+ * @test CheatahBuiltins.Str
+ * @crtest BuiltinsCompileRun.Str
+ * @systest StdlibE2E.Builtins
+ */
+inline std::string str(bool b) { return b ? "True" : "False"; }
 
 /**
  * True division — the cheatah `/` operator (like Python 3): **always floating-point**,

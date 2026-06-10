@@ -1,0 +1,15 @@
+# parsers — safe, allocation-bounded input parsers, written in pure cheatah.
+#
+# This is the first standard-library module authored in cheatah itself (a `.purr`) rather
+# than hand-written C++. purrc transpiles it to templated C++ with concepts and emits it as
+# a TRANSPARENT importable module: the generated C++ source is inlined into the committed
+# `parsers.hpp` (so the true C++ is always visible and the VS Code extension can resolve into
+# it), the header is SHA-512 checksummed, and `import parsers` verifies that checksum before
+# compiling against it — the same integrity guarantee module signing gives binary modules.
+#
+# Everything here lowers into `namespace cheatah::parsers`. Parsers will be added here as
+# typed, bounds-checked functions (no unbounded allocation, no UB on malformed input). For
+# now the module is intentionally empty — only the mechanism is set up.
+#
+# (purrc auto-emits a `module_abi()` identity marker into every cheatah library module; see
+# the generated parsers.hpp.)

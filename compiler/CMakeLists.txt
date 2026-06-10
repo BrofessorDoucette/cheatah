@@ -49,6 +49,7 @@ target_compile_definitions(purrc PRIVATE
     CHEATAH_ROOT="${PROJECT_SOURCE_DIR}/stdlib"
     CHEATAH_LIB_DIR="${CMAKE_BINARY_DIR}/lib"
     CHEATAH_CXX="${CMAKE_CXX_COMPILER}"
+    CHEATAH_AR="${CMAKE_AR}"
     CHEATAH_CXXFLAGS="${_cheatah_cxxflags_str}"
     CHEATAH_MATHLINK="${_cheatah_mathlink_str}"
     CHEATAH_MODULE_EXT="${CHEATAH_MODULE_EXT}")

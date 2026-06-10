@@ -8,6 +8,10 @@
 # function it defines is global, so the subdirectory can call it.
 include(GoogleTest)
 
+# Regression suite for bugs that ONCE broke the toolchain; the QA gate runs it FIRST
+# (CTest label "previously_broken"). Added before the main pipeline suite for tidiness.
+add_subdirectory(previously_broken)
+
 add_subdirectory(purrc)  # purrc → cheatah end-to-end pipeline test
 
 # Micro-benchmarks (Google Benchmark) for the same code the unit tests exercise.

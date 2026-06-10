@@ -3,6 +3,66 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.2.0-alpha (2026-06-10) — pure-cheatah library modules, language ergonomics, pretty output, editor diagnostics
+
+A large feature release: cheatah can now build **standard-library modules written in cheatah
+itself**, the language gained several ergonomics + safety rules, output is readable by
+default, and the editor surfaces real compiler errors as you type. Additive — existing
+programs keep working.
+
+### Pure-cheatah library modules (`import` a `.purr`)
+- **`purrc --emit-library`** compiles a `.purr` into an importable module living in
+  `namespace cheatah::<name>` — a signed header (+ a compiled archive in opaque builds),
+  verified by a consumer's `purrc` before it compiles against it. **Opaque by default**
+  (ships only the API, hides concretely-typed implementations in `libcheatah_<name>.a`);
+  **`--transparent`** inlines the generated C++ source into the header (what the first-party
+  stdlib uses, so the true code is always visible). purrc verifies a module's SHA-512 (and,
+  with `CHEATAH_TRUST`, its Ed25519 signature) and **fails closed on a tampered module**.
+- **New first-party `parsers` module** — the first stdlib module authored in `.purr` (empty
+  for now; the mechanism is set up). `cmake/CheatahModule.cmake` (`cheatah_add_module`) builds
+  it; the QA gate guards that its committed header stays in sync with its source.
+- **biome** extension template is now a `.purr` library (opaque by default), and
+  `cheatah_add_program(… EXTENSIONS …)` wires a fetched extension's module dir onto purrc's
+  search path.
+
+### Language ergonomics + safety
+- **An unset value is a bug that does not compile.** A struct is built with a **C++20
+  designated initializer** `Point({.x = 1})` (fields you omit **default-initialize**, never
+  garbage; an unknown field is an error). A `let` may be declared with **no value**
+  (`let total`, `let total: float`), but the compiler tracks it: a never-assigned variable is
+  **removed**, and one **used before it is definitely assigned — or only conditionally
+  assigned — does not compile**.
+- **Multi-line expressions.** Newlines inside `( )` and `[ ]` are now insignificant (Python
+  implicit line continuation), and the generated C++ **preserves the source's multi-line
+  layout** (readable `.gen.cpp`).
+- **`str()` is a builtin** (Python `str()`); `"x" + value` auto-stringifies to the *same*
+  minimal C++ as `"x" + str(value)`, and `str(str(x))` collapses to `str(x)`.
+- **Dead-variable elimination** is on by default (unused, non-returned locals are removed,
+  side-effecting initializers preserved); opt out with **`--no-remove-variables`** or the
+  umbrella **`--no-optimize-cpp`**.
+- **`--validate-cpp`** infrastructure (a post-codegen, pre-compile hook + a
+  `cheatah::purrc::CppValidationException`), wired but not yet enforcing.
+
+### Readable-by-default output
+- **`io.print` pretty-prints**: a struct renders on indented multiple lines (recursively),
+  and a large **NDArray is abbreviated with `…`** (numpy-style edge items). **New `io.rprint`**
+  prints the raw/compact form (a full, unabbreviated array). NDArray is now directly
+  **Streamable** (`operator<<`), and every cheatah struct of streamable fields gets an
+  auto-generated `operator<<`.
+
+### Editor (VS Code extension)
+- **Live diagnostics**: the extension type-checks the open buffer with **`purrc --check`** and
+  squiggles real errors — a forgotten `let`, an unresolved symbol, a wrong argument count or
+  type — mapped to the `.purr` via `#line` directives (settings: `cheatah.purrc`,
+  `cheatah.diagnostics.enable`).
+- **Fixed autocomplete/hover for `linalg` and `ndarray`** (a perf-rendering crash had disabled
+  the whole provider for those modules).
+
+### Tooling + tests
+- **`previously_broken/` regression suite** — bugs that once broke the toolchain, **run FIRST
+  in the QA gate** so a reintroduction fails fast. **`library_module_test`** covers
+  transparent/opaque emit, import verification, and tamper-fails-closed.
+
 ## v1.1.1-alpha (2026-06-10) — 512-bit module integrity + verification benchmarks
 
 A hardening pass on the v1.1.0 integrity feature: the binary and runtime signing path is

@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.24)
 # library (io/os/string/math/time/datetime/random/statistics/hashlib + the
 # numeric core ndarray/linalg).
 project(cheatah
-    VERSION 1.1.1
+    VERSION 1.2.0
     DESCRIPTION "cheatah — a fast, Python-like programming language (.purr)"
     LANGUAGES CXX)
 
@@ -104,6 +104,11 @@ add_subdirectory(stdlib/ed25519)
 add_subdirectory(compiler)  # language toolchain (cheatah::compiler) + purrc
 add_subdirectory(stdlib)    # the standard-library modules + the unit tests
 add_subdirectory(runtime)   # the headless host (cheatah)
+
+# Pure-cheatah stdlib modules: authored in .purr and emitted BY purrc (so added AFTER the
+# compiler). `parsers` is transparent (source-in-header), verified on import like a C++ module.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahModule.cmake)
+add_subdirectory(stdlib/parsers)
 
 # purrc links the stdlib module archives into every program it compiles, so they
 # must be built whenever purrc is. Wire it here, where purrc (compiler/) and the

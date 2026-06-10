@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>parsers · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=76a065ae">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></li><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">html::parser</a></li><li><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></li><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">os::path</a></li><li><a href="namespacecheatah_1_1parsers.html" data-ref="namespacecheatah_1_1parsers">parsers</a></li><li><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li></ul></div><div class="side-group"><div class="side-h">Classes</div><ul><li><a href="classcheatah_1_1io_1_1File.html" data-ref="classcheatah_1_1io_1_1File">io::File</a></li><li><a href="classcheatah_1_1ndarray_1_1basic__ndarray.html" data-ref="classcheatah_1_1ndarray_1_1basic__ndarray">ndarray::basic_ndarray</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>parsers</code></h1>
+  
+</div>
+<div class="overview"><p>Safe, allocation-bounded input parsers — the first standard-library module written in <strong>pure cheatah</strong> (<code>.purr</code>) instead of hand-written C++.</p><p>cheatah is templated C++ with concepts plus a transpiler, so this module is still just C++: <code>purrc --emit-library --transparent</code> transpiles <a href="parsers.purr" target="_blank" rel="noopener"><code>parsers.purr</code></a> into the committed, generated header <a href="parsers.hpp" target="_blank" rel="noopener"><code>parsers.hpp</code></a> under <code>namespace <a href="namespacecheatah_1_1parsers.html">cheatah::parsers</a></code>.</p><ul><li><p><strong>Transparent.</strong> The generated C++ source is inlined into <code>parsers.hpp</code>, so the true code is always visible and the VS Code extension resolves Go-to-Definition straight into it. (An external library author can instead emit an <em>opaque</em> module, shipping only the API in the header and hiding the implementation inside a signed <code>libcheatah_parsers.a</code>.)</p>
+</li><li><p><strong>Verified on import.</strong> <code>parsers.hpp</code> carries a SHA-512 checksum sidecar (<code>parsers.hpp.sha512</code>); <code><span class="tok-kw">import</span> parsers</code> makes purrc verify it is unchanged before compiling a consumer against it — the same integrity guarantee module signing gives binary modules. Set <code>CHEATAH_TRUST</code> to additionally require a valid Ed25519 signature.</p>
+</li></ul><pre class="code"><code><span class="tok-kw">import</span> parsers</code></pre><p>The module is intentionally <strong>empty</strong> for now — only the mechanism is in place. Parsers will be added as typed, bounds-checked functions (no unbounded allocation, no undefined behaviour on malformed input). <code>parsers.hpp</code> is regenerated from <code>parsers.purr</code> at build time; the QA gate fails if the committed header drifts from the source.</p></div>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1parsers_1a4aedf66eaa3572a506c501f7d693443a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const char *</span> <span class="mname">module_abi</span>() noexcept</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_parsers_hpp.html#L13" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1a4aedf66eaa3572a506c501f7d693443a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">ABI/identity marker for the <code><a href="namespacecheatah_1_1parsers.html">parsers</a></code> cheatah module: returns the module name. </p>
+  <div class="member-body"><p>Auto-emitted by purrc&#x27;s library emitter. It is the concrete symbol that anchors the module&#x27;s signed static archive in opaque (source-hidden) builds.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1parsers_1a4aedf66eaa3572a506c501f7d693443a">module_abi</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=fd2a4d75"></script>
+<script src="cheatah-docs.js?v=8c61b58a"></script>
+</body>
+</html>

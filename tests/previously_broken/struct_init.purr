@@ -1,0 +1,23 @@
+# Regression (previously broken): C++20-style designated-initializer struct construction
+# `Type({.field = value})` did not parse, and a struct was not printable. Now it lowers to a
+# C++20 designated initializer — fields not listed default-initialize, so a value is never
+# garbage (an unset field is a bug, not random memory). `io.print` renders a struct PRETTY
+# (multi-line, readable by default); `io.rprint` renders it RAW (compact `Name(f=v, …)`); and
+# fields are accessed with `.field`. (The user's review/struct_init_test.purr.)
+import io
+
+struct DumbDumb {
+    what : float,
+    what2 : float
+};
+
+let d = DumbDumb(
+    {
+        .what = 10,
+        .what2 = 300.2
+});
+
+io.print(d);
+io.rprint(d);
+io.print(d.what);
+io.print(d.what2);

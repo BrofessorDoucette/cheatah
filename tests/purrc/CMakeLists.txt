@@ -49,6 +49,9 @@ add_executable(cheatah_purrc_tests
     # Module integrity (suite ModuleIntegrity): sign a real .so, then prove the runtime
     # runs a genuine module and REFUSES a corrupted / tampered / untrusted one.
     integrity_e2e_test.cpp
+    # cheatah library modules (suite LibraryModule): purrc --emit-library (transparent /
+    # opaque), import-time checksum verification, and fail-closed on a tampered module.
+    library_module_test.cpp
     # linalg vs NumPy: run checked-in .purr programs and cross-check against python.
     linalg_vs_python_test.cpp
 )

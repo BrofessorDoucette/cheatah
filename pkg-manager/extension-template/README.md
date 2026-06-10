@@ -1,49 +1,52 @@
 # cheatah extension template
 
-The shape of an optional standard-library extension repository (e.g.
-`cheatah-gpu`, `cheatah-plot`, `cheatah-space`, `cheatah-learn`). An extension is
-a **separate git repo** that `biome` lists in the registry and CPM fetches when a
-project opts in (`biome add cheatah-…`).
+The shape of an optional standard-library extension repository (e.g. `cheatah-gpu`,
+`cheatah-plot`, `cheatah-space`, `cheatah-learn`). An extension is a **separate git repo**
+that `biome` lists in the registry and CPM fetches when a project opts in
+(`biome add cheatah-…`).
 
-An extension ships one or more cheatah stdlib **modules** — built exactly like the
-in-tree modules (`io`, `os`, `ndarray`, …) via cheatah's `add_cheatah_library`
-helper, so a program can `import <module>` and `purrc` links the archive.
+An extension ships one or more cheatah stdlib **modules** authored in **pure cheatah**
+(`.purr`) — the same way the in-tree pure-cheatah modules (e.g. `parsers`) are built. `purrc`
+transpiles the `.purr` to templated C++ with concepts and emits a **signed, importable
+module**, so a program can `import <module>` and `purrc` verifies and links it.
 
 ```
 cheatah-example/
-├── CMakeLists.txt          # fetches the cheatah toolchain, builds the module(s)
+├── CMakeLists.txt          # fetches the toolchain, emits the module via cheatah_add_module
 ├── README.md
 └── example/
-    ├── example.hpp         # namespace cheatah::example { … }  (#pragma once)
-    └── example.cpp
+    ├── example.purr        # the module source (pure cheatah)
+    └── example.hpp         # GENERATED + committed by purrc --emit-library (do not edit)
 ```
 
 ## The contract
 
-- A module lives in `namespace cheatah::<name>` with a `<name>.hpp` (the public
-  include dir is the module directory, so `import <name>` finds `<name>.hpp`) and
-  is built as `libcheatah_<name>.{a,so}` by `add_cheatah_library(<name> …)`.
-- **Put _everything_ the module exposes inside `namespace cheatah::<name>`** — and
-  nothing in the global namespace. When a program `import`s your module, `purrc`
-  gives it its OWN short alias and calls it through that: it wraps the generated
-  program in a `namespace cheatah_program` and emits
-  `namespace <name> = ::cheatah::<name>;`, so the body reads `<name>::fn(…)`. Each
-  module gets a DISTINCT alias (so two extensions must have distinct names), and the
-  alias can never collide with a global C symbol of the same name (e.g. a module
-  named `time`/`random`/`socket`) precisely because it resolves to `::cheatah::<name>`
-  and lives inside the wrapper namespace. Anything you leave OUTSIDE
-  `cheatah::<name>` (a global helper, a symbol in a different namespace) is NOT
-  reachable through the alias.
-- Expose **flat free functions** (cheatah has no user-facing method calls on
-  module values yet) over cheatah's value types — `long long` ints,
-  `std::string`, `std::vector`, `std::unordered_map`.
-- Follow the house rules: unit tests, a per-module `README.md`, Doxygen with
-  `@complexity`/`@alloc`/`@test`, and the ASan/UBSan/Valgrind QA gate.
+- A module is authored as `<name>/<name>.purr` and emitted by
+  `cheatah_add_module(<name> SOURCES <name>/<name>.purr)`. purrc lowers it into
+  `namespace cheatah::<name>`, writes the importable `<name>/<name>.hpp`, and signs it with a
+  SHA-512 checksum sidecar (`<name>.hpp.sha512`) — so `import <name>` resolves it and the
+  consuming program's purrc **verifies it is unchanged before compiling** against it.
+- **Emit mode** (a flag on `cheatah_add_module`):
+  - **Opaque** (the default): the header ships only the public API; concretely-typed
+    implementations are compiled into — and hidden inside — a signed `libcheatah_<name>.a`.
+    Reach for this to distribute a binary extension without source.
+  - **Transparent** (`TRANSPARENT`): the generated C++ source is inlined into the committed
+    header, so the true code is always visible (what the first-party standard library uses and
+    what lets the VS Code extension resolve into it).
+  - A **templated** function (untyped params) is header-visible in *both* modes — that is how
+    C++ templates work. Opacity hides only **concretely-typed** code; give a function explicit
+    param/return types to compile it into the (hidden) archive. *(Full source-hiding of typed
+    exports is the active increment.)*
+- **Everything the module exposes lives in `namespace cheatah::<name>`.** When a program
+  `import`s it, purrc gives it its own short alias (`namespace <name> = ::cheatah::<name>;`)
+  inside the generated `cheatah_program` wrapper, so the body reads `<name>::fn(…)`. Two
+  extensions must therefore have distinct names.
+- Follow the house rules: a per-module `README.md`, Doxygen on the public API, and tests.
 
-See [example/example.hpp](example/example.hpp) for a minimal module, and
+See [example/example.purr](example/example.purr) for a minimal module and
 [CMakeLists.txt](CMakeLists.txt) for how the extension consumes the toolchain.
 
-> **Note:** wiring a third-party extension module into `purrc`'s link line from a
-> downstream project is the next biome increment — today `cheatah_add_program`
-> records and fetches the extensions but does not yet add their archives to the
-> link. This template documents the intended structure.
+> **Consuming an extension from a downstream project:** `cheatah_add_program(… EXTENSIONS
+> cheatah-example)` fetches the extension via CPM and adds its module directory to the
+> `CHEATAH_MODULE_PATH` purrc searches, so `import example` resolves, verifies, and links it.
+> (Authoring a transparent in-tree module — like `parsers` — needs no fetch.)

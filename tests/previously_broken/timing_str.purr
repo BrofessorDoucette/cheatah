@@ -1,0 +1,13 @@
+# Regression (previously broken): bare `str(...)` failed to compile — "use of undeclared
+# identifier 'str'" — because `str` lived only in the `io` module, not in the always-available
+# `builtins`. It is now a builtin (like `int()`/`float()`/`bool()`), so this Python-style
+# timing loop compiles and runs.
+import io
+import time
+
+let t0 = time.monotonic_ns()
+for k in range(100) {
+    io.print("stupid stupid stupid")
+}
+let t1 = time.monotonic_ns()
+io.print("Took: " + str(t1 - t0))

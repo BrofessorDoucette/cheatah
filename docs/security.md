@@ -30,6 +30,19 @@ These you get for free — the compiler and runtime enforce them so you don't ha
   `new`/`delete`, no manual pointer arithmetic** — so use-after-free and double-free are
   off the table for compiler-written code. (The one exception is the `cpp { … }` escape
   hatch — see below.)
+- **No uninitialized values — an unset value is a bug that does not compile.** Two language
+  rules close the classic uninitialized-memory hole (a top source of crashes, garbage results,
+  and information-disclosure bugs):
+  - A struct is built with a **C++20 designated initializer**, e.g. `Point({.x = 1})`, and any
+    field you don't list is **default-initialized to a valid zero** — never left as random
+    stack/heap memory. Field names are checked at compile time, so a typo'd `.field` is an
+    error, not a silently-ignored value.
+  - A `let` may be declared with **no value** (`let total`, or `let total: float`) because you
+    may assign it later — but the compiler tracks whether it is *actually* given one. A
+    variable that is never assigned is **removed**; one that is **used before it is definitely
+    assigned — or assigned only on some branches (ambiguous at compile time) — does not
+    compile**. An uninitialized read therefore can't reach the generated code in the first
+    place.
 - **Bounds- and overflow-checked standard library.** Array shape math is
   overflow-checked (a `size_t` overflow throws instead of under-allocating), negative
   dimensions/indices are rejected, and element access is bounds-checked — malformed

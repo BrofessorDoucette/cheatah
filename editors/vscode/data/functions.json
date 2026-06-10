@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 361,
+      "srcline": 407,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 159,
+      "srcline": 161,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 143,
+      "srcline": 145,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 187,
+      "srcline": 189,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 100,
+      "srcline": 102,
       "module": "",
       "qualified": "chr"
     },
@@ -142,7 +142,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 407,
+      "srcline": 453,
       "module": "",
       "qualified": "contains"
     },
@@ -169,7 +169,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 391,
+      "srcline": 437,
       "module": "",
       "qualified": "endswith"
     },
@@ -192,7 +192,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 243,
+      "srcline": 245,
       "module": "",
       "qualified": "float"
     },
@@ -219,7 +219,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 300,
+      "srcline": 346,
       "module": "",
       "qualified": "floordiv"
     },
@@ -242,7 +242,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 337,
+      "srcline": 383,
       "module": "",
       "qualified": "hash"
     },
@@ -265,7 +265,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 115,
+      "srcline": 117,
       "module": "",
       "qualified": "hex"
     },
@@ -292,7 +292,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 478,
+      "srcline": 524,
       "module": "",
       "qualified": "index"
     },
@@ -315,7 +315,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 217,
+      "srcline": 219,
       "module": "",
       "qualified": "int"
     },
@@ -338,7 +338,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 56,
+      "srcline": 58,
       "module": "",
       "qualified": "len"
     },
@@ -361,7 +361,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 129,
+      "srcline": 131,
       "module": "",
       "qualified": "oct"
     },
@@ -384,7 +384,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 85,
+      "srcline": 87,
       "module": "",
       "qualified": "ord"
     },
@@ -433,7 +433,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 520,
+      "srcline": 566,
       "module": "",
       "qualified": "slice"
     },
@@ -460,9 +460,32 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 376,
+      "srcline": 422,
       "module": "",
       "qualified": "startswith"
+    },
+    {
+      "name": "str",
+      "signature": "str(bool b)",
+      "brief": "str() for a bool — Python's capitalized spelling.",
+      "params": [
+        {
+          "name": "b",
+          "desc": "the boolean."
+        }
+      ],
+      "returns": "\"True\" or \"False\".",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "allocates the small result string.",
+        "test": "CheatahBuiltins.Str",
+        "crtest": "BuiltinsCompileRun.Str",
+        "systest": "StdlibE2E.Builtins"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 289,
+      "module": "",
+      "qualified": "str"
     },
     {
       "name": "to_bool",
@@ -483,7 +506,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 187,
+      "srcline": 189,
       "module": "",
       "qualified": "to_bool"
     },
@@ -506,7 +529,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 243,
+      "srcline": 245,
       "module": "",
       "qualified": "to_float"
     },
@@ -529,7 +552,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 217,
+      "srcline": 219,
       "module": "",
       "qualified": "to_int"
     },
@@ -556,7 +579,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 260,
+      "srcline": 306,
       "module": "",
       "qualified": "truediv"
     },
@@ -1278,7 +1301,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 360,
+      "srcline": 390,
       "module": "io",
       "qualified": "io.format",
       "perf": {
@@ -1304,7 +1327,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 380,
+      "srcline": 410,
       "module": "io",
       "qualified": "io.input",
       "perf": {
@@ -1335,7 +1358,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 548,
+      "srcline": 578,
       "module": "io",
       "qualified": "io.open",
       "perf": {
@@ -1350,19 +1373,19 @@
       "params": [
         {
           "name": "args",
-          "desc": "zero or more streamable values."
+          "desc": "zero or more printable values."
         }
       ],
       "returns": "",
       "tags": {
         "complexity": "O(total output length).",
-        "alloc": "each arg is routed through str() so values format the Python way (e.g. bool → True/False), allocating temporary strings.",
+        "alloc": "each arg is routed through str()/its pretty-printer, allocating temporary strings.",
         "test": "CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline",
         "crtest": "IoCompileRun.Print",
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 216,
+      "srcline": 218,
       "module": "io",
       "qualified": "io.print",
       "perf": {
@@ -1389,7 +1412,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 564,
+      "srcline": 594,
       "module": "io",
       "qualified": "io.read_file",
       "perf": {
@@ -1425,6 +1448,29 @@
         "speedup": 0.8,
         "vs": "cpython"
       }
+    },
+    {
+      "name": "rprint",
+      "signature": "rprint(const Args &... args)",
+      "brief": "Python print but RAW: a struct prints in its COMPACT Name(field=value, …) form (exactly as stored) instead of the pretty multi-line layout print uses; otherwise identical (space-separated, newline-terminated).",
+      "params": [
+        {
+          "name": "args",
+          "desc": "zero or more printable values."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(total output length).",
+        "alloc": "each arg is routed through str(), allocating temporary strings.",
+        "test": "CheatahIo.RprintIsCompact",
+        "crtest": "IoCompileRun.Rprint",
+        "systest": "StdlibE2E.Io"
+      },
+      "srcfile": "stdlib/io/io.hpp",
+      "srcline": 246,
+      "module": "io",
+      "qualified": "io.rprint"
     },
     {
       "name": "str",
@@ -3280,7 +3326,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1024,
+      "srcline": 1039,
       "module": "ndarray",
       "qualified": "ndarray.abs",
       "perf": {
@@ -3310,7 +3356,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 729,
+      "srcline": 744,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
@@ -3347,7 +3393,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 621,
+      "srcline": 636,
       "module": "ndarray",
       "qualified": "ndarray.arange",
       "perf": {
@@ -3372,7 +3418,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 548,
+      "srcline": 563,
       "module": "ndarray",
       "qualified": "ndarray.array",
       "perf": {
@@ -3405,7 +3451,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 678,
+      "srcline": 693,
       "module": "ndarray",
       "qualified": "ndarray.binary_op",
       "perf": {
@@ -3434,7 +3480,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 428,
+      "srcline": 443,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes",
       "perf": {
@@ -3461,7 +3507,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 475,
+      "srcline": 490,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to",
       "perf": {
@@ -3486,7 +3532,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 950,
+      "srcline": 965,
       "module": "ndarray",
       "qualified": "ndarray.cbrt",
       "perf": {
@@ -3516,7 +3562,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 840,
+      "srcline": 855,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
@@ -3542,7 +3588,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 867,
+      "srcline": 882,
       "module": "ndarray",
       "qualified": "ndarray.conj",
       "perf": {
@@ -3567,7 +3613,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1000,
+      "srcline": 1015,
       "module": "ndarray",
       "qualified": "ndarray.cos",
       "perf": {
@@ -3597,7 +3643,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 771,
+      "srcline": 786,
       "module": "ndarray",
       "qualified": "ndarray.divide",
       "perf": {
@@ -3623,7 +3669,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 963,
+      "srcline": 978,
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
@@ -3656,7 +3702,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 605,
+      "srcline": 620,
       "module": "ndarray",
       "qualified": "ndarray.full",
       "perf": {
@@ -3686,7 +3732,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1093,
+      "srcline": 1108,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3712,7 +3758,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 910,
+      "srcline": 925,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3737,7 +3783,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 450,
+      "srcline": 465,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous",
       "perf": {
@@ -3762,7 +3808,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 975,
+      "srcline": 990,
       "module": "ndarray",
       "qualified": "ndarray.log",
       "perf": {
@@ -3788,7 +3834,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1076,
+      "srcline": 1091,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -3818,7 +3864,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 757,
+      "srcline": 772,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -3844,7 +3890,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 590,
+      "srcline": 605,
       "module": "ndarray",
       "qualified": "ndarray.ones",
       "perf": {
@@ -3870,7 +3916,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 888,
+      "srcline": 903,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -3900,7 +3946,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 640,
+      "srcline": 655,
       "module": "ndarray",
       "qualified": "ndarray.reshape",
       "perf": {
@@ -3926,7 +3972,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 562,
+      "srcline": 577,
       "module": "ndarray",
       "qualified": "ndarray.scalar",
       "perf": {
@@ -3952,7 +3998,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1107,
+      "srcline": 1122,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
       "perf": {
@@ -3978,7 +4024,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 988,
+      "srcline": 1003,
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
@@ -4007,7 +4053,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1123,
+      "srcline": 1138,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
       "perf": {
@@ -4033,7 +4079,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 938,
+      "srcline": 953,
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
@@ -4066,7 +4112,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 743,
+      "srcline": 758,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -4092,7 +4138,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1041,
+      "srcline": 1056,
       "module": "ndarray",
       "qualified": "ndarray.sum",
       "perf": {
@@ -4117,7 +4163,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1012,
+      "srcline": 1027,
       "module": "ndarray",
       "qualified": "ndarray.tan",
       "perf": {
@@ -4143,7 +4189,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1180,
+      "srcline": 1241,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {
@@ -4169,7 +4215,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 577,
+      "srcline": 592,
       "module": "ndarray",
       "qualified": "ndarray.zeros",
       "perf": {
@@ -4863,6 +4909,18 @@
         "kind": "note",
         "note": "returns a (root, ext) pair — not reduced to one scalar here"
       }
+    },
+    {
+      "name": "module_abi",
+      "signature": "module_abi() noexcept",
+      "brief": "ABI/identity marker for the parsers cheatah module: returns the module name.",
+      "params": [],
+      "returns": "",
+      "tags": {},
+      "srcfile": "stdlib/parsers/parsers.hpp",
+      "srcline": 13,
+      "module": "parsers",
+      "qualified": "parsers.module_abi"
     },
     {
       "name": "choice",
@@ -6886,6 +6944,7 @@
     "ndarray",
     "os",
     "os.path",
+    "parsers",
     "random",
     "socket",
     "statistics",

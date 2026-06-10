@@ -131,6 +131,24 @@ io.print(ndarray.to_string(ndarray.reshape(ndarray.array([1.0, 2.0, 3.0, 4.0]), 
 )PURR", "[[1, 2], [3, 4]]\n");
 }
 
+// io.print ABBREVIATES a large array with "..." (readable by default); a small one is full.
+TEST(NdarrayCompileRun, PrintAbbreviatesLargeArray) {
+    e2e::expect_e2e("ndarray_print_trunc", R"PURR(import io
+import ndarray
+io.print(ndarray.arange(0.0, 2000.0, 1.0))
+)PURR",
+                    "[0, 1, 2, ..., 1997, 1998, 1999]\n");
+}
+
+// io.rprint shows the array RAW (exactly as stored) — no abbreviation.
+TEST(NdarrayCompileRun, RprintShowsArrayFull) {
+    e2e::expect_e2e("ndarray_rprint_full", R"PURR(import io
+import ndarray
+io.rprint(ndarray.arange(0.0, 6.0, 1.0))
+)PURR",
+                    "[0, 1, 2, 3, 4, 5]\n");
+}
+
 TEST(NdarrayCompileRun, Complex) {
     e2e::expect_e2e("ndarray_complex", R"PURR(import io
 import ndarray

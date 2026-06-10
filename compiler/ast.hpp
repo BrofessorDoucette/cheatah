@@ -13,7 +13,7 @@ namespace cheatah {
 // ---- Expressions ----
 enum class ExprKind {
     StringLit, NumberLit, BoolLit, Ident, Member, Index, Slice, Call, Unary, Binary,
-    ListLit, DictLit,
+    ListLit, DictLit, StructInit,
 };
 
 struct Expr {
@@ -73,13 +73,26 @@ struct Call : Expr {  // callee(args...)
 
 struct ListLit : Expr {  // [a, b, c]  -> std::vector
     std::vector<ExprPtr> elements;
+    bool multiline = false;  // the `[`…`]` spanned >1 source line -> codegen keeps the
+                             // generated C++ multi-line too (readable .gen.cpp).
     ListLit() : Expr(ExprKind::ListLit) {}
 };
 
 struct DictLit : Expr {  // {k: v, …}  -> std::unordered_map
     std::vector<ExprPtr> keys;
     std::vector<ExprPtr> values;
+    bool multiline = false;  // as ListLit: a multi-line literal stays multi-line in codegen.
     DictLit() : Expr(ExprKind::DictLit) {}
+};
+
+// A struct designated initializer: `{.field = value, …}` (distinguished from a dict by the
+// leading `.`). Used as the sole argument of a struct call — `Type({.f = v})` — and lowered
+// to a C++20 designated initializer `Type{.f = v}`, so unspecified fields default-initialize.
+struct StructInit : Expr {
+    std::vector<std::string> fields;   // field names (without the leading '.')
+    std::vector<ExprPtr> values;       // parallel to fields
+    bool multiline = false;            // keep a multi-line initializer multi-line in codegen
+    StructInit() : Expr(ExprKind::StructInit) {}
 };
 
 struct Unary : Expr {  // op operand  (op is the C++ operator: "-" or "!")
@@ -118,6 +131,9 @@ enum class StmtKind {
 
 struct Stmt {
     StmtKind kind;
+    unsigned line = 0;  // 1-based source line (0 = unknown). Set by the parser; codegen
+                        // emits `#line` from it so the C++ backend's diagnostics — and the
+                        // editor's — point at the original .purr line.
     explicit Stmt(StmtKind k) : kind(k) {}
     virtual ~Stmt() = default;
 };

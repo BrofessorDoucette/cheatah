@@ -60,6 +60,33 @@ TEST(CheatahIo, PrintNoArgsIsJustNewline) {
     EXPECT_EQ(cap.str(), "\n");
 }
 
+namespace {
+// A stand-in for a cheatah struct: it both streams (operator<<, the compact form rprint/str
+// use) and exposes a cheatah_pretty_print member (the pretty form print uses).
+struct PrettyStub {
+    friend std::ostream& operator<<(std::ostream& os, const PrettyStub&) { return os << "P(compact)"; }
+    void cheatah_pretty_print(std::ostream& os, long long indent) const {
+        os << std::string(static_cast<std::size_t>(indent), ' ') << "P(\n    x = 1\n)";
+    }
+};
+}  // namespace
+
+TEST(CheatahIo, PrintPrettyPrintsStructs) {
+    std::ostringstream cap;
+    std::streambuf* old = std::cout.rdbuf(cap.rdbuf());
+    io::print(PrettyStub{});  // has cheatah_pretty_print -> pretty branch
+    std::cout.rdbuf(old);
+    EXPECT_EQ(cap.str(), "P(\n    x = 1\n)\n");
+}
+
+TEST(CheatahIo, RprintIsCompact) {
+    std::ostringstream cap;
+    std::streambuf* old = std::cout.rdbuf(cap.rdbuf());
+    io::rprint(PrettyStub{}, 7);  // compact (operator<<) + a scalar, space-separated
+    std::cout.rdbuf(old);
+    EXPECT_EQ(cap.str(), "P(compact) 7\n");
+}
+
 TEST(CheatahIo, StrRendersContainersAndObjects) {
     EXPECT_EQ(io::str(std::vector<long long>{1, 2, 3}), "[1, 2, 3]");
     EXPECT_EQ(io::str(std::vector<std::string>{"a", "b"}), "['a', 'b']");  // nested strings quoted

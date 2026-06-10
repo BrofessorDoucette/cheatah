@@ -399,6 +399,21 @@ public:
      */
     std::string str() const;
 
+    /**
+     * Pretty-print hook used by `io.print`: renders the array in nested-bracket form but
+     * ABBREVIATES a large array with `...` (numpy-style edge items), so printing a big array
+     * stays readable. `io.rprint` (and `str()`/`operator<<`) keep the FULL untruncated form —
+     * slice the array and `rprint` the subset to see everything.
+     * @param os destination stream.
+     * @param indent unused (arrays are self-delimiting with brackets); present so `io.print`
+     *   detects this hook uniformly with struct pretty-printers.
+     * @complexity O(printed elements).
+     * @alloc allocates intermediate strings.
+     * @test CheatahNDArray.PrettyPrintAbbreviatesLarge
+     * @systest StdlibE2E.Ndarray
+     */
+    void cheatah_pretty_print(std::ostream& os, long long indent) const;
+
 private:
     std::shared_ptr<buffer_t<T>> data_;
     std::vector<std::size_t> shape_;
@@ -1163,6 +1178,52 @@ void format_rec(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::s
     }
     out += "]";
 }
+
+/// Like format_rec but ABBREVIATES a large array: an axis longer than `2*edge` shows its
+/// first and last `edge` items with `...` between, recursively. Summarization is enabled by
+/// @p summarize (the caller turns it on only past a total-size threshold), so small arrays
+/// print in full.
+template <Field T>
+void format_rec_trunc(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::size_t dim,
+                      std::string& out, std::size_t edge, bool summarize) {
+    if (dim == a.ndim()) {
+        out += format_scalar(a.at(idx));
+        return;
+    }
+    const std::size_t n = a.shape()[dim];
+    const bool trunc = summarize && n > 2 * edge;
+    out += "[";
+    bool first = true;
+    for (std::size_t i = 0; i < n; ++i) {
+        if (trunc && i >= edge && i < n - edge) {
+            if (i == edge) {
+                if (!first) out += ", ";
+                out += "...";
+                first = false;
+            }
+            continue;  // skip the abbreviated middle
+        }
+        if (!first) out += ", ";
+        first = false;
+        idx[dim] = i;
+        format_rec_trunc(a, idx, dim + 1, out, edge, summarize);
+    }
+    out += "]";
+}
+
+/// to_string, but ABBREVIATED with `...` when the array is large (total size beyond a
+/// numpy-style threshold) — the readable default for `io.print`. `io.rprint`/`to_string`
+/// keep the full form.
+template <Field T>
+std::string to_string_pretty(const basic_ndarray<T>& a) {
+    if (a.ndim() == 0) return format_scalar(a.at({}));
+    constexpr std::size_t kEdge = 3;        // items kept at each end of an abbreviated axis
+    constexpr std::size_t kThreshold = 1000;  // only summarize past this many elements (numpy)
+    std::vector<std::size_t> idx(a.ndim(), 0);
+    std::string out;
+    format_rec_trunc(a, idx, 0, out, kEdge, a.size() > kThreshold);
+    return out;
+}
 }  // namespace detail
 
 /**
@@ -1190,6 +1251,29 @@ std::string to_string(const basic_ndarray<T>& a) {
 template <Field T>
 inline std::string basic_ndarray<T>::str() const {
     return to_string(*this);
+}
+
+/**
+ * Stream an array to a `std::ostream` (the FULL nested-bracket form) — so an NDArray is
+ * directly Streamable, like a primitive or a cheatah struct, without going through
+ * `to_string`/`str()`. `io.rprint`, `str()`, and a struct that holds an array all stream it
+ * this way; `io.print` instead uses @ref cheatah_pretty_print to abbreviate large arrays.
+ * @param os the stream.
+ * @param a the array.
+ * @return @p os.
+ * @complexity O(size).
+ * @alloc allocates the intermediate string.
+ * @test CheatahNDArray.ToString
+ * @systest StdlibE2E.Ndarray
+ */
+template <Field T>
+std::ostream& operator<<(std::ostream& os, const basic_ndarray<T>& a) {
+    return os << to_string(a);
+}
+
+template <Field T>
+inline void basic_ndarray<T>::cheatah_pretty_print(std::ostream& os, long long) const {
+    os << detail::to_string_pretty(*this);
 }
 
 } // namespace cheatah::ndarray

@@ -1,0 +1,18 @@
+# cheatah-example — a TEMPLATE standard-library extension, authored in pure cheatah (.purr).
+#
+# After `biome add cheatah-example`, a program does `import example` and calls
+# `example.greet("world")`. purrc transpiles this file to templated C++ with concepts and
+# emits it as a SIGNED, importable module (`example.hpp` + a checksum sidecar), which the
+# consuming program's purrc verifies before compiling against it.
+#
+# Emit mode (chosen in the CMakeLists, not here):
+#   - OPAQUE (the default): the header ships only the public API and concretely-typed
+#     implementations are compiled — and hidden — inside libcheatah_example.a.
+#   - TRANSPARENT: the generated C++ source is inlined into the committed header (what the
+#     first-party standard library uses, so the true code is always visible).
+# Note: a templated function like `greet` below is header-visible in BOTH modes — that is how
+# C++ templates work; opacity hides only concretely-typed code (give params explicit types).
+
+fn greet(who) {
+    return "hello, " + who
+}

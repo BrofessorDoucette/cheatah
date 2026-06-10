@@ -121,9 +121,26 @@ cmake --preset release >/tmp/cheatah_cfg_release.log 2>&1 || { tail -20 /tmp/che
 bold "Building (debug)…"
 cmake --build --preset debug >/tmp/cheatah_build_debug.log 2>&1 || { tail -30 /tmp/cheatah_build_debug.log; fail "debug build"; }
 
+# 3b. Pure-cheatah stdlib modules: the build regenerated each one's committed header from its
+#     `.purr` via `purrc --emit-library`. The header (and its signed checksum) are committed so
+#     the true C++ stays visible and `import` can verify it — fail if they drifted from source.
+bold "Checking generated cheatah-module headers are in sync with their .purr sources…"
+_cmod_drift="$(git status --porcelain -- 'stdlib/parsers/parsers.hpp' 'stdlib/parsers/parsers.hpp.sha512')"
+if [ -n "$_cmod_drift" ]; then
+    printf '\n[qa-gate] a cheatah module header is out of date / uncommitted:\n\n'
+    git --no-pager diff -- stdlib/parsers/parsers.hpp | head -40
+    fail "stdlib/parsers/parsers.hpp drifted from parsers.purr — rebuild, commit the regenerated header (+ .sha512), then push again"
+fi
+
 # 4. Unit tests (hard gate) --------------------------------------------------
+# The "previously_broken" regression suite (bugs that ONCE broke the toolchain) runs
+# FIRST and on its own, so a reintroduced regression fails the gate fast — before the
+# full suite. The main run then EXCLUDES that label so they aren't run twice.
+bold "Running previously-broken regression suite FIRST…"
+ctest --preset debug --output-on-failure -L previously_broken || fail "previously-broken regression suite"
+
 bold "Running unit test suite…"
-ctest --preset debug --output-on-failure "${CR_EXCLUDE[@]}" || fail "unit tests"
+ctest --preset debug --output-on-failure -LE previously_broken "${CR_EXCLUDE[@]}" || fail "unit tests"
 
 # 5. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
 if [ "${QA_GATE_SKIP_ASAN:-0}" = "1" ]; then

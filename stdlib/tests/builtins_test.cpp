@@ -14,6 +14,17 @@ TEST(CheatahBuiltins, LenOrdChr) {
     EXPECT_EQ(b::chr(65), "A");
 }
 
+TEST(CheatahBuiltins, Str) {
+    // Streamable template: integers, floats (default 6-sig-digit form), and strings.
+    EXPECT_EQ(b::str(42LL), "42");
+    EXPECT_EQ(b::str(-7LL), "-7");
+    EXPECT_EQ(b::str(3.14), "3.14");
+    EXPECT_EQ(b::str(std::string("hi")), "hi");
+    // bool overload: Python's capitalized spelling, not 1/0.
+    EXPECT_EQ(b::str(true), "True");
+    EXPECT_EQ(b::str(false), "False");
+}
+
 TEST(CheatahBuiltins, BaseReprs) {
     EXPECT_EQ(b::hex(255), "0xff");
     EXPECT_EQ(b::oct(8), "0o10");

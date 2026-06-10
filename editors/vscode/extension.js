@@ -9,6 +9,8 @@
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
+const cp = require("child_process");
 
 const LANG = "cheatah";
 
@@ -56,6 +58,24 @@ function perfLine(p, meta) {
   if (!p) return null;
   if (p.kind === "numpy") return "numeric — see the NumPy comparison in the docs";
   if (p.kind === "note") return p.note;
+  // Numeric-core entries (ndarray/linalg) carry a hand-maintained NumPy comparison in
+  // MICROSECONDS (cheatah_us/numpy_us) rather than the ns/speedup shape below. Render it
+  // directly — and, crucially, never throw: a malformed/foreign perf shape must not take
+  // down hover or autocomplete for the whole module (that hid every linalg/ndarray symbol).
+  if (p.kind === "numpy_cmp" || p.cheatah_us != null) {
+    const fmtUs = (us) => `${us.toFixed(2)} µs/call`;
+    if (p.cheatah_us == null) return null;
+    let s = `**${fmtUs(p.cheatah_us)}** in cheatah`;
+    if (p.numpy_us != null) {
+      const faster = p.cheatah_us <= p.numpy_us;
+      const factor = faster ? p.numpy_us / p.cheatah_us : p.cheatah_us / p.numpy_us;
+      const tgt = `NumPy ${meta.numpy || ""}`.trim();
+      s += ` · ${fmtUs(p.numpy_us)} in ${tgt} · **≈${factor.toFixed(1)}× ${faster ? "faster" : "slower"}**`;
+    }
+    if (p.dims) s += ` · ${p.dims}`;
+    return s;
+  }
+  if (p.cheatah_ns == null) return null;  // unknown perf shape — don't crash the provider
   let s = `**${fmtNs(p.cheatah_ns)}** in cheatah`;
   const cmp = p.compare_ns != null ? p.compare_ns : p.python_ns;
   if (cmp != null && p.speedup != null) {
@@ -468,13 +488,104 @@ const completionProvider = {
   },
 };
 
+// ---- Diagnostics: surface compiler errors in the editor -----------------------------
+// cheatah is templated C++ with concepts + a transpiler, so the C++ backend is the source
+// of truth for "is this valid?". `purrc --check` type-checks via the backend and, thanks
+// to #line directives, reports every error against the .purr — a forgotten `let`, an
+// unresolved symbol, a wrong argument count or type. We run it on the live buffer and
+// publish the results as VS Code diagnostics.
+let diagnostics; // DiagnosticCollection
+const debounceTimers = new Map(); // uri -> timer
+
+// Locate the purrc executable: the `cheatah.purrc` setting, else `<cheatah.root>/bin/purrc`,
+// else `purrc` on PATH. Returns null only if a configured path doesn't exist.
+function purrcPath() {
+  const cfg = vscode.workspace.getConfiguration("cheatah");
+  const explicit = cfg.get("purrc");
+  if (explicit) return fs.existsSync(explicit) ? explicit : null;
+  const root = cfg.get("root");
+  if (root) {
+    const p = path.join(root, "bin", "purrc");
+    if (fs.existsSync(p)) return p;
+  }
+  return "purrc"; // resolved on PATH by execFile
+}
+
+// Parse purrc/clang stderr (`<file>:line:col: error|warning: message`) into diagnostics.
+// Note/caret lines are ignored. A raw C++ "undeclared identifier" becomes a friendly
+// cheatah hint to use `let`.
+function parseDiagnostics(stderr, document) {
+  const out = [];
+  const re = /^(?:.*?):(\d+):(\d+):\s+(error|warning|fatal error):\s+(.*)$/;
+  for (const raw of stderr.split("\n")) {
+    const m = raw.match(re);
+    if (!m) continue;
+    const line = Math.max(0, parseInt(m[1], 10) - 1);
+    const col = Math.max(0, parseInt(m[2], 10) - 1);
+    const severity = m[3] === "warning"
+      ? vscode.DiagnosticSeverity.Warning
+      : vscode.DiagnosticSeverity.Error;
+    let message = m[4];
+    const undecl = message.match(/use of undeclared identifier '([A-Za-z_]\w*)'/);
+    if (undecl) {
+      message = `'${undecl[1]}' is not declared — introduce it with \`let ${undecl[1]} = …\` ` +
+                `(cheatah needs \`let\` to declare a new variable).`;
+    }
+    const lineText = line < document.lineCount ? document.lineAt(line).text : "";
+    const end = Math.max(col + 1, lineText.length);
+    const range = new vscode.Range(line, col, line, end);
+    const d = new vscode.Diagnostic(range, message, severity);
+    d.source = "purrc";
+    out.push(d);
+  }
+  return out;
+}
+
+function runDiagnostics(document) {
+  if (!document || document.languageId !== LANG) return;
+  if (!vscode.workspace.getConfiguration("cheatah").get("diagnostics.enable", true)) {
+    diagnostics.delete(document.uri);
+    return;
+  }
+  const purrc = purrcPath();
+  if (!purrc) return; // configured path missing — stay quiet (best-effort)
+  // Check the LIVE buffer (possibly unsaved) by writing it to a temp .purr. Diagnostics
+  // carry line:col which we map back onto this document regardless of the temp path.
+  const tmp = path.join(os.tmpdir(), `cheatah-check-${process.pid}-${document.version}.purr`);
+  try {
+    fs.writeFileSync(tmp, document.getText());
+  } catch (_e) {
+    return;
+  }
+  cp.execFile(purrc, ["--check", tmp], { timeout: 15000 }, (_err, _stdout, stderr) => {
+    try { fs.unlinkSync(tmp); } catch (_e) { /* ignore */ }
+    // ENOENT (purrc not found) lands here with empty stderr — just clear, no nagging.
+    diagnostics.set(document.uri, parseDiagnostics(stderr || "", document));
+  });
+}
+
+// Re-check ~400ms after the last keystroke, so we don't fork purrc on every character.
+function scheduleDiagnostics(document) {
+  const key = document.uri.toString();
+  clearTimeout(debounceTimers.get(key));
+  debounceTimers.set(key, setTimeout(() => runDiagnostics(document), 400));
+}
+
 function activate(context) {
   loadDb(context);
+  diagnostics = vscode.languages.createDiagnosticCollection("cheatah");
   context.subscriptions.push(
+    diagnostics,
     vscode.languages.registerHoverProvider(LANG, hoverProvider),
     vscode.languages.registerDefinitionProvider(LANG, definitionProvider),
-    vscode.languages.registerCompletionItemProvider(LANG, completionProvider, ".")
+    vscode.languages.registerCompletionItemProvider(LANG, completionProvider, "."),
+    vscode.workspace.onDidOpenTextDocument(runDiagnostics),
+    vscode.workspace.onDidSaveTextDocument(runDiagnostics),
+    vscode.workspace.onDidChangeTextDocument((e) => scheduleDiagnostics(e.document)),
+    vscode.workspace.onDidCloseTextDocument((doc) => diagnostics.delete(doc.uri))
   );
+  // Check any .purr already open at activation.
+  for (const doc of vscode.workspace.textDocuments) runDiagnostics(doc);
 }
 
 function deactivate() {}

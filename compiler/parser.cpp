@@ -87,6 +87,13 @@ private:
     }
 
     StmtPtr parse_stmt() {
+        const unsigned ln = peek().pos.line;  // the statement's first token
+        StmtPtr s = parse_stmt_inner();
+        if (s && s->line == 0) s->line = ln;  // for #line -> .purr-mapped diagnostics
+        return s;
+    }
+
+    StmtPtr parse_stmt_inner() {
         if (check(TokenKind::CppBlock)) return std::make_unique<RawCpp>(advance().text);
         if (check_kw("import")) return parse_import();
         if (check_kw("interface")) return parse_interface();
@@ -397,16 +404,17 @@ private:
             l->type = parse_type();
             l->has_type = true;
         }
-        if (!check(TokenKind::Assign)) {
-            error("expected '=' after the name in 'let'");
-            synchronize();
-            return nullptr;
-        }
-        advance();  // =
-        l->value = parse_expr();
-        if (!l->value) {
-            synchronize();
-            return nullptr;
+        // The initializer is OPTIONAL: `let x` (or `let x: T`) declares a variable with no
+        // value yet — it must be given one before use. Codegen realizes it at its first
+        // assignment, removes it if it is never assigned, and the build fails if it is used
+        // without (or only conditionally) being given a value. l->value stays null here.
+        if (check(TokenKind::Assign)) {
+            advance();  // =
+            l->value = parse_expr();
+            if (!l->value) {
+                synchronize();
+                return nullptr;
+            }
         }
         return l;
     }
@@ -806,7 +814,13 @@ private:
         }
         if (check(TokenKind::Identifier)) return std::make_unique<Ident>(advance().text);
         if (check(TokenKind::LBracket)) return parse_list_literal();
-        if (check(TokenKind::LBrace)) return parse_dict_literal();
+        if (check(TokenKind::LBrace)) {
+            // `{ .field = … }` is a struct designated initializer; `{ key: … }` is a dict.
+            // The leading `.` after `{` disambiguates them.
+            if (pos_ + 1 < toks_.size() && toks_[pos_ + 1].kind == TokenKind::Dot)
+                return parse_struct_init();
+            return parse_dict_literal();
+        }
         if (check(TokenKind::LParen)) {
             advance();
             ExprPtr e = parse_expr();
@@ -822,6 +836,7 @@ private:
     }
 
     ExprPtr parse_list_literal() {
+        const std::uint32_t open_line = peek().pos.line;  // the '[' line
         advance();  // [
         auto lst = std::make_unique<ListLit>();
         skip_newlines();
@@ -843,11 +858,60 @@ private:
             error("expected ']' to close the list");
             return nullptr;
         }
-        advance();
+        advance();  // ]
+        // A literal whose `[`…`]` spanned multiple source lines stays multi-line in the
+        // generated C++ (readable .gen.cpp), since the lexer drops newlines inside brackets.
+        lst->multiline = prev().pos.line != open_line;
         return lst;
     }
 
+    // `{ .field = value, … }` — a C++20-style designated initializer for a struct. Used as
+    // the argument of a struct call, `Type({ .f = v })`. Fields not listed default-initialize.
+    ExprPtr parse_struct_init() {
+        const std::uint32_t open_line = peek().pos.line;  // the '{' line
+        advance();  // {
+        auto si = std::make_unique<StructInit>();
+        skip_newlines();
+        while (!check(TokenKind::RBrace) && !at_end()) {
+            if (!check(TokenKind::Dot)) {
+                error("expected '.field = value' in a struct initializer");
+                return nullptr;
+            }
+            advance();  // .
+            if (!check(TokenKind::Identifier)) {
+                error("expected a field name after '.' in a struct initializer");
+                return nullptr;
+            }
+            std::string field = advance().text;
+            if (!check(TokenKind::Assign)) {
+                error("expected '=' after '." + field + "' in a struct initializer");
+                return nullptr;
+            }
+            advance();  // =
+            ExprPtr v = parse_expr();
+            if (!v) return nullptr;
+            si->fields.push_back(std::move(field));
+            si->values.push_back(std::move(v));
+            skip_newlines();
+            if (check(TokenKind::Comma)) {
+                advance();
+                skip_newlines();
+                continue;
+            }
+            break;
+        }
+        skip_newlines();
+        if (!check(TokenKind::RBrace)) {
+            error("expected '}' to close the struct initializer");
+            return nullptr;
+        }
+        advance();  // }
+        si->multiline = prev().pos.line != open_line;
+        return si;
+    }
+
     ExprPtr parse_dict_literal() {
+        const std::uint32_t open_line = peek().pos.line;  // the '{' line
         advance();  // {
         auto d = std::make_unique<DictLit>();
         skip_newlines();
@@ -877,7 +941,8 @@ private:
             error("expected '}' to close the dict");
             return nullptr;
         }
-        advance();
+        advance();  // }
+        d->multiline = prev().pos.line != open_line;  // keep a multi-line dict multi-line
         return d;
     }
 

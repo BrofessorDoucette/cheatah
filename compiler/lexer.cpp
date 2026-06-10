@@ -79,10 +79,13 @@ private:
             advance();
             return;
         }
-        // Newline is a significant token.
+        // Newline is a significant token (a statement terminator) — EXCEPT inside `(`/`[`,
+        // where it is insignificant so an expression (e.g. a multi-line list literal or a
+        // call argument list broken across lines) can span lines. `{}` blocks are NOT
+        // bracket nesting, so newlines between statements in a block stay significant.
         if (c == '\n') {
             advance();
-            push(TokenKind::Newline, "\n", start);
+            if (bracket_depth_ == 0) push(TokenKind::Newline, "\n", start);
             return;
         }
         // Comments: `#…` to end of line (Python-style). `//` is the floor-division
@@ -255,12 +258,12 @@ private:
     void scan_symbol(SourcePos start) {
         const char c = advance();
         switch (c) {
-            case '(': push(TokenKind::LParen, "(", start); return;
-            case ')': push(TokenKind::RParen, ")", start); return;
+            case '(': ++bracket_depth_; push(TokenKind::LParen, "(", start); return;
+            case ')': if (bracket_depth_ > 0) --bracket_depth_; push(TokenKind::RParen, ")", start); return;
             case '{': push(TokenKind::LBrace, "{", start); return;
             case '}': push(TokenKind::RBrace, "}", start); return;
-            case '[': push(TokenKind::LBracket, "[", start); return;
-            case ']': push(TokenKind::RBracket, "]", start); return;
+            case '[': ++bracket_depth_; push(TokenKind::LBracket, "[", start); return;
+            case ']': if (bracket_depth_ > 0) --bracket_depth_; push(TokenKind::RBracket, "]", start); return;
             case ',': push(TokenKind::Comma, ",", start); return;
             case ':': push(TokenKind::Colon, ":", start); return;
             case ';': push(TokenKind::Semicolon, ";", start); return;
@@ -304,6 +307,11 @@ private:
     std::size_t pos_ = 0;
     std::uint32_t line_ = 1;
     std::uint32_t column_ = 1;
+    // Nesting depth of `(`/`[` (NOT `{`, which delimits blocks). While > 0 we are inside a
+    // parenthesised expression or a list/call/subscript, so newlines are insignificant
+    // (Python-style implicit line continuation) and an expression — e.g. a multi-line array
+    // literal — may span lines. See scan_token's Newline case.
+    int bracket_depth_ = 0;
     LexResult result_;
 };
 

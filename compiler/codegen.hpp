@@ -15,13 +15,44 @@
 namespace cheatah {
 
 struct CodegenResult {
-    std::string source;                    // generated C++
+    std::string source;                    // generated C++ (program mode)
+    std::string header_source;             // generated header   (library mode)
+    std::string impl_source;               // generated impl TU  (library mode, opaque only)
     std::vector<std::string> modules;      // imported module roots (for linking)
     std::vector<std::string> diagnostics;  // empty on success
 
     bool ok() const { return diagnostics.empty(); }
 };
 
-CodegenResult codegen(const Program& program);
+// Program mode: emit one translation unit exporting `purr_main()` (above). When
+// @p source_file is non-empty, codegen interleaves `#line N "<source_file>"` directives
+// so the C++ backend's diagnostics (and thus the editor's, via `purrc --check`) point at
+// the original .purr line rather than the generated C++. Left empty for normal compiles,
+// keeping the inspectable .gen.cpp uncluttered. @p remove_unused (the default) drops `let`
+// bindings whose variable is never read/printed/returned — preserving a side-effecting
+// initializer as a bare expression statement; pass false (purrc's --no-remove-variables) to
+// emit every variable verbatim.
+CodegenResult codegen(const Program& program, const std::string& source_file = "",
+                      bool remove_unused = true);
+
+// Library mode — emit a `.purr` as an IMPORTABLE cheatah library module living in
+// `namespace cheatah::<module_name>` (no purr_main). The result is a HEADER plus, in
+// opaque builds, an impl TU compiled into the module's signed static archive:
+//
+//   transparent (stdlib): the full generated C++ source is inlined into header_source so
+//     the true C++ is always visible (impl_source empty);
+//   opaque (DEFAULT, external authors): header_source carries only the public API
+//     (declarations + the unavoidable templates), and concrete definitions go to
+//     impl_source so the implementation is hidden inside the compiled archive.
+//
+// Templates are header-visible in BOTH modes (a C++ constraint); opacity only conceals
+// concretely-typed function bodies.
+struct LibOptions {
+    std::string module_name;   // emit into `namespace cheatah::<module_name>`
+    bool transparent = false;  // false (default) = opaque; true = source-in-header (stdlib)
+    bool remove_unused = true; // drop unused, non-returned locals (a returned var is kept, so
+                               // an exported function's result is never removed)
+};
+CodegenResult codegen_library(const Program& program, const LibOptions& opts);
 
 } // namespace cheatah

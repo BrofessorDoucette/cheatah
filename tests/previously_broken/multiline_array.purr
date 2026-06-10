@@ -1,0 +1,28 @@
+# Regression (previously broken): a call argument / array literal split across multiple
+# lines used to FAIL to parse — "expected an expression" — because the lexer treated the
+# newline after `(` (and inside `[ ]`) as a statement terminator. Newlines inside `( )` and
+# `[ ]` are now insignificant (Python-style implicit line continuation), and the generated
+# C++ preserves the multi-line layout so a big nested array stays readable in .gen.cpp.
+#
+# This is the program from review/c1.purr, corrected to actually run (let-binding,
+# importing `random`, the `ndarray.array` name, and `random.uniform` given its two bounds).
+
+import io
+import ndarray
+import random
+
+fn solve_system() {
+    let A = ndarray.array(
+        [
+            [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)],
+            [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]
+        ]
+    )
+    return A
+}
+
+random.seed(1)
+for k in range(10) {
+    let A = solve_system()
+}
+io.print("ok")

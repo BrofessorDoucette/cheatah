@@ -65,19 +65,35 @@ function(cheatah_add_program NAME)
 
     get_filename_component(_src "${CAP_SOURCES}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-    # Optional standard-library extensions are recorded for now; wiring third-party
-    # modules into purrc's link line is the next increment (purrc currently resolves
-    # modules from a single baked toolchain root). Surfacing them keeps the manifest,
-    # the generated CMake, and the build in agreement.
-    if(CAP_EXTENSIONS)
-        message(STATUS "cheatah_add_program(${NAME}): extensions requested: ${CAP_EXTENSIONS} "
-                       "(fetched by CPM; link integration pending)")
+    # Optional standard-library extensions: each is a CPM-fetched repo that emits a cheatah
+    # module (via cheatah_add_module) into its own source tree. purrc resolves an imported
+    # module by searching CHEATAH_MODULE_PATH (then the baked toolchain root), verifying the
+    # module's signed header and linking its archive — so wiring an extension in is just adding
+    # the fetched repo's directory to that search path for the purrc invocation below.
+    set(_cheatah_modpath "")
+    foreach(_ext ${CAP_EXTENSIONS})
+        if(DEFINED ${_ext}_SOURCE_DIR)
+            if(_cheatah_modpath)
+                set(_cheatah_modpath "${_cheatah_modpath}:${${_ext}_SOURCE_DIR}")
+            else()
+                set(_cheatah_modpath "${${_ext}_SOURCE_DIR}")
+            endif()
+        else()
+            message(WARNING "cheatah_add_program(${NAME}): extension '${_ext}' was not fetched "
+                            "(no ${_ext}_SOURCE_DIR) — `import` of its modules will not resolve")
+        endif()
+    endforeach()
+    # Prepend the env-setter only when there ARE extensions, so an extension-less program (e.g.
+    # biome itself) runs purrc exactly as before.
+    set(_purrc_env "")
+    if(_cheatah_modpath)
+        set(_purrc_env ${CMAKE_COMMAND} -E env "CHEATAH_MODULE_PATH=${_cheatah_modpath}")
     endif()
 
     # 1) Compile the program into a loadable module with purrc (NEVER standalone).
     add_custom_command(
         OUTPUT "${_module}"
-        COMMAND $<TARGET_FILE:purrc> "${_src}" -o "${_module}"
+        COMMAND ${_purrc_env} $<TARGET_FILE:purrc> "${_src}" -o "${_module}"
         DEPENDS purrc cheatah_stdlib "${_src}"
         COMMENT "purrc ${CAP_SOURCES} -> ${NAME}${_ext}"
         VERBATIM)
