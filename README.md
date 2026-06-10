@@ -9,7 +9,7 @@ cheatah transpiles to modern C++ and is built at `-O3 -march=native`, your
 programs run at **optimized native speed** — a recursive `fib(35)` runs at parity
 with hand-written C++.
 
-> ⚠️ **Status: pre-alpha (v0.9.1-alpha).** cheatah runs and is heavily tested
+> ⚠️ **Status: alpha (v1.0.0-alpha).** cheatah runs and is heavily tested
 > (the QA gate runs the suite under **ASan + UBSan + Valgrind** at 100% coverage), but the
 > language and APIs may still change. Today `.purr`/`.so` are *fully trusted* — see
 > [SECURITY.md](SECURITY.md) before running code you didn't write.

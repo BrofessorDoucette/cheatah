@@ -1,7 +1,47 @@
 # Changelog
 
-All notable changes to cheatah. This project is **pre-alpha** — expect breaking
+All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
+
+## v1.0.0-alpha — per-module namespace aliasing in generated code
+
+The transpiler now shortens every module reference in the C++ it emits. This is a
+**codegen-shape change** — the generated `.gen.cpp` looks different (the runtime
+behavior of any program is unchanged) — so the version steps to 1.0.0.
+
+### Codegen — every module gets its own short namespace alias
+- **The whole program is emitted inside a dedicated `namespace cheatah_program`**, and
+  the exported entry point becomes a one-line `extern "C"` trampoline
+  (`PURR_EXPORT void purr_main() { cheatah_program::run(); }`). This wrapper is what
+  makes the aliasing below *safe*.
+- **Each imported module — plus the always-available `builtins` — gets its own distinct
+  alias** at the top of that namespace (`namespace io = ::cheatah::io;`,
+  `namespace ndarray = ::cheatah::ndarray;`, `namespace linalg = ::cheatah::linalg;`,
+  `namespace builtins = ::cheatah::builtins;`, …). The body then reads `io::print`,
+  `linalg::solve`, `builtins::len` instead of repeating `cheatah::io::…` everywhere. For
+  example `cheatah::io::print(std::string("solve A x = b ->"), cheatah::ndarray::to_string(cheatah::linalg::solve(a, b)))`
+  is now `io::print("solve A x = b ->", ndarray::to_string(linalg::solve(a, b)))`.
+- **Safe against the global C library.** A module whose name matches a libc/POSIX global
+  function (`time`, `random`, `socket`) is still aliased — because the alias lives inside
+  `cheatah_program` and resolves to `::cheatah::<name>`, it can never redefine the global
+  `::time` / `::random` / `::socket`.
+- **Safe against program identifiers.** If the program uses a module's name as one of its
+  own identifiers (e.g. a `struct os`, or a parameter `math`), that module is left
+  *explicit* (`::cheatah::os::…`) so the alias can't shadow or clash with user code. A
+  bare identifier that shadows a module name now correctly resolves to the local (fixes a
+  latent bug where `fn bump(math)` emitted `cheatah::math` for the parameter).
+- The change is purely in emitted code; **no `.purr` source needs to change** and program
+  output is identical.
+
+### Extensions
+- The **extension-template** documents the contract: a module must keep everything inside
+  `namespace cheatah::<name>` so purrc's per-module alias reaches it, and two extensions
+  must have distinct module names.
+
+### Tests
+- New **`NamespaceAliasing`** system-level suite (runs in the QA gate) asserts the
+  generated C++ itself — each module aliased distinctly, libc-named modules aliased
+  safely, and collisions staying explicit — alongside compiling and running each program.
 
 ## v0.9.1-alpha — tighter string codegen, enum highlighting
 

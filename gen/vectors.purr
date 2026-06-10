@@ -1,0 +1,10 @@
+# A tiny numeric program — `ndarray` arrays into `linalg` routines.
+import io
+import ndarray
+import linalg
+
+let a = ndarray.array([[2.0, 1.0], [1.0, 3.0]])
+let b = ndarray.array([1.0, 2.0])
+io.print("solve A x = b ->", ndarray.to_string(linalg.solve(a, b)))
+io.print("det(A) ->", linalg.det(a))
+io.print("eigenvalues ->", ndarray.to_string(linalg.eigvalsh(a)))

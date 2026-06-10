@@ -16,7 +16,7 @@ cheatah is **single-trust today**, exactly like CPython or a C++ compiler:
 > person who writes, compiles, and runs the program is the person whose machine it
 > runs on.
 
-cheatah is **pre-alpha** with **no sandbox yet**, so the headline rule is:
+cheatah is **alpha** with **no sandbox yet**, so the headline rule is:
 **do not run `.purr` you did not write or audit.** Everything below assumes that.
 
 ## Protections built into the language

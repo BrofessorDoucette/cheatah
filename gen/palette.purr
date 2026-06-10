@@ -1,0 +1,17 @@
+# A scoped `enum` + `match`/`case`. Shows the enum-class codegen.
+import io
+
+enum Color { RED, GREEN, BLUE }
+
+fn to_hex(c) {
+    match c {
+        case Color.RED { return "#ff0000" }
+        case Color.GREEN { return "#00ff00" }
+        case Color.BLUE { return "#0000ff" }
+    }
+    return "#000000"
+}
+
+for c in [Color.RED, Color.GREEN, Color.BLUE] {
+    io.print(c, "->", to_hex(c))
+}

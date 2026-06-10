@@ -1,6 +1,6 @@
 # Security
 
-cheatah is **pre-alpha**. This document states the current threat model, records
+cheatah is **alpha**. This document states the current threat model, records
 the standing security review, and lays out *how* we intend to safely grow a Unix
 interface and (eventually) an MCP server that lets an LLM drive cheatah — **without
 introducing arbitrary-code-execution holes.** No MCP server capabilities exist yet.
@@ -8,7 +8,7 @@ introducing arbitrary-code-execution holes.** No MCP server capabilities exist y
 ## Reporting
 
 Please report suspected vulnerabilities privately to the maintainer rather than
-opening a public issue. (The repo is private during pre-alpha.)
+opening a public issue.
 
 ---
 

@@ -40,6 +40,9 @@ add_executable(cheatah_purrc_tests
     app_integrity_test.cpp
     app_montecarlo_test.cpp
     app_netcat_test.cpp
+    # Namespace aliasing of the generated C++ (suite NamespaceAliasing): proves the
+    # alias is emitted when safe and skipped on a name collision — both compile & run.
+    namespace_alias_test.cpp
     # linalg vs NumPy: run checked-in .purr programs and cross-check against python.
     linalg_vs_python_test.cpp
 )

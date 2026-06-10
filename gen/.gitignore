@@ -1,0 +1,2 @@
+# Compiled module artifacts — only the .purr sources and their .gen.cpp are kept.
+.out/

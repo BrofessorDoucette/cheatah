@@ -24,10 +24,33 @@ TEST(CheatahCodegen, EmitsPurrMainWithNamespaceQualifiedCall) {
     // dllexport on Windows so the DLL exposes the entry point).
     EXPECT_TRUE(contains(cg.source, "PURR_EXPORT void purr_main()"));
     EXPECT_TRUE(contains(cg.source, "#define PURR_EXPORT extern \"C\""));
-    EXPECT_TRUE(contains(cg.source, "cheatah::io::print(std::string(\"meow\"));"));
+    // The program lives in a dedicated namespace and the exported entry is a trampoline
+    // into it — this is what keeps the module aliases from clashing with global symbols.
+    EXPECT_TRUE(contains(cg.source, "namespace cheatah_program {"));
+    EXPECT_TRUE(contains(cg.source,
+                         "PURR_EXPORT void purr_main() { cheatah_program::purr_main(); }"));
+    // Each imported module gets its own short namespace alias, so the call reads
+    // `io::print` (not `cheatah::io::print`). io.print also only streams its args, so a
+    // string literal passes as a bare const char* — no throwaway std::string.
+    EXPECT_TRUE(contains(cg.source, "namespace io = ::cheatah::io;"));
+    EXPECT_TRUE(contains(cg.source, "io::print(\"meow\");"));
 
     ASSERT_EQ(cg.modules.size(), 1u);
     EXPECT_EQ(cg.modules[0], "io");
+}
+
+TEST(CheatahCodegen, StreamingCallsTakeBareStringLiterals) {
+    // io.print streams its args and io.format takes a std::string_view format — both
+    // accept a literal as a bare const char*, no intermediate std::string. A literal
+    // bound to a variable or concatenated still becomes a std::string (it must, to be a
+    // first-class cheatah string).
+    const CodegenResult cg =
+        codegen(parse_source("import io\nio.print(\"a\", io.format(\"{}\", 1))\nlet s = \"b\"\n").program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "io::print(\"a\""));
+    EXPECT_TRUE(contains(cg.source, "io::format(\"{}\""));
+    EXPECT_FALSE(contains(cg.source, "std::string(\"a\")"));
+    EXPECT_TRUE(contains(cg.source, "auto s = std::string(\"b\");"));  // bound var stays std::string
 }
 
 TEST(CheatahCodegen, ResolvesNestedSubmoduleCalls) {
@@ -35,9 +58,35 @@ TEST(CheatahCodegen, ResolvesNestedSubmoduleCalls) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    // The whole module chain qualifies with '::', not a stray '.'.
+    // The whole module chain qualifies with '::', not a stray '.'. The root module is
+    // aliased (`namespace os = ::cheatah::os;`), so the submodule reads `os::path::join`.
+    EXPECT_TRUE(contains(cg.source, "namespace os = ::cheatah::os;"));
     EXPECT_TRUE(contains(cg.source,
-                         "cheatah::os::path::join(std::string(\"a\"), std::string(\"b\"));"));
+                         "os::path::join(std::string(\"a\"), std::string(\"b\"));"));
+}
+
+TEST(CheatahCodegen, NamespaceAliasSkippedWhenNameCollides) {
+    // A program identifier named like an imported module (here a `struct os`) would
+    // clash with `namespace os = cheatah::os;`, so the codegen must NOT alias os — it
+    // stays fully qualified. A non-colliding module (io) is still aliased.
+    const CodegenResult cg = codegen(parse_source(
+        "import os\nimport io\nstruct os { n: int }\nlet p = os(1)\n"
+        "io.print(os.path.join(\"a\", \"b\"), p.n)\n").program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "namespace io = ::cheatah::io;"));   // safe -> aliased
+    EXPECT_FALSE(contains(cg.source, "namespace os = ::cheatah::os;"));  // collides -> explicit
+    EXPECT_TRUE(contains(cg.source, "::cheatah::os::path::join"));       // stays fully qualified
+    EXPECT_TRUE(contains(cg.source, "struct os {"));
+}
+
+TEST(CheatahCodegen, BareIdentShadowingModuleStaysLocal) {
+    // A parameter (or any local) named like an imported module shadows it: a bare
+    // standalone `math` is the local, NOT the `cheatah::math` namespace.
+    const CodegenResult cg = codegen(parse_source(
+        "import math\nfn bump(math) {\n    return math + 1\n}\n").program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "return (math + 1LL);"));
+    EXPECT_FALSE(contains(cg.source, "cheatah::math + 1LL"));
 }
 
 TEST(CheatahCodegen, BuiltinsResolveWithoutImport) {
@@ -47,8 +96,10 @@ TEST(CheatahCodegen, BuiltinsResolveWithoutImport) {
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "#include \"builtins.hpp\""));
-    EXPECT_TRUE(contains(cg.source, "cheatah::builtins::len(std::string(\"meow\"));"));
-    EXPECT_TRUE(contains(cg.source, "cheatah::builtins::hex(255LL);"));
+    // builtins is aliased like every other module, so calls read `builtins::len`.
+    EXPECT_TRUE(contains(cg.source, "namespace builtins = ::cheatah::builtins;"));
+    EXPECT_TRUE(contains(cg.source, "builtins::len(std::string(\"meow\"));"));
+    EXPECT_TRUE(contains(cg.source, "builtins::hex(255LL);"));
 }
 
 
@@ -59,8 +110,8 @@ TEST(CheatahCodegen, DivisionLowersToTrueDivAndFloorDiv) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "cheatah::builtins::truediv(7LL, 2LL)"));
-    EXPECT_TRUE(contains(cg.source, "cheatah::builtins::floordiv(7LL, 2LL)"));
+    EXPECT_TRUE(contains(cg.source, "builtins::truediv(7LL, 2LL)"));
+    EXPECT_TRUE(contains(cg.source, "builtins::floordiv(7LL, 2LL)"));
 }
 
 TEST(CheatahCodegen, SelfAppendChainsIntoOneStatement) {
@@ -123,7 +174,7 @@ TEST(CheatahCodegen, EmitsFunctionAndCall) {
     // concept (no generated template is left unconstrained).
     EXPECT_TRUE(contains(
         cg.source,
-        "auto add(cheatah::builtins::Value auto a, cheatah::builtins::Value auto b) {"));
+        "auto add(builtins::Value auto a, builtins::Value auto b) {"));
     EXPECT_TRUE(contains(cg.source, "return (a + b);"));
     EXPECT_TRUE(contains(cg.source, "auto x = add(1LL, 2LL);"));
 }

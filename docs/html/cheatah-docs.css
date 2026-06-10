@@ -234,6 +234,19 @@ pre.code code { background: none; padding: 0; }
 [data-theme="light"] .tok-num   { color: #9a5f2c; }
 [data-theme="light"] .tok-const { color: #9a5f2c; }
 [data-theme="light"] .tok-fn    { color: #3f6f63; }
+/* ---- transpiler page: .purr ↔ .gen.cpp side by side ---- */
+.xpile-ex { margin: 26px 0; }
+.xpile-blurb { color: var(--fg-dim); margin: 2px 0 12px; }
+.xpile { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.xpile-pane { margin: 0; min-width: 0; }                 /* min-width:0 lets panes shrink + scroll */
+.xpile-pane figcaption { display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; font-family: var(--mono); font-size: .8rem; color: var(--fg-faint); margin-bottom: 6px; }
+.xpile-pane .fname { color: var(--fg-dim); }
+.xpile-pane .xpile-lang { text-transform: uppercase; letter-spacing: .04em; font-size: .68rem;
+  border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+.xpile-pane pre.code { margin: 0; font-size: .82rem; line-height: 1.55; white-space: pre;
+  min-height: 100%; }
+@media (max-width: 1000px) { .xpile { grid-template-columns: 1fr; } }
 .dtable, table.dtable { border-collapse: collapse; width: 100%; margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
 .dtable th, .dtable td { padding: 8px 12px; border-bottom: 1px solid var(--border-soft); text-align: left; }
 .dtable th { background: var(--surface-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-dim); }

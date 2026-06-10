@@ -23,6 +23,17 @@ cheatah-example/
 - A module lives in `namespace cheatah::<name>` with a `<name>.hpp` (the public
   include dir is the module directory, so `import <name>` finds `<name>.hpp`) and
   is built as `libcheatah_<name>.{a,so}` by `add_cheatah_library(<name> …)`.
+- **Put _everything_ the module exposes inside `namespace cheatah::<name>`** — and
+  nothing in the global namespace. When a program `import`s your module, `purrc`
+  gives it its OWN short alias and calls it through that: it wraps the generated
+  program in a `namespace cheatah_program` and emits
+  `namespace <name> = ::cheatah::<name>;`, so the body reads `<name>::fn(…)`. Each
+  module gets a DISTINCT alias (so two extensions must have distinct names), and the
+  alias can never collide with a global C symbol of the same name (e.g. a module
+  named `time`/`random`/`socket`) precisely because it resolves to `::cheatah::<name>`
+  and lives inside the wrapper namespace. Anything you leave OUTSIDE
+  `cheatah::<name>` (a global helper, a symbol in a different namespace) is NOT
+  reachable through the alias.
 - Expose **flat free functions** (cheatah has no user-facing method calls on
   module values yet) over cheatah's value types — `long long` ints,
   `std::string`, `std::vector`, `std::unordered_map`.

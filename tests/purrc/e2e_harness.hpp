@@ -74,6 +74,34 @@ inline void expect_e2e(const std::string& name, const std::string& src,
     EXPECT_EQ(out, expected) << name << ": stdout mismatch";
 }
 
+// Read a whole file into a string (empty if it can't be opened).
+inline std::string read_file(const std::string& path);
+
+// Like expect_e2e, but ALSO returns the C++ that purrc generated (`<mod>.gen.cpp`) so a
+// test can assert on what the transpiler EMITTED — e.g. that a module got its own short
+// namespace alias and the body uses it — in addition to checking the program behaves.
+inline std::string expect_e2e_source(const std::string& name, const std::string& src,
+                                     const std::string& expected,
+                                     const std::string& env_prefix = "") {
+    const std::string tmp = PURR_TEST_TMP;
+    const std::string purr = tmp + "/" + name + "_e2e.purr";
+    const std::string mod = tmp + "/" + name + "_e2e.so";
+    { std::ofstream f(purr); f << src; }
+
+    const std::string compile =
+        std::string(PURRC_PATH) + " \"" + purr + "\" -o \"" + mod + "\"";
+    if (std::system(compile.c_str()) != 0) {
+        ADD_FAILURE() << name << ": purrc failed to compile the program";
+        return {};
+    }
+    int rc = -1;
+    const std::string out =
+        run_capture(env_prefix + "\"" + std::string(CHEATAH_RUNTIME_PATH) + "\" \"" + mod + "\"", rc);
+    EXPECT_EQ(rc, 0) << name << ": program exited non-zero";
+    EXPECT_EQ(out, expected) << name << ": stdout mismatch";
+    return read_file(mod + ".gen.cpp");
+}
+
 // ------------------------------------------------------------------------
 // Compare a checked-in .purr program against an equivalent Python/NumPy program.
 //

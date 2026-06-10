@@ -1,0 +1,11 @@
+# FizzBuzz — ranges, `if`, floor division `//`, and string building. cheatah has no
+# `%`, so divisibility is `i // n * n == i`.
+import io
+
+for i in range(1, 21) {
+    let out = ""
+    if i // 3 * 3 == i { out = out + "Fizz" }
+    if i // 5 * 5 == i { out = out + "Buzz" }
+    if out == "" { out = io.str(i) }
+    io.print(out)
+}

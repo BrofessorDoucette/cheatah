@@ -1,0 +1,22 @@
+# A `struct` with a method, a `list` of them, and method-call (UFCS) syntax.
+import io
+
+struct Student {
+    name: str
+    score: float
+    fn grade(self) {
+        if self.score >= 90.0 { return "A" }
+        if self.score >= 80.0 { return "B" }
+        return "C"
+    }
+}
+
+let roster = [
+    Student("Ada", 95.0), 
+    Student("Linus", 82.0), 
+    Student("Grace", 78.0)
+]
+
+for s in roster {
+    io.print(s.name + ": " + s.grade())
+}

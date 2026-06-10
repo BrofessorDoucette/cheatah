@@ -1,0 +1,15 @@
+# Build a small HTTP response. Shows the in-place string self-append codegen:
+# `head = head + ... + ...` lowers to a single chained `((head += a) += b) += c;`
+# with no intermediate std::string — look for it in http_response.gen.cpp.
+import io
+
+fn response(status, ctype, body) {
+    let nl = "\n"
+    let head = "HTTP/1.1 " + status + nl
+    head = head + "Content-Type: " + ctype + nl
+    head = head + "Content-Length: " + io.str(len(body)) + nl
+    head = head + "Connection: close" + nl + nl
+    return head + body
+}
+
+io.print(response("200 OK", "text/plain", "hello, cheatah"))
