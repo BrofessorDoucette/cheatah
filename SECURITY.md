@@ -38,6 +38,11 @@ What we still hold ourselves to *even under full trust* — because bugs are bug
 
 - **Generated code is memory-safe** by construction (value types and STL containers;
   no raw `new`/`delete`, no manual pointer arithmetic) — except inside `cpp { … }`.
+- **No leaked memory or OS handles.** Heap objects free by scope; every stateful resource
+  (file, socket, TLS/WebSocket connection) is an owning guard value, and `with … { … }`
+  closes it on every exit path. Pure cheatah code therefore leaks neither memory nor a
+  descriptor/connection — the sole in-language leak is the explicit, opt-in raw-handle API
+  (close it yourself, as with Python's `open()` without `with`).
 - **No command injection in the toolchain.** `purrc` invokes the C++ backend with
   `fork` + `execvp` (no shell), so paths can never be reinterpreted as shell syntax.
 - **The runtime validates a module before `dlopen`** (`runtime/main.cpp`):
@@ -52,7 +57,11 @@ What we still hold ourselves to *even under full trust* — because bugs are bug
   corrupting memory (see the review below).
 - **The QA gate runs the whole suite under ASan + UBSan *and* Valgrind**
   (`security/run-valgrind.sh`), with 100% stdlib line+function coverage — memory
-  errors, UB, and leaks fail the build.
+  errors, UB, and leaks fail the build. Coverage is measured across the in-process unit
+  tests **and** the system tests that drive a module against a real peer (the `tls`/
+  `websocket` clients against `openssl s_server` / a Node `ws` server), so the crypto and
+  network modules are held to the same 100% bar as the rest — tested against real
+  implementations, never a mirrored copy of the protocol.
 
 Integrity verification is paid **once at load**, never during execution, and is
 **zero-overhead** when off (the module isn't even read). Per-tier cost on `x86_64`

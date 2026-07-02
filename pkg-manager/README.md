@@ -61,11 +61,35 @@ version = "0.9.0"           # the cheatah toolchain version, pinned as a git tag
 
 [extensions]
 cheatah-plot = "0.1.0"      # one line per opted-in extension
+
+[dependencies]
+learning = { path = "../learning" }   # a local/path dependency (crate-style)
 ```
 
 `biome add`/`remove` edit `[extensions]` (and regenerate `CMakeLists.txt` so the
 two never drift). `biome build` regenerates `CMakeLists.txt` from the manifest
 before configuring, so the manifest is always the single source of truth.
+
+## Dependencies & how `import` resolves
+
+cheatah's `import` works like Python's, resolved by the compiler in this order:
+
+1. **Relative to the source** — `import a.b.c` first looks for `a/b/c.purr` (or an
+   already-built/C++ `a/b/c.hpp`) **next to the file being compiled**, then in its
+   subfolders. Drop modules next to each other and they just work — no config.
+2. **Declared path dependencies** — anything not found relative is resolved from the
+   `[dependencies]` you declare here. Each `name = { path = "…" }` becomes a
+   `--import-root <path>` on the `purrc` invocation (via `cheatah_add_program`'s
+   `IMPORT_ROOTS`), so `import name.mod` finds `<path>/name/mod.hpp`. A dependency may be
+   a pure-cheatah package or an external C++ library exposing cheatah module headers; any
+   compiled library it ships is linked by CMake, **not** the compiler — so there is no
+   archive-naming convention to satisfy.
+3. **Otherwise** the compiler errors clearly, naming the unresolved `import` and telling
+   you to place it beside the source, add it to `[dependencies]`, or pass `--import-root`.
+
+This is what lets an **external** project (one cheatah knows nothing about) consume a
+cheatah library by pointing at it — a downstream app can declare its own packages as
+path dependencies, and biome wires them through.
 
 ## How a project builds (the CMake/CPM flow)
 
@@ -77,9 +101,10 @@ The generated `CMakeLists.txt`:
    (`purrc`, the runtime, and the stdlib).
 3. one `CPMAddPackage(NAME cheatah-… …)` per opted-in extension.
 4. `include(${cheatah_SOURCE_DIR}/cmake/CheatahProgram.cmake)` then
-   `cheatah_add_program(<name> SOURCES src/main.purr EXTENSIONS …)` — compiles your
-   `.purr` into a module with `purrc` and builds a native launcher `<name>` that
-   runs it via the cheatah runtime.
+   `cheatah_add_program(<name> SOURCES src/main.purr EXTENSIONS … IMPORT_ROOTS …)` —
+   compiles your `.purr` into a module with `purrc` (passing each `[dependencies]` path as
+   `--import-root`) and builds a native launcher `<name>` that runs it via the cheatah
+   runtime.
 
 This integrates with existing CMake projects: anything CPM can fetch (including a
 pinned tag, a branch, or a local checkout via `-DCPM_cheatah_SOURCE=/path`) works,

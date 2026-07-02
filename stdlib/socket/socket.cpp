@@ -159,6 +159,17 @@ long long close(long long fd) {
 #endif
 }
 
+long long shutdown(long long fd) {
+    // Half-close both directions WITHOUT releasing the fd: a blocking recv() on
+    // ANOTHER thread returns immediately (EOF). Used to wake a reader for a clean
+    // shutdown; the fd is still owned by the caller and must be close()d afterwards.
+#if defined(_WIN32)
+    return ::shutdown(as_fd(fd), SD_BOTH);
+#else
+    return ::shutdown(as_fd(fd), SHUT_RDWR);
+#endif
+}
+
 long long tcp_listen(const std::string& host, long long port, long long backlog) {
     // If socket() fails (-1), the bind below fails too and we fall through to the
     // error path — no separate early return needed.
@@ -180,12 +191,87 @@ long long tcp_connect(const std::string& host, long long port) {
     return fd;
 }
 
+long long set_timeout(long long fd, long long timeout_ms) {
+    ensure_winsock();
+#if defined(_WIN32)
+    const DWORD ms = timeout_ms > 0 ? static_cast<DWORD>(timeout_ms) : 0;
+    if (::setsockopt(as_fd(fd), SOL_SOCKET, SO_RCVTIMEO,
+                     reinterpret_cast<const char*>(&ms), sizeof ms) != 0) return -1;
+    if (::setsockopt(as_fd(fd), SOL_SOCKET, SO_SNDTIMEO,
+                     reinterpret_cast<const char*>(&ms), sizeof ms) != 0) return -1;
+#else
+    timeval tv{};
+    if (timeout_ms > 0) {
+        tv.tv_sec = timeout_ms / 1000;
+        tv.tv_usec = static_cast<suseconds_t>((timeout_ms % 1000) * 1000);
+    }
+    if (::setsockopt(as_fd(fd), SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv) != 0) return -1;
+    if (::setsockopt(as_fd(fd), SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv) != 0) return -1;
+#endif
+    return 0;
+}
+
 std::string last_error() {
 #if defined(_WIN32)
     return "Winsock error " + std::to_string(::WSAGetLastError());
 #else
     return std::strerror(errno);
 #endif
+}
+
+// ---- owning RAII connections ----
+// Each method forwards to the fd-based free function above; the value the guards add is
+// deterministic close() on scope exit, so a `with` block cannot leak the fd.
+
+Conn& Conn::operator=(Conn&& other) noexcept {
+    if (this != &other) {
+        if (fd_ >= 0) cheatah::socket::close(fd_);
+        fd_ = other.fd_;
+        other.fd_ = -1;
+    }
+    return *this;
+}
+Conn::~Conn() {
+    if (fd_ >= 0) cheatah::socket::close(fd_);
+}
+long long Conn::send(const std::string& data) { return cheatah::socket::send(fd_, data); }
+long long Conn::sendall(const std::string& data) { return cheatah::socket::sendall(fd_, data); }
+std::string Conn::recv(long long bufsize) { return cheatah::socket::recv(fd_, bufsize); }
+long long Conn::set_timeout(long long timeout_ms) {
+    return cheatah::socket::set_timeout(fd_, timeout_ms);
+}
+long long Conn::local_port() const { return cheatah::socket::local_port(fd_); }
+long long Conn::shutdown() { return cheatah::socket::shutdown(fd_); }
+long long Conn::close() {
+    if (fd_ < 0) return -1;
+    const long long rc = cheatah::socket::close(fd_);
+    fd_ = -1;
+    return rc;
+}
+
+Listener& Listener::operator=(Listener&& other) noexcept {
+    if (this != &other) {
+        if (fd_ >= 0) cheatah::socket::close(fd_);
+        fd_ = other.fd_;
+        other.fd_ = -1;
+    }
+    return *this;
+}
+Listener::~Listener() {
+    if (fd_ >= 0) cheatah::socket::close(fd_);
+}
+Conn Listener::accept() { return Conn(cheatah::socket::accept(fd_)); }
+long long Listener::local_port() const { return cheatah::socket::local_port(fd_); }
+long long Listener::close() {
+    if (fd_ < 0) return -1;
+    const long long rc = cheatah::socket::close(fd_);
+    fd_ = -1;
+    return rc;
+}
+
+Conn open(const std::string& host, long long port) { return Conn(tcp_connect(host, port)); }
+Listener serve(const std::string& host, long long port, long long backlog) {
+    return Listener(tcp_listen(host, port, backlog));
 }
 
 } // namespace cheatah::socket

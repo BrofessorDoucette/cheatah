@@ -30,6 +30,19 @@ These you get for free — the compiler and runtime enforce them so you don't ha
   `new`/`delete`, no manual pointer arithmetic** — so use-after-free and double-free are
   off the table for compiler-written code. (The one exception is the `cpp { … }` escape
   hatch — see below.)
+- **Deterministic resource cleanup — no leaked heap memory or OS handles.** Heap objects are
+  value types that free by scope, and every *stateful* resource (a file, socket, TLS or
+  WebSocket connection) is handed out as an **owning guard value** whose destructor
+  releases it — `io.File`, `socket.Conn`/`Listener`, `tls.Conn`, `websocket.Client`. A
+  **`with resource [as name] { … }`** block binds one for the block and closes it on
+  **every** exit path — a `return`, a `break`, or an exception. **Pure cheatah code cannot
+  leak heap memory at all:** the only heap-allocating handle APIs (the flat, session-id
+  forms in `tls` and `websocket`) are now **C++-only** — they live in `*_lowlevel.hpp` and
+  are **not reachable from cheatah**, which sees only the owning guards. The one remaining
+  in-language leak path is a `cpp { … }` block. (The `socket` fd API is still
+  cheatah-visible for hand-built servers; an unclosed fd is a *resource* leak, not heap
+  memory — prefer `socket.open`/`serve` guards, exactly like Python's `open()` with a
+  `with`.)
 - **No uninitialized values — an unset value is a bug that does not compile.** Two language
   rules close the classic uninitialized-memory hole (a top source of crashes, garbage results,
   and information-disclosure bugs):

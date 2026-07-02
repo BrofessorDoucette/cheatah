@@ -19,12 +19,29 @@ struct Student {
         }
         return std::string("C");
     }
+    void cheatah_pretty_print(std::ostream& os_, long long indent_) const {
+        os_ << "Student(\n";
+        os_ << std::string(indent_ + 4, ' ') << "name = ";
+        os_ << this->name;
+        os_ << ",\n";
+        os_ << std::string(indent_ + 4, ' ') << "score = ";
+        os_ << this->score;
+        os_ << "\n";
+        os_ << std::string(indent_, ' ') << ")";
+    }
 };
+inline std::ostream& operator<<(std::ostream& os_, const Student& v_) {
+    return os_ << "Student(" << "name=" << v_.name << ", score=" << v_.score << ")";
+}
 
 void purr_main() {
-    auto roster = std::vector{Student{std::string("Ada"), 95.0}, Student{std::string("Linus"), 82.0}, Student{std::string("Grace"), 78.0}};
+    auto roster = std::vector{
+        Student{std::string("Ada"), 95.0},
+        Student{std::string("Linus"), 82.0},
+        Student{std::string("Grace"), 78.0}
+    };
     for (auto& s : roster) {
-        io::print(((s.name + std::string(": ")) + s.grade()));
+        io::print(((builtins::str(s.name) + std::string(": ")) + builtins::str(s.grade())));
     }
 }
 

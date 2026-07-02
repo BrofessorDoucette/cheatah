@@ -1,0 +1,4 @@
+# The Node `ws` package (+ its lockfile-pinned tree) is a test-infrastructure prereq
+# for the websocket system tests, installed with `npm install` (or `npm ci`) in this
+# directory. It is NOT committed — package.json + package-lock.json pin it.
+/node_modules/

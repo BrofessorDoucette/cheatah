@@ -9,7 +9,8 @@
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CHEATAH_BUILD_TESTS": "ON"
       }
     },
     {
@@ -32,6 +33,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CHEATAH_SANITIZE": "ON",
+        "CHEATAH_BUILD_TESTS": "ON",
         "CHEATAH_BUILD_BENCHMARKS": "OFF"
       }
     }

@@ -28,9 +28,9 @@ include_guard(GLOBAL)
 set(_CHEATAH_LAUNCHER_SRC "${CMAKE_CURRENT_LIST_DIR}/cheatah_launcher.cpp"
     CACHE INTERNAL "cheatah program launcher source")
 
-# cheatah_add_program(<name> SOURCES <prog.purr> [EXTENSIONS <ext> ...])
+# cheatah_add_program(<name> SOURCES <prog.purr> [EXTENSIONS <ext> ...] [CXXFLAGS <flag> ...])
 function(cheatah_add_program NAME)
-    cmake_parse_arguments(CAP "" "" "SOURCES;EXTENSIONS" ${ARGN})
+    cmake_parse_arguments(CAP "" "" "SOURCES;EXTENSIONS;IMPORT_ROOTS;CXXFLAGS" ${ARGN})
     if(NOT CAP_SOURCES)
         message(FATAL_ERROR "cheatah_add_program(${NAME}): SOURCES is required")
     endif()
@@ -90,10 +90,29 @@ function(cheatah_add_program NAME)
         set(_purrc_env ${CMAKE_COMMAND} -E env "CHEATAH_MODULE_PATH=${_cheatah_modpath}")
     endif()
 
+    # IMPORT_ROOTS: directories purrc should resolve `import`s from — the project's local/path
+    # dependencies (biome emits one per `cheatah.toml [dependencies]` entry). Each becomes a
+    # `--import-root <dir>` so `import pkg.mod` finds <dir>/pkg/mod.hpp (or a sibling header)
+    # with no signing/archive convention; any compiled library a dep ships is linked by the
+    # build, not the compiler.
+    set(_import_root_flags "")
+    foreach(_r ${CAP_IMPORT_ROOTS})
+        list(APPEND _import_root_flags --import-root "${_r}")
+    endforeach()
+
+    # CXXFLAGS: extra C++ COMPILE flags forwarded to purrc's backend (`--cxxflag <flag>`). An
+    # extension that needs specific compile options (e.g. cheatah-gpu's Metal build wants -fblocks,
+    # -DCHEATAH_GPU_BACKEND_METAL, an -I<sdk>) declares them; biome passes them through here. (purrc
+    # also honours the CHEATAH_CXXFLAGS_EXTRA environment variable for a whole build tree.)
+    set(_cxxflag_flags "")
+    foreach(_f ${CAP_CXXFLAGS})
+        list(APPEND _cxxflag_flags --cxxflag "${_f}")
+    endforeach()
+
     # 1) Compile the program into a loadable module with purrc (NEVER standalone).
     add_custom_command(
         OUTPUT "${_module}"
-        COMMAND ${_purrc_env} $<TARGET_FILE:purrc> "${_src}" -o "${_module}"
+        COMMAND ${_purrc_env} $<TARGET_FILE:purrc> ${_import_root_flags} ${_cxxflag_flags} "${_src}" -o "${_module}"
         DEPENDS purrc cheatah_stdlib "${_src}"
         COMMENT "purrc ${CAP_SOURCES} -> ${NAME}${_ext}"
         VERBATIM)

@@ -92,8 +92,7 @@ double mean(const R& data) {
  * Population variance (divide by N).
  *
  * Mean of the squared deviations from the mean, dividing by N (treats @p data as
- * the entire population). Returns 0.0 for an empty range; a single element yields
- * 0.0.
+ * the entire population). Returns 0.0 for an empty or single-element range.
  * @param data the numeric range.
  * @return the variance, or 0.0 if empty.
  * @complexity O(n).
@@ -176,9 +175,9 @@ double stdev(const R& data) { return std::sqrt(variance(data)); }
 /**
  * Median (mean of the two middle values when the count is even).
  *
- * Copies the elements into a `double` vector and sorts ascending: with an odd
- * count it returns the single middle value, and with an even count it averages
- * the two central values. Returns 0.0 for an empty range.
+ * Copies the elements into a `double` vector, sorts ascending, and returns the
+ * middle value (averaging the two central values when the count is even).
+ * Returns 0.0 for an empty range.
  * @param data the numeric range.
  * @return the median, or 0.0 if empty.
  * @complexity O(n log n) — copies the elements into a vector and sorts.

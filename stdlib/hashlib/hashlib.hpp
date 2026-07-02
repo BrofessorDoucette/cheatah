@@ -78,4 +78,90 @@ std::string sha256_digest(std::string_view data);  // 32 raw bytes
  */
 std::string sha512_digest(std::string_view data);  // 64 raw bytes
 
+/**
+ * HMAC-SHA-256 (RFC 2104) over raw bytes — the PRF under HKDF and the TLS 1.3 key schedule.
+ *
+ * @param key raw key bytes (any length; hashed down when longer than the block).
+ * @param data raw message bytes.
+ * @return the 32-byte MAC as raw bytes.
+ * @complexity O(|key| + |data|).
+ * @alloc the returned string.
+ * @test CheatahHashlib.HmacSha256
+ * @crtest HashlibCompileRun.Hmac
+ * @systest StdlibE2E.Hashlib
+ */
+std::string hmac_sha256(std::string_view key, std::string_view data);
+
+/**
+ * HMAC-SHA-512 (RFC 2104) over raw bytes — the wider PRF (128-byte block, 64-byte MAC), e.g. for
+ * authentication schemes that mandate SHA-512.
+ *
+ * @param key raw key bytes (any length; hashed down when longer than the 128-byte block).
+ * @param data raw message bytes.
+ * @return the 64-byte MAC as raw bytes.
+ * @complexity O(|key| + |data|).
+ * @alloc the returned string.
+ * @test CheatahHashlib.HmacSha512
+ * @crtest HashlibCompileRun.Hmac
+ * @systest StdlibE2E.Hashlib
+ */
+std::string hmac_sha512(std::string_view key, std::string_view data);
+
+/**
+ * Base64 ENCODE (RFC 4648, standard alphabet `A–Za–z0–9+/`, `=` padding) of raw bytes to ASCII.
+ *
+ * @param data the raw bytes to encode (embedded NULs are encoded).
+ * @return the base64 text (length `4*ceil(n/3)`).
+ * @complexity O(n).
+ * @alloc the returned string.
+ * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip
+ * @crtest HashlibCompileRun.Base64
+ * @systest StdlibE2E.Hashlib
+ */
+std::string base64_encode(std::string_view data);
+
+/**
+ * Base64 DECODE (RFC 4648 standard alphabet) of ASCII to the raw bytes. Whitespace/newlines are
+ * skipped; decoding stops at the first `=` pad; non-alphabet bytes are ignored (lenient, like
+ * Python's `base64.b64decode` on a clean stream).
+ *
+ * @param text the base64 text.
+ * @return the decoded raw bytes (may contain embedded NULs).
+ * @complexity O(|text|).
+ * @alloc the returned string.
+ * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip
+ * @crtest HashlibCompileRun.Base64
+ * @systest StdlibE2E.Hashlib
+ */
+std::string base64_decode(std::string_view text);
+
+/**
+ * HKDF-Extract (RFC 5869): PRK = HMAC-SHA-256(salt, ikm).
+ *
+ * @param salt the (optional) salt; pass "" for the all-zero default salt.
+ * @param ikm the input keying material.
+ * @return the 32-byte pseudorandom key (PRK) as raw bytes.
+ * @complexity O(|salt| + |ikm|).
+ * @alloc the returned 32-byte string.
+ * @test CheatahHashlib.HkdfRfc5869Case1
+ * @crtest HashlibCompileRun.Hkdf
+ * @systest StdlibE2E.Hashlib
+ */
+std::string hkdf_extract(std::string_view salt, std::string_view ikm);
+
+/**
+ * HKDF-Expand (RFC 5869): derive @p length bytes of keying material from @p prk and @p info.
+ *
+ * @param prk a pseudorandom key (e.g. from hkdf_extract()).
+ * @param info optional context/application-specific info binding the output ("" for none).
+ * @param length the number of output-keying-material bytes to produce.
+ * @return the OKM as raw bytes, or "" when length is 0 or exceeds 255*32 (the RFC bound).
+ * @complexity O(length).
+ * @alloc the returned string.
+ * @test CheatahHashlib.HkdfRfc5869Case1
+ * @crtest HashlibCompileRun.Hkdf
+ * @systest StdlibE2E.Hashlib
+ */
+std::string hkdf_expand(std::string_view prk, std::string_view info, long long length);
+
 } // namespace cheatah::hashlib

@@ -41,6 +41,36 @@ TEST(CheatahCodegen, EmitsPurrMainWithNamespaceQualifiedCall) {
     EXPECT_EQ(cg.modules[0], "io");
 }
 
+TEST(CheatahCodegen, WithStatementLowersToScopedBlock) {
+    // `with EXPR as NAME { … }` lowers to a plain nested block binding NAME to EXPR, so the
+    // resource's RAII destructor runs exactly at block exit. Lean: a bare `auto` binding and a
+    // scope — no temporaries, no helper calls, no context-manager machinery.
+    const ParseResult pr = parse_source(
+        "import socket\n"
+        "with socket.open(\"h\", 80) as c {\n"
+        "    c.send(\"x\")\n"
+        "}\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program, "", false);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "auto c = socket::open("));  // bound to a named local
+    EXPECT_TRUE(contains(cg.source, "c.send("));                 // body runs with c in scope
+}
+
+TEST(CheatahCodegen, WithWithoutAsBindsHiddenLocal) {
+    // `with EXPR { … }` (no `as`) still binds EXPR to a hidden local, so the destructor fires at
+    // block end rather than immediately — a discarded temporary would be destroyed too early.
+    const ParseResult pr = parse_source(
+        "import io\n"
+        "with io.open(\"f\", \"r\") {\n"
+        "    io.print(\"in\")\n"
+        "}\n");
+    ASSERT_TRUE(pr.ok());
+    const CodegenResult cg = codegen(pr.program, "", false);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "auto _purr_with_0 = io::open("));
+}
+
 TEST(CheatahCodegen, StreamingCallsTakeBareStringLiterals) {
     // io.print streams its args and io.format takes a std::string_view format — both
     // accept a literal as a bare const char*, no intermediate std::string. A literal
@@ -180,7 +210,7 @@ TEST(CheatahCodegen, EmitsFunctionAndCall) {
     // concept (no generated template is left unconstrained).
     EXPECT_TRUE(contains(
         cg.source,
-        "auto add(builtins::Value auto a, builtins::Value auto b) {"));
+        "auto add(builtins::Value auto&& a, builtins::Value auto&& b) {"));
     EXPECT_TRUE(contains(cg.source, "return (a + b);"));
     EXPECT_TRUE(contains(cg.source, "auto x = add(1LL, 2LL);"));
 }
@@ -230,12 +260,12 @@ TEST(CheatahCodegen, InterfaceBecomesConceptAndStaticAssert) {
     EXPECT_TRUE(contains(cg.source, "concept Shape ="));                  // interface -> concept
     EXPECT_TRUE(contains(cg.source, "requires(Self& self) { self.area(); }"));
     EXPECT_TRUE(contains(cg.source, "static_assert(Shape<Circle>"));      // fulfillment check
-    EXPECT_TRUE(contains(cg.source, "describe(Shape auto s)"));           // interface-typed param
+    EXPECT_TRUE(contains(cg.source, "describe(Shape auto&& s)"));           // interface-typed param
 }
 
 TEST(CheatahCodegen, ContainerFieldTypes) {
     const ParseResult pr = parse_source(
-        "struct S {\nprices: list[float]\nquotes: dict[str, float]\nbuf: array[int, 8]\n}\n");
+        "struct S {\nprices: list<float>\nquotes: dict<str, float>\nbuf: array<int, 8>\n}\n");
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());

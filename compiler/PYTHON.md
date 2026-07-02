@@ -163,6 +163,10 @@ cheatah code therefore always runs under the runtime, never standalone.
    compiler links exactly what you use. **Porting:** add the relevant `import` and
    qualify (`print` → `io.print`, `sqrt` → `math.sqrt`).
    *(Truly global built-ins like `len`/`hex`/`ord` need no import.)*
+   *Resolution* is Python-like: `import a.b.c` is found first **next to the source**
+   (`a/b/c.purr` / `.hpp`), then in any `--import-root <dir>` (a package manager passes one
+   per dependency — see biome's `[dependencies]`), else the compiler errors telling you how
+   to point it at the module.
 
 6. **`^` is bitwise-xor (C++), not power.** Use `**` for exponentiation (it maps
    to `std::pow`), e.g. `2 ** 10`.
@@ -191,6 +195,16 @@ cheatah code therefore always runs under the runtime, never standalone.
     object); `raise "msg"` throws a generic error. No typed `except ValueError`,
     `as`, or `finally` yet.
 
+12. **`with` for resources — RAII, not a context-manager protocol.** `with expr [as
+    name] { … }` binds `expr` for the block and lowers to a plain C++ scope, so the
+    value's destructor runs at block exit on every path (return/break/exception). It
+    is the direct analog of Python's `with open(…) as f:` — cheatah's `io.open`,
+    `socket.open`/`serve`, `tls.open`, and `websocket.open`/`open_url` return owning
+    **guard** values that close on scope exit. Unlike Python there is no `__enter__`/
+    `__exit__` protocol: any value works, and cleanup is just its destructor. `with`
+    yields no value binding beyond `name`, and there is no `else`/multiple-context
+    (`with a, b:`) form yet — nest blocks instead.
+
 ---
 
 ## 🚧 Not yet supported (roadmap)
@@ -199,8 +213,7 @@ Comprehensions; typed exceptions & `finally`; **interface refinement** (one
 interface inheriting another) and **custom constructors / `__init__`** (structs
 already have methods + interfaces — see #4); f-strings & rich string formatting (use
 `io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);
-tuples/unpacking; `with` statements; generators/`yield`; keyword/default arguments;
-`lambda`.
+tuples/unpacking; generators/`yield`; `lambda`.
 
 All tracked toward frictionless Python → cheatah porting.
 **Struct inheritance is a non-goal** by design — structs stay simple and only

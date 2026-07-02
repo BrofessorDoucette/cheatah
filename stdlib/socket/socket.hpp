@@ -5,12 +5,13 @@
  * @brief cheatah `socket` — a small wrapper around BSD/POSIX TCP sockets,
  *        in the spirit of Python's `socket`. `import socket` to use it.
  *
- * cheatah has no methods yet, so the API is **flat and file-descriptor based**
- * (like the C sockets layer): you pass the integer fd returned by `socket()` /
- * `tcp_listen()` / `accept()` to the other calls. IPv4 + TCP only; host names are
- * resolved with `getaddrinfo` (so `"localhost"`, `"127.0.0.1"`, and DNS names all
- * work). Errors are reported as a negative return (or empty string for `recv`);
- * `last_error()` gives the matching `errno` text.
+ * The recommended API is the owning `socket::Conn` / `socket::Listener` guards (from
+ * `socket.open(host, port)` / `socket.serve(host, port, backlog)`), which close their fd at
+ * scope exit. A **flat, file-descriptor-based** API is also available for hand-built servers:
+ * pass the integer fd from `socket()` / `tcp_listen()` / `accept()` to the other calls (an
+ * unclosed fd there is a resource leak — prefer the guards). IPv4 + TCP only; host names are
+ * resolved with `getaddrinfo` (so `"localhost"`, `"127.0.0.1"`, and DNS names all work).
+ * Errors are a negative return (or empty string for `recv`); `last_error()` gives the `errno` text.
  *
  * `import socket` includes this header AND links `libcheatah_socket`. Unit tests:
  * `stdlib/tests/socket_test.cpp`; the suite runs under AddressSanitizer (the
@@ -147,6 +148,18 @@ long long sendall(long long fd, const std::string& data);
  */
 long long close(long long fd);
 
+/**
+ * Half-close @p fd in both directions (::shutdown SHUT_RDWR) WITHOUT releasing it.
+ * A blocking recv() on another thread returns immediately (EOF) — the safe way to
+ * wake a reader for a clean shutdown. The fd is still owned by the caller and must
+ * be close()d afterwards.
+ * @param fd the fd to half-close.
+ * @return 0 on success, -1 on error.
+ * @complexity O(1) syscall.
+ * @alloc none.
+ */
+long long shutdown(long long fd);
+
 // ---- low-level BSD primitives (for clients/servers built by hand) ----
 
 /**
@@ -245,6 +258,22 @@ long long connect(long long fd, const std::string& host, long long port);
 long long local_port(long long fd);
 
 /**
+ * Bound both blocking directions of @p fd by @p timeout_ms (SO_RCVTIMEO + SO_SNDTIMEO), so a
+ * silent peer cannot hang a recv/send forever. A recv that times out returns "" (check
+ * last_error() to distinguish from EOF). @p timeout_ms <= 0 clears the timeouts (block forever).
+ *
+ * @param fd a socket.
+ * @param timeout_ms the per-operation bound in milliseconds.
+ * @return 0 on success, -1 on error.
+ * @complexity O(1) (two setsockopt calls).
+ * @alloc none.
+ * @test CheatahSocket.SetTimeout
+ * @crtest SocketCompileRun.SetTimeout
+ * @systest StdlibE2E.Socket
+ */
+long long set_timeout(long long fd, long long timeout_ms);
+
+/**
  * The message for the current `errno`.
  *
  * Returns the human-readable text for the thread's current `errno`; call it right after a function
@@ -257,5 +286,269 @@ long long local_port(long long fd);
  * @systest StdlibE2E.Socket
  */
 std::string last_error();
+
+// ---- owning RAII connections (the `with`-friendly, leak-proof API) ----
+
+/**
+ * @brief An owning TCP connection — a socket fd whose destructor closes it.
+ *
+ * The RAII counterpart to the fd-based calls above, and the C++/cheatah analog of a
+ * Python socket used in a `with` block. A `Conn` owns exactly one fd; when it is
+ * destroyed (scope exit, including a `return`/`break`/exception out of a `with` body)
+ * or explicitly close()d, the fd is released — so a connection opened with
+ * `with socket.open(host, port) as c { … }` cannot leak. Move-only: copying would give
+ * two owners of one fd and double-close it, so the copy operations are deleted and a
+ * moved-from `Conn` is left closed.
+ */
+class Conn {
+public:
+    /**
+     * Construct a closed connection (owns no fd).
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnDefaultIsClosed
+     */
+    Conn() = default;
+    /**
+     * Adopt an already-connected fd (e.g. from tcp_connect()/accept()); the `Conn` now owns it.
+     * @param fd a connected fd to take ownership of (-1 for a closed connection).
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnGuardClosesOnScopeExit
+     */
+    explicit Conn(long long fd) : fd_(fd) {}
+    Conn(const Conn&) = delete;
+    Conn& operator=(const Conn&) = delete;
+    /**
+     * Move-construct, taking over @p other's fd (the moved-from `Conn` becomes closed).
+     * @param other the connection to move from.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnMoveTransfersOwnership
+     */
+    Conn(Conn&& other) noexcept : fd_(other.fd_) { other.fd_ = -1; }
+    /**
+     * Move-assign, closing this fd first, then taking over @p other's (which becomes closed).
+     * @param other the connection to move from.
+     * @return reference to this connection.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnMoveTransfersOwnership
+     */
+    Conn& operator=(Conn&& other) noexcept;
+    /**
+     * Close the fd if still open.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ConnGuardClosesOnScopeExit
+     */
+    ~Conn();
+
+    /**
+     * Is a connection open?
+     * @return true iff this owns an open fd.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnDefaultIsClosed
+     */
+    bool is_open() const { return fd_ >= 0; }
+    /**
+     * The raw fd, for the low-level calls or to hand to tls.open(conn.fd(), …).
+     * @return the owned fd, or -1 when closed.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnGuardClosesOnScopeExit
+     */
+    long long fd() const { return fd_; }
+    /**
+     * Send some of @p data (one send(); see the free send()).
+     * @param data bytes to send.
+     * @return bytes actually sent, or -1 on error.
+     * @complexity O(n).
+     * @alloc none.
+     * @test CheatahSocket.ConnLoopback
+     */
+    long long send(const std::string& data);
+    /**
+     * Send @p data in full, looping until every byte is written (see the free sendall()).
+     * @param data bytes to send.
+     * @return 0 on success, -1 on error.
+     * @complexity O(n).
+     * @alloc none.
+     * @test CheatahSocket.ConnLoopback
+     */
+    long long sendall(const std::string& data);
+    /**
+     * Receive up to @p bufsize bytes (see the free recv()).
+     * @param bufsize maximum bytes to read.
+     * @return the bytes read (binary-safe), or "" on EOF/error.
+     * @complexity O(@p bufsize).
+     * @alloc allocates the returned string.
+     * @test CheatahSocket.ConnLoopback
+     */
+    std::string recv(long long bufsize);
+    /**
+     * Bound both blocking directions by @p timeout_ms (see the free set_timeout()).
+     * @param timeout_ms per-operation bound in milliseconds (<= 0 clears it).
+     * @return 0 on success, -1 on error.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ConnLoopback
+     */
+    long long set_timeout(long long timeout_ms);
+    /**
+     * The local TCP port this fd is bound to (see the free local_port()).
+     * @return the port, or -1 on error.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ConnLoopback
+     */
+    long long local_port() const;
+    /**
+     * Half-close both directions WITHOUT releasing the fd (see the free shutdown()) — wakes a
+     * blocked reader for a clean shutdown; still call close() (or let the destructor) afterward.
+     * @return 0 on success, -1 on error.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ConnLoopback
+     */
+    long long shutdown();
+    /**
+     * Close the fd now (idempotent — the destructor will not close it again).
+     * @return 0 on success, -1 if already closed.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ConnGuardClosesOnScopeExit
+     */
+    long long close();
+
+private:
+    long long fd_ = -1;
+};
+
+/**
+ * @brief An owning listening socket; accept() yields owning Conn clients; the destructor closes it.
+ *
+ * The server-side RAII guard: `with socket.serve(host, port, backlog) as server { … }` keeps the
+ * listening fd for the block and closes it on exit. Each accept() returns an owning Conn, so a
+ * whole server loop leaks neither the listener nor its clients. Move-only, like Conn.
+ */
+class Listener {
+public:
+    /**
+     * Construct a closed listener (owns no fd).
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ListenerDefaultIsClosed
+     */
+    Listener() = default;
+    /**
+     * Adopt an already-listening fd (e.g. from tcp_listen()); the `Listener` now owns it.
+     * @param fd a listening fd to take ownership of (-1 for a closed listener).
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    explicit Listener(long long fd) : fd_(fd) {}
+    Listener(const Listener&) = delete;
+    Listener& operator=(const Listener&) = delete;
+    /**
+     * Move-construct, taking over @p other's fd (the moved-from `Listener` becomes closed).
+     * @param other the listener to move from.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    Listener(Listener&& other) noexcept : fd_(other.fd_) { other.fd_ = -1; }
+    /**
+     * Move-assign, closing this fd first, then taking over @p other's (which becomes closed).
+     * @param other the listener to move from.
+     * @return reference to this listener.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    Listener& operator=(Listener&& other) noexcept;
+    /**
+     * Close the listening fd if still open.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    ~Listener();
+
+    /**
+     * Is the listener open?
+     * @return true iff this owns an open listening fd.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ListenerDefaultIsClosed
+     */
+    bool is_open() const { return fd_ >= 0; }
+    /**
+     * The raw listening fd.
+     * @return the owned fd, or -1 when closed.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    long long fd() const { return fd_; }
+    /**
+     * Accept one pending connection, returned as an owning Conn (the listener stays open).
+     * @return an owning Conn for the client (its is_open() is false on error).
+     * @complexity O(1) syscall (blocks until a client arrives).
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    Conn accept();
+    /**
+     * The local TCP port this listener is bound to (useful after binding to port 0).
+     * @return the port, or -1 on error.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    long long local_port() const;
+    /**
+     * Close the listening fd now (idempotent — the destructor will not close it again).
+     * @return 0 on success, -1 if already closed.
+     * @complexity O(1) syscall.
+     * @alloc none.
+     * @test CheatahSocket.ListenerLoopback
+     */
+    long long close();
+
+private:
+    long long fd_ = -1;
+};
+
+/**
+ * Open a client TCP connection to @p host:@p port and return it as an owning Conn (the
+ * RAII, `with`-friendly form of tcp_connect()).
+ * @param host destination host (name or IP).
+ * @param port destination port.
+ * @return an owning Conn; on failure its is_open() is false (see last_error()).
+ * @complexity O(1) + DNS resolution.
+ * @alloc none beyond the Conn itself.
+ * @test CheatahSocket.ConnLoopback
+ * @crtest SocketCompileRun.OpenWith
+ * @systest StdlibE2E.Socket
+ */
+Conn open(const std::string& host, long long port);
+
+/**
+ * Create a listening server socket bound to @p host:@p port and return it as an owning
+ * Listener (the RAII, `with`-friendly form of tcp_listen()).
+ * @param host interface to bind ("127.0.0.1", "0.0.0.0", …).
+ * @param port TCP port (0 = let the OS pick — read it back with Listener::local_port()).
+ * @param backlog pending-connection queue length.
+ * @return an owning Listener; on failure its is_open() is false (see last_error()).
+ * @complexity O(1) (a few syscalls).
+ * @alloc none beyond the Listener itself.
+ * @test CheatahSocket.ListenerLoopback
+ * @crtest SocketCompileRun.ServeWith
+ * @systest StdlibE2E.Socket
+ */
+Listener serve(const std::string& host, long long port, long long backlog);
 
 } // namespace cheatah::socket

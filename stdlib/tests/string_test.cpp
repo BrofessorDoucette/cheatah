@@ -73,3 +73,10 @@ TEST(CheatahString, SplitEmptySeparator) {
     ASSERT_EQ(parts.size(), 1u);
     EXPECT_EQ(parts[0], "abc");
 }
+
+// contains() with a single character (the char overload, distinct from substring contains).
+TEST(CheatahString, ContainsChar) {
+    EXPECT_TRUE(str::contains("hello", 'e'));
+    EXPECT_FALSE(str::contains("hello", 'z'));
+    EXPECT_FALSE(str::contains("", 'a'));
+}

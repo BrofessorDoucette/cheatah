@@ -1,0 +1,21 @@
+# The numeric core, several modules linked into one program: each `import` lowers to its own
+# #include and a short namespace alias (math::, ndarray::, linalg::) in the generated C++.
+import io
+import math
+import ndarray
+import linalg
+
+# A 3x3 system A x = b, built from nested lists (ndarray reads the shape off the nesting).
+let A = ndarray.array([[3.0, 2.0, -1.0],
+                       [2.0, -2.0, 4.0],
+                       [-1.0, 0.5, -1.0]])
+let b = ndarray.array([1.0, -2.0, 0.0])
+
+# Solve with the SIMD linalg core, then check the residual norm ‖A x - b‖.
+let x = linalg.solve(A, b)
+let residual = linalg.norm(ndarray.sub(linalg.matmul(A, x), b))
+
+io.print("x        =", x)
+io.print("residual =", residual)
+io.print("det(A)   =", linalg.det(A))
+io.print("hypot    =", math.sqrt(3.0 * 3.0 + 4.0 * 4.0))

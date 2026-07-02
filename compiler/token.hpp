@@ -22,11 +22,16 @@ enum class TokenKind {
     LBracket, RBracket,  // [ ]
     Comma, Colon, Semicolon, Dot,
     Assign,              // =
+    PlusAssign, MinusAssign, StarAssign, SlashAssign,  // += -= *= /= (compound assignment)
 
     // Operators.
     Plus, Minus, Star, Slash, FloorDiv, Caret, Power,  // + - * / // ^ **
+    Percent,                                           // %  (Python floor-mod semantics)
+    Ampersand,                                         // &  (unary address-of, passed through to C++
+                                                       //    verbatim — for interfacing with C APIs)
     EqualEqual, BangEqual,            // == !=
     Less, LessEqual, Greater, GreaterEqual,  // < <= > >=
+    Arrow,                            // ->  (function return-type hint)
 
     // Structural.
     Newline,      // statement separator

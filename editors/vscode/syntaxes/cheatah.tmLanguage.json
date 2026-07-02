@@ -9,12 +9,18 @@
     { "include": "#strings" },
     { "include": "#numbers" },
     { "include": "#modules" },
+    { "include": "#template-construct" },
+    { "include": "#template-call" },
     { "include": "#keywords" },
     { "include": "#declaration" },
     { "include": "#constants" },
+    { "include": "#generic-l1" },
     { "include": "#types" },
     { "include": "#builtins" },
     { "include": "#function-call" },
+    { "include": "#designated-initializer" },
+    { "include": "#member-constant" },
+    { "include": "#member-access" },
     { "include": "#operators" }
   ],
   "repository": {
@@ -86,17 +92,76 @@
       ]
     },
 
+    "template-construct": {
+      "comment": "Explicit template construction/call `Type<Args>(…)`, e.g. `MemoryStore<ndarray, 1024, 2>(…)`: color the capitalized type name and its template arguments — type names AND non-type integer literals (the fixed-size defaults). The `(?=…>\\s*\\()` lookahead commits ONLY when the angle list closes and is immediately followed by `(`, so an ordinary `a < b` comparison is left untouched.",
+      "begin": "\\b([A-Z][A-Za-z0-9_]*)\\s*(<)(?=[A-Za-z0-9_,\\s<>]*>\\s*\\()",
+      "beginCaptures": {
+        "1": { "name": "entity.name.type.cheatah" },
+        "2": { "name": "punctuation.definition.typeparameters.begin.cheatah" }
+      },
+      "end": ">",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.typeparameters.end.cheatah" }
+      },
+      "patterns": [
+        { "include": "#numbers" },
+        { "name": "entity.name.type.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" }
+      ]
+    },
+
+    "template-call": {
+      "comment": "A method/function call with explicit template arguments: `name<Args>(…)`, e.g. `obj.get<int>(…)`. The name (any case, including lowercase method calls) is colored as a call; capitalized `Type<Args>(…)` construction is handled first by #template-construct. The `(?=…>\\s*\\()` lookahead commits ONLY when the angle list closes immediately before `(`, so an ordinary `a < b` comparison is left untouched.",
+      "begin": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(<)(?=[A-Za-z0-9_,\\s<>\\[\\]]*>\\s*\\()",
+      "beginCaptures": {
+        "1": { "name": "entity.name.function.call.cheatah" },
+        "2": { "name": "punctuation.definition.typeparameters.begin.cheatah" }
+      },
+      "end": ">",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.typeparameters.end.cheatah" }
+      },
+      "patterns": [
+        { "include": "#numbers" },
+        { "include": "#types" },
+        { "name": "entity.name.type.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" }
+      ]
+    },
+
     "keywords": {
       "patterns": [
         { "name": "keyword.control.cheatah", "match": "\\b(if|else|while|for|in|return|try|except|raise|match|case|break|continue|elif|interface)\\b" },
         { "name": "keyword.control.import.cheatah", "match": "\\b(import|from|as)\\b" },
-        { "name": "keyword.operator.logical.cheatah", "match": "\\b(and|or|not)\\b" }
+        {
+          "comment": "Dual scope: default VS Code themes leave plain keyword.operator uncolored; keyword.operator.wordlike is their hook for word-shaped operators (same trick as keyword.operator.logical.python), so and/or/not color like keywords.",
+          "name": "keyword.operator.logical.cheatah keyword.operator.wordlike.cheatah",
+          "match": "\\b(and|or|not)\\b"
+        }
       ]
     },
 
     "declaration": {
       "patterns": [
         {
+          "comment": "Function declaration with its parameter list as a region: inside `(...)` a colon is always a `: Type` annotation, so types can be colored without misreading slice/dict colons in ordinary code.",
+          "begin": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(\\()",
+          "beginCaptures": {
+            "1": { "name": "storage.type.function.cheatah" },
+            "2": { "name": "entity.name.function.cheatah" },
+            "3": { "name": "punctuation.section.parameters.begin.cheatah" }
+          },
+          "end": "(\\))",
+          "endCaptures": {
+            "1": { "name": "punctuation.section.parameters.end.cheatah" }
+          },
+          "name": "meta.function.parameters.cheatah",
+          "patterns": [
+            { "include": "#comments" },
+            { "include": "#type-annotation" },
+            { "include": "#param-default" }
+          ]
+        },
+        {
+          "comment": "A fn declaration whose `(` hasn't been typed yet — keep the name colored while editing.",
           "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
             "1": { "name": "storage.type.function.cheatah" },
@@ -121,15 +186,126 @@
       ]
     },
 
+    "type-annotation": {
+      "comment": "`: Type` after a parameter name. Ends before `,` (next param), `)` (list end), `=` (default value), or end of line. Generic-argument commas are shielded by #type-brackets.",
+      "begin": "(:)\\s*",
+      "beginCaptures": {
+        "1": { "name": "punctuation.separator.annotation.cheatah" }
+      },
+      "end": "(?=[,)=])|$",
+      "patterns": [
+        { "include": "#type-expression" }
+      ]
+    },
+    "type-expression": {
+      "comment": "A type per the parser: IDENT ( '[' (type | NUMBER) (',' …)* ']' )? — e.g. Response, list[int], array[float, 3]. Builtins keep support.type; everything else is a user type.",
+      "patterns": [
+        { "include": "#types" },
+        { "include": "#type-brackets" },
+        { "name": "constant.numeric.integer.cheatah", "match": "\\b[0-9]+\\b" },
+        { "name": "entity.name.type.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" }
+      ]
+    },
+    "type-brackets": {
+      "comment": "Balanced `[...]` of generic arguments, so its commas don't end the enclosing annotation.",
+      "begin": "\\[",
+      "end": "\\]",
+      "patterns": [
+        { "include": "#type-expression" },
+        { "name": "punctuation.separator.generic-arguments.cheatah", "match": "," }
+      ]
+    },
+    "param-default": {
+      "comment": "`= expr` default value in a parameter list, highlighted as a normal expression. Nested call parens are shielded by #balanced-parens so their commas/`)` don't end the default or the parameter list early.",
+      "begin": "=",
+      "beginCaptures": {
+        "0": { "name": "keyword.operator.assignment.cheatah" }
+      },
+      "end": "(?=[,)])",
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#constants" },
+        { "include": "#builtins" },
+        { "include": "#balanced-parens" },
+        { "include": "#function-call" },
+        { "include": "#operators" }
+      ]
+    },
+    "balanced-parens": {
+      "begin": "\\(",
+      "end": "\\)",
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#constants" },
+        { "include": "#builtins" },
+        { "include": "#balanced-parens" },
+        { "include": "#function-call" },
+        { "include": "#operators" }
+      ]
+    },
+
     "constants": {
       "patterns": [
-        { "name": "constant.language.boolean.cheatah", "match": "\\b(true|false)\\b" }
+        { "name": "constant.language.boolean.cheatah", "match": "\\b(true|false)\\b" },
+        { "comment": "ALL-CAPS names read as constants/enum values — WITH or WITHOUT underscores, so `MTL_IN`, `OUT`, `SYMS`, `VK_STRUCTURE_TYPE_APPLICATION_INFO` all color the same. The ≥2-char all-uppercase shape (ending in a letter/digit) leaves PascalCase type names (VkApplicationInfo) alone, since those contain lowercase letters.", "name": "constant.other.caps.cheatah", "match": "\\b[A-Z][A-Z0-9_]*[A-Z0-9]\\b" }
+      ]
+    },
+
+    "_generic-comment": {
+      "comment": "Rainbow nesting for C++20-style generic type arguments `Type<...>`. The type name and its angle brackets are colored by NESTING DEPTH (level 1/2/3, then 4 for everything deeper), via four mutually-recursive rules. The begin lookahead `(?=[A-Za-z0-9_,\\s<>\\[\\]]*>)` commits only when a `>` actually closes the angle list (so an ordinary `a < b` comparison is left alone)."
+    },
+    "generic-l1": {
+      "begin": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(<)(?=[A-Za-z0-9_,\\s<>\\[\\]]*>)",
+      "beginCaptures": { "1": { "name": "entity.name.type.generic.l1.cheatah" }, "2": { "name": "punctuation.angle.l1.cheatah" } },
+      "end": "(>)",
+      "endCaptures": { "1": { "name": "punctuation.angle.l1.cheatah" } },
+      "patterns": [
+        { "include": "#generic-l2" },
+        { "name": "entity.name.type.generic.l2.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" },
+        { "include": "#numbers" }
+      ]
+    },
+    "generic-l2": {
+      "begin": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(<)(?=[A-Za-z0-9_,\\s<>\\[\\]]*>)",
+      "beginCaptures": { "1": { "name": "entity.name.type.generic.l2.cheatah" }, "2": { "name": "punctuation.angle.l2.cheatah" } },
+      "end": "(>)",
+      "endCaptures": { "1": { "name": "punctuation.angle.l2.cheatah" } },
+      "patterns": [
+        { "include": "#generic-l3" },
+        { "name": "entity.name.type.generic.l3.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" },
+        { "include": "#numbers" }
+      ]
+    },
+    "generic-l3": {
+      "begin": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(<)(?=[A-Za-z0-9_,\\s<>\\[\\]]*>)",
+      "beginCaptures": { "1": { "name": "entity.name.type.generic.l3.cheatah" }, "2": { "name": "punctuation.angle.l3.cheatah" } },
+      "end": "(>)",
+      "endCaptures": { "1": { "name": "punctuation.angle.l3.cheatah" } },
+      "patterns": [
+        { "include": "#generic-l4" },
+        { "name": "entity.name.type.generic.l4.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" },
+        { "include": "#numbers" }
+      ]
+    },
+    "generic-l4": {
+      "begin": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(<)(?=[A-Za-z0-9_,\\s<>\\[\\]]*>)",
+      "beginCaptures": { "1": { "name": "entity.name.type.generic.l4.cheatah" }, "2": { "name": "punctuation.angle.l4.cheatah" } },
+      "end": "(>)",
+      "endCaptures": { "1": { "name": "punctuation.angle.l4.cheatah" } },
+      "patterns": [
+        { "include": "#generic-l4" },
+        { "name": "entity.name.type.generic.l4.cheatah", "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b" },
+        { "include": "#numbers" }
       ]
     },
 
     "types": {
       "patterns": [
-        { "name": "support.type.cheatah", "match": "\\b(int|float|str|bool|list|dict|array)\\b" }
+        { "comment": "Builtin type names — but NOT when called like a function/constructor (`str(x)`, `int(5)`): the trailing-`(` lookahead leaves those to #function-call so they color as a call, while `: str` / `list[int]` color as a type.", "name": "support.type.cheatah", "match": "\\b(int|float|str|bool|list|dict|array)\\b(?!\\s*\\()" }
       ]
     },
 
@@ -148,9 +324,44 @@
     "operators": {
       "patterns": [
         { "name": "keyword.operator.arithmetic.cheatah", "match": "//|\\*\\*|[+\\-*/^]" },
+        { "comment": "Unary address-of (passed through to C++ for C interop, e.g. `&info`).", "name": "keyword.operator.address-of.cheatah", "match": "&" },
         { "name": "keyword.operator.comparison.cheatah", "match": "==|!=|<=|>=|<|>" },
         { "name": "keyword.operator.assignment.cheatah", "match": "=" }
       ]
+    },
+
+    "designated-initializer": {
+      "comment": "C++20 designated initializer, e.g. `Type({ .field = value, … })` — the modern Vulkan struct-construction style, valid across multiple lines. Committed only when `{` is immediately followed by `.field`, so ordinary code blocks (`if x { … }`, fn bodies) are left untouched. The body is highlighted as normal cheatah ($self), with the leading `.field` of each designator colored as a member; nested designated initializers recurse so an inner `}` never closes the outer one early.",
+      "begin": "(\\{)(?=\\s*\\.[A-Za-z_])",
+      "beginCaptures": {
+        "1": { "name": "punctuation.section.designated-initializer.begin.cheatah" }
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.designated-initializer.end.cheatah" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "comment": "A designator `.field =` (the field is followed by `=`). The `(?=\\s*=)` lookahead is essential: WITHOUT it this matched any `.member`, so a method call inside a value (e.g. `.w = ndarray.zeros(...)` — the `.zeros`) was mis-colored as a designator instead of a method.", "name": "variable.other.member.designator.cheatah", "match": "\\.([A-Za-z_][A-Za-z0-9_]*)(?=\\s*=)" },
+        { "include": "#designated-initializer" },
+        { "include": "$self" }
+      ]
+    },
+
+    "member-constant": {
+      "comment": "`.SCREAMING_SNAKE_CASE` member — a namespaced enum value / constant, e.g. `vk.STRUCTURE_TYPE_APPLICATION_INFO`, `vk.API_VERSION_1_3`. Colored like a constant, matching how the bare `VK_*` form colors.",
+      "match": "(\\.)([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\\b",
+      "captures": {
+        "2": { "name": "constant.other.caps.cheatah" }
+      }
+    },
+
+    "member-access": {
+      "comment": "`.member` field access on a value (e.g. `obj.field`, the `.sType` of a designated initializer). The negative lookahead leaves `.method(…)` calls to #function-call (so `vk.CreateInstance()` and `io.print()` color as calls, not plain members), and `.SCREAMING` constants to #member-constant. The dot stays plain punctuation.",
+      "match": "(\\.)([A-Za-z_][A-Za-z0-9_]*)\\b(?!\\s*\\()",
+      "captures": {
+        "2": { "name": "variable.other.member.cheatah" }
+      }
     }
   }
 }

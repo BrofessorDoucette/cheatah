@@ -44,8 +44,8 @@ concept Value = std::movable<std::remove_cvref_t<T>>;
 /**
  * Length / element count.
  *
- * Returns the element count of any `Sized` container by forwarding to its
- * `.size()`; for strings this is the byte length, not a Unicode code-point count.
+ * Forwards to the container's `.size()`; for strings this is the byte length,
+ * not a Unicode code-point count.
  * @param c a string or sized container.
  * @return `c.size()`.
  * @complexity O(1).
@@ -74,8 +74,8 @@ std::size_t len(std::string_view s);
 /**
  * Code point of the first byte.
  *
- * Returns the unsigned byte value of `s[0]` (range 0–255), ignoring any
- * trailing bytes; an empty string yields 0 rather than throwing.
+ * Returns the unsigned value of `s[0]` (0–255), ignoring trailing bytes;
+ * an empty string yields 0 rather than throwing.
  * @param s a one-character string.
  * @return its byte value (0 if empty).
  * @complexity O(1).
@@ -85,6 +85,16 @@ std::size_t len(std::string_view s);
  * @systest StdlibE2E.Builtins
  */
 int ord(std::string_view s);
+
+/**
+ * ord() of a single char — what iterating a string yields (`for ch in s`), so ord(ch)
+ * works inside such loops.
+ * @param c the character (a single byte).
+ * @return its unsigned byte value (0–255).
+ * @complexity O(1). @alloc none. @test CheatahBuiltins.Ord
+ * @crtest LangFeatures.Modulo
+ */
+constexpr int ord(char c) { return static_cast<unsigned char>(c); }
 /**
  * Character for a code point.
  *
@@ -163,8 +173,8 @@ std::string ascii(std::string_view s);
 /**
  * Truthiness of a string.
  *
- * A string is truthy when it has at least one byte; a whitespace-only or
- * `"0"`/`"false"` string is still truthy (only emptiness is false).
+ * Truthy iff non-empty; a whitespace-only or `"0"`/`"false"` string is still
+ * truthy (only emptiness is false).
  * @param s input.
  * @return false iff @p s is empty.
  * @complexity O(1).
@@ -322,6 +332,9 @@ double truediv(A a, B b) {
  */
 template <std::integral A, std::integral B>
 std::common_type_t<A, B> floordiv(A a, B b) {
+    // A controlled error, not UB: integer divide-by-zero is undefined in C++ (SIGFPE/trap), so guard
+    // it so pure-cheatah `x // 0` raises rather than corrupting the process. (Float `//` is IEEE-safe.)
+    if (b == 0) throw std::domain_error("integer floor division by zero");
     std::common_type_t<A, B> q = a / b;                 // C++ truncates toward zero…
     if ((a % b != 0) && ((a < 0) != (b < 0))) --q;      // …adjust to floor toward −∞
     return q;
@@ -350,8 +363,8 @@ double floordiv(A a, B b) {
 /**
  * Content hash of a string.
  *
- * Hashes the bytes via `std::hash<std::string_view>`, so equal contents hash
- * equally; the value is implementation-defined and not stable across runs or
+ * Hashes the bytes via `std::hash<std::string_view>` (equal contents hash
+ * equally); the value is implementation-defined and unstable across runs and
  * compilers (do not persist it).
  * @param s input.
  * @return a `std::size_t` hash.
@@ -454,6 +467,80 @@ inline bool contains(std::string_view s, std::string_view sub) {
     return s.find(sub) != std::string_view::npos;
 }
 
+/**
+ * Membership test for a dict: is @p key present? Backs the `in` operator (`k in d`).
+ * @param d the dict to search.
+ * @param key the key to look for.
+ * @return true iff @p key is present in @p d.
+ * @complexity O(1) average.
+ * @alloc none.
+ * @test CheatahBuiltins.ContainsDict
+ * @crtest LangFeatures.InOperator
+ */
+template <class K, class V, class H, class E, class A, class Key>
+bool contains(const std::unordered_map<K, V, H, E, A>& d, const Key& key) {
+    return d.count(key) != 0;
+}
+
+/**
+ * Membership test for a list: does any element equal @p value? Backs `x in xs`.
+ * @param xs the list to scan.
+ * @param value the value to look for.
+ * @return true iff some element of @p xs compares equal to @p value.
+ * @complexity O(n).
+ * @alloc none.
+ * @test CheatahBuiltins.ContainsList
+ * @crtest LangFeatures.InOperator
+ */
+template <class T, class A, class Value>
+bool contains(const std::vector<T, A>& xs, const Value& value) {
+    for (const T& x : xs) {
+        if (x == value) return true;
+    }
+    return false;
+}
+
+/**
+ * Python FLOOR-mod for integers: the result takes the DIVISOR's sign (-7 % 3 == 2), unlike
+ * raw C++ `%`. Backs the `%` operator.
+ * @param a the dividend.
+ * @param b the divisor; @p b == 0 throws std::domain_error (integer modulo by zero).
+ * @return a mod b with the sign of @p b (Python floor-mod semantics).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahBuiltins.Mod
+ * @crtest LangFeatures.Modulo
+ */
+template <class A, class B>
+    requires(std::is_integral_v<A> && std::is_integral_v<B>)
+std::common_type_t<A, B> mod(A a, B b) {
+    using R = std::common_type_t<A, B>;
+    // A controlled error, not UB: integer `% 0` is undefined in C++ (SIGFPE/trap) — guard it so
+    // pure-cheatah `x % 0` raises rather than corrupting the process. (Float `%` is IEEE-safe.)
+    if (b == 0) throw std::domain_error("integer modulo by zero");
+    const R r = static_cast<R>(a) % static_cast<R>(b);
+    return (r != 0 && ((r < 0) != (b < 0))) ? r + static_cast<R>(b) : r;
+}
+
+/**
+ * Python floor-mod for floats (either operand): fmod adjusted to the divisor's sign,
+ * mirroring `7.5 % 2 == 1.5` and `-7.5 % 2 == 0.5`.
+ * @param a the dividend.
+ * @param b the divisor.
+ * @return a mod b as a double, with the sign of @p b (Python floor-mod semantics).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahBuiltins.Mod
+ * @crtest LangFeatures.Modulo
+ */
+template <class A, class B>
+    requires(!std::is_integral_v<A> || !std::is_integral_v<B>)
+double mod(A a, B b) {
+    const double r = std::fmod(static_cast<double>(a), static_cast<double>(b));
+    return (r != 0.0 && ((r < 0.0) != (static_cast<double>(b) < 0.0))) ? r + static_cast<double>(b)
+                                                                       : r;
+}
+
 // ---- indexing & slicing (Python `seq[i]` / `seq[i:j]`) ----
 //
 // The compiler lowers value-position `seq[i]` to `index(seq, i)` and `seq[a:b]`
@@ -475,7 +562,7 @@ inline long long norm_index(long long i, long long n) { return i < 0 ? i + n : i
  * @param i the index (may be negative).
  * @return the one-character string at @p i.
  * @complexity O(1).
- * @alloc the 1-char result (small-string optimized).
+ * @alloc none (1-char small-string optimization).
  * @test CheatahBuiltins.IndexString
  * @crtest BuiltinsCompileRun.IndexString
  * @systest StdlibE2E.Builtins
@@ -502,6 +589,27 @@ inline std::string index(const std::string& s, long long i) {
 template <typename C>
     requires requires(const C& c) { c.data(); c.size(); }  // contiguous seq (vector/array), not a map
 auto index(const C& c, long long i) -> std::decay_t<decltype(c[0])> {
+    const long long n = static_cast<long long>(c.size());
+    i = detail::norm_index(i, n);
+    if (i < 0 || i >= n) throw std::out_of_range("index out of range");
+    return c[static_cast<std::size_t>(i)];
+}
+
+/**
+ * Element at @p i of a `list[bool]` (Python `xs[i]`), by value.
+ * `std::vector<bool>` is the one sequence type the contiguous overload above
+ * cannot accept: it is bit-packed, so it has proxy references and no `.data()`.
+ * Same semantics — negative @p i counts from the end; out-of-range throws.
+ * @param c the bool list.
+ * @param i the index (may be negative).
+ * @return the element at @p i.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahBuiltins.IndexBoolList
+ * @crtest BuiltinsCompileRun.IndexBoolList
+ * @systest StdlibE2E.Builtins
+ */
+inline bool index(const std::vector<bool>& c, long long i) {
     const long long n = static_cast<long long>(c.size());
     i = detail::norm_index(i, n);
     if (i < 0 || i >= n) throw std::out_of_range("index out of range");

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>parsers::json::OwningBuilder · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=23c7932c">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></summary><ul><li><a href="namespacecheatah_1_1aead_1_1accel.html" data-ref="namespacecheatah_1_1aead_1_1accel">accel</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></summary><ul><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">parser</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><details class="side-sub"><summary><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1json_1_1simd.html" data-ref="namespacecheatah_1_1parsers_1_1json_1_1simd">simd</a></li></ul></details></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></summary><ul><li><a href="namespacecheatah_1_1tls_1_1rsa.html" data-ref="namespacecheatah_1_1tls_1_1rsa">rsa</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>parsers::json::OwningBuilder</code></h1>
+  <p class="lede">The construction policy for the OWNING JSON parse path: the same stack-machine interface as <a href="classcheatah_1_1parsers_1_1json_1_1PoolBuilder.html">PoolBuilder</a> (begin/add/finish), but each container is built in its own std::vector and, on finish, the whole vector is moved into an OwnedArray/OwnedObject (O(1), no per-element copies). </p>
+</div>
+<div class="overview"><p>Strings are copied too, so the resulting <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a> owns its entire tree and is independent of any <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html">Parser</a>, pool, or source buffer. A plain policy type (no polymorphism).</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1aedd48339d1105144790e1dc9f3f3b60c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">begin_array</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L34" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1aedd48339d1105144790e1dc9f3f3b60c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open an array by pushing a fresh, empty backing vector onto the array stack. </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the stack slot (amortized)</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">OwningForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a9559f56f13444744251c1f8426ba6600">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">begin_object</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L37" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a9559f56f13444744251c1f8426ba6600" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open an object by pushing a fresh, empty backing vector onto the object stack. </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the stack slot (amortized)</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">OwningForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a148f736e4f2ed99bb7f6aa0d823d74b8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">add_element</span>(Node &amp;&amp;n)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L42" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a148f736e4f2ed99bb7f6aa0d823d74b8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Append an element to the innermost open array. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the element node to append (moved in).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) amortized</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>vector growth</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">OwningForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a90add2b10e100d3a786206a347119649">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">add_member</span>(Member &amp;&amp;m)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L46" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a90add2b10e100d3a786206a347119649" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Append a member to the innermost open object. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the key/value member to append (moved in).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) amortized</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>vector growth</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">OwningForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a8e1d7178d53ddc81296f45cf9fcfc6b7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a></span> <span class="mname">finish_array</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L51" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a8e1d7178d53ddc81296f45cf9fcfc6b7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the innermost open array: move its whole backing vector into an owned <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a>. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> holding the closed array as an <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a4f0c5a42d99447e2ecedd4534fe871f7">OwnedArray</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) (whole-vector move)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">OwningForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a843a091c2f55d31ac81c6c56cbfe6fc0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a></span> <span class="mname">finish_object</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L60" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a843a091c2f55d31ac81c6c56cbfe6fc0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the innermost open object: move its whole backing vector into an owned <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a>. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> holding the closed object as an <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a4e39f7b610a7167a974c4d26d6e5c403">OwnedObject</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) (whole-vector move)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">OwningForms</span></code></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a274dc3152541d66c2df1f4ffcd6032ae">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">owns_strings</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L30" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a274dc3152541d66c2df1f4ffcd6032ae" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">True: strings are COPIED into owned <a href="classcheatah_1_1parsers_1_1json_1_1String.html">String&lt;std::string&gt;</a> (not views into the source), so a <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a> from this path is fully self-contained (cf. </p>
+  <div class="member-body"><p><a href="classcheatah_1_1parsers_1_1json_1_1PoolBuilder.html#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3a668203478fcd49a9cff5fb460f9711">PoolBuilder::owns_strings</a> == false).</p></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1aadd601ca7c88b158217dc5f2c5f43f77">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::vector&lt; <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> &gt; &gt;</span> <span class="mname">array_stack_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L68" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1aadd601ca7c88b158217dc5f2c5f43f77" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1ab9ac491f9ba041b669d7cf7454e4a984">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::vector&lt; Member &gt; &gt;</span> <span class="mname">object_stack_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_owning_builder_hpp.html#L69" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1ab9ac491f9ba041b669d7cf7454e4a984" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1aedd48339d1105144790e1dc9f3f3b60c">begin_array</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a9559f56f13444744251c1f8426ba6600">begin_object</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a148f736e4f2ed99bb7f6aa0d823d74b8">add_element</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a90add2b10e100d3a786206a347119649">add_member</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a8e1d7178d53ddc81296f45cf9fcfc6b7">finish_array</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a843a091c2f55d31ac81c6c56cbfe6fc0">finish_object</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1a274dc3152541d66c2df1f4ffcd6032ae">owns_strings</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1aadd601ca7c88b158217dc5f2c5f43f77">array_stack_</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1OwningBuilder_1ab9ac491f9ba041b669d7cf7454e4a984">object_stack_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=c98d9dff"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

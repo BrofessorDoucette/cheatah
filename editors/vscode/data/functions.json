@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 407,
+      "srcline": 420,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 161,
+      "srcline": 171,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 145,
+      "srcline": 155,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 189,
+      "srcline": 199,
       "module": "",
       "qualified": "bool"
     },
@@ -115,34 +115,33 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 102,
+      "srcline": 112,
       "module": "",
       "qualified": "chr"
     },
     {
       "name": "contains",
-      "signature": "contains(std::string_view s, std::string_view sub)",
-      "brief": "Whether sub occurs anywhere in s (Python sub in s).",
+      "signature": "contains(const std::vector< T, A > &xs, const Value &value)",
+      "brief": "Membership test for a list: does any element equal value?",
       "params": [
         {
-          "name": "s",
-          "desc": "the string to search."
+          "name": "xs",
+          "desc": "the list to scan."
         },
         {
-          "name": "sub",
-          "desc": "the substring to find."
+          "name": "value",
+          "desc": "the value to look for."
         }
       ],
-      "returns": "true iff sub is a substring of s.",
+      "returns": "true iff some element of xs compares equal to value.",
       "tags": {
-        "complexity": "O(len(s) · len(sub)) worst case.",
+        "complexity": "O(n).",
         "alloc": "none.",
-        "test": "CheatahBuiltins.StringPredicates",
-        "crtest": "BuiltinsCompileRun.Contains",
-        "systest": "StdlibE2E.Builtins"
+        "test": "CheatahBuiltins.ContainsList",
+        "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 453,
+      "srcline": 496,
       "module": "",
       "qualified": "contains"
     },
@@ -169,7 +168,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 437,
+      "srcline": 450,
       "module": "",
       "qualified": "endswith"
     },
@@ -192,7 +191,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 245,
+      "srcline": 255,
       "module": "",
       "qualified": "float"
     },
@@ -219,7 +218,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 346,
+      "srcline": 359,
       "module": "",
       "qualified": "floordiv"
     },
@@ -242,7 +241,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 383,
+      "srcline": 396,
       "module": "",
       "qualified": "hash"
     },
@@ -265,34 +264,38 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 117,
+      "srcline": 127,
       "module": "",
       "qualified": "hex"
     },
     {
       "name": "index",
-      "signature": "index(const std::unordered_map< K, V, H, E, A > &m, const Key &key)",
-      "brief": "Value for key in a dict (Python d[key]), by value.",
+      "signature": "index(const ::cheatah::ndarray::basic_ndarray< T > &a, long long first, Ix... rest)",
+      "brief": "Element read a[i, j, ...] (negative indices count from the dimension end).",
       "params": [
         {
-          "name": "m",
-          "desc": "the dict."
+          "name": "a",
+          "desc": "the array to read from."
         },
         {
-          "name": "key",
-          "desc": "the key to look up."
+          "name": "first",
+          "desc": "the first-axis coordinate (negative counts from that dimension's end)."
+        },
+        {
+          "name": "rest",
+          "desc": "the remaining per-axis coordinates (one per further dimension)."
         }
       ],
-      "returns": "a copy of the mapped value (throws std::out_of_range if absent).",
+      "returns": "the element value.",
       "tags": {
-        "complexity": "O(1) average.",
-        "alloc": "none beyond copying the value.",
-        "test": "CheatahBuiltins.IndexDict",
-        "crtest": "BuiltinsCompileRun.IndexDict",
-        "systest": "StdlibE2E.Builtins"
+        "complexity": "O(ndim).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.SubscriptReadWrite",
+        "crtest": "NdarrayCompileRun.Subscript",
+        "systest": "StdlibE2E.Ndarray"
       },
-      "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 524,
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 1923,
       "module": "",
       "qualified": "index"
     },
@@ -315,7 +318,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 219,
+      "srcline": 229,
       "module": "",
       "qualified": "int"
     },
@@ -343,6 +346,32 @@
       "qualified": "len"
     },
     {
+      "name": "mod",
+      "signature": "mod(A a, B b)",
+      "brief": "Python floor-mod for floats (either operand): fmod adjusted to the divisor's sign, mirroring 7.5 % 2 == 1.5 and -7.5 % 2 == 0.5.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the dividend."
+        },
+        {
+          "name": "b",
+          "desc": "the divisor."
+        }
+      ],
+      "returns": "a mod b as a double, with the sign of b (Python floor-mod semantics).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahBuiltins.Mod",
+        "crtest": "LangFeatures.Modulo"
+      },
+      "srcfile": "stdlib/builtins/builtins.hpp",
+      "srcline": 538,
+      "module": "",
+      "qualified": "mod"
+    },
+    {
       "name": "oct",
       "signature": "oct(long long value)",
       "brief": "Octal representation.",
@@ -361,30 +390,29 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 131,
+      "srcline": 141,
       "module": "",
       "qualified": "oct"
     },
     {
       "name": "ord",
-      "signature": "ord(std::string_view s)",
-      "brief": "Code point of the first byte.",
+      "signature": "ord(char c)",
+      "brief": "ord() of a single char — what iterating a string yields (for ch in s), so ord(ch) works inside such loops.",
       "params": [
         {
-          "name": "s",
-          "desc": "a one-character string."
+          "name": "c",
+          "desc": "the character (a single byte)."
         }
       ],
-      "returns": "its byte value (0 if empty).",
+      "returns": "its unsigned byte value (0–255).",
       "tags": {
         "complexity": "O(1).",
         "alloc": "none.",
-        "test": "CheatahBuiltins.LenOrdChr",
-        "crtest": "BuiltinsCompileRun.Ord",
-        "systest": "StdlibE2E.Builtins"
+        "test": "CheatahBuiltins.Ord",
+        "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 87,
+      "srcline": 97,
       "module": "",
       "qualified": "ord"
     },
@@ -433,7 +461,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 566,
+      "srcline": 674,
       "module": "",
       "qualified": "slice"
     },
@@ -460,7 +488,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 422,
+      "srcline": 435,
       "module": "",
       "qualified": "startswith"
     },
@@ -483,7 +511,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 289,
+      "srcline": 299,
       "module": "",
       "qualified": "str"
     },
@@ -506,7 +534,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 189,
+      "srcline": 199,
       "module": "",
       "qualified": "to_bool"
     },
@@ -529,7 +557,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 245,
+      "srcline": 255,
       "module": "",
       "qualified": "to_float"
     },
@@ -552,7 +580,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 219,
+      "srcline": 229,
       "module": "",
       "qualified": "to_int"
     },
@@ -579,9 +607,252 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 306,
+      "srcline": 316,
       "module": "",
       "qualified": "truediv"
+    },
+    {
+      "name": "aes128gcm_decrypt",
+      "signature": "aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex, std::string_view aad, std::string_view ciphertext)",
+      "brief": "Verify + decrypt the inverse of aes128gcm_encrypt.",
+      "params": [
+        {
+          "name": "key_hex",
+          "desc": "the 32-char hex key (16 bytes, AES-128) used to encrypt."
+        },
+        {
+          "name": "nonce_hex",
+          "desc": "the 24-char hex nonce (12 bytes) used to encrypt."
+        },
+        {
+          "name": "aad",
+          "desc": "the same additional authenticated data supplied at encryption (\"\" for none)."
+        },
+        {
+          "name": "ciphertext",
+          "desc": "the ciphertext with its 16-byte GCM tag appended."
+        }
+      ],
+      "returns": "the plaintext, or \"\" when the tag does not verify (the check is constant-time) or the input is malformed.",
+      "tags": {
+        "complexity": "O(|ciphertext| + |aad|).",
+        "alloc": "the returned string.",
+        "test": "CheatahAead.AesGcmRejectsTamper"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 84,
+      "module": "aead",
+      "qualified": "aead.aes128gcm_decrypt"
+    },
+    {
+      "name": "aes128gcm_encrypt",
+      "signature": "aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex, std::string_view aad, std::string_view plaintext)",
+      "brief": "Encrypt + authenticate: AES-128-GCM(key, nonce, aad, plaintext) — the other TLS 1.3 record cipher (TLS_AES_128_GCM_SHA256).",
+      "params": [
+        {
+          "name": "key_hex",
+          "desc": "the 32-char hex key (16 bytes, AES-128)."
+        },
+        {
+          "name": "nonce_hex",
+          "desc": "the 24-char hex nonce (12 bytes), used as the GCM IV; MUST be unique per key."
+        },
+        {
+          "name": "aad",
+          "desc": "additional authenticated data — authenticated but not encrypted (\"\" for none)."
+        },
+        {
+          "name": "plaintext",
+          "desc": "the raw-byte message to encrypt (binary-safe)."
+        }
+      ],
+      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex.",
+      "tags": {
+        "complexity": "O(|plaintext| + |aad|).",
+        "alloc": "the returned string.",
+        "test": "CheatahAead.AesGcmRoundTrip"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 68,
+      "module": "aead",
+      "qualified": "aead.aes128gcm_encrypt"
+    },
+    {
+      "name": "chacha20poly1305_decrypt",
+      "signature": "chacha20poly1305_decrypt(std::string_view key_hex, std::string_view nonce_hex, std::string_view aad, std::string_view ciphertext)",
+      "brief": "Verify + decrypt the inverse of chacha20poly1305_encrypt.",
+      "params": [
+        {
+          "name": "key_hex",
+          "desc": "the 64-char hex key (32 bytes) used to encrypt."
+        },
+        {
+          "name": "nonce_hex",
+          "desc": "the 24-char hex nonce (12 bytes) used to encrypt."
+        },
+        {
+          "name": "aad",
+          "desc": "the same additional authenticated data supplied at encryption (\"\" for none)."
+        },
+        {
+          "name": "ciphertext",
+          "desc": "the ciphertext with its 16-byte tag appended."
+        }
+      ],
+      "returns": "the plaintext, or \"\" when the tag does not verify (tampering / wrong key or nonce / malformed input) — the tag check is constant-time.",
+      "tags": {
+        "complexity": "O(|ciphertext| + |aad|).",
+        "alloc": "the returned string.",
+        "test": "CheatahAead.Rfc8439Decrypt",
+        "crtest": "AeadCompileRun.RoundTrip",
+        "systest": "StdlibE2E.Aead"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 51,
+      "module": "aead",
+      "qualified": "aead.chacha20poly1305_decrypt"
+    },
+    {
+      "name": "chacha20poly1305_encrypt",
+      "signature": "chacha20poly1305_encrypt(std::string_view key_hex, std::string_view nonce_hex, std::string_view aad, std::string_view plaintext)",
+      "brief": "Encrypt + authenticate: ChaCha20-Poly1305(key, nonce, aad, plaintext).",
+      "params": [
+        {
+          "name": "key_hex",
+          "desc": "the 64-char hex key (32 bytes)."
+        },
+        {
+          "name": "nonce_hex",
+          "desc": "the 24-char hex nonce (12 bytes); MUST be unique per key."
+        },
+        {
+          "name": "aad",
+          "desc": "additional authenticated data — authenticated but not encrypted (\"\" for none)."
+        },
+        {
+          "name": "plaintext",
+          "desc": "the raw-byte message to encrypt (binary-safe)."
+        }
+      ],
+      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex.",
+      "tags": {
+        "complexity": "O(|plaintext| + |aad|).",
+        "alloc": "the returned string.",
+        "test": "CheatahAead.Rfc8439Encrypt",
+        "crtest": "AeadCompileRun.RoundTrip",
+        "systest": "StdlibE2E.Aead"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 33,
+      "module": "aead",
+      "qualified": "aead.chacha20poly1305_encrypt"
+    },
+    {
+      "name": "crypto_hardware_active",
+      "signature": "crypto_hardware_active()",
+      "brief": "Whether AES-128-GCM is currently using the hardware (AES-NI + PCLMULQDQ) path: true on a capable x86 CPU unless set_force_portable_crypto(true) is in effect, false otherwise (e.g.",
+      "params": [],
+      "returns": "true iff the hardware (AES-NI + PCLMULQDQ) AES-128-GCM path is currently active.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CryptoPlatform.Report"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 105,
+      "module": "aead",
+      "qualified": "aead.crypto_hardware_active"
+    },
+    {
+      "name": "set_force_portable_crypto",
+      "signature": "set_force_portable_crypto(bool on)",
+      "brief": "Force the portable (non-AES-NI) AES-128-GCM path on/off.",
+      "params": [
+        {
+          "name": "on",
+          "desc": "true to pin the portable scalar path; false to allow AES-NI again when present."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahAead.AesGcmPortableMatchesHardware"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 95,
+      "module": "aead",
+      "qualified": "aead.set_force_portable_crypto"
+    },
+    {
+      "name": "aes128gcm_decrypt",
+      "signature": "aes128gcm_decrypt(const unsigned char key[16], const unsigned char nonce[12], std::string_view aad, std::string_view ciphertext)",
+      "brief": "Unreachable stub so the accel namespace type-checks on non-accelerated targets; never called because available() is false.",
+      "params": [
+        {
+          "name": "key",
+          "desc": "the 16-byte AES-128 key (ignored)."
+        },
+        {
+          "name": "nonce",
+          "desc": "the 12-byte GCM nonce/IV (ignored)."
+        },
+        {
+          "name": "aad",
+          "desc": "additional authenticated data (ignored)."
+        },
+        {
+          "name": "ciphertext",
+          "desc": "the ciphertext with appended tag (ignored)."
+        }
+      ],
+      "returns": "the empty string (this path is never taken).",
+      "tags": {},
+      "srcfile": "stdlib/aead/aes_gcm_ni.hpp",
+      "srcline": 697,
+      "module": "aead.accel",
+      "qualified": "aead.accel.aes128gcm_decrypt"
+    },
+    {
+      "name": "aes128gcm_encrypt",
+      "signature": "aes128gcm_encrypt(const unsigned char key[16], const unsigned char nonce[12], std::string_view aad, std::string_view plaintext)",
+      "brief": "Unreachable stub so the accel namespace type-checks on non-accelerated targets; never called because available() is false.",
+      "params": [
+        {
+          "name": "key",
+          "desc": "the 16-byte AES-128 key (ignored)."
+        },
+        {
+          "name": "nonce",
+          "desc": "the 12-byte GCM nonce/IV (ignored)."
+        },
+        {
+          "name": "aad",
+          "desc": "additional authenticated data (ignored)."
+        },
+        {
+          "name": "plaintext",
+          "desc": "the message to encrypt (ignored)."
+        }
+      ],
+      "returns": "the empty string (this path is never taken).",
+      "tags": {},
+      "srcfile": "stdlib/aead/aes_gcm_ni.hpp",
+      "srcline": 685,
+      "module": "aead.accel",
+      "qualified": "aead.accel.aes128gcm_encrypt"
+    },
+    {
+      "name": "available",
+      "signature": "available()",
+      "brief": "Always false on this architecture: there is no AES hardware path, so callers fall back to the portable scalar AES-128-GCM reference.",
+      "params": [],
+      "returns": "false (no hardware acceleration available here).",
+      "tags": {},
+      "srcfile": "stdlib/aead/aes_gcm_ni.hpp",
+      "srcline": 677,
+      "module": "aead.accel",
+      "qualified": "aead.accel.available"
     },
     {
       "name": "day",
@@ -1025,6 +1296,164 @@
       "srcline": 99,
       "module": "ed25519",
       "qualified": "ed25519.verify"
+    },
+    {
+      "name": "base64_decode",
+      "signature": "base64_decode(std::string_view text)",
+      "brief": "Base64 DECODE (RFC 4648 standard alphabet) of ASCII to the raw bytes.",
+      "params": [
+        {
+          "name": "text",
+          "desc": "the base64 text."
+        }
+      ],
+      "returns": "the decoded raw bytes (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(|text|).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip",
+        "crtest": "HashlibCompileRun.Base64",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 136,
+      "module": "hashlib",
+      "qualified": "hashlib.base64_decode"
+    },
+    {
+      "name": "base64_encode",
+      "signature": "base64_encode(std::string_view data)",
+      "brief": "Base64 ENCODE (RFC 4648, standard alphabet A–Za–z0–9+/, = padding) of raw bytes to ASCII.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the raw bytes to encode (embedded NULs are encoded)."
+        }
+      ],
+      "returns": "the base64 text (length 4*ceil(n/3)).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip",
+        "crtest": "HashlibCompileRun.Base64",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 121,
+      "module": "hashlib",
+      "qualified": "hashlib.base64_encode"
+    },
+    {
+      "name": "hkdf_expand",
+      "signature": "hkdf_expand(std::string_view prk, std::string_view info, long long length)",
+      "brief": "HKDF-Expand (RFC 5869): derive length bytes of keying material from prk and info.",
+      "params": [
+        {
+          "name": "prk",
+          "desc": "a pseudorandom key (e.g. from hkdf_extract())."
+        },
+        {
+          "name": "info",
+          "desc": "optional context/application-specific info binding the output (\"\" for none)."
+        },
+        {
+          "name": "length",
+          "desc": "the number of output-keying-material bytes to produce."
+        }
+      ],
+      "returns": "the OKM as raw bytes, or \"\" when length is 0 or exceeds 255*32 (the RFC bound).",
+      "tags": {
+        "complexity": "O(length).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.HkdfRfc5869Case1",
+        "crtest": "HashlibCompileRun.Hkdf",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 165,
+      "module": "hashlib",
+      "qualified": "hashlib.hkdf_expand"
+    },
+    {
+      "name": "hkdf_extract",
+      "signature": "hkdf_extract(std::string_view salt, std::string_view ikm)",
+      "brief": "HKDF-Extract (RFC 5869): PRK = HMAC-SHA-256(salt, ikm).",
+      "params": [
+        {
+          "name": "salt",
+          "desc": "the (optional) salt; pass \"\" for the all-zero default salt."
+        },
+        {
+          "name": "ikm",
+          "desc": "the input keying material."
+        }
+      ],
+      "returns": "the 32-byte pseudorandom key (PRK) as raw bytes.",
+      "tags": {
+        "complexity": "O(|salt| + |ikm|).",
+        "alloc": "the returned 32-byte string.",
+        "test": "CheatahHashlib.HkdfRfc5869Case1",
+        "crtest": "HashlibCompileRun.Hkdf",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 150,
+      "module": "hashlib",
+      "qualified": "hashlib.hkdf_extract"
+    },
+    {
+      "name": "hmac_sha256",
+      "signature": "hmac_sha256(std::string_view key, std::string_view data)",
+      "brief": "HMAC-SHA-256 (RFC 2104) over raw bytes — the PRF under HKDF and the TLS 1.3 key schedule.",
+      "params": [
+        {
+          "name": "key",
+          "desc": "raw key bytes (any length; hashed down when longer than the block)."
+        },
+        {
+          "name": "data",
+          "desc": "raw message bytes."
+        }
+      ],
+      "returns": "the 32-byte MAC as raw bytes.",
+      "tags": {
+        "complexity": "O(|key| + |data|).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.HmacSha256",
+        "crtest": "HashlibCompileRun.Hmac",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 93,
+      "module": "hashlib",
+      "qualified": "hashlib.hmac_sha256"
+    },
+    {
+      "name": "hmac_sha512",
+      "signature": "hmac_sha512(std::string_view key, std::string_view data)",
+      "brief": "HMAC-SHA-512 (RFC 2104) over raw bytes — the wider PRF (128-byte block, 64-byte MAC), e.g.",
+      "params": [
+        {
+          "name": "key",
+          "desc": "raw key bytes (any length; hashed down when longer than the 128-byte block)."
+        },
+        {
+          "name": "data",
+          "desc": "raw message bytes."
+        }
+      ],
+      "returns": "the 64-byte MAC as raw bytes.",
+      "tags": {
+        "complexity": "O(|key| + |data|).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.HmacSha512",
+        "crtest": "HashlibCompileRun.Hmac",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 108,
+      "module": "hashlib",
+      "qualified": "hashlib.hmac_sha512"
     },
     {
       "name": "sha256",
@@ -1501,24 +1930,26 @@
     },
     {
       "name": "cholesky",
-      "signature": "cholesky(const NDArray &a)",
-      "brief": "Cholesky factor of a symmetric positive-definite matrix (throws otherwise).",
+      "signature": "cholesky(NDArray &out, const NDArray &a)",
+      "brief": "Cholesky factor into the caller's buffer out (out FIRST) — the buffer-reuse overload of cholesky.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous n×n matrix, overwritten with the lower-triangular L."
+        },
         {
           "name": "a",
           "desc": "square SPD matrix."
         }
       ],
-      "returns": "lower-triangular L with A = L·Lᵀ.",
+      "returns": "",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.CholeskyAndQR",
-        "crtest": "LinalgCompileRun.Cholesky",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "reuses out (the factor is computed into private scratch, then copied in).",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 238,
+      "srcline": 321,
       "module": "linalg",
       "qualified": "linalg.cholesky",
       "perf": {
@@ -1547,7 +1978,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 455,
+      "srcline": 639,
       "module": "linalg",
       "qualified": "linalg.cond",
       "perf": {
@@ -1559,24 +1990,26 @@
     },
     {
       "name": "conj_transpose",
-      "signature": "conj_transpose(const CNDArray &a)",
-      "brief": "Conjugate transpose (Hermitian adjoint) Aᴴ of a complex matrix: transpose, then conjugate every entry.",
+      "signature": "conj_transpose(CNDArray &out, const CNDArray &a)",
+      "brief": "Conjugate transpose into the caller's buffer out (out FIRST) — the buffer-reuse overload of conj_transpose, writing the c×r adjoint straight into out with no allocation.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous c×r complex matrix (for an r×c input), overwritten. Must NOT alias a (it reads A while writing the transpose — not an in-place op)."
+        },
         {
           "name": "a",
           "desc": "a 2-D complex matrix."
         }
       ],
-      "returns": "the c×r adjoint of an r×c input; throws on non-2-D input.",
+      "returns": "",
       "tags": {
         "complexity": "O(r·c).",
-        "alloc": "allocates a new CNDArray result.",
-        "test": "LinalgRoutines.ComplexProducts",
-        "crtest": "LinalgCompileRun.ConjTranspose",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "none for a contiguous operand (adjoint written straight into out); a non-contiguous operand is packed once into scratch.",
+        "test": "LinalgRoutines.ConjTransposeIntoReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 188,
+      "srcline": 238,
       "module": "linalg",
       "qualified": "linalg.conj_transpose",
       "perf": {
@@ -1602,7 +2035,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 470,
+      "srcline": 654,
       "module": "linalg",
       "qualified": "linalg.det",
       "perf": {
@@ -1635,7 +2068,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 149,
+      "srcline": 174,
       "module": "linalg",
       "qualified": "linalg.dot",
       "perf": {
@@ -1647,24 +2080,30 @@
     },
     {
       "name": "eig",
-      "signature": "eig(const NDArray &a)",
-      "brief": "Eigen-decomposition of a general square matrix (complex spectrum and eigenvectors).",
+      "signature": "eig(CNDArray &values, CNDArray &vectors, const NDArray &a)",
+      "brief": "General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of eig, filling values and vectors instead of allocating an EigC.",
       "params": [
+        {
+          "name": "values",
+          "desc": "destination for the complex eigenvalues; a contiguous length-n vector, overwritten."
+        },
+        {
+          "name": "vectors",
+          "desc": "destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten."
+        },
         {
           "name": "a",
           "desc": "square matrix."
         }
       ],
-      "returns": "EigC with complex values and matching complex eigenvector columns.",
+      "returns": "",
       "tags": {
-        "complexity": "iterative O(n³) via Hessenberg + shifted QR.",
-        "alloc": "allocates both members.",
-        "test": "LinalgRoutines.GeneralEig",
-        "crtest": "LinalgCompileRun.Eig",
-        "systest": "StdlibE2E.Linalg"
+        "complexity": "iterative O(n³) for the eigenvalues; general (non-symmetric) eigenvectors add O(n⁴) (inverse iteration per eigenvalue — see eig).",
+        "alloc": "reuses values and vectors (computed into private scratch, then copied in).",
+        "test": "LinalgRoutines.DecompositionOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 332,
+      "srcline": 463,
       "module": "linalg",
       "qualified": "linalg.eig",
       "perf": {
@@ -1673,24 +2112,30 @@
     },
     {
       "name": "eigh",
-      "signature": "eigh(const CNDArray &a)",
-      "brief": "Eigen-decomposition of a complex Hermitian matrix — real eigenvalues, complex eigenvectors.",
+      "signature": "eigh(NDArray &values, CNDArray &vectors, const CNDArray &a)",
+      "brief": "Complex Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of the complex eigh, filling values and vectors instead of allocating an EighC.",
       "params": [
+        {
+          "name": "values",
+          "desc": "destination for the real eigenvalues; a contiguous length-n vector, overwritten."
+        },
+        {
+          "name": "vectors",
+          "desc": "destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten."
+        },
         {
           "name": "a",
           "desc": "square complex Hermitian matrix."
         }
       ],
-      "returns": "EighC with descending real values and matching complex eigenvectors.",
+      "returns": "",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates both members.",
-        "test": "LinalgRoutines.ComplexHermitianEigh",
-        "crtest": "LinalgCompileRun.EighComplex",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "reuses values and vectors (computed into private scratch, then copied in).",
+        "test": "LinalgRoutines.DecompositionOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 408,
+      "srcline": 582,
       "module": "linalg",
       "qualified": "linalg.eigh",
       "perf": {
@@ -1702,24 +2147,26 @@
     },
     {
       "name": "eigvals",
-      "signature": "eigvals(const NDArray &a)",
-      "brief": "Eigenvalues of a general square matrix (complex), descending.",
+      "signature": "eigvals(CNDArray &out, const NDArray &a)",
+      "brief": "General eigenvalues into the caller's buffer out (out FIRST) — the buffer-reuse overload of eigvals.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous length-n complex vector, overwritten with the descending spectrum."
+        },
         {
           "name": "a",
           "desc": "square matrix."
         }
       ],
-      "returns": "length-n complex vector of eigenvalues.",
+      "returns": "",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates a new CNDArray result.",
-        "test": "LinalgRoutines.SvdAndEigh",
-        "crtest": "LinalgCompileRun.Eigvals",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "reuses out; the Hessenberg + shifted-QR iteration allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 349,
+      "srcline": 490,
       "module": "linalg",
       "qualified": "linalg.eigvals",
       "perf": {
@@ -1731,24 +2178,26 @@
     },
     {
       "name": "eigvalsh",
-      "signature": "eigvalsh(const CNDArray &a)",
-      "brief": "Eigenvalues of a complex Hermitian matrix, descending and real.",
+      "signature": "eigvalsh(NDArray &out, const CNDArray &a)",
+      "brief": "Complex Hermitian eigenvalues into the caller's buffer out (out FIRST) — the buffer-reuse overload of the complex eigvalsh.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous length-n real vector, overwritten with the descending eigenvalues."
+        },
         {
           "name": "a",
           "desc": "square complex Hermitian matrix."
         }
       ],
-      "returns": "length-n real vector of eigenvalues.",
+      "returns": "",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.ComplexHermitianEigh",
-        "crtest": "LinalgCompileRun.EigvalshComplex",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "reuses out; the 2n-embedding tridiagonal-QL solver allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 422,
+      "srcline": 606,
       "module": "linalg",
       "qualified": "linalg.eigvalsh",
       "perf": {
@@ -1790,24 +2239,26 @@
     },
     {
       "name": "inv",
-      "signature": "inv(const NDArray &a)",
-      "brief": "Matrix inverse via LU with partial pivoting.",
+      "signature": "inv(NDArray &out, const NDArray &a)",
+      "brief": "Inverse into the caller's buffer out (out FIRST) — the buffer-reuse overload of inv.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous n×n matrix, overwritten with A⁻¹."
+        },
         {
           "name": "a",
           "desc": "square matrix."
         }
       ],
-      "returns": "A⁻¹.",
+      "returns": "",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.SolveDetInv",
-        "crtest": "LinalgCompileRun.Inv",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "reuses out; the LU factorization allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 572,
+      "srcline": 787,
       "module": "linalg",
       "qualified": "linalg.inv",
       "perf": {
@@ -1819,9 +2270,13 @@
     },
     {
       "name": "kron",
-      "signature": "kron(const NDArray &a, const NDArray &b)",
-      "brief": "Kronecker product.",
+      "signature": "kron(NDArray &out, const NDArray &a, const NDArray &b)",
+      "brief": "Kronecker product into the caller's buffer out (out FIRST) — the buffer-reuse overload of kron, writing the block product straight into out with no allocation.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous (m·p)×(k·q) matrix, overwritten. Must NOT alias a or b."
+        },
         {
           "name": "a",
           "desc": "m×k matrix."
@@ -1831,16 +2286,14 @@
           "desc": "p×q matrix."
         }
       ],
-      "returns": "(m·p)×(k·q) block product.",
+      "returns": "",
       "tags": {
         "complexity": "O(n⁴) in the output area.",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.VdotInnerOuterKron",
-        "crtest": "LinalgCompileRun.Kron",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "none for contiguous operands (block product written straight into out); a non-contiguous operand is packed once into scratch.",
+        "test": "LinalgRoutines.KronIntoReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 220,
+      "srcline": 293,
       "module": "linalg",
       "qualified": "linalg.kron",
       "perf": {
@@ -1852,9 +2305,13 @@
     },
     {
       "name": "lstsq",
-      "signature": "lstsq(const NDArray &a, const NDArray &b)",
-      "brief": "Least-squares solution min‖A·x − b‖ (computed as pinv (a)·b).",
+      "signature": "lstsq(NDArray &out, const NDArray &a, const NDArray &b)",
+      "brief": "Least-squares solution into the caller's buffer out (out FIRST) — the buffer-reuse overload of lstsq.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous array of the solution's shape, overwritten."
+        },
         {
           "name": "a",
           "desc": "m×n matrix."
@@ -1864,16 +2321,14 @@
           "desc": "right-hand side."
         }
       ],
-      "returns": "minimizing x.",
+      "returns": "",
       "tags": {
-        "complexity": "iterative O(n³) via SVD.",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.Lstsq",
-        "crtest": "LinalgCompileRun.Lstsq",
-        "systest": "StdlibE2E.Linalg"
+        "complexity": "iterative O(n³).",
+        "alloc": "reuses out; the pseudo-inverse SVD allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 557,
+      "srcline": 763,
       "module": "linalg",
       "qualified": "linalg.lstsq",
       "perf": {
@@ -1882,9 +2337,13 @@
     },
     {
       "name": "matmul",
-      "signature": "matmul(const CNDArray &a, const CNDArray &b)",
-      "brief": "Matrix multiply of two complex matrices (the complex analogue of matmul).",
+      "signature": "matmul(CNDArray &out, const CNDArray &a, const CNDArray &b)",
+      "brief": "Complex matmul into the caller's buffer out (out FIRST) — the buffer-reuse overload of the complex matmul, writing the product straight into out with no allocation.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous [a.rows, b.cols] complex matrix, overwritten. Must NOT alias a or b (it reads all of both while writing out — not an in-place op)."
+        },
         {
           "name": "a",
           "desc": "m×k complex matrix."
@@ -1894,16 +2353,14 @@
           "desc": "k×p complex matrix."
         }
       ],
-      "returns": "m×p complex product; throws on an inner-dimension mismatch or non-2-D input.",
+      "returns": "",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates only the m×p result; operands read in place when contiguous.",
-        "test": "LinalgRoutines.ComplexProducts",
-        "crtest": "LinalgCompileRun.ComplexMatmul",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "none for contiguous operands (product written straight into out); a non-contiguous operand is packed once into scratch.",
+        "test": "LinalgRoutines.ComplexMatmulIntoReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 176,
+      "srcline": 214,
       "module": "linalg",
       "qualified": "linalg.matmul",
       "perf": {
@@ -1915,9 +2372,13 @@
     },
     {
       "name": "matrix_power",
-      "signature": "matrix_power(const NDArray &a, long long n)",
-      "brief": "Integer matrix power Aⁿ (negative n via inv).",
+      "signature": "matrix_power(NDArray &out, const NDArray &a, long long n)",
+      "brief": "Matrix power into the caller's buffer out (out FIRST) — the buffer-reuse overload of matrix_power.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous n×n matrix, overwritten with Aⁿ."
+        },
         {
           "name": "a",
           "desc": "square matrix."
@@ -1927,16 +2388,14 @@
           "desc": "exponent."
         }
       ],
-      "returns": "Aⁿ.",
+      "returns": "",
       "tags": {
-        "complexity": "O(n³·log|n|) by binary exponentiation.",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.MatrixPower",
-        "crtest": "LinalgCompileRun.MatrixPower",
-        "systest": "StdlibE2E.Linalg"
+        "complexity": "O(n³·log|n|).",
+        "alloc": "reuses out; the binary-exponentiation products allocate their own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 204,
+      "srcline": 265,
       "module": "linalg",
       "qualified": "linalg.matrix_power",
       "perf": {
@@ -1965,7 +2424,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 485,
+      "srcline": 669,
       "module": "linalg",
       "qualified": "linalg.matrix_rank",
       "perf": {
@@ -1994,7 +2453,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 440,
+      "srcline": 624,
       "module": "linalg",
       "qualified": "linalg.norm",
       "perf": {
@@ -2006,9 +2465,13 @@
     },
     {
       "name": "outer",
-      "signature": "outer(const NDArray &a, const NDArray &b)",
-      "brief": "Outer product of two vectors.",
+      "signature": "outer(NDArray &out, const NDArray &a, const NDArray &b)",
+      "brief": "Outer product into the caller's buffer out (out FIRST) — the buffer-reuse overload of outer, writing the rank-1 result straight into out with no allocation.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous n×m matrix, overwritten. Must NOT alias a or b."
+        },
         {
           "name": "a",
           "desc": "length-n vector."
@@ -2018,16 +2481,14 @@
           "desc": "length-m vector."
         }
       ],
-      "returns": "n×m matrix aᵢbⱼ.",
+      "returns": "",
       "tags": {
         "complexity": "O(n·m).",
-        "alloc": "allocates only the n×m result; operands read in place when contiguous.",
-        "test": "LinalgRoutines.VdotInnerOuterKron",
-        "crtest": "LinalgCompileRun.Outer",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "none for contiguous operands (result written straight into out); a non-contiguous operand is packed once into scratch.",
+        "test": "LinalgRoutines.OuterIntoReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 116,
+      "srcline": 128,
       "module": "linalg",
       "qualified": "linalg.outer",
       "perf": {
@@ -2039,24 +2500,26 @@
     },
     {
       "name": "pinv",
-      "signature": "pinv(const NDArray &a)",
-      "brief": "Moore–Penrose pseudo-inverse via SVD (any shape).",
+      "signature": "pinv(NDArray &out, const NDArray &a)",
+      "brief": "Pseudo-inverse into the caller's buffer out (out FIRST) — the buffer-reuse overload of pinv.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous n×m matrix (for an m×n input), overwritten with the pseudo-inverse."
+        },
         {
           "name": "a",
           "desc": "m×n matrix."
         }
       ],
-      "returns": "n×m pseudo-inverse.",
+      "returns": "",
       "tags": {
-        "complexity": "iterative O(n³) via SVD.",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.PinvCondRankOnWideMatrix",
-        "crtest": "LinalgCompileRun.Pinv",
-        "systest": "StdlibE2E.Linalg"
+        "complexity": "iterative O(n³).",
+        "alloc": "reuses out; the Golub–Reinsch SVD allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 588,
+      "srcline": 813,
       "module": "linalg",
       "qualified": "linalg.pinv",
       "perf": {
@@ -2068,24 +2531,30 @@
     },
     {
       "name": "qr",
-      "signature": "qr(const NDArray &a)",
-      "brief": "Reduced QR via Householder reflections (requires rows ≥ cols).",
+      "signature": "qr(NDArray &q, NDArray &r, const NDArray &a)",
+      "brief": "Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of qr, filling q and r instead of allocating a QR.",
       "params": [
+        {
+          "name": "q",
+          "desc": "destination for the orthonormal factor; a contiguous m×n matrix, overwritten."
+        },
+        {
+          "name": "r",
+          "desc": "destination for the upper-triangular factor; a contiguous n×n matrix, overwritten."
+        },
         {
           "name": "a",
           "desc": "m×n matrix."
         }
       ],
-      "returns": "QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).",
+      "returns": "",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates both members.",
-        "test": "LinalgRoutines.CholeskyAndQR",
-        "crtest": "LinalgCompileRun.Qr",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "reuses q and r (the factors are computed into private scratch, then copied in).",
+        "test": "LinalgRoutines.DecompositionOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 259,
+      "srcline": 353,
       "module": "linalg",
       "qualified": "linalg.qr",
       "perf": {
@@ -2152,7 +2621,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 507,
+      "srcline": 691,
       "module": "linalg",
       "qualified": "linalg.slogdet",
       "perf": {
@@ -2164,9 +2633,13 @@
     },
     {
       "name": "solve",
-      "signature": "solve(const NDArray &a, const NDArray &b)",
-      "brief": "Solve A·x = b via LU with partial pivoting.",
+      "signature": "solve(NDArray &out, const NDArray &a, const NDArray &b)",
+      "brief": "Solve into the caller's buffer out (out FIRST) — the buffer-reuse overload of solve.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous length-n vector, overwritten with the solution x."
+        },
         {
           "name": "a",
           "desc": "square coefficient matrix."
@@ -2176,16 +2649,14 @@
           "desc": "right-hand-side vector."
         }
       ],
-      "returns": "solution x.",
+      "returns": "",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.SolveDetInv",
-        "crtest": "LinalgCompileRun.Solve",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "reuses out; the LU factorization allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 540,
+      "srcline": 734,
       "module": "linalg",
       "qualified": "linalg.solve",
       "perf": {
@@ -2197,24 +2668,34 @@
     },
     {
       "name": "svd",
-      "signature": "svd(const NDArray &a)",
-      "brief": "Singular value decomposition (Golub–Reinsch; requires rows ≥ cols).",
+      "signature": "svd(NDArray &u, NDArray &s, NDArray &vh, const NDArray &a)",
+      "brief": "Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of svd, filling u, s and vh instead of allocating an SVD.",
       "params": [
         {
+          "name": "u",
+          "desc": "destination for the left singular vectors; a contiguous m×n matrix, overwritten."
+        },
+        {
+          "name": "s",
+          "desc": "destination for the singular values; a contiguous length-n vector, overwritten."
+        },
+        {
+          "name": "vh",
+          "desc": "destination for Vᵀ; a contiguous n×n matrix, overwritten."
+        },
+        {
           "name": "a",
-          "desc": "m×n matrix."
+          "desc": "m×n matrix (rows ≥ cols)."
         }
       ],
-      "returns": "SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).",
+      "returns": "",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates all members.",
-        "test": "LinalgRoutines.SvdAndEigh",
-        "crtest": "LinalgCompileRun.Svd",
-        "systest": "StdlibE2E.Linalg"
+        "alloc": "reuses u, s, vh (the factors are computed into private scratch, then copied in).",
+        "test": "LinalgRoutines.DecompositionOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 282,
+      "srcline": 388,
       "module": "linalg",
       "qualified": "linalg.svd",
       "perf": {
@@ -2226,24 +2707,26 @@
     },
     {
       "name": "svdvals",
-      "signature": "svdvals(const NDArray &a)",
-      "brief": "Singular values only (≈ numpy.linalg.svd(a, compute_uv=False) / svdvals).",
+      "signature": "svdvals(NDArray &out, const NDArray &a)",
+      "brief": "Singular values into the caller's buffer out (out FIRST) — the buffer-reuse overload of svdvals.",
       "params": [
+        {
+          "name": "out",
+          "desc": "destination; a contiguous length-min(m,n) vector, overwritten with the descending values."
+        },
         {
           "name": "a",
           "desc": "m×n matrix."
         }
       ],
-      "returns": "length-min(m,n) vector of singular values, descending.",
+      "returns": "",
       "tags": {
-        "complexity": "iterative O(n³), but a large constant factor below svd.",
-        "alloc": "allocates a new NDArray result (no U/V scratch).",
-        "test": "LinalgRoutines.SvdAndEigh",
-        "crtest": "LinalgCompileRun.Svdvals",
-        "systest": "StdlibE2E.Linalg"
+        "complexity": "iterative O(n³).",
+        "alloc": "reuses out; the Golub–Reinsch reduction allocates its own scratch.",
+        "test": "LinalgRoutines.FactorizationOutReusesBuffer"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 298,
+      "srcline": 414,
       "module": "linalg",
       "qualified": "linalg.svdvals",
       "perf": {
@@ -2272,7 +2755,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 521,
+      "srcline": 705,
       "module": "linalg",
       "qualified": "linalg.trace",
       "perf": {
@@ -2305,7 +2788,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 164,
+      "srcline": 189,
       "module": "linalg",
       "qualified": "linalg.vdot",
       "perf": {
@@ -2361,7 +2844,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 363,
+      "srcline": 362,
       "module": "math",
       "qualified": "math.acos",
       "perf": {
@@ -2391,7 +2874,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 349,
+      "srcline": 348,
       "module": "math",
       "qualified": "math.asin",
       "perf": {
@@ -2421,7 +2904,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 377,
+      "srcline": 376,
       "module": "math",
       "qualified": "math.atan",
       "perf": {
@@ -2455,7 +2938,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 392,
+      "srcline": 391,
       "module": "math",
       "qualified": "math.atan2",
       "perf": {
@@ -2485,7 +2968,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 165,
+      "srcline": 164,
       "module": "math",
       "qualified": "math.cbrt",
       "perf": {
@@ -2515,7 +2998,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 206,
+      "srcline": 205,
       "module": "math",
       "qualified": "math.ceil",
       "perf": {
@@ -2549,7 +3032,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 438,
+      "srcline": 437,
       "module": "math",
       "qualified": "math.copysign",
       "perf": {
@@ -2579,7 +3062,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 320,
+      "srcline": 319,
       "module": "math",
       "qualified": "math.cos",
       "perf": {
@@ -2609,7 +3092,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 449,
+      "srcline": 448,
       "module": "math",
       "qualified": "math.degrees",
       "perf": {
@@ -2639,7 +3122,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 250,
+      "srcline": 249,
       "module": "math",
       "qualified": "math.exp",
       "perf": {
@@ -2669,7 +3152,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 176,
+      "srcline": 175,
       "module": "math",
       "qualified": "math.fabs",
       "perf": {
@@ -2699,7 +3182,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 530,
+      "srcline": 529,
       "module": "math",
       "qualified": "math.factorial",
       "perf": {
@@ -2729,7 +3212,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 191,
+      "srcline": 190,
       "module": "math",
       "qualified": "math.floor",
       "perf": {
@@ -2763,7 +3246,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 422,
+      "srcline": 421,
       "module": "math",
       "qualified": "math.fmod",
       "perf": {
@@ -2797,7 +3280,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 515,
+      "srcline": 514,
       "module": "math",
       "qualified": "math.gcd",
       "perf": {
@@ -2831,7 +3314,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 407,
+      "srcline": 406,
       "module": "math",
       "qualified": "math.hypot",
       "perf": {
@@ -2861,7 +3344,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 499,
+      "srcline": 498,
       "module": "math",
       "qualified": "math.isfinite",
       "perf": {
@@ -2891,7 +3374,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 488,
+      "srcline": 487,
       "module": "math",
       "qualified": "math.isinf",
       "perf": {
@@ -2921,7 +3404,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 474,
+      "srcline": 473,
       "module": "math",
       "qualified": "math.isnan",
       "perf": {
@@ -2951,7 +3434,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 264,
+      "srcline": 263,
       "module": "math",
       "qualified": "math.log",
       "perf": {
@@ -2981,7 +3464,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 292,
+      "srcline": 291,
       "module": "math",
       "qualified": "math.log10",
       "perf": {
@@ -3011,7 +3494,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 278,
+      "srcline": 277,
       "module": "math",
       "qualified": "math.log2",
       "perf": {
@@ -3047,7 +3530,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 112,
+      "srcline": 111,
       "module": "math",
       "qualified": "math.max",
       "perf": {
@@ -3083,7 +3566,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 84,
+      "srcline": 83,
       "module": "math",
       "qualified": "math.min",
       "perf": {
@@ -3117,7 +3600,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 131,
+      "srcline": 130,
       "module": "math",
       "qualified": "math.pow",
       "perf": {
@@ -3147,7 +3630,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 460,
+      "srcline": 459,
       "module": "math",
       "qualified": "math.radians",
       "perf": {
@@ -3177,7 +3660,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 236,
+      "srcline": 235,
       "module": "math",
       "qualified": "math.round",
       "perf": {
@@ -3207,7 +3690,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 306,
+      "srcline": 305,
       "module": "math",
       "qualified": "math.sin",
       "perf": {
@@ -3237,7 +3720,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 151,
+      "srcline": 150,
       "module": "math",
       "qualified": "math.sqrt",
       "perf": {
@@ -3267,7 +3750,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 335,
+      "srcline": 334,
       "module": "math",
       "qualified": "math.tan",
       "perf": {
@@ -3297,7 +3780,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 221,
+      "srcline": 220,
       "module": "math",
       "qualified": "math.trunc",
       "perf": {
@@ -3326,7 +3809,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1039,
+      "srcline": 1663,
       "module": "ndarray",
       "qualified": "ndarray.abs",
       "perf": {
@@ -3335,28 +3818,25 @@
     },
     {
       "name": "add",
-      "signature": "add(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
-      "brief": "Element-wise a + b with broadcasting.",
+      "signature": "add(basic_ndarray< T > &&a, basic_ndarray< T > &&b)",
+      "brief": "Element-wise a + b when both operands are expiring; reuses the left buffer a (no allocation).",
       "params": [
         {
           "name": "a",
-          "desc": "first operand."
+          "desc": "the expiring left operand; reused for the result."
         },
         {
           "name": "b",
-          "desc": "second operand."
+          "desc": "the expiring right operand."
         }
       ],
-      "returns": "a + b broadcast to the common shape.",
+      "returns": "the sum, in a's reused buffer.",
       "tags": {
-        "complexity": "O(size of result).",
-        "alloc": "allocates the result.",
-        "test": "CheatahNDArray.BroadcastingAdd",
-        "crtest": "NdarrayCompileRun.Add",
-        "systest": "StdlibE2E.Ndarray"
+        "complexity": "O(size of a).",
+        "alloc": "none on the contiguous fast path."
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 744,
+      "srcline": 1193,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
@@ -3393,7 +3873,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 636,
+      "srcline": 763,
       "module": "ndarray",
       "qualified": "ndarray.arange",
       "perf": {
@@ -3418,7 +3898,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 563,
+      "srcline": 646,
       "module": "ndarray",
       "qualified": "ndarray.array",
       "perf": {
@@ -3451,12 +3931,45 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 693,
+      "srcline": 820,
       "module": "ndarray",
       "qualified": "ndarray.binary_op",
       "perf": {
         "kind": "numpy"
       }
+    },
+    {
+      "name": "binary_op_into",
+      "signature": "binary_op_into(basic_ndarray< T > &out, const basic_ndarray< T > &a, const basic_ndarray< T > &b, Op op)",
+      "brief": "Elementwise out = op(a, b) (broadcasting) into the CALLER'S buffer out — the user-provided-output form of binary_op, NO allocation: a hot loop hands the same scratch array every call.",
+      "params": [
+        {
+          "name": "out",
+          "desc": "the destination (mutated; must be contiguous and match the broadcast shape)."
+        },
+        {
+          "name": "a",
+          "desc": "first operand."
+        },
+        {
+          "name": "b",
+          "desc": "second operand."
+        },
+        {
+          "name": "op",
+          "desc": "the binary combiner."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(size of out).",
+        "alloc": "none.",
+        "test": "CheatahNDArray.BinaryOpIntoReusesBuffer"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 875,
+      "module": "ndarray",
+      "qualified": "ndarray.binary_op_into"
     },
     {
       "name": "broadcast_shapes",
@@ -3480,7 +3993,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 443,
+      "srcline": 505,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes",
       "perf": {
@@ -3507,7 +4020,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 490,
+      "srcline": 552,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to",
       "perf": {
@@ -3532,7 +4045,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 965,
+      "srcline": 1589,
       "module": "ndarray",
       "qualified": "ndarray.cbrt",
       "perf": {
@@ -3562,12 +4075,43 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 855,
+      "srcline": 1479,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
         "kind": "numpy"
       }
+    },
+    {
+      "name": "compound_apply",
+      "signature": "compound_apply(basic_ndarray< T > &a, const basic_ndarray< T > &b, Op op)",
+      "brief": "In-place elementwise update a = op(a, b), writing through a's buffer.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the destination array (mutated)."
+        },
+        {
+          "name": "b",
+          "desc": "the right operand (same shape, or a single element)."
+        },
+        {
+          "name": "op",
+          "desc": "the elementwise combiner."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(size of a).",
+        "alloc": "none on the contiguous fast path; one result array on the fallback.",
+        "test": "CheatahNDArray.CompoundAssignInPlace",
+        "crtest": "NdarrayCompileRun.CompoundAssign",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 1051,
+      "module": "ndarray",
+      "qualified": "ndarray.compound_apply"
     },
     {
       "name": "conj",
@@ -3588,7 +4132,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 882,
+      "srcline": 1506,
       "module": "ndarray",
       "qualified": "ndarray.conj",
       "perf": {
@@ -3613,7 +4157,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1015,
+      "srcline": 1639,
       "module": "ndarray",
       "qualified": "ndarray.cos",
       "perf": {
@@ -3622,28 +4166,25 @@
     },
     {
       "name": "divide",
-      "signature": "divide(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
-      "brief": "Element-wise a / b with broadcasting (an integer element type does integer division).",
+      "signature": "divide(basic_ndarray< T > &&a, basic_ndarray< T > &&b)",
+      "brief": "Element-wise a / b when both operands are expiring; reuses the left buffer a (no allocation).",
       "params": [
         {
           "name": "a",
-          "desc": "numerator."
+          "desc": "the expiring numerator; reused for the result."
         },
         {
           "name": "b",
-          "desc": "denominator (float division follows IEEE-754: /0 yields inf/nan, no throw)."
+          "desc": "the expiring denominator."
         }
       ],
-      "returns": "a / b broadcast to the common shape.",
+      "returns": "the quotient, in a's reused buffer.",
       "tags": {
-        "complexity": "O(size of result).",
-        "alloc": "allocates the result.",
-        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
-        "crtest": "NdarrayCompileRun.Divide",
-        "systest": "StdlibE2E.Ndarray"
+        "complexity": "O(size of a).",
+        "alloc": "none on the contiguous fast path."
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 786,
+      "srcline": 1220,
       "module": "ndarray",
       "qualified": "ndarray.divide",
       "perf": {
@@ -3669,7 +4210,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 978,
+      "srcline": 1602,
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
@@ -3702,12 +4243,39 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 620,
+      "srcline": 703,
       "module": "ndarray",
       "qualified": "ndarray.full",
       "perf": {
         "kind": "numpy"
       }
+    },
+    {
+      "name": "full_like",
+      "signature": "full_like(const basic_ndarray< T > &a, T value)",
+      "brief": "A fresh array with the SAME shape and element type as a, filled with value (≈ numpy.full_like).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array whose shape and element type to mirror."
+        },
+        {
+          "name": "value",
+          "desc": "the fill value."
+        }
+      ],
+      "returns": "a same-shape basic_ndarray<T> filled with value.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer.",
+        "test": "CheatahNDArray.LikeFactories",
+        "crtest": "NdarrayCompileRun.FullLike",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 719,
+      "module": "ndarray",
+      "qualified": "ndarray.full_like"
     },
     {
       "name": "get",
@@ -3732,7 +4300,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1108,
+      "srcline": 1732,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3758,7 +4326,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 925,
+      "srcline": 1549,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3783,7 +4351,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 465,
+      "srcline": 527,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous",
       "perf": {
@@ -3808,7 +4376,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 990,
+      "srcline": 1614,
       "module": "ndarray",
       "qualified": "ndarray.log",
       "perf": {
@@ -3834,7 +4402,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1091,
+      "srcline": 1715,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -3843,28 +4411,25 @@
     },
     {
       "name": "mul",
-      "signature": "mul(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
-      "brief": "Element-wise a * b with broadcasting.",
+      "signature": "mul(basic_ndarray< T > &&a, basic_ndarray< T > &&b)",
+      "brief": "Element-wise a * b when both operands are expiring; reuses the left buffer a (no allocation).",
       "params": [
         {
           "name": "a",
-          "desc": "first operand."
+          "desc": "the expiring left operand; reused for the result."
         },
         {
           "name": "b",
-          "desc": "second operand."
+          "desc": "the expiring right operand."
         }
       ],
-      "returns": "a * b broadcast to the common shape.",
+      "returns": "the product, in a's reused buffer.",
       "tags": {
-        "complexity": "O(size of result).",
-        "alloc": "allocates the result.",
-        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
-        "crtest": "NdarrayCompileRun.Mul",
-        "systest": "StdlibE2E.Ndarray"
+        "complexity": "O(size of a).",
+        "alloc": "none on the contiguous fast path."
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 772,
+      "srcline": 1211,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -3890,12 +4455,34 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 605,
+      "srcline": 688,
       "module": "ndarray",
       "qualified": "ndarray.ones",
       "perf": {
         "kind": "numpy"
       }
+    },
+    {
+      "name": "ones_like",
+      "signature": "ones_like(const basic_ndarray< T > &a)",
+      "brief": "A one-filled array with the SAME shape and element type as a (≈ numpy.ones_like).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array whose shape and element type to mirror."
+        }
+      ],
+      "returns": "a same-shape basic_ndarray<T> of ones.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer.",
+        "test": "CheatahNDArray.LikeFactories",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 747,
+      "module": "ndarray",
+      "qualified": "ndarray.ones_like"
     },
     {
       "name": "real",
@@ -3916,7 +4503,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 903,
+      "srcline": 1527,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -3946,7 +4533,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 655,
+      "srcline": 782,
       "module": "ndarray",
       "qualified": "ndarray.reshape",
       "perf": {
@@ -3972,7 +4559,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 577,
+      "srcline": 660,
       "module": "ndarray",
       "qualified": "ndarray.scalar",
       "perf": {
@@ -3998,7 +4585,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1122,
+      "srcline": 1746,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
       "perf": {
@@ -4024,7 +4611,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1003,
+      "srcline": 1627,
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
@@ -4053,7 +4640,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1138,
+      "srcline": 1762,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
       "perf": {
@@ -4079,7 +4666,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 953,
+      "srcline": 1577,
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
@@ -4091,28 +4678,25 @@
     },
     {
       "name": "sub",
-      "signature": "sub(const basic_ndarray< T > &a, const basic_ndarray< T > &b)",
-      "brief": "Element-wise a - b with broadcasting.",
+      "signature": "sub(basic_ndarray< T > &&a, basic_ndarray< T > &&b)",
+      "brief": "Element-wise a - b when both operands are expiring; reuses the left buffer a (no allocation).",
       "params": [
         {
           "name": "a",
-          "desc": "first operand."
+          "desc": "the expiring left operand; reused for the result."
         },
         {
           "name": "b",
-          "desc": "second operand."
+          "desc": "the expiring right operand."
         }
       ],
-      "returns": "a - b broadcast to the common shape.",
+      "returns": "the difference, in a's reused buffer.",
       "tags": {
-        "complexity": "O(size of result).",
-        "alloc": "allocates the result.",
-        "test": "CheatahNDArray.ElementwiseAndScalarBroadcast",
-        "crtest": "NdarrayCompileRun.Sub",
-        "systest": "StdlibE2E.Ndarray"
+        "complexity": "O(size of a).",
+        "alloc": "none on the contiguous fast path."
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 758,
+      "srcline": 1202,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -4138,7 +4722,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1056,
+      "srcline": 1680,
       "module": "ndarray",
       "qualified": "ndarray.sum",
       "perf": {
@@ -4163,7 +4747,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1027,
+      "srcline": 1651,
       "module": "ndarray",
       "qualified": "ndarray.tan",
       "perf": {
@@ -4189,7 +4773,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1241,
+      "srcline": 1865,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {
@@ -4215,12 +4799,35 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 592,
+      "srcline": 675,
       "module": "ndarray",
       "qualified": "ndarray.zeros",
       "perf": {
         "kind": "numpy"
       }
+    },
+    {
+      "name": "zeros_like",
+      "signature": "zeros_like(const basic_ndarray< T > &a)",
+      "brief": "A zero-filled array with the SAME shape and element type as a (≈ numpy.zeros_like) — the idiomatic way to allocate a matching gradient/velocity/scratch buffer for an existing array.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array whose shape and element type to mirror."
+        }
+      ],
+      "returns": "a same-shape basic_ndarray<T> of zeros.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates a new buffer.",
+        "test": "CheatahNDArray.LikeFactories",
+        "crtest": "NdarrayCompileRun.ZerosLike",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 734,
+      "module": "ndarray",
+      "qualified": "ndarray.zeros_like"
     },
     {
       "name": "chdir",
@@ -4911,16 +5518,193 @@
       }
     },
     {
-      "name": "module_abi",
-      "signature": "module_abi() noexcept",
-      "brief": "ABI/identity marker for the parsers cheatah module: returns the module name.",
+      "name": "public_from_private",
+      "signature": "public_from_private(const std::string &privkey)",
+      "brief": "Derive the public key point from a private scalar: Q = d·G.",
+      "params": [
+        {
+          "name": "privkey",
+          "desc": "the private scalar d as 32 big-endian bytes."
+        }
+      ],
+      "returns": "the public key as 64 bytes (X||Y), or \"\" if d is out of range.",
+      "tags": {
+        "complexity": "one scalar multiplication.",
+        "alloc": "the returned point.",
+        "test": "CheatahP256.PublicFromPrivate"
+      },
+      "srcfile": "stdlib/p256/p256.hpp",
+      "srcline": 79,
+      "module": "p256",
+      "qualified": "p256.public_from_private"
+    },
+    {
+      "name": "sign_raw",
+      "signature": "sign_raw(const std::string &privkey, const std::string &msg_hash)",
+      "brief": "Deterministic ECDSA/P-256 signing (RFC 6979 nonce, HMAC-SHA256).",
+      "params": [
+        {
+          "name": "privkey",
+          "desc": "the private scalar d as 32 big-endian bytes."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the digest to sign (truncated to 256 bits if longer)."
+        }
+      ],
+      "returns": "the signature as 64 bytes r||s.",
+      "tags": {
+        "complexity": "one scalar multiplication per RFC 6979 candidate (almost always one).",
+        "alloc": "small temporaries.",
+        "test": "CheatahP256.SignKnownVector"
+      },
+      "srcfile": "stdlib/p256/p256.hpp",
+      "srcline": 69,
+      "module": "p256",
+      "qualified": "p256.sign_raw"
+    },
+    {
+      "name": "spki_ec_point",
+      "signature": "spki_ec_point(std::string_view spki_or_cert_der)",
+      "brief": "Extract the P-256 public key point from a certificate / SubjectPublicKeyInfo DER: finds the id-ecPublicKey + prime256v1 AlgorithmIdentifier and returns the uncompressed point's 64 bytes (X||Y).",
+      "params": [
+        {
+          "name": "spki_or_cert_der",
+          "desc": "the certificate or SPKI DER bytes."
+        }
+      ],
+      "returns": "the 64-byte X||Y point, or \"\" if not a P-256 EC key.",
+      "tags": {
+        "complexity": "O(der length).",
+        "alloc": "the returned point.",
+        "test": "CheatahP256.SpkiExtractsPoint"
+      },
+      "srcfile": "stdlib/p256/p256.hpp",
+      "srcline": 92,
+      "module": "p256",
+      "qualified": "p256.spki_ec_point"
+    },
+    {
+      "name": "verify_der",
+      "signature": "verify_der(const std::string &pubkey_xy, const std::string &msg_hash, const std::string &sig_der)",
+      "brief": "Verify an ECDSA/P-256 signature.",
+      "params": [
+        {
+          "name": "pubkey_xy",
+          "desc": "the public key as 64 bytes (X||Y), big-endian."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the message digest (e.g. 32 bytes of SHA-256); if longer than 32 bytes it is truncated to the leftmost 256 bits (FIPS 186-4)."
+        },
+        {
+          "name": "sig_der",
+          "desc": "the signature, DER-encoded SEQUENCE{INTEGER r, INTEGER s}."
+        }
+      ],
+      "returns": "true iff the signature is valid for pubkey_xy over msg_hash.",
+      "tags": {
+        "complexity": "two scalar multiplications.",
+        "alloc": "small temporaries only.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/p256.hpp",
+      "srcline": 42,
+      "module": "p256",
+      "qualified": "p256.verify_der"
+    },
+    {
+      "name": "verify_raw",
+      "signature": "verify_raw(const std::string &pubkey_xy, const std::string &msg_hash, const std::string &sig_raw)",
+      "brief": "Verify an ECDSA/P-256 signature given the raw 64-byte r||s form (the JWT ES256 layout).",
+      "params": [
+        {
+          "name": "pubkey_xy",
+          "desc": "the public key (64 bytes X||Y)."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the digest (truncated to 256 bits if longer)."
+        },
+        {
+          "name": "sig_raw",
+          "desc": "the signature as 64 bytes r||s."
+        }
+      ],
+      "returns": "true iff valid.",
+      "tags": {
+        "complexity": "two scalar multiplications.",
+        "alloc": "small temporaries.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/p256.hpp",
+      "srcline": 56,
+      "module": "p256",
+      "qualified": "p256.verify_raw"
+    },
+    {
+      "name": "dump",
+      "signature": "dump(const Document &value)",
+      "brief": "Serialize a Document to compact JSON text (string contents are re-escaped).",
       "params": [],
       "returns": "",
-      "tags": {},
-      "srcfile": "stdlib/parsers/parsers.hpp",
-      "srcline": 13,
-      "module": "parsers",
-      "qualified": "parsers.module_abi"
+      "tags": {
+        "complexity": "O(nodes)",
+        "alloc": "the returned string",
+        "test": "Json.DumpRoundTrip"
+      },
+      "srcfile": "stdlib/parsers/json/json.hpp",
+      "srcline": 61,
+      "module": "parsers.json",
+      "qualified": "parsers.json.dump"
+    },
+    {
+      "name": "parse",
+      "signature": "parse(std::string_view text, bool *ok=nullptr)",
+      "brief": "Parse text into a SELF-CONTAINED Document (owning containers AND owned strings — every string is copied, not a view), so the result is safe to return, cache, or outlive text.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(n) in the input length",
+        "alloc": "allocates the owned document tree (arrays, objects, and copied strings)",
+        "test": "Json.ParseObject"
+      },
+      "srcfile": "stdlib/parsers/json/json.hpp",
+      "srcline": 52,
+      "module": "parsers.json",
+      "qualified": "parsers.json.parse"
+    },
+    {
+      "name": "read",
+      "signature": "read(std::string_view text, T &out)",
+      "brief": "Parse text directly into out (a struct with a schema<>, a supported scalar, std::vector, std::array, std::optional, or std::string/std::string_view).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(n) in the input length",
+        "alloc": "only the owned std::string fields / vector growth in out — no DOM, no Node tree",
+        "test": "JsonRead.*"
+      },
+      "srcfile": "stdlib/parsers/json/read.hpp",
+      "srcline": 374,
+      "module": "parsers.json",
+      "qualified": "parsers.json.read"
+    },
+    {
+      "name": "to_view",
+      "signature": "to_view(const Node &value) noexcept",
+      "brief": "Read a Node's characters when it is a string (either backing), else an empty view.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1)",
+        "alloc": "none",
+        "test": "Json.ParseObject"
+      },
+      "srcfile": "stdlib/parsers/json/json.hpp",
+      "srcline": 34,
+      "module": "parsers.json",
+      "qualified": "parsers.json.to_view"
     },
     {
       "name": "choice",
@@ -5107,6 +5891,180 @@
       }
     },
     {
+      "name": "dechunk",
+      "signature": "dechunk(builtins::Value auto &&raw, builtins::Value auto &&r)",
+      "brief": "Decode an HTTP/1.1 chunked body.",
+      "params": [
+        {
+          "name": "raw",
+          "desc": "everything after the response head (the body bytes as received)."
+        },
+        {
+          "name": "r",
+          "desc": "the Response under construction; r.error is set on malformed framing."
+        }
+      ],
+      "returns": "the decoded body, or \"\" when framing was malformed (see r.error).",
+      "tags": {
+        "complexity": "O(n) over the body length.",
+        "alloc": "allocates the decoded body.",
+        "systest": "RequestsSys.Chunked"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 207,
+      "module": "requests",
+      "qualified": "requests.dechunk"
+    },
+    {
+      "name": "get",
+      "signature": "get(builtins::Value auto &&url)",
+      "brief": "Convenience overload of get with the trailing default argument(s) applied.",
+      "params": [
+        {
+          "name": "url",
+          "desc": "as documented on the primary overload."
+        }
+      ],
+      "returns": "as the primary overload.",
+      "tags": {},
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 475,
+      "module": "requests",
+      "qualified": "requests.get"
+    },
+    {
+      "name": "get_once",
+      "signature": "get_once(builtins::Value auto &&u, builtins::Value auto &&o, builtins::Value auto &&r)",
+      "brief": "One GET exchange against an already-parsed URL (no redirect handling).",
+      "params": [
+        {
+          "name": "u",
+          "desc": "the parsed URL (scheme/host/port/target) from parsers.url."
+        },
+        {
+          "name": "o",
+          "desc": "per-request options (timeout, params, headers)."
+        },
+        {
+          "name": "r",
+          "desc": "the Response under construction."
+        }
+      ],
+      "returns": "the completed Response (a non-2xx status is a completed exchange, not an error).",
+      "tags": {
+        "alloc": "allocates the request and response buffers.",
+        "systest": "RequestsSys.BasicGet"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 358,
+      "module": "requests",
+      "qualified": "requests.get_once"
+    },
+    {
+      "name": "module_abi",
+      "signature": "module_abi() noexcept",
+      "brief": "ABI/identity marker for the requests cheatah module: returns the module name.",
+      "params": [],
+      "returns": "the module name (\"requests\").",
+      "tags": {},
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 482,
+      "module": "requests",
+      "qualified": "requests.module_abi"
+    },
+    {
+      "name": "parse_hex",
+      "signature": "parse_hex(builtins::Value auto &&text)",
+      "brief": "Parse one hex chunk-size token (e.g.",
+      "params": [
+        {
+          "name": "text",
+          "desc": "the hex token, both digit cases accepted, no prefix."
+        }
+      ],
+      "returns": "the decoded size, or -1 on a malformed digit. An empty token decodes to 0, which the chunked framing treats as the final chunk.",
+      "tags": {
+        "complexity": "O(n) over the token length.",
+        "alloc": "none.",
+        "systest": "RequestsSys.Chunked"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 173,
+      "module": "requests",
+      "qualified": "requests.parse_hex"
+    },
+    {
+      "name": "parse_response",
+      "signature": "parse_response(builtins::Value auto &&raw, builtins::Value auto &&r)",
+      "brief": "Parse a raw HTTP/1.1 response (status line + headers + body) into r.",
+      "params": [
+        {
+          "name": "raw",
+          "desc": "the complete response bytes as received."
+        },
+        {
+          "name": "r",
+          "desc": "the Response under construction (status/headers/body/error are filled in)."
+        }
+      ],
+      "returns": "r, completed or carrying error.",
+      "tags": {
+        "complexity": "O(n) over the response size.",
+        "alloc": "allocates the parsed headers and body.",
+        "systest": "RequestsSys.EofFraming RequestsSys.HeaderLookup"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 287,
+      "module": "requests",
+      "qualified": "requests.parse_response"
+    },
+    {
+      "name": "percent_encode",
+      "signature": "percent_encode(builtins::Value auto &&text)",
+      "brief": "Percent-encode text for a query string.",
+      "params": [
+        {
+          "name": "text",
+          "desc": "the raw query-parameter name or value."
+        }
+      ],
+      "returns": "the percent-encoded form, safe to place in a request-target.",
+      "tags": {
+        "complexity": "O(n) over the input length.",
+        "alloc": "allocates the result.",
+        "systest": "RequestsSys.QueryParams"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 147,
+      "module": "requests",
+      "qualified": "requests.percent_encode"
+    },
+    {
+      "name": "read_all",
+      "signature": "read_all(builtins::Value auto &&fd, builtins::Value auto &&conn)",
+      "brief": "Read the whole response from a connected socket (or TLS session for https).",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a connected socket descriptor from socket.tcp_connect."
+        },
+        {
+          "name": "conn",
+          "desc": "the owning tls.Conn for https (open), or a closed Conn for plain http."
+        }
+      ],
+      "returns": "all bytes received.",
+      "tags": {
+        "complexity": "O(n) over the response size.",
+        "alloc": "allocates the received buffer.",
+        "systest": "RequestsSys.BasicGet"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 255,
+      "module": "requests",
+      "qualified": "requests.read_all"
+    },
+    {
       "name": "accept",
       "signature": "accept(long long fd)",
       "brief": "Accept one pending connection.",
@@ -5125,7 +6083,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 81,
+      "srcline": 82,
       "module": "socket",
       "qualified": "socket.accept",
       "perf": {
@@ -5160,7 +6118,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 196,
+      "srcline": 209,
       "module": "socket",
       "qualified": "socket.bind",
       "perf": {
@@ -5187,7 +6145,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 148,
+      "srcline": 149,
       "module": "socket",
       "qualified": "socket.close",
       "perf": {
@@ -5222,7 +6180,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 230,
+      "srcline": 243,
       "module": "socket",
       "qualified": "socket.connect",
       "perf": {
@@ -5244,7 +6202,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 259,
+      "srcline": 288,
       "module": "socket",
       "qualified": "socket.last_error",
       "perf": {
@@ -5275,7 +6233,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 212,
+      "srcline": 225,
       "module": "socket",
       "qualified": "socket.listen",
       "perf": {
@@ -5302,13 +6260,40 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 245,
+      "srcline": 258,
       "module": "socket",
       "qualified": "socket.local_port",
       "perf": {
         "kind": "note",
         "note": "network/syscall-bound — not micro-benchmarked"
       }
+    },
+    {
+      "name": "open",
+      "signature": "open(const std::string &host, long long port)",
+      "brief": "Open a client TCP connection to host:port and return it as an owning Conn (the RAII, with-friendly form of tcp_connect()).",
+      "params": [
+        {
+          "name": "host",
+          "desc": "destination host (name or IP)."
+        },
+        {
+          "name": "port",
+          "desc": "destination port."
+        }
+      ],
+      "returns": "an owning Conn; on failure its is_open() is false (see last_error()).",
+      "tags": {
+        "complexity": "O(1) + DNS resolution.",
+        "alloc": "none beyond the Conn itself.",
+        "test": "CheatahSocket.ConnLoopback",
+        "crtest": "SocketCompileRun.OpenWith",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 537,
+      "module": "socket",
+      "qualified": "socket.open"
     },
     {
       "name": "recv",
@@ -5333,7 +6318,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 99,
+      "srcline": 100,
       "module": "socket",
       "qualified": "socket.recv",
       "perf": {
@@ -5364,7 +6349,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 115,
+      "srcline": 116,
       "module": "socket",
       "qualified": "socket.send",
       "perf": {
@@ -5395,13 +6380,44 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 132,
+      "srcline": 133,
       "module": "socket",
       "qualified": "socket.sendall",
       "perf": {
         "kind": "note",
         "note": "network/syscall-bound — not micro-benchmarked"
       }
+    },
+    {
+      "name": "serve",
+      "signature": "serve(const std::string &host, long long port, long long backlog)",
+      "brief": "Create a listening server socket bound to host:port and return it as an owning Listener (the RAII, with-friendly form of tcp_listen()).",
+      "params": [
+        {
+          "name": "host",
+          "desc": "interface to bind (\"127.0.0.1\", \"0.0.0.0\", …)."
+        },
+        {
+          "name": "port",
+          "desc": "TCP port (0 = let the OS pick — read it back with Listener::local_port())."
+        },
+        {
+          "name": "backlog",
+          "desc": "pending-connection queue length."
+        }
+      ],
+      "returns": "an owning Listener; on failure its is_open() is false (see last_error()).",
+      "tags": {
+        "complexity": "O(1) (a few syscalls).",
+        "alloc": "none beyond the Listener itself.",
+        "test": "CheatahSocket.ListenerLoopback",
+        "crtest": "SocketCompileRun.ServeWith",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 552,
+      "module": "socket",
+      "qualified": "socket.serve"
     },
     {
       "name": "set_reuseaddr",
@@ -5422,13 +6438,60 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 179,
+      "srcline": 192,
       "module": "socket",
       "qualified": "socket.set_reuseaddr",
       "perf": {
         "kind": "note",
         "note": "network/syscall-bound — not micro-benchmarked"
       }
+    },
+    {
+      "name": "set_timeout",
+      "signature": "set_timeout(long long fd, long long timeout_ms)",
+      "brief": "Bound both blocking directions of fd by timeout_ms (SO_RCVTIMEO + SO_SNDTIMEO), so a silent peer cannot hang a recv/send forever.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a socket."
+        },
+        {
+          "name": "timeout_ms",
+          "desc": "the per-operation bound in milliseconds."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1) (two setsockopt calls).",
+        "alloc": "none.",
+        "test": "CheatahSocket.SetTimeout",
+        "crtest": "SocketCompileRun.SetTimeout",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 274,
+      "module": "socket",
+      "qualified": "socket.set_timeout"
+    },
+    {
+      "name": "shutdown",
+      "signature": "shutdown(long long fd)",
+      "brief": "Half-close fd in both directions (::shutdown SHUT_RDWR) WITHOUT releasing it.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "the fd to half-close."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(1) syscall.",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 161,
+      "module": "socket",
+      "qualified": "socket.shutdown"
     },
     {
       "name": "socket",
@@ -5444,7 +6507,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 164,
+      "srcline": 177,
       "module": "socket",
       "qualified": "socket.socket",
       "perf": {
@@ -5475,7 +6538,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 63,
+      "srcline": 64,
       "module": "socket",
       "qualified": "socket.tcp_connect",
       "perf": {
@@ -5510,7 +6573,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 46,
+      "srcline": 47,
       "module": "socket",
       "qualified": "socket.tcp_listen",
       "perf": {
@@ -5597,7 +6660,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 191,
+      "srcline": 190,
       "module": "statistics",
       "qualified": "statistics.median",
       "perf": {
@@ -5627,7 +6690,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 131,
+      "srcline": 130,
       "module": "statistics",
       "qualified": "statistics.pstdev",
       "perf": {
@@ -5657,7 +6720,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 106,
+      "srcline": 105,
       "module": "statistics",
       "qualified": "statistics.pvariance",
       "perf": {
@@ -5687,7 +6750,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 174,
+      "srcline": 173,
       "module": "statistics",
       "qualified": "statistics.stdev",
       "perf": {
@@ -5747,7 +6810,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 149,
+      "srcline": 148,
       "module": "statistics",
       "qualified": "statistics.variance",
       "perf": {
@@ -5807,7 +6870,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 321,
+      "srcline": 331,
       "module": "string",
       "qualified": "string.capwords",
       "perf": {
@@ -5845,7 +6908,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 407,
+      "srcline": 417,
       "module": "string",
       "qualified": "string.center",
       "perf": {
@@ -5858,28 +6921,28 @@
     },
     {
       "name": "contains",
-      "signature": "contains(std::string_view s, std::string_view sub)",
-      "brief": "Substring test.",
+      "signature": "contains(std::string_view s, char c)",
+      "brief": "contains() with a single-char needle — what iterating a string yields (for ch in s).",
       "params": [
         {
           "name": "s",
           "desc": "input."
         },
         {
-          "name": "sub",
-          "desc": "needle."
+          "name": "c",
+          "desc": "the character."
         }
       ],
-      "returns": "true iff sub occurs in s.",
+      "returns": "true when present.",
       "tags": {
-        "complexity": "O(n·m).",
+        "complexity": "O(n).",
         "alloc": "none.",
         "test": "CheatahString.SearchAndTest",
-        "crtest": "StringCompileRun.Contains",
+        "crtest": "StringCompileRun.Find",
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 198,
+      "srcline": 208,
       "module": "string",
       "qualified": "string.contains",
       "perf": {
@@ -5913,7 +6976,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 243,
+      "srcline": 253,
       "module": "string",
       "qualified": "string.count",
       "perf": {
@@ -5981,7 +7044,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 213,
+      "srcline": 223,
       "module": "string",
       "qualified": "string.find",
       "perf": {
@@ -6011,7 +7074,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 467,
+      "srcline": 477,
       "module": "string",
       "qualified": "string.isalnum",
       "perf": {
@@ -6041,7 +7104,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 453,
+      "srcline": 463,
       "module": "string",
       "qualified": "string.isalpha",
       "perf": {
@@ -6071,7 +7134,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 439,
+      "srcline": 449,
       "module": "string",
       "qualified": "string.isdigit",
       "perf": {
@@ -6101,7 +7164,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 512,
+      "srcline": 522,
       "module": "string",
       "qualified": "string.islower",
       "perf": {
@@ -6131,7 +7194,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 482,
+      "srcline": 492,
       "module": "string",
       "qualified": "string.isspace",
       "perf": {
@@ -6161,7 +7224,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 497,
+      "srcline": 507,
       "module": "string",
       "qualified": "string.isupper",
       "perf": {
@@ -6195,7 +7258,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 343,
+      "srcline": 353,
       "module": "string",
       "qualified": "string.join",
       "perf": {
@@ -6233,7 +7296,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 373,
+      "srcline": 383,
       "module": "string",
       "qualified": "string.ljust",
       "perf": {
@@ -6335,7 +7398,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 260,
+      "srcline": 270,
       "module": "string",
       "qualified": "string.replace",
       "perf": {
@@ -6369,7 +7432,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 228,
+      "srcline": 238,
       "module": "string",
       "qualified": "string.rfind",
       "perf": {
@@ -6407,7 +7470,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 390,
+      "srcline": 400,
       "module": "string",
       "qualified": "string.rjust",
       "perf": {
@@ -6471,7 +7534,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 291,
+      "srcline": 301,
       "module": "string",
       "qualified": "string.split",
       "perf": {
@@ -6501,7 +7564,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 306,
+      "srcline": 316,
       "module": "string",
       "qualified": "string.splitlines",
       "perf": {
@@ -6693,7 +7756,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 423,
+      "srcline": 433,
       "module": "string",
       "qualified": "string.zfill",
       "perf": {
@@ -6930,9 +7993,427 @@
         "speedup": 6.0,
         "vs": "cpython"
       }
+    },
+    {
+      "name": "client_connect",
+      "signature": "client_connect(long long fd, const std::string &server_name)",
+      "brief": "Run the TLS 1.3 handshake as a client over connected fd fd, requesting server_name via SNI and authenticating the server as described in tls.hpp.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a CONNECTED TCP socket."
+        },
+        {
+          "name": "server_name",
+          "desc": "the hostname for SNI and (future) certificate name checks."
+        }
+      ],
+      "returns": "a session handle (>= 1), or -1 on failure (see last_error()).",
+      "tags": {
+        "complexity": "one network round trip + O(handshake bytes) crypto.",
+        "alloc": "the session state.",
+        "test": "CheatahTls.KeySchedule",
+        "crtest": "TlsSys.HandshakeAgainstOpenssl",
+        "systest": "TlsSys.HttpsGet"
+      },
+      "srcfile": "stdlib/tls/tls_lowlevel.hpp",
+      "srcline": 34,
+      "module": "tls",
+      "qualified": "tls.client_connect"
+    },
+    {
+      "name": "close",
+      "signature": "close(long long session)",
+      "brief": "Send close_notify and forget the session (the TCP fd stays open and is the caller's).",
+      "params": [
+        {
+          "name": "session",
+          "desc": "the session handle to close."
+        }
+      ],
+      "returns": "0 on success, -1 for an unknown session.",
+      "tags": {
+        "complexity": "O(log n) session-table lookup + a close_notify write.",
+        "alloc": "a small close_notify record (when the session is still open).",
+        "test": "TlsSys.HandshakeAgainstOpenssl",
+        "crtest": "TlsSys.HttpsGet",
+        "systest": "TlsSys.HttpsGet"
+      },
+      "srcfile": "stdlib/tls/tls_lowlevel.hpp",
+      "srcline": 77,
+      "module": "tls",
+      "qualified": "tls.close"
+    },
+    {
+      "name": "last_error",
+      "signature": "last_error()",
+      "brief": "The most recent tls error message on this thread (\"\" when none).",
+      "params": [],
+      "returns": "the last error text set on the calling thread, or \"\" if none.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "the returned string.",
+        "test": "TlsSys.RefusesBadPeer",
+        "crtest": "TlsSys.HandshakeAgainstOpenssl",
+        "systest": "TlsSys.HttpsGet"
+      },
+      "srcfile": "stdlib/tls/tls.hpp",
+      "srcline": 44,
+      "module": "tls",
+      "qualified": "tls.last_error"
+    },
+    {
+      "name": "open",
+      "signature": "open(long long fd, const std::string &server_name)",
+      "brief": "Run the TLS 1.3 client handshake over connected fd fd and return an owning Conn (the RAII, with-friendly form of client_connect()).",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a CONNECTED TCP socket (e.g. socket::Conn::fd())."
+        },
+        {
+          "name": "server_name",
+          "desc": "the hostname for SNI and certificate name checks."
+        }
+      ],
+      "returns": "an owning Conn; on handshake failure its is_open() is false (see last_error()).",
+      "tags": {
+        "complexity": "one network round trip + O(handshake bytes) crypto.",
+        "alloc": "the session state.",
+        "test": "TlsSys.ConnGuardRoundTrip",
+        "systest": "TlsSys.HttpsGet"
+      },
+      "srcfile": "stdlib/tls/tls.hpp",
+      "srcline": 168,
+      "module": "tls",
+      "qualified": "tls.open"
+    },
+    {
+      "name": "recv",
+      "signature": "recv(long long session, long long bufsize)",
+      "brief": "Receive and decrypt application data (one record's worth, up to bufsize bytes are returned per call; the remainder is buffered).",
+      "params": [
+        {
+          "name": "session",
+          "desc": "a session handle from client_connect()."
+        },
+        {
+          "name": "bufsize",
+          "desc": "the maximum number of plaintext bytes to return this call."
+        }
+      ],
+      "returns": "the decrypted plaintext (up to bufsize bytes), or \"\" on clean close/EOF/error.",
+      "tags": {
+        "complexity": "O(record size).",
+        "alloc": "the returned plaintext.",
+        "test": "TlsSys.HandshakeAgainstOpenssl",
+        "crtest": "TlsSys.HttpsGet",
+        "systest": "TlsSys.HttpsGet"
+      },
+      "srcfile": "stdlib/tls/tls_lowlevel.hpp",
+      "srcline": 64,
+      "module": "tls",
+      "qualified": "tls.recv"
+    },
+    {
+      "name": "send",
+      "signature": "send(long long session, const std::string &data)",
+      "brief": "Encrypt and send data as TLS application data.",
+      "params": [
+        {
+          "name": "session",
+          "desc": "a session handle from client_connect()."
+        },
+        {
+          "name": "data",
+          "desc": "the plaintext to encrypt and transmit."
+        }
+      ],
+      "returns": "0 on success, -1 on error.",
+      "tags": {
+        "complexity": "O(|data|).",
+        "alloc": "the ciphertext record(s).",
+        "test": "TlsSys.HandshakeAgainstOpenssl",
+        "crtest": "TlsSys.HttpsGet",
+        "systest": "TlsSys.HttpsGet"
+      },
+      "srcfile": "stdlib/tls/tls_lowlevel.hpp",
+      "srcline": 48,
+      "module": "tls",
+      "qualified": "tls.send"
+    },
+    {
+      "name": "shutdown",
+      "signature": "shutdown(long long session)",
+      "brief": "Wake a reader blocked in recv() on session WITHOUT closing/erasing it (the socket is half-closed so the blocking recv returns EOF).",
+      "params": [
+        {
+          "name": "session",
+          "desc": "the session whose blocked reader should be woken."
+        }
+      ],
+      "returns": "0 on success, -1 for an unknown session or a syscall error.",
+      "tags": {
+        "complexity": "O(log n) lookup + one syscall.",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/tls/tls_lowlevel.hpp",
+      "srcline": 87,
+      "module": "tls",
+      "qualified": "tls.shutdown"
+    },
+    {
+      "name": "close",
+      "signature": "close(long long session)",
+      "brief": "Close the connection: send a close frame, then tear down TLS and the socket.",
+      "params": [
+        {
+          "name": "session",
+          "desc": "the session id."
+        }
+      ],
+      "returns": "0 on success.",
+      "tags": {
+        "complexity": "one TLS write + teardown.",
+        "alloc": "a small close frame (when still open).",
+        "test": "CheatahWebSocket.CloseIsIdempotent"
+      },
+      "srcfile": "stdlib/websocket/websocket_lowlevel.hpp",
+      "srcline": 92,
+      "module": "websocket",
+      "qualified": "websocket.close"
+    },
+    {
+      "name": "connect",
+      "signature": "connect(const std::string &host, long long port, const std::string &path, const std::string &server_name)",
+      "brief": "Open a secure WebSocket connection: TCP connect, TLS 1.3 handshake, then the RFC 6455 upgrade handshake (a Sec-WebSocket-Key from the OS CSPRNG; the server's 101 Switching Protocols is required).",
+      "params": [
+        {
+          "name": "host",
+          "desc": "the server host, e.g. \"echo.websocket.org\"."
+        },
+        {
+          "name": "port",
+          "desc": "the TLS port, normally 443."
+        },
+        {
+          "name": "path",
+          "desc": "the request path, e.g. \"/\"."
+        },
+        {
+          "name": "server_name",
+          "desc": "the TLS SNI / Host (usually == host)."
+        }
+      ],
+      "returns": "a session id (>= 0).",
+      "tags": {
+        "complexity": "one TCP + one TLS handshake + one HTTP round trip.",
+        "alloc": "the session (its reused read buffer is reserved here).",
+        "test": "CheatahWebSocket.ConnectRejectsNon101",
+        "systest": "WebSocketSys.EchoRoundTrip"
+      },
+      "srcfile": "stdlib/websocket/websocket_lowlevel.hpp",
+      "srcline": 38,
+      "module": "websocket",
+      "qualified": "websocket.connect"
+    },
+    {
+      "name": "connect_url",
+      "signature": "connect_url(const std::string &url)",
+      "brief": "Connect from a wss://host[:port]/path URL (convenience over connect()).",
+      "params": [
+        {
+          "name": "url",
+          "desc": "the wss URL."
+        }
+      ],
+      "returns": "a session id (>= 0).",
+      "tags": {
+        "complexity": "as connect().",
+        "alloc": "the session.",
+        "test": "CheatahWebSocket.ParsesWssUrl"
+      },
+      "srcfile": "stdlib/websocket/websocket_lowlevel.hpp",
+      "srcline": 51,
+      "module": "websocket",
+      "qualified": "websocket.connect_url"
+    },
+    {
+      "name": "open",
+      "signature": "open(const std::string &host, long long port, const std::string &path, const std::string &server_name)",
+      "brief": "Open a secure WebSocket connection and return it as an owning Client (the RAII, with-friendly form of connect()).",
+      "params": [
+        {
+          "name": "host",
+          "desc": "the server host, e.g. \"echo.websocket.org\"."
+        },
+        {
+          "name": "port",
+          "desc": "the TLS port, normally 443."
+        },
+        {
+          "name": "path",
+          "desc": "the request path, e.g. \"/\"."
+        },
+        {
+          "name": "server_name",
+          "desc": "the TLS SNI / Host (usually == host)."
+        }
+      ],
+      "returns": "an owning Client.",
+      "tags": {
+        "complexity": "one TCP + one TLS handshake + one HTTP round trip.",
+        "alloc": "the session.",
+        "systest": "WebSocketSys.EchoRoundTrip"
+      },
+      "srcfile": "stdlib/websocket/websocket.hpp",
+      "srcline": 166,
+      "module": "websocket",
+      "qualified": "websocket.open"
+    },
+    {
+      "name": "open_url",
+      "signature": "open_url(const std::string &url)",
+      "brief": "Open a secure WebSocket connection from a wss://host[:port]/path URL and return it as an owning Client (the RAII, with-friendly form of connect_url()).",
+      "params": [
+        {
+          "name": "url",
+          "desc": "the wss URL."
+        }
+      ],
+      "returns": "an owning Client.",
+      "tags": {
+        "complexity": "as open().",
+        "alloc": "the session.",
+        "test": "CheatahWebSocket.ClientDefaultIsClosed"
+      },
+      "srcfile": "stdlib/websocket/websocket.hpp",
+      "srcline": 179,
+      "module": "websocket",
+      "qualified": "websocket.open_url"
+    },
+    {
+      "name": "recv",
+      "signature": "recv(long long session)",
+      "brief": "Receive the next application message (text or binary), returned as bytes.",
+      "params": [
+        {
+          "name": "session",
+          "desc": "the session id."
+        }
+      ],
+      "returns": "the message payload; an EMPTY string once the peer has closed.",
+      "tags": {
+        "complexity": "O(message length); server frames are unmasked so no XOR is done.",
+        "alloc": "the returned payload (one copy out of the reused read buffer).",
+        "test": "CheatahWebSocket.RecvReassemblesAndHandlesPing",
+        "systest": "WebSocketSys.EchoRoundTrip"
+      },
+      "srcfile": "stdlib/websocket/websocket_lowlevel.hpp",
+      "srcline": 81,
+      "module": "websocket",
+      "qualified": "websocket.recv"
+    },
+    {
+      "name": "send_text",
+      "signature": "send_text(long long session, const std::string &message)",
+      "brief": "Send one application TEXT message as a single masked frame (clients MUST mask, RFC 6455 §5.3; the 4-byte key is drawn from the OS CSPRNG).",
+      "params": [
+        {
+          "name": "session",
+          "desc": "the session id."
+        },
+        {
+          "name": "message",
+          "desc": "the UTF-8 payload."
+        }
+      ],
+      "returns": "the number of payload bytes sent.",
+      "tags": {
+        "complexity": "O(message length) (a 64-bit-word XOR mask + one TLS write).",
+        "alloc": "one frame buffer sized to the message.",
+        "test": "CheatahWebSocket.SendMasksClientFrame",
+        "systest": "WebSocketSys.EchoRoundTrip"
+      },
+      "srcfile": "stdlib/websocket/websocket_lowlevel.hpp",
+      "srcline": 66,
+      "module": "websocket",
+      "qualified": "websocket.send_text"
+    },
+    {
+      "name": "shutdown",
+      "signature": "shutdown(long long session)",
+      "brief": "Wake a reader blocked in recv() on session WITHOUT freeing it (half-closes the socket so recv returns \"\").",
+      "params": [
+        {
+          "name": "session",
+          "desc": "the session whose blocked reader should be woken."
+        }
+      ],
+      "returns": "0 on success, -1 for an unknown session or a syscall error.",
+      "tags": {
+        "complexity": "O(1) + one syscall.",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/websocket/websocket_lowlevel.hpp",
+      "srcline": 103,
+      "module": "websocket",
+      "qualified": "websocket.shutdown"
+    },
+    {
+      "name": "x25519",
+      "signature": "x25519(std::string_view scalar_hex, std::string_view point_hex)",
+      "brief": "The X25519 function: scalar-multiply point_hex (a u-coordinate) by scalar_hex.",
+      "params": [
+        {
+          "name": "scalar_hex",
+          "desc": "64-char hex (32-byte scalar; clamped per RFC 7748)."
+        },
+        {
+          "name": "point_hex",
+          "desc": "64-char hex (32-byte u-coordinate)."
+        }
+      ],
+      "returns": "the 32-byte result as 64-char hex, or \"\" on malformed input or an all-zero result (a contributory-behaviour check: a zero shared secret is REJECTED).",
+      "tags": {
+        "complexity": "O(1) — 255 constant-time ladder steps.",
+        "alloc": "the returned string.",
+        "test": "CheatahX25519.Rfc7748Vector1",
+        "crtest": "X25519CompileRun.SharedSecret",
+        "systest": "StdlibE2E.X25519"
+      },
+      "srcfile": "stdlib/x25519/x25519.hpp",
+      "srcline": 33,
+      "module": "x25519",
+      "qualified": "x25519.x25519"
+    },
+    {
+      "name": "x25519_base",
+      "signature": "x25519_base(std::string_view scalar_hex)",
+      "brief": "The base-point form: derive the public key for scalar_hex (u = 9).",
+      "params": [
+        {
+          "name": "scalar_hex",
+          "desc": "64-char hex secret key."
+        }
+      ],
+      "returns": "the public key as 64-char hex, or \"\" on malformed input.",
+      "tags": {
+        "complexity": "O(1) — one ladder.",
+        "alloc": "the returned string.",
+        "test": "CheatahX25519.DiffieHellman",
+        "crtest": "X25519CompileRun.PublicKey",
+        "systest": "StdlibE2E.X25519"
+      },
+      "srcfile": "stdlib/x25519/x25519.hpp",
+      "srcline": 46,
+      "module": "x25519",
+      "qualified": "x25519.x25519_base"
     }
   ],
   "modules": [
+    "aead",
+    "aead.accel",
     "datetime",
     "ed25519",
     "hashlib",
@@ -6944,13 +8425,22 @@
     "ndarray",
     "os",
     "os.path",
+    "p256",
     "parsers",
+    "parsers.json",
+    "parsers.json.simd",
+    "parsers.url",
     "random",
+    "requests",
     "socket",
     "statistics",
     "string",
     "sys",
-    "time"
+    "time",
+    "tls",
+    "tls.rsa",
+    "websocket",
+    "x25519"
   ],
   "perf_meta": {
     "cheatah_commit": "dffe895",

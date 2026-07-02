@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <complex>
+#include <memory>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -47,6 +49,168 @@ TEST(CheatahNDArray, BroadcastShapeRules) {
     EXPECT_EQ(nd::broadcast_shapes({}, {2, 5}), (std::vector<std::size_t>{2, 5}));
     // incompatible
     EXPECT_THROW(nd::broadcast_shapes({3}, {4}), std::exception);
+}
+
+TEST(CheatahNDArray, CompoundAssignInPlace) {
+    // += / -= / *= / /= mutate the SAME buffer (no reallocation) on the
+    // contiguous fast path — the property hot loops rely on to reuse one array.
+    nd::basic_ndarray<double> a = nd::array(std::vector<double>{1.0, 2.0, 3.0});
+    const void* buf = a.buffer().get();
+    a += nd::array(std::vector<double>{10.0, 20.0, 30.0});
+    a *= 2.0;
+    a -= 1.0;
+    a /= 3.0;
+    EXPECT_EQ(a.buffer().get(), buf) << "compound assignment must not reallocate";
+    EXPECT_DOUBLE_EQ(nd::get(a, {0}), 7.0);    // ((1+10)*2 - 1) / 3
+    EXPECT_DOUBLE_EQ(nd::get(a, {2}), 21.6666666666666667);
+    // Infix scalar multiply allocates a NEW array and leaves the source alone.
+    const nd::basic_ndarray<double> doubled = a * 2.0;
+    EXPECT_DOUBLE_EQ(nd::get(doubled, {0}), 14.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {0}), 7.0);
+}
+
+TEST(CheatahNDArray, BinaryOpIntoReusesBuffer) {
+    // add(out, a, b): the user-provided-output form writes into out's OWN buffer — no reallocation.
+    nd::basic_ndarray<double> a = nd::array(std::vector<double>{1.0, 2.0, 3.0});
+    nd::basic_ndarray<double> b = nd::array(std::vector<double>{10.0, 20.0, 30.0});
+    nd::basic_ndarray<double> out = nd::zeros({3});
+    const void* obuf = out.buffer().get();
+    nd::add(out, a, b);
+    EXPECT_EQ(out.buffer().get(), obuf) << "out-param add must not reallocate";
+    EXPECT_DOUBLE_EQ(nd::get(out, {0}), 11.0);
+    EXPECT_DOUBLE_EQ(nd::get(out, {2}), 33.0);
+    nd::mul(out, out, a);  // may alias a full-shape operand (index-local write)
+    EXPECT_DOUBLE_EQ(nd::get(out, {2}), 99.0);  // 33 * 3
+}
+
+TEST(CheatahNDArray, BinaryOpIntoBroadcastPaths) {
+    // The out-form must handle every broadcast layout binary_op_into distinguishes:
+    //   (1) array ⊕ scalar   — a is full-shape/contiguous, b is a 0-d scalar
+    //   (2) scalar ⊕ array   — a is a 0-d scalar, b is full-shape/contiguous
+    //   (3) strided fallback — neither operand is full-shape contiguous after broadcast
+    nd::basic_ndarray<double> a = nd::array(std::vector<double>{1.0, 2.0, 3.0, 4.0});
+    const nd::basic_ndarray<double> s = nd::scalar(10.0);
+
+    // (1) array ⊕ scalar into out.
+    nd::basic_ndarray<double> o1 = nd::zeros({4});
+    nd::add(o1, a, s);
+    EXPECT_DOUBLE_EQ(nd::get(o1, {0}), 11.0);
+    EXPECT_DOUBLE_EQ(nd::get(o1, {3}), 14.0);
+
+    // (2) scalar ⊕ array into out — subtraction proves the operand order (s - b, not b - s).
+    nd::basic_ndarray<double> o2 = nd::zeros({4});
+    nd::sub(o2, s, a);
+    EXPECT_DOUBLE_EQ(nd::get(o2, {0}), 9.0);   // 10 - 1
+    EXPECT_DOUBLE_EQ(nd::get(o2, {3}), 6.0);   // 10 - 4
+
+    // (3) strided fallback: a (3,1) column and a (1,3) row both broadcast to (3,3), so NEITHER
+    // operand is full-shape contiguous (each carries a stride-0 axis) — the do/next_index loop.
+    const nd::basic_ndarray<double> col = nd::reshape(nd::array({0.0, 10.0, 20.0}), {3, 1});
+    const nd::basic_ndarray<double> row = nd::reshape(nd::array({1.0, 2.0, 3.0}), {1, 3});
+    nd::basic_ndarray<double> o3 = nd::zeros({3, 3});
+    nd::add(o3, col, row);
+    EXPECT_DOUBLE_EQ(nd::get(o3, {0, 0}), 1.0);    // 0 + 1
+    EXPECT_DOUBLE_EQ(nd::get(o3, {2, 2}), 23.0);   // 20 + 3
+    EXPECT_DOUBLE_EQ(nd::get(o3, {1, 0}), 11.0);   // 10 + 1
+}
+
+TEST(CheatahNDArray, RvalueOperandReusesBuffer) {
+    // "copy vs move": a temporary LEFT operand is computed into IN PLACE and moved out, so the result
+    // adopts that buffer — no new allocation. `a + b + c` thus allocates once (for `a + b`), not twice.
+    nd::basic_ndarray<double> a = nd::array(std::vector<double>{1.0, 2.0, 3.0});
+    nd::basic_ndarray<double> b = nd::array(std::vector<double>{10.0, 20.0, 30.0});
+    const void* abuf = a.buffer().get();
+    nd::basic_ndarray<double> r = std::move(a) + b;            // reuses the expiring a's buffer
+    EXPECT_EQ(r.buffer().get(), abuf) << "rvalue + must reuse the left operand's buffer";
+    EXPECT_DOUBLE_EQ(nd::get(r, {1}), 22.0);
+    // an lvalue `x + y` still allocates (it can't clobber a named array) — value semantics preserved.
+    nd::basic_ndarray<double> x = nd::array(std::vector<double>{1.0, 1.0});
+    nd::basic_ndarray<double> y = nd::array(std::vector<double>{2.0, 2.0});
+    const nd::basic_ndarray<double> sum = x + y;
+    EXPECT_NE(sum.buffer().get(), x.buffer().get());
+    EXPECT_DOUBLE_EQ(nd::get(x, {0}), 1.0) << "lvalue operand must be untouched";
+}
+
+TEST(CheatahNDArray, RvalueOperandSymmetric) {
+    // `a + std::move(b)` must reuse a buffer exactly like `std::move(a) + b` — neither allocates, and
+    // the right-operand form reuses the RIGHT buffer. For non-commutative ops the value still matches.
+    {  // right operand reused; same value as the allocating form
+        nd::basic_ndarray<double> a = nd::array(std::vector<double>{1.0, 2.0, 3.0});
+        nd::basic_ndarray<double> b = nd::array(std::vector<double>{10.0, 20.0, 30.0});
+        const void* bbuf = b.buffer().get();
+        nd::basic_ndarray<double> r = a + std::move(b);
+        EXPECT_EQ(r.buffer().get(), bbuf) << "a + rvalue must reuse the right operand's buffer";
+        EXPECT_DOUBLE_EQ(nd::get(r, {2}), 33.0);
+    }
+    {  // subtraction is non-commutative: a - move(b) must still be a-b, not b-a
+        nd::basic_ndarray<double> a = nd::array(std::vector<double>{10.0, 20.0});
+        nd::basic_ndarray<double> b = nd::array(std::vector<double>{1.0, 2.0});
+        const void* bbuf = b.buffer().get();
+        nd::basic_ndarray<double> r = a - std::move(b);
+        EXPECT_EQ(r.buffer().get(), bbuf) << "a - rvalue must reuse the right operand's buffer";
+        EXPECT_DOUBLE_EQ(nd::get(r, {0}), 9.0);   // 10 - 1, NOT 1 - 10
+        EXPECT_DOUBLE_EQ(nd::get(r, {1}), 18.0);
+    }
+    {  // division reversed combiner: a / move(b) == a/b
+        nd::basic_ndarray<double> a = nd::array(std::vector<double>{6.0, 8.0});
+        nd::basic_ndarray<double> b = nd::array(std::vector<double>{2.0, 4.0});
+        nd::basic_ndarray<double> r = a / std::move(b);
+        EXPECT_DOUBLE_EQ(nd::get(r, {0}), 3.0);   // 6 / 2
+        EXPECT_DOUBLE_EQ(nd::get(r, {1}), 2.0);   // 8 / 4
+    }
+    {  // both operands expiring: the LEFT buffer wins (chain-accumulator semantics)
+        nd::basic_ndarray<double> a = nd::array(std::vector<double>{1.0, 1.0});
+        nd::basic_ndarray<double> b = nd::array(std::vector<double>{2.0, 2.0});
+        const void* abuf = a.buffer().get();
+        nd::basic_ndarray<double> r = std::move(a) + std::move(b);
+        EXPECT_EQ(r.buffer().get(), abuf) << "both-rvalue must reuse the LEFT operand's buffer";
+        EXPECT_DOUBLE_EQ(nd::get(r, {0}), 3.0);
+    }
+}
+
+TEST(CheatahNDArray, ScalarTimesSizeOneArrayKeepsShape) {
+    // Regression: `scalar OP size-1 array` must broadcast to the ARRAY's shape, NOT collapse to the
+    // scalar's 0-d shape. The 0-d `scalar(s)` temporary must never be reused as the result buffer.
+    nd::NDArray v = nd::array({3.0});            // shape {1}
+    nd::NDArray r = 0.5 * v;                      // scalar on the LEFT
+    EXPECT_EQ(r.ndim(), 1u);
+    EXPECT_EQ(r.size(), 1u);
+    EXPECT_DOUBLE_EQ(nd::get(r, {0}), 1.5);
+    nd::NDArray r2 = v * 2.0;                     // scalar on the RIGHT
+    EXPECT_EQ(r2.ndim(), 1u);
+    EXPECT_DOUBLE_EQ(nd::get(r2, {0}), 6.0);
+    nd::NDArray r3 = 1.0 - v;                     // non-commutative, scalar left: 1 - 3 = -2
+    EXPECT_DOUBLE_EQ(nd::get(r3, {0}), -2.0);
+    // a multi-element array still broadcasts correctly (the path that always worked)
+    nd::NDArray w = nd::array({1.0, 2.0, 3.0});
+    nd::NDArray rw = 10.0 * w;
+    EXPECT_EQ(rw.size(), 3u);
+    EXPECT_DOUBLE_EQ(nd::get(rw, {2}), 30.0);
+}
+
+TEST(CheatahNDArray, LikeFactories) {
+    nd::NDArray a = nd::reshape(nd::array({1.0, 2.0, 3.0, 4.0}), {2, 2});
+    const nd::NDArray z = nd::zeros_like(a);
+    EXPECT_EQ(nd::shape_of(z), (std::vector<long long>{2, 2}));
+    EXPECT_DOUBLE_EQ(nd::get(z, {1, 1}), 0.0);
+    EXPECT_DOUBLE_EQ(nd::get(nd::ones_like(a), {0, 0}), 1.0);
+    EXPECT_DOUBLE_EQ(nd::get(nd::full_like(a, 7.0), {1, 0}), 7.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {0, 0}), 1.0) << "source must be untouched";
+}
+
+TEST(CheatahNDArray, SubscriptReadWrite) {
+    // item_ref/operator[]: negative-aware element writes; builtins::index reads.
+    nd::basic_ndarray<long long> m = nd::array(std::vector<long long>{0, 0, 0});
+    m[0] = 1;
+    m.item_ref(-1) = 7;
+    EXPECT_EQ(cheatah::builtins::index(m, 0), 1);
+    EXPECT_EQ(cheatah::builtins::index(m, -1), 7);
+    nd::basic_ndarray<double> w =
+        nd::reshape(nd::array(std::vector<double>{1, 2, 3, 4}), {2, 2});
+    w.item_ref(1, 0) = 9.0;
+    EXPECT_DOUBLE_EQ(cheatah::builtins::index(w, 1, 0), 9.0);
+    EXPECT_THROW(m.item_ref(5), std::out_of_range);
+    EXPECT_THROW(w.item_ref(0), std::out_of_range);  // wrong rank
 }
 
 TEST(CheatahNDArray, BroadcastingAdd) {
@@ -334,4 +498,202 @@ TEST(CheatahNDArray, ReshapeStridedSource) {
     EXPECT_EQ(nd::shape_of(r), (std::vector<long long>{2, 3}));
     EXPECT_DOUBLE_EQ(nd::get(r, {1, 2}), 2.0);
     EXPECT_DOUBLE_EQ(nd::sum(r), 12.0);
+}
+
+// ---- Coverage of the remaining error branches and general N-D loops --------
+// Assertions are structural (throws / shape / sum / element) rather than relying
+// on formatted output, so they stay robust.
+
+// array(...) rejects a ragged nested list (a row whose length differs from siblings).
+TEST(CheatahNDArray, RaggedNestedListThrows) {
+    EXPECT_THROW(nd::array(std::vector<std::vector<double>>{{1.0, 2.0, 3.0}, {4.0, 5.0}}),
+                 std::runtime_error);
+}
+
+// item_ref: wrong rank and out-of-range (including negative wraparound past the start).
+TEST(CheatahNDArray, ItemRefRankAndRangeErrors) {
+    nd::basic_ndarray<double> v = nd::array(std::vector<double>{1.0, 2.0, 3.0});
+    EXPECT_THROW(v.item_ref(0, 0), std::out_of_range);   // too many indices for a 1-D array
+    EXPECT_THROW(v.item_ref(3), std::out_of_range);      // past the end
+    EXPECT_THROW(v.item_ref(-4), std::out_of_range);     // negative wraps before the start
+    nd::basic_ndarray<double> m = nd::reshape(nd::array(std::vector<double>{1, 2, 3, 4}), {2, 2});
+    EXPECT_THROW(m.item_ref(0), std::out_of_range);      // too few indices for a 2-D array
+    EXPECT_THROW(m.item_ref(0, 5), std::out_of_range);   // column out of range
+}
+
+// at(index-vector): wrong number of dimensions and a coordinate out of range.
+TEST(CheatahNDArray, AtVectorRankAndRangeErrors) {
+    const nd::NDArray m = nd::reshape(nd::array({1.0, 2.0, 3.0, 4.0}), {2, 2});
+    EXPECT_THROW(nd::get(m, {0}), std::runtime_error);     // wrong number of dims
+    EXPECT_THROW(nd::get(m, {0, 5}), std::runtime_error);  // coordinate out of range
+    EXPECT_THROW(nd::get(m, {2, 0}), std::runtime_error);
+}
+
+// A binary op between shapes that don't broadcast must throw, not corrupt memory.
+TEST(CheatahNDArray, BinaryOpNonBroadcastableThrows) {
+    const nd::NDArray a = nd::array({1.0, 2.0, 3.0});        // {3}
+    const nd::NDArray b = nd::array({1.0, 2.0, 3.0, 4.0});   // {4}
+    EXPECT_THROW(nd::add(a, b), std::exception);
+    EXPECT_THROW(nd::mul(a, b), std::exception);
+}
+
+// reshape to an incompatible total size throws (extra shapes beyond the existing case).
+TEST(CheatahNDArray, ReshapeWrongTotalSizeThrows) {
+    const nd::NDArray a = nd::array({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});  // size 6
+    EXPECT_THROW(nd::reshape(a, {4, 2}), std::runtime_error);  // wants 8
+    EXPECT_THROW(nd::reshape(a, {5}), std::runtime_error);     // wants 5
+}
+
+// reshape of a non-contiguous MULTI-dim view drives the general odometer flatten loop.
+TEST(CheatahNDArray, ReshapeStridedMultiDimSource) {
+    const nd::NDArray row = nd::array({1.0, 2.0, 3.0});
+    const nd::NDArray bc = nd::broadcast_to(row, {2, 3});  // non-contiguous 2-D view -> [[1,2,3],[1,2,3]]
+    ASSERT_EQ(nd::shape_of(bc), (std::vector<long long>{2, 3}));
+    const nd::NDArray r = nd::reshape(bc, {3, 2});         // flattens [1,2,3,1,2,3] then reshapes
+    EXPECT_EQ(nd::shape_of(r), (std::vector<long long>{3, 2}));
+    EXPECT_DOUBLE_EQ(nd::sum(r), 12.0);
+    EXPECT_DOUBLE_EQ(nd::get(r, {0, 0}), 1.0);
+    EXPECT_DOUBLE_EQ(nd::get(r, {1, 0}), 3.0);
+    EXPECT_DOUBLE_EQ(nd::get(r, {2, 1}), 3.0);
+}
+
+// Scalar-broadcast fast paths: one operand is a single element (b.size()==1 and a.size()==1).
+TEST(CheatahNDArray, BinaryOpScalarFastPaths) {
+    const nd::NDArray a = nd::array({1.0, 2.0, 3.0, 4.0});  // contiguous, size 4
+    const nd::NDArray one = nd::array({10.0});              // single element
+    const nd::NDArray sumr = nd::add(a, one);              // b.size()==1 path
+    EXPECT_DOUBLE_EQ(nd::sum(sumr), 50.0);                 // 11+12+13+14
+    EXPECT_DOUBLE_EQ(nd::get(sumr, {3}), 14.0);
+    EXPECT_DOUBLE_EQ(nd::sum(nd::sub(one, a)), 30.0);     // a.size()==1 path: 9+8+7+6
+    EXPECT_DOUBLE_EQ(nd::sum(nd::mul(one, a)), 100.0);    // 10+20+30+40
+}
+
+// Equal-shape and broadcasting elementwise ops on 3-D arrays drive the general N-D loop.
+TEST(CheatahNDArray, BinaryOpThreeDimEqualAndBroadcast) {
+    using M = std::vector<std::vector<double>>;
+    const nd::NDArray t = nd::array(std::vector<M>{{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}});  // {2,2,2}
+    const nd::NDArray u = nd::array(std::vector<M>{{{10, 20}, {30, 40}}, {{50, 60}, {70, 80}}});
+    const nd::NDArray s = nd::add(t, u);                  // equal-shape general path
+    EXPECT_EQ(nd::shape_of(s), (std::vector<long long>{2, 2, 2}));
+    EXPECT_DOUBLE_EQ(nd::sum(s), 396.0);                  // 36 + 360
+    EXPECT_DOUBLE_EQ(nd::get(s, {0, 0, 0}), 11.0);
+    EXPECT_DOUBLE_EQ(nd::get(s, {1, 1, 1}), 88.0);
+    // Broadcasting a {2,1} column across the {2,2,2} block.
+    const nd::NDArray col = nd::array(std::vector<std::vector<double>>{{100.0}, {200.0}});  // {2,1}
+    const nd::NDArray bsum = nd::add(t, col);
+    EXPECT_EQ(nd::shape_of(bsum), (std::vector<long long>{2, 2, 2}));
+    EXPECT_DOUBLE_EQ(nd::get(bsum, {0, 0, 0}), 101.0);
+    EXPECT_DOUBLE_EQ(nd::get(bsum, {0, 1, 0}), 203.0);
+    EXPECT_DOUBLE_EQ(nd::get(bsum, {1, 1, 1}), 208.0);
+}
+
+// sum() over a LARGE contiguous array (the 8-wide unrolled SIMD path), over a
+// NON-contiguous view (the general odometer fallback), and to_string of a 0-D scalar.
+TEST(CheatahNDArray, SumPathsAndScalarFormat) {
+    std::vector<double> big(16);
+    for (int i = 0; i < 16; ++i) big[static_cast<std::size_t>(i)] = i + 1;  // 1..16 -> 136
+    EXPECT_DOUBLE_EQ(nd::sum(nd::array(big)), 136.0);             // unrolled SIMD block(s)
+    const nd::NDArray bc = nd::broadcast_to(nd::array({1.0, 2.0, 3.0}), {4, 3});  // 4*(1+2+3)=24
+    EXPECT_DOUBLE_EQ(nd::sum(bc), 24.0);                          // non-contiguous -> odometer sum
+    EXPECT_FALSE(nd::to_string(nd::scalar(7.5)).empty());        // 0-D -> format_scalar
+}
+
+// In-place compound assignment whose RHS is a NON-contiguous (broadcast) view of size > 1
+// takes the `a = binary_op(a, b, op)` fallback rather than either contiguous fast path —
+// exercised for every compound operator (+= -= *= /=), each a separate instantiation.
+TEST(CheatahNDArray, CompoundAssignNonContiguousFallback) {
+    const nd::NDArray b = nd::broadcast_to(nd::array({10.0, 20.0, 30.0}), {2, 3});  // stride-0 view
+    {
+        nd::basic_ndarray<double> a = nd::reshape(nd::array({1.0, 2.0, 3.0, 4.0, 5.0, 6.0}), {2, 3});
+        a += b;
+        EXPECT_DOUBLE_EQ(nd::get(a, {0, 0}), 11.0);
+        EXPECT_DOUBLE_EQ(nd::get(a, {1, 2}), 36.0);
+    }
+    {
+        nd::basic_ndarray<double> a = nd::full({2, 3}, 100.0);
+        a -= b;
+        EXPECT_DOUBLE_EQ(nd::get(a, {0, 0}), 90.0);   // 100 - 10
+        EXPECT_DOUBLE_EQ(nd::get(a, {1, 2}), 70.0);   // 100 - 30
+    }
+    {
+        nd::basic_ndarray<double> a = nd::full({2, 3}, 2.0);
+        a *= b;
+        EXPECT_DOUBLE_EQ(nd::get(a, {0, 1}), 40.0);   // 2 * 20
+    }
+    {
+        nd::basic_ndarray<double> a = nd::full({2, 3}, 60.0);
+        a /= b;
+        EXPECT_DOUBLE_EQ(nd::get(a, {0, 2}), 2.0);    // 60 / 30
+    }
+}
+
+// The same error/edge paths on an INTEGER (long long) element type — array() ragged check,
+// subscript/at rank+range, reshape mismatch, non-broadcastable, the general N-D loops and the
+// in-place fallback — so the long-long instantiation of each is covered too (not just double).
+TEST(CheatahNDArray, ErrorAndLoopPathsLongLong) {
+    using V = std::vector<long long>;
+    EXPECT_THROW(nd::array(std::vector<V>{{1, 2, 3}, {4, 5}}), std::runtime_error);  // ragged
+    nd::basic_ndarray<long long> v = nd::array(V{1, 2, 3});
+    EXPECT_THROW(v.item_ref(0, 0), std::out_of_range);   // wrong rank
+    EXPECT_THROW(v.item_ref(5), std::out_of_range);      // out of range
+    const nd::basic_ndarray<long long> m = nd::reshape(nd::array(V{1, 2, 3, 4}), {2, 2});
+    EXPECT_THROW(nd::get(m, {0}), std::runtime_error);     // wrong dims
+    EXPECT_THROW(nd::get(m, {5, 5}), std::runtime_error);  // out of range
+    EXPECT_THROW(nd::reshape(nd::array(V{1, 2, 3}), {2, 2}), std::runtime_error);  // size mismatch
+    EXPECT_THROW(nd::add(nd::array(V{1, 2, 3}), nd::array(V{1, 2, 3, 4})), std::exception);  // no broadcast
+    // general odometer reshape + general N-D elementwise + in-place non-contiguous fallback.
+    const nd::basic_ndarray<long long> bc = nd::broadcast_to(nd::array(V{1, 2, 3}), {2, 3});
+    EXPECT_EQ(nd::sum(nd::reshape(bc, {3, 2})), 12);
+    nd::basic_ndarray<long long> a = nd::reshape(nd::array(V{1, 2, 3, 4, 5, 6}), {2, 3});
+    a += bc;
+    EXPECT_EQ(nd::get(a, {0, 0}), 2);
+    EXPECT_EQ(nd::get(a, {1, 2}), 9);
+}
+
+// An ndarray stores fixed-size STRUCTS too, not just numbers — a 2-D point / GPU vertex / colour.
+// Elements are MOVED into the buffer (no copy); the numeric surface stays Field-only; and a MOVE-ONLY
+// element still stores/indexes/moves but cannot be deep-copied (the copy path does not even compile).
+namespace {
+struct P2 { double x; double y; };
+std::ostream& operator<<(std::ostream& os, const P2& p) { return os << "(" << p.x << "," << p.y << ")"; }
+struct MoveOnly { std::unique_ptr<int> p; };
+}  // namespace
+
+// The concept split that makes storage-vs-numeric-vs-copy work.
+static_assert(nd::Element<double> && nd::Copyable<double>, "numbers store + copy");
+static_assert(nd::Element<P2> && nd::Copyable<P2>, "POD struct stores + copies");
+static_assert(nd::Element<MoveOnly> && !nd::Copyable<MoveOnly>, "move-only stores but cannot deep-copy");
+
+TEST(CheatahNDArray, ArrayMoveIn) {
+    // POD struct: MOVE-IN construction (a temporary binds the rvalue overload), index, size, print.
+    nd::basic_ndarray<P2> pts = nd::array(std::vector<P2>{{0.0, 1.0}, {2.0, 3.0}, {4.0, 5.0}});
+    EXPECT_EQ(nd::size_of(pts), 3);
+    EXPECT_EQ(pts[1].x, 2.0);
+    EXPECT_EQ(pts[2].y, 5.0);
+    EXPECT_EQ(nd::to_string(pts), "[(0,1), (2,3), (4,5)]");
+    EXPECT_EQ(nd::get(pts, {1}).y, 3.0);                     // get() by value (Copyable struct)
+    EXPECT_EQ(nd::shape_of(pts).size(), 1u);
+    EXPECT_THROW(nd::get(pts, {5}), std::runtime_error);     // OOB index -> at() error path
+    EXPECT_THROW(nd::get(pts, {0, 0}), std::runtime_error);  // wrong rank -> at() error path
+    EXPECT_THROW(pts.item_ref(9), std::out_of_range);        // subscript OOB
+    EXPECT_THROW(pts.item_ref(0, 0), std::out_of_range);     // subscript wrong rank
+
+    // The copying overload (named lvalue) also works for a copyable struct.
+    std::vector<P2> src{{7.0, 8.0}};
+    nd::basic_ndarray<P2> one = nd::array(src);
+    EXPECT_EQ(one[0].x, 7.0);
+
+    // Copying an ndarray CONTAINER is a cheap shared-buffer view (no element copy) — mutation aliases.
+    nd::basic_ndarray<P2> view = pts;
+    view[0].x = 99.0;
+    EXPECT_EQ(pts[0].x, 99.0);
+
+    // MOVE-ONLY element: move-in only, indexed by reference; no deep copy exists.
+    std::vector<MoveOnly> mv;
+    mv.push_back(MoveOnly{std::make_unique<int>(7)});
+    mv.push_back(MoveOnly{std::make_unique<int>(9)});
+    nd::basic_ndarray<MoveOnly> ma = nd::array(std::move(mv));
+    EXPECT_EQ(nd::size_of(ma), 2);
+    EXPECT_EQ(*ma[0].p, 7);
+    EXPECT_EQ(*ma[1].p, 9);
 }

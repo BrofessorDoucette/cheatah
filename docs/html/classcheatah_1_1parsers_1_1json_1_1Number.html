@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>parsers::json::Number · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=23c7932c">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></summary><ul><li><a href="namespacecheatah_1_1aead_1_1accel.html" data-ref="namespacecheatah_1_1aead_1_1accel">accel</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></summary><ul><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">parser</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><details class="side-sub"><summary><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1json_1_1simd.html" data-ref="namespacecheatah_1_1parsers_1_1json_1_1simd">simd</a></li></ul></details></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></summary><ul><li><a href="namespacecheatah_1_1tls_1_1rsa.html" data-ref="namespacecheatah_1_1tls_1_1rsa">rsa</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>parsers::json::Number</code></h1>
+  <p class="lede">A JSON number token (one numeric type: IEEE-754 double), e.g. </p>
+</div>
+<div class="overview"><p><a href="classcheatah_1_1parsers_1_1json_1_1Number.html">Number</a>{3.5}.</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1parsers_1_1json_1_1Number_1ac48b2c1da826b2fe7777bc6f43df9c22">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">Number</span>(double value)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_number_hpp.html#L17" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Number_1ac48b2c1da826b2fe7777bc6f43df9c22" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Construct from a double. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the numeric value.</p></td></tr></table></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1Number_1a12e37d936079c9cbb266afd30a41695e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">~Number</span>()=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_number_hpp.html#L18" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Number_1a12e37d936079c9cbb266afd30a41695e" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1Number_1ab8759474033cf6b99032b15271fd3190">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">value</span>() const noexcept</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_number_hpp.html#L25" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Number_1ab8759474033cf6b99032b15271fd3190" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Read the numeric value (fixed for the token&#x27;s lifetime; no setter). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the stored double.</p></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1parsers_1_1json_1_1Number_1a22e2c6f225a21633af954aa4f23d7df6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">value_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_number_hpp.html#L10" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Number_1a22e2c6f225a21633af954aa4f23d7df6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1parsers_1_1json_1_1Number_1ac48b2c1da826b2fe7777bc6f43df9c22">Number</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1Number_1a12e37d936079c9cbb266afd30a41695e">~Number</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1Number_1ab8759474033cf6b99032b15271fd3190">value</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1Number_1a22e2c6f225a21633af954aa4f23d7df6">value_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=c98d9dff"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

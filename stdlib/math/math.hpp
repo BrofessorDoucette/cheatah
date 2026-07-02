@@ -58,9 +58,8 @@ T abs(T x) { return x < T{} ? -x : x; }
  * Smallest of two-or-more values (variadic; the overloads chain to fold extra args).
  *
  * Returns a reference bound to whichever argument compares smaller; on a tie
- * (neither `b < a`) it returns @p a, the first argument. Because the result is
- * a reference into the caller's arguments, it dangles if the operands are
- * temporaries that outlive the call expression.
+ * (neither `b < a`) it returns @p a. Because the result is a reference into the
+ * caller's arguments, it dangles when the operands are temporaries.
  * @param a,b the values to compare (`operator<` required).
  * @return a reference to the minimum.
  * @complexity O(n) in the argument count.
@@ -87,8 +86,8 @@ const T& min(const T& a, const T& b, const Rest&... rest) { return min(min(a, b)
  * Largest of two-or-more values (variadic; the overloads chain to fold extra args).
  *
  * Returns a reference bound to whichever argument compares larger; on a tie
- * (neither `a < b`) it returns @p a, the first argument. As with min, the
- * returned reference dangles if the operands are temporaries.
+ * (neither `a < b`) it returns @p a. As with min, the returned reference
+ * dangles if the operands are temporaries.
  * @param a,b the values to compare (`operator<` required).
  * @return a reference to the maximum.
  * @complexity O(n) in the argument count.

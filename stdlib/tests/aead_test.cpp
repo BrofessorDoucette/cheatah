@@ -1,0 +1,182 @@
+// Unit tests for the `aead` module against the RFC 8439 §2.8.2 AEAD test vector, plus
+// round-trip, tamper-rejection, and malformed-input behavior.
+#include <gtest/gtest.h>
+
+#include <string>
+
+#include "aead.hpp"
+
+namespace a = cheatah::aead;
+
+namespace {
+const std::string kKey = "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f";
+const std::string kNonce = "070000004041424344454647";
+const std::string kAad = std::string("\x50\x51\x52\x53\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7", 12);
+const char* kPlain =
+    "Ladies and Gentlemen of the class of '99: If I could offer you "
+    "only one tip for the future, sunscreen would be it.";
+// RFC 8439 §2.8.2 expected tag (the ciphertext bytes are checked via round-trip + length).
+const std::string kTagHex = "1ae10b594f09e26a7e902ecbd0600691";
+
+std::string hex_of(std::string_view raw) {
+    static constexpr char kHex[] = "0123456789abcdef";
+    std::string out;
+    for (const char ch : raw) {
+        out.push_back(kHex[static_cast<unsigned char>(ch) >> 4]);
+        out.push_back(kHex[static_cast<unsigned char>(ch) & 0xF]);
+    }
+    return out;
+}
+}  // namespace
+
+// The RFC 8439 §2.8.2 vector: ciphertext prefix + tag must match the spec exactly.
+TEST(CheatahAead, Rfc8439Encrypt) {
+    const std::string ct = a::chacha20poly1305_encrypt(kKey, kNonce, kAad, kPlain);
+    ASSERT_EQ(ct.size(), std::string(kPlain).size() + 16);
+    EXPECT_EQ(hex_of(ct.substr(0, 16)), "d31a8d34648e60db7b86afbc53ef7ec2");  // first CT block
+    EXPECT_EQ(hex_of(ct.substr(ct.size() - 16)), kTagHex);                    // the Poly1305 tag
+}
+
+// Decrypt of the spec ciphertext returns the spec plaintext (and the round trip holds).
+TEST(CheatahAead, Rfc8439Decrypt) {
+    const std::string ct = a::chacha20poly1305_encrypt(kKey, kNonce, kAad, kPlain);
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, kAad, ct), kPlain);
+}
+
+// Any tampering — ciphertext byte, tag byte, or different aad — must yield "" (rejected).
+TEST(CheatahAead, RejectsTamper) {
+    std::string ct = a::chacha20poly1305_encrypt(kKey, kNonce, kAad, kPlain);
+    std::string flipped = ct;
+    flipped[3] = static_cast<char>(flipped[3] ^ 0x01);
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, kAad, flipped), "");
+    std::string bad_tag = ct;
+    bad_tag[bad_tag.size() - 1] = static_cast<char>(bad_tag.back() ^ 0x80);
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, kAad, bad_tag), "");
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, "other aad", ct), "");
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, kAad, "short"), "");
+    EXPECT_EQ(a::chacha20poly1305_encrypt("zz", kNonce, kAad, kPlain), "");
+}
+
+// Empty plaintext and empty aad are valid AEAD inputs (TLS uses empty aad in places).
+TEST(CheatahAead, EmptyInputs) {
+    const std::string ct = a::chacha20poly1305_encrypt(kKey, kNonce, "", "");
+    ASSERT_EQ(ct.size(), std::size_t{16});  // tag only
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, "", ct), "");
+    // "" is also the FAILURE value; distinguish via a 1-byte round trip
+    const std::string one = a::chacha20poly1305_encrypt(kKey, kNonce, "", "x");
+    EXPECT_EQ(a::chacha20poly1305_decrypt(kKey, kNonce, "", one), "x");
+}
+
+// ---- AES-128-GCM (TLS_AES_128_GCM_SHA256) against the NIST/GCM (McGrew & Viega) test vectors ----
+namespace {
+std::string unhex(std::string_view h) {
+    auto v = [](char c) { return c <= '9' ? c - '0' : (c | 0x20) - 'a' + 10; };
+    std::string o;
+    for (std::size_t i = 0; i + 1 < h.size(); i += 2)
+        o.push_back(static_cast<char>((v(h[i]) << 4) | v(h[i + 1])));
+    return o;
+}
+}  // namespace
+
+// GCM Test Case 1: all-zero key + iv, empty AAD and plaintext → ciphertext is just the tag.
+TEST(CheatahAead, AesGcmNistCase1) {
+    const std::string ct = a::aes128gcm_encrypt(std::string(32, '0'), std::string(24, '0'), "", "");
+    ASSERT_EQ(ct.size(), std::size_t{16});
+    EXPECT_EQ(hex_of(ct), "58e2fccefa7e3061367f1d57a4e7455a");
+}
+
+// GCM Test Case 2: a single all-zero block, no AAD — exact ciphertext + tag, and the round trip.
+TEST(CheatahAead, AesGcmNistCase2) {
+    const std::string key(32, '0'), iv(24, '0');  // 16 zero key bytes, 12 zero iv bytes
+    const std::string p = unhex("00000000000000000000000000000000");
+    const std::string expect = unhex(
+        "0388dace60b6a392f328c2b971b2fe78"   // ciphertext
+        "ab6e47d42cec13bdf53a67b21257bddf");  // tag
+    const std::string ct = a::aes128gcm_encrypt(key, iv, "", p);
+    EXPECT_EQ(ct, expect);
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, "", ct), p);
+}
+
+// GCM Test Case 4: same key/iv/plaintext as case 3 but WITH AAD — ciphertext unchanged, new tag.
+TEST(CheatahAead, AesGcmNistCase4) {
+    const std::string key = "feffe9928665731c6d6a8f9467308308", iv = "cafebabefacedbaddecaf888";
+    const std::string aad = unhex("feedfacedeadbeeffeedfacedeadbeefabaddad2");
+    const std::string p = unhex(
+        "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a72"
+        "1c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39");
+    const std::string ct = a::aes128gcm_encrypt(key, iv, aad, p);
+    EXPECT_EQ(hex_of(ct.substr(ct.size() - 16)), "5bc94fbc3221a5db94fae95ae7121a47");
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, aad, ct), p);
+}
+
+// Round trip + tamper rejection (ciphertext, tag, aad) + malformed key/nonce/short input.
+TEST(CheatahAead, AesGcmRejectsTamperAndMalformed) {
+    const std::string key = "000102030405060708090a0b0c0d0e0f", iv = "000102030405060708090a0b";
+    const std::string aad = "header", p = "the quick brown fox";
+    std::string ct = a::aes128gcm_encrypt(key, iv, aad, p);
+    ASSERT_EQ(ct.size(), p.size() + 16);
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, aad, ct), p);  // round trip
+    std::string flip_ct = ct;
+    flip_ct[2] = static_cast<char>(flip_ct[2] ^ 0x01);
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, aad, flip_ct), "");
+    std::string flip_tag = ct;
+    flip_tag[flip_tag.size() - 1] = static_cast<char>(flip_tag.back() ^ 0x80);
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, aad, flip_tag), "");
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, "other aad", ct), "");
+    EXPECT_EQ(a::aes128gcm_decrypt(key, iv, aad, "short"), "");
+    EXPECT_EQ(a::aes128gcm_encrypt("ababab", iv, aad, p), "");  // key not 16 bytes
+    EXPECT_EQ(a::aes128gcm_encrypt(key, "00", aad, p), "");     // nonce not 12 bytes
+}
+
+// The AES-NI/PCLMULQDQ fast path and the portable scalar reference must agree byte-for-byte,
+// across sizes that exercise the 4-wide CTR loop (>=64), its tail (non-multiple of 64), the
+// single sub-block, and empty. Also keeps the scalar reference covered on AES-NI hardware.
+TEST(CheatahAead, AesGcmPortableMatchesHardware) {
+    const std::string key = "000102030405060708090a0b0c0d0e0f";
+    const std::string nonce = "101112131415161718191a1b";
+    const std::string aad = "associated-data-header";
+    for (std::size_t n : {std::size_t(0), std::size_t(13), std::size_t(16), std::size_t(64),
+                          std::size_t(100), std::size_t(255)}) {
+        std::string pt(n, '\0');
+        for (std::size_t i = 0; i < n; ++i) pt[i] = static_cast<char>(i * 7 + 1);
+
+        a::set_force_portable_crypto(false);
+        const std::string hw = a::aes128gcm_encrypt(key, nonce, aad, pt);
+        a::set_force_portable_crypto(true);
+        const std::string sw = a::aes128gcm_encrypt(key, nonce, aad, pt);
+        a::set_force_portable_crypto(false);
+
+        ASSERT_EQ(hw.size(), n + 16);
+        EXPECT_EQ(hw, sw) << "hardware vs portable AES-GCM differ at size " << n;
+        EXPECT_EQ(a::aes128gcm_decrypt(key, nonce, aad, hw), pt);  // hardware decrypt
+        a::set_force_portable_crypto(true);
+        EXPECT_EQ(a::aes128gcm_decrypt(key, nonce, aad, hw), pt);  // portable decrypt
+        a::set_force_portable_crypto(false);
+    }
+    // A tampered tag is rejected on BOTH paths.
+    std::string ct = a::aes128gcm_encrypt(key, nonce, aad, std::string(80, 'z'));
+    ct[ct.size() - 1] = static_cast<char>(ct.back() ^ 0x01);
+    EXPECT_EQ(a::aes128gcm_decrypt(key, nonce, aad, ct), "");
+    a::set_force_portable_crypto(true);
+    EXPECT_EQ(a::aes128gcm_decrypt(key, nonce, aad, ct), "");
+    EXPECT_EQ(a::aes128gcm_decrypt(key, nonce, aad, "short"), "");  // portable: too short
+    a::set_force_portable_crypto(false);
+
+    // Large AAD (>= 128 bytes) exercises the 8-wide GHASH aggregation over the AAD too.
+    {
+        const std::string big_aad(200, 'A');
+        const std::string pt = "payload for the large-aad cross-check";
+        a::set_force_portable_crypto(false);
+        const std::string hw = a::aes128gcm_encrypt(key, nonce, big_aad, pt);
+        a::set_force_portable_crypto(true);
+        const std::string sw = a::aes128gcm_encrypt(key, nonce, big_aad, pt);
+        a::set_force_portable_crypto(false);
+        EXPECT_EQ(hw, sw);
+        EXPECT_EQ(a::aes128gcm_decrypt(key, nonce, big_aad, hw), pt);
+    }
+
+    // Hex parser branches: UPPERCASE A-F is accepted, a non-hex character is rejected.
+    EXPECT_FALSE(
+        a::aes128gcm_encrypt("000102030405060708090A0B0C0D0E0F", nonce, aad, "x").empty());
+    EXPECT_EQ(a::aes128gcm_encrypt("zz0102030405060708090a0b0c0d0e0f", nonce, aad, "x"), "");
+}

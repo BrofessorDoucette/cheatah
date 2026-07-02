@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>tls::rsa · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=23c7932c">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></summary><ul><li><a href="namespacecheatah_1_1aead_1_1accel.html" data-ref="namespacecheatah_1_1aead_1_1accel">accel</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></summary><ul><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">parser</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><details class="side-sub"><summary><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1json_1_1simd.html" data-ref="namespacecheatah_1_1parsers_1_1json_1_1simd">simd</a></li></ul></details></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></summary><ul><li><a href="namespacecheatah_1_1tls_1_1rsa.html" data-ref="namespacecheatah_1_1tls_1_1rsa">rsa</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>tls::rsa</code></h1>
+  
+</div>
+<div class="overview"></div>
+
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a41e2c853b30983af2e3bd996db1b239c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">trim</span>(Big &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a41e2c853b30983af2e3bd996db1b239c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a5127cfc19158bcd40f2c351d593dbe59">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">from_be</span>(const unsigned char *p, std::size_t n)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L34" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a5127cfc19158bcd40f2c351d593dbe59" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a60c03b2b28785f52a1668eba7dc8c442">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">from_be</span>(const std::string &amp;s)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L46" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a60c03b2b28785f52a1668eba7dc8c442" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a7ff2830196ed2d2a04d5a669c8f91843">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">bitlen</span>(const Big &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L50" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a7ff2830196ed2d2a04d5a669c8f91843" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1ac553da40ba415230638927ff9da8c05b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">bytelen</span>(const Big &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L60" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1ac553da40ba415230638927ff9da8c05b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1ae124782d579f067d6a4c9686e2192839">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">to_be</span>(const Big &amp;a, std::size_t outlen)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L63" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1ae124782d579f067d6a4c9686e2192839" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a97b1156ba1f7b0d0e58e7ac4b79fd16e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">cmp</span>(const Big &amp;a, const Big &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L74" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a97b1156ba1f7b0d0e58e7ac4b79fd16e" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a5d1d8f89f33a935e8109e8d748541dd7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">shl1</span>(const Big &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L81" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a5d1d8f89f33a935e8109e8d748541dd7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a1bc964b719b29ffec855c1369069c04d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">sub</span>(const Big &amp;a, const Big &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L95" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a1bc964b719b29ffec855c1369069c04d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1ad13687160553534f1fa863df6147d033">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">mul</span>(const Big &amp;a, const Big &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L113" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1ad13687160553534f1fa863df6147d033" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a5700b6e87e7f64b106440daab0f79642">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">mod</span>(const Big &amp;x, const Big &amp;m)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L131" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a5700b6e87e7f64b106440daab0f79642" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a7f9a678b9ec20777386317d788053c95">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">mulmod</span>(const Big &amp;a, const Big &amp;b, const Big &amp;m)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L147" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a7f9a678b9ec20777386317d788053c95" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a68257059a66a4fa3b16d7a116b32149f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1tls_1_1rsa.html#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></span> <span class="mname">modexp</span>(Big base, const Big &amp;e, const Big &amp;m)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L150" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a68257059a66a4fa3b16d7a116b32149f" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a70a08e29ec945ee5a2f28449caa8ca10">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">der_len</span>(const std::string &amp;d, std::size_t &amp;p)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L172" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a70a08e29ec945ee5a2f28449caa8ca10" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a5837c9a485f97d4ca937de10ae54ba98">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">parse_rsa_pubkey</span>(const std::string &amp;der, std::string &amp;n, std::string &amp;e)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L186" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a5837c9a485f97d4ca937de10ae54ba98" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a75d1bb42ef7e4befdec8de5da2ab43f7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">mgf1_sha256</span>(const std::string &amp;seed, std::size_t mask_len)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L230" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a75d1bb42ef7e4befdec8de5da2ab43f7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a74ff1d052927580ed0828b2f27ea6db2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">pss_verify</span>(const std::string &amp;m_hash, const std::string &amp;em, std::size_t em_bits)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L247" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a74ff1d052927580ed0828b2f27ea6db2" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1a73150f682d0c0741d32a3f8674d285c3">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">verify_pss_sha256</span>(const std::string &amp;cert_der, const std::string &amp;message, const std::string &amp;sig)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L279" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1a73150f682d0c0741d32a3f8674d285c3" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::uint32_t &gt;</span> <span class="mname">Big</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_tls_rsa_verify_hpp.html#L27" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a41e2c853b30983af2e3bd996db1b239c">trim</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a5127cfc19158bcd40f2c351d593dbe59">from_be</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a60c03b2b28785f52a1668eba7dc8c442">from_be</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a7ff2830196ed2d2a04d5a669c8f91843">bitlen</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1ac553da40ba415230638927ff9da8c05b">bytelen</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1ae124782d579f067d6a4c9686e2192839">to_be</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a97b1156ba1f7b0d0e58e7ac4b79fd16e">cmp</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a5d1d8f89f33a935e8109e8d748541dd7">shl1</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a1bc964b719b29ffec855c1369069c04d">sub</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1ad13687160553534f1fa863df6147d033">mul</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a5700b6e87e7f64b106440daab0f79642">mod</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a7f9a678b9ec20777386317d788053c95">mulmod</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a68257059a66a4fa3b16d7a116b32149f">modexp</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a70a08e29ec945ee5a2f28449caa8ca10">der_len</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a5837c9a485f97d4ca937de10ae54ba98">parse_rsa_pubkey</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a75d1bb42ef7e4befdec8de5da2ab43f7">mgf1_sha256</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a74ff1d052927580ed0828b2f27ea6db2">pss_verify</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1a73150f682d0c0741d32a3f8674d285c3">verify_pss_sha256</a></li><li><a href="#namespacecheatah_1_1tls_1_1rsa_1af7738d6529f5030fa76b2dcc6362a2f6">Big</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=c98d9dff"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

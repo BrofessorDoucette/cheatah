@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>socket::Conn · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=23c7932c">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></summary><ul><li><a href="namespacecheatah_1_1aead_1_1accel.html" data-ref="namespacecheatah_1_1aead_1_1accel">accel</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></summary><ul><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">parser</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><details class="side-sub"><summary><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1json_1_1simd.html" data-ref="namespacecheatah_1_1parsers_1_1json_1_1simd">simd</a></li></ul></details></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></summary><ul><li><a href="namespacecheatah_1_1tls_1_1rsa.html" data-ref="namespacecheatah_1_1tls_1_1rsa">rsa</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>socket::Conn</code></h1>
+  <p class="lede">An owning TCP connection — a socket fd whose destructor closes it. </p>
+</div>
+<div class="overview"><p>The RAII counterpart to the fd-based calls above, and the C++/cheatah analog of a Python socket used in a <code><span class="tok-kw">with</span></code> block. A <code><a href="classcheatah_1_1socket_1_1Conn.html">Conn</a></code> owns exactly one fd; when it is destroyed (scope exit, including a <code><span class="tok-kw">return</span></code>/<code><span class="tok-kw">break</span></code>/exception out of a <code><span class="tok-kw">with</span></code> body) or explicitly <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a6f77df172b9ee210ca04070c62f96cb2">close()</a>d, the fd is released — so a connection opened with <code><span class="tok-kw">with</span> socket.<span class="tok-fn">open</span>(host, port) <span class="tok-kw">as</span> c { … }</code> cannot leak. Move-only: copying would give two owners of one fd and double-close it, so the copy operations are deleted and a moved-from <code><a href="classcheatah_1_1socket_1_1Conn.html">Conn</a></code> is left closed.</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1socket_1_1Conn_1a64af41572b5995390135add4c13985f5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">Conn</span>()=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L311" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a64af41572b5995390135add4c13985f5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Construct a closed connection (owns no fd). </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L142"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnDefaultIsClosed</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a2662569f4f62a68002ad1c02090b1538">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">Conn</span>(long long fd)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L319" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a2662569f4f62a68002ad1c02090b1538" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Adopt an already-connected fd (e.g. </p>
+  <div class="member-body"><p>from <a href="namespacecheatah_1_1socket.html#namespacecheatah_1_1socket_1a24af8e33f0ce139e6831582ed97f717e">tcp_connect()</a>/accept()); the <code><a href="classcheatah_1_1socket_1_1Conn.html">Conn</a></code> now owns it.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fd</code></td><td class="pdesc"><p>a connected fd to take ownership of (-1 for a closed connection).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L164"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnGuardClosesOnScopeExit</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a5ca8f07672b0b66d87271ada5df735af">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">Conn</span>(const Conn &amp;)=delete</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L320" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a5ca8f07672b0b66d87271ada5df735af" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a73900a67cc0fc462b45015294e912191">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a64af41572b5995390135add4c13985f5">Conn</a> &amp;</span> <span class="mname">operator=</span>(const Conn &amp;)=delete</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L321" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a73900a67cc0fc462b45015294e912191" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a8742ce190de312ad9f075a95a3593c44">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">Conn</span>(Conn &amp;&amp;other) noexcept</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L329" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a8742ce190de312ad9f075a95a3593c44" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Move-construct, taking over <code>other&#x27;s</code> fd (the moved-from <code><a href="classcheatah_1_1socket_1_1Conn.html">Conn</a></code> becomes closed). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>other</code></td><td class="pdesc"><p>the connection to move from.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L177"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnMoveTransfersOwnership</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a7ded7ba93a4c80434ee2b50702b2983e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a64af41572b5995390135add4c13985f5">Conn</a> &amp;</span> <span class="mname">operator=</span>(Conn &amp;&amp;other) noexcept</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L226" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a7ded7ba93a4c80434ee2b50702b2983e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Move-assign, closing this fd first, then taking over <code>other&#x27;s</code> (which becomes closed). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>other</code></td><td class="pdesc"><p>the connection to move from.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>reference to this connection.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L177"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnMoveTransfersOwnership</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1ae8b7deb3cc95135d50e9e8a13a05b7d8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">~Conn</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L234" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1ae8b7deb3cc95135d50e9e8a13a05b7d8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the fd if still open. </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L164"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnGuardClosesOnScopeExit</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1af723f69ae8692c8ddb03889236dbb374">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">is_open</span>() const</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L354" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1af723f69ae8692c8ddb03889236dbb374" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Is a connection open? </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>true iff this owns an open fd.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L142"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnDefaultIsClosed</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1ab8d00bc969619a9af4d31c468826c0ab">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">fd</span>() const</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L362" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1ab8d00bc969619a9af4d31c468826c0ab" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The raw fd, for the low-level calls or to hand to <a href="namespacecheatah_1_1tls.html#namespacecheatah_1_1tls_1a66d34990042d066f36e9f6b6eadcab64">tls.open</a>(conn.fd(), …). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the owned fd, or -1 when closed.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L164"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnGuardClosesOnScopeExit</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a22378253207c1a0133fdea0d952afe8c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">send</span>(const std::string &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L237" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a22378253207c1a0133fdea0d952afe8c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Send some of <code>data</code> (one <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a22378253207c1a0133fdea0d952afe8c">send()</a>; see the free <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a22378253207c1a0133fdea0d952afe8c">send()</a>). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>bytes to send.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>bytes actually sent, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L197"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnLoopback</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1aba39b611b672e8eaa4cc7c71d952c94d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">sendall</span>(const std::string &amp;data)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L238" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1aba39b611b672e8eaa4cc7c71d952c94d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Send <code>data</code> in full, looping until every byte is written (see the free <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1aba39b611b672e8eaa4cc7c71d952c94d">sendall()</a>). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>bytes to send.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L197"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnLoopback</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a475b60e607f98032d636051cf717ba20">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">recv</span>(long long bufsize)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L239" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a475b60e607f98032d636051cf717ba20" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Receive up to <code>bufsize</code> bytes (see the free <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a475b60e607f98032d636051cf717ba20">recv()</a>). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>bufsize</code></td><td class="pdesc"><p>maximum bytes to read.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the bytes read (binary-safe), or &quot;&quot; on EOF/error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(<code>bufsize</code>).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L197"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnLoopback</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1acb966c52a7be245b4b54e1e57509b8ec">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">set_timeout</span>(long long timeout_ms)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L240" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1acb966c52a7be245b4b54e1e57509b8ec" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Bound both blocking directions by <code>timeout_ms</code> (see the free <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1acb966c52a7be245b4b54e1e57509b8ec">set_timeout()</a>). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>timeout_ms</code></td><td class="pdesc"><p>per-operation bound in milliseconds (&lt;= 0 clears it).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L197"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnLoopback</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a07c779a200284a936c81fce8013e4976">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">local_port</span>() const</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L243" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a07c779a200284a936c81fce8013e4976" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The local TCP port this fd is bound to (see the free <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a07c779a200284a936c81fce8013e4976">local_port()</a>). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the port, or -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L197"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnLoopback</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a0af67f2f21391cac4f45ed6970a812d7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">shutdown</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L244" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a0af67f2f21391cac4f45ed6970a812d7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Half-close both directions WITHOUT releasing the fd (see the free <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a0af67f2f21391cac4f45ed6970a812d7">shutdown()</a>) — wakes a blocked reader for a clean shutdown; still call <a href="classcheatah_1_1socket_1_1Conn.html#classcheatah_1_1socket_1_1Conn_1a6f77df172b9ee210ca04070c62f96cb2">close()</a> (or let the destructor) afterward. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 on error.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L197"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnLoopback</span></code></a></span></div></div>
+</section><section class="member" id="classcheatah_1_1socket_1_1Conn_1a6f77df172b9ee210ca04070c62f96cb2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">close</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_cpp.html#L245" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a6f77df172b9ee210ca04070c62f96cb2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the fd now (idempotent — the destructor will not close it again). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>0 on success, -1 if already closed.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) syscall.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_socket_test_cpp.html#L164"><code><span class="tn-suite">CheatahSocket</span>.<span class="tn-case">ConnGuardClosesOnScopeExit</span></code></a></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1socket_1_1Conn_1a8f03051a3b7bf05afb03f882e2c22eb2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">fd_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_socket_socket_hpp.html#L426" title="View source">source</a><a class="anchor" href="#classcheatah_1_1socket_1_1Conn_1a8f03051a3b7bf05afb03f882e2c22eb2" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1socket_1_1Conn_1a64af41572b5995390135add4c13985f5">Conn</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a2662569f4f62a68002ad1c02090b1538">Conn</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a5ca8f07672b0b66d87271ada5df735af">Conn</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a73900a67cc0fc462b45015294e912191">operator=</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a8742ce190de312ad9f075a95a3593c44">Conn</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a7ded7ba93a4c80434ee2b50702b2983e">operator=</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1ae8b7deb3cc95135d50e9e8a13a05b7d8">~Conn</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1af723f69ae8692c8ddb03889236dbb374">is_open</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1ab8d00bc969619a9af4d31c468826c0ab">fd</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a22378253207c1a0133fdea0d952afe8c">send</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1aba39b611b672e8eaa4cc7c71d952c94d">sendall</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a475b60e607f98032d636051cf717ba20">recv</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1acb966c52a7be245b4b54e1e57509b8ec">set_timeout</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a07c779a200284a936c81fce8013e4976">local_port</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a0af67f2f21391cac4f45ed6970a812d7">shutdown</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a6f77df172b9ee210ca04070c62f96cb2">close</a></li><li><a href="#classcheatah_1_1socket_1_1Conn_1a8f03051a3b7bf05afb03f882e2c22eb2">fd_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=c98d9dff"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

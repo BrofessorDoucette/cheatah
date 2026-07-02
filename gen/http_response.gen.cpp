@@ -7,14 +7,15 @@ namespace cheatah_program {
 namespace builtins = ::cheatah::builtins;
 namespace io = ::cheatah::io;
 
-static auto response(builtins::Value auto status, builtins::Value auto ctype, builtins::Value auto body) {
+static auto response(builtins::Value auto&& status, builtins::Value auto&& ctype, builtins::Value auto&& body) {
     auto nl = std::string("\n");
-    auto head = ((std::string("HTTP/1.1 ") + status) + nl);
+    auto head = ((std::string("HTTP/1.1 ") + builtins::str(status)) + builtins::str(nl));
     ((head += "Content-Type: ") += ctype) += nl;
     ((head += "Content-Length: ") += io::str(builtins::len(body))) += nl;
     ((head += "Connection: close") += nl) += nl;
     return (head + body);
 }
+
 
 void purr_main() {
     io::print(response(std::string("200 OK"), std::string("text/plain"), std::string("hello, cheatah")));

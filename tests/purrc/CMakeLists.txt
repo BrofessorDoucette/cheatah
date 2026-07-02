@@ -4,6 +4,12 @@ add_executable(cheatah_purrc_tests
     compile_run_test.cpp
     cli_test.cpp                # --help / -h / --version usage for purrc + cheatah
     lang_features_test.cpp
+    parsers_cr_test.cpp
+    kwargs_cr_test.cpp         # default + keyword arguments (language feature)
+    callback_sys_test.cpp      # function values: a `fn` binds to a C++ std::function (callbacks)
+    requests_sys_test.cpp      # requests — the first pure-cheatah module, over real TCP
+    tls_sys_test.cpp           # TLS 1.3 client vs openssl s_server (test infra only)        # parsers module + dotted type imports + typed-reader schema synthesis
+    websocket_sys_test.cpp     # RFC 6455 client vs a real Node `ws` wss echo server (test infra only)
     linalg_lsq_e2e_test.cpp
     # Comprehensive per-module system tests (suite StdlibE2E): each exercises
     # EVERY function of its module in one cohesive program (backs the @systest docs).
@@ -55,14 +61,21 @@ add_executable(cheatah_purrc_tests
     # linalg vs NumPy: run checked-in .purr programs and cross-check against python.
     linalg_vs_python_test.cpp
 )
-target_link_libraries(cheatah_purrc_tests PRIVATE GTest::gmock_main)
+target_link_libraries(cheatah_purrc_tests PRIVATE GTest::gmock_main
+    cheatah::socket_static   # the loopback server inside requests_sys_test
+    cheatah::tls_static cheatah::p256_static cheatah::aead_static cheatah::x25519_static
+    cheatah::ed25519_static cheatah::hashlib_static  # tls_sys_test (tls verify -> p256)
+    cheatah::websocket_static cheatah::os_static)    # websocket_sys_test (RFC 6455 client + os.urandom)
 
 target_compile_definitions(cheatah_purrc_tests PRIVATE
     PURRC_PATH="$<TARGET_FILE:purrc>"
     CHEATAH_RUNTIME_PATH="$<TARGET_FILE:cheatah>"
     PURR_TEST_TMP="${CMAKE_CURRENT_BINARY_DIR}"
     # Source dir holding the editable linalg .purr/.py program pairs.
-    LINALG_PROGRAMS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/linalg_programs")
+    LINALG_PROGRAMS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/linalg_programs"
+    # websocket_sys_test: the Node `ws` wss echo fixture + the node binary.
+    WEBSOCKET_FIXTURE_DIR="${CMAKE_SOURCE_DIR}/tests/fixtures"
+    NODE_EXECUTABLE="node")
 
 # The test shells out to these at run time, and purrc links the stdlib libs into
 # the module it builds — so all must exist before the test runs.
@@ -82,6 +95,7 @@ add_dependencies(cheatah_purrc_tests
     cheatah_ed25519_static
     cheatah_socket_static
     cheatah_ndarray_static
-    cheatah_linalg_static)
+    cheatah_linalg_static
+    cheatah_websocket_static)  # websocket_sys_test
 
 gtest_discover_tests(cheatah_purrc_tests TEST_PREFIX "purrc:")

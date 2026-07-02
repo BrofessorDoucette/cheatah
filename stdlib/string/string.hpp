@@ -196,6 +196,16 @@ bool endswith(std::string_view s, std::string_view suffix);
  * @systest StdlibE2E.String
  */
 bool contains(std::string_view s, std::string_view sub);
+
+/**
+ * contains() with a single-char needle — what iterating a string yields (`for ch in s`).
+ * @param s input. @param c the character. @return true when present.
+ * @complexity O(n). @alloc none.
+ * @test CheatahString.SearchAndTest
+ * @crtest StringCompileRun.Find
+ * @systest StdlibE2E.String
+ */
+inline bool contains(std::string_view s, char c) { return s.find(c) != std::string_view::npos; }
 /**
  * First index of @p sub.
  *
@@ -246,8 +256,8 @@ long count(std::string_view s, std::string_view sub);
 /**
  * Replace all @p from with @p to.
  *
- * Replaces every non-overlapping, case-sensitive occurrence of @p from with @p to
- * and returns a new string; an empty @p from leaves @p s unchanged (unlike Python).
+ * Replaces every non-overlapping, case-sensitive occurrence of @p from with @p to;
+ * an empty @p from leaves @p s unchanged (unlike Python).
  * @param s input.
  * @param from,to needle/replacement.
  * @return new string.
@@ -267,7 +277,7 @@ std::string replace(std::string_view s, std::string_view from, std::string_view 
  * @param s input.
  * @param sep separator (empty → the whole string as one part).
  * @return the parts.
- * @complexity O(n).
+ * @complexity O(n·m).
  * @alloc allocates a vector of strings.
  * @test CheatahString.Transform, CheatahString.SplitEmptySeparator
  * @crtest StringCompileRun.Split

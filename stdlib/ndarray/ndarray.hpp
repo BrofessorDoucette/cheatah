@@ -19,6 +19,7 @@
  *       no manual frees. `size` below is the element count (product of dims).
  */
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <complex>
 #include <concepts>
@@ -79,6 +80,25 @@ inline constexpr bool is_complex_v = is_complex<T>::value;
 /// REAL matrix yield the COMPLEX eigenvalues it mathematically has.
 template <typename T>
 concept Field = std::is_arithmetic_v<T> || is_complex_v<T>;
+
+/// Element<T>: the broadest bound — any type an ndarray may STORE. A @ref Field (real/complex
+/// number) OR any MOVABLE type, so a fixed-size struct (a 2-D point, an RGBA colour, a GPU
+/// vertex) lives in an ndarray too. Elements are MOVED into the buffer on construction and the
+/// backing buffer is never silently deep-copied (copying an ndarray shares the buffer — an O(1)
+/// view). The arithmetic surface (elementwise ops, ufuncs, reductions, linalg) stays constrained
+/// to @ref Field and the duplicating factories to @ref Copyable, so a move-only element still
+/// stores / indexes / views / moves — it simply cannot be summed or deep-copied, and the compiler
+/// says so by design (cheatah discourages hidden copies on hot data).
+template <typename T>
+concept Element = Field<T> || std::movable<T>;
+
+/// Copyable<T>: an @ref Element that may ALSO be duplicated. It gates only the value-fill
+/// factories (full / full_like) and reshape's deep copy — the paths that replicate elements.
+/// Numbers and ordinary copyable POD structs satisfy it; a move-only struct does NOT, so an
+/// accidental deep copy of it fails to compile. Copying an ndarray CONTAINER never needs this —
+/// it is always a shared-buffer view (and the GPU borrows that buffer in place, never copying it).
+template <typename T>
+concept Copyable = Element<T> && std::copyable<T>;
 
 /// \cond INTERNAL
 template <typename T>
@@ -188,9 +208,9 @@ template <typename V> inline constexpr bool is_std_vector_v = false;
 template <typename U> inline constexpr bool is_std_vector_v<std::vector<U>> = true;
 
 /// Flatten a scalar leaf into the C-order buffer (recursion base case).
-template <Field T>
-void nested_collect(const T& x, std::vector<T>& flat, std::vector<std::size_t>&, std::size_t) {
-    flat.push_back(x);
+template <Element T>
+void nested_collect(T x, std::vector<T>& flat, std::vector<std::size_t>&, std::size_t) {
+    flat.push_back(std::move(x));
 }
 /// Walk a nested list: record each axis length the first time it is seen, reject a
 /// ragged list (a row whose length differs from its siblings — numpy does too), and
@@ -211,7 +231,7 @@ void nested_collect(const std::vector<U>& v, std::vector<nested_scalar_t<U>>& fl
 /// @ref detail::default_init_allocator so a freshly-sized result buffer that an op is
 /// about to overwrite in full is not needlessly zero-filled first. zeros/full/scalar,
 /// which value-fill, are unaffected — only the no-value sizing path skips initialization.
-template <Field T>
+template <Element T>
 using buffer_t = std::vector<T, detail::default_init_allocator<T>>;
 
 /**
@@ -225,10 +245,10 @@ using buffer_t = std::vector<T, detail::default_init_allocator<T>>;
  * (`std::complex<double>`) make complex matrices/vectors — and the complex eigenvalues
  * a real matrix can have — first-class.
  */
-template <Field T>
+template <Element T>
 class basic_ndarray {
 public:
-    using value_type = T;  ///< The stored element type (the @ref Field `T`).
+    using value_type = T;  ///< The stored element type (an @ref Element `T`).
     /**
      * Construct an empty 0-d array with a fresh empty buffer.
      *
@@ -355,6 +375,48 @@ public:
      *   CheatahNDArray.RejectsMaliciousShapesAndIndices
      * @systest StdlibE2E.Ndarray
      */
+    /**
+     * MUTABLE element reference by multi-index — the write path behind cheatah
+     * subscript assignment `x[i] = v` / `x[i, j] = v`. Negative indices count
+     * from the end of their dimension; rank and bounds are checked.
+     * @param ixs one (possibly negative) coordinate per dimension.
+     * @return a writable reference into the backing buffer.
+     * @complexity O(ndim). @alloc none.
+     * @test CheatahNDArray.SubscriptReadWrite
+     * @crtest NdarrayCompileRun.Subscript
+     * @systest StdlibE2E.Ndarray
+     */
+    template <typename... Ix>
+        requires(std::conjunction_v<std::is_convertible<Ix, long long>...> && sizeof...(Ix) > 0)
+    T& item_ref(Ix... ixs) {
+        const std::array<long long, sizeof...(Ix)> raw{static_cast<long long>(ixs)...};
+        if (raw.size() != shape_.size())
+            throw std::out_of_range("ndarray subscript: wrong number of indices");
+        std::size_t pos = offset_;
+        for (std::size_t d = 0; d < raw.size(); ++d) {
+            long long i = raw[d];
+            const long long n = static_cast<long long>(shape_[d]);
+            if (i < 0) i += n;
+            if (i < 0 || i >= n) throw std::out_of_range("ndarray subscript out of range");
+            pos += static_cast<std::size_t>(i) * strides_[d];
+        }
+        return (*data_)[pos];
+    }
+
+    /// 1-D subscript: `mask[i] = v` assignment and raw element writes.
+    /// @param i the element index (negative counts from the end, Python-style).
+    /// @return a mutable reference to element @p i.
+    T& operator[](long long i) { return item_ref(i); }
+
+    /**
+     * Read one element by a full multidimensional index (one component per axis), resolved via
+     * the array's strides. Bounds- and rank-checked.
+     * @param index the per-axis indices; its size must equal the array's rank.
+     * @return a copy of the addressed element.
+     * @throws std::runtime_error if @p index has the wrong rank or any component is out of range.
+     * @complexity O(rank).
+     * @alloc none.
+     */
     T at(const std::vector<std::size_t>& index) const {  // element via strides
         // Bounds-check: a wrong-rank or out-of-range index would otherwise compute an
         // offset outside the backing buffer (out-of-bounds read).
@@ -461,7 +523,7 @@ std::vector<std::size_t> broadcast_shapes(const std::vector<std::size_t>& a,
  * @test CheatahNDArray.BroadcastingAdd
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Element T>
 inline bool is_contiguous(const basic_ndarray<T>& a) {
     // C-order contiguity WITHOUT materializing the reference strides: walk the dims
     // back-to-front and check each stride equals the running size product. The old
@@ -486,7 +548,7 @@ inline bool is_contiguous(const basic_ndarray<T>& a) {
  * @test CheatahNDArray.BroadcastTo
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Element T>
 basic_ndarray<T> broadcast_to(const basic_ndarray<T>& a, const std::vector<std::size_t>& target) {
     const std::size_t n = target.size();
     if (a.ndim() > n) throw std::runtime_error("ndarray: cannot broadcast to fewer dimensions");
@@ -515,10 +577,30 @@ basic_ndarray<T> broadcast_to(const basic_ndarray<T>& a, const std::vector<std::
  * @crtest NdarrayCompileRun.Array
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Copyable T>
+    requires (!detail::is_std_vector_v<T>)  // a vector-of-vectors is a NESTED list (overload below)
 basic_ndarray<T> array(const std::vector<T>& values) {
     basic_ndarray<T> a = basic_ndarray<T>::uninitialized({values.size()});
     std::copy(values.begin(), values.end(), a.buffer()->begin());
+    return a;
+}
+/**
+ * 1-D array that MOVES its elements out of @p values into a fresh buffer (no element copy) — the
+ * no-copy build path, and the ONLY `array` overload a move-only element type has. A temporary
+ * `array(std::vector<T>{…})` binds here automatically; a named lvalue you want to keep uses the
+ * copying overload above.
+ * @param values the elements, moved into a fresh contiguous buffer (left moved-from).
+ * @return a contiguous 1-D `basic_ndarray<T>`.
+ * @complexity O(n).
+ * @alloc allocates a new buffer of `values.size()` elements.
+ * @test CheatahNDArray.ArrayMoveIn
+ * @systest StdlibE2E.Ndarray
+ */
+template <Element T>
+    requires (!detail::is_std_vector_v<T>)  // a vector-of-vectors is a NESTED list (overload below)
+basic_ndarray<T> array(std::vector<T>&& values) {
+    basic_ndarray<T> a = basic_ndarray<T>::uninitialized({values.size()});
+    std::move(values.begin(), values.end(), a.buffer()->begin());
     return a;
 }
 /**
@@ -539,7 +621,7 @@ basic_ndarray<T> array(const std::vector<T>& values) {
  * @systest StdlibE2E.Ndarray
  */
 template <typename V>
-    requires detail::is_std_vector_v<V> && Field<detail::nested_scalar_t<V>>
+    requires detail::is_std_vector_v<V> && Element<detail::nested_scalar_t<V>>
 basic_ndarray<detail::nested_scalar_t<V>> array(const std::vector<V>& values) {
     using T = detail::nested_scalar_t<V>;
     std::vector<std::size_t> shape;
@@ -559,7 +641,8 @@ basic_ndarray<detail::nested_scalar_t<V>> array(const std::vector<V>& values) {
  * @test CheatahNDArray.ShapeFactoriesAndReductions
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Copyable T>
+    requires (!detail::is_std_vector_v<T>)  // nested braces route to the nested-list overload
 basic_ndarray<T> array(std::initializer_list<T> values) {
     return array(std::vector<T>(values));
 }
@@ -573,7 +656,7 @@ basic_ndarray<T> array(std::initializer_list<T> values) {
  * @crtest NdarrayCompileRun.Scalar
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Copyable T>
 basic_ndarray<T> scalar(T value) {
     basic_ndarray<T> a;  // 0-d
     a.buffer()->assign(1, value);
@@ -616,9 +699,53 @@ inline NDArray ones(const std::vector<long long>& shape) {
  * @crtest NdarrayCompileRun.Full
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Copyable T>
 basic_ndarray<T> full(const std::vector<long long>& shape, T value) {
     return basic_ndarray<T>(detail::to_size(shape), value);
+}
+/**
+ * A fresh array with the SAME shape and element type as @p a, filled with @p value
+ * (≈ `numpy.full_like`). The companion `zeros_like` / `ones_like` default the fill.
+ * @param a the array whose shape and element type to mirror.
+ * @param value the fill value.
+ * @return a same-shape `basic_ndarray<T>` filled with @p value.
+ * @complexity O(size).
+ * @alloc allocates a new buffer.
+ * @test CheatahNDArray.LikeFactories
+ * @crtest NdarrayCompileRun.FullLike
+ * @systest StdlibE2E.Ndarray
+ */
+template <Copyable T>
+basic_ndarray<T> full_like(const basic_ndarray<T>& a, T value) {
+    return basic_ndarray<T>(a.shape(), value);
+}
+/**
+ * A zero-filled array with the SAME shape and element type as @p a (≈ `numpy.zeros_like`) —
+ * the idiomatic way to allocate a matching gradient/velocity/scratch buffer for an existing array.
+ * @param a the array whose shape and element type to mirror.
+ * @return a same-shape `basic_ndarray<T>` of zeros.
+ * @complexity O(size).
+ * @alloc allocates a new buffer.
+ * @test CheatahNDArray.LikeFactories
+ * @crtest NdarrayCompileRun.ZerosLike
+ * @systest StdlibE2E.Ndarray
+ */
+template <Copyable T>
+basic_ndarray<T> zeros_like(const basic_ndarray<T>& a) {
+    return basic_ndarray<T>(a.shape(), T{});
+}
+/**
+ * A one-filled array with the SAME shape and element type as @p a (≈ `numpy.ones_like`).
+ * @param a the array whose shape and element type to mirror.
+ * @return a same-shape `basic_ndarray<T>` of ones.
+ * @complexity O(size).
+ * @alloc allocates a new buffer.
+ * @test CheatahNDArray.LikeFactories
+ * @systest StdlibE2E.Ndarray
+ */
+template <Copyable T>
+basic_ndarray<T> ones_like(const basic_ndarray<T>& a) {
+    return basic_ndarray<T>(a.shape(), T{1});
 }
 /**
  * 1-D range `[start, stop)` stepping by @p step; element type deduced from the args.
@@ -651,7 +778,7 @@ basic_ndarray<T> arange(T start, T stop, T step) {
  * @crtest NdarrayCompileRun.Reshape
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Copyable T>
 basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>& shape) {
     const std::vector<std::size_t> ns = detail::to_size(shape);
     if (detail::product(ns) != a.size()) {
@@ -730,6 +857,74 @@ basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b,
     } while (!rshape.empty() && detail::next_index(idx, rshape));
     return out;
 }
+
+/**
+ * Elementwise `out = op(a, b)` (broadcasting) into the CALLER'S buffer @p out — the user-provided-output
+ * form of binary_op, NO allocation: a hot loop hands the same scratch array every call. @p out must
+ * already hold the broadcast result shape and be contiguous; it MAY alias a full-shape operand (the write
+ * is index-local, so `add(x, x, y)` is fine).
+ * @param out the destination (mutated; must be contiguous and match the broadcast shape).
+ * @param a first operand.
+ * @param b second operand.
+ * @param op the binary combiner.
+ * @complexity O(size of out).
+ * @alloc none.
+ * @test CheatahNDArray.BinaryOpIntoReusesBuffer
+ */
+template <Field T, typename Op>
+void binary_op_into(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarray<T>& b, Op op) {
+    const std::vector<std::size_t> rshape = broadcast_shapes(a.shape(), b.shape());
+    if (out.shape() != rshape || !is_contiguous(out)) {
+        throw std::invalid_argument(
+            "ndarray binary op (out form): out must be contiguous and match the broadcast shape");
+    }
+    auto& obuf = *out.buffer();
+    const auto odst = obuf.begin() + static_cast<std::ptrdiff_t>(out.offset());
+    if (b.size() == 1 && a.shape() == rshape && is_contiguous(a)) {  // array ⊕ scalar
+        const T s = (*b.buffer())[b.offset()];
+        const auto af = a.buffer()->begin() + static_cast<std::ptrdiff_t>(a.offset());
+        std::transform(CHEATAH_UNSEQ af, af + static_cast<std::ptrdiff_t>(out.size()), odst,
+                       [s, op](T x) { return op(x, s); });
+        return;
+    }
+    if (a.size() == 1 && b.shape() == rshape && is_contiguous(b)) {  // scalar ⊕ array
+        const T s = (*a.buffer())[a.offset()];
+        const auto bf = b.buffer()->begin() + static_cast<std::ptrdiff_t>(b.offset());
+        std::transform(CHEATAH_UNSEQ bf, bf + static_cast<std::ptrdiff_t>(out.size()), odst,
+                       [s, op](T x) { return op(s, x); });
+        return;
+    }
+    const basic_ndarray<T> av = broadcast_to(a, rshape);
+    const basic_ndarray<T> bv = broadcast_to(b, rshape);
+    if (is_contiguous(av) && is_contiguous(bv)) {  // both full-shape contiguous: flat SIMD transform
+        const auto af = av.buffer()->begin() + static_cast<std::ptrdiff_t>(av.offset());
+        std::transform(CHEATAH_UNSEQ af, af + static_cast<std::ptrdiff_t>(out.size()),
+                       bv.buffer()->begin() + static_cast<std::ptrdiff_t>(bv.offset()), odst, op);
+        return;
+    }
+    std::vector<std::size_t> idx(rshape.size(), 0);  // strided operand fallback (still no alloc for out)
+    std::size_t flat = 0;
+    do {
+        odst[static_cast<std::ptrdiff_t>(flat++)] = op(av.at(idx), bv.at(idx));
+    } while (!rshape.empty() && detail::next_index(idx, rshape));
+}
+
+// Shared elementwise combiners: ONE functor type per op, used by BOTH the allocating
+// forms (add/sub/mul/divide) and the in-place compound operators (+=/-=/*=//=). Using a
+// single type means `binary_op` is instantiated once per op rather than once per call
+// site, so the in-place fallback reuses the same (already-tested) instantiation instead
+// of a duplicate whose scalar/contiguous fast paths are unreachable through it.
+namespace detail {
+struct add_op { template <typename T> T operator()(T x, T y) const { return x + y; } };
+struct sub_op { template <typename T> T operator()(T x, T y) const { return x - y; } };
+struct mul_op { template <typename T> T operator()(T x, T y) const { return x * y; } };
+struct div_op { template <typename T> T operator()(T x, T y) const { return x / y; } };
+// Reversed combiners: reuse the RIGHT operand in place for non-commutative ops, i.e. compute
+// `dst = src OP dst` so that `a - std::move(b)` / `a / std::move(b)` can write through b's buffer.
+struct rsub_op { template <typename T> T operator()(T x, T y) const { return y - x; } };
+struct rdiv_op { template <typename T> T operator()(T x, T y) const { return y / x; } };
+}  // namespace detail
+
 /**
  * Element-wise `a + b` with broadcasting.
  * @param a first operand.
@@ -742,7 +937,7 @@ basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b,
  */
 template <Field T>
 basic_ndarray<T> add(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
-    return binary_op(a, b, [](T x, T y) { return x + y; });
+    return binary_op(a, b, detail::add_op{});
 }
 /**
  * Element-wise `a - b` with broadcasting.
@@ -756,7 +951,7 @@ basic_ndarray<T> add(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  */
 template <Field T>
 basic_ndarray<T> sub(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
-    return binary_op(a, b, [](T x, T y) { return x - y; });
+    return binary_op(a, b, detail::sub_op{});
 }
 /**
  * Element-wise `a * b` with broadcasting.
@@ -770,7 +965,7 @@ basic_ndarray<T> sub(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  */
 template <Field T>
 basic_ndarray<T> mul(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
-    return binary_op(a, b, [](T x, T y) { return x * y; });
+    return binary_op(a, b, detail::mul_op{});
 }
 /**
  * Element-wise `a / b` with broadcasting (an integer element type does integer division).
@@ -784,8 +979,437 @@ basic_ndarray<T> mul(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  */
 template <Field T>
 basic_ndarray<T> divide(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
-    return binary_op(a, b, [](T x, T y) { return x / y; });
+    return binary_op(a, b, detail::div_op{});
 }
+
+// ---- user-provided-output forms: write into the caller's buffer, NO allocation (see binary_op_into) ----
+/**
+ * Element-wise `a + b` into the caller's buffer @p out (out FIRST) — the buffer-reuse overload, so a
+ * hot loop hands the same scratch every call. @p out must be contiguous with the broadcast shape; it
+ * may alias a full-shape operand (the write is index-local).
+ * @param out destination, overwritten.
+ * @param a,b operands (broadcastable to @p out's shape).
+ * @complexity O(size of result). @alloc none.
+ * @test CheatahNDArray.BinaryOpIntoReusesBuffer
+ */
+template <Field T>
+void add(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    binary_op_into(out, a, b, detail::add_op{});
+}
+/**
+ * Element-wise `a - b` into @p out (out FIRST), no allocation. @see add(out, a, b).
+ * @param out destination, overwritten.
+ * @param a,b operands (broadcastable to @p out's shape).
+ */
+template <Field T>
+void sub(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    binary_op_into(out, a, b, detail::sub_op{});
+}
+/**
+ * Element-wise `a * b` into @p out (out FIRST), no allocation. @see add(out, a, b).
+ * @param out destination, overwritten.
+ * @param a,b operands (broadcastable to @p out's shape).
+ */
+template <Field T>
+void mul(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    binary_op_into(out, a, b, detail::mul_op{});
+}
+/**
+ * Element-wise `a / b` into @p out (out FIRST), no allocation. @see add(out, a, b).
+ * @param out destination, overwritten.
+ * @param a,b operands (broadcastable to @p out's shape).
+ */
+template <Field T>
+void divide(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    binary_op_into(out, a, b, detail::div_op{});
+}
+
+// ---- Infix operators & in-place compound assignment ------------------------
+// cheatah lowers `a + b` / `a * 2.0` / `a += b` on ndarrays straight to these
+// C++ operators. Infix forms are the elementwise free functions (broadcasting
+// included); a bare arithmetic scalar on either side is wrapped via scalar().
+// The compound forms mutate the LEFT OPERAND'S BUFFER IN PLACE on the common
+// (contiguous) layout — no allocation, so a hot loop can reuse one array for
+// an entire run — falling back to the allocating elementwise path only for
+// non-contiguous views or true broadcasts.
+
+/**
+ * In-place elementwise update `a = op(a, b)`, writing through @p a's buffer.
+ * Contiguous @p a with a same-shape contiguous or single-element @p b runs as
+ * a flat vectorizable transform with NO allocation; anything else falls back
+ * to the allocating binary_op and rebinds @p a to the result.
+ * @param a the destination array (mutated).
+ * @param b the right operand (same shape, or a single element).
+ * @param op the elementwise combiner.
+ * @complexity O(size of @p a).
+ * @alloc none on the contiguous fast path; one result array on the fallback.
+ * @test CheatahNDArray.CompoundAssignInPlace
+ * @crtest NdarrayCompileRun.CompoundAssign
+ * @systest StdlibE2E.Ndarray
+ */
+template <typename T, typename Op>
+void compound_apply(basic_ndarray<T>& a, const basic_ndarray<T>& b, Op op) {
+    if (is_contiguous(a) && (b.size() == 1 || b.shape() == a.shape())) {
+        auto& abuf = *a.buffer();
+        const std::size_t n = a.size();
+        const auto first = abuf.begin() + static_cast<std::ptrdiff_t>(a.offset());
+        if (b.size() == 1) {
+            const T s = (*b.buffer())[b.offset()];
+            std::transform(CHEATAH_UNSEQ first, first + static_cast<std::ptrdiff_t>(n), first,
+                           [s, op](T x) { return op(x, s); });
+            return;
+        }
+        if (is_contiguous(b)) {
+            const auto& bbuf = *b.buffer();
+            std::transform(CHEATAH_UNSEQ first, first + static_cast<std::ptrdiff_t>(n),
+                           bbuf.begin() + static_cast<std::ptrdiff_t>(b.offset()), first, op);
+            return;
+        }
+    }
+    a = binary_op(a, b, op);  // broadcast / non-contiguous fallback
+}
+
+// ---- rvalue-reuse ("move") forms -----------------------------------------------------------------
+// "Copy vs move" for ndarray math. `a + b` on NAMED (lvalue) arrays MUST allocate — it can't clobber
+// `a`, which the caller still holds. But when the LEFT operand is an RVALUE — a temporary the caller
+// has already given up: the `a + b` inside a chain `a + b + c`, or an explicit `std::move(a)` — these
+// compute IN PLACE into that buffer and move it out: NO allocation. Selected by value category, so a
+// buffer is only ever reused when it is safe to (no flag, no surprise mutation). Reuses the in-place
+// compound_apply, so the same contiguous fast path / broadcast fallback / tests apply.
+/**
+ * Element-wise `a + b` reusing the expiring left operand @p a in place (no allocation).
+ * @param a the expiring left operand; computed into and moved out.
+ * @param b the right operand (broadcastable to @p a's shape).
+ * @return the sum, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> add(basic_ndarray<T>&& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::add_op{});
+    return std::move(a);
+}
+/**
+ * Element-wise `a - b` reusing the expiring left operand @p a in place (no allocation).
+ * @param a the expiring left operand; computed into and moved out.
+ * @param b the right operand (broadcastable to @p a's shape).
+ * @return the difference, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> sub(basic_ndarray<T>&& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::sub_op{});
+    return std::move(a);
+}
+/**
+ * Element-wise `a * b` reusing the expiring left operand @p a in place (no allocation).
+ * @param a the expiring left operand; computed into and moved out.
+ * @param b the right operand (broadcastable to @p a's shape).
+ * @return the product, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> mul(basic_ndarray<T>&& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::mul_op{});
+    return std::move(a);
+}
+/**
+ * Element-wise `a / b` reusing the expiring left operand @p a in place (no allocation).
+ * @param a the expiring left operand; computed into and moved out.
+ * @param b the right operand (broadcastable to @p a's shape).
+ * @return the quotient, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> divide(basic_ndarray<T>&& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::div_op{});
+    return std::move(a);
+}
+
+// Right-operand reuse: when only the RIGHT operand is the expiring temporary, compute through ITS
+// buffer instead. `+`/`*` are commutative so `op(b, a)` is the same value; `-`/`/` use the reversed
+// combiners (`b = a OP b`). This makes `a + std::move(b)` reuse a buffer exactly like
+// `std::move(a) + b` — the two are symmetric, neither allocates.
+/**
+ * Element-wise `a + b` reusing the expiring right operand @p b in place (no allocation).
+ * @param a the left operand (a const lvalue the caller keeps).
+ * @param b the expiring right operand; computed into and moved out.
+ * @return the sum, in @p b's reused buffer.
+ * @complexity O(size of @p b). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> add(const basic_ndarray<T>& a, basic_ndarray<T>&& b) {
+    compound_apply(b, a, detail::add_op{});
+    return std::move(b);
+}
+/**
+ * Element-wise `a - b` reusing the expiring right operand @p b in place via the reversed combiner
+ * `b = a - b` (no allocation).
+ * @param a the left operand (a const lvalue the caller keeps).
+ * @param b the expiring right operand; computed into and moved out.
+ * @return the difference, in @p b's reused buffer.
+ * @complexity O(size of @p b). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> sub(const basic_ndarray<T>& a, basic_ndarray<T>&& b) {
+    compound_apply(b, a, detail::rsub_op{});
+    return std::move(b);
+}
+/**
+ * Element-wise `a * b` reusing the expiring right operand @p b in place (no allocation).
+ * @param a the left operand (a const lvalue the caller keeps).
+ * @param b the expiring right operand; computed into and moved out.
+ * @return the product, in @p b's reused buffer.
+ * @complexity O(size of @p b). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> mul(const basic_ndarray<T>& a, basic_ndarray<T>&& b) {
+    compound_apply(b, a, detail::mul_op{});
+    return std::move(b);
+}
+/**
+ * Element-wise `a / b` reusing the expiring right operand @p b in place via the reversed combiner
+ * `b = a / b` (no allocation).
+ * @param a the numerator (a const lvalue the caller keeps).
+ * @param b the expiring denominator; computed into and moved out.
+ * @return the quotient, in @p b's reused buffer.
+ * @complexity O(size of @p b). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> divide(const basic_ndarray<T>& a, basic_ndarray<T>&& b) {
+    compound_apply(b, a, detail::rdiv_op{});
+    return std::move(b);
+}
+
+// Both operands expiring: prefer reusing the LEFT (matches the chain `a + b + c`, where the left is
+// the running accumulator). Disambiguates the otherwise-ambiguous `std::move(a) OP std::move(b)`.
+/**
+ * Element-wise `a + b` when both operands are expiring; reuses the left buffer @p a (no allocation).
+ * @param a the expiring left operand; reused for the result.
+ * @param b the expiring right operand.
+ * @return the sum, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> add(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return add(std::move(a), b); }
+/**
+ * Element-wise `a - b` when both operands are expiring; reuses the left buffer @p a (no allocation).
+ * @param a the expiring left operand; reused for the result.
+ * @param b the expiring right operand.
+ * @return the difference, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> sub(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return sub(std::move(a), b); }
+/**
+ * Element-wise `a * b` when both operands are expiring; reuses the left buffer @p a (no allocation).
+ * @param a the expiring left operand; reused for the result.
+ * @param b the expiring right operand.
+ * @return the product, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> mul(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return mul(std::move(a), b); }
+/**
+ * Element-wise `a / b` when both operands are expiring; reuses the left buffer @p a (no allocation).
+ * @param a the expiring numerator; reused for the result.
+ * @param b the expiring denominator.
+ * @return the quotient, in @p a's reused buffer.
+ * @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <Field T>
+basic_ndarray<T> divide(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return divide(std::move(a), b); }
+
+/// Elementwise infix forms: `a + b`, `a - b`, `a * b`, `a / b` (broadcasting).
+/**
+ * Elementwise `a + b` with broadcasting (infix form of add()).
+ * @param a first operand. @param b second operand.
+ * @return the broadcast sum (a fresh array). @complexity O(size of result). @alloc the result.
+ */
+template <typename T>
+basic_ndarray<T> operator+(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return add(a, b); }
+/**
+ * Elementwise `a - b` with broadcasting (infix form of sub()).
+ * @param a first operand. @param b second operand.
+ * @return the broadcast difference (a fresh array). @complexity O(size of result). @alloc the result.
+ */
+template <typename T>
+basic_ndarray<T> operator-(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return sub(a, b); }
+/**
+ * Elementwise `a * b` with broadcasting (infix form of mul()).
+ * @param a first operand. @param b second operand.
+ * @return the broadcast product (a fresh array). @complexity O(size of result). @alloc the result.
+ */
+template <typename T>
+basic_ndarray<T> operator*(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return mul(a, b); }
+/**
+ * Elementwise `a / b` with broadcasting (infix form of divide()).
+ * @param a numerator. @param b denominator.
+ * @return the broadcast quotient (a fresh array). @complexity O(size of result). @alloc the result.
+ */
+template <typename T>
+basic_ndarray<T> operator/(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return divide(a, b); }
+
+/// rvalue-reuse infix forms: whichever operand is the expiring temporary is computed into IN PLACE
+/// (no alloc). `std::move(a) + b` reuses `a`, `a + std::move(b)` reuses `b` — symmetric. A chain
+/// `a + b + c` allocates once (for `a + b`) instead of twice. If BOTH are temporaries the left wins.
+/** `a + b` reusing the expiring left operand @p a in place. @param a expiring left operand. @param b right operand. @return the sum, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator+(basic_ndarray<T>&& a, const basic_ndarray<T>& b) { return add(std::move(a), b); }
+/** `a - b` reusing the expiring left operand @p a in place. @param a expiring left operand. @param b right operand. @return the difference, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator-(basic_ndarray<T>&& a, const basic_ndarray<T>& b) { return sub(std::move(a), b); }
+/** `a * b` reusing the expiring left operand @p a in place. @param a expiring left operand. @param b right operand. @return the product, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator*(basic_ndarray<T>&& a, const basic_ndarray<T>& b) { return mul(std::move(a), b); }
+/** `a / b` reusing the expiring left operand @p a in place. @param a expiring numerator. @param b denominator. @return the quotient, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator/(basic_ndarray<T>&& a, const basic_ndarray<T>& b) { return divide(std::move(a), b); }
+/** `a + b` reusing the expiring right operand @p b in place. @param a left operand. @param b expiring right operand. @return the sum, in @p b's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator+(const basic_ndarray<T>& a, basic_ndarray<T>&& b) { return add(a, std::move(b)); }
+/** `a - b` reusing the expiring right operand @p b in place. @param a left operand. @param b expiring right operand. @return the difference, in @p b's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator-(const basic_ndarray<T>& a, basic_ndarray<T>&& b) { return sub(a, std::move(b)); }
+/** `a * b` reusing the expiring right operand @p b in place. @param a left operand. @param b expiring right operand. @return the product, in @p b's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator*(const basic_ndarray<T>& a, basic_ndarray<T>&& b) { return mul(a, std::move(b)); }
+/** `a / b` reusing the expiring right operand @p b in place. @param a numerator. @param b expiring denominator. @return the quotient, in @p b's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator/(const basic_ndarray<T>& a, basic_ndarray<T>&& b) { return divide(a, std::move(b)); }
+/** `a + b` with both operands expiring; reuses the left buffer @p a. @param a expiring left operand. @param b expiring right operand. @return the sum, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator+(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return add(std::move(a), std::move(b)); }
+/** `a - b` with both operands expiring; reuses the left buffer @p a. @param a expiring left operand. @param b expiring right operand. @return the difference, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator-(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return sub(std::move(a), std::move(b)); }
+/** `a * b` with both operands expiring; reuses the left buffer @p a. @param a expiring left operand. @param b expiring right operand. @return the product, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator*(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return mul(std::move(a), std::move(b)); }
+/** `a / b` with both operands expiring; reuses the left buffer @p a. @param a expiring numerator. @param b expiring denominator. @return the quotient, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
+template <typename T>
+basic_ndarray<T> operator/(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return divide(std::move(a), std::move(b)); }
+
+/// Scalar infix forms, either side: `a * 2.0`, `0.5 * a`, `a + 1`, `1.0 / a`, ...
+/// The scalar converts to the array's element type (int literals work on float arrays). These go
+/// straight to the ALLOCATING binary_op (not the reuse-enabled add/sub/...): the `scalar(s)` temporary
+/// is 0-d, so letting it bind a buffer-reuse overload would compute the result into the scalar and
+/// collapse it to 0-d. The array operand here is a const lvalue (the caller keeps it), so the result
+/// must be a fresh array of the BROADCAST shape regardless.
+/** `a + s`: add scalar @p s to every element. @param a the array. @param s the arithmetic scalar (converted to @p T). @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator+(const basic_ndarray<T>& a, S s) { return binary_op(a, scalar(static_cast<T>(s)), detail::add_op{}); }
+/** `s + a`: add scalar @p s to every element. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator+(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::add_op{}); }
+/** `a - s`: subtract scalar @p s from every element. @param a the array. @param s the arithmetic scalar (converted to @p T). @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator-(const basic_ndarray<T>& a, S s) { return binary_op(a, scalar(static_cast<T>(s)), detail::sub_op{}); }
+/** `s - a`: elementwise @p s minus each element. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator-(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::sub_op{}); }
+/** `a * s`: multiply every element by scalar @p s. @param a the array. @param s the arithmetic scalar (converted to @p T). @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator*(const basic_ndarray<T>& a, S s) { return binary_op(a, scalar(static_cast<T>(s)), detail::mul_op{}); }
+/** `s * a`: multiply every element by scalar @p s. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator*(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::mul_op{}); }
+/** `a / s`: divide every element by scalar @p s. @param a the array. @param s the arithmetic scalar divisor (converted to @p T). @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator/(const basic_ndarray<T>& a, S s) { return binary_op(a, scalar(static_cast<T>(s)), detail::div_op{}); }
+/** `s / a`: elementwise @p s divided by each element. @param s the arithmetic scalar numerator (converted to @p T). @param a the array of divisors. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator/(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::div_op{}); }
+
+/// rvalue-reuse scalar forms: a temporary array operand is computed into IN PLACE (no alloc). Only the
+/// commutative `s + a` / `s * a` get a scalar-LEFT reuse form; `s - a` / `s / a` keep the allocating
+/// const& form (a reversed in-place would be needed, not worth it for that rare case).
+/** `a + s` reusing the expiring array @p a in place. @param a expiring array operand. @param s the arithmetic scalar (converted to @p T). @return the result, in @p a's buffer. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator+(basic_ndarray<T>&& a, S s) { return add(std::move(a), scalar(static_cast<T>(s))); }
+/** `s + a` reusing the expiring array @p a in place (commutative). @param s the arithmetic scalar (converted to @p T). @param a expiring array operand. @return the result, in @p a's buffer. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator+(S s, basic_ndarray<T>&& a) { return add(std::move(a), scalar(static_cast<T>(s))); }
+/** `a - s` reusing the expiring array @p a in place. @param a expiring array operand. @param s the arithmetic scalar (converted to @p T). @return the result, in @p a's buffer. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator-(basic_ndarray<T>&& a, S s) { return sub(std::move(a), scalar(static_cast<T>(s))); }
+/** `a * s` reusing the expiring array @p a in place. @param a expiring array operand. @param s the arithmetic scalar (converted to @p T). @return the result, in @p a's buffer. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator*(basic_ndarray<T>&& a, S s) { return mul(std::move(a), scalar(static_cast<T>(s))); }
+/** `s * a` reusing the expiring array @p a in place (commutative). @param s the arithmetic scalar (converted to @p T). @param a expiring array operand. @return the result, in @p a's buffer. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator*(S s, basic_ndarray<T>&& a) { return mul(std::move(a), scalar(static_cast<T>(s))); }
+/** `a / s` reusing the expiring array @p a in place. @param a expiring array operand. @param s the arithmetic scalar divisor (converted to @p T). @return the result, in @p a's buffer. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T> operator/(basic_ndarray<T>&& a, S s) { return divide(std::move(a), scalar(static_cast<T>(s))); }
+
+/// In-place compound assignment: `a += b`, `a -= b`, `a *= b`, `a /= b`
+/// (array or arithmetic-scalar right operand). See compound_apply.
+/**
+ * In-place `a += b`, updating @p a's buffer (see compound_apply).
+ * @param a the array to update in place. @param b the right operand (same shape or single-element).
+ * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <typename T>
+basic_ndarray<T>& operator+=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::add_op{}); return a;
+}
+/**
+ * In-place `a -= b`, updating @p a's buffer (see compound_apply).
+ * @param a the array to update in place. @param b the right operand (same shape or single-element).
+ * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <typename T>
+basic_ndarray<T>& operator-=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::sub_op{}); return a;
+}
+/**
+ * In-place `a *= b`, updating @p a's buffer (see compound_apply).
+ * @param a the array to update in place. @param b the right operand (same shape or single-element).
+ * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <typename T>
+basic_ndarray<T>& operator*=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::mul_op{}); return a;
+}
+/**
+ * In-place `a /= b`, updating @p a's buffer (see compound_apply).
+ * @param a the array to update in place. @param b the right operand (same shape or single-element).
+ * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ */
+template <typename T>
+basic_ndarray<T>& operator/=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
+    compound_apply(a, b, detail::div_op{}); return a;
+}
+/** In-place `a += s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T>& operator+=(basic_ndarray<T>& a, S s) { return a += scalar(static_cast<T>(s)); }
+/** In-place `a -= s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T>& operator-=(basic_ndarray<T>& a, S s) { return a -= scalar(static_cast<T>(s)); }
+/** In-place `a *= s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T>& operator*=(basic_ndarray<T>& a, S s) { return a *= scalar(static_cast<T>(s)); }
+/** In-place `a /= s` (scalar). @param a the array to update. @param s the arithmetic scalar divisor (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+template <typename T, typename S>
+    requires std::is_arithmetic_v<S>
+basic_ndarray<T>& operator/=(basic_ndarray<T>& a, S s) { return a /= scalar(static_cast<T>(s)); }
 
 // ---- complex support ----
 namespace detail {
@@ -1104,7 +1728,7 @@ double mean(const basic_ndarray<T>& a) {
  * @crtest NdarrayCompileRun.Get
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Copyable T>
 T get(const basic_ndarray<T>& a, const std::vector<long long>& index) {
     return a.at(detail::to_size(index));
 }
@@ -1118,7 +1742,7 @@ T get(const basic_ndarray<T>& a, const std::vector<long long>& index) {
  * @crtest NdarrayCompileRun.ShapeOf
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Element T>
 std::vector<long long> shape_of(const basic_ndarray<T>& a) {
     std::vector<long long> out(a.ndim());
     for (std::size_t i = 0; i < a.ndim(); ++i) out[i] = static_cast<long long>(a.shape()[i]);
@@ -1134,7 +1758,7 @@ std::vector<long long> shape_of(const basic_ndarray<T>& a) {
  * @crtest NdarrayCompileRun.SizeOf
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Element T>
 long long size_of(const basic_ndarray<T>& a) {
     return static_cast<long long>(a.size());
 }
@@ -1163,7 +1787,7 @@ std::string format_scalar(const T& v) {
 }
 
 /// Recursively format @p a into nested brackets (each element via `format_scalar`).
-template <Field T>
+template <Element T>
 void format_rec(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::size_t dim,
                 std::string& out) {
     if (dim == a.ndim()) {
@@ -1183,7 +1807,7 @@ void format_rec(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::s
 /// first and last `edge` items with `...` between, recursively. Summarization is enabled by
 /// @p summarize (the caller turns it on only past a total-size threshold), so small arrays
 /// print in full.
-template <Field T>
+template <Element T>
 void format_rec_trunc(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, std::size_t dim,
                       std::string& out, std::size_t edge, bool summarize) {
     if (dim == a.ndim()) {
@@ -1214,7 +1838,7 @@ void format_rec_trunc(const basic_ndarray<T>& a, std::vector<std::size_t>& idx, 
 /// to_string, but ABBREVIATED with `...` when the array is large (total size beyond a
 /// numpy-style threshold) — the readable default for `io.print`. `io.rprint`/`to_string`
 /// keep the full form.
-template <Field T>
+template <Element T>
 std::string to_string_pretty(const basic_ndarray<T>& a) {
     if (a.ndim() == 0) return format_scalar(a.at({}));
     constexpr std::size_t kEdge = 3;        // items kept at each end of an abbreviated axis
@@ -1237,7 +1861,7 @@ std::string to_string_pretty(const basic_ndarray<T>& a) {
  * @crtest NdarrayCompileRun.ToString
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Element T>
 std::string to_string(const basic_ndarray<T>& a) {
     if (a.ndim() == 0) {
         return detail::format_scalar(a.at({}));
@@ -1248,7 +1872,7 @@ std::string to_string(const basic_ndarray<T>& a) {
     return out;
 }
 
-template <Field T>
+template <Element T>
 inline std::string basic_ndarray<T>::str() const {
     return to_string(*this);
 }
@@ -1266,14 +1890,40 @@ inline std::string basic_ndarray<T>::str() const {
  * @test CheatahNDArray.ToString
  * @systest StdlibE2E.Ndarray
  */
-template <Field T>
+template <Element T>
 std::ostream& operator<<(std::ostream& os, const basic_ndarray<T>& a) {
     return os << to_string(a);
 }
 
-template <Field T>
+template <Element T>
 inline void basic_ndarray<T>::cheatah_pretty_print(std::ostream& os, long long) const {
     os << detail::to_string_pretty(*this);
 }
 
 } // namespace cheatah::ndarray
+
+// cheatah's value-position subscript lowers to builtins::index(obj, i, ...).
+// These overloads give it the ndarray meaning: negative-aware element reads,
+// one coordinate per dimension.
+namespace cheatah::builtins {
+
+/**
+ * Element read `a[i, j, ...]` (negative indices count from the dimension end).
+ * @param a the array to read from.
+ * @param first the first-axis coordinate (negative counts from that dimension's end).
+ * @param rest the remaining per-axis coordinates (one per further dimension).
+ * @return the element value.
+ * @complexity O(ndim). @alloc none.
+ * @test CheatahNDArray.SubscriptReadWrite
+ * @crtest NdarrayCompileRun.Subscript
+ * @systest StdlibE2E.Ndarray
+ */
+template <typename T, typename... Ix>
+    requires(std::conjunction_v<std::is_convertible<Ix, long long>...>)
+T index(const ::cheatah::ndarray::basic_ndarray<T>& a, long long first, Ix... rest) {
+    // const_cast is sound: item_ref only computes a position; we copy the value out.
+    return const_cast<::cheatah::ndarray::basic_ndarray<T>&>(a).item_ref(
+        first, static_cast<long long>(rest)...);
+}
+
+}  // namespace cheatah::builtins

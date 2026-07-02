@@ -39,6 +39,7 @@ No rethinking needed — just the syntax shell above:
 | Strings | `"a" + "b"`, `s.startswith(p)`, `s.contains(x)` | `+`, `.startswith`, `in` |
 | Loops | `for x in xs { … }`, `while c { … }` | same logic |
 | Control flow | `if/elif/else`, `break`, `continue`, `match` | same |
+| Resources | `with io.open(p) as f { … }` | `with open(p) as f:` |
 | Built-ins | `len(x)`, `hex(n)`, `ord(c)` (no import) | `len`, `hex`, `ord` |
 | Errors | `try { … } except e { … }`, `raise "msg"` | message-based, catch-all |
 
@@ -131,6 +132,12 @@ print(c.area())
    needs a type annotation. Iterating a `dict` yields **key/value pairs**.
 7. **Exceptions are message-based & catch-all.** `except e` binds `e` to the message
    string; `raise "msg"` throws. No typed `except`, `as`, or `finally` yet.
+8. **`with` is RAII, not a context-manager protocol.** `with expr [as name] { … }`
+   binds a resource for the block and its destructor releases it on **every** exit path
+   (`return`/`break`/exception) — the direct analog of Python's `with open(…) as f:`.
+   There is **no `__enter__`/`__exit__`**: any value with a destructor works (`io.open`,
+   `socket.open`/`serve`, `tls.open`, `websocket.open`/`open_url` all return owning
+   guards). No `with a, b:` multi-context form yet — nest blocks.
 
 ## A worked port
 
@@ -244,9 +251,9 @@ print(ages["ada"])
 
 Comprehensions; typed exceptions & `finally`; **interface refinement** (one
 interface inheriting another) and **custom constructors**; f-strings (use
-`io.format`); slice **assignment** and **step** slices; tuples/unpacking; `with`;
-generators/`yield`; keyword/default arguments; `lambda`. All tracked toward
-frictionless Python → cheatah porting.
+`io.format`); slice **assignment** and **step** slices; tuples/unpacking;
+generators/`yield`; `lambda`. All tracked toward frictionless Python → cheatah
+porting.
 
 **Struct inheritance is a non-goal**, by design — structs stay simple and only
 *implement* interfaces; any "is-a" hierarchy lives in the interface graph (see

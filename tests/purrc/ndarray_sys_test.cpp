@@ -10,7 +10,7 @@
 //
 // Skipped (not callable from .purr, same as the cr test):
 //   - broadcast_to / broadcast_shapes: take std::vector<std::size_t>, but cheatah
-//     `list[int]` lowers to std::vector<long long>, which doesn't convert.
+//     `list<int>` lowers to std::vector<long long>, which doesn't convert.
 //   - the NDArray class methods (shape/strides/ndim/size/at/buffer/offset/ctors)
 //     are C++-side internals reached only through the free functions above.
 #include "e2e_harness.hpp"

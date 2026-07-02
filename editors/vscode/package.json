@@ -2,7 +2,7 @@
   "name": "cheatah",
   "displayName": "cheatah",
   "description": "Syntax highlighting, language configuration, IntelliSense, and a file icon theme for the cheatah language (.purr).",
-  "version": "1.2.0",
+  "version": "1.2.22",
   "publisher": "cheatah-lang",
   "license": "MIT",
   "engines": {
@@ -26,6 +26,13 @@
     "gen-docs": "python3 scripts/gen-hover-docs.py"
   },
   "contributes": {
+    "themes": [
+      {
+        "label": "cheatah",
+        "uiTheme": "vs-dark",
+        "path": "./themes/cheatah-color-theme.json"
+      }
+    ],
     "iconThemes": [
       {
         "id": "cheatah",
@@ -135,9 +142,26 @@
           "type": "boolean",
           "default": true,
           "description": "Show compiler error/warning squiggles in .purr files by type-checking the live buffer with `purrc --check`. Disable to turn off the language-server-style diagnostics."
+        },
+        "cheatah.importRoots": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Extra directories to resolve YOUR OWN cheatah module headers from for Go to Definition and hover docs (mirrors purrc's --import-root). Point these at the folders that contain your user modules' headers; the extension also searches the open workspace folders and the bundled stdlib headers."
         }
       }
-    }
+    },
+    "semanticTokenScopes": [
+      {
+        "language": "cheatah",
+        "scopes": {
+          "namespace": ["entity.name.namespace.cheatah"],
+          "type": ["support.type.cheatah", "entity.name.type.cheatah"],
+          "enumMember": ["constant.other.caps.cheatah"],
+          "function": ["entity.name.function.call.cheatah"]
+        }
+      }
+    ]
   },
   "repository": {
     "type": "git",

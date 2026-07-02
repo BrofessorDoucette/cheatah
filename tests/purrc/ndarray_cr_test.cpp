@@ -6,7 +6,7 @@
 //
 // Skipped (not callable from .purr):
 //   - broadcast_to / broadcast_shapes: take std::vector<std::size_t>, but cheatah
-//     `list[int]` lowers to std::vector<long long>, which doesn't convert.
+//     `list<int>` lowers to std::vector<long long>, which doesn't convert.
 //   - shape_of returns std::vector<long long>, which io.print can't stream directly;
 //     it is exercised here by indexing the returned list (ShapeOf below).
 #include "e2e_harness.hpp"

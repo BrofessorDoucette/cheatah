@@ -78,6 +78,10 @@ books/
 # Doxygen XML — intermediate build artifact for the docs generator
 docs/xml/
 
+# clang source-based coverage profiles (scripts/coverage.sh); never committed
+*.profraw
+*.profdata
+
 # Release packaging artifacts (uploaded to GitHub Releases, not committed)
 dist/
 

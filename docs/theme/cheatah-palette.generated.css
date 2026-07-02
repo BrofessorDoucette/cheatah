@@ -1,0 +1,27 @@
+/* GENERATED from editors/vscode/themes/cheatah-color-theme.json by
+ * editors/vscode/scripts/gen-docs-palette.js — DO NOT EDIT.
+ *
+ * The VS Code extension theme is the single source of truth for cheatah's colors; the docs derive
+ * from it. Edit the theme, re-run the generator, and these variables update. Loaded after
+ * cheetah.css so it overrides the (now fallback) hand-authored values there. */
+:root {
+    --primary-color: #d4895e;
+    --primary-dark-color: #cb9e52;
+    --page-background-color: #100c08;
+    --page-foreground-color: #e3dccc;
+    --page-secondary-foreground-color: #bdb29a;
+    --separator-color: #2e2820;
+    --side-nav-background: #0c0906;
+    --toc-background: #151009;
+    --code-background: #1d1812;
+    --code-foreground: #e3dccc;
+    --fragment-background: #090703;
+    --fragment-foreground: #e3dccc;
+    --fragment-keyword: #c79a6a;
+    --fragment-keywordtype: #d99a3c;
+    --fragment-keywordflow: #d4794a;
+    --fragment-token: #94ad5f;
+    --fragment-comment: #8a8073;
+    --fragment-link: #d4895e;
+    --fragment-preprocessor: #c0975a;
+}

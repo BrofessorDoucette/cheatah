@@ -1,17 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "cheatah custom Javadoc tags",
+  "name": "cheatah Javadoc tags",
   "scopeName": "documentation.cheatah-tags.injection",
-  "comment": "Highlights cheatah's custom Doxygen/Javadoc tags (@complexity, @alloc, @test, @crtest, @systest) inside C++ doc comments, scoped like the standard @param/@return tags so they take the same theme color. Injected into C++ (and cheatah `cpp { … }` blocks) via package.json grammars[].injectTo.",
-  "injectionSelector": "L:comment.block.documentation, L:comment.block, L:comment.line.double-slash, L:comment",
+  "comment": "Highlights Doxygen/Javadoc tags inside doc comments — the STANDARD ones (@param, @return, @brief, …) AND cheatah's custom ones (@complexity, @alloc, @test, @crtest, @systest) — so they take the same theme color. Injected into C/C++ doc comments AND cheatah `#` comments (.purr) via package.json grammars[].injectTo (source.cpp, source.c, source.cheatah). The leading `#`/`*`/`/` lookbehind lets it fire in both `* @param` (C++) and `# @param` (cheatah) comment styles.",
+  "injectionSelector": "L:comment.block.documentation, L:comment.block, L:comment.line.double-slash, L:comment.line.number-sign, L:comment",
   "patterns": [
     {
-      "match": "(?i)(?<=[\\s*/])([@\\\\])(complexity|alloc|test|crtest|systest)\\b",
+      "match": "(?i)(?<=[\\s*/#])([@\\\\])(param|tparam|returns?|brief|details|file|note|warning|attention|remarks?|see|sa|ref|throws?|exception|pre|post|invariant|deprecated|since|author|version|date|retval|overload|relates|short|code|endcode|complexity|alloc|gpualloc|test|crtest|systest|destroy)\\b",
       "name": "storage.type.class.doxygen.cheatah",
       "captures": {
-        "1": {
-          "name": "punctuation.definition.documentation.cheatah"
-        }
+        "1": { "name": "punctuation.definition.documentation.cheatah" }
       }
     }
   ]

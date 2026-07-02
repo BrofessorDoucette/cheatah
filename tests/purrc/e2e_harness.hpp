@@ -194,4 +194,17 @@ inline void expect_purr_matches_python(const std::string& name, const std::strin
     }
 }
 
+
+// Assert that purrc REJECTS @p src (non-zero exit) — for negative language tests (bad keyword
+// arguments, non-trailing defaults, ...).
+inline void expect_compile_fail(const std::string& name, const std::string& src) {
+    const std::string tmp = PURR_TEST_TMP;
+    const std::string purr = tmp + "/" + name + "_fail.purr";
+    const std::string mod = tmp + "/" + name + "_fail.so";
+    { std::ofstream f(purr); f << src; }
+    const std::string compile =
+        std::string(PURRC_PATH) + " \"" + purr + "\" -o \"" + mod + "\" 2>/dev/null";
+    EXPECT_NE(std::system(compile.c_str()), 0) << name << ": purrc ACCEPTED a program it must reject";
+}
+
 }  // namespace e2e

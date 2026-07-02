@@ -97,6 +97,16 @@ TEST(CheatahBuiltins, IndexList) {
     EXPECT_THROW(b::index(xs, 3), std::out_of_range);
 }
 
+TEST(CheatahBuiltins, IndexBoolList) {
+    // std::vector<bool> is bit-packed (proxy references, no .data()), so it has
+    // its own index overload; semantics match every other sequence.
+    const std::vector<bool> xs{true, false, true};
+    EXPECT_TRUE(b::index(xs, 0));
+    EXPECT_FALSE(b::index(xs, 1));
+    EXPECT_TRUE(b::index(xs, -1));  // negative from the end
+    EXPECT_THROW(b::index(xs, 3), std::out_of_range);
+}
+
 TEST(CheatahBuiltins, IndexDict) {
     const std::unordered_map<std::string, long long> m{{"a", 1}, {"b", 2}};
     EXPECT_EQ(b::index(m, std::string("a")), 1);
@@ -131,4 +141,20 @@ TEST(CheatahBuiltins, Division) {
     EXPECT_EQ(b::floordiv(6, 2), 3);                // exact (a%b == 0) -> no adjust
     EXPECT_DOUBLE_EQ(b::floordiv(7.0, 2.0), 3.0);   // floating operands -> floored double
     EXPECT_DOUBLE_EQ(b::floordiv(7.0, 2), 3.0);     // mixed -> floored double
+}
+
+// Integer `//` and `%` by zero raise a CONTROLLED error (std::domain_error) instead of undefined
+// behavior — C++ integer divide/modulo by zero is UB (SIGFPE). Float `/`,`//`,`%` are IEEE-safe.
+TEST(CheatahBuiltins, IntegerDivideAndModuloByZeroThrow) {
+    EXPECT_THROW(b::floordiv(1, 0), std::domain_error);
+    EXPECT_THROW(b::floordiv(-5, 0), std::domain_error);
+    EXPECT_THROW(b::mod(1, 0), std::domain_error);
+    EXPECT_THROW(b::mod(-5, 0), std::domain_error);
+}
+
+// ord(): the code point of a one-byte char, unsigned (high bytes are 128..255, never negative).
+TEST(CheatahBuiltins, Ord) {
+    EXPECT_EQ(b::ord('A'), 65);
+    EXPECT_EQ(b::ord('0'), 48);
+    EXPECT_EQ(b::ord('\xff'), 255);   // 0xFF -> 255, not -1
 }

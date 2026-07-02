@@ -81,6 +81,8 @@ TEST(CheatahEd25519, RejectsTamperAndWrongKey) {
     EXPECT_FALSE(ed::verify("zz", msg, sig));        // non-hex public key
     EXPECT_FALSE(ed::verify(pub, msg, "abcd"));      // wrong-length signature
     EXPECT_FALSE(ed::verify("00", msg, sig));        // wrong-length public key
+    EXPECT_FALSE(ed::verify("abc", msg, sig));       // odd-length hex -> from_hex throws -> caught
+    EXPECT_FALSE(ed::verify(pub, msg, "abcde"));     // odd-length signature hex -> caught
 }
 
 TEST(CheatahEd25519, RejectsNonCanonicalS) {

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>parsers::json::PoolBuilder · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=23c7932c">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></summary><ul><li><a href="namespacecheatah_1_1aead_1_1accel.html" data-ref="namespacecheatah_1_1aead_1_1accel">accel</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1html.html" data-ref="namespacecheatah_1_1html">html</a></summary><ul><li><a href="namespacecheatah_1_1html_1_1parser.html" data-ref="namespacecheatah_1_1html_1_1parser">parser</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><details class="side-sub"><summary><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1json_1_1simd.html" data-ref="namespacecheatah_1_1parsers_1_1json_1_1simd">simd</a></li></ul></details></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></summary><ul><li><a href="namespacecheatah_1_1tls_1_1rsa.html" data-ref="namespacecheatah_1_1tls_1_1rsa">rsa</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>parsers::json::PoolBuilder</code></h1>
+  <p class="lede">The construction policy for the POOLED JSON parse path: a stack machine (begin/add/finish) that accumulates children on reused scratch stacks and commits them contiguously into reused pools, returning span VIEWS (ArrayView/ObjectView) — zero per-container heap allocation, amortized to ~0 across parses. </p>
+</div>
+<div class="overview"><p>A plain policy type (no runtime polymorphism).</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a57c220c80928d843d0ae729e6d6c5bc1">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">reset</span>(std::size_t text_size)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L49" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a57c220c80928d843d0ae729e6d6c5bc1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Prepare for a fresh parse: drop the previous result but keep capacity, then reserve a safe upper bound so the pools never reallocate mid-parse (every committed span stays valid). </p>
+  <div class="member-body"><p>The bounds are structural: an array element costs &gt;= 2 input bytes (&quot;0,&quot; / &quot;0]&quot;) and an object member &gt;= 4 (<code><span class="tok-str">&quot;&quot;</span>:<span class="tok-num">0</span></code>), so size/2 nodes and size/4 members can never be exceeded. NOTE this is still O(input) memory reserved UP FRONT (~24x the text size) — for untrusted input, bound the document size before parsing, or use the owning path, which allocates only what the document actually contains. Reused capacity makes this ~free once warm.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>text_size</code></td><td class="pdesc"><p>the byte length of the source about to be parsed (sizes the pool reserve).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) amortized (no realloc after warm-up)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>grows the pools once (~text_size/2 nodes + text_size/4 members); reused thereafter</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">ParseObject</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ae25d7478987acb34bcadd4741596a0bc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">begin_array</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L61" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ae25d7478987acb34bcadd4741596a0bc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open an array: remember where its elements start on the node scratch stack. </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>amortized open_bases_ growth</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">PooledForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a08594dcb0cd2ce5eee45a1d944b93714">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">begin_object</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L64" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a08594dcb0cd2ce5eee45a1d944b93714" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open an object: remember where its members start on the member scratch stack. </p>
+  <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>amortized open_bases_ growth</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">PooledForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3415a8381fb9307c7cac2ba4bd2183d0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">add_element</span>(Node &amp;&amp;n)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L69" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3415a8381fb9307c7cac2ba4bd2183d0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Append an element to the innermost open array. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the element node to append (moved in).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>amortized scratch growth</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">PooledForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a55e91b2fc4e0cb0367959bcb3552550d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">add_member</span>(Member &amp;&amp;m)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L73" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a55e91b2fc4e0cb0367959bcb3552550d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Append a member to the innermost open object. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the key/value member to append (moved in).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>amortized scratch growth</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">PooledForms</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1abfba6b1807e0b6cd892ad34d55a977ac">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a></span> <span class="mname">finish_array</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L81" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1abfba6b1807e0b6cd892ad34d55a977ac" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the innermost open array: commit its children into the pool and wrap them in an <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a824e068f901795673ce8e6a97edd28e0">ArrayView</a> span. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> holding the closed array as an <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a824e068f901795673ce8e6a97edd28e0">ArrayView</a> into the pool.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(children)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none (pool is pre-reserved)</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">ParseObject</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a7241d18e4cc338abd58429a917c104d4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a></span> <span class="mname">finish_object</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L94" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a7241d18e4cc338abd58429a917c104d4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Close the innermost open object: commit its members into the pool and wrap them in an <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1af8cd90afffadb56e27e2947c795acc0f">ObjectView</a> span. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> holding the closed object as an <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1af8cd90afffadb56e27e2947c795acc0f">ObjectView</a> into the pool.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(members)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">ParseObject</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ae0d1aecac2dd83a89778c255423ac8b8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::span&lt; const <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> &gt;</span> <span class="mname">commit_nodes</span>(std::size_t base)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L106" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ae0d1aecac2dd83a89778c255423ac8b8" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ac8f9b1214c73f43eaf3d8e60c9f7bd26">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::span&lt; const Member &gt;</span> <span class="mname">commit_members</span>(std::size_t base)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L115" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ac8f9b1214c73f43eaf3d8e60c9f7bd26" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3a668203478fcd49a9cff5fb460f9711">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">owns_strings</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L33" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3a668203478fcd49a9cff5fb460f9711" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">False: unescaped strings are zero-copy <a href="classcheatah_1_1parsers_1_1json_1_1String.html">String&lt;std::string_view&gt;</a> into the SOURCE text, so a <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a> from this pooled path is valid only while the source (and these pools) outlive it. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1aa202a42f26ae4ea903668bb43bb736f7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> &gt;</span> <span class="mname">node_pool_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L125" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1aa202a42f26ae4ea903668bb43bb736f7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1aa7a8af6595bc09a6a82eb09c7741e54c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; Member &gt;</span> <span class="mname">member_pool_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L126" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1aa7a8af6595bc09a6a82eb09c7741e54c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a066a3499dac831e41556766b68ef5c75">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> &gt;</span> <span class="mname">node_scratch_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L127" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a066a3499dac831e41556766b68ef5c75" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a5114249c8b8be8f13b848db8720180b0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; Member &gt;</span> <span class="mname">member_scratch_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L128" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a5114249c8b8be8f13b848db8720180b0" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a4f21e8ce821666206cb08a424cb0a9f1">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::size_t &gt;</span> <span class="mname">open_bases_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_pool_builder_hpp.html#L129" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a4f21e8ce821666206cb08a424cb0a9f1" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a57c220c80928d843d0ae729e6d6c5bc1">reset</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ae25d7478987acb34bcadd4741596a0bc">begin_array</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a08594dcb0cd2ce5eee45a1d944b93714">begin_object</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3415a8381fb9307c7cac2ba4bd2183d0">add_element</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a55e91b2fc4e0cb0367959bcb3552550d">add_member</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1abfba6b1807e0b6cd892ad34d55a977ac">finish_array</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a7241d18e4cc338abd58429a917c104d4">finish_object</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ae0d1aecac2dd83a89778c255423ac8b8">commit_nodes</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1ac8f9b1214c73f43eaf3d8e60c9f7bd26">commit_members</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a3a668203478fcd49a9cff5fb460f9711">owns_strings</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1aa202a42f26ae4ea903668bb43bb736f7">node_pool_</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1aa7a8af6595bc09a6a82eb09c7741e54c">member_pool_</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a066a3499dac831e41556766b68ef5c75">node_scratch_</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a5114249c8b8be8f13b848db8720180b0">member_scratch_</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1PoolBuilder_1a4f21e8ce821666206cb08a424cb0a9f1">open_bases_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=c98d9dff"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

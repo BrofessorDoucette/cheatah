@@ -19,11 +19,26 @@ add_executable(cheatah_tests
     random_test.cpp
     statistics_test.cpp
     hashlib_test.cpp
+    hashlib_openssl_test.cpp
+    crypto_platform_test.cpp
     ed25519_test.cpp
+    x25519_test.cpp
+    aead_test.cpp
+    tls_test.cpp
+    rsa_verify_test.cpp
     ndarray_test.cpp
     linalg_routines_test.cpp
     linalg_smoke_test.cpp
     socket_test.cpp
+    p256_test.cpp
+    websocket_test.cpp
+    requests_test.cpp
+    parsers_json_test.cpp
+    # p256.cpp is compiled DIRECTLY into the test binary (not linked from libcheatah_p256) so the
+    # CHEATAH_P256_TESTING white-box seam lives ONLY in this executable, never in any shipped
+    # library. The static archive cheatah::p256_static (clean) is therefore NOT linked below; the
+    # p256 symbols tls/etc. need are satisfied by this object.
+    ${CMAKE_SOURCE_DIR}/stdlib/p256/p256.cpp
 )
 
 target_link_libraries(cheatah_tests PRIVATE
@@ -39,10 +54,32 @@ target_link_libraries(cheatah_tests PRIVATE
     cheatah::statistics_static
     cheatah::hashlib_static
     cheatah::ed25519_static
+    cheatah::x25519_static
+    cheatah::aead_static
+    cheatah::tls_static
     cheatah::socket_static
+    cheatah::websocket_static
     cheatah::ndarray_static
     cheatah::linalg_static
     GTest::gmock_main
 )
+
+# requests is a pure-cheatah (header-only, TRANSPARENT) module: requests.hpp is generated next to
+# requests.purr and #included directly by requests_test.cpp. It USES only the header-only surface of
+# parsers (parsers::url::Parser + the json schema/read templates), never the compiled JSON DOM parser
+# (json.cpp), so we add the parsers include path but do NOT link parsers_static — keeping json.cpp out
+# of this in-process denominator. parsers_json_test.cpp covers the header-only JSON surface directly
+# (the scan/pool_builder/simd/token headers + the read<T> struct reader), all header-only.
+target_include_directories(cheatah_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}/stdlib/requests
+    ${CMAKE_SOURCE_DIR}/stdlib/parsers
+    ${CMAKE_SOURCE_DIR}/stdlib/p256)  # p256.hpp, now that p256.cpp is a direct test source
+add_dependencies(cheatah_tests cheatah_requests_module)
+
+# The p256 white-box seam (p256.cpp's `#ifdef CHEATAH_P256_TESTING` testonly:: functions) is
+# compiled into THIS TEST BINARY ONLY — p256.cpp is a direct source above and the define is set
+# here. No libcheatah_p256 ever carries it (see stdlib/p256/CMakeLists.txt), so nothing test-only
+# can reach a release. The seam reaches two ~2^-128-measure defensive branches real inputs cannot.
+target_compile_definitions(cheatah_tests PRIVATE CHEATAH_P256_TESTING)
 
 gtest_discover_tests(cheatah_tests TEST_PREFIX "cheatah:")

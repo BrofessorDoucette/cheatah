@@ -115,6 +115,18 @@ double inner(const NDArray& a, const NDArray& b);
  */
 NDArray outer(const NDArray& a, const NDArray& b);
 /**
+ * Outer product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref outer, writing the rank-1 result straight into @p out with no allocation.
+ * @param out destination; a contiguous n×m matrix, overwritten. Must NOT alias @p a or @p b.
+ * @param a length-n vector.
+ * @param b length-m vector.
+ * @complexity O(n·m).
+ * @alloc none for contiguous operands (result written straight into @p out); a
+ *        non-contiguous operand is packed once into scratch.
+ * @test LinalgRoutines.OuterIntoReusesBuffer
+ */
+void outer(NDArray& out, const NDArray& a, const NDArray& b);
+/**
  * Matrix multiply.
  *
  * Requires both operands to be 2-D with matching inner dimensions (a's cols ==
@@ -132,6 +144,19 @@ NDArray outer(const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray matmul(const NDArray& a, const NDArray& b);
+/**
+ * Matmul into the CALLER'S buffer @p out (out FIRST, like assignment) — the user-provided-output
+ * overload, NO result allocation (a hot loop, e.g. an MLP layer, hands the same scratch every call).
+ * @param out the destination; a contiguous [a.rows, b.cols] matrix, overwritten. Must NOT alias @p a or
+ *        @p b — matmul reads all of both while writing out, so it is not an in-place op.
+ * @param a left matrix.
+ * @param b right matrix.
+ * @complexity O(ar·ac·bc).
+ * @alloc none for contiguous operands (product written straight into @p out); a
+ *        non-contiguous operand is packed once into scratch.
+ * @test LinalgRoutines.MatmulIntoReusesBuffer
+ */
+void matmul(NDArray& out, const NDArray& a, const NDArray& b);
 
 // ---- complex products (complex inner-product spaces) ----
 /**
@@ -175,6 +200,19 @@ Cplx vdot(const CNDArray& a, const CNDArray& b);
  */
 CNDArray matmul(const CNDArray& a, const CNDArray& b);
 /**
+ * Complex matmul into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of the
+ * complex @ref matmul, writing the product straight into @p out with no allocation.
+ * @param out destination; a contiguous [a.rows, b.cols] complex matrix, overwritten. Must NOT
+ *        alias @p a or @p b (it reads all of both while writing out — not an in-place op).
+ * @param a m×k complex matrix.
+ * @param b k×p complex matrix.
+ * @complexity O(n³).
+ * @alloc none for contiguous operands (product written straight into @p out); a
+ *        non-contiguous operand is packed once into scratch.
+ * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
+ */
+void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b);
+/**
  * Conjugate transpose (Hermitian adjoint) Aᴴ of a **complex** matrix: transpose,
  * then conjugate every entry. A matrix is Hermitian iff `conj_transpose(A) == A`.
  * @param a a 2-D complex matrix.
@@ -186,6 +224,18 @@ CNDArray matmul(const CNDArray& a, const CNDArray& b);
  * @systest StdlibE2E.LinalgComplex
  */
 CNDArray conj_transpose(const CNDArray& a);
+/**
+ * Conjugate transpose into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref conj_transpose, writing the c×r adjoint straight into @p out with no allocation.
+ * @param out destination; a contiguous c×r complex matrix (for an r×c input), overwritten. Must
+ *        NOT alias @p a (it reads A while writing the transpose — not an in-place op).
+ * @param a a 2-D complex matrix.
+ * @complexity O(r·c).
+ * @alloc none for a contiguous operand (adjoint written straight into @p out); a
+ *        non-contiguous operand is packed once into scratch.
+ * @test LinalgRoutines.ConjTransposeIntoReusesBuffer
+ */
+void conj_transpose(CNDArray& out, const CNDArray& a);
 /**
  * Integer matrix power Aⁿ (negative n via @ref inv).
  *
@@ -203,6 +253,17 @@ CNDArray conj_transpose(const CNDArray& a);
  */
 NDArray matrix_power(const NDArray& a, long long n);
 /**
+ * Matrix power into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref matrix_power.
+ * @param out destination; a contiguous n×n matrix, overwritten with Aⁿ.
+ * @param a square matrix.
+ * @param n exponent.
+ * @complexity O(n³·log|n|).
+ * @alloc reuses @p out; the binary-exponentiation products allocate their own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void matrix_power(NDArray& out, const NDArray& a, long long n);
+/**
  * Kronecker product.
  *
  * Requires both operands to be 2-D (throws otherwise) and replaces each entry of
@@ -218,6 +279,18 @@ NDArray matrix_power(const NDArray& a, long long n);
  * @systest StdlibE2E.Linalg
  */
 NDArray kron(const NDArray& a, const NDArray& b);
+/**
+ * Kronecker product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref kron, writing the block product straight into @p out with no allocation.
+ * @param out destination; a contiguous (m·p)×(k·q) matrix, overwritten. Must NOT alias @p a or @p b.
+ * @param a m×k matrix.
+ * @param b p×q matrix.
+ * @complexity O(n⁴) in the output area.
+ * @alloc none for contiguous operands (block product written straight into @p out); a
+ *        non-contiguous operand is packed once into scratch.
+ * @test LinalgRoutines.KronIntoReusesBuffer
+ */
+void kron(NDArray& out, const NDArray& a, const NDArray& b);
 
 // ---- Decompositions ----
 /**
@@ -236,6 +309,16 @@ NDArray kron(const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray cholesky(const NDArray& a);                       // lower-triangular L (A = L Lᵀ)
+/**
+ * Cholesky factor into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref cholesky.
+ * @param out destination; a contiguous n×n matrix, overwritten with the lower-triangular L.
+ * @param a square SPD matrix.
+ * @complexity O(n³).
+ * @alloc reuses @p out (the factor is computed into private scratch, then copied in).
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void cholesky(NDArray& out, const NDArray& a);
 /** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */
 struct QR {
     NDArray q;  ///< Orthonormal columns, m×n (the Q in A = Q·R).
@@ -257,6 +340,17 @@ struct QR {
  * @systest StdlibE2E.Linalg
  */
 QR qr(const NDArray& a);
+/**
+ * Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref qr,
+ * filling @p q and @p r instead of allocating a @ref QR.
+ * @param q destination for the orthonormal factor; a contiguous m×n matrix, overwritten.
+ * @param r destination for the upper-triangular factor; a contiguous n×n matrix, overwritten.
+ * @param a m×n matrix.
+ * @complexity O(n³).
+ * @alloc reuses @p q and @p r (the factors are computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
+void qr(NDArray& q, NDArray& r, const NDArray& a);
 /** Result of svd(): A = u·diag(s)·vh. */
 struct SVD {
     NDArray u;   ///< Left singular vectors, m×n.
@@ -281,6 +375,18 @@ struct SVD {
  */
 SVD svd(const NDArray& a);
 /**
+ * Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref svd,
+ * filling @p u, @p s and @p vh instead of allocating an @ref SVD.
+ * @param u destination for the left singular vectors; a contiguous m×n matrix, overwritten.
+ * @param s destination for the singular values; a contiguous length-n vector, overwritten.
+ * @param vh destination for Vᵀ; a contiguous n×n matrix, overwritten.
+ * @param a m×n matrix (rows ≥ cols).
+ * @complexity iterative O(n³).
+ * @alloc reuses @p u, @p s, @p vh (the factors are computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
+void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a);
+/**
  * Singular values only (≈ `numpy.linalg.svd(a, compute_uv=False)` / `svdvals`).
  *
  * Runs the same Golub–Reinsch reduction as @ref svd but takes the **values-only** fast
@@ -296,6 +402,16 @@ SVD svd(const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray svdvals(const NDArray& a);
+/**
+ * Singular values into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref svdvals.
+ * @param out destination; a contiguous length-min(m,n) vector, overwritten with the descending values.
+ * @param a m×n matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the Golub–Reinsch reduction allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void svdvals(NDArray& out, const NDArray& a);
 
 // ---- Matrix eigenvalues ----
 /** Result of eigh(): a real spectrum — column j of vectors is the eigenvector for values[j]. */
@@ -323,13 +439,28 @@ struct EigC {
  * iteration fails to converge.
  * @param a square matrix.
  * @return @ref EigC with complex values and matching complex eigenvector columns.
- * @complexity iterative O(n³) via Hessenberg + shifted QR.
+ * @complexity iterative O(n³) via Hessenberg + shifted QR for the eigenvalues; the
+ *        general (non-symmetric) eigenvectors add O(n⁴) — one inverse iteration, each
+ *        with its own O(n³) complex LU factorization, per eigenvalue (a symmetric @p a
+ *        stays O(n³) via @ref eigh, which accumulates the vectors in the QL sweep).
  * @alloc allocates both members.
  * @test LinalgRoutines.GeneralEig
  * @crtest LinalgCompileRun.Eig
  * @systest StdlibE2E.Linalg
  */
 EigC eig(const NDArray& a);                               // general square matrix
+/**
+ * General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of
+ * @ref eig, filling @p values and @p vectors instead of allocating an @ref EigC.
+ * @param values destination for the complex eigenvalues; a contiguous length-n vector, overwritten.
+ * @param vectors destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten.
+ * @param a square matrix.
+ * @complexity iterative O(n³) for the eigenvalues; general (non-symmetric) eigenvectors
+ *        add O(n⁴) (inverse iteration per eigenvalue — see @ref eig).
+ * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
+void eig(CNDArray& values, CNDArray& vectors, const NDArray& a);
 /**
  * Eigenvalues of a general square matrix (**complex**), descending.
  *
@@ -348,6 +479,16 @@ EigC eig(const NDArray& a);                               // general square matr
  */
 CNDArray eigvals(const NDArray& a);
 /**
+ * General eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref eigvals.
+ * @param out destination; a contiguous length-n complex vector, overwritten with the descending spectrum.
+ * @param a square matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the Hessenberg + shifted-QR iteration allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void eigvals(CNDArray& out, const NDArray& a);
+/**
  * Eigen-decomposition of a symmetric matrix (Householder tridiagonalization + QL).
  *
  * Reduces @p a to tridiagonal form by Householder reflections, then diagonalizes it
@@ -365,6 +506,17 @@ CNDArray eigvals(const NDArray& a);
  */
 Eig eigh(const NDArray& a);                               // symmetric / Hermitian
 /**
+ * Symmetric eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload
+ * of @ref eigh, filling @p values and @p vectors instead of allocating an @ref Eig.
+ * @param values destination for the real eigenvalues; a contiguous length-n vector, overwritten.
+ * @param vectors destination for the eigenvectors (columns); a contiguous n×n matrix, overwritten.
+ * @param a square symmetric matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
+void eigh(NDArray& values, NDArray& vectors, const NDArray& a);
+/**
  * Eigenvalues of a symmetric matrix, descending (tridiagonal QL).
  *
  * Same tridiagonalization + QL as @ref eigh but **skips the eigenvector accumulation
@@ -379,6 +531,16 @@ Eig eigh(const NDArray& a);                               // symmetric / Hermiti
  * @systest StdlibE2E.Linalg
  */
 NDArray eigvalsh(const NDArray& a);
+/**
+ * Symmetric eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref eigvalsh.
+ * @param out destination; a contiguous length-n vector, overwritten with the descending eigenvalues.
+ * @param a square symmetric matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the tridiagonal-QL solver allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void eigvalsh(NDArray& out, const NDArray& a);
 /**
  * Result of the complex Hermitian eigh(): **real** eigenvalues (a Hermitian operator
  * has a real spectrum) with **complex** eigenvectors. Column j of vectors is the
@@ -407,6 +569,18 @@ struct EighC {
  */
 EighC eigh(const CNDArray& a);
 /**
+ * Complex Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
+ * overload of the complex @ref eigh, filling @p values and @p vectors instead of allocating an
+ * @ref EighC.
+ * @param values destination for the real eigenvalues; a contiguous length-n vector, overwritten.
+ * @param vectors destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten.
+ * @param a square complex Hermitian matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
+void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a);
+/**
  * Eigenvalues of a **complex Hermitian** matrix, descending and **real**.
  *
  * Same 2n-embedding tridiagonal-QL diagonalization as the complex @ref eigh but discards the
@@ -420,6 +594,16 @@ EighC eigh(const CNDArray& a);
  * @systest StdlibE2E.LinalgComplex
  */
 NDArray eigvalsh(const CNDArray& a);
+/**
+ * Complex Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
+ * overload of the complex @ref eigvalsh.
+ * @param out destination; a contiguous length-n real vector, overwritten with the descending eigenvalues.
+ * @param a square complex Hermitian matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the 2n-embedding tridiagonal-QL solver allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void eigvalsh(NDArray& out, const CNDArray& a);
 
 // ---- Norms and other numbers ----
 /**
@@ -539,6 +723,16 @@ double trace(const NDArray& a);
  */
 NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
 /**
+ * Solve into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref solve.
+ * @param out destination; a contiguous length-n vector, overwritten with the solution x.
+ * @param a square coefficient matrix.
+ * @param b right-hand-side vector.
+ * @complexity O(n³).
+ * @alloc reuses @p out; the LU factorization allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void solve(NDArray& out, const NDArray& a, const NDArray& b);
+/**
  * Least-squares solution min‖A·x − b‖ (computed as @ref pinv (a)·b).
  *
  * Forms the Moore–Penrose pseudo-inverse via SVD and multiplies it by @p b, so
@@ -556,6 +750,18 @@ NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
  */
 NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solution
 /**
+ * Least-squares solution into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref lstsq. Routes through the @ref matmul out-param so the final product is written into @p out
+ * with no allocation.
+ * @param out destination; a contiguous array of the solution's shape, overwritten.
+ * @param a m×n matrix.
+ * @param b right-hand side.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the pseudo-inverse SVD allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void lstsq(NDArray& out, const NDArray& a, const NDArray& b);
+/**
  * Matrix inverse via LU with partial pivoting.
  *
  * Factorizes @p a once and back-solves against each identity column; requires a
@@ -570,6 +776,15 @@ NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solut
  * @systest StdlibE2E.Linalg
  */
 NDArray inv(const NDArray& a);
+/**
+ * Inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref inv.
+ * @param out destination; a contiguous n×n matrix, overwritten with A⁻¹.
+ * @param a square matrix.
+ * @complexity O(n³).
+ * @alloc reuses @p out; the LU factorization allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void inv(NDArray& out, const NDArray& a);
 /**
  * Moore–Penrose pseudo-inverse via SVD (any shape).
  *
@@ -586,5 +801,15 @@ NDArray inv(const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray pinv(const NDArray& a);                           // Moore–Penrose pseudo-inverse
+/**
+ * Pseudo-inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref pinv.
+ * @param out destination; a contiguous n×m matrix (for an m×n input), overwritten with the pseudo-inverse.
+ * @param a m×n matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the Golub–Reinsch SVD allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
+void pinv(NDArray& out, const NDArray& a);
 
 } // namespace cheatah::linalg

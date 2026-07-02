@@ -1,0 +1,414 @@
+# requests — HTTP for cheatah, in the spirit of Python's requests. THE FIRST STANDARD-LIBRARY
+# MODULE WRITTEN IN PURE CHEATAH (.purr): all protocol logic below is cheatah source, compiled
+# by purrc into an importable module. It rides on the C++-authored stdlib underneath —
+# `socket` for TCP and `parsers.url` for URL parsing.
+#
+# v1.1 speaks HTTP/1.1 over plain TCP, one connection per request (`Connection: close`):
+#   let r = requests.get("http://host:port/path")
+#   let o = Options({.timeout_ms = 5000})
+#   o.params["symbol"] = "SPX"
+#   let q = requests.get(url, o)
+#   if q.ok() { io.print(q.body) }
+# Covers: query params (percent-encoded), custom headers, Content-Length / chunked /
+# close-delimited body framing, redirect following, per-request timeouts, response headers
+# (case-insensitive via lowercased keys), and `https://` through the cheatah `tls` module —
+# a from-scratch TLS 1.3 client over the cheatah crypto modules (x25519, aead, hashlib HKDF;
+# no OpenSSL). The tls module REFUSES servers it cannot authenticate (see tls.hpp).
+
+import socket
+import string
+import tls
+import parsers.url.Parser as UrlParser
+import parsers.url.Url as Url
+
+# Per-request options.
+#
+# Unset fields take the documented defaults at request time: `timeout_ms <= 0` -> 30000,
+# `max_redirects <= 0` -> 5. `params` are appended to the request-target percent-encoded;
+# `headers` are sent verbatim (a User-Agent is added unless one is given).
+# @systest RequestsSys.QueryParams
+# @systest RequestsSys.CustomHeaders
+struct Options {
+    # Query parameters appended to the request-target, percent-encoded (name -> value).
+    params: dict<str, str>
+    # Extra request headers sent verbatim (a default User-Agent is added unless one is given).
+    headers: dict<str, str>
+    # Per-request timeout in milliseconds; <= 0 uses the 30000 ms default.
+    timeout_ms: int
+    # Maximum number of 3xx redirects to follow; <= 0 uses the default of 5.
+    max_redirects: int
+}
+
+# The outcome of one request.
+#
+# `error` distinguishes transport failures (DNS, refused, timeout, malformed URL/response)
+# from HTTP-level failures: a 404 is a COMPLETED exchange — ok() is false but error stays
+# "" and status/headers/body are real. Header names are stored LOWERCASED, so header()
+# lookup is case-insensitive (RFC 9110).
+# @systest RequestsSys.NotFound
+# @systest RequestsSys.ErrorPaths
+struct Response {
+    # HTTP status code (e.g. 200, 404); 0 when the request never completed (see `error`).
+    status: int
+    # Response headers, with LOWERCASED names for case-insensitive lookup (use `header()`).
+    headers: dict<str, str>
+    # The response body bytes (decoded from chunked/Content-Length framing).
+    body: str
+    # The final URL the response came from (after following any redirects).
+    url: str
+    # Transport-level error message (DNS/connect/timeout/TLS/malformed); "" on a completed
+    # exchange, including a non-2xx HTTP status.
+    error: str
+
+    # Whether the exchange completed with a 2xx status.
+    #
+    # @return true iff `error` is empty and `status` is in [200, 300).
+    # @complexity O(1).
+    # @alloc none.
+    # @systest RequestsSys.BasicGet
+    fn ok(self) {
+        return self.error == "" and self.status >= 200 and self.status < 300
+    }
+
+    # Case-insensitive response-header lookup.
+    #
+    # @param name header name, any capitalization (`"Content-Type"` == `"content-type"`).
+    # @return the header's value, or "" when the response did not carry it.
+    # @complexity O(1) average (one hash lookup).
+    # @alloc allocates the lowercased key.
+    # @systest RequestsSys.HeaderLookup
+    fn header(self, name) {
+        let key = string.lower(name)
+        if key in self.headers {
+            return self.headers[key]
+        }
+        return ""
+    }
+}
+
+# Percent-encode `text` for a query string.
+#
+# RFC 3986 unreserved characters pass through; everything else (including space)
+# becomes %XX with uppercase hex digits.
+# @param text the raw query-parameter name or value.
+# @return the percent-encoded form, safe to place in a request-target.
+# @complexity O(n) over the input length.
+# @alloc allocates the result.
+# @systest RequestsSys.QueryParams
+fn percent_encode(text) {
+    let unreserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+    let hexdigits = "0123456789ABCDEF"
+    let out = ""
+    for ch in text {
+        if string.contains(unreserved, ch) {
+            out = out + ch
+        } else {
+            let v = ord(ch)
+            out = out + "%" + hexdigits[v // 16] + hexdigits[v % 16]
+        }
+    }
+    return out
+}
+
+# Parse one hex chunk-size token (e.g. "1aF").
+#
+# @param text the hex token, both digit cases accepted, no prefix.
+# @return the decoded size, or -1 on a malformed digit. An empty token decodes to 0,
+#         which the chunked framing treats as the final chunk.
+# @complexity O(n) over the token length.
+# @alloc none.
+# @systest RequestsSys.Chunked
+fn parse_hex(text) {
+    let n = 0
+    for ch in text {
+        let v = ord(ch)
+        if v >= 48 and v <= 57 {
+            n = n * 16 + (v - 48)
+        } else {
+            if v >= 97 and v <= 102 {
+                n = n * 16 + (v - 87)
+            } else {
+                if v >= 65 and v <= 70 {
+                    n = n * 16 + (v - 55)
+                } else {
+                    return -1
+                }
+            }
+        }
+    }
+    return n
+}
+
+# Decode an HTTP/1.1 chunked body.
+#
+# Framing: hex-size line (chunk extensions after `;` ignored), chunk bytes, CRLF,
+# repeated until the 0 chunk. Trailers after the 0 chunk are simply unread.
+# @param raw everything after the response head (the body bytes as received).
+# @param r the Response under construction; `r.error` is set on malformed framing.
+# @return the decoded body, or "" when framing was malformed (see `r.error`).
+# @complexity O(n) over the body length.
+# @alloc allocates the decoded body.
+# @systest RequestsSys.Chunked
+fn dechunk(raw, r: Response) {
+    let body = ""
+    let pos = 0
+    while true {
+        let line_end = string.find(raw[pos:], "\r\n")
+        if line_end < 0 {
+            r.error = "connection closed inside chunked body"
+            return ""
+        }
+        let size_token = raw[pos:pos + line_end]
+        let semi = string.find(size_token, ";")
+        if semi >= 0 {
+            size_token = size_token[:semi]  # chunk extensions: ignored
+        }
+        let size = parse_hex(string.strip(size_token))
+        if size < 0 {
+            r.error = "malformed chunk size"
+            return ""
+        }
+        pos = pos + line_end + 2
+        if size == 0 {
+            return body  # last chunk (any trailers are simply unread)
+        }
+        if len(raw) < pos + size + 2 {
+            r.error = "connection closed inside chunked body"
+            return ""
+        }
+        body = body + raw[pos:pos + size]
+        pos = pos + size + 2  # skip the chunk's trailing CRLF
+    }
+}
+
+# Read the whole response from a connected socket (or TLS session for https).
+#
+# Reads every byte until the peer closes — or the socket timeout set by get_once
+# fires, which recv reports as "" (indistinguishable from close by design: we always
+# request `Connection: close`, so EOF IS the end of the response). When @p conn is open
+# the bytes are read (and decrypted) through its TLS session, mirroring the send path;
+# a closed @p conn reads the plain socket.
+# @param fd a connected socket descriptor from socket.tcp_connect.
+# @param conn the owning tls.Conn for https (open), or a closed Conn for plain http.
+# @return all bytes received.
+# @complexity O(n) over the response size.
+# @alloc allocates the received buffer.
+# @systest RequestsSys.BasicGet
+fn read_all(fd, conn) {
+    let raw = ""
+    while true {
+        let chunk = ""
+        if conn.is_open() {
+            chunk = conn.recv(65536)
+        } else {
+            chunk = socket.recv(fd, 65536)
+        }
+        if len(chunk) == 0 {
+            break
+        }
+        raw = raw + chunk
+    }
+    return raw
+}
+
+# Parse a raw HTTP/1.1 response (status line + headers + body) into `r`.
+#
+# Headers land in `r.headers` with LOWERCASED names and stripped values. Body framing
+# precedence: chunked when declared, else Content-Length, else everything to EOF (we
+# always send `Connection: close`). Malformed input sets `r.error` and returns early.
+# @param raw the complete response bytes as received.
+# @param r the Response under construction (status/headers/body/error are filled in).
+# @return `r`, completed or carrying `error`.
+# @complexity O(n) over the response size.
+# @alloc allocates the parsed headers and body.
+# @systest RequestsSys.EofFraming
+# @systest RequestsSys.HeaderLookup
+fn parse_response(raw, r: Response) {
+    let head_end = string.find(raw, "\r\n\r\n")
+    if head_end < 0 {
+        r.error = "connection closed before a complete response head"
+        return r
+    }
+    if string.find(raw, "HTTP/") != 0 {
+        r.error = "malformed response head"
+        return r
+    }
+    let head = raw[:head_end]
+    let line_end = string.find(head, "\r\n")
+    if line_end < 0 {
+        line_end = len(head)
+    }
+    let space = string.find(head, " ")
+    if space < 0 or space + 4 > line_end {
+        r.error = "malformed status line"
+        return r
+    }
+    r.status = int(head[space + 1:space + 4])
+
+    # header lines -> r.headers (lowercased names, stripped values)
+    let rest = head[line_end + 2:]
+    while len(rest) > 0 {
+        let eol = string.find(rest, "\r\n")
+        if eol < 0 {
+            eol = len(rest)
+        }
+        let line = rest[:eol]
+        let colon = string.find(line, ":")
+        if colon > 0 {
+            let name = string.lower(string.strip(line[:colon]))
+            r.headers[name] = string.strip(line[colon + 1:])
+        }
+        if eol == len(rest) {
+            break
+        }
+        rest = rest[eol + 2:]
+    }
+
+    let body = raw[head_end + 4:]
+    if r.header("transfer-encoding") == "chunked" {
+        r.body = dechunk(body, r)
+        return r
+    }
+    let cl = r.header("content-length")
+    if cl != "" {
+        let n = int(cl)
+        if len(body) < n {
+            r.error = "connection closed before the complete body arrived"
+            return r
+        }
+        r.body = body[:n]
+    } else {
+        r.body = body
+    }
+    return r
+}
+
+# One GET exchange against an already-parsed URL (no redirect handling).
+#
+# Connects, applies the timeout, appends `o.params` percent-encoded to the request-target,
+# sends the request (custom headers, default User-Agent, `Connection: close`), then reads
+# and parses the full response. Transport failures come back in `r.error`.
+# @param u the parsed URL (scheme/host/port/target) from parsers.url.
+# @param o per-request options (timeout, params, headers).
+# @param r the Response under construction.
+# @return the completed Response (a non-2xx status is a completed exchange, not an error).
+# @alloc allocates the request and response buffers.
+# @systest RequestsSys.BasicGet
+fn get_once(u: Url, o: Options, r: Response) {
+    let fd = socket.tcp_connect(u.host, u.port)
+    if fd < 0 {
+        r.error = "connect to " + u.host + ":" + str(u.port) + " failed: " + socket.last_error()
+        return r
+    }
+    let timeout = o.timeout_ms
+    if timeout <= 0 {
+        timeout = 30000
+    }
+    socket.set_timeout(fd, timeout)
+
+    # https: run the TLS 1.3 handshake (SNI = the host) before any HTTP bytes. The owning
+    # `conn` guard authenticates the server (or refuses) and closes/erases the session
+    # automatically when it leaves scope — so a request never leaks a TLS session. A closed
+    # `conn` (the default) means plain http.
+    let conn = tls.Conn()
+    if u.scheme == "https" {
+        conn = tls.open(fd, u.host)
+        if not conn.is_open() {
+            socket.close(fd)
+            r.error = "tls: " + tls.last_error()
+            return r
+        }
+    }
+
+    # request-target: append percent-encoded query params after any existing ?query
+    let target = u.target
+    let sep = "?"
+    if string.find(target, "?") >= 0 {
+        sep = "&"
+    }
+    # NOTE: `for kv in d` iterates a dict's (key, value) PAIRS — kv.first / kv.second.
+    for kv in o.params {
+        target = target + sep + percent_encode(kv.first) + "=" + percent_encode(kv.second)
+        sep = "&"
+    }
+
+    let req = "GET " + target + " HTTP/1.1\r\nHost: " + u.host + ":" + str(u.port) + "\r\n"
+    for kv in o.headers {
+        req = req + kv.first + ": " + kv.second + "\r\n"
+    }
+    if not ("user-agent" in o.headers or "User-Agent" in o.headers) {
+        req = req + "User-Agent: cheatah-requests/0.2\r\n"
+    }
+    req = req + "Connection: close\r\nAccept: */*\r\n\r\n"
+
+    let sent = 0
+    if conn.is_open() {
+        sent = conn.send(req)
+    } else {
+        sent = socket.sendall(fd, req)
+    }
+    if sent != 0 {
+        conn.close()          # idempotent; the guard also closes at scope exit
+        socket.close(fd)
+        r.error = "send failed"
+        return r
+    }
+    let raw = read_all(fd, conn)
+    conn.close()              # send close_notify before closing the socket (idempotent)
+    socket.close(fd)
+    return parse_response(raw, r)
+}
+
+# Perform an HTTP GET, following up to max_redirects 3xx hops.
+#
+# Never raises for network conditions: every failure comes back as a Response with
+# `error` set (and status 0). Redirects (301/302/303/307/308) follow absolute and
+# host-relative Location targets; `https://` is reported in `error` until cheatah TLS
+# lands. Call with a URL alone, or pass Options for params/headers/timeout/redirects.
+# @param url the absolute `http://host[:port]/path[?query]` URL.
+# @param o per-request options; defaults to a 30 s timeout and 5 redirect hops.
+# @return the final Response — check `ok()`, then `status`/`headers`/`body`.
+# @systest RequestsSys.BasicGet
+# @systest RequestsSys.Redirect
+# @systest RequestsSys.RedirectLoop
+fn get(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    let max_hops = o.max_redirects
+    if max_hops <= 0 {
+        max_hops = 5
+    }
+    let current = url
+    let hop = 0
+    while hop <= max_hops {
+        let r = Response({.url = current})
+        let parser = UrlParser()
+        let u = Url()
+        if not parser.parse(current, u) {
+            r.error = "malformed URL: " + current
+            return r
+        }
+        r = get_once(u, o, r)
+        let redirect = r.error == "" and (r.status == 301 or r.status == 302 or r.status == 303 or r.status == 307 or r.status == 308)
+        if not redirect {
+            return r
+        }
+        let loc = r.header("location")
+        if loc == "" {
+            r.error = "redirect (" + str(r.status) + ") without a Location header"
+            return r
+        }
+        if string.startswith(loc, "http://") or string.startswith(loc, "https://") {
+            current = loc
+        } else {
+            if string.startswith(loc, "/") {
+                current = u.scheme + "://" + u.host + ":" + str(u.port) + loc
+            } else {
+                r.error = "unsupported relative redirect Location: " + loc
+                return r
+            }
+        }
+        hop = hop + 1
+    }
+    let r = Response({.url = current})
+    r.error = "too many redirects (max_redirects = " + str(max_hops) + ")"
+    return r
+}

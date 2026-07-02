@@ -13,10 +13,14 @@
     localStorage.setItem("cheatah-theme", next);
   });
 
-  // ---- highlight current page in sidebar ----
+  // ---- highlight current page in sidebar; open the dropdown(s) leading to it ----
   var here = location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll('.sidebar li a').forEach(function (a) {
-    if (a.getAttribute("href") === here) a.classList.add("active");
+  document.querySelectorAll('.sidebar a[href]').forEach(function (a) {
+    if (a.getAttribute("href") === here) {
+      a.classList.add("active");
+      var d = a.closest("details");           // open the enclosing submodule dropdown(s)
+      while (d) { d.open = true; d = d.parentElement && d.parentElement.closest("details"); }
+    }
   });
 
   // ---- search ----

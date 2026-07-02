@@ -183,4 +183,109 @@ std::string sha512_digest(std::string_view data) {
     return std::string(reinterpret_cast<const char*>(d.data()), d.size());
 }
 
+// ---- HMAC + HKDF (RFC 2104 / RFC 5869) over the SHA-256 above ----------------------
+
+std::string hmac_sha256(std::string_view key, std::string_view data) {
+    constexpr std::size_t kBlock = 64;  // SHA-256 block size
+    std::string k(key);
+    if (k.size() > kBlock) k = sha256_digest(k);  // long keys hash down first
+    k.resize(kBlock, '\0');
+    std::string inner(kBlock, '\0');
+    std::string outer(kBlock, '\0');
+    for (std::size_t i = 0; i < kBlock; ++i) {
+        inner[i] = static_cast<char>(k[i] ^ 0x36);
+        outer[i] = static_cast<char>(k[i] ^ 0x5c);
+    }
+    return sha256_digest(outer + sha256_digest(inner + std::string(data)));
+}
+
+std::string hmac_sha512(std::string_view key, std::string_view data) {
+    constexpr std::size_t kBlock = 128;  // SHA-512 block size
+    std::string k(key);
+    if (k.size() > kBlock) k = sha512_digest(k);  // long keys hash down first
+    k.resize(kBlock, '\0');
+    std::string inner(kBlock, '\0');
+    std::string outer(kBlock, '\0');
+    for (std::size_t i = 0; i < kBlock; ++i) {
+        inner[i] = static_cast<char>(k[i] ^ 0x36);
+        outer[i] = static_cast<char>(k[i] ^ 0x5c);
+    }
+    return sha512_digest(outer + sha512_digest(inner + std::string(data)));
+}
+
+// ---- Base64 (RFC 4648, standard alphabet) -----------------------------------------
+
+namespace {
+constexpr char kB64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+}  // namespace
+
+std::string base64_encode(std::string_view data) {
+    const auto* p = reinterpret_cast<const unsigned char*>(data.data());
+    const std::size_t n = data.size();
+    std::string out;
+    out.reserve(((n + 2) / 3) * 4);
+    std::size_t i = 0;
+    for (; i + 3 <= n; i += 3) {
+        const unsigned v = (static_cast<unsigned>(p[i]) << 16) |
+                           (static_cast<unsigned>(p[i + 1]) << 8) | static_cast<unsigned>(p[i + 2]);
+        out.push_back(kB64[(v >> 18) & 63]);
+        out.push_back(kB64[(v >> 12) & 63]);
+        out.push_back(kB64[(v >> 6) & 63]);
+        out.push_back(kB64[v & 63]);
+    }
+    if (n - i == 1) {
+        const unsigned v = static_cast<unsigned>(p[i]) << 16;
+        out.push_back(kB64[(v >> 18) & 63]);
+        out.push_back(kB64[(v >> 12) & 63]);
+        out.push_back('=');
+        out.push_back('=');
+    } else if (n - i == 2) {
+        const unsigned v =
+            (static_cast<unsigned>(p[i]) << 16) | (static_cast<unsigned>(p[i + 1]) << 8);
+        out.push_back(kB64[(v >> 18) & 63]);
+        out.push_back(kB64[(v >> 12) & 63]);
+        out.push_back(kB64[(v >> 6) & 63]);
+        out.push_back('=');
+    }
+    return out;
+}
+
+std::string base64_decode(std::string_view text) {
+    std::array<int, 256> rev;
+    rev.fill(-1);
+    for (int i = 0; i < 64; ++i) rev[static_cast<unsigned char>(kB64[i])] = i;
+    std::string out;
+    out.reserve((text.size() / 4) * 3);
+    int buf = 0;
+    int bits = 0;
+    for (unsigned char c : text) {
+        if (c == '=') break;             // padding -> end of data
+        const int d = rev[c];
+        if (d < 0) continue;             // skip whitespace / non-alphabet bytes
+        buf = (buf << 6) | d;
+        bits += 6;
+        if (bits >= 8) {
+            bits -= 8;
+            out.push_back(static_cast<char>((buf >> bits) & 0xff));
+        }
+    }
+    return out;
+}
+
+std::string hkdf_extract(std::string_view salt, std::string_view ikm) {
+    return hmac_sha256(salt, ikm);
+}
+
+std::string hkdf_expand(std::string_view prk, std::string_view info, long long length) {
+    if (length <= 0 || length > 255 * 32) return "";
+    std::string okm;
+    std::string t;  // T(0) = empty
+    for (unsigned char counter = 1; static_cast<long long>(okm.size()) < length; ++counter) {
+        t = hmac_sha256(prk, t + std::string(info) + static_cast<char>(counter));
+        okm += t;
+    }
+    okm.resize(static_cast<std::size_t>(length));
+    return okm;
+}
+
 } // namespace cheatah::hashlib

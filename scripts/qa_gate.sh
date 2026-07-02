@@ -121,15 +121,29 @@ cmake --preset release >/tmp/cheatah_cfg_release.log 2>&1 || { tail -20 /tmp/che
 bold "Building (debug)…"
 cmake --build --preset debug >/tmp/cheatah_build_debug.log 2>&1 || { tail -30 /tmp/cheatah_build_debug.log; fail "debug build"; }
 
+# The websocket system tests (WebSocketSys.*) run cheatah's client against a real Node `ws` echo
+# server — the same "real external peer" model as openssl s_server for tls. Install the pinned
+# `ws` package (git-ignored) if it isn't already present, so those tests can run.
+if [ ! -d tests/fixtures/node_modules/ws ]; then
+    if command -v npm >/dev/null 2>&1; then
+        bold "Installing the Node 'ws' test peer (tests/fixtures)…"
+        ( cd tests/fixtures && (npm ci >/dev/null 2>&1 || npm install >/dev/null 2>&1) ) \
+            || fail "npm install of the 'ws' websocket test peer failed (needed for WebSocketSys.*)"
+    else
+        fail "npm not found — the websocket system tests need the Node 'ws' peer (npm ci in tests/fixtures)"
+    fi
+fi
+
 # 3b. Pure-cheatah stdlib modules: the build regenerated each one's committed header from its
 #     `.purr` via `purrc --emit-library`. The header (and its signed checksum) are committed so
 #     the true C++ stays visible and `import` can verify it — fail if they drifted from source.
+#     `requests` is currently the only pure-cheatah (.purr) module; `parsers` is hand-written C++.
 bold "Checking generated cheatah-module headers are in sync with their .purr sources…"
-_cmod_drift="$(git status --porcelain -- 'stdlib/parsers/parsers.hpp' 'stdlib/parsers/parsers.hpp.sha512')"
+_cmod_drift="$(git status --porcelain -- 'stdlib/requests/requests.hpp' 'stdlib/requests/requests.hpp.sha512')"
 if [ -n "$_cmod_drift" ]; then
     printf '\n[qa-gate] a cheatah module header is out of date / uncommitted:\n\n'
-    git --no-pager diff -- stdlib/parsers/parsers.hpp | head -40
-    fail "stdlib/parsers/parsers.hpp drifted from parsers.purr — rebuild, commit the regenerated header (+ .sha512), then push again"
+    git --no-pager diff -- stdlib/requests/requests.hpp | head -40
+    fail "stdlib/requests/requests.hpp drifted from requests.purr — rebuild, commit the regenerated header (+ .sha512), then push again"
 fi
 
 # 4. Unit tests (hard gate) --------------------------------------------------

@@ -17,6 +17,18 @@ io.print(len("meow"))
 )PURR", "4\n");
 }
 
+TEST(BuiltinsCompileRun, IndexBoolList) {
+    // list<bool> lowers to std::vector<bool> (bit-packed, proxy references, no
+    // .data()), which needs its own builtins::index overload — indexing and
+    // negative indexing must behave like every other list.
+    e2e::expect_e2e("builtins_index_bool_list", R"PURR(import io
+let flags = [true, false, true]
+io.print(flags[0])
+io.print(flags[1])
+io.print(flags[-1])
+)PURR", "True\nFalse\nTrue\n");
+}
+
 TEST(BuiltinsCompileRun, Ord) {
     e2e::expect_e2e("builtins_ord", R"PURR(import io
 io.print(ord("A"))

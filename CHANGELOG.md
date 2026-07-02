@@ -3,6 +3,83 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.3.0-alpha (2026-07-01) — deterministic resource cleanup, an airtight memory-leak guarantee, first-class crypto/networking
+
+The standard-library release: cheatah gains a `with` statement and owning RAII guards, the
+crypto + networking modules become first-class (and 100% tested against real peers), and pure
+cheatah is now provably leak-free. Copyright is held by **BigBrain LLC** (lead engineer and
+producer: Joshua Doucette, on its behalf); MIT-licensed.
+
+### `with` + owning RAII guards (deterministic cleanup)
+- **New `with resource [as name] { … }` statement** — binds a resource for the block and runs
+  its destructor on **every** exit path (return, break, exception). Lowers to a lean C++ scope;
+  it is RAII, not a Python `__enter__`/`__exit__` protocol (any value with a destructor works).
+- **Owning guard types** on every stateful module: `socket.Conn`/`Listener` (via `socket.open`/
+  `serve`), `tls.Conn` (via `tls.open`), `websocket.Client` (via `websocket.open`/`open_url`),
+  alongside the existing `io.File`. A guard held as a plain `let` also closes at scope exit.
+
+### Airtight memory-leak guarantee
+- **Pure cheatah cannot leak heap memory.** The heap-allocating raw handle APIs of `tls`
+  (`client_connect`, …) and `websocket` (`connect`/`connect_url`, …) are now **C++-only** —
+  moved to `tls_lowlevel.hpp` / `websocket_lowlevel.hpp`, which cheatah's module resolver does
+  not surface. Calling them from cheatah is a **compile error**; cheatah uses the guards, which
+  release automatically. The sole in-language leak path is now a `cpp { … }` block. See
+  `SECURITY-AUDIT-v1.3.0.md`.
+- `socket`'s fd-based API stays cheatah-visible (an unclosed fd is an OS-resource leak, not heap
+  memory); the `socket.open`/`serve` guards are the recommended leak-safe path.
+
+### First-class crypto + networking (now tracked + 100% covered)
+Six modules that had lived out-of-tree are now committed, first-class, and held to the full
+gate (100% line+function coverage, 100% Javadoc, ASan/UBSan/Valgrind clean):
+- **`aead`** — ChaCha20-Poly1305 (RFC 8439) and AES-128/256-GCM authenticated encryption, with a
+  runtime-selected AES-NI fast path and a portable fallback.
+- **`x25519`** — RFC 7748 Diffie-Hellman, constant-time in the secret scalar.
+- **`p256`** — NIST P-256 ECDSA sign/verify with RFC 6979 deterministic nonces, plus SPKI/DER
+  parsing (ES256 JWTs and TLS leaf certificates).
+- **`tls`** — a from-scratch **TLS 1.3 client** (RFC 8446) built only on the cheatah crypto
+  modules — **no OpenSSL**. TLS_CHACHA20_POLY1305_SHA256 / TLS_AES_128_GCM_SHA256, X25519, SNI;
+  authenticates the server leaf (Ed25519 / ECDSA P-256 / RSA-PSS) and refuses a peer it cannot
+  verify.
+- **`websocket`** — an RFC 6455 `wss://` client over the tls stack (client masking, fragmented
+  message reassembly, transparent ping/pong).
+- **`requests`** — an HTTP/1.1 client (query params, custom headers, redirect following,
+  chunked/Content-Length/EOF framing, per-request timeouts, `https://`) and **the first
+  standard-library module written in cheatah itself** (`requests.purr`).
+- **Coverage is measured against real peers, never a mock**: `tls` against `openssl s_server`
+  (each leaf-cert algorithm and record cipher), `websocket` against a real Node `ws` server,
+  `requests`/`socket` over a loopback server — all merged into the 100% line+function gate.
+  `parsers` is now hand-written C++ (its `.purr` was retired).
+
+### Compiler (`purrc`)
+- **Pure-cheatah modules with `struct`s are now fully documented**: purrc emits Javadoc for
+  struct **fields**, the synthesized `parsers.json.schema<>` specializations, `module_abi`, and
+  default-argument forwarding overloads — so a `.purr` module passes the 100%-Javadoc gate.
+
+### Docs, quality, and copyright
+- **Security audit** (`SECURITY-AUDIT-v1.3.0.md`): every heap/handle allocation site is enumerated
+  and shown to be value-typed or RAII-guarded; ASan+UBSan and Valgrind report **0 leaks / 0
+  errors** over the guards.
+- **`@complexity` / `@alloc` tags audited** for correctness across the whole stdlib — e.g.
+  `linalg.eig` corrected to **O(n⁴)** (per-eigenvalue inverse iteration), `string.split` to
+  O(n·m), and out-parameter products now note the scratch packing of non-contiguous operands.
+- **Coverage gate** merges the in-process real-peer system tests and honors a sparing, justified
+  `// LCOV_EXCL_LINE` marker for genuinely-unreachable **defensive** branches (three in `tls`: a
+  refusal path a conformant peer cannot trigger, which we neither delete nor reach by mirroring a
+  malformed server).
+- **Documentation** refreshed and tightened repo-wide (module READMEs incl. new `tls`/`requests`
+  pages, the porting + security guides, the generated site + VS Code hover DB); every doc page now
+  carries the **BigBrain LLC** copyright footer.
+- **Docs site restructured**: a three-section sidebar — **Guides**, **Language parity** (a new
+  **cheatah ↔ C++** page covering the C++ features usable first-class *without* a `cpp { … }`
+  escape hatch, beside cheatah ↔ Python), and **Modules** with submodules (`os.path`,
+  `parsers.json`, …) as collapsible dropdowns; a module's classes are now listed on the module's
+  own page instead of a separate sidebar column. New **biome** (package manager) and **imports**
+  (module resolution) guides, plus richer transpiler examples (multi-module linking; an
+  `interface` lowering to a C++20 concept).
+- **Copyright** held by **BigBrain LLC** (`LICENSE`, `NOTICE`, README) — lead engineer and
+  producer Joshua Doucette, on its behalf. The README links the public ecosystem packages
+  (`cheatah-space`, `cheatah-gpu`, `cheatah-plot`).
+
 ## v1.2.0-alpha (2026-06-10) — pure-cheatah library modules, language ergonomics, pretty output, editor diagnostics
 
 A large feature release: cheatah can now build **standard-library modules written in cheatah

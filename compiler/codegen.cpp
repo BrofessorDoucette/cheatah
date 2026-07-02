@@ -4,6 +4,7 @@
 #include <optional>
 #include <set>
 #include <sstream>
+#include <string_view>
 
 namespace cheatah {
 
@@ -14,7 +15,11 @@ namespace {
 // unconstrained — keeps the C++ compiler's errors comprehensible and gives the
 // future purrc diagnostics a concept-failure hook. (See constrain-all-templates.)
 // The `builtins::` qualifier is prepended at use (it follows the module alias).
-constexpr const char* kValueConcept = "Value auto ";
+// Parameters are FORWARDING REFERENCES (`auto&&`), not values: an lvalue argument
+// binds by reference — no copy for strings/structs/lists/dicts/ndarrays, and
+// in-place mutation through the parameter is visible to the caller (Python's
+// object semantics) — while a temporary still binds and lives for the call.
+constexpr const char* kValueConcept = "Value auto&& ";
 
 // Bare names that are Python built-ins (always available, no import) -> their C++
 // symbol within the builtins module. Keyword-named conversions map specially. The
@@ -56,6 +61,8 @@ bool stmt_mutates_self(const Stmt& s) {
             return block_mutates_self(static_cast<const While&>(s).body);
         case StmtKind::For:
             return block_mutates_self(static_cast<const For&>(s).body);
+        case StmtKind::With:
+            return block_mutates_self(static_cast<const With&>(s).body);
         case StmtKind::Try: {
             const auto& t = static_cast<const Try&>(s);
             return block_mutates_self(t.body) || block_mutates_self(t.catch_body);
@@ -180,7 +187,24 @@ std::string map_type(const TypeRef& t) {
     if (t.name == "array" && t.args.size() == 1 && !t.array_size.empty()) {
         return "std::array<" + map_type(t.args[0]) + ", " + t.array_size + ">";
     }
+    if (t.name == "ndarray") {  // the element type follows the enforced param/return spelling
+        if (t.args.size() == 1 && t.args[0].name == "int")
+            return "::cheatah::ndarray::basic_ndarray<long long>";
+        if (t.args.size() == 1 && t.args[0].name == "float")
+            return "::cheatah::ndarray::basic_ndarray<double>";
+        return "::cheatah::ndarray::NDArray";  // bare `ndarray` — the element-erased default (double)
+    }
     return t.name;  // a struct name
+}
+
+// A cheatah type used as an explicit template ARGUMENT (`Store<float, 1024>`). Same mapping as
+// map_type, plus the bare `ndarray` element-erased alias (a packet trigger keeps its native
+// NDArray, never an element-typed param). A NON-TYPE argument (an integer literal like `1024`)
+// is emitted verbatim.
+std::string map_type_arg(const TypeRef& t) {
+    if (t.is_value) return t.name;  // non-type template argument — the literal, as-is
+    if (t.name == "ndarray" && t.args.empty()) return "::cheatah::ndarray::NDArray";
+    return map_type(t);
 }
 
 class Codegen {
@@ -214,6 +238,9 @@ public:
                     struct_names_.insert(sd.name);
                     struct_fields_[sd.name] = sd.fields;  // for designated-init validation + printing
                 }
+            } else if (s->kind == StmtKind::FnDef) {
+                const auto& fd = static_cast<const FnDef&>(*s);
+                fn_defs_[fd.name] = &fd;  // signature registry for keyword-argument calls
             } else if (s->kind == StmtKind::InterfaceDef) {
                 interface_names_.insert(static_cast<const InterfaceDef&>(*s).name);
             } else if (s->kind == StmtKind::EnumDef) {
@@ -279,6 +306,42 @@ public:
             if (s->kind == StmtKind::StructDef) gen_struct(os, static_cast<const StructDef&>(*s));
     }
 
+    // The TYPED JSON READER bridge: when the program imports `parsers`, synthesize a
+    // `cheatah::parsers::json::schema<>` specialization for every struct it defines, so
+    // `parsers.json.read(text, value)` parses JSON straight into the user's own structs —
+    // the compiler knows each struct's field names and types, so the user writes NO schema.
+    // Specializations must live in the parsers namespace, so the enclosing program/library
+    // namespace (@p ns) is closed around them and reopened after.
+    void emit_json_schemas(std::ostringstream& os, const Program& prog, const std::string& ns) {
+        if (!roots_.count("parsers")) return;  // reader not imported: nothing to synthesize
+        bool any = false;
+        for (const StmtPtr& s : prog.body) {
+            if (s->kind != StmtKind::StructDef) continue;
+            const auto& sd = static_cast<const StructDef&>(*s);
+            if (sd.fields.empty()) continue;  // nothing to read into
+            if (!any) {
+                os << "}  // namespace " << ns << " (paused for JSON schema synthesis)\n"
+                   << "namespace cheatah::parsers::json {\n";
+                any = true;
+            }
+            if (emit_docs_)
+                os << "/** JSON schema for `" << sd.name << "`, synthesized by purrc from the "
+                      "struct's fields — powers `parsers.json.read` into this type. */\n";
+            os << "template <> inline constexpr auto schema<::" << ns << "::" << sd.name
+               << "> = object(";
+            for (std::size_t i = 0; i < sd.fields.size(); ++i) {
+                if (i) os << ", ";
+                os << "field(\"" << sd.fields[i].name << "\", &::" << ns << "::" << sd.name
+                   << "::" << sd.fields[i].name << ")";
+            }
+            os << ");\n";
+        }
+        if (any) {
+            os << "}  // namespace cheatah::parsers::json\n"
+               << "namespace " << ns << " {\n\n";
+        }
+    }
+
     CodegenResult run(const Program& prog) {
         const bool alias_builtins = analyze(prog);
 
@@ -302,6 +365,7 @@ public:
         os << "namespace cheatah_program {\n\n";
         emit_aliases(os, alias_builtins);
         emit_types(os, prog);
+        emit_json_schemas(os, prog, "cheatah_program");
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::FnDef) gen_fn(os, static_cast<const FnDef&>(*s));
         }
@@ -313,7 +377,7 @@ public:
         std::string entry = "purr_main";
         while (defined_names_.count(entry)) entry += "_";
         os << "void " << entry << "() {\n";
-        deferred_lets_.clear();  // no-value lets in the top-level body are scoped to it
+        deferred_lets_.clear(); const_vars_.clear();  // no-value lets in the top-level body are scoped to it
         for (std::size_t i = 0; i < prog.body.size(); ++i) {
             const Stmt& s = *prog.body[i];
             if (s.kind == StmtKind::Import || s.kind == StmtKind::StructDef ||
@@ -343,14 +407,24 @@ public:
     // Library mode: emit @p prog as an importable cheatah library module in
     // `namespace cheatah::<opts.module_name>`. No `purr_main`. See codegen_library().
     CodegenResult run_library(const Program& prog, const LibOptions& opts) {
+        emit_docs_ = true;  // a library header is the module's documented public surface
         const bool alias_builtins = analyze(prog);
 
         // Header: the importable surface. `#pragma once` because consumers #include it.
         std::ostringstream hdr;
         emit_preamble(hdr, /*pragma_once=*/true);
+        // The .purr module doc block becomes the header's @file Javadoc, so Doxygen (and
+        // the editor's hover DB built from its XML) documents a generated module exactly
+        // like a hand-written one. JAVADOC_AUTOBRIEF makes the first sentence the brief.
+        if (!prog.module_doc.empty()) {
+            std::ostringstream file_doc;
+            file_doc << "@file " << opts.module_name << ".hpp\n\n" << prog.module_doc;
+            emit_doc(hdr, file_doc.str());
+        }
         hdr << "namespace cheatah::" << opts.module_name << " {\n\n";
         emit_aliases(hdr, alias_builtins);
         emit_types(hdr, prog);
+        emit_json_schemas(hdr, prog, "cheatah::" + opts.module_name);
 
         // Functions. Today every cheatah function lowers to a constrained template
         // (untyped params -> `Value auto`), and templates MUST be header-visible in both
@@ -371,15 +445,17 @@ public:
             << "` cheatah module: returns the module name.\n"
             << "///\n"
             << "/// Auto-emitted by purrc's library emitter. It is the concrete symbol that\n"
-            << "/// anchors the module's signed static archive in opaque (source-hidden) builds.\n";
+            << "/// anchors the module's signed static archive in opaque (source-hidden) builds.\n"
+            << "/// @return the module name (`\"" << opts.module_name << "\"`).\n";
         if (opts.transparent) {
             hdr << "inline const char* module_abi() noexcept { return \"" << opts.module_name
                 << "\"; }\n";
         } else {
             hdr << "const char* module_abi() noexcept;\n";
-            impl << "// Generated by purrc — do not edit. Opaque library implementation: the\n"
-                 << "// concrete definitions hidden inside libcheatah_" << opts.module_name
-                 << ".a (the header ships only declarations).\n"
+            impl << "// Generated by purrc — do not edit. Out-of-line definitions for the "
+                 << opts.module_name << " module\n"
+                 << "// (the header carries declarations + templates). Compiled into a signed archive\n"
+                 << "// in an opaque build, or as a plain translation unit by the host build under --split.\n"
                  << "#include \"" << opts.module_name << ".hpp\"\n\n"
                  << "const char* cheatah::" << opts.module_name
                  << "::module_abi() noexcept { return \"" << opts.module_name << "\"; }\n";
@@ -396,27 +472,167 @@ public:
     }
 
 private:
+    // Re-emit a declaration's .purr doc comment as a Javadoc block. Library headers only
+    // (emit_docs_): they are the module's public surface, read by Doxygen and the editor's
+    // hover DB, and must carry the same documentation convention as the hand-written
+    // stdlib headers. The block is verbatim — @param/@return/@complexity/@alloc/@test
+    // tags written in the .purr comment pass straight through to Doxygen.
+    void emit_doc(std::ostringstream& os, const std::string& doc, const char* indent = "") {
+        if (!emit_docs_ || doc.empty()) return;
+        os << indent << "/**\n";
+        for (std::size_t start = 0; start <= doc.size();) {
+            const std::size_t end = doc.find('\n', start);
+            // cppcheck-suppress stlcstrConstructor  // (ptr,len) subview of doc — not a c_str() copy
+            const std::string_view line(doc.data() + start,
+                                        (end == std::string::npos ? doc.size() : end) - start);
+            os << indent << " *";
+            if (!line.empty()) os << ' ' << line;
+            os << "\n";
+            if (end == std::string::npos) break;
+            start = end + 1;
+        }
+        os << indent << " */\n";
+    }
+
     // Library-mode free function: like gen_fn but WITHOUT `static` internal linkage, so
     // the (implicitly-inline) function template is usable across translation units that
     // include the module header. Same constrained-template lowering as gen_fn.
     void gen_fn_library(std::ostringstream& os, const FnDef& fd) {
-        os << "auto " << fd.name << "(";
+        emit_doc(os, fd.doc);
+        os << (fd.is_constexpr ? "constexpr " : "") << "auto " << fd.name << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
             os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
         }
         os << ") {\n";
-        deferred_lets_.clear();  // no-value lets are scoped to this function body
+        deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this function body
         gen_block(os, fd.body, "    ");
         os << "}\n\n";
+
+        // Default parameters lower to FORWARDING OVERLOADS, one per trailing-default suffix —
+        // a C++ default argument on an `auto` parameter cannot drive deduction, an overload can.
+        for (std::size_t cut = fd.params.size(); cut-- > 0;) {
+            if (cut >= fd.param_defaults.size() || !fd.param_defaults[cut]) {
+                break;  // defaults are trailing; the first non-default ends the ladder
+            }
+            // Each synthesized overload is public API, so in library mode it carries its own
+            // Javadoc (the gate requires 100% docs): a brief pointing at the primary, @param for
+            // the args it keeps, @return when the primary documents one. (emit_doc is a no-op in
+            // program mode, so a program's .gen.cpp stays lean.)
+            std::string ov_doc = "Convenience overload of `" + fd.name +
+                                 "` with the trailing default argument(s) applied.";
+            for (std::size_t i = 0; i < cut; ++i)
+                ov_doc += "\n@param " + fd.params[i] + " as documented on the primary overload.";
+            if (fd.doc.find("@return") != std::string::npos)
+                ov_doc += "\n@return as the primary overload.";
+            emit_doc(os, ov_doc);
+            os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
+           << " " << fd.name << "(";
+            for (std::size_t i = 0; i < cut; ++i) {
+                os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+            }
+            os << ") { return " << fd.name << "(";
+            for (std::size_t i = 0; i < cut; ++i) {
+                os << (i != 0 ? ", " : "") << fd.params[i];
+            }
+            for (std::size_t i = cut; i < fd.params.size(); ++i) {
+                os << (i != 0 ? ", " : "") << gen_expr(*fd.param_defaults[i]);
+            }
+            os << "); }\n";
+        }
+        os << "\n";
+    }
+
+    // A MODULE-QUALIFIED type spelling (`state.State`, `memory.Memory`) -> its C++ type, resolving
+    // the leading import alias the SAME way a `state.State()` call does (module_namespace). A name
+    // with no '.' is returned unchanged.
+    std::string map_qualified_type(const std::string& type_name) const {
+        if (type_name.find('.') == std::string::npos) return type_name;
+        std::vector<std::string> segs;
+        std::size_t start = 0;
+        for (std::size_t i = 0; i <= type_name.size(); ++i) {
+            if (i == type_name.size() || type_name[i] == '.') {
+                segs.push_back(type_name.substr(start, i - start));
+                start = i + 1;
+            }
+        }
+        const auto it = aliases_.find(segs[0]);
+        std::string out = (it != aliases_.end()) ? module_namespace(it->second)
+                                                  : ("::cheatah::" + segs[0]);
+        for (std::size_t i = 1; i < segs.size(); ++i) out += "::" + segs[i];
+        return out;
     }
 
     // The constraint prefix for a parameter declared with type @p type_name: an
-    // interface name -> that concept (`Shape auto`); otherwise the baseline Value.
+    // interface name -> that concept (`Shape auto&&`); otherwise the baseline Value.
+    // Both are forwarding references — see kValueConcept.
     std::string param_prefix(const std::string& type_name) const {
-        if (!type_name.empty() && interface_names_.count(type_name)) {
-            return type_name + " auto ";
+        // A `const`-qualified param (encoded "const T" by the parser) -> a const reference: map the
+        // underlying type to its concrete reference and prepend const (so it binds a `const Array&`).
+        if (type_name.rfind("const ", 0) == 0) {
+            return "const " + param_prefix(type_name.substr(6));
         }
+        if (!type_name.empty() && interface_names_.count(type_name)) {
+            return type_name + " auto&& ";
+        }
+        // A module-qualified struct/class (`state.State`) -> a concrete mutable reference (so a bot's
+        // callback mutates the caller's State in place, and the signature stays CTAD-readable).
+        if (type_name.find('.') != std::string::npos) {
+            return map_qualified_type(type_name) + "& ";
+        }
+        // `: ndarray<float>` / `: ndarray<int>` — the enforced spelling for an
+        // ndarray parameter: a concrete mutable reference (in-place updates reach
+        // the caller's array; a wrong element type fails to compile).
+        if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>& ";
+        if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>& ";
+        // A list of ndarrays (e.g. a brain's feature snapshots) -> a concrete vector ref.
+        if (type_name == "list<ndarray<float>>")
+            return "std::vector<::cheatah::ndarray::basic_ndarray<double>>& ";
+        if (type_name == "list<ndarray<int>>")
+            return "std::vector<::cheatah::ndarray::basic_ndarray<long long>>& ";
         return builtins_ns_ + kValueConcept;
+    }
+
+    // The C++ RETURN type for a `-> Type` hint (a value, not a reference). Empty -> "auto"
+    // (the abbreviated-template default, kept when no hint is given).
+    std::string return_type_cpp(const std::string& type_name) const {
+        if (type_name.empty()) return "auto";
+        if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>";
+        if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>";
+        if (type_name == "int") return "long long";
+        if (type_name == "float") return "double";
+        if (type_name == "str") return "std::string";
+        if (type_name == "bool") return "bool";
+        if (type_name.find('.') != std::string::npos) return map_qualified_type(type_name);
+        return type_name;  // a struct / enum / void name (emitted verbatim)
+    }
+
+    // The C++ type for a typed PARAMETER in a concrete forwarding lambda (ndarrays by
+    // mutable reference so in-place updates reach the caller; scalars/structs by value).
+    std::string lambda_param_cpp(const std::string& type_name) const {
+        if (type_name.rfind("const ", 0) == 0) {
+            return "const " + lambda_param_cpp(type_name.substr(6));
+        }
+        if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>&";
+        if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>&";
+        if (type_name == "list<ndarray<float>>")
+            return "std::vector<::cheatah::ndarray::basic_ndarray<double>>&";
+        if (type_name == "list<ndarray<int>>")
+            return "std::vector<::cheatah::ndarray::basic_ndarray<long long>>&";
+        // A module-qualified struct/class (`state.State`) binds by reference (the brain's callbacks
+        // mutate the caller's State/Memory in place; matches the param_prefix spelling for CTAD).
+        if (type_name.find('.') != std::string::npos) return map_qualified_type(type_name) + "&";
+        return return_type_cpp(type_name);
+    }
+
+    // A fn is FULLY TYPED when it has a return-type hint and every parameter has a type hint.
+    // Such a fn can lower to a concrete-signature callback (see gen_args), so its signature is
+    // readable by CTAD on the receiving side. Untyped fns keep the generic forwarding lambda.
+    static bool fn_fully_typed(const FnDef& fd) {
+        if (fd.return_type.empty() || fd.params.empty()) return false;
+        for (std::size_t i = 0; i < fd.params.size(); ++i) {
+            if (i >= fd.param_types.size() || fd.param_types[i].empty()) return false;
+        }
+        return true;
     }
 
     // interface -> a C++20 concept: every method must be callable on the type, so a
@@ -427,6 +643,7 @@ private:
     // an earlier member, both work). Members are reached scoped (Name::A) — see the
     // Member case in gen_expr.
     void gen_enum(std::ostringstream& os, const EnumDef& ed) {
+        emit_doc(os, ed.doc);
         os << "enum class " << ed.name << " {\n";
         for (const Enumerator& en : ed.enumerators) {
             os << "    " << en.name;
@@ -451,6 +668,7 @@ private:
     }
 
     void gen_interface(std::ostringstream& os, const InterfaceDef& id) {
+        emit_doc(os, id.doc);
         os << "template <typename Self>\n";
         os << "concept " << id.name << " =";
         if (id.methods.empty()) {
@@ -473,14 +691,17 @@ private:
 
     void gen_struct(std::ostringstream& os, const StructDef& sd) {
         const bool streamable = struct_is_streamable(sd);
+        emit_doc(os, sd.doc);
         os << "struct " << sd.name << " {\n";
         for (const Field& f : sd.fields) {
+            emit_doc(os, f.doc, "    ");  // library mode: the field's `#` doc -> its Javadoc
             os << "    " << map_type(f.type) << " " << f.name << ";\n";
         }
         // Methods become member functions. A leading `self` param is implicit (it
         // is `*this`); the struct stays a C++ aggregate (member functions are
         // allowed), so `Name{...}` construction is unaffected.
         for (const StmtPtr& m : sd.methods) {
+            emit_doc(os, m->doc, "    ");
             gen_method(os, static_cast<const FnDef&>(*m));
         }
         // A pretty-printer member: `io.print` renders a struct on multiple indented lines
@@ -611,25 +832,111 @@ private:
         os << ")" << (mutates ? "" : " const") << " {\n";
         const bool prev = in_method_;
         in_method_ = true;
-        deferred_lets_.clear();  // no-value lets are scoped to this method body
+        deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this method body
         gen_block(os, fd.body, "        ");
         in_method_ = prev;
         os << "    }\n";
+    }
+
+    // Emit a call that used `name = value` keyword arguments: positional args fill the leading
+    // parameters, keywords land by NAME, and any remaining slot takes the parameter's declared
+    // default. Only program-defined functions are addressable by keyword (the compiler knows
+    // their signatures); module functions and methods need positional arguments.
+    std::string gen_kwargs_call(const Call& c, const std::string& indent) {
+        if (c.callee->kind != ExprKind::Ident || !fn_defs_.count(static_cast<const Ident&>(*c.callee).name)) {
+            diags_.push_back("codegen: keyword arguments require a program-defined function");
+            return "/*kwargs error*/";
+        }
+        const FnDef& fd = *fn_defs_.at(static_cast<const Ident&>(*c.callee).name);
+        std::vector<std::string> slot(fd.params.size());
+        std::vector<bool> filled(fd.params.size(), false);
+        std::size_t next_positional = 0;
+        for (std::size_t i = 0; i < c.args.size(); ++i) {
+            std::size_t target = fd.params.size();
+            if (c.arg_names[i].empty()) {
+                target = next_positional++;
+            } else {
+                for (std::size_t j = 0; j < fd.params.size(); ++j) {
+                    if (fd.params[j] == c.arg_names[i]) target = j;
+                }
+            }
+            if (target >= fd.params.size()) {
+                diags_.push_back("codegen: '" + fd.name + "' has no parameter '" +
+                                 c.arg_names[i] + "'");
+                return "/*kwargs error*/";
+            }
+            if (filled[target]) {
+                diags_.push_back("codegen: parameter '" + fd.params[target] +
+                                 "' of '" + fd.name + "' given more than once");
+                return "/*kwargs error*/";
+            }
+            slot[target] = gen_expr(*c.args[i], indent);
+            filled[target] = true;
+        }
+        for (std::size_t j = 0; j < fd.params.size(); ++j) {
+            if (filled[j]) continue;
+            if (j < fd.param_defaults.size() && fd.param_defaults[j]) {
+                slot[j] = gen_expr(*fd.param_defaults[j], indent);  // the declared default
+            } else {
+                diags_.push_back("codegen: call to '" + fd.name + "' is missing required parameter '" +
+                                 fd.params[j] + "'");
+                return "/*kwargs error*/";
+            }
+        }
+        std::string out = fd.name + "(";
+        for (std::size_t j = 0; j < slot.size(); ++j) out += (j ? ", " : "") + slot[j];
+        return out + ")";
     }
 
     void gen_fn(std::ostringstream& os, const FnDef& fd) {
         // `static` -> internal linkage, so the optimizer inlines/optimizes these
         // like local C++ functions (no exported-symbol interposition barrier).
         // Untyped params -> C++20 abbreviated function template; an interface-typed
-        // param becomes a concept-constrained `auto` (static dispatch).
-        os << "static auto " << fd.name << "(";
+        // param becomes a concept-constrained `auto` (static dispatch). A `-> Type` hint
+        // pins the return type (the C++ backend then checks every `return` against it);
+        // absent, the return stays `auto`.
+        os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
+           << " " << fd.name << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
             os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
         }
         os << ") {\n";
-        deferred_lets_.clear();  // no-value lets are scoped to this function body
+        deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this function body
         gen_block(os, fd.body, "    ");
         os << "}\n\n";
+
+        // Default parameters lower to FORWARDING OVERLOADS, one per trailing-default suffix —
+        // a C++ default argument on an `auto` parameter cannot drive deduction, an overload can.
+        for (std::size_t cut = fd.params.size(); cut-- > 0;) {
+            if (cut >= fd.param_defaults.size() || !fd.param_defaults[cut]) {
+                break;  // defaults are trailing; the first non-default ends the ladder
+            }
+            // Each synthesized overload is public API, so in library mode it carries its own
+            // Javadoc (the gate requires 100% docs): a brief pointing at the primary, @param for
+            // the args it keeps, @return when the primary documents one. (emit_doc is a no-op in
+            // program mode, so a program's .gen.cpp stays lean.)
+            std::string ov_doc = "Convenience overload of `" + fd.name +
+                                 "` with the trailing default argument(s) applied.";
+            for (std::size_t i = 0; i < cut; ++i)
+                ov_doc += "\n@param " + fd.params[i] + " as documented on the primary overload.";
+            if (fd.doc.find("@return") != std::string::npos)
+                ov_doc += "\n@return as the primary overload.";
+            emit_doc(os, ov_doc);
+            os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
+           << " " << fd.name << "(";
+            for (std::size_t i = 0; i < cut; ++i) {
+                os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+            }
+            os << ") { return " << fd.name << "(";
+            for (std::size_t i = 0; i < cut; ++i) {
+                os << (i != 0 ? ", " : "") << fd.params[i];
+            }
+            for (std::size_t i = cut; i < fd.params.size(); ++i) {
+                os << (i != 0 ? ", " : "") << gen_expr(*fd.param_defaults[i]);
+            }
+            os << "); }\n";
+        }
+        os << "\n";
     }
 
     // Whether expression @p e contains a call anywhere — a conservative "may have side
@@ -640,7 +947,10 @@ private:
             case ExprKind::Member: return has_call(*static_cast<const Member&>(e).object);
             case ExprKind::Index: {
                 const auto& ix = static_cast<const Index&>(e);
-                return has_call(*ix.object) || has_call(*ix.index);
+                if (has_call(*ix.object) || has_call(*ix.index)) return true;
+                for (const ExprPtr& more : ix.extra)
+                    if (has_call(*more)) return true;
+                return false;
             }
             case ExprKind::Slice: {
                 const auto& sl = static_cast<const Slice&>(e);
@@ -704,6 +1014,10 @@ private:
                 const auto& f = static_cast<const For&>(s);
                 return refers_to(*f.iterable, name) || block_reads_var(f.body, name);
             }
+            case StmtKind::With: {
+                const auto& w = static_cast<const With&>(s);
+                return refers_to(*w.resource, name) || block_reads_var(w.body, name);
+            }
             case StmtKind::Try: {
                 const auto& t = static_cast<const Try&>(s);
                 return block_reads_var(t.body, name) || block_reads_var(t.catch_body, name);
@@ -712,7 +1026,9 @@ private:
                 const auto& m = static_cast<const Match&>(s);
                 if (refers_to(*m.subject, name)) return true;
                 for (const MatchCase& c : m.cases) {
-                    if (refers_to(*c.pattern, name) || block_reads_var(c.body, name)) return true;
+                    // A wildcard case (`case _`) carries no pattern expression.
+                    if (c.pattern && refers_to(*c.pattern, name)) return true;
+                    if (block_reads_var(c.body, name)) return true;
                 }
                 return false;
             }
@@ -761,6 +1077,11 @@ private:
     std::string gen_lvalue(const Expr& e) {
         if (e.kind == ExprKind::Index) {
             const auto& ix = static_cast<const Index&>(e);
+            if (!ix.extra.empty()) {  // x[i, j, ...] = v  -> mutable multi-index ref
+                std::string out = gen_expr(*ix.object) + ".item_ref(" + gen_expr(*ix.index);
+                for (const ExprPtr& more : ix.extra) out += ", " + gen_expr(*more);
+                return out + ")";
+            }
             return gen_expr(*ix.object) + "[" + gen_expr(*ix.index) + "]";
         }
         return gen_expr(e);
@@ -785,6 +1106,12 @@ private:
                     deferred_lets_.insert(l.name);
                     return;
                 }
+                // `constexpr let` -> a C++ `constexpr` binding AND a recorded compile-time
+                // constant, so `if`/`match` over it auto-lower to `if constexpr` (the C++
+                // compiler enforces the initializer really is constant). One keyword:
+                // `constexpr` (consteval stays behind a cpp{} escape hatch).
+                const char* cx = l.is_constexpr ? "constexpr " : "";
+                if (l.is_constexpr) const_vars_.insert(l.name);
                 if (l.has_type) {
                     // An explicit type drives the declaration, so empty `[]` / `{}`
                     // get their element types from the annotation (not deduced).
@@ -795,13 +1122,14 @@ private:
                         l.value->kind == ExprKind::DictLit &&
                         static_cast<const DictLit&>(*l.value).keys.empty();
                     if (empty_list || empty_dict) {
-                        os << indent << map_type(l.type) << " " << l.name << ";\n";
+                        os << indent << cx << map_type(l.type) << " " << l.name << ";\n";
                     } else {
-                        os << indent << map_type(l.type) << " " << l.name << " = "
+                        os << indent << cx << map_type(l.type) << " " << l.name << " = "
                            << gen_expr(*l.value, indent) << ";\n";
                     }
                 } else {
-                    os << indent << "auto " << l.name << " = " << gen_expr(*l.value, indent) << ";\n";
+                    os << indent << cx << "auto " << l.name << " = " << gen_expr(*l.value, indent)
+                       << ";\n";
                 }
                 return;
             }
@@ -810,7 +1138,7 @@ private:
                 // Realize a deferred `let x` (declared with no value) at its FIRST assignment:
                 // emit the declaration `auto x = …` here, so the variable comes into being
                 // exactly where it is first given a value. Later assignments are plain `x = …`.
-                if (a.target->kind == ExprKind::Ident) {
+                if (a.op == "=" && a.target->kind == ExprKind::Ident) {
                     const std::string& tname = static_cast<const Ident&>(*a.target).name;
                     if (deferred_lets_.erase(tname)) {
                         os << indent << "auto " << tname << " = " << gen_expr(*a.value, indent)
@@ -823,7 +1151,8 @@ private:
                 // operand each step (O(n²) -> O(n); no full-length temporaries). Only
                 // when the target is a plain variable that sits at the head of the `+`
                 // chain and is not re-read by the appended operands.
-                if (a.target->kind == ExprKind::Ident && a.value->kind == ExprKind::Binary &&
+                if (a.op == "=" && a.target->kind == ExprKind::Ident &&
+                    a.value->kind == ExprKind::Binary &&
                     static_cast<const Binary&>(*a.value).op == "+") {
                     const std::string& name = static_cast<const Ident&>(*a.target).name;
                     std::vector<const Expr*> ops;
@@ -854,12 +1183,17 @@ private:
                         return;
                     }
                 }
-                os << indent << gen_lvalue(*a.target) << " = " << gen_expr(*a.value, indent) << ";\n";
+                os << indent << gen_lvalue(*a.target) << " " << a.op << " "
+                   << gen_expr(*a.value, indent) << ";\n";
                 return;
             }
             case StmtKind::If: {
                 const auto& n = static_cast<const If&>(s);
-                os << indent << "if (" << gen_expr(*n.cond) << ") {\n";
+                // Explicit `if constexpr`, OR auto: a condition that's a known compile-time
+                // constant (literals / `constexpr let` names) lowers to `if constexpr` too.
+                const bool cx = n.is_constexpr || expr_is_const(*n.cond);
+                os << indent << (cx ? "if constexpr (" : "if (")
+                   << gen_expr(*n.cond) << ") {\n";
                 gen_block(os, n.then_body, indent + "    ");
                 os << indent << "}";
                 if (!n.else_body.empty()) {
@@ -880,6 +1214,20 @@ private:
             case StmtKind::For:
                 gen_for(os, static_cast<const For&>(s), indent);
                 return;
+            case StmtKind::With: {
+                // with <resource> [as <name>] { … }  ->  a plain nested block that binds the
+                // resource to a local, so its RAII destructor runs when the block exits. When
+                // there is no `as`, bind to a hidden local (a discarded temporary would be
+                // destroyed immediately, defeating the scope guard).
+                const auto& w = static_cast<const With&>(s);
+                const std::string name =
+                    w.bind.empty() ? "_purr_with_" + std::to_string(with_id_++) : w.bind;
+                os << indent << "{\n";
+                os << indent << "    auto " << name << " = " << gen_expr(*w.resource) << ";\n";
+                gen_block(os, w.body, indent + "    ");
+                os << indent << "}\n";
+                return;
+            }
             case StmtKind::Return: {
                 const auto& r = static_cast<const Return&>(s);
                 os << indent << "return" << (r.value ? " " + gen_expr(*r.value, indent) : "") << ";\n";
@@ -924,16 +1272,146 @@ private:
             case StmtKind::StructDef:
             case StmtKind::FnDef:
             case StmtKind::InterfaceDef:
+            case StmtKind::EnumDef:
                 return;  // emitted at file scope
         }
     }
 
-    // match <subject> { case v { … } case _ { … } } -> evaluate the subject once,
-    // then an if / else-if chain comparing it with `==`; the `_` case is the else.
+    // Whether @p e is a compile-time constant in the emitted C++ — built only from literals,
+    // `constexpr let` names (const_vars_), and operators that stay constant (no runtime helper
+    // calls). Drives AUTO-lowering of `if`/`match` over a known constant to their `if constexpr`
+    // form. Conservative: strings, function calls, and the helper-lowered ops (`/ // % ** in`)
+    // count as non-constant, so we never emit an `if constexpr` the C++ compiler would reject.
+    bool expr_is_const(const Expr& e) const {
+        switch (e.kind) {
+            case ExprKind::NumberLit:
+            case ExprKind::BoolLit:
+                return true;
+            case ExprKind::Ident:
+                return const_vars_.count(static_cast<const Ident&>(e).name) != 0;
+            case ExprKind::Unary: {
+                const auto& u = static_cast<const Unary&>(e);
+                return (u.op == "-" || u.op == "+" || u.op == "!") && expr_is_const(*u.operand);
+            }
+            case ExprKind::Binary: {
+                const auto& b = static_cast<const Binary&>(e);
+                static const std::set<std::string> kConstOps = {
+                    "+", "-", "*", "==", "!=", "<", "<=", ">", ">=", "&&", "||"};
+                return kConstOps.count(b.op) != 0 && expr_is_const(*b.lhs) && expr_is_const(*b.rhs);
+            }
+            default:
+                return false;
+        }
+    }
+    // Every non-wildcard case pattern of @p m is a compile-time constant (so the whole match
+    // can lower to an `if constexpr` chain over a constant subject).
+    bool match_patterns_all_const(const Match& m) const {
+        for (const MatchCase& c : m.cases)
+            if (!c.wildcard && !expr_is_const(*c.pattern)) return false;
+        return true;
+    }
+
+    // A case pattern that's a valid C++ `switch` label: an integer (not float) literal,
+    // optionally signed (`case -1`). Strings/floats/bools/identifiers/runtime exprs are
+    // NOT — a `switch` can't express those, so they keep the `==` if/else-if chain.
+    static bool is_int_switch_label(const Expr& e) {
+        if (e.kind == ExprKind::NumberLit) {
+            const std::string& t = static_cast<const NumberLit&>(e).text;
+            return t.find('.') == std::string::npos && t.find('e') == std::string::npos &&
+                   t.find('E') == std::string::npos;  // integer literal, not a double
+        }
+        if (e.kind == ExprKind::Unary) {  // `case -1` / `case +1`
+            const auto& u = static_cast<const Unary&>(e);
+            return (u.op == "-" || u.op == "+") && is_int_switch_label(*u.operand);
+        }
+        return false;
+    }
+    // Whether a (non-constexpr) match can lower to a real C++ switch: ≥1 concrete case and
+    // every non-wildcard pattern is an integer-literal label the compiler will accept.
+    static bool match_is_switchable(const Match& m) {
+        bool any = false;
+        for (const MatchCase& c : m.cases) {
+            if (c.wildcard) continue;
+            if (!is_int_switch_label(*c.pattern)) return false;
+            any = true;
+        }
+        return any;
+    }
+    // A block whose last statement unconditionally leaves the enclosing block (so a trailing
+    // `break;` in a switch case would be unreachable). Lets us omit that break and dodge
+    // -Wunreachable-code on `case k { return … }`.
+    static bool block_falls_through(const Block& body) {
+        if (body.empty()) return true;
+        switch (body.back()->kind) {
+            case StmtKind::Return:
+            case StmtKind::Break:
+            case StmtKind::Continue:
+            case StmtKind::Raise:
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    // Lower a `match`. Three shapes, picked so the C++ backend always compiles:
+    //   • `constexpr match` -> a `constexpr` copy of the subject + an `if constexpr` chain,
+    //     so the dead arms are discarded at COMPILE time (C++ has no `switch constexpr`).
+    //   • plain match with integer-literal cases -> a real C++ `switch` (each arm braced +
+    //     `break`; no fallthrough, matching match's one-arm semantics; `_` -> `default:`).
+    //   • plain match on anything else (strings, floats, runtime values) -> evaluate the
+    //     subject once, then an `if / else-if` chain comparing with `==`; `_` is the else.
     void gen_match(std::ostringstream& os, const Match& m, const std::string& indent) {
         const std::string var = "__match_" + std::to_string(match_id_++);
-        os << indent << "{\n";
         const std::string in = indent + "    ";
+        os << indent << "{\n";
+
+        // Explicit `constexpr match`, OR auto: a constant subject whose every case label is
+        // also constant -> a compile-time `if constexpr` chain over a `constexpr` copy.
+        const bool cx = m.is_constexpr || (expr_is_const(*m.subject) && match_patterns_all_const(m));
+        if (cx) {
+            os << in << "constexpr auto " << var << " = " << gen_expr(*m.subject) << ";\n";
+            const MatchCase* wildcard = nullptr;
+            bool first = true;
+            for (const MatchCase& c : m.cases) {
+                if (c.wildcard) { wildcard = &c; continue; }
+                os << in << (first ? "if constexpr (" : "else if constexpr (") << var << " == "
+                   << gen_expr(*c.pattern) << ") {\n";
+                gen_block(os, c.body, in + "    ");
+                os << in << "}\n";
+                first = false;
+            }
+            if (wildcard != nullptr) {
+                os << in << (first ? "{\n" : "else {\n");
+                gen_block(os, wildcard->body, in + "    ");
+                os << in << "}\n";
+            }
+            os << indent << "}\n";
+            return;
+        }
+
+        if (match_is_switchable(m)) {
+            os << in << "auto " << var << " = " << gen_expr(*m.subject) << ";\n";
+            os << in << "switch (" << var << ") {\n";
+            const std::string cin = in + "    ";
+            const MatchCase* wildcard = nullptr;
+            for (const MatchCase& c : m.cases) {
+                if (c.wildcard) { wildcard = &c; continue; }
+                os << cin << "case " << gen_expr(*c.pattern) << ": {\n";
+                gen_block(os, c.body, cin + "    ");
+                if (block_falls_through(c.body)) os << cin << "    break;\n";
+                os << cin << "}\n";
+            }
+            if (wildcard != nullptr) {
+                os << cin << "default: {\n";
+                gen_block(os, wildcard->body, cin + "    ");
+                if (block_falls_through(wildcard->body)) os << cin << "    break;\n";
+                os << cin << "}\n";
+            }
+            os << in << "}\n";
+            os << indent << "}\n";
+            return;
+        }
+
         os << in << "auto " << var << " = " << gen_expr(*m.subject) << ";\n";
         const MatchCase* wildcard = nullptr;
         bool first = true;
@@ -1090,10 +1568,14 @@ private:
             }
             case ExprKind::Index: {
                 // Value position: negative-aware, and string indexing yields a
-                // length-1 string. Assignment targets use gen_lvalue (raw [] ).
+                // length-1 string. Assignment targets use gen_lvalue. A multi-index
+                // subscript (x[i, j, ...]) passes every index to builtins::index —
+                // the ndarray module provides those overloads.
                 const auto& ix = static_cast<const Index&>(e);
-                return builtins_ns_ + "index(" + gen_expr(*ix.object) + ", " +
-                       gen_expr(*ix.index) + ")";
+                std::string out = builtins_ns_ + "index(" + gen_expr(*ix.object) + ", " +
+                                  gen_expr(*ix.index);
+                for (const ExprPtr& more : ix.extra) out += ", " + gen_expr(*more);
+                return out + ")";
             }
             case ExprKind::Slice: {
                 const auto& sl = static_cast<const Slice&>(e);
@@ -1117,6 +1599,11 @@ private:
                 // operands don't silently truncate the way raw C++ `/` would.
                 if (b.op == "/") return builtins_ns_ + "truediv(" + L + ", " + R + ")";
                 if (b.op == "//") return builtins_ns_ + "floordiv(" + L + ", " + R + ")";
+                // `%` is Python FLOOR-mod (result takes the divisor's sign); `in` is the
+                // membership test (string substring, list element, dict key) — both lower
+                // to builtins helpers so the semantics match Python, not raw C++.
+                if (b.op == "%") return builtins_ns_ + "mod(" + L + ", " + R + ")";
+                if (b.op == "in") return builtins_ns_ + "contains(" + R + ", " + L + ")";
                 // String concatenation with a non-string operand: stringify the other side
                 // so `"n=" + a` works and emits the SAME minimal C++ as the explicit
                 // `"n=" + str(a)` — only inserting str() where it is actually needed. When
@@ -1189,6 +1676,13 @@ private:
             }
             case ExprKind::Call: {
                 const auto& c = static_cast<const Call&>(e);
+                bool has_kwargs = false;
+                for (const std::string& n : c.arg_names) {
+                    if (!n.empty()) has_kwargs = true;
+                }
+                if (has_kwargs) {
+                    return gen_kwargs_call(c, indent);  // reorder against the known signature
+                }
                 if (c.callee->kind == ExprKind::Ident) {
                     const auto& id = static_cast<const Ident&>(*c.callee);
                     if (struct_names_.count(id.name)) {
@@ -1226,6 +1720,18 @@ private:
                     }
                 }
                 const std::string callee = gen_expr(*c.callee);
+                // Explicit template args (`Store<float, 1024>(…)`): map each cheatah type (or
+                // non-type literal) to its C++ spelling and splice `<...>` between the callee and
+                // its argument list.
+                std::string targs;
+                if (!c.type_args.empty()) {
+                    targs = "<";
+                    for (std::size_t i = 0; i < c.type_args.size(); ++i) {
+                        targs += (i != 0 ? ", " : "");
+                        targs += map_type_arg(c.type_args[i]);
+                    }
+                    targs += ">";
+                }
                 // `io.print` streams every argument and `io.format` takes its format as
                 // a std::string_view — both accept a string literal as a bare const char*
                 // with no intermediate std::string. Detect them by resolved module path
@@ -1235,7 +1741,7 @@ private:
                     bare = (*p == std::vector<std::string>{"io", "print"} ||
                             *p == std::vector<std::string>{"io", "format"});
                 }
-                return callee + "(" + gen_args(c.args, bare, indent) + ")";
+                return callee + targs + "(" + gen_args(c.args, bare, indent) + ")";
             }
         }
         diags_.push_back("codegen: unsupported expression node");
@@ -1252,6 +1758,35 @@ private:
             // a bare `const char*` — no throwaway std::string built just to print it.
             if (bare_string_literals && args[i]->kind == ExprKind::StringLit) {
                 out += cpp_string_literal(static_cast<const StringLit&>(*args[i]).value);
+            } else if (args[i]->kind == ExprKind::Ident &&
+                       fn_defs_.count(static_cast<const Ident&>(*args[i]).name)) {
+                // A bare user-function NAME passed as a VALUE (a callback). cheatah `fn`s
+                // emit as abbreviated-template overload sets with no single address, so a
+                // bare name cannot bind to a `std::function<...>` parameter (C++ reports an
+                // "overloaded function type"). Wrap it in a capture-less generic forwarding
+                // lambda — a single callable object that `std::function` instantiates for
+                // whatever concrete signature the receiving side declares. This makes rich
+                // types (int/float/bool/str/ndarray/struct/list/dict, passed AND returned)
+                // flow through automatically, and the empty capture makes it safe to store
+                // and invoke from another thread (e.g. a brain's decision thread).
+                const std::string& fname = static_cast<const Ident&>(*args[i]).name;
+                const FnDef& fd = *fn_defs_.at(fname);
+                if (fn_fully_typed(fd)) {
+                    // A FULLY-TYPED fn -> a capture-less lambda with its DECLARED concrete
+                    // signature, made a function POINTER via unary `+` so the signature is
+                    // readable for CTAD (e.g. a brain deducing its trigger type from a
+                    // callback) while still binding to any matching std::function.
+                    std::string params, fwd;
+                    for (std::size_t k = 0; k < fd.params.size(); ++k) {
+                        params += (k != 0 ? ", " : "");
+                        params += lambda_param_cpp(fd.param_types[k]) + " " + fd.params[k];
+                        fwd += (k != 0 ? ", " : "") + fd.params[k];
+                    }
+                    out += "+[](" + params + ") -> " + return_type_cpp(fd.return_type) +
+                           " { return " + fname + "(" + fwd + "); }";
+                } else {
+                    out += "[](auto&&... _a){ return " + fname + "(_a...); }";
+                }
             } else {
                 out += gen_expr(*args[i], indent);
             }
@@ -1266,6 +1801,12 @@ private:
     // `let x` declarations with NO initializer, not yet realized: emitted (as `auto x = …`)
     // at the first assignment to x; an entry that is never realized was never given a value.
     std::set<std::string> deferred_lets_;
+    // Names bound by `constexpr let` in the body being emitted — i.e. compile-time constants.
+    // `if`/`match` whose condition/subject is built only from these (plus literals and the
+    // safe constant operators) auto-lower to their `if constexpr` form. Scoped per body
+    // (cleared wherever deferred_lets_ is), so a constant in one function never leaks names
+    // into another where the same identifier is a runtime value.
+    std::set<std::string> const_vars_;
     // Imported-module roots that are safe to alias (root ∉ defined_names_).
     std::set<std::string> aliased_roots_;
     // The namespace prefix for built-in calls: the short alias `builtins::` normally,
@@ -1309,6 +1850,12 @@ private:
             case StmtKind::While:
                 collect_defined(static_cast<const While&>(s).body);
                 break;
+            case StmtKind::With: {
+                const auto& w = static_cast<const With&>(s);
+                if (!w.bind.empty()) defined_names_.insert(w.bind);
+                collect_defined(w.body);
+                break;
+            }
             case StmtKind::Match:
                 for (const auto& c : static_cast<const Match&>(s).cases) collect_defined(c.body);
                 break;
@@ -1337,6 +1884,7 @@ private:
     }
 
     std::map<std::string, std::vector<std::string>> aliases_;
+    std::map<std::string, const FnDef*> fn_defs_;  // program functions, for kwargs/defaults
     std::set<std::string> roots_;
     std::set<std::string> struct_names_;
     std::map<std::string, std::vector<Field>> struct_fields_;  // struct name -> its fields
@@ -1344,10 +1892,12 @@ private:
     std::set<std::string> enum_names_;
     std::vector<std::string> diags_;
     int match_id_ = 0;     // unique suffix for the temp in each lowered `match`
+    int with_id_ = 0;      // unique suffix for the hidden local of an `as`-less `with`
     bool in_method_ = false;  // inside a struct method body, so `self` -> `(*this)`
     std::string source_file_;        // .purr path for #line directives ("" = none)
     bool line_directives_ = false;   // emit #line (set when source_file_ is non-empty)
     bool remove_unused_ = true;      // drop `let`s whose variable is never read (opt-out flag)
+    bool emit_docs_ = false;         // re-emit .purr doc comments as Javadoc (library mode)
 };
 
 } // namespace

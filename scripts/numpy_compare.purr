@@ -91,13 +91,13 @@ fn python_prog(npop, n, lit, iters) {
 }
 
 # ---- top-level program ----
-let ops: list[Op] = []
+let ops: list<Op> = []
 ops.append(Op("matmul", "linalg.matmul(M, M)", "[0, 0]", "float((M @ M)[0, 0])"))
 ops.append(Op("det", "linalg.det(M)", "", "float(np.linalg.det(M))"))
 ops.append(Op("inv", "linalg.inv(M)", "[0, 0]", "float(np.linalg.inv(M)[0, 0])"))
 ops.append(Op("eigvalsh", "linalg.eigvalsh(M)", "[0]", "float(np.linalg.eigvalsh(M)[-1])"))
 
-let sizes: list[int] = []
+let sizes: list<int> = []
 sizes.append(8)
 sizes.append(16)
 sizes.append(32)

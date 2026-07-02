@@ -2,6 +2,7 @@
 
 #include <string>
 #include <thread>
+#include <utility>
 
 #include <gtest/gtest.h>
 
@@ -113,4 +114,136 @@ TEST(CheatahSocket, BadFd) {
     EXPECT_LT(sk::local_port(-1), 0);
     EXPECT_LT(sk::connect(-1, "127.0.0.1", 80), 0);
     EXPECT_LT(sk::close(-1), 0);
+}
+
+// set_timeout (recv/send deadline) + shutdown (graceful SHUT_RDWR) on a live connection.
+// A loopback pair so both run on a real connected socket; shutdown wakes the peer's recv.
+TEST(CheatahSocket, TimeoutThenShutdown) {
+    const long long lfd = sk::tcp_listen("127.0.0.1", 0, 1);
+    ASSERT_GE(lfd, 0) << sk::last_error();
+    const long long port = sk::local_port(lfd);
+    ASSERT_GT(port, 0);
+    std::thread client([&] {
+        const long long c = sk::tcp_connect("127.0.0.1", port);
+        if (c >= 0) { sk::recv(c, 1); sk::close(c); }
+    });
+    const long long conn = sk::accept(lfd);
+    ASSERT_GE(conn, 0) << sk::last_error();
+    EXPECT_EQ(sk::set_timeout(conn, 500), 0);   // positive timeout -> SO_RCVTIMEO/SO_SNDTIMEO
+    EXPECT_EQ(sk::shutdown(conn), 0);           // graceful SHUT_RDWR
+    sk::close(conn);
+    client.join();
+    sk::close(lfd);
+}
+
+// ---- owning RAII guards (Conn / Listener): the leak-proof, `with`-friendly API ----
+
+// A default-constructed Conn owns nothing: closed, fd == -1, and close() reports -1.
+TEST(CheatahSocket, ConnDefaultIsClosed) {
+    sk::Conn c;
+    EXPECT_FALSE(c.is_open());
+    EXPECT_EQ(c.fd(), -1);
+    EXPECT_EQ(c.close(), -1);  // nothing to close
+    // A failed open() also yields a closed Conn (no fd leaked on the error path).
+    sk::Listener probe = sk::serve("127.0.0.1", 0, 1);
+    const long long dead = probe.local_port();
+    probe.close();
+    sk::Conn bad = sk::open("127.0.0.1", dead);
+    EXPECT_FALSE(bad.is_open());
+}
+
+// Likewise for a default-constructed Listener.
+TEST(CheatahSocket, ListenerDefaultIsClosed) {
+    sk::Listener l;
+    EXPECT_FALSE(l.is_open());
+    EXPECT_EQ(l.fd(), -1);
+    EXPECT_EQ(l.close(), -1);
+}
+
+// Explicit close() releases the fd and is idempotent; the destructor then does nothing.
+TEST(CheatahSocket, ConnGuardClosesOnScopeExit) {
+    sk::Listener server = sk::serve("127.0.0.1", 0, 1);
+    ASSERT_TRUE(server.is_open()) << sk::last_error();
+    sk::Conn c = sk::open("127.0.0.1", server.local_port());
+    ASSERT_TRUE(c.is_open()) << sk::last_error();
+    EXPECT_GE(c.fd(), 0);
+    EXPECT_EQ(c.close(), 0);   // explicit close
+    EXPECT_FALSE(c.is_open());
+    EXPECT_EQ(c.close(), -1);  // idempotent
+    // `server` is closed by its destructor here — Valgrind confirms no fd leak.
+}
+
+// Move transfers fd ownership; the moved-from guard is left closed (never double-closed).
+TEST(CheatahSocket, ConnMoveTransfersOwnership) {
+    sk::Listener server = sk::serve("127.0.0.1", 0, 2);
+    ASSERT_TRUE(server.is_open());
+    sk::Conn a = sk::open("127.0.0.1", server.local_port());
+    ASSERT_TRUE(a.is_open());
+    const long long fd = a.fd();
+    sk::Conn b(std::move(a));   // move-construct
+    EXPECT_FALSE(a.is_open());
+    EXPECT_EQ(b.fd(), fd);
+    // Move-assign onto an already-open guard closes the overwritten fd first.
+    sk::Conn d = sk::open("127.0.0.1", server.local_port());
+    ASSERT_TRUE(d.is_open());
+    d = std::move(b);
+    EXPECT_FALSE(b.is_open());
+    EXPECT_EQ(d.fd(), fd);
+    EXPECT_EQ(d.close(), 0);
+}
+
+// Full loopback through the guards: serve()/open()/accept() + Conn send/sendall/recv/
+// set_timeout/local_port/shutdown/close — the whole owning API on a live connection.
+TEST(CheatahSocket, ConnLoopback) {
+    sk::Listener server = sk::serve("127.0.0.1", 0, 4);
+    ASSERT_TRUE(server.is_open()) << sk::last_error();
+    EXPECT_GE(server.fd(), 0);
+    const long long port = server.local_port();
+    ASSERT_GT(port, 0);
+
+    std::string client_reply;
+    std::thread client([&] {
+        sk::Conn c = sk::open("127.0.0.1", port);
+        ASSERT_TRUE(c.is_open());
+        EXPECT_EQ(c.set_timeout(1000), 0);
+        EXPECT_GT(c.local_port(), 0);
+        EXPECT_GT(c.send("pi"), 0);      // single send()
+        EXPECT_EQ(c.sendall("ng"), 0);   // looped sendall()
+        client_reply = c.recv(64);
+        // c is closed by its destructor at thread-scope exit.
+    });
+
+    sk::Conn conn = server.accept();
+    ASSERT_TRUE(conn.is_open()) << sk::last_error();
+    std::string got;
+    while (got.size() < 4) {
+        const std::string chunk = conn.recv(64);
+        if (chunk.empty()) break;
+        got += chunk;
+    }
+    EXPECT_EQ(got, "ping");
+    EXPECT_EQ(conn.sendall("pong"), 0);
+    EXPECT_EQ(conn.shutdown(), 0);       // graceful half-close
+    EXPECT_EQ(conn.close(), 0);
+
+    client.join();
+    EXPECT_EQ(client_reply, "pong");
+    // `server` is closed by its destructor.
+}
+
+// Listener move semantics + idempotent close.
+TEST(CheatahSocket, ListenerLoopback) {
+    sk::Listener a = sk::serve("127.0.0.1", 0, 1);
+    ASSERT_TRUE(a.is_open()) << sk::last_error();
+    const long long port = a.local_port();
+    ASSERT_GT(port, 0);
+    sk::Listener b(std::move(a));  // move-construct
+    EXPECT_FALSE(a.is_open());
+    EXPECT_EQ(b.local_port(), port);
+    sk::Listener c;
+    c = std::move(b);              // move-assign onto a closed listener
+    EXPECT_FALSE(b.is_open());
+    EXPECT_GE(c.fd(), 0);
+    EXPECT_EQ(c.close(), 0);
+    EXPECT_EQ(c.close(), -1);      // idempotent
 }

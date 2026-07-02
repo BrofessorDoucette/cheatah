@@ -3,10 +3,10 @@ import time
 import math
 let N = 256
 let steps = 200
-let px: list[float] = []
-let py: list[float] = []
-let vx: list[float] = []
-let vy: list[float] = []
+let px: list<float> = []
+let py: list<float> = []
+let vx: list<float> = []
+let vy: list<float> = []
 for i in range(0, N) {
     let fi = 1.0 + i
     px.append(math.sin(fi * 1.3))

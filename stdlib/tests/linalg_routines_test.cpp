@@ -43,6 +43,234 @@ TEST(LinalgRoutines, ProductsAndTrace) {
     EXPECT_DOUBLE_EQ(la::trace(mat(2, 2, {1, 2, 3, 4})), 5);  // 1+4
 }
 
+// The user-provided-output overload writes the SAME result into the caller's buffer with NO
+// reallocation: the buffer's data pointer is identical before and after, and the values are correct.
+TEST(LinalgRoutines, MatmulIntoReusesBuffer) {
+    const nd::NDArray a = mat(2, 3, {1, 2, 3, 4, 5, 6});
+    const nd::NDArray b = mat(3, 2, {7, 8, 9, 10, 11, 12});
+    nd::NDArray out = nd::zeros({2, 2});
+    const double* const before = out.buffer()->data() + out.offset();  // capture the buffer identity
+    la::matmul(out, a, b);                                             // [[58,64],[139,154]] into out
+    EXPECT_EQ(out.buffer()->data() + out.offset(), before);           // SAME buffer — no reallocation
+    EXPECT_DOUBLE_EQ(nd::get(out, {0, 0}), 58);
+    EXPECT_DOUBLE_EQ(nd::get(out, {0, 1}), 64);
+    EXPECT_DOUBLE_EQ(nd::get(out, {1, 0}), 139);
+    EXPECT_DOUBLE_EQ(nd::get(out, {1, 1}), 154);
+    // matches the allocating overload exactly
+    const nd::NDArray c = la::matmul(a, b);
+    EXPECT_DOUBLE_EQ(nd::get(out, {1, 1}), nd::get(c, {1, 1}));
+    // a wrong-shaped out, and an out that aliases an input (matmul is not in-place), are rejected.
+    nd::NDArray wrong = nd::zeros({3, 3});
+    EXPECT_THROW(la::matmul(wrong, a, b), std::runtime_error);
+    nd::NDArray sq = mat(2, 2, {1, 2, 3, 4});
+    EXPECT_THROW(la::matmul(sq, sq, sq), std::runtime_error);
+    // a non-2-D operand to the out-form is rejected up front ("expects 2-D matrices").
+    nd::NDArray vec = nd::array({1.0, 2.0, 3.0});  // 1-D
+    nd::NDArray out2 = nd::zeros({2, 2});
+    EXPECT_THROW(la::matmul(out2, vec, b), std::runtime_error);
+}
+
+// The memory-bound products / transposes have GENUINELY zero-allocation out-param overloads: they
+// write their kernel straight into the caller's buffer (data pointer identical before/after), match
+// the allocating overload, and reject a wrong shape or an out that aliases an input.
+TEST(LinalgRoutines, OuterIntoReusesBuffer) {
+    const nd::NDArray a = nd::array({1.0, 2.0, 3.0});
+    const nd::NDArray b = nd::array({4.0, 5.0});
+    nd::NDArray out = nd::zeros({3, 2});
+    const auto* before = out.buffer().get();
+    la::outer(out, a, b);
+    EXPECT_EQ(out.buffer().get(), before);  // SAME buffer — no reallocation
+    const nd::NDArray ref = la::outer(a, b);
+    EXPECT_DOUBLE_EQ(nd::get(out, {0, 0}), 4.0);                       // 1*4
+    EXPECT_DOUBLE_EQ(nd::get(out, {2, 1}), nd::get(ref, {2, 1}));      // 3*5, matches allocating form
+    nd::NDArray wrong = nd::zeros({2, 2});
+    EXPECT_THROW(la::outer(wrong, a, b), std::runtime_error);
+}
+
+TEST(LinalgRoutines, KronIntoReusesBuffer) {
+    const nd::NDArray a = mat(2, 2, {1, 0, 0, 1});
+    const nd::NDArray b = mat(2, 2, {1, 2, 3, 4});
+    nd::NDArray out = nd::zeros({4, 4});
+    const auto* before = out.buffer().get();
+    la::kron(out, a, b);
+    EXPECT_EQ(out.buffer().get(), before);
+    const nd::NDArray ref = la::kron(a, b);
+    EXPECT_DOUBLE_EQ(nd::get(out, {0, 1}), nd::get(ref, {0, 1}));
+    EXPECT_DOUBLE_EQ(nd::get(out, {3, 3}), nd::get(ref, {3, 3}));
+    // A non-2-D operand is rejected up front ("kron expects 2-D matrices").
+    nd::NDArray vec = nd::array({1.0, 2.0});  // 1-D
+    EXPECT_THROW(la::kron(out, vec, b), std::runtime_error);
+    // An out that ALIASES an input is rejected by reject_alias (kron is not computed in place).
+    nd::NDArray alias = mat(2, 2, {1, 0, 0, 1});
+    EXPECT_THROW(la::kron(alias, alias, b), std::runtime_error);
+}
+
+TEST(LinalgRoutines, ConjTransposeIntoReusesBuffer) {
+    const la::CNDArray M = cmat(2, 3, {C(1, 1), C(2, 0), C(3, -1), C(0, 2), C(1, 0), C(4, 4)});
+    la::CNDArray out = cmat(3, 2, std::vector<C>(6));
+    const auto* before = out.buffer().get();
+    la::conj_transpose(out, M);
+    EXPECT_EQ(out.buffer().get(), before);
+    const la::CNDArray ref = la::conj_transpose(M);
+    EXPECT_TRUE(cclose(cget(out, {0, 0}), C(1, -1)));
+    EXPECT_TRUE(cclose(cget(out, {2, 1}), cget(ref, {2, 1})));
+}
+
+TEST(LinalgRoutines, ComplexMatmulIntoReusesBuffer) {
+    const la::CNDArray a = cmat(2, 3, {C(1, 0), C(2, 0), C(3, 0), C(4, 0), C(5, 0), C(6, 0)});
+    const la::CNDArray b = cmat(3, 2, {C(1, 1), C(0, 0), C(0, 1), C(1, 0), C(2, 0), C(0, 1)});
+    la::CNDArray out = cmat(2, 2, std::vector<C>(4));
+    const auto* before = out.buffer().get();
+    la::matmul(out, a, b);
+    EXPECT_EQ(out.buffer().get(), before);
+    const la::CNDArray ref = la::matmul(a, b);
+    EXPECT_TRUE(cclose(cget(out, {0, 0}), cget(ref, {0, 0})));
+    EXPECT_TRUE(cclose(cget(out, {1, 1}), cget(ref, {1, 1})));
+}
+
+// The O(n³) factorizations reuse the caller's OUTPUT buffer (data pointer identical before/after)
+// and match the allocating overload — their internal factorization workspace is allocated regardless.
+TEST(LinalgRoutines, FactorizationOutReusesBuffer) {
+    const nd::NDArray A = mat(2, 2, {4, 3, 6, 3});
+    const nd::NDArray spd = mat(2, 2, {4, 2, 2, 3});
+    const nd::NDArray sym = mat(2, 2, {2, 1, 1, 2});
+    const nd::NDArray gen = mat(2, 2, {2, 0, 0, 5});
+    {  // solve
+        nd::NDArray out = nd::zeros({2});
+        const auto* b = out.buffer().get();
+        la::solve(out, A, nd::array({10.0, 12.0}));
+        EXPECT_EQ(out.buffer().get(), b);
+        EXPECT_TRUE(close(nd::get(out, {0}), 1.0));
+        EXPECT_TRUE(close(nd::get(out, {1}), 2.0));
+    }
+    {  // inv
+        nd::NDArray out = nd::zeros({2, 2});
+        const auto* b = out.buffer().get();
+        la::inv(out, A);
+        EXPECT_EQ(out.buffer().get(), b);
+        const nd::NDArray ref = la::inv(A);
+        EXPECT_TRUE(close(nd::get(out, {0, 0}), nd::get(ref, {0, 0})));
+    }
+    {  // lstsq (2-D column rhs); on a square system it equals solve
+        nd::NDArray out = nd::zeros({2, 1});
+        const auto* b = out.buffer().get();
+        la::lstsq(out, A, mat(2, 1, {10, 12}));
+        EXPECT_EQ(out.buffer().get(), b);
+        EXPECT_TRUE(close(nd::get(out, {0, 0}), 1.0, 1e-6));
+    }
+    {  // cholesky
+        nd::NDArray out = nd::zeros({2, 2});
+        const auto* b = out.buffer().get();
+        la::cholesky(out, spd);
+        EXPECT_EQ(out.buffer().get(), b);
+        const nd::NDArray ref = la::cholesky(spd);
+        EXPECT_TRUE(close(nd::get(out, {0, 0}), nd::get(ref, {0, 0})));
+    }
+    {  // pinv
+        nd::NDArray out = nd::zeros({2, 2});
+        const auto* b = out.buffer().get();
+        la::pinv(out, A);
+        EXPECT_EQ(out.buffer().get(), b);
+        const nd::NDArray ref = la::pinv(A);
+        EXPECT_TRUE(close(nd::get(out, {0, 0}), nd::get(ref, {0, 0}), 1e-6));
+    }
+    {  // matrix_power
+        nd::NDArray out = nd::zeros({2, 2});
+        const auto* b = out.buffer().get();
+        la::matrix_power(out, A, 2);
+        EXPECT_EQ(out.buffer().get(), b);
+        const nd::NDArray ref = la::matrix_power(A, 2);
+        EXPECT_TRUE(close(nd::get(out, {0, 0}), nd::get(ref, {0, 0})));
+    }
+    {  // svdvals
+        nd::NDArray out = nd::zeros({2});
+        const auto* b = out.buffer().get();
+        la::svdvals(out, sym);
+        EXPECT_EQ(out.buffer().get(), b);
+        EXPECT_TRUE(close(nd::get(out, {0}), 3.0, 1e-6));
+    }
+    {  // eigvalsh (symmetric)
+        nd::NDArray out = nd::zeros({2});
+        const auto* b = out.buffer().get();
+        la::eigvalsh(out, sym);
+        EXPECT_EQ(out.buffer().get(), b);
+        EXPECT_TRUE(close(nd::get(out, {0}), 3.0, 1e-6));
+    }
+    {  // eigvals (general, complex out)
+        la::CNDArray out = cvec(std::vector<C>(2));
+        const auto* b = out.buffer().get();
+        la::eigvals(out, gen);
+        EXPECT_EQ(out.buffer().get(), b);
+        EXPECT_TRUE(cclose(cget(out, {0}), 5.0));
+    }
+    {  // eigvalsh (complex Hermitian, real out)
+        const la::CNDArray H = cmat(2, 2, {C(2, 0), C(1, 1), C(1, -1), C(3, 0)});
+        nd::NDArray out = nd::zeros({2});
+        const auto* b = out.buffer().get();
+        la::eigvalsh(out, H);
+        EXPECT_EQ(out.buffer().get(), b);
+        EXPECT_TRUE(close(nd::get(out, {0}), 4.0, 1e-6));
+    }
+}
+
+// The multi-output decompositions reuse EVERY caller-provided output buffer (one per factor).
+TEST(LinalgRoutines, DecompositionOutReusesBuffer) {
+    {  // qr
+        const nd::NDArray A = mat(3, 2, {1, 0, 1, 1, 0, 1});
+        nd::NDArray q = nd::zeros({3, 2}), r = nd::zeros({2, 2});
+        const auto* bq = q.buffer().get();
+        const auto* br = r.buffer().get();
+        la::qr(q, r, A);
+        EXPECT_EQ(q.buffer().get(), bq);
+        EXPECT_EQ(r.buffer().get(), br);
+        const la::QR ref = la::qr(A);
+        EXPECT_TRUE(close(nd::get(q, {0, 0}), nd::get(ref.q, {0, 0}), 1e-6));
+        EXPECT_TRUE(close(nd::get(r, {0, 0}), nd::get(ref.r, {0, 0}), 1e-6));
+    }
+    {  // svd
+        const nd::NDArray A = mat(2, 2, {2, 0, 0, 3});
+        nd::NDArray u = nd::zeros({2, 2}), s = nd::zeros({2}), vh = nd::zeros({2, 2});
+        const auto* bu = u.buffer().get();
+        const auto* bs = s.buffer().get();
+        const auto* bv = vh.buffer().get();
+        la::svd(u, s, vh, A);
+        EXPECT_EQ(u.buffer().get(), bu);
+        EXPECT_EQ(s.buffer().get(), bs);
+        EXPECT_EQ(vh.buffer().get(), bv);
+        EXPECT_TRUE(close(nd::get(s, {0}), 3.0, 1e-6));
+    }
+    {  // eigh (symmetric, real)
+        nd::NDArray vals = nd::zeros({2}), vecs = nd::zeros({2, 2});
+        const auto* bvl = vals.buffer().get();
+        const auto* bvc = vecs.buffer().get();
+        la::eigh(vals, vecs, mat(2, 2, {2, 1, 1, 2}));
+        EXPECT_EQ(vals.buffer().get(), bvl);
+        EXPECT_EQ(vecs.buffer().get(), bvc);
+        EXPECT_TRUE(close(nd::get(vals, {0}), 3.0, 1e-6));
+    }
+    {  // eigh (complex Hermitian: real values, complex vectors)
+        const la::CNDArray H = cmat(2, 2, {C(2, 0), C(1, 1), C(1, -1), C(3, 0)});
+        nd::NDArray vals = nd::zeros({2});
+        la::CNDArray vecs = cmat(2, 2, std::vector<C>(4));
+        const auto* bvl = vals.buffer().get();
+        const auto* bvc = vecs.buffer().get();
+        la::eigh(vals, vecs, H);
+        EXPECT_EQ(vals.buffer().get(), bvl);
+        EXPECT_EQ(vecs.buffer().get(), bvc);
+        EXPECT_TRUE(close(nd::get(vals, {0}), 4.0, 1e-6));
+    }
+    {  // eig (general, complex values + vectors)
+        la::CNDArray vals = cvec(std::vector<C>(2));
+        la::CNDArray vecs = cmat(2, 2, std::vector<C>(4));
+        const auto* bvl = vals.buffer().get();
+        const auto* bvc = vecs.buffer().get();
+        la::eig(vals, vecs, mat(2, 2, {2, 0, 0, 5}));
+        EXPECT_EQ(vals.buffer().get(), bvl);
+        EXPECT_EQ(vecs.buffer().get(), bvc);
+        EXPECT_TRUE(cclose(cget(vals, {0}), 5.0));
+    }
+}
+
 TEST(LinalgRoutines, SolveDetInv) {
     const nd::NDArray A = mat(2, 2, {4, 3, 6, 3});  // det = 12-18 = -6
     EXPECT_TRUE(close(la::det(A), -6.0));

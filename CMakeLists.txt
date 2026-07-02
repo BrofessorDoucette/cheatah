@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.24)
 # library (io/os/string/math/time/datetime/random/statistics/hashlib + the
 # numeric core ndarray/linalg).
 project(cheatah
-    VERSION 1.2.0
+    VERSION 1.3.0
     DESCRIPTION "cheatah — a fast, Python-like programming language (.purr)"
     LANGUAGES CXX)
 
@@ -34,12 +34,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # ---- Options ---------------------------------------------------------------
-# Tests default ON only when cheatah is the top-level project; when a downstream
-# project pulls cheatah in (e.g. via CPM, as `biome`-generated projects do), its
-# own test suite (and the GoogleTest fetch) is off by default so consumption stays
-# lightweight. Override explicitly with -DCHEATAH_BUILD_TESTS=ON if desired.
-option(CHEATAH_BUILD_TESTS      "Build the unit/integration test suites" ${PROJECT_IS_TOP_LEVEL})
-option(CHEATAH_BUILD_BENCHMARKS "Build Google Benchmark micro-benchmarks" OFF)
+# Tests and benchmarks are OFF by default so a plain `cmake -B build` (whether cheatah
+# is top-level or pulled in via CPM) builds the compiler + runtime + stdlib with ZERO
+# third-party dependencies — GoogleTest, Google Benchmark, and Eigen are fetched ONLY
+# when the corresponding option is ON. Developers enable them via the `debug`/`asan`/
+# `release` presets (which pin these ON); CI/coverage passes -DCHEATAH_BUILD_TESTS=ON.
+option(CHEATAH_BUILD_TESTS      "Build the unit/integration test suites (fetches GoogleTest)" OFF)
+option(CHEATAH_BUILD_BENCHMARKS "Build Google Benchmark micro-benchmarks (fetches benchmark+Eigen)" OFF)
 option(CHEATAH_SANITIZE         "Build with AddressSanitizer + UndefinedBehaviorSanitizer" OFF)
 
 # ---- Sanitizers (opt-in; applied to everything built here, incl. gtest) -----
@@ -105,10 +106,14 @@ add_subdirectory(compiler)  # language toolchain (cheatah::compiler) + purrc
 add_subdirectory(stdlib)    # the standard-library modules + the unit tests
 add_subdirectory(runtime)   # the headless host (cheatah)
 
-# Pure-cheatah stdlib modules: authored in .purr and emitted BY purrc (so added AFTER the
-# compiler). `parsers` is transparent (source-in-header), verified on import like a C++ module.
+# `parsers` is C++-authored (templates/variants beyond the .purr subset) — see its README.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahModule.cmake)
 add_subdirectory(stdlib/parsers)
+
+# Pure-cheatah stdlib modules: authored in .purr and emitted BY purrc (so added AFTER the
+# compiler). `requests` — HTTP in pure cheatah — is THE first; transparent (source-in-header),
+# verified on import like a C++ module.
+add_subdirectory(stdlib/requests)
 
 # purrc links the stdlib module archives into every program it compiles, so they
 # must be built whenever purrc is. Wire it here, where purrc (compiler/) and the

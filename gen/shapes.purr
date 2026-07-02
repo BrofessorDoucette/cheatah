@@ -1,0 +1,29 @@
+# Records with behavior. A `struct` lowers to a C++ struct; an `interface` lowers to a C++20
+# concept, and an interface-typed parameter (`s: Shape`) constrains the generated template —
+# checked at compile time, with no inheritance and no runtime dispatch.
+import io
+
+interface Shape {
+    fn area(self)
+}
+
+struct Circle: Shape {
+    r: float
+    fn area(self) { return 3.14159 * self.r * self.r }
+}
+
+struct Rect: Shape {
+    w: float
+    h: float
+    fn area(self) { return self.w * self.h }
+}
+
+# Constrained by the Shape concept: any record with an `area(self) -> float` fits.
+fn report(s: Shape) {
+    io.print("area =", s.area())
+}
+
+let c = Circle({.r = 2.0})
+let r = Rect({.w = 3.0, .h = 4.0})
+report(c)
+report(r)

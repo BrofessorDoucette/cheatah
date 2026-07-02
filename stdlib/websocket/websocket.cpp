@@ -1,0 +1,341 @@
+// websocket.cpp — a fast, from-scratch RFC 6455 WebSocket client over the
+// cheatah tls 1.3 client + socket. See websocket.hpp for the contract and the
+// performance design (reused read buffer, unmasked-recv fast path, word-XOR
+// masking on send, in-place header parsing, large TLS drains).
+
+#include "websocket.hpp"
+#include "websocket_lowlevel.hpp"  // the C++-only raw handle API this module implements (+ Client uses)
+#include "tls_lowlevel.hpp"        // websocket rides tls's low-level (C++-only) session API
+
+#include <cstdint>
+#include <cstring>
+#include <stdexcept>
+
+#include "os.hpp"
+#include "socket.hpp"
+#include "tls.hpp"
+
+namespace cheatah::websocket {
+
+namespace {
+
+// A session is heap-allocated and its address IS the handle — so send/recv do a
+// single pointer cast, never a map lookup or lock, on the hot path (cheatah is
+// single-trust; an invalid handle is a caller bug, like a bad pointer in C).
+struct Session {
+    long long fd = -1;       // the TCP fd (we own it; close it ourselves)
+    long long tls = -1;      // the TLS session riding that fd
+    std::string buf;         // read buffer, REUSED across every frame
+    std::size_t pos = 0;     // parse offset into buf (consumed prefix is buf[0,pos))
+    bool closed = false;
+};
+
+[[nodiscard]] Session* as_session(long long h) {
+    return reinterpret_cast<Session*>(static_cast<std::uintptr_t>(h));
+}
+[[nodiscard]] long long as_handle(Session* s) {
+    return static_cast<long long>(reinterpret_cast<std::uintptr_t>(s));
+}
+
+// Standard base64 (for the Sec-WebSocket-Key). Tiny inputs (16/raw bytes).
+[[nodiscard]] std::string base64(const std::string& in) {
+    static const char* T = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    std::string out;
+    out.reserve((in.size() + 2) / 3 * 4);
+    std::size_t i = 0;
+    for (; i + 3 <= in.size(); i += 3) {
+        const std::uint32_t n = (static_cast<unsigned char>(in[i]) << 16) |
+                                (static_cast<unsigned char>(in[i + 1]) << 8) |
+                                static_cast<unsigned char>(in[i + 2]);
+        out.push_back(T[(n >> 18) & 63]);
+        out.push_back(T[(n >> 12) & 63]);
+        out.push_back(T[(n >> 6) & 63]);
+        out.push_back(T[n & 63]);
+    }
+    if (i < in.size()) {
+        std::uint32_t n = static_cast<unsigned char>(in[i]) << 16;
+        if (i + 1 < in.size()) n |= static_cast<unsigned char>(in[i + 1]) << 8;
+        out.push_back(T[(n >> 18) & 63]);
+        out.push_back(T[(n >> 12) & 63]);
+        out.push_back(i + 1 < in.size() ? T[(n >> 6) & 63] : '=');
+        out.push_back('=');
+    }
+    return out;
+}
+
+void destroy(Session* s) {
+    if (s == nullptr) return;
+    if (s->tls >= 0) tls::close(s->tls);
+    if (s->fd >= 0) socket::close(s->fd);
+    delete s;
+}
+
+// Ensure the buffer holds at least @p need unconsumed bytes (from pos), draining
+// the TLS stream in big chunks. Compacts the consumed prefix only when needed,
+// so steady-state framing does no front-erase per frame.
+void ensure(Session* s, std::size_t need) {
+    while (s->buf.size() - s->pos < need) {
+        if (s->pos > 0 && (s->pos == s->buf.size() || s->pos >= (1u << 16))) {
+            s->buf.erase(0, s->pos);
+            s->pos = 0;
+        }
+        std::string chunk = tls::recv(s->tls, 1 << 16);  // 64 KiB drains
+        if (chunk.empty()) throw std::runtime_error("websocket: connection closed by peer");
+        s->buf.append(chunk);
+    }
+}
+
+// Build one frame header for a client (always-masked) text/control send.
+void put_header(std::string& frame, unsigned char opcode, std::size_t n) {
+    frame.push_back(static_cast<char>(0x80 | opcode));  // FIN | opcode
+    if (n < 126) {
+        frame.push_back(static_cast<char>(0x80 | n));  // MASK | len
+    } else if (n <= 0xFFFF) {
+        frame.push_back(static_cast<char>(0x80 | 126));
+        frame.push_back(static_cast<char>((n >> 8) & 0xFF));
+        frame.push_back(static_cast<char>(n & 0xFF));
+    } else {
+        frame.push_back(static_cast<char>(0x80 | 127));
+        for (int sh = 56; sh >= 0; sh -= 8) frame.push_back(static_cast<char>((n >> sh) & 0xFF));
+    }
+}
+
+// XOR-mask @p n bytes of @p src into @p dst with the 4-byte @p key, eight bytes
+// per step (the key tiled into a 64-bit word) — the fast masking path.
+void mask_into(char* dst, const char* src, std::size_t n, const unsigned char key[4]) {
+    std::uint64_t k64;
+    unsigned char tile[8] = {key[0], key[1], key[2], key[3], key[0], key[1], key[2], key[3]};
+    std::memcpy(&k64, tile, 8);
+    std::size_t i = 0;
+    for (; i + 8 <= n; i += 8) {
+        std::uint64_t w;
+        std::memcpy(&w, src + i, 8);
+        w ^= k64;
+        std::memcpy(dst + i, &w, 8);
+    }
+    for (; i < n; ++i) dst[i] = static_cast<char>(src[i] ^ key[i & 3]);
+}
+
+long long send_frame(Session* s, unsigned char opcode, const std::string& payload) {
+    const std::size_t n = payload.size();
+    std::string frame;
+    frame.reserve(n + 14);
+    put_header(frame, opcode, n);
+    const std::string key = os::urandom(4);
+    const unsigned char k[4] = {static_cast<unsigned char>(key[0]), static_cast<unsigned char>(key[1]),
+                                static_cast<unsigned char>(key[2]), static_cast<unsigned char>(key[3])};
+    frame.append(reinterpret_cast<const char*>(k), 4);
+    const std::size_t off = frame.size();
+    frame.resize(off + n);
+    mask_into(frame.data() + off, payload.data(), n, k);
+    if (tls::send(s->tls, frame) < 0)
+        throw std::runtime_error("websocket: TLS send failed: " + tls::last_error());
+    return static_cast<long long>(n);
+}
+
+}  // namespace
+
+long long connect(const std::string& host, long long port, const std::string& path,
+                  const std::string& server_name) {
+    const long long fd = socket::tcp_connect(host, port);
+    if (fd < 0) throw std::runtime_error("websocket: TCP connect to " + host + " failed");
+    const long long tlss = tls::client_connect(fd, server_name);
+    if (tlss < 0) {
+        socket::close(fd);
+        throw std::runtime_error("websocket: TLS handshake failed: " + tls::last_error());
+    }
+    Session* s = new Session();
+    s->fd = fd;
+    s->tls = tlss;
+
+    const std::string key = base64(os::urandom(16));
+    const std::string req = "GET " + path + " HTTP/1.1\r\n" + "Host: " + server_name + "\r\n" +
+                            "Upgrade: websocket\r\n" + "Connection: Upgrade\r\n" +
+                            "Sec-WebSocket-Key: " + key + "\r\n" + "Sec-WebSocket-Version: 13\r\n\r\n";
+    if (tls::send(tlss, req) < 0) {
+        const std::string err = tls::last_error();
+        destroy(s);
+        throw std::runtime_error("websocket: upgrade request failed: " + err);
+    }
+
+    // Read the response header block (up to and including the blank line). Any
+    // bytes after it are the start of the WebSocket frame stream and stay in buf.
+    std::size_t hdr_end = std::string::npos;
+    for (;;) {
+        const std::string chunk = tls::recv(tlss, 1 << 12);
+        if (chunk.empty()) {
+            destroy(s);
+            throw std::runtime_error("websocket: connection closed during upgrade");
+        }
+        s->buf.append(chunk);
+        hdr_end = s->buf.find("\r\n\r\n");
+        if (hdr_end != std::string::npos) break;
+        if (s->buf.size() > (1u << 16)) {
+            destroy(s);
+            throw std::runtime_error("websocket: upgrade response too large / not a WebSocket server");
+        }
+    }
+    const std::string status = s->buf.substr(0, s->buf.find("\r\n"));
+    if (status.find(" 101") == std::string::npos) {
+        destroy(s);
+        throw std::runtime_error("websocket: server did not switch protocols: " + status);
+    }
+    s->pos = hdr_end + 4;  // frame stream begins after the blank line
+    return as_handle(s);
+}
+
+long long connect_url(const std::string& url) {
+    const std::string scheme = "wss://";
+    if (url.compare(0, scheme.size(), scheme) != 0)
+        throw std::runtime_error("websocket: only wss:// URLs are supported: " + url);
+    const std::size_t host_start = scheme.size();
+    const std::size_t slash = url.find('/', host_start);
+    const std::string authority =
+        url.substr(host_start, slash == std::string::npos ? std::string::npos : slash - host_start);
+    const std::string path = slash == std::string::npos ? "/" : url.substr(slash);
+    const std::size_t colon = authority.find(':');
+    const std::string host = authority.substr(0, colon);
+    const long long port = colon == std::string::npos
+                               ? 443
+                               : static_cast<long long>(std::stol(authority.substr(colon + 1)));
+    return connect(host, port, path, host);
+}
+
+long long send_text(long long session, const std::string& message) {
+    return send_frame(as_session(session), 0x1, message);
+}
+
+std::string recv(long long session) {
+    Session* s = as_session(session);
+    if (s->closed) return std::string();
+    std::string message;       // reassembly buffer for fragmented messages
+    bool fragmenting = false;  // mid multi-frame message
+    for (;;) {
+        ensure(s, 2);
+        const unsigned char b0 = static_cast<unsigned char>(s->buf[s->pos]);
+        const unsigned char b1 = static_cast<unsigned char>(s->buf[s->pos + 1]);
+        const bool fin = (b0 & 0x80) != 0;
+        const int opcode = b0 & 0x0F;
+        const bool masked = (b1 & 0x80) != 0;  // server frames are unmasked
+        std::uint64_t len = b1 & 0x7F;
+        std::size_t header = 2;
+        if (len == 126) {
+            ensure(s, 4);
+            len = (static_cast<std::uint64_t>(static_cast<unsigned char>(s->buf[s->pos + 2])) << 8) |
+                  static_cast<unsigned char>(s->buf[s->pos + 3]);
+            header = 4;
+        } else if (len == 127) {
+            ensure(s, 10);
+            len = 0;
+            for (int i = 0; i < 8; ++i)
+                len = (len << 8) | static_cast<unsigned char>(s->buf[s->pos + 2 + i]);
+            header = 10;
+        }
+        std::size_t mask_off = 0;
+        if (masked) {
+            mask_off = header;
+            header += 4;
+        }
+        ensure(s, header + len);
+        char* payload = s->buf.data() + s->pos + header;
+        if (masked) {  // protocol-irregular for a server, but unmask defensively
+            const unsigned char k[4] = {static_cast<unsigned char>(s->buf[s->pos + mask_off]),
+                                        static_cast<unsigned char>(s->buf[s->pos + mask_off + 1]),
+                                        static_cast<unsigned char>(s->buf[s->pos + mask_off + 2]),
+                                        static_cast<unsigned char>(s->buf[s->pos + mask_off + 3])};
+            mask_into(payload, payload, len, k);
+        }
+
+        switch (opcode) {
+            case 0x9: {  // ping -> pong with the same payload (control, off hot path)
+                send_frame(s, 0xA, std::string(payload, len));
+                s->pos += header + len;
+                continue;
+            }
+            case 0xA:  // pong -> ignore
+                s->pos += header + len;
+                continue;
+            case 0x8: {  // close -> echo close, mark done, signal EOF
+                send_frame(s, 0x8, std::string());
+                s->pos += header + len;
+                s->closed = true;
+                return std::string();
+            }
+            case 0x0:  // continuation
+            case 0x1:  // text
+            case 0x2:  // binary
+            default: {
+                // Single-frame message (the common case): copy the payload out of
+                // the buffer, advance, return — no reassembly buffer touched.
+                if (fin && !fragmenting) {
+                    std::string out(payload, len);
+                    s->pos += header + len;
+                    return out;
+                }
+                // Fragmented message: accumulate; the last fragment (fin) returns.
+                message.append(payload, len);
+                s->pos += header + len;
+                if (fin) return message;
+                fragmenting = true;
+                continue;
+            }
+        }
+    }
+}
+
+long long shutdown(long long session) {
+    // Wake a reader blocked in recv() WITHOUT freeing the session: half-close the
+    // underlying socket so recv returns "". The owner still calls close() after it
+    // has joined the reader. Safe to call from another thread concurrently with the
+    // reader's recv (that is exactly what ::shutdown is for).
+    Session* s = as_session(session);
+    if (s == nullptr || s->tls < 0) return -1;
+    return tls::shutdown(s->tls);
+}
+
+long long close(long long session) {
+    Session* s = as_session(session);
+    if (s == nullptr) return 0;
+    if (!s->closed && s->tls >= 0) {
+        try {
+            send_frame(s, 0x8, std::string());
+        } catch (...) {
+        }
+    }
+    destroy(s);
+    return 0;
+}
+
+// ---- owning RAII client ----
+// Each method forwards to the handle-based free function above; the guard adds deterministic
+// close() (close frame + TLS + socket teardown) on scope exit, so a `with` block cannot leak.
+
+Client& Client::operator=(Client&& other) noexcept {
+    if (this != &other) {
+        if (session_ != 0) cheatah::websocket::close(session_);
+        session_ = other.session_;
+        other.session_ = 0;
+    }
+    return *this;
+}
+Client::~Client() {
+    if (session_ != 0) cheatah::websocket::close(session_);
+}
+long long Client::send_text(const std::string& message) {
+    return cheatah::websocket::send_text(session_, message);
+}
+std::string Client::recv() { return cheatah::websocket::recv(session_); }
+long long Client::shutdown() { return cheatah::websocket::shutdown(session_); }
+long long Client::close() {
+    if (session_ == 0) return -1;
+    const long long rc = cheatah::websocket::close(session_);
+    session_ = 0;
+    return rc;
+}
+Client open(const std::string& host, long long port, const std::string& path,
+            const std::string& server_name) {
+    return Client(connect(host, port, path, server_name));
+}
+Client open_url(const std::string& url) { return Client(connect_url(url)); }
+
+}  // namespace cheatah::websocket

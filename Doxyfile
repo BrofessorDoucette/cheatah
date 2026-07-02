@@ -9,7 +9,7 @@
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "cheatah"
 PROJECT_NUMBER         =
-PROJECT_BRIEF          = "🐱 Programs so fast they purrrrrrrrrrrrr like a kitten. 🐆"
+PROJECT_BRIEF          = "🐱 Programs so fast they purrrrrrrrrrrrr. 🐆"
 PROJECT_LOGO           = docs/theme/cheatah-logo.png
 PROJECT_ICON           = docs/theme/cheatah-logo.png
 OUTPUT_DIRECTORY       = docs
@@ -61,7 +61,7 @@ WARN_NO_PARAMDOC       = NO
 # Tests/scripts and the project-overview stdlib/README.md (a homepage duplicate)
 # are excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/porting.md docs/security.md compiler/PYTHON.md CHANGELOG.md
+INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/optimizations.md docs/porting.md docs/security.md docs/cpp.md docs/runtime.md docs/purrc.md docs/biome.md docs/imports.md compiler/PYTHON.md CHANGELOG.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
@@ -109,7 +109,8 @@ SEARCHENGINE           = NO
 HTML_DYNAMIC_SECTIONS  = YES
 HTML_EXTRA_STYLESHEET  = docs/theme/doxygen-awesome.css \
                          docs/theme/doxygen-awesome-sidebar-only.css \
-                         docs/theme/cheetah.css
+                         docs/theme/cheetah.css \
+                         docs/theme/cheatah-palette.generated.css
 HTML_EXTRA_FILES       = docs/theme/doxygen-awesome-fragment-copy-button.js \
                          docs/theme/doxygen-awesome-paragraph-link.js \
                          docs/theme/doxygen-awesome-interactive-toc.js \

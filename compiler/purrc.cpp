@@ -277,6 +277,36 @@ bool file_exists(const std::string& p) { return std::ifstream(p, std::ios::binar
 // Extra ':'-separated roots to search for cheatah library modules (each holds <m>/<m>.hpp),
 // so external/opaque modules — and tests — resolve without rebuilding purrc. The baked
 // stdlib root is always searched last (first-party modules live there too).
+// Roots supplied for THIS invocation: `--import-root <dir>` (repeatable, e.g. populated by a
+// package manager from a project's dependencies) plus the directory of the file being
+// compiled (so a module sitting next to the source resolves with no configuration — like
+// Python importing a sibling). Searched BEFORE the env path and the baked stdlib root.
+std::vector<std::string> g_import_roots;
+
+// Extra inputs for the FINAL link, supplied by `--link <arg>` (repeatable): a compiled
+// archive (or a `-l` flag) for a dependency whose definitions the build provides rather than
+// the compiler — e.g. an external project's own static library for a module it `import`s by
+// relative path / --import-root. Appended after the program object so its references resolve.
+std::vector<std::string> g_link_inputs;
+
+// Extra C++ compile flags passed straight through to the backend compile (`--cxxflag <flag>`,
+// repeatable; also the env var CHEATAH_CXXFLAGS_EXTRA, whitespace-separated). This is how a build /
+// the biome package manager forwards an extension's REQUIRED compile options — e.g. a GPU extension
+// that needs `-fblocks`, `-DCHEATAH_GPU_BACKEND_METAL`, or an `-I<sdk>/include`. Injected ahead of the
+// generated source so `-include` / `-I` / `-D` take effect, and applied to the program build, the
+// `--emit-library` object build, and `--check`.
+std::vector<std::string> g_cxx_flags;
+
+// Append the whitespace-separated flags in CHEATAH_CXXFLAGS_EXTRA to g_cxx_flags (biome / a CMake
+// build sets this in the environment for a whole build tree).
+void load_env_cxx_flags() {
+    const char* e = std::getenv("CHEATAH_CXXFLAGS_EXTRA");
+    if (!e) return;
+    std::istringstream toks{std::string(e)};
+    std::string t;
+    while (toks >> t) g_cxx_flags.push_back(t);
+}
+
 std::vector<std::string> module_search_paths() {
     std::vector<std::string> roots;
     if (const char* mp = std::getenv("CHEATAH_MODULE_PATH")) {
@@ -354,15 +384,40 @@ std::string verify_artifact(const std::string& path, const std::vector<std::stri
 // a header-only transparent cheatah module or — historically — none).
 struct ResolvedModule {
     std::string include_dir;  // -I<this> so `#include "<m>.hpp"` resolves
-    std::string archive;      // libcheatah_<m>.a to link, or "" if header-only
+    std::string archive;      // libcheatah_<m>.a to link, or "" if header-only / built elsewhere
     bool cheatah_lib = false; // true: a purrc-emitted, signed cheatah module
-    std::string header;       // the verified header path (cheatah modules only)
+    std::string header;       // the resolved header path
+    bool resolved = false;    // false: no header found in any root (caller reports a clear error)
 };
 
-// Classify + locate an imported module. A cheatah library module is recognised by a signed
-// header (`<root>/<m>/<m>.hpp.sha512`) on the module search path; anything else is a
-// hand-written C++ stdlib module resolved from the baked toolchain root, exactly as before.
+// Classify + locate an imported module `m`, searching, in order: the relative/declared roots
+// (the source's own dir + `--import-root`), the env path, then the baked stdlib root. A module
+// is whatever exposes a `<m>.hpp` — either as `<root>/<m>/<m>.hpp` (a package dir) or
+// `<root>/<m>.hpp` (a header sitting right next to the source, Python-sibling style). A signed
+// sidecar (`.hpp.sha512`) marks a verified cheatah library; an unsigned header is a plain
+// local/external module (its compiled definitions, if any, are linked by the build, not here).
+// A co-located `libcheatah_<m>.a` is linked if present, but is NOT required.
 ResolvedModule resolve_module(const std::string& m) {
+    // 1) Caller-declared / relative roots (`--import-root` + the source's own dir). A module
+    //    here may be a signed cheatah library OR a plain header — as a package dir
+    //    (<root>/<m>/<m>.hpp) or a sibling file (<root>/<m>.hpp), Python-style. Its compiled
+    //    definitions, if any, are the build's job; a co-located archive is linked if present
+    //    but not required. This is the path an external project / package manager uses.
+    for (const std::string& root : g_import_roots) {
+        for (const std::string& inc : {root + "/" + m, root}) {
+            const std::string hdr = inc + "/" + m + ".hpp";
+            if (!file_exists(hdr)) continue;
+            ResolvedModule r;
+            r.include_dir = inc;
+            r.header = hdr;
+            r.resolved = true;
+            r.cheatah_lib = file_exists(hdr + ".sha512");
+            const std::string ar = inc + "/libcheatah_" + m + ".a";
+            if (file_exists(ar)) r.archive = ar;
+            return r;
+        }
+    }
+    // 2) Signed cheatah library modules on the env path / baked root (unchanged behavior).
     for (const std::string& root : module_search_paths()) {
         const std::string dir = root + "/" + m;
         const std::string hdr = dir + "/" + m + ".hpp";
@@ -371,15 +426,58 @@ ResolvedModule resolve_module(const std::string& m) {
             r.cheatah_lib = true;
             r.include_dir = dir;
             r.header = hdr;
+            r.resolved = true;
             const std::string ar = dir + "/libcheatah_" + m + ".a";
             if (file_exists(ar)) r.archive = ar;  // opaque module: link its hidden defs
             return r;
         }
     }
+    // 3) Baked toolchain fallback (first-party stdlib modules under the toolchain root; their
+    //    archives live in the lib dir). Unchanged from before.
     ResolvedModule r;
     r.include_dir = std::string(CHEATAH_ROOT) + "/" + m;
     r.archive = std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a";
+    r.header = r.include_dir + "/" + m + ".hpp";
+    r.resolved = file_exists(r.header);
     return r;
+}
+
+// Report any imported module that resolves to no header. A clear compiler error (telling the
+// user exactly how to point the compiler at the module) beats the confusing downstream C++
+// "<m>.hpp: No such file or directory". Returns true iff every module resolved.
+bool all_modules_resolved(const std::vector<std::string>& modules, const std::string& src) {
+    bool ok = true;
+    for (const std::string& m : modules) {
+        if (resolve_module(m).resolved) continue;
+        ok = false;
+        std::cerr << "purrc: " << src << ": cannot resolve `import " << m << "`: no '" << m
+                  << "/" << m << ".hpp' or '" << m << ".hpp' relative to the source, and no "
+                     "module '" << m << "' on the import path. Place it next to the source, "
+                     "pass --import-root <dir>, or declare it as a dependency (cheatah.toml).\n";
+    }
+    return ok;
+}
+
+// External link flags a module's header declares via a `// cheatah-link:` marker (scanned
+// from the first few lines, like `// cheatah-deps:`). A module whose hidden definitions
+// call into a native library it STATICALLY BUNDLES into its own archive still needs the
+// final link to pull in that library's own system dependencies (e.g. a module bundling an
+// HTTP client adds `-lcurl`; one spawning threads adds `-lpthread`). Each whitespace-
+// separated token is appended verbatim to the consumer's link command. Returns the tokens
+// in header order ("" never produced). Empty for the vast majority of modules.
+std::vector<std::string> module_link_flags(const std::string& header_path) {
+    std::vector<std::string> flags;
+    std::ifstream hdr(header_path);
+    std::string line;
+    const std::string tag = "// cheatah-link:";
+    for (int scanned = 0; scanned < 8 && std::getline(hdr, line); ++scanned) {
+        if (line.compare(0, tag.size(), tag) != 0) continue;
+        std::istringstream toks(line.substr(tag.size()));
+        std::string t;
+        while (toks >> t) flags.push_back(t);
+        break;
+    }
+    return flags;
 }
 
 // Emit @p input as a cheatah library module: write the importable header, and (opaque
@@ -387,7 +485,8 @@ ResolvedModule resolve_module(const std::string& m) {
 // SHA-512 checksum sidecar (so a consumer can confirm they have not changed) and, with
 // --sign, an Ed25519 signature. Returns a process exit code.
 int emit_library(const std::string& input, const std::string& source, std::string output,
-                 bool transparent, const std::string& sign_key, bool remove_unused) {
+                 bool transparent, const std::string& sign_key, bool remove_unused, bool split,
+                 const std::string& reexport_ns) {
     if (output.empty()) {
         std::string base = input;
         const std::string ext = ".purr";
@@ -408,7 +507,10 @@ int emit_library(const std::string& input, const std::string& source, std::strin
     }
     LibOptions opts;
     opts.module_name = name;
-    opts.transparent = transparent;
+    // --split needs the header/impl SPLIT codegen (out-of-line defs in impl_source), the same split
+    // opaque mode uses — but we emit it as a sibling .cpp instead of compiling + hiding it. So a split
+    // build is never "transparent" (which would inline everything into the header).
+    opts.transparent = transparent && !split;
     opts.remove_unused = remove_unused;
     const CodegenResult cg = codegen_library(pr.program, opts);
     if (!cg.ok()) {
@@ -416,9 +518,46 @@ int emit_library(const std::string& input, const std::string& source, std::strin
         return 1;
     }
 
-    if (!write_file(output, cg.header_source)) {
+    // Record the module's own imports in the header (`// cheatah-deps: ...`), so a program
+    // importing THIS module transitively resolves and links them (see all_modules below).
+    std::string header_text = cg.header_source;
+    if (!cg.modules.empty()) {
+        std::string marker = "// cheatah-deps:";
+        for (const std::string& dep : cg.modules) marker += " " + dep;
+        marker += "\n";
+        const std::size_t first_nl = header_text.find('\n');
+        header_text.insert(first_nl == std::string::npos ? header_text.size() : first_nl + 1,
+                           marker);
+    }
+    // --reexport: append a host-namespace alias so a consumer can reference <ns>::<m> directly — the
+    // job a hand-written re-export shim used to do. The module itself stays ::cheatah::<m>.
+    if (!reexport_ns.empty()) {
+        header_text += "\n// Re-exported under the host namespace (--reexport " + reexport_ns + "):\n";
+        header_text += "namespace " + reexport_ns + " { namespace " + name + " = ::cheatah::" + name
+                     + "; }\n";
+    }
+    if (!write_file(output, header_text)) {
         std::cerr << "purrc: cannot write '" << output << "'\n";
         return 1;
+    }
+
+    // --split: pure transpilation. Emit the out-of-line definitions as a sibling <m>.cpp (portable
+    // C++ that #includes <m>.hpp) and STOP — no C++ compile, no archive, no signing. The host build
+    // compiles the .cpp with any C++ compiler and its own flags (release, -march=native, ...), so a
+    // .purr module drops into a normal C++ build as a plain <m>.hpp + <m>.cpp pair (no gen/ folder,
+    // no purrc-managed archive). Templates/inline stay in the header; long defs live in the source.
+    if (split) {
+        std::string cpp_path = output;
+        if (cpp_path.size() > 4 && cpp_path.compare(cpp_path.size() - 4, 4, ".hpp") == 0)
+            cpp_path.replace(cpp_path.size() - 4, 4, ".cpp");
+        else
+            cpp_path += ".cpp";
+        if (!write_file(cpp_path, cg.impl_source)) {
+            std::cerr << "purrc: cannot write '" << cpp_path << "'\n";
+            return 1;
+        }
+        std::cerr << "purrc: " << input << " -> " << output << " + " << cpp_path << " (split)\n";
+        return 0;
     }
 
     // Opaque: compile the hidden definitions to an object and archive them. The object
@@ -435,6 +574,7 @@ int emit_library(const std::string& input, const std::string& source, std::strin
         for (const std::string& f : split_flags(CHEATAH_CXXFLAGS))
             if (f != "-shared") cc.push_back(f);
         cc.push_back("-c");
+        for (const std::string& f : g_cxx_flags) cc.push_back(f);      // build/biome passthrough
         cc.push_back(std::string("-I") + CHEATAH_ROOT + "/builtins");  // the cheatah prelude
         cc.push_back(std::string("-I") + dir_name(output));            // <m>.hpp
         for (const std::string& dep : cg.modules)
@@ -487,16 +627,138 @@ std::vector<std::string> all_modules(const std::vector<std::string>& imported) {
     static const std::map<std::string, std::vector<std::string>> kDeps = {
         {"linalg", {"ndarray"}},
         {"ed25519", {"hashlib"}},
+        {"tls", {"x25519", "aead", "hashlib", "ed25519", "socket", "p256"}},
+        {"websocket", {"tls", "socket", "os"}},
+        {"p256", {"hashlib"}},
     };
     std::set<std::string> seen(modules.begin(), modules.end());
     for (std::size_t i = 0; i < modules.size(); ++i) {
         const auto it = kDeps.find(modules[i]);
-        if (it == kDeps.end()) continue;
-        for (const std::string& dep : it->second)
-            if (seen.insert(dep).second) modules.push_back(dep);
+        if (it != kDeps.end()) {
+            for (const std::string& dep : it->second)
+                if (seen.insert(dep).second) modules.push_back(dep);
+        }
+        // A purrc-emitted cheatah library records its own imports in a `// cheatah-deps:`
+        // marker (written by emit_library), so .purr-authored modules — requests is the
+        // first — pull in their dependencies (socket, parsers, ...) without a hardcoded map.
+        const ResolvedModule r = resolve_module(modules[i]);
+        if (r.resolved && !r.header.empty()) {
+            // Any resolved module (signed cheatah lib OR a plain/relative header) may declare
+            // its own imports in a `// cheatah-deps:` marker, so its transitive deps are pulled
+            // in without a hardcoded map. (Dedup via `seen` keeps this overlap with kDeps safe.)
+            std::ifstream hdr(r.header);
+            std::string line;
+            for (int scanned = 0; scanned < 8 && std::getline(hdr, line); ++scanned) {
+                const std::string tag = "// cheatah-deps:";
+                if (line.compare(0, tag.size(), tag) != 0) continue;
+                std::istringstream deps(line.substr(tag.size()));
+                std::string dep;
+                while (deps >> dep)
+                    if (seen.insert(dep).second) modules.push_back(dep);
+                break;
+            }
+        }
     }
     return modules;
 }
+
+// Semantic validation of the `constexpr` surface (`constexpr let` / `constexpr fn` /
+// `constexpr match`). It surfaces FRIENDLY, .purr-located messages in `--check` BEFORE the
+// (often cryptic) C++ backend errors a misuse would otherwise produce. It is scope-aware so
+// the editor never gets a false positive: a `constexpr let` may be shadowed by a later plain
+// `let` of the same name in an inner scope, and only the nearest binding decides.
+class ConstexprChecker {
+public:
+    ConstexprChecker(const std::string& file, std::vector<std::string>& errors)
+        : file_(file), errors_(errors) {}
+
+    // Returns true iff no constexpr misuse was found.
+    bool check(const Program& prog) {
+        scopes_.emplace_back();  // global scope
+        for (const StmtPtr& s : prog.body)
+            if (s) check_stmt(*s);
+        scopes_.pop_back();
+        return errors_.empty();
+    }
+
+private:
+    const std::string& file_;
+    std::vector<std::string>& errors_;
+    std::vector<std::map<std::string, bool>> scopes_;  // name -> bound by `constexpr let`?
+
+    void bind(const std::string& n, bool is_constexpr) { scopes_.back()[n] = is_constexpr; }
+    // 1 = nearest binding is constexpr, 0 = runtime, -1 = unbound (param/global/unknown).
+    int nearest(const std::string& n) const {
+        for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
+            const auto f = it->find(n);
+            if (f != it->end()) return f->second ? 1 : 0;
+        }
+        return -1;
+    }
+    void err(unsigned line, const std::string& msg) {
+        errors_.push_back(file_ + ":" + std::to_string(line) + ": error: " + msg);
+    }
+    void check_scope(const Block& body) {
+        scopes_.emplace_back();
+        for (const StmtPtr& s : body)
+            if (s) check_stmt(*s);
+        scopes_.pop_back();
+    }
+
+    void check_stmt(const Stmt& s) {
+        switch (s.kind) {
+            case StmtKind::Let: {
+                const auto& l = static_cast<const Let&>(s);
+                if (l.is_constexpr && !l.value)
+                    err(s.line, "`constexpr let " + l.name + "` needs an initializer known at "
+                                "compile time — a `constexpr` with no value is meaningless");
+                bind(l.name, l.is_constexpr && l.value != nullptr);
+                break;
+            }
+            case StmtKind::Assign: {
+                const auto& a = static_cast<const Assign&>(s);
+                if (a.target->kind == ExprKind::Ident &&
+                    nearest(static_cast<const Ident&>(*a.target).name) == 1) {
+                    const std::string& n = static_cast<const Ident&>(*a.target).name;
+                    err(s.line, "cannot reassign `" + n + "`: it is `constexpr` (a compile-time "
+                                "constant). Use a plain `let " + n + "` if it must change.");
+                }
+                break;
+            }
+            case StmtKind::If: {
+                const auto& n = static_cast<const If&>(s);
+                check_scope(n.then_body);
+                check_scope(n.else_body);
+                break;
+            }
+            case StmtKind::While: check_scope(static_cast<const While&>(s).body); break;
+            case StmtKind::For:   check_scope(static_cast<const For&>(s).body); break;
+            case StmtKind::With:  check_scope(static_cast<const With&>(s).body); break;
+            case StmtKind::Try: {
+                const auto& t = static_cast<const Try&>(s);
+                check_scope(t.body);
+                check_scope(t.catch_body);
+                break;
+            }
+            case StmtKind::Match: {
+                const auto& m = static_cast<const Match&>(s);
+                for (const MatchCase& c : m.cases) check_scope(c.body);
+                break;
+            }
+            case StmtKind::FnDef: {
+                const auto& f = static_cast<const FnDef&>(s);
+                scopes_.emplace_back();
+                for (const std::string& p : f.params) bind(p, false);  // params are runtime values
+                for (const StmtPtr& st : f.body)
+                    if (st) check_stmt(*st);
+                scopes_.pop_back();
+                break;
+            }
+            default:
+                break;  // other statements carry no constexpr bindings of interest
+        }
+    }
+};
 
 // `--check`: lex/parse/codegen and run the C++ backend in SYNTAX-ONLY mode, with `#line`
 // directives so every diagnostic points at the original .purr (the VS Code extension runs
@@ -511,6 +773,16 @@ int run_check(const std::string& input, const std::string& source, bool remove_u
                       << d.message << "\n";
         return 1;
     }
+    // Friendly, .purr-located checks of the `constexpr` surface BEFORE the C++ backend — a
+    // misuse (e.g. reassigning a `constexpr let`) gets a clear message here instead of a
+    // cryptic "assignment of read-only variable" from the backend.
+    {
+        std::vector<std::string> cx_errors;
+        if (!ConstexprChecker(input, cx_errors).check(pr.program)) {
+            for (const std::string& e : cx_errors) std::cerr << e << "\n";
+            return 1;
+        }
+    }
     const CodegenResult cg = codegen(pr.program, input, remove_unused);  // source_file -> #line
     if (!cg.ok()) {
         for (const std::string& d : cg.diagnostics) std::cerr << "purrc: " << d << "\n";
@@ -521,12 +793,18 @@ int run_check(const std::string& input, const std::string& source, bool remove_u
         std::cerr << "purrc: cannot write '" << gen_path << "'\n";
         return 1;
     }
+    const std::vector<std::string> mods = all_modules(cg.modules);
+    if (!all_modules_resolved(mods, input)) {
+        std::remove(gen_path.c_str());
+        return 1;
+    }
     std::vector<std::string> args = {CHEATAH_CXX};
     for (const std::string& f : split_flags(CHEATAH_CXXFLAGS))
         if (f != "-shared") args.push_back(f);  // type-check only — don't try to link a module
     args.push_back("-fsyntax-only");
-    for (const std::string& m : all_modules(cg.modules))
+    for (const std::string& m : mods)
         args.push_back(std::string("-I") + resolve_module(m).include_dir);
+    for (const std::string& f : g_cxx_flags) args.push_back(f);  // same flags as the real build
     args.push_back(gen_path);
     const int rc = run_process(args);
     std::remove(gen_path.c_str());  // a transient TU; the .purr is the source of truth
@@ -540,9 +818,21 @@ void print_usage(std::ostream& os) {
           "         [--runtime]                write <output>.rt (build C-runtime manifest)\n"
           "         [--sign-runtime <keyfile>] sign <output>.rt (a SEPARATE runtime key)\n"
           "         [--validate-cpp]           validate the generated C++ before compiling\n"
+          "         [--import-root <dir>]      resolve `import`s from <dir> too (repeatable;\n"
+          "                                    a package manager passes one per dependency)\n"
+          "         [--link <archive|-lflag>]  extra input for the final link (repeatable; the\n"
+          "                                    build supplies a dependency's compiled archive)\n"
+          "         [--cxxflag <flag>]         extra C++ COMPILE flag, forwarded verbatim to the\n"
+          "                                    backend (repeatable; e.g. -fblocks, -DFOO, -I<dir>).\n"
+          "                                    Also read from CHEATAH_CXXFLAGS_EXTRA (biome sets it)\n"
           "         [--no-remove-variables]    keep unused locals (skip dead-variable removal)\n"
           "         [--no-optimize-cpp]        disable ALL generated-C++ optimizations\n"
+          "         [--no-crypto-selftest]     trust SIMD crypto from CPUID, skip the runtime\n"
+          "                                    hardware-crypto power-on self-test (on by default)\n"
           "       purrc --emit-library <input.purr> [-o <m>.hpp] [--transparent] [--sign <key>]\n"
+          "         [--split]                  transpile to a portable <m>.hpp + <m>.cpp pair (no\n"
+          "                                    C++ compile); the host build compiles the .cpp itself\n"
+          "         [--reexport <ns>]          also expose the module as <ns>::<m> (namespace alias)\n"
           "                                    emit an importable cheatah library module\n"
           "                                    (signed header; opaque by default — hides the\n"
           "                                    source in libcheatah_<m>.a; --transparent\n"
@@ -558,6 +848,7 @@ void print_usage(std::ostream& os) {
 } // namespace
 
 int main(int argc, char** argv) {
+    load_env_cxx_flags();  // CHEATAH_CXXFLAGS_EXTRA (build/biome-wide passthrough); --cxxflag adds more
     std::string input;
     std::string output;
     std::string sign_key;          // --sign <keyfile>: Ed25519-sign the built module (code key)
@@ -567,9 +858,20 @@ int main(int argc, char** argv) {
     bool want_runtime = false;     // --runtime: emit the <output>.rt build-runtime manifest
     bool emit_lib = false;         // --emit-library: emit an importable cheatah library module
     bool transparent = false;      // --transparent: inline the C++ source into the header (stdlib)
+    bool split = false;            // --split: transpile to a portable <m>.hpp + <m>.cpp pair (decls
+                                   // + templates in the header, out-of-line defs in the source) and
+                                   // STOP — no C++ compile/archive. The host build compiles the .cpp
+                                   // with ANY C++ compiler + its own flags. No purr_main/runtime.
+    std::string reexport_ns;       // --reexport <ns>: also expose the module under <ns>::<m> (a
+                                   // namespace alias appended to the header), so a host project writes
+                                   // <ns>::<m>::… instead of ::cheatah::<m>::… — no hand-written shim.
     bool want_check = false;       // --check: syntax-only, #line-mapped diagnostics (editor)
     bool want_validate_cpp = false;// --validate-cpp: validate the generated C++ before compiling
     bool no_remove_vars = false;   // --no-remove-variables: keep unused locals (opt out of DCE)
+    bool no_crypto_selftest = false;  // --no-crypto-selftest: skip the runtime hardware-crypto
+                                      // power-on self-test (trust CPUID). The self-test is ON by
+                                      // default so a program never runs an unverified SIMD crypto
+                                      // path on the machine it was built for.
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
         if (a == "--version" || a == "-v") {
@@ -594,16 +896,35 @@ int main(int argc, char** argv) {
             emit_lib = true;
         } else if (a == "--transparent") {
             transparent = true;
+        } else if (a == "--split") {
+            split = true;
+        } else if (a == "--reexport" && i + 1 < argc) {
+            reexport_ns = argv[++i];
         } else if (a == "--check") {
             want_check = true;
         } else if (a == "--validate-cpp") {
             want_validate_cpp = true;
+        } else if (a == "--import-root" && i + 1 < argc) {
+            // A directory to resolve `import`s from (repeatable) — e.g. a package manager
+            // points the compiler at each declared dependency. Searched before the env path.
+            g_import_roots.push_back(argv[++i]);
+        } else if (a == "--link" && i + 1 < argc) {
+            // An extra archive (or -l flag) for the final link (repeatable) — the build
+            // provides a dependency's compiled definitions; the compiler just resolves headers.
+            g_link_inputs.push_back(argv[++i]);
+        } else if (a == "--cxxflag" && i + 1 < argc) {
+            // An extra C++ COMPILE flag (repeatable) forwarded verbatim to the backend — e.g.
+            // `-fblocks`, `-DCHEATAH_GPU_BACKEND_METAL`, `-I<sdk>/include`. The build/biome supplies
+            // an extension's required compile options this way (also CHEATAH_CXXFLAGS_EXTRA).
+            g_cxx_flags.push_back(argv[++i]);
         } else if (a == "--no-remove-variables") {
             no_remove_vars = true;
         } else if (a == "--no-optimize-cpp") {
             // Umbrella that disables ALL generated-C++ optimizations. Currently that is just
             // dead-variable removal; future optimization opt-outs are added here too.
             no_remove_vars = true;
+        } else if (a == "--no-crypto-selftest") {
+            no_crypto_selftest = true;
         } else if (input.empty()) {
             input = a;
         }
@@ -626,6 +947,10 @@ int main(int argc, char** argv) {
     buf << in.rdbuf();
     const std::string source = buf.str();
 
+    // Resolve `import`s relative to the file being compiled FIRST (Python-style: a module
+    // next to the source, or in a subfolder, just works). Declared --import-root dirs follow.
+    g_import_roots.insert(g_import_roots.begin(), dir_name(input));
+
     // Syntax-only check (the editor's error provider): no module is produced.
     if (want_check) return run_check(input, source, /*remove_unused=*/!no_remove_vars);
 
@@ -633,7 +958,8 @@ int main(int argc, char** argv) {
     // not a runnable program — it computes its own default output, so dispatch before the
     // program `.so` defaulting below.
     if (emit_lib)
-        return emit_library(input, source, output, transparent, sign_key, !no_remove_vars);
+        return emit_library(input, source, output, transparent, sign_key, !no_remove_vars, split,
+                            reexport_ns);
 
     if (output.empty()) {
         output = default_output(input);
@@ -682,6 +1008,7 @@ int main(int argc, char** argv) {
     // The modules to compile/link: builtins (always available) + the imported ones + their
     // transitive deps, in link order.
     const std::vector<std::string> modules = all_modules(cg.modules);
+    if (!all_modules_resolved(modules, input)) return 1;
 
     // Resolve every module before linking. Hand-written C++ stdlib modules link their baked
     // archive exactly as before; a purrc-emitted cheatah library module (a `.purr` someone
@@ -713,12 +1040,31 @@ int main(int argc, char** argv) {
     // platform-clean: Linux/macOS/Windows differ only in what CMake supplied.
     std::vector<std::string> args = {CHEATAH_CXX};
     for (const std::string& f : split_flags(CHEATAH_CXXFLAGS)) args.push_back(f);
+    // Opt out of the runtime hardware-crypto power-on self-test (on by default). When set, a
+    // capable CPU's SIMD crypto path is trusted from CPUID alone, with no known-answer check.
+    if (no_crypto_selftest) args.push_back("-DCHEATAH_NO_CRYPTO_SELFTEST");
     for (const ResolvedModule& rm : resolved) {
         args.push_back(std::string("-I") + rm.include_dir);
     }
+    // Build/biome-supplied passthrough flags (`--cxxflag` / CHEATAH_CXXFLAGS_EXTRA), before the source.
+    for (const std::string& f : g_cxx_flags) args.push_back(f);
     args.push_back(gen_path);
     for (const ResolvedModule& rm : resolved) {
         if (!rm.archive.empty()) args.push_back(rm.archive);
+    }
+    // Build-supplied link inputs (`--link`): archives/flags for dependencies whose compiled
+    // definitions the BUILD provides (e.g. an external project's library for a module it
+    // imports by relative path / --import-root, with no co-located archive). After the
+    // program object so their members resolve its undefined references.
+    for (const std::string& a : g_link_inputs) args.push_back(a);
+    // External libraries a module's header declares (`// cheatah-link:`) — the system
+    // dependencies of a native library a module statically bundles. Honoured for ANY resolved
+    // module (not just signed cheatah libs), so a relative/--import-root module's native deps
+    // (e.g. monitor's -lvulkan) are linked too. After the archives so they resolve those
+    // archives' undefined references (link order: users before deps).
+    for (const ResolvedModule& rm : resolved) {
+        if (!rm.resolved || rm.header.empty()) continue;
+        for (const std::string& f : module_link_flags(rm.header)) args.push_back(f);
     }
     // After the module archives so their references resolve: the platform's vector libm
     // (glibc libmvec via -lm on Linux, the Accelerate framework on macOS) carries the

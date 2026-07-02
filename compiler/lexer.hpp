@@ -18,8 +18,20 @@ struct Diagnostic {
     SourcePos pos;
 };
 
+// A `#` comment that was the first thing on its line (a trailing comment after code is
+// never a doc comment, so it is not recorded). `text` is everything after the `#`,
+// unmodified; `pos` is the position of the `#` itself. The parser groups adjacent
+// comment lines into doc blocks and attaches them to the declaration directly below
+// (see attach_docs in parser.cpp) — that is how a .purr doc comment reaches the
+// Javadoc block in a generated library header.
+struct CommentLine {
+    std::string text;
+    SourcePos pos;
+};
+
 struct LexResult {
     std::vector<Token> tokens;            // always terminated by an EndOfInput token
+    std::vector<CommentLine> comments;    // line-leading `#` comments, in source order
     std::vector<Diagnostic> diagnostics;  // empty when the input is lexically clean
 
     bool ok() const { return diagnostics.empty(); }

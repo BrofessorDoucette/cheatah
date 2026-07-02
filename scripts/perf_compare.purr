@@ -63,7 +63,7 @@ fn time_runs(runcmd, outpath) {
 # ---- cases (elision-proof: input varies by i, results accumulate) ----------
 # Each Case() is on one line: cheatah supports neither multi-line call args nor
 # multi-line list literals, so we append one per line.
-let cases: list[Case] = []
+let cases: list<Case> = []
 cases.append(Case("loop (logistic map)", "", "", "0.5", "acc = 3.9 * acc * (1.0 - acc)", "acc = 3.9 * acc * (1.0 - acc)", 5000000))
 cases.append(Case("math.sqrt", "import math\n", "import math\n", "0.0", "acc = acc + math.sqrt(1.0 + i)", "acc = acc + math.sqrt(1.0 + i)", 5000000))
 cases.append(Case("math: sqrt+divide", "import math\n", "import math\n", "0.0", "acc = acc + math.sqrt(1.0 + i) / (2.0 + i)", "acc = acc + math.sqrt(1.0 + i) / (2.0 + i)", 5000000))

@@ -10,6 +10,19 @@
 // pointers).
 namespace cheatah {
 
+// A type reference: a primitive/struct name, or a container with type args.
+//   int -> {name:"int"} ; list[float] -> {name:"list", args:[float]} ;
+//   dict[str,int] -> {name:"dict", args:[str,int]} ; array[int,8] -> {…, array_size:"8"}
+// Defined before the expression nodes because Call carries explicit template args as
+// TypeRefs (std::vector<TypeRef> needs the complete type at Call's destructor).
+struct TypeRef {
+    std::string name;
+    std::vector<TypeRef> args;
+    std::string array_size;  // only for array[T, N]
+    bool is_value = false;   // a NON-TYPE template argument (e.g. `1024`) — `name` is the literal,
+                             // emitted verbatim into the C++ template-argument list.
+};
+
 // ---- Expressions ----
 enum class ExprKind {
     StringLit, NumberLit, BoolLit, Ident, Member, Index, Slice, Call, Unary, Binary,
@@ -50,9 +63,10 @@ struct Member : Expr {  // object.name
         : Expr(ExprKind::Member), object(std::move(o)), name(std::move(n)) {}
 };
 
-struct Index : Expr {  // object[index]
+struct Index : Expr {  // object[index]  or multi-index object[i, j, ...] (ndarray)
     ExprPtr object;
     ExprPtr index;
+    std::vector<ExprPtr> extra;  // indices after the first: x[i, j, k] -> {j, k}
     Index(ExprPtr o, ExprPtr i) : Expr(ExprKind::Index), object(std::move(o)), index(std::move(i)) {}
 };
 
@@ -64,9 +78,11 @@ struct Slice : Expr {  // object[start:stop]  (start and/or stop may be null)
         : Expr(ExprKind::Slice), object(std::move(o)), start(std::move(a)), stop(std::move(b)) {}
 };
 
-struct Call : Expr {  // callee(args...)
+struct Call : Expr {  // callee(args...)  or  callee<T, ...>(args...)
     ExprPtr callee;
     std::vector<ExprPtr> args;
+    std::vector<std::string> arg_names;  // parallel to args; "" = positional, else `name = value`
+    std::vector<TypeRef> type_args;      // explicit template args: `Store<float, 1024>(…)`; empty = none
     Call(ExprPtr c, std::vector<ExprPtr> a)
         : Expr(ExprKind::Call), callee(std::move(c)), args(std::move(a)) {}
 };
@@ -109,24 +125,18 @@ struct Binary : Expr {  // lhs op rhs  (op is the C++ operator: "+","==","&&", �
         : Expr(ExprKind::Binary), op(std::move(o)), lhs(std::move(l)), rhs(std::move(r)) {}
 };
 
-// A type reference: a primitive/struct name, or a container with type args.
-//   int -> {name:"int"} ; list[float] -> {name:"list", args:[float]} ;
-//   dict[str,int] -> {name:"dict", args:[str,int]} ; array[int,8] -> {…, array_size:"8"}
-struct TypeRef {
-    std::string name;
-    std::vector<TypeRef> args;
-    std::string array_size;  // only for array[T, N]
-};
-
 struct Field {
     std::string name;
     TypeRef type;
+    unsigned line = 0;   // 1-based source line of the field — for doc-comment attachment.
+    std::string doc;     // the `#` doc block directly above this field (library mode re-emits
+                         // it as the field's Javadoc, like fn/struct/enum docs).
 };
 
 // ---- Statements ----
 enum class StmtKind {
     Import, ExprStmt, Let, Assign, If, While, For, Return, Try, Raise, StructDef, FnDef, RawCpp,
-    Break, Continue, Match, InterfaceDef, EnumDef,
+    Break, Continue, Match, InterfaceDef, EnumDef, With,
 };
 
 struct Stmt {
@@ -134,6 +144,11 @@ struct Stmt {
     unsigned line = 0;  // 1-based source line (0 = unknown). Set by the parser; codegen
                         // emits `#line` from it so the C++ backend's diagnostics — and the
                         // editor's — point at the original .purr line.
+    std::string doc;    // the `#` doc-comment block directly above this declaration ('\n'-
+                        // joined, leading "# " stripped). Attached by the parser for fn/
+                        // struct/enum/interface (incl. methods); the library emitter re-emits
+                        // it as the declaration's Javadoc so generated headers carry the same
+                        // documentation convention as the hand-written stdlib headers.
     explicit Stmt(StmtKind k) : kind(k) {}
     virtual ~Stmt() = default;
 };
@@ -151,24 +166,32 @@ struct ExprStmt : Stmt {
     explicit ExprStmt(ExprPtr e) : Stmt(StmtKind::ExprStmt), expr(std::move(e)) {}
 };
 
-struct Let : Stmt {  // let <name> [: <type>] = <value>
+struct Let : Stmt {  // [constexpr] let <name> [: <type>] = <value>
     std::string name;
-    bool has_type = false;  // an explicit `: <type>` annotation was given
-    TypeRef type;           // valid iff has_type — declares the C++ type (e.g. empty list[int])
+    bool has_type = false;     // an explicit `: <type>` annotation was given
+    TypeRef type;              // valid iff has_type — declares the C++ type (e.g. empty list[int])
     ExprPtr value;
+    bool is_constexpr = false; // `constexpr let x = …` — emitted as C++ `constexpr`, so the
+                               // binding is a compile-time constant and `if`/`match` over it
+                               // auto-lower to their `if constexpr` forms. (cheatah has one
+                               // compile-time keyword: `constexpr`; `consteval` is cpp{}-only.)
     Let() : Stmt(StmtKind::Let) {}
 };
 
-struct Assign : Stmt {  // <target> = <value>  (target is an lvalue: ident/member/index)
+struct Assign : Stmt {  // <target> <op> <value>  (target is an lvalue: ident/member/index)
     ExprPtr target;
     ExprPtr value;
+    std::string op = "=";  // "=", or compound: "+=" "-=" "*=" "/="
     Assign() : Stmt(StmtKind::Assign) {}
 };
 
 struct If : Stmt {
     ExprPtr cond;
     Block then_body;
-    Block else_body;  // empty if no else
+    Block else_body;       // empty if no else
+    bool is_constexpr = false;  // `if constexpr (cond) {…}` — lowered to C++ `if constexpr`,
+                                // a COMPILE-TIME branch (the dead arm is discarded, not just
+                                // unexecuted). Propagated down the elif/else-if chain.
     If() : Stmt(StmtKind::If) {}
 };
 
@@ -188,6 +211,19 @@ struct For : Stmt {  // for <var> in <iterable> { … }
 struct Return : Stmt {
     ExprPtr value;  // may be null (`return`)
     Return() : Stmt(StmtKind::Return) {}
+};
+
+// with <resource> [as <name>] { … } — deterministic scope-bound resource management.
+// Lowers to a plain C++ block `{ auto <name> = <resource>; … }`, so the resource's
+// RAII destructor runs at the end of the block: a guard type (e.g. socket::Conn,
+// io::File) closes its handle exactly when the `with` body exits, on every path
+// including exceptions. `name` is empty when there is no `as` (the resource is still
+// bound to a hidden local so its destructor fires at block end, not immediately).
+struct With : Stmt {
+    ExprPtr resource;
+    std::string bind;   // empty if no `as`
+    Block body;
+    With() : Stmt(StmtKind::With) {}
 };
 
 // try { … } except [name] { … }   — `name` (if present) binds the error message.
@@ -221,6 +257,9 @@ struct MatchCase {
 struct Match : Stmt {
     ExprPtr subject;
     std::vector<MatchCase> cases;
+    bool is_constexpr = false;  // `constexpr match <subject> { … }` — lowered to a COMPILE-TIME
+                                // `if constexpr` / `else if constexpr` chain over a `constexpr`
+                                // copy of the subject (C++ has no `switch constexpr`).
     Match() : Stmt(StmtKind::Match) {}
 };
 
@@ -237,7 +276,14 @@ struct FnDef : Stmt {  // fn <name>(<params>) { … }  (untyped params -> auto)
     std::vector<std::string> params;
     std::vector<std::string> param_types;  // parallel to params; "" = untyped (auto). An
                                            // interface name here constrains that param.
+    std::vector<ExprPtr> param_defaults;   // parallel to params; null = required. Defaults must
+                                           // be TRAILING; they lower to forwarding overloads.
+    std::string return_type;               // optional `-> Type` hint; "" = untyped (auto return).
     Block body;
+    bool is_constexpr = false;             // `constexpr fn …` — emitted as a C++ `constexpr`
+                                           // function, so calls with constant args are
+                                           // themselves compile-time constants (the C++
+                                           // compiler enforces the body is constexpr-valid).
     FnDef() : Stmt(StmtKind::FnDef) {}
 };
 
@@ -279,6 +325,9 @@ struct RawCpp : Stmt {
 
 struct Program {
     std::vector<StmtPtr> body;
+    std::string module_doc;  // the file's leading `#` comment block (above the first
+                             // statement, not attached to a declaration) — becomes the
+                             // generated library header's `@file` Javadoc.
 };
 
 } // namespace cheatah

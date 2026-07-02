@@ -310,3 +310,109 @@ io.print(d["a"])
                                                    "1\n");
     EXPECT_NE(gen.find("std::unordered_map{\n"), std::string::npos) << gen;
 }
+
+// Compile `src` with purrc and capture its DIAGNOSTICS (stdout+stderr) so a test can assert the
+// error message itself, not just that compilation failed. Sets `rc` to purrc's exit code.
+static std::string compile_diagnostics(const std::string& name, const std::string& src, int& rc) {
+    const std::string tmp = PURR_TEST_TMP;
+    const std::string purr = tmp + "/" + name + ".purr";
+    const std::string mod = tmp + "/" + name + ".so";
+    {
+        std::ofstream f(purr);
+        f << src;
+    }
+    return e2e::run_capture(
+        std::string(PURRC_PATH) + " \"" + purr + "\" -o \"" + mod + "\" 2>&1", rc);
+}
+
+// Bug/feature: the TYPE grammar was unified onto angle brackets — struct fields, `let` annotations,
+// and interface method params now spell type arguments with `<...>` (like params/returns), not the
+// old `[...]`. This pins the new spelling compiles AND runs for every type form (scalars, list,
+// nested list, dict, fixed array, ndarray<float>/<int>/bare). Runs the checked-in regression program.
+TEST(PreviouslyBroken, AngleBracketTypeGrammar) {
+    int rc = -1;
+    const std::string out = e2e::run_purr_file(
+        "prevbroken_angle_types", std::string(PREVBROKEN_DIR) + "/angle_bracket_types.purr", rc);
+    EXPECT_EQ(rc, 0) << "angle_bracket_types.purr failed to compile or run\n" << out;
+    EXPECT_NE(out.find("n=5"), std::string::npos) << out;
+    EXPECT_NE(out.find("name=hi"), std::string::npos) << out;
+    EXPECT_NE(out.find("wsize=6"), std::string::npos) << out;       // ndarray<float> [2,3] -> 6
+    EXPECT_NE(out.find("masksize=2"), std::string::npos) << out;    // ndarray<int> [1,0] -> 2
+    EXPECT_NE(out.find("a0=1"), std::string::npos) << out;          // let a : list<int>
+    EXPECT_NE(out.find("dk=7"), std::string::npos) << out;          // let d : dict<str, int>
+}
+
+// The OLD `[...]` type spelling in a STRUCT FIELD must be rejected with a clear, actionable error
+// (tell the user to use angle brackets and show the corrected spelling) — not a confusing cascade.
+TEST(PreviouslyBroken, OldSquareBracketTypeInStructFieldGivesNiceError) {
+    int rc = -1;
+    const std::string out =
+        compile_diagnostics("prevbroken_oldbracket_field", "struct S { xs : list[int] }\n", rc);
+    EXPECT_NE(rc, 0) << "purrc must REJECT the old `list[int]` field spelling";
+    EXPECT_NE(out.find("angle brackets"), std::string::npos)
+        << "error should tell the user to use angle brackets\n"
+        << out;
+    EXPECT_NE(out.find("list<...>"), std::string::npos)
+        << "error should show the corrected spelling\n"
+        << out;
+}
+
+// Same nice error in a `let` annotation.
+TEST(PreviouslyBroken, OldSquareBracketTypeInLetGivesNiceError) {
+    int rc = -1;
+    const std::string out = compile_diagnostics(
+        "prevbroken_oldbracket_let", "import io\nlet xs : list[int] = []\nio.print(1)\n", rc);
+    EXPECT_NE(rc, 0) << "purrc must REJECT the old `list[int]` let annotation";
+    EXPECT_NE(out.find("angle brackets"), std::string::npos) << out;
+    EXPECT_NE(out.find("list<...>"), std::string::npos) << out;
+}
+
+// NESTED old brackets are rejected too (the error-recovery skips the whole `[...]` group, no cascade).
+TEST(PreviouslyBroken, NestedOldSquareBracketTypeGivesNiceError) {
+    int rc = -1;
+    const std::string out = compile_diagnostics("prevbroken_oldbracket_nested",
+                                                "struct S { g : list[list[int]] }\n", rc);
+    EXPECT_NE(rc, 0);
+    EXPECT_NE(out.find("angle brackets"), std::string::npos) << out;
+}
+
+// A malformed angle type (missing `>`) is rejected with the close-bracket diagnostic.
+TEST(PreviouslyBroken, UnterminatedAngleTypeIsRejected) {
+    int rc = -1;
+    const std::string out =
+        compile_diagnostics("prevbroken_unterminated_angle", "struct S { xs : list<int }\n", rc);
+    EXPECT_NE(rc, 0) << "purrc must REJECT an unterminated `list<int` type\n" << out;
+}
+
+// An empty angle type `list<>` is rejected (needs a type or size inside `<...>`).
+TEST(PreviouslyBroken, EmptyAngleTypeIsRejected) {
+    int rc = -1;
+    const std::string out =
+        compile_diagnostics("prevbroken_empty_angle", "struct S { xs : list<> }\n", rc);
+    EXPECT_NE(rc, 0) << "purrc must REJECT an empty `list<>` type\n" << out;
+}
+
+// The optional `const` param modifier: `const x : ndarray<float>` lowers to a `const&` (read-only) —
+// opt-in const-correctness (default params stay mutable refs). This lets a cheatah type satisfy a C++
+// `const Array&` concept (e.g. learning.model.Model's predict). Asserts the const reference is emitted
+// AND that the program still compiles+runs.
+TEST(PreviouslyBroken, ConstParamLowersToConstReference) {
+    const std::string gen = e2e::expect_e2e_source("prevbroken_const_param", R"PURR(import io
+import ndarray
+struct Net {
+    w : ndarray<float>
+    fn count(self, const x : ndarray<float>) -> int {
+        return ndarray.size_of(x)
+    }
+}
+fn main() {
+    let n = Net({.w = ndarray.zeros([2])})
+    io.print(n.count(ndarray.array([1.0, 2.0, 3.0])))
+}
+main()
+)PURR",
+                                                   "3\n");
+    EXPECT_NE(gen.find("const ::cheatah::ndarray::basic_ndarray<double>& x"), std::string::npos)
+        << "a `const ndarray<float>` param should lower to a const reference\n"
+        << gen;
+}

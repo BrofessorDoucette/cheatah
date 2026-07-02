@@ -10,10 +10,11 @@ bool is_keyword(std::string_view word) {
     // General-purpose language keywords. Builtins like print and len are runtime
     // FUNCTIONS provided by the stdlib, not keywords.
     // Sorted for binary_search — keep alphabetical and in sync with README.md.
-    static constexpr std::array<std::string_view, 27> kKeywords{
+    static constexpr std::array<std::string_view, 28> kKeywords{
         "and", "as", "break", "case", "continue", "elif", "else", "enum", "except",
         "false", "fn", "for", "from", "if", "import", "in", "interface", "let",
         "match", "not", "or", "raise", "return", "struct", "true", "try", "while",
+        "with",
     };
     return std::binary_search(kKeywords.begin(), kKeywords.end(), word);
 }
@@ -89,11 +90,19 @@ private:
             return;
         }
         // Comments: `#…` to end of line (Python-style). `//` is the floor-division
-        // operator, not a comment.
+        // operator, not a comment. A comment that is the FIRST thing on its line is
+        // recorded (doc comments live above declarations); a trailing comment after
+        // code is documentation for that line only, so it is skipped as before.
         if (c == '#') {
+            const bool line_leading =
+                result_.tokens.empty() || result_.tokens.back().pos.line != start.line;
+            advance();  // '#'
+            const std::size_t begin = pos_;
             while (!at_end() && peek() != '\n') {
                 advance();
             }
+            if (line_leading)
+                result_.comments.push_back({std::string(src_.substr(begin, pos_ - begin)), start});
             return;
         }
         if (is_digit(c) || (c == '.' && is_digit(peek_next()))) {
@@ -235,6 +244,8 @@ private:
                 switch (esc) {
                     case 'n': value.push_back('\n'); break;
                     case 't': value.push_back('\t'); break;
+                    case 'r': value.push_back('\r'); break;
+                    case '0': value.push_back('\0'); break;
                     case '"': value.push_back('"'); break;
                     case '\\': value.push_back('\\'); break;
                     default:
@@ -285,17 +296,28 @@ private:
                 if (peek() == '=') { advance(); push(TokenKind::GreaterEqual, ">=", start); }
                 else { push(TokenKind::Greater, ">", start); }
                 return;
-            case '+': push(TokenKind::Plus, "+", start); return;
-            case '-': push(TokenKind::Minus, "-", start); return;
+            case '+':
+                if (peek() == '=') { advance(); push(TokenKind::PlusAssign, "+=", start); }
+                else { push(TokenKind::Plus, "+", start); }
+                return;
+            case '-':
+                if (peek() == '>') { advance(); push(TokenKind::Arrow, "->", start); }
+                else if (peek() == '=') { advance(); push(TokenKind::MinusAssign, "-=", start); }
+                else { push(TokenKind::Minus, "-", start); }
+                return;
             case '*':
                 if (peek() == '*') { advance(); push(TokenKind::Power, "**", start); }
+                else if (peek() == '=') { advance(); push(TokenKind::StarAssign, "*=", start); }
                 else { push(TokenKind::Star, "*", start); }
                 return;
             case '/':
                 if (peek() == '/') { advance(); push(TokenKind::FloorDiv, "//", start); }
+                else if (peek() == '=') { advance(); push(TokenKind::SlashAssign, "/=", start); }
                 else { push(TokenKind::Slash, "/", start); }
                 return;
             case '^': push(TokenKind::Caret, "^", start); return;
+            case '%': push(TokenKind::Percent, "%", start); return;
+            case '&': push(TokenKind::Ampersand, "&", start); return;  // unary address-of (C interop)
             default:
                 error(std::string("unexpected character '") + c + "'", start);
                 push(TokenKind::Invalid, std::string(1, c), start);

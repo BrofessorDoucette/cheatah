@@ -45,7 +45,7 @@ fn manifest_path() { return "cheatah.toml" }
 # Each is a separate git repository, fetched by CPM at build time. This is the
 # single source of truth biome consults; `add`/`list` validate names against it.
 fn known_extensions() {
-    let xs: list[str] = []
+    let xs: list<str> = []
     xs.append("cheatah-gpu")
     xs.append("cheatah-plot")
     xs.append("cheatah-space")
@@ -81,13 +81,21 @@ fn list_contains(xs, v) {
 }
 
 # ---- the parsed manifest ---------------------------------------------------
-# A cheatah.toml carries the project name, the cheatah toolchain version, and the
-# chosen extensions. biome parses it into this record, edits the record, and
-# re-serializes — deterministically (comments are not preserved).
+# A local/path dependency: `import <name>...` resolves under <path> (a package dir or a
+# folder of sibling modules). Crate-style — the value is `{ path = "..." }` in cheatah.toml.
+struct Dep {
+    name: str
+    path: str
+}
+
+# A cheatah.toml carries the project name, the cheatah toolchain version, the chosen
+# stdlib extensions, and any path dependencies. biome parses it into this record, edits the
+# record, and re-serializes — deterministically (comments are not preserved).
 struct Manifest {
     name: str
     cheatah: str
-    extensions: list[str]
+    extensions: list<str>
+    dependencies: list<Dep>
 }
 
 fn write_file(path, content) {
@@ -103,10 +111,22 @@ fn unquote(s) {
 
 # Parse cheatah.toml into a Manifest. A missing/empty file yields an empty record;
 # callers that require a project guard with os.path.exists(manifest_path()) first.
+# Pull the path out of a dependency value — either a bare `"../pkg"` or a crate-style inline
+# table `{ path = "../pkg" }`. Returns the first quoted substring (the path).
+fn dep_path(raw) {
+    let q1 = string.find(raw, "\"")
+    if q1 < 0 { return string.strip(raw) }
+    let rest = raw[q1 + 1:]
+    let q2 = string.find(rest, "\"")
+    if q2 < 0 { return rest }
+    return rest[:q2]
+}
+
 fn load_manifest() {
     let name = ""
     let cver = cheatah_version()
-    let exts: list[str] = []
+    let exts: list<str> = []
+    let deps: list<Dep> = []
     let section = ""
     let content = io.read_file(manifest_path())
     let lines = string.split(content, "\n")
@@ -128,9 +148,13 @@ fn load_manifest() {
             cver = val
         } elif section == "extensions" {
             exts.append(key)
+        } elif section == "dependencies" {
+            # `name = { path = "../pkg" }` (or `name = "../pkg"`) -> a path dependency that
+            # purrc resolves imports from (passed through CMake as --import-root).
+            deps.append(Dep(key, dep_path(line[eq + 1:])))
         }
     }
-    return Manifest(name, cver, exts)
+    return Manifest(name, cver, exts, deps)
 }
 
 # The cheatah.toml a fresh `biome init` writes (no extensions yet).
@@ -140,7 +164,9 @@ fn default_manifest(name) {
     s = s + "name = \"" + name + "\"\n\n"
     s = s + "[cheatah]\n"
     s = s + "version = \"" + cheatah_version() + "\"\n\n"
-    s = s + "[extensions]\n"
+    s = s + "[extensions]\n\n"
+    s = s + "# Path dependencies — `import <name>` resolves under <path>.\n"
+    s = s + "[dependencies]\n"
     return s
 }
 
@@ -154,6 +180,10 @@ fn save_manifest(m) {
     s = s + "[extensions]\n"
     for e in m.extensions {
         s = s + e + " = \"" + extension_version() + "\"\n"
+    }
+    s = s + "\n[dependencies]\n"
+    for d in m.dependencies {
+        s = s + d.name + " = { path = \"" + d.path + "\" }\n"
     }
     write_file(manifest_path(), s)
 }
@@ -224,6 +254,13 @@ fn generate_cmake(m) {
             s = s + " " + e
         }
     }
+    if len(m.dependencies) > 0 {
+        # Each path dependency becomes an --import-root so purrc resolves its modules.
+        s = s + " IMPORT_ROOTS"
+        for d in m.dependencies {
+            s = s + " " + d.path
+        }
+    }
     s = s + ")\n"
     return s
 }
@@ -246,8 +283,9 @@ fn cmd_init(name) {
     os.makedirs(os.path.join(name, "src"))
     os.makedirs(os.path.join(name, "cmake"))
 
-    let exts: list[str] = []
-    let m = Manifest(name, cheatah_version(), exts)
+    let exts: list<str> = []
+    let deps: list<Dep> = []
+    let m = Manifest(name, cheatah_version(), exts, deps)
 
     write_file(os.path.join(name, "cheatah.toml"), default_manifest(name))
     write_file(os.path.join(name, os.path.join("src", "main.purr")), template_main(name))
@@ -289,13 +327,13 @@ fn cmd_remove(name) {
         io.print("biome: not in this project:", name)
         return 0
     }
-    let kept: list[str] = []
+    let kept: list<str> = []
     for e in m.extensions {
         if e != name {
             kept.append(e)
         }
     }
-    let updated = Manifest(m.name, m.cheatah, kept)
+    let updated = Manifest(m.name, m.cheatah, kept, m.dependencies)
     save_manifest(updated)
     write_file("CMakeLists.txt", generate_cmake(updated))
     io.print("biome: removed", name)
@@ -303,7 +341,7 @@ fn cmd_remove(name) {
 }
 
 fn cmd_list() {
-    let installed: list[str] = []
+    let installed: list<str> = []
     if os.path.exists(manifest_path()) {
         let m = load_manifest()
         installed = m.extensions

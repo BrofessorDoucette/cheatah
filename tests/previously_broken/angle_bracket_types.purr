@@ -1,0 +1,40 @@
+# Regression (previously broken): the TYPE grammar was UNIFIED onto angle brackets. Struct fields,
+# `let` annotations, and interface method params now spell type arguments with `<...>` — the same
+# spelling already used by function params/returns and explicit call template args — instead of the
+# old `[...]`. This pins that the angle-bracket spelling parses AND lowers correctly for every type
+# form: scalars, list, nested list, dict, fixed array, and ndarray<float>/<int>/bare. (The matching
+# negative tests pin that the OLD `[...]` spelling is now rejected with a clear, actionable error.)
+import io
+import ndarray
+
+struct Mixed {
+    n : int
+    x : float
+    name : str
+    flag : bool
+    xs : list<int>
+    grid : list<list<int>>
+    counts : dict<str, int>
+    fixed : array<float, 4>
+    w : ndarray<float>
+    mask : ndarray<int>
+    raw : ndarray
+}
+
+fn main() {
+    # `let` annotations use angle brackets too
+    let a : list<int> = [1, 2, 3]
+    let d : dict<str, int> = {"k": 7}
+    # designated init: the simple fields are set; the rest default-initialize
+    let v = Mixed({.n = 5, .x = 2.5, .name = "hi", .flag = true,
+                   .w = ndarray.zeros([2, 3]), .mask = ndarray.array([1, 0]),
+                   .raw = ndarray.zeros([4])})
+    io.print("n=" + str(v.n))
+    io.print("name=" + v.name)
+    io.print("wsize=" + str(ndarray.size_of(v.w)))
+    io.print("masksize=" + str(ndarray.size_of(v.mask)))
+    io.print("a0=" + str(a[0]))
+    io.print("dk=" + str(d["k"]))
+}
+
+main()

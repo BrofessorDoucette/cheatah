@@ -148,6 +148,59 @@ scan, a batch of small eigenproblems, a Monte-Carlo run — give an honest ~8× 
 eight cheatah problems at once, explicitly, with no magic. Predictable single-core speed
 composes; opaque auto-parallelism doesn't.
 
+## Cryptography vs OpenSSL {#vs-openssl}
+
+cheatah's TLS 1.3 stack — SHA-2, HMAC, HKDF, ChaCha20-Poly1305, AES-GCM, X25519, Ed25519,
+P-256 — is written **from scratch, with no dependency on OpenSSL or any other crypto
+library**. The first thing to say about it is *correctness*: every digest, MAC, and AEAD is
+cross-checked **byte-for-byte against OpenSSL** over a corpus that includes all 256 byte
+values (see `stdlib/tests/hashlib_openssl_test.cpp`), on top of the standard NIST/RFC
+known-answer vectors. The tag checks are constant-time. So the question is never whether the
+output is right — it is — only how fast.
+
+On throughput, cheatah reaches for the *same hardware instructions* OpenSSL does — AES-NI,
+PCLMULQDQ, and (next) the SHA extensions and AVX2 — selected at run time via CPUID with a
+portable scalar fallback. The accelerated paths live in a dedicated header
+(`stdlib/aead/aes_gcm_ni.hpp`) so the clear, readable algorithm stays visible in `aead.cpp`;
+both are validated to produce bit-identical output. On a 4 KiB record
+(`tests/benchmarks/crypto_openssl_bench.cpp`, release build):
+
+| Primitive | cheatah | OpenSSL | gap |
+|-----------|--------:|--------:|----:|
+| AES-128-GCM (AES-NI + PCLMULQDQ) | ~2.6 GiB/s | ~3.3 GiB/s | ~1.3× |
+| ChaCha20-Poly1305 | ~0.44 GiB/s | ~1.74 GiB/s | ~4× |
+| SHA-256 | ~330 MiB/s | ~1.77 GiB/s | ~5× |
+| SHA-512 | ~473 MiB/s | ~803 MiB/s | ~1.7× |
+| HMAC-SHA256 | ~318 MiB/s | ~1.22 GiB/s | ~4× |
+
+Hardware acceleration took **AES-128-GCM from ~20 MiB/s to ~2.6 GiB/s — a 134× jump — to within
+~1.3× of OpenSSL**, using the same techniques OpenSSL does: AES-NI for the block cipher, an
+8-wide CTR, GHASH aggregated 8 blocks per reduction with precomputed powers of H, and the
+AES-CTR and GHASH passes *stitched* into one loop so the two pipelines overlap. What's left of
+the gap is OpenSSL's hand-scheduled assembly, which interleaves the AES and carry-less-multiply
+instructions more tightly than a compiler does from intrinsics. The other primitives are still
+on the portable path — **SHA-2 via the SHA extensions and ChaCha20/Poly1305 via AVX2 are the
+next accelerations**, each behind the same runtime dispatch.
+
+AES-128-GCM is hardware-accelerated on **two architectures**, each behind a runtime check and a
+power-on self-test: **x86/x64** (AES-NI + PCLMULQDQ, the numbers above) and **AArch64** (the
+ARMv8 AES + PMULL extension — `vaeseq`/`vaesmcq` + `vmull_p64` — the same 8-wide aggregated,
+stitched algorithm). Any other target runs the portable scalar reference, which is
+platform-independent C++. Throughput is closing primitive by primitive — with **zero
+dependencies, one toolchain, and the readable reference algorithm always one file away**.
+
+**Where the cryptography is verified.** The byte-for-byte cross-checks (NIST/RFC known-answer
+vectors, the hardware-vs-portable equivalence test, and the comparison against OpenSSL) are run
+by the QA gate on **x86-64 Linux**. On **AArch64**, the NEON hardware path *and* the scalar
+reference are validated by cross-compiling the crypto and running it under **QEMU aarch64
+emulation** (which implements the ARM AES/PMULL instructions) over the NIST vector, a
+hardware-vs-portable equivalence sweep across every block-boundary size, and a
+ChaCha20-Poly1305 round-trip (`scripts/validate_aarch64_crypto.sh`, all passing). The
+**power-on self-test** further means *any* machine takes its hardware path only if that path
+reproduces the known-answer vector at startup, else it falls back to the scalar reference. The
+one thing not yet claimed is ARM *throughput*: emulated timings are not representative, so
+AArch64 performance numbers will be added once measured on real hardware (e.g. Apple Silicon).
+
 ## No garbage collector — and so, no GC pauses {#no-gc}
 
 A big part of why those loops stay fast and *predictable*: **cheatah has no garbage
@@ -168,7 +221,7 @@ break reference cycles, and that collector periodically walks the heap and pause
 program. cheatah's design sidesteps it entirely: no cycles to collect (no
 runtime-mutable object graph of that kind), so no collector, so **the cost of a GC pause
 is exactly zero** — which is precisely what you want in a tight numeric loop, a
-real-time control step, or a latency-sensitive trading agent.
+real-time control step, or a latency-sensitive request handler.
 
 ## String building: no accidental O(n²), no surplus temporaries
 
@@ -256,7 +309,7 @@ the loaded code is **compiled native**, so it runs at full speed.
 
 So the runtime is how cheatah serves applications that would otherwise *demand* an
 interpreted language:
-- **Hot reload / live update.** A long-running host — a server, a trading agent, the
+- **Hot reload / live update.** A long-running host — a server, a simulation, the
   plotting engine — can `dlopen` a freshly-compiled module to swap behavior without
   restarting, exactly like re-importing a Python module, but native.
 - **Plug-in architectures.** An application loads user-supplied cheatah modules as

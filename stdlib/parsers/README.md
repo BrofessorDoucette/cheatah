@@ -1,26 +1,17 @@
 # parsers
 
-Safe, allocation-bounded input parsers — the first standard-library module written in **pure
-cheatah** (`.purr`) instead of hand-written C++.
+Fast, safe, from-scratch input parsers — a **C++-authored** stdlib module (like `socket` and
+`hashlib`): the parsers use templates, concepts, and `std::variant`, which are beyond the current
+`.purr` subset. (`requests` is the first stdlib module written in pure cheatah.)
 
-cheatah is templated C++ with concepts plus a transpiler, so this module is still just C++:
-`purrc --emit-library --transparent` transpiles [`parsers.purr`](parsers.purr) into the
-committed, generated header [`parsers.hpp`](parsers.hpp) under `namespace cheatah::parsers`.
+- **`parsers.json`** — a fast, SIMD-accelerated JSON parser:
+  - `import parsers.json.Parser as Parser` — the reusable DOM parser: pooled zero-copy views or a
+    self-contained owning Document; iterative grammar (no stack overflow at any nesting depth);
+    a compile-time `Validate` switch; SIMD whitespace/string scanning.
+  - the typed reader `read<T>()` parses straight into schema'd structs — purrc synthesizes the
+    schema for `.purr` structs, so `json.read(text, q)` works on any struct you define.
+- **`parsers.url`** — `import parsers.url.Parser as Parser` — the `http(s)` URL parser
+  (`scheme://host[:port][/path][?query]`).
 
-- **Transparent.** The generated C++ source is inlined into `parsers.hpp`, so the true code
-  is always visible and the VS Code extension resolves Go-to-Definition straight into it. (An
-  external library author can instead emit an *opaque* module, shipping only the API in the
-  header and hiding the implementation inside a signed `libcheatah_parsers.a`.)
-- **Verified on import.** `parsers.hpp` carries a SHA-512 checksum sidecar
-  (`parsers.hpp.sha512`); `import parsers` makes purrc verify it is unchanged before compiling
-  a consumer against it — the same integrity guarantee module signing gives binary modules.
-  Set `CHEATAH_TRUST` to additionally require a valid Ed25519 signature.
-
-```
-import parsers
-```
-
-The module is intentionally **empty** for now — only the mechanism is in place. Parsers will be
-added as typed, bounds-checked functions (no unbounded allocation, no undefined behaviour on
-malformed input). `parsers.hpp` is regenerated from `parsers.purr` at build time; the QA gate
-fails if the committed header drifts from the source.
+The module runs clean under ASan + UBSan and Valgrind against adversarial corpora (every prefix
+truncation, byte corruptions, escape/number edge cases, 100k-deep nesting).

@@ -1,5 +1,7 @@
 #include "parser.hpp"
 
+#include <map>
+
 namespace cheatah {
 
 namespace {
@@ -21,8 +23,20 @@ private:
     const Token& prev() const { return toks_[pos_ - 1]; }
     bool at_end() const { return peek().kind == TokenKind::EndOfInput; }
     bool check(TokenKind k) const { return peek().kind == k; }
+    bool check_next(TokenKind k) const {
+        return pos_ + 1 < toks_.size() && toks_[pos_ + 1].kind == k;
+    }
+    bool check_next_kw(std::string_view kw) const {
+        return pos_ + 1 < toks_.size() && toks_[pos_ + 1].kind == TokenKind::Keyword &&
+               toks_[pos_ + 1].text == kw;
+    }
     bool check_kw(std::string_view kw) const {
         return peek().kind == TokenKind::Keyword && peek().text == kw;
+    }
+    // A bare identifier matching `name` — used for contextual modifiers that are NOT
+    // reserved keywords (e.g. `constexpr` after `if`), so the word stays usable elsewhere.
+    bool check_ident(std::string_view name) const {
+        return peek().kind == TokenKind::Identifier && peek().text == name;
     }
     const Token& advance() {
         if (!at_end()) ++pos_;
@@ -104,12 +118,28 @@ private:
         if (check_kw("if")) return parse_if();
         if (check_kw("while")) return parse_while();
         if (check_kw("for")) return parse_for();
+        if (check_kw("with")) return parse_with();
         if (check_kw("return")) return parse_return();
         if (check_kw("try")) return parse_try();
         if (check_kw("raise")) return parse_raise();
         if (check_kw("break")) { advance(); return std::make_unique<Break>(); }
         if (check_kw("continue")) { advance(); return std::make_unique<Continue>(); }
-        if (check_kw("match")) return parse_match();
+        // `constexpr let …` / `constexpr match …` — the contextual `constexpr` modifier
+        // (an identifier, not a keyword) only when immediately followed by the statement it
+        // qualifies, so the word stays free for ordinary use elsewhere.
+        if (check_ident("constexpr") && check_next_kw("fn")) {
+            advance();  // constexpr
+            return parse_fn(/*is_constexpr=*/true);
+        }
+        if (check_ident("constexpr") && check_next_kw("let")) {
+            advance();  // constexpr
+            return parse_let(/*is_constexpr=*/true);
+        }
+        if (check_ident("constexpr") && check_next_kw("match")) {
+            advance();  // constexpr
+            return parse_match(/*is_constexpr=*/true);
+        }
+        if (check_kw("match")) return parse_match(false);
         return parse_assign_or_expr();
     }
 
@@ -176,8 +206,12 @@ private:
         skip_separators();
         while (!at_end() && !check(TokenKind::RBrace)) {
             if (check_kw("fn")) {  // a method: fn name(self, …) { … }
+                const unsigned ln = peek().pos.line;
                 StmtPtr m = parse_fn();
-                if (m) s->methods.push_back(std::move(m));
+                if (m) {
+                    if (m->line == 0) m->line = ln;  // methods bypass parse_stmt's stamping
+                    s->methods.push_back(std::move(m));
+                }
                 skip_separators();
                 continue;
             }
@@ -188,6 +222,7 @@ private:
                 continue;
             }
             Field f;
+            f.line = peek().pos.line;  // for doc-comment attachment (attach_docs)
             f.name = advance().text;
             if (!check(TokenKind::Colon)) {
                 error("expected ':' after field name");
@@ -259,9 +294,10 @@ private:
         return e;
     }
 
-    StmtPtr parse_fn() {
+    StmtPtr parse_fn(bool is_constexpr = false) {
         advance();  // fn
         auto f = std::make_unique<FnDef>();
+        f->is_constexpr = is_constexpr;
         if (!check(TokenKind::Identifier)) {
             error("expected a function name");
             synchronize();
@@ -280,18 +316,42 @@ private:
                     error("expected a parameter name");
                     break;
                 }
+                // Optional `const` modifier: `const name : T` lowers the param to a `const&`
+                // (read-only), so e.g. a model's `predict(self, const x : ndarray<float>)` can satisfy
+                // a `const Array&` C++ concept. Contextual (not a reserved word) — `const` is the
+                // modifier only when a parameter name follows it, so it stays usable as an identifier.
+                bool param_const = false;
+                if (check_ident("const") && check_next(TokenKind::Identifier)) {
+                    advance();  // const
+                    param_const = true;
+                }
                 f->params.push_back(advance().text);
-                // Optional `: Type` — an interface name here constrains the param.
+                // Optional `: Type` — an interface name here constrains the param;
+                // `: ndarray<float>` style generics carry their element type, and nested
+                // generics (`: list<ndarray<float>>`) are supported via parse_type_string.
                 std::string ptype;
                 if (check(TokenKind::Colon)) {
                     advance();
                     if (check(TokenKind::Identifier)) {
-                        ptype = advance().text;
+                        ptype = parse_type_string();
                     } else {
                         error("expected a type after ':' in the parameter list");
                     }
                 }
+                // Encode `const` into the type spelling so codegen emits a const reference.
+                if (param_const && !ptype.empty()) ptype = "const " + ptype;
                 f->param_types.push_back(ptype);
+                // Optional `= <expr>` — a default value. Once one parameter has a default,
+                // every later one must too (they lower to trailing forwarding overloads).
+                ExprPtr dflt;
+                if (check(TokenKind::Assign)) {
+                    advance();
+                    dflt = parse_expr();
+                } else if (!f->param_defaults.empty() && f->param_defaults.back()) {
+                    error("parameter '" + f->params.back() +
+                          "' without a default may not follow a defaulted parameter");
+                }
+                f->param_defaults.push_back(std::move(dflt));
                 if (check(TokenKind::Comma)) {
                     advance();
                     continue;
@@ -305,8 +365,55 @@ private:
             return nullptr;
         }
         advance();  // )
+        // Optional Python-style return-type hint: `fn f(...) -> Type { … }`. When present the
+        // codegen emits it as the concrete C++ return type, so the C++ backend enforces that
+        // every `return` matches. Absent -> `auto` (the abbreviated-template default).
+        if (check(TokenKind::Arrow)) {
+            advance();
+            f->return_type = parse_type_string();
+        }
         f->body = parse_block();
         return f;
+    }
+
+    // A type in the param/return STRING spelling: `Name`, `Name<arg, ...>`, NESTED
+    // (`list<ndarray<float>>`), or MODULE-QUALIFIED (`state.State`, `memory.Memory` — a type
+    // reached through an import alias). Kept as a string so the codegen maps it the same way (the
+    // codegen resolves the leading module alias exactly as it does for a `state.State()` call). The
+    // type arguments recurse, so a generic-of-a-generic parses (the lexer emits `>>` as two Greater
+    // tokens, which the recursion closes one level at a time).
+    std::string parse_type_string() {
+        std::string t;
+        if (!check(TokenKind::Identifier)) {
+            error("expected a type name");
+            return t;
+        }
+        t = advance().text;
+        // Module-qualified path: `alias.Type` (or deeper). Consume each `.Name` into the spelling.
+        while (check(TokenKind::Dot)) {
+            advance();  // .
+            if (!check(TokenKind::Identifier)) {
+                error("expected a type name after '.'");
+                break;
+            }
+            t += ".";
+            t += advance().text;
+        }
+        if (check(TokenKind::Less)) {
+            t += advance().text;  // '<'
+            for (;;) {
+                if (!check(TokenKind::Identifier)) {
+                    error("expected a type argument inside '<...>'");
+                    break;
+                }
+                t += parse_type_string();  // recurse: nested generics like ndarray<float>
+                if (check(TokenKind::Comma)) { t += advance().text; continue; }
+                break;
+            }
+            if (check(TokenKind::Greater)) t += advance().text;
+            else error("expected '>' to close the type arguments");
+        }
+        return t;
     }
 
     StmtPtr parse_interface() {
@@ -390,9 +497,10 @@ private:
         return it;
     }
 
-    StmtPtr parse_let() {
+    StmtPtr parse_let(bool is_constexpr = false) {
         advance();  // let
         auto l = std::make_unique<Let>();
+        l->is_constexpr = is_constexpr;
         if (!check(TokenKind::Identifier)) {
             error("expected a name after 'let'");
             synchronize();
@@ -419,14 +527,28 @@ private:
         return l;
     }
 
+    // `constexpr` (a contextual modifier, not a keyword) right after `if`/`else if`,
+    // gated on a following `(` so a plain `if constexpr > 0 {…}` still reads `constexpr`
+    // as an ordinary identifier. The C++-style parens are the condition's own grouping.
+    bool eat_constexpr_modifier() {
+        if (check_ident("constexpr") && check_next(TokenKind::LParen)) {
+            advance();  // constexpr
+            return true;
+        }
+        return false;
+    }
+
     StmtPtr parse_if() {
         advance();  // if
-        return parse_if_rest();
+        return parse_if_rest(eat_constexpr_modifier());
     }
     // The cond+block of an if, plus any `elif`/`else if`/`else` tail. Shared by the
-    // leading `if` and each `elif` so chains nest as If-in-else_body.
-    StmtPtr parse_if_rest() {
+    // leading `if` and each `elif` so chains nest as If-in-else_body. `is_constexpr`
+    // is threaded down the whole chain so one leading `if constexpr` makes every arm a
+    // compile-time branch (`else if constexpr` may also be written out explicitly).
+    StmtPtr parse_if_rest(bool is_constexpr) {
         auto n = std::make_unique<If>();
+        n->is_constexpr = is_constexpr;
         n->cond = parse_expr();
         if (!n->cond) {
             synchronize();
@@ -443,13 +565,15 @@ private:
         }
         if (check_kw("elif")) {
             advance();  // elif — like `else if`, condition follows directly
-            StmtPtr nested = parse_if_rest();
+            StmtPtr nested = parse_if_rest(is_constexpr);
             if (nested) n->else_body.push_back(std::move(nested));
         } else if (check_kw("else")) {
             advance();
             if (check_kw("if")) {
                 advance();
-                StmtPtr nested = parse_if_rest();  // else if …
+                // `else if constexpr (…)` may restate the modifier; inherit it regardless.
+                const bool cx = eat_constexpr_modifier() || is_constexpr;
+                StmtPtr nested = parse_if_rest(cx);  // else if …
                 if (nested) n->else_body.push_back(std::move(nested));
             } else {
                 n->else_body = parse_block();
@@ -458,9 +582,10 @@ private:
         return n;
     }
 
-    StmtPtr parse_match() {
+    StmtPtr parse_match(bool is_constexpr = false) {
         advance();  // match
         auto m = std::make_unique<Match>();
+        m->is_constexpr = is_constexpr;
         m->subject = parse_expr();
         if (!m->subject) {
             synchronize();
@@ -542,6 +667,29 @@ private:
         return n;
     }
 
+    // with <resource> [as <name>] { … }  — bind a resource for the block's lifetime; its
+    // RAII destructor runs when the block exits (see the With AST node).
+    StmtPtr parse_with() {
+        advance();  // with
+        auto n = std::make_unique<With>();
+        n->resource = parse_expr();
+        if (!n->resource) {
+            synchronize();
+            return nullptr;
+        }
+        if (check_kw("as")) {
+            advance();  // as
+            if (!check(TokenKind::Identifier)) {
+                error("expected a name after 'as' in a `with` statement");
+                synchronize();
+                return nullptr;
+            }
+            n->bind = advance().text;
+        }
+        n->body = parse_block();
+        return n;
+    }
+
     StmtPtr parse_return() {
         advance();  // return
         auto n = std::make_unique<Return>();
@@ -585,9 +733,11 @@ private:
             synchronize();
             return nullptr;
         }
-        if (check(TokenKind::Assign)) {
-            advance();
+        if (check(TokenKind::Assign) || check(TokenKind::PlusAssign) ||
+            check(TokenKind::MinusAssign) || check(TokenKind::StarAssign) ||
+            check(TokenKind::SlashAssign)) {
             auto a = std::make_unique<Assign>();
+            a->op = advance().text;  // "=", "+=", "-=", "*=", "/="
             a->target = std::move(e);
             a->value = parse_expr();
             if (!a->value) {
@@ -599,7 +749,11 @@ private:
         return std::make_unique<ExprStmt>(std::move(e));
     }
 
-    // type := IDENT ( '[' (type | NUMBER) (',' (type | NUMBER))* ']' )?
+    // type := IDENT ( '<' (type | NUMBER) (',' (type | NUMBER))* '>' )?
+    // ONE angle-bracket spelling everywhere — struct fields, `let` annotations, and interface method
+    // params all read like params/returns (parse_type_string) and explicit call template args:
+    // `list<int>`, `dict<str, int>`, `array<float, 1024>`, `ndarray<float>`, nested `list<ndarray<float>>`
+    // (the lexer emits `>>` as two Greater tokens, closed one level per recursion).
     TypeRef parse_type() {
         TypeRef t;
         if (!check(TokenKind::Identifier)) {
@@ -608,14 +762,29 @@ private:
         }
         t.name = advance().text;
         if (check(TokenKind::LBracket)) {
+            // The OLD square-bracket type spelling. Give a clear, actionable message (type arguments
+            // were unified onto angle brackets), then consume the [...] group so it does not cascade.
+            error("type arguments use angle brackets now — write `" + t.name + "<...>` not `" +
+                  t.name + "[...]` (e.g. `list<int>`, `dict<str, int>`, `array<float, 4>`, "
+                          "`ndarray<float>`). Update this type annotation.");
+            advance();  // [
+            int depth = 1;
+            while (!at_end() && depth > 0) {
+                if (check(TokenKind::LBracket)) ++depth;
+                else if (check(TokenKind::RBracket)) --depth;
+                advance();
+            }
+            return t;
+        }
+        if (check(TokenKind::Less)) {
             advance();
             for (;;) {
                 if (check(TokenKind::Number)) {
-                    t.array_size = advance().text;  // array[T, N]
+                    t.array_size = advance().text;  // array<T, N>
                 } else if (check(TokenKind::Identifier)) {
                     t.args.push_back(parse_type());
                 } else {
-                    error("expected a type or size inside '[...]'");
+                    error("expected a type or size inside '<...>'");
                     break;
                 }
                 if (check(TokenKind::Comma)) {
@@ -624,13 +793,71 @@ private:
                 }
                 break;
             }
-            if (check(TokenKind::RBracket)) {
+            if (check(TokenKind::Greater)) {
                 advance();
             } else {
-                error("expected ']' to close the type");
+                error("expected '>' to close the type");
             }
         }
         return t;
+    }
+
+    // A single type argument inside `<...>`: a name, optionally itself parameterized
+    // (`ndarray<float>`). Distinct from parse_type()'s `[...]` form — explicit template
+    // args mirror the C++/source spelling `Name<T>`.
+    TypeRef parse_angle_type() {
+        TypeRef t;
+        t.name = advance().text;  // Identifier (the caller has already checked)
+        if (check(TokenKind::Less)) {
+            advance();
+            for (;;) {
+                if (!check(TokenKind::Identifier) && !check(TokenKind::Number)) break;
+                t.args.push_back(parse_angle_arg());
+                if (check(TokenKind::Comma)) { advance(); continue; }
+                break;
+            }
+            if (check(TokenKind::Greater)) advance();
+        }
+        return t;
+    }
+
+    // One template argument inside `<...>`: a type (possibly itself parameterized) OR a non-type
+    // VALUE — an integer literal spliced into the C++ template-argument list verbatim, e.g. the
+    // fixed sizes in `Store<float, 1024, 2>`.
+    TypeRef parse_angle_arg() {
+        if (check(TokenKind::Number)) {
+            TypeRef t;
+            t.name = advance().text;  // the literal text, emitted as-is
+            t.is_value = true;
+            return t;
+        }
+        return parse_angle_type();
+    }
+
+    // Speculatively parse `< T (, T)* >` as explicit template arguments, committing ONLY
+    // if the list closes and the next token is `(` (a call) — leaving the cursor on that
+    // `(`. On any mismatch it restores both the cursor and the diagnostics and returns
+    // false, so an ordinary `a < b` comparison is untouched.
+    bool try_parse_type_args(std::vector<TypeRef>& out) {
+        const std::size_t save_pos = pos_;
+        const std::size_t save_diag = diags_.size();
+        auto bail = [&] {
+            pos_ = save_pos;
+            diags_.resize(save_diag);
+            out.clear();
+            return false;
+        };
+        advance();  // '<'
+        for (;;) {
+            if (!check(TokenKind::Identifier) && !check(TokenKind::Number)) return bail();
+            out.push_back(parse_angle_arg());
+            if (check(TokenKind::Comma)) { advance(); continue; }
+            break;
+        }
+        if (!check(TokenKind::Greater)) return bail();
+        advance();  // '>'
+        if (!check(TokenKind::LParen)) return bail();
+        return true;
     }
 
     // ---- expressions (precedence climbing) ----
@@ -666,7 +893,8 @@ private:
         ExprPtr e = parse_additive();
         for (;;) {
             std::string op;
-            if (check(TokenKind::EqualEqual)) op = "==";
+            if (check_kw("in")) op = "in";  // membership: `k in d` / `x in xs` / `sub in s`
+            else if (check(TokenKind::EqualEqual)) op = "==";
             else if (check(TokenKind::BangEqual)) op = "!=";
             else if (check(TokenKind::Less)) op = "<";
             else if (check(TokenKind::LessEqual)) op = "<=";
@@ -697,6 +925,7 @@ private:
         for (;;) {
             std::string op;
             if (check(TokenKind::Star)) op = "*";
+            else if (check(TokenKind::Percent)) op = "%";
             else if (check(TokenKind::Slash)) op = "/";        // true (float) division
             else if (check(TokenKind::FloorDiv)) op = "//";    // floor division
             else if (check(TokenKind::Caret)) op = "^";
@@ -712,6 +941,13 @@ private:
             advance();
             ExprPtr o = parse_unary();
             return o ? std::make_unique<Unary>("-", std::move(o)) : nullptr;
+        }
+        // Unary `&` (address-of): emitted to C++ verbatim, so a .purr can take the address of a value
+        // and hand a raw pointer straight to a C API (e.g. `vk_create(&info, &out)`).
+        if (check(TokenKind::Ampersand)) {
+            advance();
+            ExprPtr o = parse_unary();
+            return o ? std::make_unique<Unary>("&", std::move(o)) : nullptr;
         }
         return parse_power();
     }
@@ -738,13 +974,37 @@ private:
                 e = std::make_unique<Member>(std::move(e), advance().text);
             } else if (check(TokenKind::LParen)) {
                 advance();
-                std::vector<ExprPtr> args = parse_args();
+                std::vector<std::string> arg_names;
+                std::vector<ExprPtr> args = parse_args(arg_names);
                 if (!check(TokenKind::RParen)) {
                     error("expected ')' after arguments");
                     return nullptr;
                 }
                 advance();
-                e = std::make_unique<Call>(std::move(e), std::move(args));
+                auto call = std::make_unique<Call>(std::move(e), std::move(args));
+                call->arg_names = std::move(arg_names);
+                e = std::move(call);
+            } else if (check(TokenKind::Less) &&
+                       (e->kind == ExprKind::Ident || e->kind == ExprKind::Member)) {
+                // `Name<T, ...>(args)` — explicit template arguments on a construction/call.
+                // cheatah's `<` is otherwise the comparison operator, so this only COMMITS
+                // when the angle list closes AND is immediately followed by `(` (the one
+                // position a type-arg list is unambiguous); otherwise it backtracks fully and
+                // the `<` falls through to parse_comparison as an operator.
+                std::vector<TypeRef> targs;
+                if (!try_parse_type_args(targs)) break;
+                advance();  // '(' (try_parse_type_args left us positioned on it)
+                std::vector<std::string> arg_names;
+                std::vector<ExprPtr> args = parse_args(arg_names);
+                if (!check(TokenKind::RParen)) {
+                    error("expected ')' after arguments");
+                    return nullptr;
+                }
+                advance();
+                auto call = std::make_unique<Call>(std::move(e), std::move(args));
+                call->arg_names = std::move(arg_names);
+                call->type_args = std::move(targs);
+                e = std::move(call);
             } else if (check(TokenKind::LBracket)) {
                 advance();
                 // `obj[i]` (index) or `obj[a:b]` (slice); either bound may be omitted.
@@ -771,12 +1031,22 @@ private:
                         error("expected an index expression");
                         return nullptr;
                     }
+                    // `obj[i, j, ...]` — multi-index subscript (an ndarray element).
+                    std::vector<ExprPtr> extra;
+                    while (check(TokenKind::Comma)) {
+                        advance();
+                        ExprPtr next = parse_expr();
+                        if (!next) return nullptr;
+                        extra.push_back(std::move(next));
+                    }
                     if (!check(TokenKind::RBracket)) {
                         error("expected ']' after index");
                         return nullptr;
                     }
                     advance();
-                    e = std::make_unique<Index>(std::move(e), std::move(first));
+                    auto ix = std::make_unique<Index>(std::move(e), std::move(first));
+                    ix->extra = std::move(extra);
+                    e = std::move(ix);
                 }
             } else {
                 break;
@@ -785,13 +1055,22 @@ private:
         return e;
     }
 
-    std::vector<ExprPtr> parse_args() {
+    std::vector<ExprPtr> parse_args(std::vector<std::string>& names) {
         std::vector<ExprPtr> args;
         if (check(TokenKind::RParen)) return args;
         for (;;) {
+            // `name = value` is a KEYWORD argument (the `=` lookahead keeps `==` an operator).
+            std::string name;
+            if (check(TokenKind::Identifier) && check_next(TokenKind::Assign)) {
+                name = advance().text;
+                advance();  // =
+            } else if (!names.empty() && !names.back().empty()) {
+                error("positional argument may not follow a keyword argument");
+            }
             ExprPtr a = parse_expr();
             if (!a) break;
             args.push_back(std::move(a));
+            names.push_back(std::move(name));
             if (check(TokenKind::Comma)) {
                 advance();
                 continue;
@@ -951,6 +1230,70 @@ private:
     std::vector<Diagnostic> diags_;
 };
 
+// Attach the lexer's line-leading `#` comments to the AST as documentation. Adjacent
+// comment lines form one block; a block whose last line sits DIRECTLY above a fn/
+// struct/enum/interface declaration (or a struct method) becomes that node's `doc`.
+// The file's first block, when it is not glued to a declaration, is the module doc
+// (Program::module_doc). Blocks elsewhere — inside bodies, or separated from the next
+// declaration by a blank line — are deliberately not documentation and stay dropped.
+void attach_docs(Program& prog, const std::vector<CommentLine>& comments) {
+    if (comments.empty()) return;
+
+    std::map<unsigned, Stmt*> targets;         // declaration start line -> node
+    std::map<unsigned, std::string*> fields;   // struct-field line -> &field.doc
+    for (const StmtPtr& s : prog.body) {
+        switch (s->kind) {
+            case StmtKind::FnDef:
+            case StmtKind::StructDef:
+            case StmtKind::EnumDef:
+            case StmtKind::InterfaceDef:
+                if (s->line) targets[s->line] = s.get();
+                if (s->kind == StmtKind::StructDef) {
+                    auto& sd = static_cast<StructDef&>(*s);
+                    for (const StmtPtr& m : sd.methods)
+                        if (m->line) targets[m->line] = m.get();
+                    for (Field& f : sd.fields)
+                        if (f.line) fields[f.line] = &f.doc;  // fields carry their own Javadoc too
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    unsigned first_stmt_line = 0;  // the module doc must sit above the first statement
+    for (const StmtPtr& s : prog.body) {
+        if (s->line) { first_stmt_line = s->line; break; }
+    }
+
+    for (std::size_t i = 0; i < comments.size();) {
+        std::size_t j = i;  // [i, j] = one contiguous block
+        while (j + 1 < comments.size() &&
+               comments[j + 1].pos.line == comments[j].pos.line + 1) {
+            ++j;
+        }
+        std::string text;
+        for (std::size_t k = i; k <= j; ++k) {
+            std::string_view line = comments[k].text;
+            if (!line.empty() && line.front() == ' ') line.remove_prefix(1);  // "# x" -> "x"
+            if (k > i) text += '\n';
+            text += line;
+        }
+        const unsigned decl_line = comments[j].pos.line + 1;
+        const auto target = targets.find(decl_line);
+        const auto field = fields.find(decl_line);
+        if (target != targets.end()) {
+            target->second->doc = std::move(text);
+        } else if (field != fields.end()) {
+            *field->second = std::move(text);
+        } else if (i == 0 && prog.module_doc.empty() &&
+                   (first_stmt_line == 0 || comments[i].pos.line < first_stmt_line)) {
+            prog.module_doc = std::move(text);
+        }
+        i = j + 1;
+    }
+}
+
 } // namespace
 
 ParseResult parse(const std::vector<Token>& tokens) { return Parser(tokens).run(); }
@@ -959,6 +1302,7 @@ ParseResult parse_source(std::string_view source) {
     const LexResult lex = tokenize(source);
     ParseResult r = parse(lex.tokens);
     r.diagnostics.insert(r.diagnostics.begin(), lex.diagnostics.begin(), lex.diagnostics.end());
+    attach_docs(r.program, lex.comments);
     return r;
 }
 

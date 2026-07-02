@@ -836,6 +836,35 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
     return w;
 }
 
+// ---- user-provided output buffers: reuse the caller's storage, no result NDArray allocation ----
+// Every array-returning routine below also has an `out`-FIRST overload (like matmul and the ndarray
+// elementwise ops) that writes into a caller-supplied array instead of allocating a fresh one, so a
+// hot loop can hand the same scratch every call. `out_buf` validates the destination and returns a
+// writable pointer into it; the memory-bound products/transposes write their kernel STRAIGHT into
+// that pointer (genuinely zero result allocation). `copy_into` places an already-built result into
+// it — used by the O(n³) factorizations, whose internal workspace is allocated regardless and for
+// which the single O(n²) copy is negligible next to the decomposition.
+template <ndarray::Field T>
+T* out_buf(ndarray::basic_ndarray<T>& out, const std::vector<std::size_t>& shape) {
+    if (out.shape() != shape || !ndarray::is_contiguous(out))
+        throw std::runtime_error("linalg: out must be a contiguous array of the result's shape");
+    return out.buffer()->data() + out.offset();
+}
+// Reject an out that aliases an operand still being READ through a zero-copy `contig` pointer
+// (the products and the transpose). The factorizations copy their inputs out first, so they never
+// call this — out may safely alias the input there.
+template <ndarray::Field T>
+void reject_alias(const ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& a) {
+    if (out.buffer().get() == a.buffer().get())
+        throw std::runtime_error("linalg: out must not alias an input (it is not computed in place)");
+}
+// Copy a freshly-built contiguous result into the caller's out buffer (validated, reuses its storage).
+template <ndarray::Field T>
+void copy_into(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& result) {
+    T* dst = out_buf(out, result.shape());
+    std::copy_n(result.buffer()->data() + result.offset(), result.size(), dst);
+}
+
 }  // namespace
 
 // ================= public routines =================
@@ -924,6 +953,18 @@ Cplx cdot_dispatch(const CNDArray& a, const CNDArray& b, bool conjugate) {
 Cplx dot(const CNDArray& a, const CNDArray& b) { return cdot_dispatch(a, b, /*conjugate=*/false); }
 Cplx vdot(const CNDArray& a, const CNDArray& b) { return cdot_dispatch(a, b, /*conjugate=*/true); }
 
+namespace {
+// outer-product kernel: writes rp[n×m] = x[i]·y[j]. Loop-invariant xi + a clean row pointer keep
+// the inner store contiguous so it vectorizes. The allocating and out-param forms both call it.
+void outer_kernel(double* rp, const double* x, const double* y, std::size_t n, std::size_t m) {
+    for (std::size_t i = 0; i < n; ++i) {
+        const double xi = x[i];          // loop-invariant scalar…
+        double* ri = rp + i * m;         // …and a clean row pointer, so the inner
+        for (std::size_t j = 0; j < m; ++j) ri[j] = xi * y[j];  // store vectorizes
+    }
+}
+}  // namespace
+
 NDArray outer(const NDArray& a, const NDArray& b) {
     const std::size_t n = vector_len(a), m = vector_len(b);
     std::vector<double> sa, sb;
@@ -931,30 +972,28 @@ NDArray outer(const NDArray& a, const NDArray& b) {
     const double* y = contig(b, sb);
     ndarray::buffer_t<double> r;  // every element written below -> leave it uninitialized
     r.resize(n * m);
-    double* rp = r.data();
-    for (std::size_t i = 0; i < n; ++i) {
-        const double xi = x[i];          // loop-invariant scalar…
-        double* ri = rp + i * m;         // …and a clean row pointer, so the inner
-        for (std::size_t j = 0; j < m; ++j) ri[j] = xi * y[j];  // store vectorizes
-    }
+    outer_kernel(r.data(), x, y, n, m);
     return wrap_buffer<double>({n, m}, std::move(r));  // zero-copy: r is already buffer_t
 }
 
-NDArray matmul(const NDArray& a, const NDArray& b) {
-    if (a.ndim() != 2 || b.ndim() != 2)
-        throw std::runtime_error("linalg: matmul expects 2-D matrices");
-    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
-    const std::size_t br = b.shape()[0], bc = b.shape()[1];
-    if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
+void outer(NDArray& out, const NDArray& a, const NDArray& b) {
+    const std::size_t n = vector_len(a), m = vector_len(b);
+    reject_alias(out, a);
+    reject_alias(out, b);
+    double* rp = out_buf(out, {n, m});
     std::vector<double> sa, sb;
-    const double* A = contig(a, sa);  // zero-copy when contiguous
-    const double* B = contig(b, sb);
-    std::vector<double> C(ar * bc, 0.0);
-    // ikj keeps the inner (j) loop contiguous so it vectorizes; blocking FOUR rows of
-    // A together reuses each B[k][j] load across four C rows, so the O(n^3) hot loop
-    // does 4 FMAs per B load instead of 1 — 4× the arithmetic per byte of B streamed,
-    // which is what was leaving throughput on the table at small/medium n. (Plain row
-    // blocking, not a packed microkernel — same result, just better load reuse.)
+    outer_kernel(rp, contig(a, sa), contig(b, sb), n, m);
+}
+
+namespace {
+// The matmul kernel (overloaded on the element pointer — `double*` here is the REAL case): writes
+// C[ar×bc] = A[ar×ac]·B[ac×bc] into the caller's @p C (ZEROED here, then accumulated). The allocating
+// and out-param matmul overloads both call it, so there is ONE kernel. ikj keeps the inner (j) loop
+// contiguous so it vectorizes; blocking FOUR rows of A reuses each B[k][j] load across four C rows, so
+// the O(n^3) hot loop does 4 FMAs per B load instead of 1. (Plain row blocking, not a packed kernel.)
+void matmul(double* C, const double* A, const double* B, std::size_t ar, std::size_t ac,
+            std::size_t bc) {
+    std::fill(C, C + ar * bc, 0.0);
     std::size_t i = 0;
     for (; i + 4 <= ar; i += 4) {
         double* c0 = &C[(i + 0) * bc];
@@ -982,21 +1021,43 @@ NDArray matmul(const NDArray& a, const NDArray& b) {
             for (std::size_t j = 0; j < bc; ++j) ci[j] += aik * bk[j];
         }
     }
-    return make_matrix(ar, bc, std::move(C));
 }
+}  // namespace
 
-CNDArray matmul(const CNDArray& a, const CNDArray& b) {
+NDArray matmul(const NDArray& a, const NDArray& b) {
     if (a.ndim() != 2 || b.ndim() != 2)
         throw std::runtime_error("linalg: matmul expects 2-D matrices");
     const std::size_t ar = a.shape()[0], ac = a.shape()[1];
     const std::size_t br = b.shape()[0], bc = b.shape()[1];
     if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
-    std::vector<Cplx> sa, sb;
-    const Cplx* A = contig(a, sa);  // zero-copy when contiguous
-    const Cplx* B = contig(b, sb);
-    std::vector<Cplx> C(ar * bc, Cplx{});
-    // Same 4-row register blocking as the real matmul: reuse each B[k][j] load across
-    // four C rows (4 complex FMAs per load) for far better arithmetic intensity.
+    std::vector<double> sa, sb;
+    std::vector<double> C(ar * bc);
+    matmul(C.data(), contig(a, sa), contig(b, sb), ar, ac, bc);
+    return make_matrix(ar, bc, std::move(C));
+}
+
+void matmul(NDArray& out, const NDArray& a, const NDArray& b) {
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: matmul expects 2-D matrices");
+    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
+    const std::size_t br = b.shape()[0], bc = b.shape()[1];
+    if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
+    if (out.ndim() != 2 || out.shape()[0] != ar || out.shape()[1] != bc || !ndarray::is_contiguous(out))
+        throw std::runtime_error("linalg: matmul out must be a contiguous [ar, bc] matrix");
+    // out reads every element of A and B while writing C, so it must NOT alias an operand.
+    if (out.buffer() == a.buffer() || out.buffer() == b.buffer())
+        throw std::runtime_error("linalg: matmul out must not alias an input (it is not in-place)");
+    std::vector<double> sa, sb;
+    matmul(out.buffer()->data() + out.offset(), contig(a, sa), contig(b, sb), ar, ac, bc);
+}
+
+namespace {
+// Complex matmul kernel (overloaded on the element pointer — `Cplx*` is the COMPLEX case): writes
+// C[ar×bc] = A·B into the caller's @p C (zeroed, then accumulated). Same 4-row register blocking as
+// the real kernel — reuse each B[k][j] load across four C rows (4 complex FMAs per load). Shared by
+// the allocating and out-param overloads.
+void matmul(Cplx* C, const Cplx* A, const Cplx* B, std::size_t ar, std::size_t ac, std::size_t bc) {
+    std::fill(C, C + ar * bc, Cplx{});
     std::size_t i = 0;
     for (; i + 4 <= ar; i += 4) {
         Cplx* c0 = &C[(i + 0) * bc]; Cplx* c1 = &C[(i + 1) * bc];
@@ -1019,20 +1080,64 @@ CNDArray matmul(const CNDArray& a, const CNDArray& b) {
             for (std::size_t j = 0; j < bc; ++j) ci[j] += aik * bk[j];
         }
     }
+}
+// Shared shape validation for both complex-matmul overloads.
+void check_cmatmul(const CNDArray& a, const CNDArray& b, std::size_t& ar, std::size_t& ac,
+                   std::size_t& bc) {
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: matmul expects 2-D matrices");
+    ar = a.shape()[0]; ac = a.shape()[1];
+    const std::size_t br = b.shape()[0]; bc = b.shape()[1];
+    if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
+}
+}  // namespace
+
+CNDArray matmul(const CNDArray& a, const CNDArray& b) {
+    std::size_t ar, ac, bc;
+    check_cmatmul(a, b, ar, ac, bc);
+    std::vector<Cplx> sa, sb;
+    std::vector<Cplx> C(ar * bc);
+    matmul(C.data(), contig(a, sa), contig(b, sb), ar, ac, bc);
     return make_cmatrix(ar, bc, std::move(C));
 }
+
+void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b) {
+    std::size_t ar, ac, bc;
+    check_cmatmul(a, b, ar, ac, bc);
+    // out reads every element of A and B while writing C, so it must NOT alias an operand.
+    reject_alias(out, a);
+    reject_alias(out, b);
+    Cplx* C = out_buf(out, {ar, bc});
+    std::vector<Cplx> sa, sb;
+    matmul(C, contig(a, sa), contig(b, sb), ar, ac, bc);
+}
+
+namespace {
+// Conjugate-transpose kernel: T[c×r] = conj(A[r×c]ᵀ). Shared by both overloads.
+void conj_transpose_kernel(Cplx* T, const Cplx* A, std::size_t r, std::size_t c) {
+    for (std::size_t i = 0; i < r; ++i)
+        for (std::size_t j = 0; j < c; ++j) T[j * r + i] = std::conj(A[i * c + j]);
+}
+}  // namespace
 
 // Conjugate transpose (Hermitian adjoint) Aᴴ: transpose, then conjugate every entry.
 CNDArray conj_transpose(const CNDArray& a) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];
     std::vector<Cplx> sa;
-    const Cplx* A = contig(a, sa);  // read-only — zero-copy when contiguous
     ndarray::buffer_t<Cplx> T;  // every element written below -> leave it uninitialized
     T.resize(c * r);
-    for (std::size_t i = 0; i < r; ++i)
-        for (std::size_t j = 0; j < c; ++j) T[j * r + i] = std::conj(A[i * c + j]);
+    conj_transpose_kernel(T.data(), contig(a, sa), r, c);
     return wrap_buffer<Cplx>({c, r}, std::move(T));  // zero-copy: T is already buffer_t
+}
+
+void conj_transpose(CNDArray& out, const CNDArray& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t r = a.shape()[0], c = a.shape()[1];
+    reject_alias(out, a);  // reads A while writing the transposed out — not in place
+    Cplx* T = out_buf(out, {c, r});
+    std::vector<Cplx> sa;
+    conj_transpose_kernel(T, contig(a, sa), r, c);
 }
 
 NDArray matrix_power(const NDArray& a, long long p) {
@@ -1052,23 +1157,42 @@ NDArray matrix_power(const NDArray& a, long long p) {
     return acc;
 }
 
-NDArray kron(const NDArray& a, const NDArray& b) {
-    if (a.ndim() != 2 || b.ndim() != 2)
-        throw std::runtime_error("linalg: kron expects 2-D matrices");
-    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
-    const std::size_t br = b.shape()[0], bc = b.shape()[1];
-    std::vector<double> sa, sb;
-    const double* A = contig(a, sa);  // read-only — zero-copy when contiguous
-    const double* B = contig(b, sb);
-    ndarray::buffer_t<double> K;  // every element written below -> leave it uninitialized
-    K.resize(ar * br * ac * bc);
+namespace {
+// Kronecker-product kernel: K[(ar·br)×(ac·bc)] = A⊗B, each A entry scaling the whole of B.
+// Shared by both overloads.
+void kron_kernel(double* K, const double* A, const double* B, std::size_t ar, std::size_t ac,
+                 std::size_t br, std::size_t bc) {
     const std::size_t kc = ac * bc;
     for (std::size_t i = 0; i < ar; ++i)
         for (std::size_t j = 0; j < ac; ++j)
             for (std::size_t p = 0; p < br; ++p)
                 for (std::size_t q = 0; q < bc; ++q)
                     K[(i * br + p) * kc + (j * bc + q)] = A[i * ac + j] * B[p * bc + q];
-    return wrap_buffer<double>({ar * br, kc}, std::move(K));  // zero-copy: K is already buffer_t
+}
+}  // namespace
+
+NDArray kron(const NDArray& a, const NDArray& b) {
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: kron expects 2-D matrices");
+    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
+    const std::size_t br = b.shape()[0], bc = b.shape()[1];
+    std::vector<double> sa, sb;
+    ndarray::buffer_t<double> K;  // every element written below -> leave it uninitialized
+    K.resize(ar * br * ac * bc);
+    kron_kernel(K.data(), contig(a, sa), contig(b, sb), ar, ac, br, bc);
+    return wrap_buffer<double>({ar * br, ac * bc}, std::move(K));  // zero-copy: K is already buffer_t
+}
+
+void kron(NDArray& out, const NDArray& a, const NDArray& b) {
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: kron expects 2-D matrices");
+    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
+    const std::size_t br = b.shape()[0], bc = b.shape()[1];
+    reject_alias(out, a);
+    reject_alias(out, b);
+    double* K = out_buf(out, {ar * br, ac * bc});
+    std::vector<double> sa, sb;
+    kron_kernel(K, contig(a, sa), contig(b, sb), ar, ac, br, bc);
 }
 
 double trace(const NDArray& a) {
@@ -1431,6 +1555,51 @@ CNDArray eigvals(const NDArray& a) {
     }
     std::sort(vals.begin(), vals.end(), cgreater);
     return make_cvector(std::move(vals));
+}
+
+// ---- out-param (buffer-reuse) overloads for the factorizations and multi-output routines ----
+// Each writes its result into the caller's pre-sized array(s) — out FIRST — so a sweep that
+// repeats the same decomposition (e.g. cross-validating many models) can reuse one set of output
+// buffers instead of allocating fresh arrays every call. These O(n³) routines allocate their
+// factorization workspace internally regardless; the result is placed into @p out in one O(n²)
+// pass (negligible next to the decomposition), reusing the caller's storage in place.
+void matrix_power(NDArray& out, const NDArray& a, long long n) { copy_into(out, matrix_power(a, n)); }
+void solve(NDArray& out, const NDArray& a, const NDArray& b) { copy_into(out, solve(a, b)); }
+void inv(NDArray& out, const NDArray& a) { copy_into(out, inv(a)); }
+void lstsq(NDArray& out, const NDArray& a, const NDArray& b) { matmul(out, pinv(a), b); }
+void cholesky(NDArray& out, const NDArray& a) { copy_into(out, cholesky(a)); }
+void pinv(NDArray& out, const NDArray& a) { copy_into(out, pinv(a)); }
+void svdvals(NDArray& out, const NDArray& a) { copy_into(out, svdvals(a)); }
+void eigvals(CNDArray& out, const NDArray& a) { copy_into(out, eigvals(a)); }
+void eigvalsh(NDArray& out, const NDArray& a) { copy_into(out, eigvalsh(a)); }
+void eigvalsh(NDArray& out, const CNDArray& a) { copy_into(out, eigvalsh(a)); }
+
+// Multi-output decompositions: one out array per returned factor (struct field order, all outs first).
+void qr(NDArray& q, NDArray& r, const NDArray& a) {
+    const QR res = qr(a);
+    copy_into(q, res.q);
+    copy_into(r, res.r);
+}
+void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a) {
+    const SVD res = svd(a);
+    copy_into(u, res.u);
+    copy_into(s, res.s);
+    copy_into(vh, res.vh);
+}
+void eigh(NDArray& values, NDArray& vectors, const NDArray& a) {
+    const Eig res = eigh(a);
+    copy_into(values, res.values);
+    copy_into(vectors, res.vectors);
+}
+void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a) {
+    const EighC res = eigh(a);
+    copy_into(values, res.values);
+    copy_into(vectors, res.vectors);
+}
+void eig(CNDArray& values, CNDArray& vectors, const NDArray& a) {
+    const EigC res = eig(a);
+    copy_into(values, res.values);
+    copy_into(vectors, res.vectors);
 }
 
 } // namespace cheatah::linalg
