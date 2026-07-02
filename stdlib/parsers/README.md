@@ -12,6 +12,13 @@ Fast, safe, from-scratch input parsers — a **C++-authored** stdlib module (lik
     schema for `.purr` structs, so `json.read(text, q)` works on any struct you define.
 - **`parsers.url`** — `import parsers.url.Parser as Parser` — the `http(s)` URL parser
   (`scheme://host[:port][/path][?query]`).
+- **`parsers.html`** — `import parsers.html` — HTML escaping (`parsers.html.escape` /
+  `unescape`) plus a tolerant tokenizing parser (`parsers.html.parse` returns the parse
+  events as data): the rough equivalent of Python's `html` module + `html.parser`.
+- **`parsers.xml`** — `import parsers.xml` — a tolerant XML reader that parses into a **slab
+  DOM** navigated by integer node id (no pointers): `parsers.xml.parse(text)` then
+  `find`/`findall`/`iter` + `attr`/`text`. Iterative (no stack overflow at any depth) and
+  lenient. Built to feed cheatah's own tooling (e.g. reading Doxygen XML).
 
 The module runs clean under ASan + UBSan and Valgrind against adversarial corpora (every prefix
 truncation, byte corruptions, escape/number edge cases, 100k-deep nesting).

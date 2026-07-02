@@ -39,6 +39,34 @@ code-signing public key(s); `--trust-runtime` / `CHEATAH_RT_TRUST` pins a **sepa
 key. Under strict verification a module without a valid signature from a trusted key is
 **refused, not run**.
 
+## Flags
+
+Options come **before** the program path; everything after the program forwards to `sys.argv`
+verbatim. The full set:
+
+| Flag | Effect |
+|---|---|
+| `--verify`, `--verify=strict` | Turn on **strict** verification: a valid `.sig` from a trusted key is required. Verification only ever **escalates** — there is no flag to turn it *off*, so a strict deployment can't be silently downgraded from the command line. |
+| `--trust <keyfile>`, `--trust=<keyfile>` | Trust list of authorized **code-signing** Ed25519 keys (one 64-hex key per non-comment line). Overrides `CHEATAH_TRUST`. |
+| `--trust-runtime <keyfile>`, `--trust-runtime=<keyfile>` | A **separate** trust list for the `.rt` runtime manifest; when set, a valid `.rt.sig` is required too. Overrides `CHEATAH_RT_TRUST`. |
+| `--version`, `-v` | Print the runtime version and exit. |
+| `--help`, `-h` | Print usage and exit. |
+
+An unknown `-…` option before the program is an error. `sys.argv[0]` is the program path; any
+further arguments become `sys.argv[1:]`.
+
+### Environment variables
+
+| Variable | Effect |
+|---|---|
+| `CHEATAH_VERIFY` | `strict` / `1` / `on` / `yes` / `true` turns on strict verification (same as `--verify`). |
+| `CHEATAH_TRUST` | Default path to the code-signing trust list (a leading `--trust` overrides it). |
+| `CHEATAH_RT_TRUST` | Default path to the runtime-manifest trust list (a leading `--trust-runtime` overrides it). |
+
+When a trust variable is unset, the runtime falls back to a default file under the config dir
+(`$XDG_CONFIG_HOME/cheatah/` or `~/.config/cheatah/`): `trusted.pub` for code signing and
+`trusted-runtime.pub` for the runtime manifest.
+
 ## The trust model
 
 cheatah is **single-trust by default**: a module runs with **your full privileges**, exactly

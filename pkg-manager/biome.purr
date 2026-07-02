@@ -6,21 +6,24 @@
 # biome is itself a cheatah program: purrc compiles this file to a module
 # (biome.so) and a small native launcher named `biome` runs it through the cheatah
 # runtime. It manages a project's `cheatah.toml` manifest and drives CMake/CPM so
-# that, ultimately, EVERYTHING is built by CMake: `biome
-# build` regenerates the project's CMakeLists.txt from the manifest and invokes
-# cmake, which uses CPM to fetch the cheatah toolchain plus whichever optional
-# standard-library extensions (cheatah-gpu, cheatah-plot, cheatah-space,
-# cheatah-learn, …) the user chose.
+# that, ultimately, EVERYTHING is built by CMake: `biome configure` regenerates the
+# project's CMakeLists.txt from the manifest and runs the CMake configure (CPM fetches
+# the cheatah toolchain plus whichever optional standard-library extensions —
+# cheatah-gpu, cheatah-plot, cheatah-space, … — the user chose), and `biome build`
+# compiles it.
+#
+# biome BUILDS; it never RUNS your program. A cheatah program is a loadable module,
+# and it is run by the `cheatah` runtime (`cheatah build/<name>.so`) — never by biome.
 #
 # Commands:
-#   biome init <name>     scaffold a new project
-#   biome add <ext>       add an optional stdlib extension to the manifest
-#   biome remove <ext>    remove an extension
-#   biome list            list available extensions (✓ = in this project)
-#   biome build           regenerate CMakeLists.txt and build via cmake
-#   biome run             build, then run the produced executable
-#   biome help            usage
-#   biome version         print the biome version
+#   biome init <name>       scaffold a new project
+#   biome add <ext>         add an optional stdlib extension to the manifest
+#   biome remove <ext>      remove an extension
+#   biome list [dir]        list the extensions used by the project at <dir> (default: .)
+#   biome configure         regenerate CMakeLists.txt and run the CMake configure
+#   biome build             build the configured project (add --clean-first to rebuild)
+#   biome help              usage
+#   biome version           print the biome version
 
 import io
 import os
@@ -49,7 +52,6 @@ fn known_extensions() {
     xs.append("cheatah-gpu")
     xs.append("cheatah-plot")
     xs.append("cheatah-space")
-    xs.append("cheatah-learn")
     return xs
 }
 
@@ -57,7 +59,6 @@ fn extension_desc(name) {
     if name == "cheatah-gpu" { return "GPU arrays and compute kernels" }
     elif name == "cheatah-plot" { return "Plotting and charting" }
     elif name == "cheatah-space" { return "Astronomy and spatial math" }
-    elif name == "cheatah-learn" { return "Machine learning" }
     else { return "(unregistered extension)" }
 }
 
@@ -122,13 +123,13 @@ fn dep_path(raw) {
     return rest[:q2]
 }
 
-fn load_manifest() {
+fn read_manifest_at(path) {
     let name = ""
     let cver = cheatah_version()
     let exts: list<str> = []
     let deps: list<Dep> = []
     let section = ""
-    let content = io.read_file(manifest_path())
+    let content = io.read_file(path)
     let lines = string.split(content, "\n")
     for raw in lines {
         let line = string.strip(raw)
@@ -155,6 +156,12 @@ fn load_manifest() {
         }
     }
     return Manifest(name, cver, exts, deps)
+}
+
+# Load the manifest in the current project (cwd). Callers that need a project must guard
+# with require_project() first; `read_manifest_at` reads a manifest at an explicit path.
+fn load_manifest() {
+    return read_manifest_at(manifest_path())
 }
 
 # The cheatah.toml a fresh `biome init` writes (no extensions yet).
@@ -296,7 +303,9 @@ fn cmd_init(name) {
     io.print("biome: created project", name)
     io.print("  next:  cd", name)
     io.print("         biome add cheatah-plot   # optional")
-    io.print("         biome run")
+    io.print("         biome configure")
+    io.print("         biome build")
+    io.print("         cheatah build/" + name + ".so   # run it with the cheatah runtime")
     return 0
 }
 
@@ -316,7 +325,7 @@ fn cmd_add(name) {
     save_manifest(m)
     write_file("CMakeLists.txt", generate_cmake(m))
     io.print("biome: added", name, "—", extension_desc(name))
-    io.print("       run `biome build` to fetch and build it")
+    io.print("       run `biome configure` then `biome build` to fetch and build it")
     return 0
 }
 
@@ -340,16 +349,23 @@ fn cmd_remove(name) {
     return 0
 }
 
-fn cmd_list() {
-    let installed: list<str> = []
-    if os.path.exists(manifest_path()) {
-        let m = load_manifest()
-        installed = m.extensions
+fn cmd_list(dir) {
+    # `list` is project-scoped: biome is a per-project virtual environment, so it shows
+    # nothing unless it is pointed at a directory that actually holds a cheatah.toml.
+    # This keeps the extension picture tied to a concrete, hermetic project rather than a
+    # global, ambient registry view.
+    let path = os.path.join(dir, manifest_path())
+    if not os.path.exists(path) {
+        io.print("biome: no cheatah.toml in", dir)
+        io.print("       `biome list` only works inside a cheatah project.")
+        io.print("       run `biome init <name>`, or point it at a project: `biome list <dir>`")
+        return 1
     }
-    io.print("available cheatah extensions:")
+    let m = read_manifest_at(path)
+    io.print("extensions for project '" + m.name + "' (" + dir + "):")
     for e in known_extensions() {
         let mark = "  "
-        if list_contains(installed, e) {
+        if list_contains(m.extensions, e) {
             mark = "* "
         }
         io.print(mark + string.ljust(e, 16) + extension_desc(e))
@@ -359,10 +375,13 @@ fn cmd_list() {
     return 0
 }
 
-fn cmd_build() {
+# `biome configure` — the CMake *configure* step, on its own. Regenerates CMakeLists.txt
+# from the manifest (so the two never drift), then runs `cmake -S . -B build`, where CPM
+# fetches the pinned cheatah toolchain + chosen extensions into this project's own build
+# tree. Nothing is compiled yet.
+fn cmd_configure() {
     if not require_project() { return 1 }
     let m = load_manifest()
-    # Regenerate the CMakeLists from the manifest so the two never drift.
     write_file("CMakeLists.txt", generate_cmake(m))
     io.print("biome: configuring (cmake -S . -B build)")
     let rc = os.system("cmake -S . -B build")
@@ -370,24 +389,35 @@ fn cmd_build() {
         io.print("biome: cmake configure failed")
         return 1
     }
-    io.print("biome: building (cmake --build build)")
-    let brc = os.system("cmake --build build")
+    io.print("biome: configured -> build/  (now run `biome build`)")
+    return 0
+}
+
+# `biome build [--clean-first]` — the CMake *build* step, on its own. Requires a prior
+# `biome configure` (a `build/` tree). `--clean-first` maps to `cmake --build build
+# --clean-first` (a from-scratch rebuild). biome never RUNS the result — see the note below.
+fn cmd_build(clean_first) {
+    if not require_project() { return 1 }
+    let m = load_manifest()
+    if not os.path.exists("build") {
+        io.print("biome: project not configured — run `biome configure` first")
+        return 1
+    }
+    let cmd = "cmake --build build"
+    if clean_first {
+        cmd = cmd + " --clean-first"
+    }
+    io.print("biome:", cmd)
+    let brc = os.system(cmd)
     if brc != 0 {
         io.print("biome: build failed")
         return 1
     }
-    io.print("biome: built", os.path.join("build", m.name))
-    return 0
-}
-
-fn cmd_run() {
-    let rc = cmd_build()
-    if rc != 0 { return 1 }
-    let m = load_manifest()
-    let exe = os.path.join("build", m.name)
-    io.print("biome: running", exe)
-    let code = os.system("./" + exe)
-    if code != 0 { return 1 }
+    # biome builds; it does NOT run your program. A cheatah program is a loadable module,
+    # run by the cheatah runtime — always explicitly, so it is unambiguous what executes.
+    let modpath = os.path.join("build", m.name) + ".so"
+    io.print("biome: built", modpath)
+    io.print("       run it with the cheatah runtime:  cheatah " + modpath)
     return 0
 }
 
@@ -400,11 +430,14 @@ fn cmd_help() {
     io.print("  init <name>     scaffold a new cheatah project")
     io.print("  add <ext>       add an optional standard-library extension")
     io.print("  remove <ext>    remove an extension")
-    io.print("  list            list available extensions")
-    io.print("  build           regenerate CMakeLists.txt and build via cmake")
-    io.print("  run             build, then run the produced executable")
+    io.print("  list [dir]      list the extensions used by the project at <dir> (default: .)")
+    io.print("  configure       regenerate CMakeLists.txt and run the CMake configure")
+    io.print("  build           build the configured project (add --clean-first to rebuild)")
     io.print("  version         print the biome version")
     io.print("  help            show this message")
+    io.print("")
+    io.print("biome builds; it never runs your code. run a built program with the cheatah")
+    io.print("runtime:  cheatah build/<name>.so")
     return 0
 }
 
@@ -433,11 +466,15 @@ fn run() {
         if not need_arg("remove") { return 1 }
         return cmd_remove(sys.argv[2])
     } elif cmd == "list" {
-        return cmd_list()
+        let dir = "."
+        if len(sys.argv) >= 3 { dir = sys.argv[2] }
+        return cmd_list(dir)
+    } elif cmd == "configure" {
+        return cmd_configure()
     } elif cmd == "build" {
-        return cmd_build()
-    } elif cmd == "run" {
-        return cmd_run()
+        let clean = false
+        if len(sys.argv) >= 3 and sys.argv[2] == "--clean-first" { clean = true }
+        return cmd_build(clean)
     } elif cmd == "version" or cmd == "--version" or cmd == "-v" {
         io.print("biome", biome_version())
         return 0

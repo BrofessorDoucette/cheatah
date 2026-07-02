@@ -182,7 +182,8 @@
             "2": { "name": "entity.name.type.cheatah" }
           }
         },
-        { "name": "storage.type.cheatah", "match": "\\b(let)\\b" }
+        { "name": "storage.type.cheatah", "match": "\\b(let)\\b" },
+        { "name": "storage.modifier.cheatah", "match": "\\b(constexpr)\\b" }
       ]
     },
 

@@ -169,11 +169,11 @@ for k, (call, npcall) in _STAT.items():
 REG["hashlib.sha256"] = C("acc = acc + len(hashlib.sha256(io.str(i)))",
                           "acc = acc + len(hashlib.sha256(str(i).encode()).hexdigest())",
                           imp="hashlib", iters=500_000)
-REG["html.escape"] = C("acc = acc + len(html.escape(s))", "acc = acc + len(html.escape(s))",
-                       imp="html", setup='let s = "<a href=\\"x\\">A & B < C > D</a>"',
+REG["parsers.html.escape"] = C("acc = acc + len(parsers.html.escape(s))", "acc = acc + len(html.escape(s))",
+                       imp="parsers.html", setup='let s = "<a href=\\"x\\">A & B < C > D</a>"',
                        py_setup='import html\ns = "<a href=\\"x\\">A & B < C > D</a>"', iters=2_000_000)
-REG["html.unescape"] = C("acc = acc + len(html.unescape(s))", "acc = acc + len(html.unescape(s))",
-                         imp="html", setup='let s = "A &amp; B &lt; C &gt; D &quot;q&quot;"',
+REG["parsers.html.unescape"] = C("acc = acc + len(parsers.html.unescape(s))", "acc = acc + len(html.unescape(s))",
+                         imp="parsers.html", setup='let s = "A &amp; B &lt; C &gt; D &quot;q&quot;"',
                          py_setup='import html\ns = "A &amp; B &lt; C &gt; D &quot;q&quot;"', iters=2_000_000)
 
 # ---- os.path: path-string ops (opaque, clean twins) ----------------------
@@ -263,10 +263,10 @@ for k in ["len", "ord", "ascii", "hash", "bool", "int", "float", "contains", "st
     REG[f"builtins.{k}"] = NOTE("header-inlined to ~sub-nanosecond; the win over CPython "
                                 "is its eliminated ~60 ns per-call interpreter overhead")
 
-# ---- html.parser: object/structure returns, not one scalar (datetime is
+# ---- parsers.html: object/structure returns, not one scalar (datetime is
 # benchmarked above against CPython's datetime) -----------------------------
 for k in ["get_attr", "has_attr", "parse"]:
-    REG[f"html.parser.{k}"] = NOTE("returns a parse structure — not reduced to one scalar here")
+    REG[f"parsers.html.{k}"] = NOTE("returns a parse structure — not reduced to one scalar here")
 
 # ---- numeric ops: the honest comparison is vs NumPy (perf page) -----------
 for fn in ["cholesky", "cond", "conj_transpose", "det", "dot", "eig", "eigh", "eigvals",

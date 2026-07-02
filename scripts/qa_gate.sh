@@ -101,6 +101,7 @@ else
     DOXYGEN="${DOXYGEN:-doxygen}"
     command -v "$DOXYGEN" >/dev/null 2>&1 || DOXYGEN="$HOME/Tools/doxygen-1.16.1/bin/doxygen"
     command -v "$DOXYGEN" >/dev/null 2>&1 || fail "doxygen not found (needed to regenerate the extension hover DB)"
+    rm -rf docs/xml   # Doxygen never prunes; a stale ghost namespace (e.g. a folded module) would drift the hover DB
     "$DOXYGEN" Doxyfile >/tmp/cheatah_ext_doxygen.log 2>&1 || { tail -20 /tmp/cheatah_ext_doxygen.log; fail "doxygen (XML) for the extension check"; }
     python3 editors/vscode/scripts/gen-hover-docs.py >/tmp/cheatah_ext_gen.log 2>&1 || { tail -20 /tmp/cheatah_ext_gen.log; fail "gen-hover-docs.py (extension hover DB)"; }
     # --porcelain catches BOTH a modified and a never-committed (untracked) hover DB.

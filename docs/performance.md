@@ -223,78 +223,13 @@ runtime-mutable object graph of that kind), so no collector, so **the cost of a 
 is exactly zero** — which is precisely what you want in a tight numeric loop, a
 real-time control step, or a latency-sensitive request handler.
 
-## String building: no accidental O(n²), no surplus temporaries
+## How the generated code gets this fast
 
-This is the concern that prompted this page, and it is a real trap in naive
-transpilers. Consider a typical builder — assembling an HTTP response header:
-
-```python
-fn response(status, ctype, body) {
-    let nl = chr(13) + chr(10)
-    let head = "HTTP/1.1 " + status + nl
-    head = head + "Content-Type: " + ctype + nl
-    head = head + "Content-Length: " + io.str(len(body)) + nl
-    head = head + "Connection: close" + nl + nl
-    return head + body
-}
-```
-
-A literal translation of `head = head + "…" + ctype + nl` would **copy the entire
-growing `head`** on every line. Over a header that's `n` bytes when done, that is
-`O(n²)` total copying plus a fresh full-length temporary per statement — exactly the
-death-by-`std::string`-temporaries you'd worry about.
-
-cheatah does **not** emit that. Two things protect you:
-
-1. **Self-append rewrite.** The codegen recognizes the pattern `x = x + e1 + e2 + …`
-   (a plain variable at the head of a `+` chain that the appended operands don't
-   re-read) and lowers it to **in-place appends**:
-
-   ```cpp
-   head += std::string("Content-Type: ");
-   head += ctype;
-   head += nl;
-   ```
-
-   The `head` buffer grows amortized in place; nothing copies the bytes already
-   written. `O(n²)` becomes `O(n)`, and the per-line full-length temporary is gone.
-   (The same rewrite turns numeric accumulators like `total = total + i` into
-   `total += i`.)
-
-2. **rvalue `operator+` chaining.** For a *fresh* left-to-right chain such as
-   `let head = "HTTP/1.1 " + status + nl`, C++'s rvalue overloads of `operator+`
-   reuse the leftmost temporary's buffer and append into it, so a chain of `k`
-   concatenations is one growing buffer — not `k` independent allocations.
-
-Net: the builder above performs work proportional to the **output length**, with the
-allocations a careful C++ programmer would write by hand.
-
-## Numeric speed: zero-cost generics + SIMD
-
-- **`ndarray` is generic over its element type** (`basic_ndarray<T>`, constrained to a
-  `Field` concept — real or complex), monomorphized per type — an `int` array, a
-  `double` array, and a `complex<double>` array are each as tight as a hand-rolled
-  `std::vector<T>` loop, with no shared dynamic base.
-- **Element-wise kernels vectorize declaratively** via `std::transform(std::execution::unseq, …)`
-  and `std::reduce(std::execution::unseq, …)` — we write our *intent to vectorize*
-  in the source, and the compiler emits SIMD for whatever the target supports. The policy
-  is feature-test-guarded (`__cpp_lib_execution`), so on a toolchain without `<execution>`
-  (e.g. Apple libc++) it falls back to the policy-less overloads — same results, and the
-  `-O3 -march=native` auto-vectorizer still produces the SIMD; `unseq` adds no threads or
-  TBB dependency.
-- **linalg kernels auto-vectorize** at `-O3 -march=native` (contiguous, unit-stride
-  loops; no hand-written intrinsics). See @ref simd.hpp for the full SIMD model,
-  including exactly what happens on a build with **no SIMD** (answer: identical
-  results, just scalar/slower — SIMD is never a correctness dependency).
-
-## Why constrained templates, given the compile-time cost {#constrain-all-templates}
-
-Every generic surface in cheatah — `io.print`'s `Printable`, `ndarray`'s `Numeric`,
-`math`'s `Ordered`, the baseline `Value` on every emitted parameter — is
-**concept-constrained**. A deliberate doubling-down on the compile-time investment:
-we're already instantiating templates, so we make that work also yield *early, named*
-diagnostics ("`Point` does not satisfy `Printable`") instead of pages of backtrace.
-Fast code **and** legible errors, from the same compile-time spend.
+This page is the *comparison* — cheatah against CPython, NumPy/Eigen, and OpenSSL. *How*
+`purrc` reaches these numbers is its own page: dead-variable elimination, in-place string
+building (no accidental O(n²)), no-copy `auto&&` references, `match`→jump-table, and
+zero-cost generic + SIMD numerics — each shown as the **real `.gen.cpp` purrc emits**, with
+the un-optimized version beside it. See **[Optimizations](optimizations.html)**.
 
 ## Dynamism without the interpreter: the cheatah runtime
 

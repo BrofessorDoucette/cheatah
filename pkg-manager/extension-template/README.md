@@ -1,7 +1,7 @@
 # cheatah extension template
 
 The shape of an optional standard-library extension repository (e.g. `cheatah-gpu`,
-`cheatah-plot`, `cheatah-space`, `cheatah-learn`). An extension is a **separate git repo**
+`cheatah-plot`, `cheatah-space`). An extension is a **separate git repo**
 that `biome` lists in the registry and CPM fetches when a project opts in
 (`biome add cheatah-…`).
 

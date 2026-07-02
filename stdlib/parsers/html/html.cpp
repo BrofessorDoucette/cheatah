@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace cheatah::html {
+namespace cheatah::parsers::html {
 
 namespace {
 
@@ -87,6 +87,30 @@ bool decode_reference(std::string_view body, std::string& out) {
     return true;
 }
 
+bool is_name_start(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == ':';
+}
+bool is_name_char(char c) {
+    return is_name_start(c) || (c >= '0' && c <= '9') || c == '-' || c == '.';
+}
+bool is_space(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f'; }
+
+std::string lower_str(std::string_view s) {
+    std::string out;
+    out.reserve(s.size());
+    for (const char c : s) out.push_back(lower(c));
+    return out;
+}
+
+// Case-insensitive check that s[at..] begins with `lit` (lit is lowercase).
+bool matches_ci(std::string_view s, std::size_t at, std::string_view lit) {
+    if (at + lit.size() > s.size()) return false;
+    for (std::size_t k = 0; k < lit.size(); ++k) {
+        if (lower(s[at + k]) != lit[k]) return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 std::string escape(std::string_view s, bool quote) {
@@ -125,36 +149,6 @@ std::string unescape(std::string_view s) {
     }
     return out;
 }
-
-namespace parser {
-
-namespace {
-
-bool is_name_start(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == ':';
-}
-bool is_name_char(char c) {
-    return is_name_start(c) || (c >= '0' && c <= '9') || c == '-' || c == '.';
-}
-bool is_space(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f'; }
-
-std::string lower_str(std::string_view s) {
-    std::string out;
-    out.reserve(s.size());
-    for (const char c : s) out.push_back(lower(c));
-    return out;
-}
-
-// Case-insensitive check that s[at..] begins with `lit` (lit is lowercase).
-bool matches_ci(std::string_view s, std::size_t at, std::string_view lit) {
-    if (at + lit.size() > s.size()) return false;
-    for (std::size_t k = 0; k < lit.size(); ++k) {
-        if (lower(s[at + k]) != lit[k]) return false;
-    }
-    return true;
-}
-
-}  // namespace
 
 std::vector<Token> parse(std::string_view html) {
     std::vector<Token> tokens;
@@ -315,5 +309,4 @@ bool has_attr(const Token& t, std::string_view name) {
     return false;
 }
 
-}  // namespace parser
-}  // namespace cheatah::html
+}  // namespace cheatah::parsers::html

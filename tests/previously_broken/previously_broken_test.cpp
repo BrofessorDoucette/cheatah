@@ -394,7 +394,7 @@ TEST(PreviouslyBroken, EmptyAngleTypeIsRejected) {
 
 // The optional `const` param modifier: `const x : ndarray<float>` lowers to a `const&` (read-only) —
 // opt-in const-correctness (default params stay mutable refs). This lets a cheatah type satisfy a C++
-// `const Array&` concept (e.g. learning.model.Model's predict). Asserts the const reference is emitted
+// `const Array&` concept (e.g. a model type's predict). Asserts the const reference is emitted
 // AND that the program still compiles+runs.
 TEST(PreviouslyBroken, ConstParamLowersToConstReference) {
     const std::string gen = e2e::expect_e2e_source("prevbroken_const_param", R"PURR(import io

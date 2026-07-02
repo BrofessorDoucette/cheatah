@@ -1555,159 +1555,6 @@
       "qualified": "hashlib.sha512_digest"
     },
     {
-      "name": "escape",
-      "signature": "escape(std::string_view s, bool quote=true)",
-      "brief": "Escape the markup-significant characters in s (Python html.escape).",
-      "params": [
-        {
-          "name": "s",
-          "desc": "the text to escape."
-        },
-        {
-          "name": "quote",
-          "desc": "also escape the quote characters (default true)."
-        }
-      ],
-      "returns": "a newly allocated escaped copy.",
-      "tags": {
-        "complexity": "O(n) time in the length of s.",
-        "alloc": "one result string on the heap.",
-        "test": "CheatahHtml.Escape",
-        "crtest": "HtmlCompileRun.Escape",
-        "systest": "StdlibE2E.Html"
-      },
-      "srcfile": "stdlib/html/html.hpp",
-      "srcline": 45,
-      "module": "html",
-      "qualified": "html.escape",
-      "perf": {
-        "cheatah_ns": 75.96,
-        "compare_ns": 330.68,
-        "kind": "compared",
-        "speedup": 4.4,
-        "vs": "cpython"
-      }
-    },
-    {
-      "name": "unescape",
-      "signature": "unescape(std::string_view s)",
-      "brief": "Resolve character references back to text (Python html.unescape).",
-      "params": [
-        {
-          "name": "s",
-          "desc": "text that may contain character references."
-        }
-      ],
-      "returns": "a newly allocated decoded copy.",
-      "tags": {
-        "complexity": "O(n) time in the length of s.",
-        "alloc": "one result string on the heap.",
-        "test": "CheatahHtml.Unescape",
-        "crtest": "HtmlCompileRun.Unescape",
-        "systest": "StdlibE2E.Html"
-      },
-      "srcfile": "stdlib/html/html.hpp",
-      "srcline": 62,
-      "module": "html",
-      "qualified": "html.unescape",
-      "perf": {
-        "cheatah_ns": 97.42,
-        "compare_ns": 1517.79,
-        "kind": "compared",
-        "speedup": 15.6,
-        "vs": "cpython"
-      }
-    },
-    {
-      "name": "get_attr",
-      "signature": "get_attr(const Token &t, std::string_view name)",
-      "brief": "Value of attribute name on t, or \"\" if absent (or valueless).",
-      "params": [
-        {
-          "name": "t",
-          "desc": "a start/startend token."
-        },
-        {
-          "name": "name",
-          "desc": "attribute name (matched case-insensitively)."
-        }
-      ],
-      "returns": "the attribute value, or \"\".",
-      "tags": {
-        "complexity": "O(k) in the attribute count of t.",
-        "alloc": "one result string on the heap.",
-        "test": "CheatahHtml.GetAttr",
-        "crtest": "HtmlCompileRun.GetAttr",
-        "systest": "StdlibE2E.Html"
-      },
-      "srcfile": "stdlib/html/html.hpp",
-      "srcline": 124,
-      "module": "html.parser",
-      "qualified": "html.parser.get_attr",
-      "perf": {
-        "kind": "note",
-        "note": "returns a parse structure — not reduced to one scalar here"
-      }
-    },
-    {
-      "name": "has_attr",
-      "signature": "has_attr(const Token &t, std::string_view name)",
-      "brief": "Whether t carries an attribute named name (case-insensitive).",
-      "params": [
-        {
-          "name": "t",
-          "desc": "a start/startend token."
-        },
-        {
-          "name": "name",
-          "desc": "attribute name."
-        }
-      ],
-      "returns": "true if present (even if valueless).",
-      "tags": {
-        "complexity": "O(k) in the attribute count of t.",
-        "alloc": "none.",
-        "test": "CheatahHtml.HasAttr",
-        "crtest": "HtmlCompileRun.HasAttr",
-        "systest": "StdlibE2E.Html"
-      },
-      "srcfile": "stdlib/html/html.hpp",
-      "srcline": 137,
-      "module": "html.parser",
-      "qualified": "html.parser.has_attr",
-      "perf": {
-        "kind": "note",
-        "note": "returns a parse structure — not reduced to one scalar here"
-      }
-    },
-    {
-      "name": "parse",
-      "signature": "parse(std::string_view html)",
-      "brief": "Tokenize an HTML document into the events a callback parser would dispatch.",
-      "params": [
-        {
-          "name": "html",
-          "desc": "the document text."
-        }
-      ],
-      "returns": "the token list (empty for empty input).",
-      "tags": {
-        "complexity": "O(n) time in the length of html.",
-        "alloc": "the token vector and its strings on the heap.",
-        "test": "CheatahHtml.Parse",
-        "crtest": "HtmlCompileRun.Parse",
-        "systest": "StdlibE2E.Html"
-      },
-      "srcfile": "stdlib/html/html.hpp",
-      "srcline": 111,
-      "module": "html.parser",
-      "qualified": "html.parser.parse",
-      "perf": {
-        "kind": "note",
-        "note": "returns a parse structure — not reduced to one scalar here"
-      }
-    },
-    {
       "name": "format",
       "signature": "format(std::string_view fmt, const Args &... args)",
       "brief": "Sequential {} substitution — the common case of Python's str.format() / f-strings.",
@@ -5643,6 +5490,144 @@
       "qualified": "p256.verify_raw"
     },
     {
+      "name": "escape",
+      "signature": "escape(std::string_view s, bool quote=true)",
+      "brief": "Escape the markup-significant characters in s (Python html.escape).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "the text to escape."
+        },
+        {
+          "name": "quote",
+          "desc": "also escape the quote characters (default true)."
+        }
+      ],
+      "returns": "a newly allocated escaped copy.",
+      "tags": {
+        "complexity": "O(n) time in the length of s.",
+        "alloc": "one result string on the heap."
+      },
+      "srcfile": "stdlib/parsers/html/html.hpp",
+      "srcline": 42,
+      "module": "parsers.html",
+      "qualified": "parsers.html.escape",
+      "perf": {
+        "cheatah_ns": 75.96,
+        "compare_ns": 330.68,
+        "kind": "compared",
+        "speedup": 4.4,
+        "vs": "cpython"
+      }
+    },
+    {
+      "name": "get_attr",
+      "signature": "get_attr(const Token &t, std::string_view name)",
+      "brief": "Value of attribute name on t, or \"\" if absent (or valueless).",
+      "params": [
+        {
+          "name": "t",
+          "desc": "a start/startend token."
+        },
+        {
+          "name": "name",
+          "desc": "attribute name (matched case-insensitively)."
+        }
+      ],
+      "returns": "the attribute value, or \"\".",
+      "tags": {
+        "complexity": "O(k) in the attribute count of t.",
+        "alloc": "one result string on the heap."
+      },
+      "srcfile": "stdlib/parsers/html/html.hpp",
+      "srcline": 106,
+      "module": "parsers.html",
+      "qualified": "parsers.html.get_attr",
+      "perf": {
+        "kind": "note",
+        "note": "returns a parse structure — not reduced to one scalar here"
+      }
+    },
+    {
+      "name": "has_attr",
+      "signature": "has_attr(const Token &t, std::string_view name)",
+      "brief": "Whether t carries an attribute named name (case-insensitive).",
+      "params": [
+        {
+          "name": "t",
+          "desc": "a start/startend token."
+        },
+        {
+          "name": "name",
+          "desc": "attribute name."
+        }
+      ],
+      "returns": "true if present (even if valueless).",
+      "tags": {
+        "complexity": "O(k) in the attribute count of t.",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/parsers/html/html.hpp",
+      "srcline": 116,
+      "module": "parsers.html",
+      "qualified": "parsers.html.has_attr",
+      "perf": {
+        "kind": "note",
+        "note": "returns a parse structure — not reduced to one scalar here"
+      }
+    },
+    {
+      "name": "parse",
+      "signature": "parse(std::string_view html)",
+      "brief": "Tokenize an HTML document into the events a callback parser would dispatch.",
+      "params": [
+        {
+          "name": "html",
+          "desc": "the document text."
+        }
+      ],
+      "returns": "the token list (empty for empty input).",
+      "tags": {
+        "complexity": "O(n) time in the length of html.",
+        "alloc": "the token vector and its strings on the heap."
+      },
+      "srcfile": "stdlib/parsers/html/html.hpp",
+      "srcline": 96,
+      "module": "parsers.html",
+      "qualified": "parsers.html.parse",
+      "perf": {
+        "kind": "note",
+        "note": "returns a parse structure — not reduced to one scalar here"
+      }
+    },
+    {
+      "name": "unescape",
+      "signature": "unescape(std::string_view s)",
+      "brief": "Resolve character references back to text (Python html.unescape).",
+      "params": [
+        {
+          "name": "s",
+          "desc": "text that may contain character references."
+        }
+      ],
+      "returns": "a newly allocated decoded copy.",
+      "tags": {
+        "complexity": "O(n) time in the length of s.",
+        "alloc": "one result string on the heap."
+      },
+      "srcfile": "stdlib/parsers/html/html.hpp",
+      "srcline": 56,
+      "module": "parsers.html",
+      "qualified": "parsers.html.unescape",
+      "perf": {
+        "cheatah_ns": 97.42,
+        "compare_ns": 1517.79,
+        "kind": "compared",
+        "speedup": 15.6,
+        "vs": "cpython"
+      }
+    },
+    {
       "name": "dump",
       "signature": "dump(const Document &value)",
       "brief": "Serialize a Document to compact JSON text (string contents are re-escaped).",
@@ -5705,6 +5690,176 @@
       "srcline": 34,
       "module": "parsers.json",
       "qualified": "parsers.json.to_view"
+    },
+    {
+      "name": "attr",
+      "signature": "attr(const Document &doc, int id, std::string_view name)",
+      "brief": "Value of attribute name on element id, or \"\" if absent (or id is not an element).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(k) in the attribute count of id.",
+        "alloc": "one result string."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 93,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.attr"
+    },
+    {
+      "name": "children",
+      "signature": "children(const Document &doc, int id)",
+      "brief": "The child node ids of id, in document order (elements and text).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) (returns a copy of the id list).",
+        "alloc": "the id list."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 115,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.children"
+    },
+    {
+      "name": "find",
+      "signature": "find(const Document &doc, int id, std::string_view tag)",
+      "brief": "The id of the first child element of id whose tag equals tag, or -1 if none.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(c) in the direct-child count of id.",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 123,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.find"
+    },
+    {
+      "name": "findall",
+      "signature": "findall(const Document &doc, int id, std::string_view tag)",
+      "brief": "The ids of all direct child elements of id whose tag equals tag, in order.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(c) in the direct-child count of id.",
+        "alloc": "the result id list."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 130,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.findall"
+    },
+    {
+      "name": "has_attr",
+      "signature": "has_attr(const Document &doc, int id, std::string_view name)",
+      "brief": "Whether element id carries an attribute named name.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(k) in the attribute count of id.",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 100,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.has_attr"
+    },
+    {
+      "name": "is_element",
+      "signature": "is_element(const Document &doc, int id)",
+      "brief": "Whether id is a valid element node in doc.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 79,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.is_element"
+    },
+    {
+      "name": "iter",
+      "signature": "iter(const Document &doc, int id, std::string_view tag)",
+      "brief": "The ids of every element in the subtree rooted at id (including id itself) whose tag equals tag, in document order — the analogue of an XML tree .iter(tag).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(m) in the subtree size of id.",
+        "alloc": "the result id list (and a transient walk stack)."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 138,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.iter"
+    },
+    {
+      "name": "parse",
+      "signature": "parse(std::string_view xml)",
+      "brief": "Parse xml into a Document (slab DOM).",
+      "params": [
+        {
+          "name": "xml",
+          "desc": "the document text."
+        }
+      ],
+      "returns": "the parsed document (root-only for empty/blank input).",
+      "tags": {
+        "complexity": "O(n) time in the length of xml.",
+        "alloc": "the node slab and its strings on the heap (owned by the returned Document)."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 65,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.parse"
+    },
+    {
+      "name": "root",
+      "signature": "root(const Document &doc)",
+      "brief": "The document root's node id (its children are the top-level nodes).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 72,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.root"
+    },
+    {
+      "name": "tag",
+      "signature": "tag(const Document &doc, int id)",
+      "brief": "The tag name of element id, or \"\" if id is not an element.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "one result string."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 86,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.tag"
+    },
+    {
+      "name": "text",
+      "signature": "text(const Document &doc, int id)",
+      "brief": "The concatenated text of node id: for a text node, its own text; for an element, all descendant text in document order (like an XML .textContent).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(m) in the number of descendants of id.",
+        "alloc": "one result string."
+      },
+      "srcfile": "stdlib/parsers/xml/xml.hpp",
+      "srcline": 108,
+      "module": "parsers.xml",
+      "qualified": "parsers.xml.text"
     },
     {
       "name": "choice",
@@ -8417,8 +8572,6 @@
     "datetime",
     "ed25519",
     "hashlib",
-    "html",
-    "html.parser",
     "io",
     "linalg",
     "math",
@@ -8427,9 +8580,11 @@
     "os.path",
     "p256",
     "parsers",
+    "parsers.html",
     "parsers.json",
     "parsers.json.simd",
     "parsers.url",
+    "parsers.xml",
     "random",
     "requests",
     "socket",

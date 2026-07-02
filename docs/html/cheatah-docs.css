@@ -197,6 +197,15 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .member-brief { margin: 10px 0 6px; color: var(--fg); }
 .member-body { color: var(--fg-dim); }
 .member-body p { margin: .5em 0; }
+/* Consolidated overloads: every concrete signature of one function, each with its
+   own source link + permalink, listed above the shared description. */
+.overload-count { color: var(--fg-faint); font-weight: 500; font-size: .82rem; }
+.overload-list { margin: 10px 0 4px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.overload { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface-2); }
+.overload + .overload { border-top: 1px solid var(--border); }
+.overload .sig { flex: 1; }
+.overload .anchor { opacity: 0; }
+.overload:hover .anchor { opacity: 1; }
 
 /* ---- params / returns ---- */
 .params { margin: 12px 0; }
@@ -252,6 +261,10 @@ pre.code code { background: none; padding: 0; }
 .tok-const { color: #cf9b6a; }                  /* true false None          */
 .tok-fn    { color: #8fb3a8; }                  /* call sites (muted teal)  */
 .tok-com   { color: var(--fg-faint); font-style: italic; }
+.tok-doc   { color: #9d92c4; font-weight: 600; }  /* @param @return @complexity @alloc @test … */
+[data-theme="light"] .tok-doc   { color: #6b5e9c; }
+.tok-ns    { color: #82a7c0; }                    /* namespace/type qualifiers: io:: std:: parsers:: */
+[data-theme="light"] .tok-ns    { color: #3f6785; }
 [data-theme="light"] .tok-str   { color: #5d6b2e; }
 [data-theme="light"] .tok-num   { color: #9a5f2c; }
 [data-theme="light"] .tok-const { color: #9a5f2c; }

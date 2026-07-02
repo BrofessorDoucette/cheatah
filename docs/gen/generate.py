@@ -116,9 +116,9 @@ XREF_PAGES = {"indexpage", "complexity", "alloc", "test", "crtest", "systest"}
 # by the site CSS (.tok-kw/.tok-str/… in cheatah-docs.css), so highlighting matches
 # the warm page theme instead of importing a generic highlighter.
 # ---------------------------------------------------------------------------
-_CHEATAH_KW = {"and", "as", "break", "case", "continue", "elif", "else", "enum", "except",
-               "false", "fn", "for", "from", "if", "import", "in", "interface", "let",
-               "match", "not", "or", "raise", "return", "struct", "true", "try", "while"}
+_CHEATAH_KW = {"and", "as", "break", "case", "constexpr", "continue", "elif", "else", "enum",
+               "except", "false", "fn", "for", "from", "if", "import", "in", "interface", "let",
+               "match", "not", "or", "raise", "return", "struct", "true", "try", "while", "with"}
 # Extra keywords so the guides' Python snippets highlight too (superset, harmless).
 _PYTHON_KW = {"def", "class", "lambda", "with", "yield", "pass", "global", "nonlocal",
               "del", "assert", "finally", "is", "None", "True", "False", "await", "async"}
@@ -127,6 +127,7 @@ _CONSTANTS = {"true", "false", "None", "True", "False"}
 
 _TOKEN_RE = re.compile(r"""
     (?P<com>\#[^\n]*)                                |  # line comment (#); // is floor-division
+    (?P<doc>@[A-Za-z]\w*)                            |  # Javadoc/Doxygen tag (@param, @return, @alloc, …)
     (?P<str>"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*') |  # single/double-quoted string
     (?P<num>\b\d+\.?\d*(?:[eE][+-]?\d+)?\b)          |  # number
     (?P<id>[A-Za-z_]\w*)                             |  # identifier / keyword
@@ -142,6 +143,8 @@ def highlight_code(text: str) -> str:
         esc = html.escape(val)
         if kind == "com":
             out.append(f'<span class="tok-com">{esc}</span>')
+        elif kind == "doc":
+            out.append(f'<span class="tok-doc">{esc}</span>')
         elif kind == "str":
             out.append(f'<span class="tok-str">{esc}</span>')
         elif kind == "num":
@@ -175,6 +178,7 @@ _CPP_CONST = {"true", "false", "nullptr"}
 
 _CPP_TOKEN_RE = re.compile(r"""
     (?P<com>//[^\n]*)                                        |  # line comment
+    (?P<doc>@[A-Za-z]\w*)                                    |  # Javadoc/Doxygen tag (@param, @return, …)
     (?P<str>"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')         |  # string / char literal
     (?P<num>\b\d+\.?\d*(?:[eE][+-]?\d+)?(?:[uUlLfF]+)?\b)    |  # number (with int/float suffix)
     (?P<id>[A-Za-z_]\w*)                                     |  # identifier / keyword
@@ -204,6 +208,8 @@ def _highlight_cpp_line(text: str) -> str:
         esc = html.escape(val)
         if kind == "com":
             out.append(f'<span class="tok-com">{esc}</span>')
+        elif kind == "doc":
+            out.append(f'<span class="tok-doc">{esc}</span>')
         elif kind == "str":
             out.append(f'<span class="tok-str">{esc}</span>')
         elif kind == "num":
@@ -213,6 +219,8 @@ def _highlight_cpp_line(text: str) -> str:
                 out.append(f'<span class="tok-kw">{esc}</span>')
             elif val in _CPP_CONST:
                 out.append(f'<span class="tok-const">{esc}</span>')
+            elif text[m.end():m.end() + 2] == "::":  # a namespace/type qualifier (io::, std::, …)
+                out.append(f'<span class="tok-ns">{esc}</span>')
             elif m.end() < len(text) and text[m.end()] == "(":  # call site
                 out.append(f'<span class="tok-fn">{esc}</span>')
             else:
@@ -286,9 +294,16 @@ def load() -> tuple[dict[str, Compound], dict[str, str]]:
         comp.members = []
         if kind == NS:
             MOD_SHORT[refid] = comp.short.replace("::", ".")
+        seen_ids: set[str] = set()   # Doxygen can list a memberdef more than once (e.g. a
+                                     # template like io::repr appears 3×); a memberdef id is
+                                     # unique, so keep only the first to avoid duplicate HTML ids.
         for md in cdef.iter("memberdef"):
+            mid = md.get("id")
+            if mid in seen_ids:
+                continue
+            seen_ids.add(mid)
             m = Member()
-            m.id = md.get("id")
+            m.id = mid
             m.kind = md.get("kind")
             m.static = md.get("static") == "yes"
             m.prot = md.get("prot")
@@ -536,15 +551,23 @@ class Renderer:
         return "".join(out)
 
     def t_programlisting(self, el) -> str:
-        lines = []
-        for codeline in el.findall("codeline"):
-            lines.append(highlight_code(self._code_text(codeline)))
+        # Doxygen tags a fenced block with its language (```cpp -> filename=".cpp"); use the
+        # C++ tokenizer for C-family blocks (so `auto`/`constexpr`/`static`, `//` comments and
+        # `ns::` qualifiers highlight) and the cheatah tokenizer otherwise.
+        fn = (el.get("filename") or "").lower()
+        hl = _highlight_cpp_line if fn.endswith(
+            (".cpp", ".hpp", ".cc", ".hh", ".h", ".cxx", ".hxx", ".ipp", ".c")) else highlight_code
+        lines = [hl(self._code_text(cl)) for cl in el.findall("codeline")]
         return f'<pre class="code"><code>{chr(10).join(lines)}</code></pre>'
 
     def t_sect1(self, el) -> str:
         title = el.findtext("title") or ""
         body = "".join(self.node(c) for c in el if c.tag != "title")
-        h = f"<h2>{html.escape(title)}</h2>" if title else ""
+        # Emit the section's own id (a markdown `## Heading {#anchor}` becomes
+        # <sect1 id="<page>_1<anchor>">) so intra-page links like [x](#anchor) resolve.
+        sid = el.get("id")
+        idattr = f' id="{html.escape(sid)}"' if sid else ""
+        h = f"<h2{idattr}>{html.escape(title)}</h2>" if title else ""
         return h + body
 
     t_sect2 = t_sect1
@@ -575,12 +598,30 @@ class Renderer:
         refid = el.get("refid", "")
         kindref = el.get("kindref", "compound")
         target = refid if kindref == "compound" else self.mi.get(refid)
-        if self.valid is not None and target not in self.valid:
+        # A section anchor ([x](#anchor)) is kindref="member" but is not in the member
+        # index; it was registered in `valid` under its own refid, so accept that too.
+        if self.valid is not None and target not in self.valid and refid not in self.valid:
             return self.inline(el)   # target has no page -> render as plain text, not a dead link
         return f'<a href="{self.href(refid, kindref)}">{self.inline(el)}</a>'
 
     def t_ulink(self, el) -> str:
-        return f'<a href="{html.escape(el.get("url",""))}" target="_blank" rel="noopener">{self.inline(el)}</a>'
+        url = el.get("url", "")
+        # A genuinely external URL (http/https/mailto/…) -> a real outbound link.
+        if "://" in url or url.startswith("mailto:"):
+            return f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{self.inline(el)}</a>'
+        # Otherwise this is a markdown link Doxygen could not resolve to a generated page
+        # (typically a relative source path like ../tests/foo_test.cpp or a bare header). If
+        # it names a stdlib module we DO render, point at that module's page; else degrade to
+        # plain text so we never emit a dead 404 anchor (mirrors the t_ref guard above).
+        key = url
+        while key.startswith("../"):
+            key = key[3:]
+        while key.startswith("./"):
+            key = key[2:]
+        key = key.rstrip("/")
+        if key in self.modules:
+            return f'<a href="{self.modules[key]}.html">{self.inline(el)}</a>'
+        return self.inline(el)
 
     def t_anchor(self, el) -> str:
         return el.tail and "" or ""   # anchors carry no visible content
@@ -627,6 +668,57 @@ def render_member(r: Renderer, m: Member) -> str:
     <code class="sig">{member_signature(r, m)}</code>
     <span class="member-actions">{src_html}<a class="anchor" href="#{m.id}" aria-label="permalink">#</a></span>
   </div>
+  {f'<p class="member-brief">{brief}</p>' if brief else ''}
+  <div class="member-body">{detail}</div>
+</section>"""
+
+def group_overloads(members: list[Member]) -> list[list[Member]]:
+    """Group a compound's members by name, preserving first-appearance order — so the
+    N overloads of one function (e.g. matmul's real/complex × return/out-param forms)
+    become one group instead of N separate reference blocks."""
+    groups: dict[str, list[Member]] = {}
+    order: list[str] = []
+    for m in members:
+        if m.name not in groups:
+            groups[m.name] = []
+            order.append(m.name)
+        groups[m.name].append(m)
+    return [groups[n] for n in order]
+
+def render_member_group(r: Renderer, members: list[Member]) -> str:
+    """Consolidate overloads of one function into a SINGLE reference block: every
+    overload's signature (each with its own `source` link + anchor) is listed under one
+    shared description + performance row — rather than repeating the whole block per
+    overload. This keeps the docs to the one function a user calls, while still exposing
+    every concrete signature and where to find its source."""
+    if len(members) == 1:
+        return render_member(r, members[0])
+    head = members[0]                 # the section's canonical id/anchor (first in source order)
+    r.cur_func = head.name
+    badge = KIND_BADGE.get(head.kind, head.kind)
+    # The shared prose comes from the first overload that actually carries detail.
+    primary = next((m for m in members
+                    if m.detail_xml is not None and r.render(m.detail_xml).strip()), head)
+    brief = r.brief(primary.brief_xml) or next(
+        (r.brief(m.brief_xml) for m in members if r.brief(m.brief_xml)), "")
+    detail = r.render(primary.detail_xml) + perf_row(head.compound, head.name)
+    rows = []
+    for m in members:
+        src = r.src_link(m.srcfile, m.srcline) if m.srcfile else None
+        src_html = f'<a class="src-link" href="{src}" title="View source">source</a>' if src else ""
+        # head's id is the enclosing <section>'s; give only the OTHER overloads their own
+        # id so every overload remains individually deep-linkable without duplicate ids.
+        idattr = "" if m.id == head.id else f' id="{m.id}"'
+        rows.append(
+            f'<div class="overload"{idattr}><code class="sig">{member_signature(r, m)}</code>'
+            f'<span class="member-actions">{src_html}'
+            f'<a class="anchor" href="#{m.id}" aria-label="permalink">#</a></span></div>')
+    return f"""<section class="member" id="{head.id}">
+  <div class="member-head">
+    <span class="badge badge-{badge}">{badge}</span>
+    <code class="sig"><span class="mname">{html.escape(head.name)}</span> <span class="overload-count">· {len(members)} overloads</span></code>
+  </div>
+  <div class="overload-list">{"".join(rows)}</div>
   {f'<p class="member-brief">{brief}</p>' if brief else ''}
   <div class="member-body">{detail}</div>
 </section>"""
@@ -688,10 +780,11 @@ def build_sidebar(compounds: dict[str, Compound]) -> str:
     parts = ['<a class="side-home" href="index.html">Overview</a>']
     # Guide pages, in a deliberate reading order. The two language-comparison pages
     # (cheatah ↔ Python, cheatah ↔ C++) live in their OWN "Language parity" section.
-    GUIDE_ORDER = {"why": 0, "getting-started": 1, "porting": 3,
+    GUIDE_ORDER = {"why": 0, "getting-started": 1, "porting": 2, "imports": 3,
                    "performance": 4, "optimizations": 5, "security": 6, "md_CHANGELOG": 8}
-    # "Essential tools": the runtime, the compiler, the package manager, import resolution.
-    TOOLS_ORDER = {"runtime": 0, "purrc": 1, "biome": 2, "imports": 3}
+    # "Essential tools": the compiler first (users meet purrc before the runtime), then the
+    # runtime, the package manager, and the extensions.
+    TOOLS_ORDER = {"purrc": 0, "runtime": 1, "biome": 2, "extensions": 3}
     PARITY_ORDER = {"md_compiler_2PYTHON": 0, "cpp": 1}   # cheatah ↔ Python, then ↔ C++
     all_guides = [c for c in compounds.values()
                   if c.kind == "page" and c.refid not in XREF_PAGES]
@@ -757,8 +850,16 @@ def build_sidebar(compounds: dict[str, Compound]) -> str:
 def build_toc(members: list[Member]) -> str:
     if not members:
         return ""
-    funcs = [m for m in members if m.kind == "function"]
     others = [m for m in members if m.kind != "function"]
+    # One TOC entry per function NAME (overloads share a block), anchored at the first
+    # overload's id — which is exactly the consolidated <section>'s id.
+    seen: set[str] = set()
+    funcs = []
+    for m in members:
+        if m.kind != "function" or m.name in seen:
+            continue
+        seen.add(m.name)
+        funcs.append(m)
     parts = ['<div class="toc-h">On this page</div><ul>']
     for m in funcs + others:
         parts.append(f'<li><a href="#{m.id}">{html.escape(m.name)}</a></li>')
@@ -785,7 +886,11 @@ def render_compound_page(r: Renderer, comp: Compound, sidebar: str) -> str:
     for label, items in (("Functions", funcs), ("Constants & variables", vars_), ("Types", types)):
         if not items:
             continue
-        body = "".join(render_member(r, m) for m in items)
+        # Functions render one block per NAME (overloads consolidated); the rest 1:1.
+        if label == "Functions":
+            body = "".join(render_member_group(r, g) for g in group_overloads(items))
+        else:
+            body = "".join(render_member(r, m) for m in items)
         sections.append(f'<h2 class="group">{label}</h2>{body}')
     # A module page lists its own classes (linking to each class's page) rather than the
     # site carrying a separate "Classes" sidebar column.
@@ -872,13 +977,24 @@ def build_app_usage() -> dict[tuple[str, str], set[str]]:
 def src_page_name(rel_path: str) -> str:
     return "src_" + re.sub(r"[^A-Za-z0-9]", "_", rel_path) + ".html"
 
+_CPP_SRC_EXT = {".cpp", ".hpp", ".cc", ".hh", ".cxx", ".hxx", ".h", ".ipp", ".inl", ".c",
+                ".tpp", ".js"}   # `//` comments + C-family keywords
+
+def _src_highlighter(rel_path: str):
+    """Pick the per-line highlighter for a source page by file extension: the C++ tokenizer
+    for C-family sources (test .cpp included), else the cheatah/`#`-comment tokenizer (which
+    also reads .purr, .py, .sh, .cmake, .toml sensibly)."""
+    ext = rel_path[rel_path.rfind("."):].lower() if "." in rel_path else ""
+    return _highlight_cpp_line if ext in _CPP_SRC_EXT else highlight_code
+
 def render_source_page(rel_path: str, sidebar: str) -> str:
+    hl = _src_highlighter(rel_path)   # syntax-highlight the source (was rendered as plain text)
     lines = (ROOT / rel_path).read_text(errors="replace").splitlines()
     rows = []
     for i, line in enumerate(lines, 1):
         rows.append(f'<div class="srcline" id="L{i}">'
                     f'<a class="lnno" href="#L{i}">{i}</a>'
-                    f'<code class="lc">{html.escape(line)}</code></div>')
+                    f'<code class="lc">{hl(line)}</code></div>')
     content = (f'<div class="page-head"><div class="eyebrow">Source</div>'
                f'<h1><code>{html.escape(rel_path)}</code></h1></div>'
                f'<div class="srcview">{"".join(rows)}</div>')
@@ -955,7 +1071,12 @@ def build_search_index(compounds: dict[str, Compound]) -> str:
         if c.kind == "page":
             continue
         entries.append({"n": c.short, "k": c.kind, "u": f"{c.refid}.html"})
+        seen_fn: set[str] = set()   # one search hit per function name (overloads share a block)
         for m in c.members:
+            if m.kind == "function":
+                if m.name in seen_fn:
+                    continue
+                seen_fn.add(m.name)
             entries.append({"n": m.name, "k": m.kind, "u": f"{c.refid}.html#{m.id}",
                             "c": c.short})
     return "window.SEARCH=" + json.dumps(entries, separators=(",", ":")) + ";"
@@ -969,6 +1090,16 @@ def main() -> int:
     modules = {c.short: c.refid for c in compounds.values() if c.kind == NS}
     r = Renderer(member_index, modules)
     r.valid = set(compounds.keys())   # only link to compounds that actually have a page
+    # Also treat every in-page section anchor (`## Heading {#anchor}` -> <sectN id=…>) as a
+    # valid link target, so intra-page cross-references [x](#anchor) render as real links
+    # (t_sect1 emits the matching id) instead of degrading to plain text.
+    for comp in compounds.values():
+        for xml in (comp.detail_xml, comp.brief_xml, MODULE_README.get(comp.short)):
+            if xml is None:
+                continue
+            for sect in xml.iter():
+                if sect.tag in ("sect1", "sect2", "sect3", "sect4", "anchor") and sect.get("id"):
+                    r.valid.add(sect.get("id"))
 
     # Source pages: every file a member is defined in, plus the test sources.
     src_files: set[str] = set()

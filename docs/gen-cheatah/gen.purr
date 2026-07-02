@@ -1,0 +1,38 @@
+# gen.purr — Stage 2 Slice 1 of the pure-cheatah docs generator.
+# Reads a Doxygen namespace XML (docs/xml/*.xml) and emits a module reference page.
+# Uses parsers.xml (the from-scratch cheatah XML reader) — no Python, no regex.
+import io
+import parsers.xml
+import sys
+
+# Text of the first child element named `tag` under `id` (or "" if absent).
+fn child_text(d, id, tag) {
+    return parsers.xml.text(d, parsers.xml.find(d, id, tag))
+}
+
+fn gen_module(path) {
+    let src = io.read_file(path)
+    let d = parsers.xml.parse(src)
+    let r = parsers.xml.root(d)
+    let out = ""
+    for cd in parsers.xml.iter(d, r, "compounddef") {
+        let modname = child_text(d, cd, "compoundname")
+        out = out + "<h1><code>" + modname + "</code></h1>\n"
+        for md in parsers.xml.iter(d, cd, "memberdef") {
+            let kind = parsers.xml.attr(d, md, "kind")
+            let nm = child_text(d, md, "name")
+            let args = child_text(d, md, "argsstring")
+            out = out + "  <section class=\"member\"><span class=\"badge\">" + kind
+            out = out + "</span> <code>" + nm + args + "</code></section>\n"
+        }
+    }
+    return out
+}
+
+fn main() {
+    let path = "docs/xml/namespacecheatah_1_1math.xml"
+    if len(sys.argv) > 1 { path = sys.argv[1] }
+    io.print(gen_module(path))
+}
+
+main()

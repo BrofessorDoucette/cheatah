@@ -149,11 +149,10 @@ cheatah code therefore always runs under the runtime, never standalone.
      (`fn describe(s: Shape) { … }`) constrains what may be passed — fast (no virtual
      dispatch) and enough for patterns like the strategy pattern.
    - **Inheritance lives in interfaces, not structs.** A struct **never inherits** —
-     it stays a simple bag of fields + methods that *implements* an interface.
-     Hierarchies come from **refining interfaces** (one building on another),
-     mirroring C++ concept subsumption (*if predicate A holds then B holds*):
-     satisfying a refined interface implies satisfying the ones it refines. So the
-     interface graph carries all the "is-a" structure and structs stay simple.
+     it stays a simple bag of fields + methods that *implements* one or more
+     interfaces. Interfaces today are **flat**: refining one interface from another
+     (C++ concept subsumption) is on the roadmap, not in yet. Struct inheritance is a
+     deliberate non-goal, so the interface graph is where any "is-a" structure lives.
    - **No custom constructor / `__init__`** yet — construction is **positional** over
      the fields in declaration order (`Circle(2.0)`, `Bar("d", 1.0)`).
 
@@ -210,31 +209,14 @@ cheatah code therefore always runs under the runtime, never standalone.
 ## 🚧 Not yet supported (roadmap)
 
 Comprehensions; typed exceptions & `finally`; **interface refinement** (one
-interface inheriting another) and **custom constructors / `__init__`** (structs
-already have methods + interfaces — see #4); f-strings & rich string formatting (use
-`io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);
+interface building on another — interfaces are flat for now); **custom constructors /
+`__init__`** (construction is positional for now); f-strings & rich string formatting
+(use `io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);
 tuples/unpacking; generators/`yield`; `lambda`.
 
 All tracked toward frictionless Python → cheatah porting.
 **Struct inheritance is a non-goal** by design — structs stay simple and only
 *implement* interfaces; all "is-a" structure lives in the interface graph (#4).
 
----
-
-## A ported example
-
-```python
-# Python                                # cheatah
-def fib(n):                             fn fib(n) {
-    if n < 2:                               if n < 2 { return n }
-        return n                            return fib(n-1) + fib(n-2)
-    return fib(n-1) + fib(n-2)          }
-
-total = 0                               let total = 0
-for i in range(1, 11):                  for i in range(1, 11) {
-    total = total + i                       total = total + i
-print("sum:", total)                    }
-print("fib(10):", fib(10))              io.print("sum:", total)
-                                        io.print("fib(10):", fib(10))
-                                        # ...with `import io` at the top
-```
+For full `.py` → `.purr` ports, see the worked examples on the
+[Coming from Python](porting.html) page.

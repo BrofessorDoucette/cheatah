@@ -103,12 +103,10 @@ print(c.area())
   parameter by an interface (`fn describe(s: Shape)`) constrains what may be passed —
   fast, no virtual dispatch, and enables patterns like strategy.
 - **Inheritance lives in the interfaces, not the structs.** A struct **never
-  inherits** — it stays a bag of fields + methods that *implements* an interface. For
-  a hierarchy, you **refine interfaces**: one interface builds on another, and (like
-  C++ concept subsumption — *if predicate A holds then B holds*) anything satisfying
-  the refined interface also satisfies the ones it refines. So a struct implements a
-  single interface and inherits nothing; the interface graph carries all the "is-a"
-  structure.
+  inherits** — it stays a bag of fields + methods that *implements* one or more
+  interfaces. Interfaces today are **flat** (refining one interface from another is on
+  the roadmap, not in yet); struct inheritance is a deliberate non-goal, so the
+  interface graph is where any "is-a" structure will live.
 - **Construction is positional** over the fields in declaration order
   (`Circle(2.0)`); there is **no custom constructor / `__init__`** yet. Field access
   is `c.r`.
@@ -139,7 +137,45 @@ print(c.area())
    `socket.open`/`serve`, `tls.open`, `websocket.open`/`open_url` all return owning
    guards). No `with a, b:` multi-context form yet — nest blocks.
 
-## A worked port
+## Worked ports
+
+A few complete `.py` → `.purr` ports — cheatah on the left, the original Python on the right.
+
+**Fibonacci + a running sum** — the syntax shell and nothing else; the logic is identical:
+
+SIDEBYSIDE: cheatah | Python
+
+```purr
+import io
+
+fn fib(n) {
+    if n < 2 { return n }
+    return fib(n-1) + fib(n-2)
+}
+
+let total = 0
+for i in range(1, 11) {
+    total = total + i
+}
+io.print("sum:", total)
+io.print("fib(10):", fib(10))
+```
+
+```python
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n-1) + fib(n-2)
+
+total = 0
+for i in range(1, 11):
+    total = total + i
+print("sum:", total)
+print("fib(10):", fib(10))
+```
+
+**Z-scores** — two edits beyond syntax: the comprehension becomes an explicit loop
+(not supported yet), and the empty list literal needs a type annotation:
 
 SIDEBYSIDE: cheatah | Python
 
@@ -171,12 +207,8 @@ def zscores(xs):
 print(zscores([1, 2, 3, 4]))
 ```
 
-Two edits beyond syntax: the **comprehension** becomes an explicit loop (not yet
-supported), and an **empty list literal needs a type annotation** (`let out:
-list[float] = []`) — cheatah infers a list's element type from its literal elements,
-so an empty `[]` has nothing to infer from.
-
-## More side-by-side ports
+(cheatah infers a list's element type from its elements, so an empty `[]` has nothing to
+infer from — hence the annotation.)
 
 **Error handling** — `try` / `except` work as you'd expect; the exception name binds a
 variable (typed exceptions aren't in yet, so you catch them all):
@@ -258,6 +290,41 @@ porting.
 **Struct inheritance is a non-goal**, by design — structs stay simple and only
 *implement* interfaces; any "is-a" hierarchy lives in the interface graph (see
 above).
+
+## A new habit worth picking up: move work to compile time
+
+The deepest difference isn't syntax — it's *when* work happens. Python is an interpreter:
+essentially everything, including deciding which branch of an `if` to take, happens **at
+run time**, every time the line is reached. The whole philosophy of C++ (and so of cheatah,
+which compiles to it) is the opposite: **do as much as possible once, at compile time**, so
+the running program only does the work that genuinely depends on runtime data.
+
+cheatah hands you a tool Python simply doesn't have: a **compile-time `if`**. Bind a value
+with `constexpr let` and an `if` over it is resolved *while compiling* — the losing branch
+isn't just skipped at runtime, it is **never compiled into the program at all**:
+
+```purr
+fn log(msg) {
+    constexpr let DEBUG = false      # a compile-time constant
+    if DEBUG {                       # decided at COMPILE time, not run time
+        io.print("[debug]", msg)
+    } else {
+        io.print(msg)
+    }
+}
+```
+
+With `DEBUG = false`, the `[debug]` branch is gone from the binary entirely — there is no
+check, no dead code, only the `else`. Flip it to `true` and the other branch vanishes instead.
+Python cannot do this: `if DEBUG:` there is a runtime test on every single call, forever.
+
+**The mindset shift for Python migrants:** ask *"is this known when I compile, or only when I
+run?"* Configuration flags, table sizes, feature toggles, unit conversions, algorithm choices
+fixed at build time — make them `constexpr` and let the compiler bake the decision in. It is
+the same instinct as choosing the right data structure, one level earlier: you are choosing
+*when* the work happens. purrc then picks the cheapest legal lowering automatically
+(`if constexpr` → `switch` → an `if`/`else` chain) — see
+[Optimizations → Branch selection](optimizations.html#compile-time).
 
 ---
 

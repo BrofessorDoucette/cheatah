@@ -13,6 +13,10 @@ if ! command -v "$DOXYGEN" >/dev/null 2>&1; then
 fi
 
 echo "[docs] doxygen (XML)…"
+# Clean the XML first: Doxygen does NOT prune stale outputs, so a renamed/removed
+# symbol (e.g. a module folded into another) would leave a ghost namespace XML behind
+# and leak back into the site + the VS Code hover DB. A from-scratch XML dir avoids that.
+rm -rf docs/xml
 "$DOXYGEN" Doxyfile
 
 echo "[docs] generating site (docs/gen/generate.py)…"

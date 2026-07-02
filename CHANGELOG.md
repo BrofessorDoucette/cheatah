@@ -369,8 +369,8 @@ honestly, not hidden.
   code still runs only under the cheatah runtime.
 - Commands: `init` (scaffold a project with a `cheatah.toml` manifest, generated
   `CMakeLists.txt`, and a CPM bootstrap), `add`/`remove`/`list` (manage optional
-  standard-library extensions — `cheatah-gpu`/`cheatah-plot`/`cheatah-space`/
-  `cheatah-learn`), and `build`/`run` (drive **CMake + CPM**, so the whole build is
+  standard-library extensions — `cheatah-gpu`/`cheatah-plot`/`cheatah-space`),
+  and `build`/`run` (drive **CMake + CPM**, so the whole build is
   handled by CMake).
 - **New `cmake/CheatahProgram.cmake` helper** — `cheatah_add_program(NAME SOURCES
   x.purr …)` compiles a `.purr` to a module with purrc and builds a launcher that

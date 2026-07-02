@@ -2,20 +2,20 @@
 
 /**
  * @file html.hpp
- * @brief cheatah `html` — HTML escaping plus a tolerant tokenizing parser, the
+ * @brief `parsers.html` — HTML escaping plus a tolerant tokenizing parser, the
  *        rough equivalent of Python's `html` module + `html.parser`.
  *
- * `import html` includes this header and links `libcheatah_html`. Unit tests:
- * `stdlib/tests/html_test.cpp`; the suite runs under AddressSanitizer (the `asan`
- * preset) and Valgrind (`security/run-valgrind.sh`) on every QA-gate run.
+ * A submodule of `parsers` (alongside `parsers.json` and `parsers.url`): `import
+ * parsers.html`, then call `parsers.html.escape(...)`, `parsers.html.unescape(...)`,
+ * and `parsers.html.parse(...)`.
  *
- * **Why this shape.** Python's `html.parser.HTMLParser` is used by *subclassing*
- * it and overriding callbacks (`handle_starttag`, `handle_data`, …). cheatah has
- * no classes-with-methods, inheritance, or callbacks, so the events become
- * **data**: `html.parser.parse(src)` returns the list of tokens a callback-based
- * parser would have dispatched, in document order. A `.purr` program walks the
- * list with a `for` loop and a `match` on `tok.kind` instead of overriding
- * methods. `html.escape` / `html.unescape` mirror the top-level `html` module.
+ * **Why this shape.** Python's `html.parser.HTMLParser` is used by *subclassing* it
+ * and overriding callbacks (`handle_starttag`, `handle_data`, …). cheatah has no
+ * classes-with-methods, inheritance, or callbacks, so the events become **data**:
+ * `parsers.html.parse(src)` returns the list of tokens a callback-based parser would
+ * have dispatched, in document order. A `.purr` program walks the list with a `for`
+ * loop and a `match` on `tok.kind` instead of overriding methods.
+ * `parsers.html.escape` / `parsers.html.unescape` mirror the top-level `html` module.
  *
  * The parser is lenient (it never throws on malformed markup): unterminated
  * comments/tags consume to end-of-input, stray `<` is treated as text, and the
@@ -25,7 +25,7 @@
 #include <string_view>
 #include <vector>
 
-namespace cheatah::html {
+namespace cheatah::parsers::html {
 
 /**
  * Escape the markup-significant characters in @p s (Python `html.escape`).
@@ -38,9 +38,6 @@ namespace cheatah::html {
  * @return a newly allocated escaped copy.
  * @complexity O(n) time in the length of @p s.
  * @alloc one result string on the heap.
- * @test CheatahHtml.Escape
- * @crtest HtmlCompileRun.Escape
- * @systest StdlibE2E.Html
  */
 std::string escape(std::string_view s, bool quote = true);
 
@@ -55,17 +52,8 @@ std::string escape(std::string_view s, bool quote = true);
  * @return a newly allocated decoded copy.
  * @complexity O(n) time in the length of @p s.
  * @alloc one result string on the heap.
- * @test CheatahHtml.Unescape
- * @crtest HtmlCompileRun.Unescape
- * @systest StdlibE2E.Html
  */
 std::string unescape(std::string_view s);
-
-/**
- * The tokenizing parser — the `html.parser` submodule. `import html`, then call
- * `html.parser.parse(src)`.
- */
-namespace parser {
 
 /// One attribute of a start tag: `name="value"`. Valueless attributes (`<input
 /// disabled>`) carry an empty @ref value. Names are lowercased.
@@ -104,9 +92,6 @@ struct Token {
  * @return the token list (empty for empty input).
  * @complexity O(n) time in the length of @p html.
  * @alloc the token vector and its strings on the heap.
- * @test CheatahHtml.Parse
- * @crtest HtmlCompileRun.Parse
- * @systest StdlibE2E.Html
  */
 std::vector<Token> parse(std::string_view html);
 
@@ -117,9 +102,6 @@ std::vector<Token> parse(std::string_view html);
  * @return the attribute value, or "".
  * @complexity O(k) in the attribute count of @p t.
  * @alloc one result string on the heap.
- * @test CheatahHtml.GetAttr
- * @crtest HtmlCompileRun.GetAttr
- * @systest StdlibE2E.Html
  */
 std::string get_attr(const Token& t, std::string_view name);
 
@@ -130,11 +112,7 @@ std::string get_attr(const Token& t, std::string_view name);
  * @return true if present (even if valueless).
  * @complexity O(k) in the attribute count of @p t.
  * @alloc none.
- * @test CheatahHtml.HasAttr
- * @crtest HtmlCompileRun.HasAttr
- * @systest StdlibE2E.Html
  */
 bool has_attr(const Token& t, std::string_view name);
 
-}  // namespace parser
-}  // namespace cheatah::html
+}  // namespace cheatah::parsers::html

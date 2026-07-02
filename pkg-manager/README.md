@@ -4,8 +4,8 @@
 > cheatah project and its (Python-like) dependencies live together.
 
 `biome` scaffolds and builds cheatah projects and lets you opt into optional
-standard-library extensions (`cheatah-gpu`, `cheatah-plot`, `cheatah-space`,
-`cheatah-learn`, …). It is a thin, declarative layer over **CMake + [CPM](https://github.com/cpm-cmake/CPM.cmake)**:
+standard-library extensions (`cheatah-gpu`, `cheatah-plot`, `cheatah-space`, …).
+It is a thin, declarative layer over **CMake + [CPM](https://github.com/cpm-cmake/CPM.cmake)**:
 you describe a project in `cheatah.toml`, and biome generates the `CMakeLists.txt`
 that pulls in the cheatah toolchain and your chosen extensions — so, ultimately,
 **everything is handled by CMake**.
@@ -21,20 +21,26 @@ code still only ever runs under the runtime. See [cheatah_add_program](../cmake/
 biome init <name>     scaffold a new cheatah project
 biome add <ext>       add an optional standard-library extension
 biome remove <ext>    remove an extension
-biome list            list available extensions (* = used by this project)
-biome build           regenerate CMakeLists.txt from the manifest and build via cmake
-biome run             build, then run the produced executable
+biome list [dir]      list the extensions used by the project at <dir> (default: .)
+biome configure       regenerate CMakeLists.txt from the manifest and run the CMake configure
+biome build           build the configured project (add --clean-first for a from-scratch rebuild)
 biome version         print the biome version   (also --version / -v)
 biome help            usage                      (also --help / -h)
 ```
+
+biome **builds; it never runs your program.** A cheatah program is a loadable module — run it
+with the `cheatah` runtime (`cheatah build/<name>.so`), never via biome. `biome list` is
+project-scoped: it shows nothing unless pointed at a directory holding a `cheatah.toml`.
 
 ## Quick start
 
 ```sh
 biome init hello
 cd hello
-biome add cheatah-plot      # optional — opt into an extension
-biome run                   # configures + builds via cmake, then runs ./build/hello
+biome add cheatah-plot         # optional — opt into an extension
+biome configure                # CMake configure: CPM fetches the toolchain + extensions
+biome build                    # compile (add --clean-first to rebuild from scratch)
+cheatah build/hello.so         # run it — always with the cheatah runtime, never biome
 ```
 
 A fresh project looks like:
@@ -63,7 +69,7 @@ version = "0.9.0"           # the cheatah toolchain version, pinned as a git tag
 cheatah-plot = "0.1.0"      # one line per opted-in extension
 
 [dependencies]
-learning = { path = "../learning" }   # a local/path dependency (crate-style)
+shared = { path = "../shared" }   # a local/path dependency (crate-style)
 ```
 
 `biome add`/`remove` edit `[extensions]` (and regenerate `CMakeLists.txt` so the
@@ -121,7 +127,6 @@ build what you opt into. The registry biome validates against:
 | `cheatah-gpu` | GPU arrays and compute kernels |
 | `cheatah-plot` | Plotting and charting |
 | `cheatah-space` | Astronomy and spatial math |
-| `cheatah-learn` | Machine learning |
 
 See [extension-template/](extension-template/) for the shape of an extension repo.
 

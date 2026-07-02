@@ -16,10 +16,20 @@
  *       the schema for .purr structs).
  *   parsers::url — `import parsers.url.Parser as Parser` — the http(s) URL parser.
  *
+ *   parsers::html — `import parsers.html` — HTML escaping (`parsers.html.escape` /
+ *     `unescape`) plus a tolerant tokenizing parser (`parsers.html.parse`), the rough
+ *     equivalent of Python's `html` module + `html.parser`.
+ *
+ *   parsers::xml — `import parsers.xml` — a tolerant XML reader that parses into a slab DOM
+ *     navigated by integer node id (`parsers.xml.parse`, then `find`/`findall`/`iter` +
+ *     `attr`/`text`); value-semantic, no owning handles.
+ *
  * The whole module is fuzz-hardened (prefix/corruption corpora) and runs clean under
  * ASan + UBSan and Valgrind.
  */
 
+#include "html/html.hpp"
 #include "json/json.hpp"
 #include "json/read.hpp"
 #include "url/url.hpp"
+#include "xml/xml.hpp"

@@ -34,6 +34,11 @@ add_executable(cheatah_tests
     websocket_test.cpp
     requests_test.cpp
     parsers_json_test.cpp
+    parsers_xml_test.cpp
+    # parsers/xml/xml.cpp is compiled DIRECTLY into the test binary (like p256.cpp below) so the
+    # slab-DOM XML reader's coverage is measured by parsers_xml_test.cpp here, rather than only
+    # through the compiled libcheatah_parsers archive. (It is header-clean — no white-box seam.)
+    ${CMAKE_SOURCE_DIR}/stdlib/parsers/xml/xml.cpp
     # p256.cpp is compiled DIRECTLY into the test binary (not linked from libcheatah_p256) so the
     # CHEATAH_P256_TESTING white-box seam lives ONLY in this executable, never in any shipped
     # library. The static archive cheatah::p256_static (clean) is therefore NOT linked below; the
