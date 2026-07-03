@@ -50,9 +50,12 @@ public:
         key_ = tmp + "/ws_test_key_" + tag + ".pem";
         ready_ = tmp + "/ws_test_ready_" + tag + ".log";
         std::remove(ready_.c_str());
+        // Self-signed with a SAN so the cheatah client can authenticate it as its own trust
+        // anchor (passed as ca_file) — the TLS client now validates the certificate by default.
         const std::string gen = "openssl req -x509 -newkey " + newkey + " -keyout '" + key_ +
                                 "' -out '" + cert_ +
-                                "' -days 2 -nodes -subj /CN=localhost 2>/dev/null";
+                                "' -days 2 -nodes -subj /CN=localhost "
+                                "-addext subjectAltName=DNS:localhost 2>/dev/null";
         cert_ok_ = std::system(gen.c_str()) == 0;
         if (!cert_ok_) return;
         const std::string script = std::string(WEBSOCKET_FIXTURE_DIR) + "/wss_echo_server.js";
@@ -73,6 +76,7 @@ public:
     }
     [[nodiscard]] bool ok() const { return cert_ok_ && node_ok_ && bound_; }
     [[nodiscard]] long long port() const { return port_; }
+    [[nodiscard]] const std::string& cert_path() const { return cert_; }
     [[nodiscard]] std::string url() const {
         return "wss://localhost:" + std::to_string(port_) + "/";
     }
@@ -116,7 +120,7 @@ TEST(WebSocketSys, EchoRoundTrip) {
     WssEchoServer server(48951);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect_url(server.url());
+    const long long s = ws::connect_url(server.url(), false, server.cert_path());
     ASSERT_GE(s, 0);
     EXPECT_EQ(ws::send_text(s, "hello"), 5);
     EXPECT_EQ(ws::recv(s), "hello");
@@ -133,7 +137,7 @@ TEST(WebSocketSys, ConnectAndExtendedLength16) {
     WssEchoServer server(48952);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect("localhost", server.port(), "/", "localhost");
+    const long long s = ws::connect("localhost", server.port(), "/", "localhost", false, server.cert_path());
     ASSERT_GE(s, 0);
     const std::string msg(1000, 'x');  // > 125 and <= 0xFFFF -> 2-byte length field
     EXPECT_EQ(ws::send_text(s, msg), 1000);
@@ -148,7 +152,7 @@ TEST(WebSocketSys, ExtendedLength64) {
     WssEchoServer server(48953);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect_url(server.url());
+    const long long s = ws::connect_url(server.url(), false, server.cert_path());
     ASSERT_GE(s, 0);
     const std::string msg(70000, 'Z');  // > 0xFFFF -> 8-byte length field
     EXPECT_EQ(ws::send_text(s, msg), 70000);
@@ -165,7 +169,7 @@ TEST(WebSocketSys, ClientGuardRoundTrip) {
     WssEchoServer server(48954);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    ws::Client c = ws::open_url(server.url());
+    ws::Client c = ws::open_url(server.url(), false, server.cert_path());
     ASSERT_TRUE(c.is_open());
     EXPECT_GT(c.id(), 0);
     EXPECT_EQ(c.send_text("guarded"), 7);
@@ -195,12 +199,12 @@ TEST(WebSocketSys, ClientOpenAndMoveAssignClosesOpen) {
     WssEchoServer server(48955);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    ws::Client a = ws::open("localhost", server.port(), "/", "localhost");
+    ws::Client a = ws::open("localhost", server.port(), "/", "localhost", false, server.cert_path());
     ASSERT_TRUE(a.is_open());
     EXPECT_EQ(a.send_text("a"), 1);
     EXPECT_EQ(a.recv(), "a");
 
-    ws::Client b = ws::open_url(server.url());  // a SECOND open session
+    ws::Client b = ws::open_url(server.url(), false, server.cert_path());  // a SECOND open session
     ASSERT_TRUE(b.is_open());
     b = std::move(a);  // b was open -> operator=(&&) must close b's old session first
     EXPECT_FALSE(a.is_open());
@@ -219,7 +223,7 @@ TEST(WebSocketSys, ServerCloseYieldsEmptyRecv) {
     WssEchoServer server(48956);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect_url(server.url());
+    const long long s = ws::connect_url(server.url(), false, server.cert_path());
     ASSERT_GE(s, 0);
     EXPECT_EQ(ws::send_text(s, "ping-echo"), 9);
     EXPECT_EQ(ws::recv(s), "ping-echo");
@@ -237,7 +241,7 @@ TEST(WebSocketSys, PingPongTransparent) {
     WssEchoServer server(48958);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect_url(server.url());
+    const long long s = ws::connect_url(server.url(), false, server.cert_path());
     ASSERT_GE(s, 0);
     ws::send_text(s, "ping");             // server: ping, then pong, then "after-ping"
     EXPECT_EQ(ws::recv(s), "after-ping");  // ping->pong + pong-ignore handled internally
@@ -252,7 +256,7 @@ TEST(WebSocketSys, ReassemblesFragmentedMessage) {
     WssEchoServer server(48959);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect_url(server.url());
+    const long long s = ws::connect_url(server.url(), false, server.cert_path());
     ASSERT_GE(s, 0);
     ws::send_text(s, "frag");
     EXPECT_EQ(ws::recv(s), "frag-one|frag-two");
@@ -268,7 +272,7 @@ TEST(WebSocketSys, UnmasksMaskedServerFrame) {
     WssEchoServer server(48960);
     ASSERT_TRUE(server.ok()) << "could not start node ws echo server (test infrastructure)";
 
-    const long long s = ws::connect_url(server.url());
+    const long long s = ws::connect_url(server.url(), false, server.cert_path());
     ASSERT_GE(s, 0);
     ws::send_text(s, "masked");
     EXPECT_EQ(ws::recv(s), "masked-ok");  // recv must unmask the (irregular) masked frame
@@ -301,14 +305,14 @@ TEST(WebSocketSys, RefusesClosedDuringUpgrade) {
     require_node();
     WssEchoServer server(48961, "ec -pkeyopt ec_paramgen_curve:prime256v1", "drop");
     ASSERT_TRUE(server.ok()) << "could not start node tls drop server (test infrastructure)";
-    EXPECT_THROW(ws::connect("localhost", server.port(), "/", "localhost"), std::runtime_error);
+    EXPECT_THROW(ws::connect("localhost", server.port(), "/", "localhost", false, server.cert_path()), std::runtime_error);
 }
 
 TEST(WebSocketSys, RefusesOversizeUpgradeResponse) {
     require_node();
     WssEchoServer server(48962, "ec -pkeyopt ec_paramgen_curve:prime256v1", "flood");
     ASSERT_TRUE(server.ok()) << "could not start node tls flood server (test infrastructure)";
-    EXPECT_THROW(ws::connect("localhost", server.port(), "/", "localhost"), std::runtime_error);
+    EXPECT_THROW(ws::connect("localhost", server.port(), "/", "localhost", false, server.cert_path()), std::runtime_error);
 }
 
 // connect_url rejects a non-wss scheme, and accepts the no-port / no-path URL forms
@@ -336,7 +340,7 @@ TEST(WebSocketSys, RefusesNon101) {
     // cheatah must reject: "server did not switch protocols".
     EXPECT_THROW(
         {
-            const long long s = ws::connect("localhost", server.port(), "/", "localhost");
+            const long long s = ws::connect("localhost", server.port(), "/", "localhost", false, server.cert_path());
             (void)s;
         },
         std::runtime_error);

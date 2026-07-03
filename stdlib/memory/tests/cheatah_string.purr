@@ -1,0 +1,21 @@
+# cheatah_string.purr — REAL cheatah test: owner of a heap-backed value (str) that can relocate.
+# Expected. Expected stdout:
+#   5
+#   hello world
+#   11
+import io
+import memory
+
+fn main() {
+    let s = memory.own("")
+
+    with s.rwrite().acquire() as w { w.write("hello") }
+    with s.rread().acquire() as r { io.print(len(r.read())) }          # 5
+
+    # grow it (the underlying buffer may reallocate) — a later read sees the current bytes.
+    with s.rwrite().acquire() as w { w.write(w.read() + " world") }
+    with s.rread().acquire() as r { io.print(r.read()) }              # hello world
+    with s.rread().acquire() as r { io.print(len(r.read())) }         # 11
+}
+
+main()

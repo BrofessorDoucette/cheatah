@@ -22,6 +22,9 @@ add_subdirectory(tls)       # TLS 1.3 client (RFC 8446) on the cheatah crypto mo
 add_subdirectory(websocket) # RFC 6455 WebSocket client on tls + socket
 add_subdirectory(p256)      # NIST P-256 ECDSA (secp256r1), from scratch
 add_subdirectory(sys)
+add_subdirectory(regex)    # from-scratch linear-time regular expressions (lazy DFA)
+add_subdirectory(memory)   # header-only ownership/borrow: Owner/Lease/Request (engine = TDD, tests gated)
+add_subdirectory(thread)   # thread.spawn(f, args...) -> join-on-destroy Thread; shared state = memory's job
 # ndarray + linalg AND the crypto modules (hashlib, ed25519) are added at the root
 # (before this dir): linalg links ndarray, and purrc + the runtime both link the crypto.
 

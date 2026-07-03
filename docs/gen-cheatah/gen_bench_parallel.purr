@@ -1,0 +1,98 @@
+# gen_bench_parallel.purr — the pure-cheatah doc-render benchmark, PARALLELIZED across threads over
+# shared memory.Owners. Same render WORK as gen_bench.purr (so the byte total matches, and the timing
+# is apples-to-apples — the only difference is threading). Showcases four stdlib modules cooperating:
+#   parsers.xml — parse each Doxygen namespace XML (the from-scratch cheatah XML reader)
+#   memory      — ONE pinned Owner holds the read-only sources (coexisting shared read leases); TWO
+#                 Owners are the byte + function-count accumulators (exclusive write leases). The
+#                 drain-before-write engine makes both totals EXACT regardless of interleaving.
+#   thread      — thread.spawn runs the workers; each renders a slice of the modules.
+#   regex       — count the members that are functions (those with an argument list).
+# The byte + function totals are DETERMINISTIC (independent of thread count / interleaving).
+import io
+import os
+import time
+import string
+import parsers.xml
+import regex
+import memory
+import thread
+
+fn child_text(d, id, tag) { return parsers.xml.text(d, parsers.xml.find(d, id, tag)) }
+
+fn esc(s) {
+    let r = string.replace(s, "&", "&amp;")
+    r = string.replace(r, "<", "&lt;")
+    return string.replace(r, ">", "&gt;")
+}
+
+# Render sources [lo, hi) read from the SHARED owner (one parse pass each): accumulate the rendered
+# byte total AND — via regex — the count of function members, then publish both with exclusive writes.
+# The HTML built here is byte-identical to gen_bench.purr's render(), so the totals line up exactly.
+fn worker(srcs_o : memory.Owner<list<str>>, bytes_o : memory.Owner<int>,
+          fns_o : memory.Owner<int>, lo : int, hi : int) {
+    let re = regex.compile("\\([^)]*\\)")   # each thread owns its DFA cache (no shared regex state)
+    let lb = 0
+    let lf = 0
+    with srcs_o.rread().acquire() as r {          # one shared read lease covers this slice
+        let i = lo
+        while i < hi {
+            let d = parsers.xml.parse(r.read(i))
+            let root = parsers.xml.root(d)
+            for cd in parsers.xml.iter(d, root, "compounddef") {
+                lb = lb + len("<h1><code>" + esc(child_text(d, cd, "compoundname")) + "</code></h1>\n")
+                for md in parsers.xml.iter(d, cd, "memberdef") {
+                    let args = child_text(d, md, "argsstring")
+                    if regex.search(re, args) { lf = lf + 1 }
+                    let html = "<section class=\"member\"><span class=\"badge\">"
+                    html = html + parsers.xml.attr(d, md, "kind") + "</span> <code>"
+                    html = html + esc(child_text(d, md, "name")) + esc(args)
+                    html = html + "</code><p>" + esc(child_text(d, md, "briefdescription")) + "</p></section>\n"
+                    lb = lb + len(html)
+                }
+            }
+            i = i + 1
+        }
+    }
+    with bytes_o.rwrite().acquire() as w { w.write(w.read() + lb) }
+    with fns_o.rwrite().acquire() as w { w.write(w.read() + lf) }
+}
+
+fn main() {
+    let dir = "docs/xml"
+    let srcs: list<str> = []
+    for f in os.listdir(dir) {
+        if string.startswith(f, "namespacecheatah_") and string.endswith(f, ".xml") {
+            srcs.append(io.read_file(os.path.join(dir, f)))
+        }
+    }
+    let n = len(srcs)
+    let srcs_o = memory.own(srcs)
+
+    let iters = 25
+    let best = 1000000.0
+    let bytes = 0
+    let fns = 0
+    let q = n / 4
+    let k = 0
+    while k < iters {
+        let bytes_o = memory.own(0)
+        let fns_o = memory.own(0)
+        let t0 = time.perf_counter()
+        with thread.spawn(worker, srcs_o, bytes_o, fns_o, 0, q) {
+            with thread.spawn(worker, srcs_o, bytes_o, fns_o, q, q + q) {
+                with thread.spawn(worker, srcs_o, bytes_o, fns_o, q + q, q + q + q) {
+                    with thread.spawn(worker, srcs_o, bytes_o, fns_o, q + q + q, n) {
+                    }
+                }
+            }
+        }
+        let dt = time.perf_counter() - t0
+        if dt < best { best = dt }
+        with bytes_o.rread().acquire() as r { bytes = r.read() }
+        with fns_o.rread().acquire() as r { fns = r.read() }
+        k = k + 1
+    }
+    io.print("cheatah-parallel files=" + io.str(n) + " out_bytes=" + io.str(bytes) + " fns=" + io.str(fns) + " best_ms=" + io.str(best * 1000.0))
+}
+
+main()

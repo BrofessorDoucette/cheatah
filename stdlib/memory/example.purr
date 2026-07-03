@@ -1,0 +1,40 @@
+# example.purr — how you'd use the `memory` module (Owner<T> + Lease<T, read|write>).
+# ILLUSTRATIVE: this is the real cheatah surface (it compiles). The Owner engine is still TDD, so it
+# won't RUN until that's implemented. No `view`, no `.copy()`: every accessor returns a Request you
+# `.acquire()` into a lease; you READ a read lease with `.read()` and SET a write lease with
+# `.write(value)` (for in-place container/field edits, the write lease also gives a `.write()` ref).
+import io
+import memory
+
+struct Counter { n: int }
+
+fn main() {
+    # `own(...)` gives the SOLE owner + coordinator. Policy is fixed at construction (default
+    # `interleave`; or `memory.writes_first`). The type is deduced — you don't spell the template.
+    let owner = memory.own(Counter(0))
+
+    # READ: rread() -> Request; .acquire() blocks until granted, then hands you a shared read lease.
+    with owner.rread().acquire() as r {
+        io.print("count =", r.read().n)          # 0
+    }
+
+    # WRITE: rwrite() -> Request; .acquire() drains readers, then hands over exclusive access.
+    # `write` is a SETTER — read the current value, then write the updated one:
+    with owner.rwrite().acquire() as w {
+        w.write(Counter(w.read().n + 1))
+    }
+    # ...or replace the whole value outright with `w.write(value)`:
+    with owner.rwrite().acquire() as w {
+        w.write(Counter(42))
+    }
+
+    with owner.rread().acquire() as r {
+        io.print("count now =", r.read().n)      # 42
+    }
+
+    # (Write PRIORITIES + the immediate-write `owner.rwrite<memory.immediate>()`, and spawning threads over
+    #  a shared owner, belong to the `thread` module built on top of this — they need compiler support
+    #  for template-arg calls and native threads, so they're not shown in this pure-cheatah example.)
+}
+
+main()

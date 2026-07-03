@@ -1,9 +1,12 @@
 #include "codegen.hpp"
 
+#include <algorithm>
+#include <array>
 #include <map>
 #include <optional>
 #include <set>
 #include <sstream>
+#include <string>
 #include <string_view>
 
 namespace cheatah {
@@ -36,6 +39,35 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
     const auto it = kBuiltins.find(name);
     if (it == kBuiltins.end()) return std::nullopt;
     return it->second;
+}
+
+// C++ keywords a cheatah identifier can legally be but C++ cannot. cheatah's own keyword set
+// (is_keyword, lexer.cpp) is far smaller, so `delete`, `new`, `default`, `class`, `int`, … are
+// valid cheatah identifiers yet reserved in C++ — emitting one verbatim (`auto delete(...)`)
+// fails to compile. Sorted for binary_search; keep alphabetical.
+bool is_cpp_keyword(std::string_view w) {
+    static constexpr std::array<std::string_view, 79> kCppKeywords{
+        "alignas", "alignof", "asm", "auto", "bool", "break", "case", "catch", "char",
+        "char16_t", "char32_t", "char8_t", "class", "const", "const_cast", "consteval",
+        "constexpr", "constinit", "continue", "decltype", "default", "delete", "do", "double",
+        "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for",
+        "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new",
+        "noexcept", "nullptr", "operator", "private", "protected", "public", "register",
+        "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static",
+        "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local",
+        "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
+        "virtual", "void", "volatile", "wchar_t", "while",
+    };
+    return std::binary_search(kCppKeywords.begin(), kCppKeywords.end(), w);
+}
+
+// The C++-safe spelling of a cheatah IDENTIFIER (fn/method/param/variable/field/enum-member):
+// append '_' to dodge a C++ keyword clash. Applied SYMMETRICALLY at declaration and every use
+// site so decl and reference always match; string-literal contexts (JSON keys, print labels,
+// enum debug names) keep the original spelling. Type names are NOT routed through this (naming
+// a struct/enum/interface after a C++ keyword is unsupported).
+std::string cpp_ident(std::string_view name) {
+    return is_cpp_keyword(name) ? std::string(name) + "_" : std::string(name);
 }
 
 // Does an lvalue expression have `self` at its root (self / self.x / self.xs[i])?
@@ -230,7 +262,14 @@ public:
             if (s->kind == StmtKind::Import) {
                 const auto& imp = static_cast<const Import&>(*s);
                 const std::string key = imp.alias.empty() ? imp.module.front() : imp.alias;
-                aliases_[key] = imp.module;
+                // A non-aliased `import a.b.c` binds only the HEAD `a` (Python semantics: the
+                // call site still writes `a.b.c.fn` in full, and the tail is appended there).
+                // Binding the whole path to `a` would double the tail — `a.b.fn` would resolve
+                // to `a::b::b::fn`. An `as` alias binds the FULL path, since the alias name
+                // stands in for all of it (`import a.b.c as z` makes `z` mean `a::b::c`).
+                aliases_[key] = imp.alias.empty()
+                                    ? std::vector<std::string>{imp.module.front()}
+                                    : imp.module;
                 roots_.insert(imp.module.front());
             } else if (s->kind == StmtKind::StructDef) {
                 {
@@ -332,7 +371,7 @@ public:
             for (std::size_t i = 0; i < sd.fields.size(); ++i) {
                 if (i) os << ", ";
                 os << "field(\"" << sd.fields[i].name << "\", &::" << ns << "::" << sd.name
-                   << "::" << sd.fields[i].name << ")";
+                   << "::" << cpp_ident(sd.fields[i].name) << ")";
             }
             os << ");\n";
         }
@@ -499,9 +538,9 @@ private:
     // include the module header. Same constrained-template lowering as gen_fn.
     void gen_fn_library(std::ostringstream& os, const FnDef& fd) {
         emit_doc(os, fd.doc);
-        os << (fd.is_constexpr ? "constexpr " : "") << "auto " << fd.name << "(";
+        os << (fd.is_constexpr ? "constexpr " : "") << "auto " << cpp_ident(fd.name) << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
-            os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+            os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
         }
         os << ") {\n";
         deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this function body
@@ -526,13 +565,13 @@ private:
                 ov_doc += "\n@return as the primary overload.";
             emit_doc(os, ov_doc);
             os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
-           << " " << fd.name << "(";
+           << " " << cpp_ident(fd.name) << "(";
             for (std::size_t i = 0; i < cut; ++i) {
-                os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+                os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
             }
-            os << ") { return " << fd.name << "(";
+            os << ") { return " << cpp_ident(fd.name) << "(";
             for (std::size_t i = 0; i < cut; ++i) {
-                os << (i != 0 ? ", " : "") << fd.params[i];
+                os << (i != 0 ? ", " : "") << cpp_ident(fd.params[i]);
             }
             for (std::size_t i = cut; i < fd.params.size(); ++i) {
                 os << (i != 0 ? ", " : "") << gen_expr(*fd.param_defaults[i]);
@@ -542,10 +581,19 @@ private:
         os << "\n";
     }
 
-    // A MODULE-QUALIFIED type spelling (`state.State`, `memory.Memory`) -> its C++ type, resolving
-    // the leading import alias the SAME way a `state.State()` call does (module_namespace). A name
-    // with no '.' is returned unchanged.
+    // A MODULE-QUALIFIED type spelling (`state.State`, `memory.Owner<int>`) -> its C++ type,
+    // resolving the leading import alias the SAME way a `state.State()` call does
+    // (module_namespace). A name with no '.' is returned unchanged. Template arguments are mapped
+    // through map_type_string, so a builtin spelled inside the angle brackets reaches C++ as its
+    // real type: `memory.Owner<int>` -> `::cheatah::memory::Owner<long long>` (matching what
+    // `memory.own(0)` deduces).
     std::string map_qualified_type(const std::string& type_name) const {
+        const std::size_t lt = type_name.find('<');
+        if (lt != std::string::npos) {
+            std::string inner = type_name.substr(lt + 1);
+            if (!inner.empty() && inner.back() == '>') inner.pop_back();
+            return map_qualified_type(type_name.substr(0, lt)) + "<" + map_type_args(inner) + ">";
+        }
         if (type_name.find('.') == std::string::npos) return type_name;
         std::vector<std::string> segs;
         std::size_t start = 0;
@@ -560,6 +608,60 @@ private:
                                                   : ("::cheatah::" + segs[0]);
         for (std::size_t i = 1; i < segs.size(); ++i) out += "::" + segs[i];
         return out;
+    }
+
+    // A comma-separated template-argument LIST from a type spelling, each argument mapped to its
+    // C++ type. Splits at depth-0 commas only — a nested generic (`list<dict<str,int>>`) stays one
+    // argument and recurses through map_type_string.
+    std::string map_type_args(const std::string& args) const {
+        std::string out;
+        int depth = 0;
+        std::size_t start = 0;
+        for (std::size_t i = 0; i <= args.size(); ++i) {
+            if (i == args.size() || (args[i] == ',' && depth == 0)) {
+                if (!out.empty()) out += ", ";
+                out += map_type_string(args.substr(start, i - start));
+                start = i + 1;
+            } else if (args[i] == '<') {
+                ++depth;
+            } else if (args[i] == '>') {
+                --depth;
+            }
+        }
+        return out;
+    }
+
+    // One cheatah type SPELLING (a parse_type_string result) -> its C++ type: builtins map to
+    // their C++ types, a generic maps base + arguments, an integer literal (a non-type template
+    // argument) and a plain struct/enum name stay verbatim. The string-level twin of map_type /
+    // map_type_arg — annotations reach codegen as flat strings, so template arguments are
+    // re-mapped here.
+    std::string map_type_string(const std::string& spelling) const {
+        if (spelling.empty()) return spelling;
+        if (spelling.find_first_not_of("0123456789") == std::string::npos) {
+            return spelling;  // a non-type template argument (`Store<float, 1024>`) — verbatim
+        }
+        const std::size_t lt = spelling.find('<');
+        if (lt == std::string::npos) {
+            if (spelling == "int") return "long long";
+            if (spelling == "float") return "double";
+            if (spelling == "str") return "std::string";
+            if (spelling == "bool") return "bool";
+            if (spelling == "ndarray") return "::cheatah::ndarray::NDArray";
+            return map_qualified_type(spelling);  // dotted -> resolved; a plain name -> unchanged
+        }
+        const std::string base = spelling.substr(0, lt);
+        std::string args = spelling.substr(lt + 1);
+        if (!args.empty() && args.back() == '>') args.pop_back();
+        if (base == "ndarray") {  // the enforced element spellings, as in map_type
+            if (args == "int") return "::cheatah::ndarray::basic_ndarray<long long>";
+            if (args == "float") return "::cheatah::ndarray::basic_ndarray<double>";
+            return "::cheatah::ndarray::NDArray";
+        }
+        if (base == "list") return "std::vector<" + map_type_args(args) + ">";
+        if (base == "dict") return "std::unordered_map<" + map_type_args(args) + ">";
+        if (base == "array") return "std::array<" + map_type_args(args) + ">";
+        return map_qualified_type(base) + "<" + map_type_args(args) + ">";
     }
 
     // The constraint prefix for a parameter declared with type @p type_name: an
@@ -646,7 +748,7 @@ private:
         emit_doc(os, ed.doc);
         os << "enum class " << ed.name << " {\n";
         for (const Enumerator& en : ed.enumerators) {
-            os << "    " << en.name;
+            os << "    " << cpp_ident(en.name);
             if (en.value) os << " = " << gen_expr(*en.value);
             os << ",\n";  // a trailing comma is valid in a C++ enumerator list
         }
@@ -659,7 +761,7 @@ private:
         // `Streamable`, so print/format/str-of-containers all pick it up via ADL.
         os << "inline std::ostream& operator<<(std::ostream& os_, " << ed.name << " v_) {\n";
         for (const Enumerator& en : ed.enumerators) {
-            os << "    if (v_ == " << ed.name << "::" << en.name << ") return os_ << \""
+            os << "    if (v_ == " << ed.name << "::" << cpp_ident(en.name) << ") return os_ << \""
                << ed.name << "." << en.name << "\";\n";
         }
         os << "    return os_ << \"" << ed.name
@@ -695,7 +797,7 @@ private:
         os << "struct " << sd.name << " {\n";
         for (const Field& f : sd.fields) {
             emit_doc(os, f.doc, "    ");  // library mode: the field's `#` doc -> its Javadoc
-            os << "    " << map_type(f.type) << " " << f.name << ";\n";
+            os << "    " << map_type(f.type) << " " << cpp_ident(f.name) << ";\n";
         }
         // Methods become member functions. A leading `self` param is implicit (it
         // is `*this`); the struct stays a C++ aggregate (member functions are
@@ -715,9 +817,9 @@ private:
                 const Field& f = sd.fields[i];
                 os << "        os_ << std::string(indent_ + 4, ' ') << \"" << f.name << " = \";\n";
                 if (struct_fields_.count(f.type.name))  // a (streamable) struct field -> recurse
-                    os << "        this->" << f.name << ".cheatah_pretty_print(os_, indent_ + 4);\n";
+                    os << "        this->" << cpp_ident(f.name) << ".cheatah_pretty_print(os_, indent_ + 4);\n";
                 else
-                    os << "        os_ << this->" << f.name << ";\n";
+                    os << "        os_ << this->" << cpp_ident(f.name) << ";\n";
                 os << "        os_ << \"" << (i + 1 < sd.fields.size() ? "," : "") << "\\n\";\n";
             }
             os << "        os_ << std::string(indent_, ' ') << \")\";\n";
@@ -745,7 +847,7 @@ private:
             os << "    return os_ << \"" << sd.name << "(\"";
             for (std::size_t i = 0; i < sd.fields.size(); ++i) {
                 os << " << \"" << (i == 0 ? "" : ", ") << sd.fields[i].name << "=\" << v_."
-                   << sd.fields[i].name;
+                   << cpp_ident(sd.fields[i].name);
             }
             os << " << \")\";\n";
             os << "}\n";
@@ -794,7 +896,7 @@ private:
                     if (f.name == si.fields[i]) { ftype = map_type(f.type); break; }
             }
             const std::string val = gen_expr(*si.values[i], ml ? inner : indent);
-            std::string entry = "." + si.fields[i] + " = ";
+            std::string entry = "." + cpp_ident(si.fields[i]) + " = ";
             if (ftype.empty()) {
                 diags_.push_back("codegen: struct '" + name + "' has no field '" + si.fields[i] +
                                  "'");
@@ -820,10 +922,10 @@ private:
 
     void gen_method(std::ostringstream& os, const FnDef& fd) {
         const bool has_self = !fd.params.empty() && fd.params[0] == "self";
-        os << "    auto " << fd.name << "(";
+        os << "    auto " << cpp_ident(fd.name) << "(";
         bool first = true;
         for (std::size_t i = (has_self ? 1 : 0); i < fd.params.size(); ++i) {
-            os << (first ? "" : ", ") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+            os << (first ? "" : ", ") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
             first = false;
         }
         // A method that never assigns through `self` is `const`, so it works on
@@ -896,9 +998,9 @@ private:
         // pins the return type (the C++ backend then checks every `return` against it);
         // absent, the return stays `auto`.
         os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
-           << " " << fd.name << "(";
+           << " " << cpp_ident(fd.name) << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
-            os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+            os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
         }
         os << ") {\n";
         deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this function body
@@ -923,13 +1025,13 @@ private:
                 ov_doc += "\n@return as the primary overload.";
             emit_doc(os, ov_doc);
             os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
-           << " " << fd.name << "(";
+           << " " << cpp_ident(fd.name) << "(";
             for (std::size_t i = 0; i < cut; ++i) {
-                os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << fd.params[i];
+                os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
             }
-            os << ") { return " << fd.name << "(";
+            os << ") { return " << cpp_ident(fd.name) << "(";
             for (std::size_t i = 0; i < cut; ++i) {
-                os << (i != 0 ? ", " : "") << fd.params[i];
+                os << (i != 0 ? ", " : "") << cpp_ident(fd.params[i]);
             }
             for (std::size_t i = cut; i < fd.params.size(); ++i) {
                 os << (i != 0 ? ", " : "") << gen_expr(*fd.param_defaults[i]);
@@ -1122,13 +1224,13 @@ private:
                         l.value->kind == ExprKind::DictLit &&
                         static_cast<const DictLit&>(*l.value).keys.empty();
                     if (empty_list || empty_dict) {
-                        os << indent << cx << map_type(l.type) << " " << l.name << ";\n";
+                        os << indent << cx << map_type(l.type) << " " << cpp_ident(l.name) << ";\n";
                     } else {
-                        os << indent << cx << map_type(l.type) << " " << l.name << " = "
+                        os << indent << cx << map_type(l.type) << " " << cpp_ident(l.name) << " = "
                            << gen_expr(*l.value, indent) << ";\n";
                     }
                 } else {
-                    os << indent << cx << "auto " << l.name << " = " << gen_expr(*l.value, indent)
+                    os << indent << cx << "auto " << cpp_ident(l.name) << " = " << gen_expr(*l.value, indent)
                        << ";\n";
                 }
                 return;
@@ -1141,7 +1243,7 @@ private:
                 if (a.op == "=" && a.target->kind == ExprKind::Ident) {
                     const std::string& tname = static_cast<const Ident&>(*a.target).name;
                     if (deferred_lets_.erase(tname)) {
-                        os << indent << "auto " << tname << " = " << gen_expr(*a.value, indent)
+                        os << indent << "auto " << cpp_ident(tname) << " = " << gen_expr(*a.value, indent)
                            << ";\n";
                         return;
                     }
@@ -1176,7 +1278,7 @@ private:
                                 ops[i]->kind == ExprKind::StringLit
                                     ? cpp_string_literal(static_cast<const StringLit&>(*ops[i]).value)
                                     : gen_expr(*ops[i]);
-                            expr = (i == 1) ? name + " += " + operand
+                            expr = (i == 1) ? cpp_ident(name) + " += " + operand
                                             : "(" + expr + ") += " + operand;
                         }
                         os << indent << expr << ";\n";
@@ -1223,7 +1325,7 @@ private:
                 const std::string name =
                     w.bind.empty() ? "_purr_with_" + std::to_string(with_id_++) : w.bind;
                 os << indent << "{\n";
-                os << indent << "    auto " << name << " = " << gen_expr(*w.resource) << ";\n";
+                os << indent << "    auto " << cpp_ident(name) << " = " << gen_expr(*w.resource) << ";\n";
                 gen_block(os, w.body, indent + "    ");
                 os << indent << "}\n";
                 return;
@@ -1240,7 +1342,7 @@ private:
                 gen_block(os, t.body, indent + "    ");
                 os << indent << "} catch (const std::exception& " << exc << ") {\n";
                 if (!t.catch_var.empty()) {
-                    os << indent << "    auto " << t.catch_var << " = std::string(" << exc
+                    os << indent << "    auto " << cpp_ident(t.catch_var) << " = std::string(" << exc
                        << ".what());\n";
                 }
                 gen_block(os, t.catch_body, indent + "    ");
@@ -1453,15 +1555,15 @@ private:
                     diags_.push_back("codegen: range() takes 1 or 2 arguments");
                     return;
                 }
-                os << indent << "for (long long " << f.var << " = " << start << "; " << f.var
-                   << " < " << stop << "; ++" << f.var << ") {\n";
+                os << indent << "for (long long " << cpp_ident(f.var) << " = " << start << "; " << cpp_ident(f.var)
+                   << " < " << stop << "; ++" << cpp_ident(f.var) << ") {\n";
                 gen_block(os, f.body, indent + "    ");
                 os << indent << "}\n";
                 return;
             }
         }
         // General container iteration: for x in <list/array/…> -> range-based for.
-        os << indent << "for (auto& " << f.var << " : " << gen_expr(*f.iterable) << ") {\n";
+        os << indent << "for (auto& " << cpp_ident(f.var) << " : " << gen_expr(*f.iterable) << ") {\n";
         gen_block(os, f.body, indent + "    ");
         os << indent << "}\n";
     }
@@ -1474,12 +1576,12 @@ private:
         std::string ns;
         std::size_t start = 0;
         if (!segs.empty() && aliased_roots_.count(segs[0])) {
-            ns = segs[0];
+            ns = cpp_ident(segs[0]);
             start = 1;
         } else {
             ns = "::cheatah";
         }
-        for (std::size_t i = start; i < segs.size(); ++i) ns += "::" + segs[i];
+        for (std::size_t i = start; i < segs.size(); ++i) ns += "::" + cpp_ident(segs[i]);
         return ns;
     }
 
@@ -1554,17 +1656,17 @@ private:
                     const auto it = aliases_.find(name);
                     if (it != aliases_.end()) return module_namespace(it->second);
                 }
-                return name;
+                return cpp_ident(name);
             }
             case ExprKind::Member: {
                 const auto& m = static_cast<const Member&>(e);
                 // A scoped enum member: EnumName.MEMBER -> EnumName::MEMBER.
                 if (m.object->kind == ExprKind::Ident &&
                     enum_names_.count(static_cast<const Ident&>(*m.object).name)) {
-                    return static_cast<const Ident&>(*m.object).name + "::" + m.name;
+                    return static_cast<const Ident&>(*m.object).name + "::" + cpp_ident(m.name);
                 }
                 if (auto path = resolve_module_path(m)) return module_namespace(*path);
-                return gen_expr(*m.object) + "." + m.name;
+                return gen_expr(*m.object) + "." + cpp_ident(m.name);
             }
             case ExprKind::Index: {
                 // Value position: negative-aware, and string indexing yields a
@@ -1670,7 +1772,7 @@ private:
                 std::string out = "{";
                 for (std::size_t i = 0; i < si.fields.size(); ++i) {
                     out += (i == 0 ? "" : ", ");
-                    out += "." + si.fields[i] + " = " + gen_expr(*si.values[i], indent);
+                    out += "." + cpp_ident(si.fields[i]) + " = " + gen_expr(*si.values[i], indent);
                 }
                 return out + "}";
             }

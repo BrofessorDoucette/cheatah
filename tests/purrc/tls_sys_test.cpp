@@ -32,12 +32,17 @@ class OpensslServer {
 public:
     explicit OpensslServer(long long port, const std::string& newkey = "ed25519",
                            const std::string& ciphersuites = "TLS_CHACHA20_POLY1305_SHA256")
+        // Per-port cert/key paths so concurrent TlsSys tests (ctest -j) don't clobber each other's
+        // files — the client now VALIDATES the cert, so a shared path would race into failures.
         : port_(port),
-          cert_(std::string(PURR_TEST_TMP) + "/tls_test_cert.pem"),
-          key_(std::string(PURR_TEST_TMP) + "/tls_test_key.pem") {
+          cert_(std::string(PURR_TEST_TMP) + "/tls_test_cert_" + std::to_string(port) + ".pem"),
+          key_(std::string(PURR_TEST_TMP) + "/tls_test_key_" + std::to_string(port) + ".pem") {
+        // Self-signed, with a subjectAltName so it is a valid trust anchor for "localhost": passed
+        // to the client as a ca_file (or via $SSL_CERT_FILE) it authenticates itself.
         const std::string gen = "openssl req -x509 -newkey " + newkey + " -keyout '" + key_ +
                                 "' -out '" + cert_ +
-                                "' -days 2 -nodes -subj /CN=localhost 2>/dev/null";
+                                "' -days 2 -nodes -subj /CN=localhost "
+                                "-addext subjectAltName=DNS:localhost 2>/dev/null";
         ok_ = std::system(gen.c_str()) == 0;
         if (!ok_) return;
         const std::string serve = "openssl s_server -accept " + std::to_string(port_) +
@@ -53,6 +58,7 @@ public:
     }
     [[nodiscard]] bool ok() const { return ok_; }
     [[nodiscard]] long long port() const { return port_; }
+    [[nodiscard]] const std::string& cert_path() const { return cert_; }
 
 private:
     long long port_;
@@ -70,7 +76,7 @@ TEST(TlsSys, HandshakeAgainstOpenssl) {
     const long long fd = sock::tcp_connect("127.0.0.1", server.port());
     ASSERT_GE(fd, 0);
     sock::set_timeout(fd, 5000);
-    const long long s = tls::client_connect(fd, "localhost");
+    const long long s = tls::client_connect(fd, "localhost", false, server.cert_path());
     ASSERT_GE(s, 0) << tls::last_error();
 
     ASSERT_EQ(tls::send(s, "GET / HTTP/1.0\r\n\r\n"), 0) << tls::last_error();
@@ -95,7 +101,7 @@ TEST(TlsSys, ConnGuardRoundTrip) {
     sock::Conn tcp = sock::open("127.0.0.1", server.port());
     ASSERT_TRUE(tcp.is_open()) << sock::last_error();
     tcp.set_timeout(5000);
-    tls::Conn conn = tls::open(tcp.fd(), "localhost");
+    tls::Conn conn = tls::open(tcp.fd(), "localhost", false, server.cert_path());
     ASSERT_TRUE(conn.is_open()) << tls::last_error();
     EXPECT_GT(conn.id(), 0);
 
@@ -123,11 +129,12 @@ namespace {
 // Connect to a local TLS 1.3 server, GET /, and return true iff it answered 200 over the encrypted
 // channel — i.e. the FULL cheatah handshake (key exchange + leaf-cert verify + record cipher) and an
 // encrypted round trip all succeeded. The per-cert/per-cipher system tests below assert on this.
-bool handshake_gets_200(long long port) {
+bool handshake_gets_200(long long port, const std::string& ca_file) {
     const long long fd = sock::tcp_connect("127.0.0.1", port);
     if (fd < 0) return false;
     sock::set_timeout(fd, 5000);
-    const long long s = tls::client_connect(fd, "localhost");
+    // Verify the server against its own self-signed cert (SAN localhost) supplied as the CA.
+    const long long s = tls::client_connect(fd, "localhost", false, ca_file);
     if (s < 0) {
         sock::close(fd);
         return false;
@@ -151,7 +158,7 @@ bool handshake_gets_200(long long port) {
 TEST(TlsSys, HandshakeRsaCertificate) {
     OpensslServer server(47941, "rsa:2048", "TLS_CHACHA20_POLY1305_SHA256");
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
-    EXPECT_TRUE(handshake_gets_200(server.port())) << tls::last_error();
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }
 
 // AES-128-GCM record cipher (Ed25519 cert isolates the cipher): exercises the AES-128-GCM
@@ -159,7 +166,7 @@ TEST(TlsSys, HandshakeRsaCertificate) {
 TEST(TlsSys, HandshakeAes128Gcm) {
     OpensslServer server(47942, "ed25519", "TLS_AES_128_GCM_SHA256");
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
-    EXPECT_TRUE(handshake_gets_200(server.port())) << tls::last_error();
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }
 
 // RSA leaf cert AND AES-128-GCM together — the exact combination required to reach exchanges whose
@@ -167,7 +174,7 @@ TEST(TlsSys, HandshakeAes128Gcm) {
 TEST(TlsSys, HandshakeRsaAndAes128Gcm) {
     OpensslServer server(47943, "rsa:2048", "TLS_AES_128_GCM_SHA256");
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
-    EXPECT_TRUE(handshake_gets_200(server.port())) << tls::last_error();
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }
 
 // ECDSA P-256 leaf certificate: exercises the ecdsa_secp256r1_sha256 CertificateVerify path.
@@ -175,7 +182,7 @@ TEST(TlsSys, HandshakeEcdsaP256Certificate) {
     OpensslServer server(47944, "ec -pkeyopt ec_paramgen_curve:prime256v1",
                          "TLS_CHACHA20_POLY1305_SHA256");
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
-    EXPECT_TRUE(handshake_gets_200(server.port())) << tls::last_error();
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }
 
 // No common cipher suite (server offers ONLY AES-256-GCM, which cheatah does not implement): the
@@ -299,16 +306,62 @@ TEST(TlsSys, ShortAlertRecordIsHandled) {
     sock::close(listen_fd);
 }
 
+// Verify-by-default REFUSES an untrusted (self-signed, unknown-CA) server: this is the MITM
+// defense — key possession alone no longer completes the handshake. Exercises the default
+// (system) trust store + the validation-failure path.
+TEST(TlsSys, VerifyRejectsUntrustedServer) {
+    OpensslServer server(47934);
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    const long long fd = sock::tcp_connect("127.0.0.1", server.port());
+    ASSERT_GE(fd, 0);
+    sock::set_timeout(fd, 5000);
+    const long long s = tls::client_connect(fd, "localhost");  // no ca_file -> system store only
+    EXPECT_LT(s, 0);
+    EXPECT_NE(tls::last_error().find("certificate validation failed"), std::string::npos)
+        << tls::last_error();
+    sock::close(fd);
+}
+
+// Verify-by-default REFUSES a certificate whose SAN does not match the requested hostname (even
+// though the cert is otherwise trusted via ca_file).
+TEST(TlsSys, VerifyRejectsWrongHostname) {
+    OpensslServer server(47935);  // SAN = localhost
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    const long long fd = sock::tcp_connect("127.0.0.1", server.port());
+    ASSERT_GE(fd, 0);
+    sock::set_timeout(fd, 5000);
+    const long long s = tls::client_connect(fd, "wrong.example", false, server.cert_path());
+    EXPECT_LT(s, 0);
+    EXPECT_NE(tls::last_error().find("host"), std::string::npos) << tls::last_error();
+    sock::close(fd);
+}
+
+// insecure=true (a pinned/controlled peer) skips validation: the same untrusted, wrong-hostname
+// server that verification refuses is accepted.
+TEST(TlsSys, InsecureSkipsValidation) {
+    OpensslServer server(47936);
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    const long long fd = sock::tcp_connect("127.0.0.1", server.port());
+    ASSERT_GE(fd, 0);
+    sock::set_timeout(fd, 5000);
+    const long long s = tls::client_connect(fd, "wrong.example", true, "");  // insecure -> no checks
+    ASSERT_GE(s, 0) << tls::last_error();
+    tls::close(s);
+    sock::close(fd);
+}
+
 // THE FINALE: a pure-cheatah https GET — requests.purr (HTTP in .purr) over the tls module
-// (from-scratch TLS 1.3) over the cheatah crypto modules, against a real TLS server.
+// (from-scratch TLS 1.3) over the cheatah crypto modules, against a real TLS server, WITH full
+// certificate validation (the cert's own PEM as the trusted CA; host "localhost" matches its SAN).
 TEST(TlsSys, HttpsGet) {
     OpensslServer server(47933);
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
     const std::string src = "import requests\nimport io\n"
-                            "let o = requests.Options({.timeout_ms = 5000})\n"
-                            "let r = requests.get(\"https://127.0.0.1:" +
+                            "let o = requests.Options({.timeout_ms = 5000, .ca_file = \"" +
+                            server.cert_path() + "\"})\n"
+                            "let r = requests.get(\"https://localhost:" +
                             std::to_string(server.port()) +
-                            "/\", o)\nio.print(r.status)\nio.print(r.ok())\n"
+                            "/\", o)\nio.print(r.status_code)\nio.print(r.ok())\n"
                             "io.print(len(r.body) > 0)\n";
     e2e::expect_e2e("requests_https_get", src, "200\nTrue\nTrue\n");
 }

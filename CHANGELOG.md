@@ -3,6 +3,79 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## Unreleased (v1.4.0-alpha) — ownership, threads, and safe borrows
+
+### New `memory` module — an ownership/borrow engine (`Owner` / `Lease` / `Request`)
+- **`memory.own(value) -> Owner<T>`** takes SOLE ownership by **moving** the value in (it is
+  *consumed*, never copied); an `Owner` is non-copyable and pinned, so its object never moves and a
+  borrow can never dangle. `T` is the only type you spell — the scheduling policy is a constructor
+  argument.
+- **Every access is a request → acquire → lease.** `o.rread()` / `o.rwrite<priority>()` return a
+  `Request`; `.acquire()` blocks until the owner grants a **`Lease`** — the only handle to the object.
+  Read leases are shared (they coexist); write leases are exclusive.
+- **Setters and symmetric getters, concept-gated on the owned type.** `write` is a setter (never
+  returns a mutable object): `w.write(value)`, and — deduced — `w.write(index, v)` for sequences and
+  `w.write(key, v)` for maps. `read` mirrors it: `r.read()`, `r.read(index)`, `r.read(key)`, plus
+  `r.read_front()` / `r.read_back()` where the container has them. `read` always returns a **reference**.
+- **A hand-rolled priority reader/writer engine** (one mutex + condition variable over explicit state,
+  since `std::shared_mutex` can't honor priorities): **drain-before-write** (a write waits for readers
+  to release; a reader looping on `valid()` yields), a **priority queue** of waiting writes
+  (`o.rwrite<10>()` jumps ahead), and **immediate-writes** (`o.rwrite<memory.immediate>()`, any
+  negative priority) that preempt an active cooperating writer, do their work, and let it resume.
+  Deterministic-final results under nondeterministic interleaving; ASan/UBSan-clean.
+
+### `regex` — the match is now **owned**, no more borrowed `view`
+- **`regex.find(...).text` is an owned `str`** (the library copies the matched bytes), so it is always
+  safe to keep, pass, or return — even off a temporary input. The old borrowed `view<str>` (which
+  dangled on a temporary — a use-after-free) is **removed entirely**, along with the `view<T>` type
+  from the prelude. `.begin`/`.end` offsets remain for callers who want to slice their own input
+  zero-copy. cheatah is C++ — *somewhere* we own the string.
+
+### New `thread` module — cheatah gets real OS threads
+- **`thread.spawn(f, args...) -> Thread`** runs a cheatah `fn` on a new thread; the returned
+  guard is move-only and **joins at scope exit** (plain `let`, `with`, or unwinding — every
+  thread finishes before `main` returns). **No `detach`, by design**: the host unloads the
+  program's module right after `main`, and an unjoined thread would break the deterministic-
+  cleanup guarantee.
+- **Copy-in by default; an `Owner` by reference.** Every copyable argument is copied into the
+  thread (a worker owns its values — you cannot accidentally share a plain value); a movable
+  rvalue is moved in; a pinned, non-copyable `memory.Owner<T>` is the deliberate exception and
+  travels by reference — the module's design funnels shared mutable state through the `memory`
+  module's request → acquire → lease flow. A non-copyable temporary does not compile.
+- **A worker `raise` re-surfaces at `t.join()`** (catch it in-language with `try`/`except`);
+  an exception nobody joined for is reported on stderr by the guard's destructor. `joinable()`
+  tracks the handle's lifecycle.
+- **The threading contract is documented** (`docs/threading.md`): races are the developer's
+  responsibility — cheatah keeps per-thread guarantees airtight and pushes sharing toward
+  `memory.Owner` (an `Owner` *is* the lock; `memory.own(false)` is a stop latch).
+
+### Codegen
+- **Template arguments inside module-qualified type annotations now map like every other
+  cheatah type**: a parameter `o : memory.Owner<int>` lowers to the concrete
+  `memory::Owner<long long>&` that `memory.own(0)` deduces (previously the `int` leaked
+  through raw). Locked in by an emitted-source assertion (`StdlibE2E.ThreadOwnerParamLowering`).
+
+### Quality
+- **New ThreadSanitizer gate**: a `tsan` CMake preset (mutually exclusive with the ASan one)
+  and a QA-gate stage that runs the concurrency-relevant suites under TSan
+  (`QA_GATE_SKIP_TSAN=1` to skip locally) — a data race in the standard library now fails the
+  gate.
+- **`random` is per-thread**: the once-shared Mersenne Twister is now `thread_local`
+  (concurrent draws from spawned workers never race; `random.seed` seeds the calling thread
+  only, and each new thread self-seeds from `std::random_device`).
+
+### Docs & tooling
+- **Dogfooding, now parallel.** The pure-cheatah doc-render benchmark gains a **parallel** variant
+  ([`docs/gen-cheatah/gen_bench_parallel.purr`](docs/gen-cheatah/gen_bench_parallel.purr)) — the read-
+  only Doxygen XML lives in one shared `memory.Owner` (coexisting read leases), workers accumulate the
+  rendered-byte and (regex-counted) function totals into `Owner`s via exclusive writes, and the result
+  is **byte-identical** to the single-threaded run. Four modules cooperating (`parsers.xml` + `regex` +
+  `memory` + `thread`): ~1.8× the single-threaded speed and **4.3× CPython**, deterministic. See
+  [Performance → Dogfooding](docs/performance.md).
+- **VS Code extension → 1.3.0** (aligned with the toolchain): grammar recognizes the full stdlib module
+  list (`p256`/`x25519` added) and highlights `constexpr`/`auto`; added a LICENSE file and CHANGELOG,
+  refreshed README, dropped the committed `.vsix` build artifact.
+
 ## v1.3.0-alpha (2026-07-01) — deterministic resource cleanup, an airtight memory-leak guarantee, first-class crypto/networking
 
 The standard-library release: cheatah gains a `with` statement and owning RAII guards, the

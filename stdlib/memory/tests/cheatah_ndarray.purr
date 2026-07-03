@@ -1,0 +1,27 @@
+# cheatah_ndarray.purr — REAL cheatah test: an Owner of an ndarray (the user's headline use case).
+# Set individual elements with the indexed setter `w.write(index, value)`; partial writes must leave
+# the rest untouched, and a later read must see exactly what was written. TDD spec. Expected stdout:
+#   True
+#   True
+#   True
+import io
+import memory
+import ndarray
+
+fn main() {
+    let arr = memory.own(ndarray.zeros([4]))
+
+    # set two elements exclusively via the indexed setter; the other two stay 0.
+    with arr.rwrite().acquire() as w {
+        w.write(0, 10.0)
+        w.write(3, 20.0)
+    }
+
+    with arr.rread().acquire() as r {
+        io.print(r.read()[0] == 10.0)                 # True
+        io.print(r.read()[3] == 20.0)                 # True
+        io.print(r.read()[1] == 0.0 and r.read()[2] == 0.0)   # True — untouched
+    }
+}
+
+main()

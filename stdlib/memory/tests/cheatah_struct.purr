@@ -1,0 +1,26 @@
+# cheatah_struct.purr — REAL cheatah test: owner of a struct, per-field writes stay consistent.
+# Expected. Expected stdout:
+#   0 0
+#   3 4
+#   7
+import io
+import memory
+
+struct Point { x: int, y: int }
+
+fn main() {
+    let owner = memory.own(Point(0, 0))
+
+    with owner.rread().acquire() as r { io.print(r.read().x, r.read().y) }   # 0 0
+
+    # set the whole struct under one exclusive write lease (write is a setter).
+    with owner.rwrite().acquire() as w {
+        w.write(Point(3, 4))
+    }
+    with owner.rread().acquire() as r { io.print(r.read().x, r.read().y) }   # 3 4
+
+    # the object is shared, not copied: a read sees the write, and derived reads are consistent.
+    with owner.rread().acquire() as r { io.print(r.read().x + r.read().y) }  # 7
+}
+
+main()

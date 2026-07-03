@@ -49,6 +49,43 @@ Lorenz runs just as fast, but its final state diverges between floating-point
 implementations — `-march=native` uses FMA, CPython doesn't — so we integrate a harmonic
 oscillator and cross-check its conserved **energy** instead.)
 
+## Dogfooding: cheatah generates its own docs {#vs-cpython-docgen}
+
+A different shape of workload — real tooling, not a compute kernel. cheatah's own
+documentation is generated from Doxygen XML, and we have the **same generator written in
+both languages**: [`gen_bench.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/docs/gen-cheatah/gen_bench.purr)
+(using the from-scratch [`parsers.xml`](namespacecheatah_1_1parsers_1_1xml.html) reader) and
+[`gen_bench.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/docs/gen-cheatah/gen_bench.py)
+(using CPython's C-accelerated `xml.etree`). Each parses **all 48 namespace XML files** and
+renders every module's members to HTML; compute-only, best of 25 runs:
+
+| generator | best of 25 | vs CPython |
+|-----------|-----------:|-----------:|
+| CPython (`xml.etree`, native `expat`) | 13.4 ms | 1.0× |
+| cheatah, single-threaded ([`gen_bench.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/docs/gen-cheatah/gen_bench.purr)) | 5.7 ms | **2.3×** |
+| cheatah, 4 threads over a shared `memory.Owner` ([`gen_bench_parallel.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/docs/gen-cheatah/gen_bench_parallel.purr)) | 3.1 ms | **4.3×** |
+
+Note the **honest asterisk** on the single-threaded row: this is the *floor*, not the ceiling.
+Almost all of that time is inside the XML parser + tree walk, and CPython gets to use a **native
+C** parser (`expat`), so there is no interpreter loop for cheatah to leave behind here — yet the
+**from-scratch cheatah parser + compiled render still finishes in ~40% of the time**, with no C
+extension involved. The 65–96× gaps above appear precisely where the work *is* an interpreter loop;
+a task dominated by an already-native library narrows honestly to ~2×.
+
+### The parallel row — `memory` + `thread`, four modules cooperating
+
+The parallel generator is the same work spread across four threads, and it is the clearest
+demonstration of what the `memory` and `thread` modules are *for*: the read-only XML sources live in
+**one pinned `memory.Owner`** that every thread reads through **coexisting shared read leases**, while
+two accumulators (rendered bytes, and — counted with **`regex`** — the number of function members)
+are `memory.Owner`s written through **exclusive write leases**. The ownership engine's
+*drain-before-write* discipline makes both totals **exact** — the parallel run's output is
+**byte-identical** to the single-threaded run (86 862 bytes, 402 functions) — so this is genuine
+parallelism with a **deterministic** result, not a race. At ~1.8× the single-threaded speed (and 4.3×
+CPython) on a workload this small, it is the "own an object, hand leases to threads, get honest
+speedups on deterministic work" story end-to-end, in pure cheatah (`parsers.xml` + `regex` + `memory`
++ `thread`).
+
 ## Measuring `@perf`: cheatah vs CPython, exactly {#measuring-perf}
 
 Many standard-library functions carry a **Performance** row on their reference page —
@@ -143,10 +180,38 @@ contention, no thread count to tune; the same code runs the same way every time.
 one remaining edge is the very large dense problems where its BLAS spreads across many
 cores — a *different operating point*, not a faster algorithm. Our bet is the opposite:
 make a single core as fast as it can possibly be, and let *you* decide when to multiply
-that by your core count. Eight cores and an embarrassingly parallel sweep — a parameter
-scan, a batch of small eigenproblems, a Monte-Carlo run — give an honest ~8× by running
-eight cheatah problems at once, explicitly, with no magic. Predictable single-core speed
-composes; opaque auto-parallelism doesn't.
+that by your core count. Predictable single-core speed composes; opaque auto-parallelism
+doesn't. And composing it is now a language feature, not a shell trick — measured next.
+
+## Composing parallelism with `thread` {#vs-parallel}
+
+The `thread` module makes the "you decide when to multiply by your core count" promise
+concrete: `thread.spawn(f, args...)` runs a cheatah `fn` per worker, and a shared
+`memory.Owner` collects results through leases. Here is the 20-million-point trapezoid
+integral from the table above, split into per-worker chunks — each worker integrates
+into a **local** sum and makes **one** lease write at the end (coordinate at the edges,
+never inside the hot loop):
+
+| workers | wall time | speedup | integral |
+|--------:|----------:|--------:|----------|
+| 1 | 173 ms | — | 0.416268 |
+| 2 |  91 ms | **1.9×** | 0.416268 |
+| 4 |  58 ms | **3.0×** | 0.416268 |
+| 8 |  37 ms | **4.7×** | 0.416268 |
+
+(The benchmark is [`scripts/bench/integral_threads.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/bench/integral_threads.purr);
+median of repeated runs on the reference machine. The **integral is bit-identical at
+every worker count** — chunk sums are added through exclusive write leases, so
+parallelism changes the wall clock, not the answer.)
+
+Two honest notes. First, the scaling is real but not magic: the reference machine is a
+hybrid-core laptop part (6 performance + 8 efficiency cores), so beyond the P-core
+budget the marginal worker is a slower core running at a lower all-core turbo — 4.7× on
+8 workers is what this silicon gives *any* native code, not a cheatah tax. Second, the
+one-lease-write-per-worker shape is the intended idiom: an `Owner` lease acquired inside
+a 20M-iteration loop would benchmark the lock, not the math. The
+[threading contract](threading.html) spells out the model — spawn copies its arguments,
+an `Owner` travels by reference, and every thread joins before `main` returns.
 
 ## Cryptography vs OpenSSL {#vs-openssl}
 

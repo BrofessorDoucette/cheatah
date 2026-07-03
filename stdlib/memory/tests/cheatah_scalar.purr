@@ -1,0 +1,29 @@
+# cheatah_scalar.purr — REAL cheatah test of the memory surface (scalar owner).
+# Expected. Expected stdout:
+#   5
+#   7
+#   12
+import io
+import memory
+
+fn main() {
+    let owner = memory.own(0)
+
+    # a write lease grants exclusive mutable access; the value persists after the lease ends.
+    with owner.rwrite().acquire() as w { w.write(5) }
+    with owner.rread().acquire() as r { io.print(r.read()) }        # 5
+
+    # a second write overwrites; a fresh read sees it.
+    with owner.rwrite().acquire() as w { w.write(7) }
+    with owner.rread().acquire() as r { io.print(r.read()) }        # 7
+
+    # read-modify-write: read (and RELEASE the read lease) first, then take the write lease. Holding a
+    # read lease while asking for a write on the same owner would self-deadlock (the write drains
+    # readers, but your own read lease never releases) — so the read `with` block closes first.
+    let cur = 0
+    with owner.rread().acquire() as r { cur = r.read() }
+    with owner.rwrite().acquire() as w { w.write(cur + 5) }
+    with owner.rread().acquire() as r { io.print(r.read()) }        # 12
+}
+
+main()

@@ -1,0 +1,59 @@
+# gen_bench.purr — times the pure-cheatah doc-render work (parse every Doxygen namespace
+# XML + build each module's member HTML), for a like-for-like comparison against the same
+# task in Python (docs/gen-cheatah/gen_bench.py). Compute-only: files are read up front.
+import io
+import os
+import time
+import string
+import parsers.xml
+
+fn child_text(d, id, tag) { return parsers.xml.text(d, parsers.xml.find(d, id, tag)) }
+
+fn esc(s) {
+    let r = string.replace(s, "&", "&amp;")
+    r = string.replace(r, "<", "&lt;")
+    return string.replace(r, ">", "&gt;")
+}
+
+fn render(src) {
+    let d = parsers.xml.parse(src)
+    let r = parsers.xml.root(d)
+    let out = ""
+    for cd in parsers.xml.iter(d, r, "compounddef") {
+        out = out + "<h1><code>" + esc(child_text(d, cd, "compoundname")) + "</code></h1>\n"
+        for md in parsers.xml.iter(d, cd, "memberdef") {
+            let brief = esc(child_text(d, md, "briefdescription"))
+            out = out + "<section class=\"member\"><span class=\"badge\">"
+            out = out + parsers.xml.attr(d, md, "kind") + "</span> <code>"
+            out = out + esc(child_text(d, md, "name")) + esc(child_text(d, md, "argsstring"))
+            out = out + "</code><p>" + brief + "</p></section>\n"
+        }
+    }
+    return out
+}
+
+fn main() {
+    let dir = "docs/xml"
+    let srcs: list<str> = []
+    for f in os.listdir(dir) {
+        if string.startswith(f, "namespacecheatah_") and string.endswith(f, ".xml") {
+            srcs.append(io.read_file(os.path.join(dir, f)))
+        }
+    }
+    let iters = 25
+    let best = 1000000.0
+    let bytes = 0
+    let k = 0
+    while k < iters {
+        let t0 = time.perf_counter()
+        let b = 0
+        for s in srcs { b = b + len(render(s)) }
+        let dt = time.perf_counter() - t0
+        if dt < best { best = dt }
+        bytes = b
+        k = k + 1
+    }
+    io.print("cheatah  files=" + io.str(len(srcs)) + " out_bytes=" + io.str(bytes) + " best_ms=" + io.str(best * 1000.0))
+}
+
+main()

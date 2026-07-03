@@ -433,10 +433,13 @@ ResolvedModule resolve_module(const std::string& m) {
         }
     }
     // 3) Baked toolchain fallback (first-party stdlib modules under the toolchain root; their
-    //    archives live in the lib dir). Unchanged from before.
+    //    archives live in the lib dir). A HEADER-ONLY stdlib module (e.g. `memory`) has no archive,
+    //    so link it only if the .a actually exists — matching the guards at (1)/(2). Setting a
+    //    nonexistent archive here would fail the link of every header-only import.
     ResolvedModule r;
     r.include_dir = std::string(CHEATAH_ROOT) + "/" + m;
-    r.archive = std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a";
+    const std::string ar = std::string(CHEATAH_LIB_DIR) + "/libcheatah_" + m + ".a";
+    if (file_exists(ar)) r.archive = ar;
     r.header = r.include_dir + "/" + m + ".hpp";
     r.resolved = file_exists(r.header);
     return r;

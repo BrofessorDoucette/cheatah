@@ -38,7 +38,7 @@ TEST(RequestsSys, BasicGet) {
     const std::string src = "import requests\nimport io\n"
                             "let r = requests.get(\"http://127.0.0.1:" + std::to_string(port) +
                             "/greeting\")\n"
-                            "io.print(r.status)\nio.print(r.ok())\nio.print(r.body)\n";
+                            "io.print(r.status_code)\nio.print(r.ok())\nio.print(r.body)\n";
     e2e::expect_e2e("requests_basic_get", src, "200\nTrue\nhello from cheatah\n");
     server.join();
     sock::close(fd);
@@ -53,7 +53,7 @@ TEST(RequestsSys, NotFound) {
     const std::string src = "import requests\nimport io\n"
                             "let r = requests.get(\"http://127.0.0.1:" + std::to_string(port) +
                             "/missing\")\n"
-                            "io.print(r.status)\nio.print(r.ok())\nio.print(r.error == \"\")\n"
+                            "io.print(r.status_code)\nio.print(r.ok())\nio.print(r.error == \"\")\n"
                             "io.print(r.body)\n";
     e2e::expect_e2e("requests_not_found", src, "404\nFalse\nTrue\nnope\n");
     server.join();
@@ -98,7 +98,7 @@ TEST(RequestsSys, HttpsRefusesBadPeer) {
     const std::string src = "import requests\nimport io\nimport string\n"
                             "let o = requests.Options({.timeout_ms = 3000})\n"
                             "let r = requests.get(\"https://127.0.0.1:" + std::to_string(port) +
-                            "/\", o)\nio.print(r.status)\nio.print(string.contains(r.error, \"tls\"))\n";
+                            "/\", o)\nio.print(r.status_code)\nio.print(string.contains(r.error, \"tls\"))\n";
     e2e::expect_e2e("requests_https_bad_peer", src, "0\nTrue\n");
     peer.join();
     sock::close(fd);
@@ -273,6 +273,129 @@ TEST(RequestsSys, JsonIntegration) {
                             "if r.ok() and parsers.json.read(r.body, q) {\n"
                             "    io.print(q.symbol)\n    io.print(q.price)\n    io.print(q.live)\n}\n";
     e2e::expect_e2e("requests_json", src, "SPX\n7386.65\nTrue\n");
+    server.join();
+    sock::close(fd);
+}
+
+// Accept one connection, read the head AND any Content-Length body into @p captured, reply.
+// @complexity O(request size) @alloc the request buffer @test RequestsSys (helper)
+static void serve_capture(long long listen_fd, std::string* captured, std::string response) {
+    const long long client = sock::accept(listen_fd);
+    if (client < 0) return;
+    while (captured->find("\r\n\r\n") == std::string::npos) {
+        const std::string chunk = sock::recv(client, 4096);
+        if (chunk.empty()) break;
+        *captured += chunk;
+    }
+    const std::size_t he = captured->find("\r\n\r\n");
+    const std::size_t clp = captured->find("Content-Length:");
+    if (he != std::string::npos && clp != std::string::npos && clp < he) {
+        const long long want = std::atoll(captured->c_str() + clp + 15);
+        while (want > 0 && static_cast<long long>(captured->size() - (he + 4)) < want) {
+            const std::string chunk = sock::recv(client, 4096);
+            if (chunk.empty()) break;
+            *captured += chunk;
+        }
+    }
+    sock::sendall(client, response);
+    sock::close(client);
+}
+
+// POST a JSON body built with to_json: the wire carries POST + application/json + the body.
+TEST(RequestsSys, PostJson) {
+    const long long fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(fd, 0);
+    const long long port = sock::local_port(fd);
+    std::string captured;
+    std::thread server(serve_capture, fd, &captured,
+                       std::string("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok"));
+    const std::string src = "import requests\nimport io\n"
+                            "let o = requests.Options({.json_body = requests.to_json({\"side\": \"buy\"})})\n"
+                            "let r = requests.post(\"http://127.0.0.1:" + std::to_string(port) +
+                            "/order\", o)\nio.print(r.status_code)\nio.print(r.ok())\n";
+    e2e::expect_e2e("requests_post_json", src, "200\nTrue\n");
+    server.join();
+    sock::close(fd);
+    EXPECT_EQ(captured.rfind("POST /order ", 0), 0u) << captured;
+    EXPECT_NE(captured.find("Content-Type: application/json\r\n"), std::string::npos) << captured;
+    EXPECT_NE(captured.find("\r\n\r\n{\"side\":\"buy\"}"), std::string::npos) << captured;
+}
+
+// HTTP Basic auth puts the base64 Authorization header on the wire.
+TEST(RequestsSys, BasicAuth) {
+    const long long fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(fd, 0);
+    const long long port = sock::local_port(fd);
+    std::string captured;
+    std::thread server(serve_capture, fd, &captured,
+                       std::string("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok"));
+    const std::string src = "import requests\nimport io\n"
+                            "let o = requests.Options({.auth_user = \"user\", .auth_pass = \"pass\"})\n"
+                            "let r = requests.get(\"http://127.0.0.1:" + std::to_string(port) +
+                            "/a\", o)\nio.print(r.ok())\n";
+    e2e::expect_e2e("requests_basic_auth", src, "True\n");
+    server.join();
+    sock::close(fd);
+    EXPECT_NE(captured.find("Authorization: Basic dXNlcjpwYXNz\r\n"), std::string::npos) << captured;
+}
+
+// requests.delete() sends the DELETE method (the verb name is a C++ keyword, escaped by codegen).
+TEST(RequestsSys, Delete) {
+    const long long fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(fd, 0);
+    const long long port = sock::local_port(fd);
+    std::string captured;
+    std::thread server(serve_capture, fd, &captured,
+                       std::string("HTTP/1.1 200 OK\r\nContent-Length: 7\r\n\r\ndeleted"));
+    const std::string src = "import requests\nimport io\n"
+                            "let r = requests.delete(\"http://127.0.0.1:" + std::to_string(port) +
+                            "/thing\")\nio.print(r.status_code)\nio.print(r.text())\n";
+    e2e::expect_e2e("requests_delete", src, "200\ndeleted\n");
+    server.join();
+    sock::close(fd);
+    EXPECT_EQ(captured.rfind("DELETE /thing ", 0), 0u) << captured;
+}
+
+// HEAD yields headers only: an empty body even with a declared Content-Length.
+TEST(RequestsSys, Head) {
+    const long long fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(fd, 0);
+    const long long port = sock::local_port(fd);
+    std::thread server(serve_once, fd, "HTTP/1.1 200 OK\r\nContent-Length: 42\r\n\r\n");
+    const std::string src = "import requests\nimport io\n"
+                            "let r = requests.head(\"http://127.0.0.1:" + std::to_string(port) +
+                            "/h\")\nio.print(r.status_code)\nio.print(len(r.body))\n";
+    e2e::expect_e2e("requests_head", src, "200\n0\n");
+    server.join();
+    sock::close(fd);
+}
+
+// raise_for_status() raises on a 5xx — caught by a cheatah try/except.
+TEST(RequestsSys, RaiseForStatus) {
+    const long long fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(fd, 0);
+    const long long port = sock::local_port(fd);
+    std::thread server(serve_once, fd, "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n");
+    const std::string src = "import requests\nimport io\n"
+                            "let r = requests.get(\"http://127.0.0.1:" + std::to_string(port) +
+                            "/e\")\ntry {\n    r.raise_for_status()\n    io.print(\"no raise\")\n} except e {\n    io.print(\"caught\")\n}\n";
+    e2e::expect_e2e("requests_raise_for_status", src, "caught\n");
+    server.join();
+    sock::close(fd);
+}
+
+// no_redirect returns the 3xx directly instead of following it.
+TEST(RequestsSys, AllowRedirectsFalse) {
+    const long long fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(fd, 0);
+    const long long port = sock::local_port(fd);
+    std::thread server(serve_once, fd,
+                       "HTTP/1.1 302 Found\r\nLocation: /next\r\nContent-Length: 0\r\n\r\n");
+    const std::string src = "import requests\nimport io\n"
+                            "let o = requests.Options({.no_redirect = true})\n"
+                            "let r = requests.get(\"http://127.0.0.1:" + std::to_string(port) +
+                            "/start\", o)\nio.print(r.status_code)\nio.print(r.is_redirect())\n";
+    e2e::expect_e2e("requests_no_follow", src, "302\nTrue\n");
     server.join();
     sock::close(fd);
 }

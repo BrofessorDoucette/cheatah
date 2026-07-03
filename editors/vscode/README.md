@@ -28,7 +28,7 @@ language (`.purr`).
 **Quick (symlink into your extensions folder):**
 
 ```bash
-ln -s "$(pwd)/editors/vscode" ~/.vscode/extensions/cheatah-0.1.0
+ln -s "$(pwd)/editors/vscode" ~/.vscode/extensions/cheatah-1.3.0
 # then reload VS Code (Developer: Reload Window)
 ```
 
@@ -36,8 +36,8 @@ ln -s "$(pwd)/editors/vscode" ~/.vscode/extensions/cheatah-0.1.0
 
 ```bash
 cd editors/vscode
-npx @vscode/vsce package          # produces cheatah-0.1.0.vsix
-code --install-extension cheatah-0.1.0.vsix
+npx @vscode/vsce package          # produces cheatah-1.3.0.vsix
+code --install-extension cheatah-1.3.0.vsix
 ```
 
 Open any `.purr` file (e.g. [`stdlib/scripts/tour.purr`](../../stdlib/scripts/tour.purr))

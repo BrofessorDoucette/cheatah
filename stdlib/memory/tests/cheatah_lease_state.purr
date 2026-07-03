@@ -1,0 +1,20 @@
+# cheatah_lease_state.purr — REAL cheatah test: a read lease is valid() while nobody needs it back.
+# In a single thread with no pending writer, a held read lease stays valid the whole time.
+# Expected. Expected stdout:
+#   True
+#   False
+#   42
+import io
+import memory
+
+fn main() {
+    let owner = memory.own(42)
+
+    with owner.rread().acquire() as r {
+        io.print(r.valid())        # True  — nobody is waiting to write
+        io.print(r.expired())      # False — expired() is the negation of valid()
+        io.print(r.read())         # 42
+    }
+}
+
+main()

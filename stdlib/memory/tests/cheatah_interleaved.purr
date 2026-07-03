@@ -1,0 +1,32 @@
+# cheatah_interleaved.purr — REAL cheatah test: two owners, data-dependent lease interleaving, yet a
+# deterministic final state and a preserved invariant (a + b is conserved). This is the "nearly
+# indeterministic yet deterministic" idea expressed in a single thread: the ORDER of reads/writes is
+# driven by the data, but the result is exact. TDD spec. Expected stdout:
+#   50 50
+#   100
+import io
+import memory
+
+fn main() {
+    let a = memory.own(100)
+    let b = memory.own(0)
+
+    # move one unit from a to b, 50 times, each transfer gated on a's current value.
+    for _ in range(0, 50) {
+        let av = 0
+        with a.rread().acquire() as ra { av = ra.read() }
+        if av > 0 {
+            with a.rwrite().acquire() as wa { wa.write(wa.read() - 1) }
+            with b.rwrite().acquire() as wb { wb.write(wb.read() + 1) }
+        }
+    }
+
+    let fa = 0
+    let fb = 0
+    with a.rread().acquire() as ra { fa = ra.read() }
+    with b.rread().acquire() as rb { fb = rb.read() }
+    io.print(fa, fb)          # 50 50
+    io.print(fa + fb)         # 100 — the invariant held
+}
+
+main()

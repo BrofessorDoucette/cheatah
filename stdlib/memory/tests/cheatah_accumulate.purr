@@ -1,0 +1,24 @@
+# cheatah_accumulate.purr — REAL cheatah test: many sequential leases accumulate deterministically.
+# The interleaving of lease acquire/release is exercised heavily but the result is exact — the
+# single-threaded analogue of the concurrency suite's "deterministic final" property.
+# Expected. Expected stdout:
+#   1000
+#   0
+import io
+import memory
+
+fn main() {
+    let acc = memory.own(0)
+    for _ in range(0, 1000) {
+        with acc.rwrite().acquire() as w { w.write(w.read() + 1) }
+    }
+    with acc.rread().acquire() as r { io.print(r.read()) }     # 1000
+
+    # wind it back down to prove writes are not additive-only.
+    for _ in range(0, 1000) {
+        with acc.rwrite().acquire() as w { w.write(w.read() - 1) }
+    }
+    with acc.rread().acquire() as r { io.print(r.read()) }     # 0
+}
+
+main()

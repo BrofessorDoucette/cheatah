@@ -11,6 +11,7 @@ add_executable(cheatah_purrc_tests
     tls_sys_test.cpp           # TLS 1.3 client vs openssl s_server (test infra only)        # parsers module + dotted type imports + typed-reader schema synthesis
     websocket_sys_test.cpp     # RFC 6455 client vs a real Node `ws` wss echo server (test infra only)
     linalg_lsq_e2e_test.cpp
+    regex_e2e_test.cpp         # regex — adversarial end-to-end suite (ReDoS-safe, anchors, classes)
     # Comprehensive per-module system tests (suite StdlibE2E): each exercises
     # EVERY function of its module in one cohesive program (backs the @systest docs).
     builtins_sys_test.cpp
@@ -27,6 +28,7 @@ add_executable(cheatah_purrc_tests
     statistics_sys_test.cpp
     hashlib_sys_test.cpp
     ed25519_sys_test.cpp
+    thread_sys_test.cpp        # thread — spawn/join/with-guard/retry + Owner-param lowering
     # Per-function compile-run tests (one file per stdlib module).
     builtins_cr_test.cpp
     io_cr_test.cpp
@@ -42,6 +44,7 @@ add_executable(cheatah_purrc_tests
     statistics_cr_test.cpp
     hashlib_cr_test.cpp
     ed25519_cr_test.cpp
+    thread_cr_test.cpp
     # System-level tests: real multi-module mini-apps (suite SystemApps).
     app_grades_test.cpp
     app_matrix_test.cpp
@@ -96,6 +99,24 @@ add_dependencies(cheatah_purrc_tests
     cheatah_socket_static
     cheatah_ndarray_static
     cheatah_linalg_static
+    cheatah_regex_static       # regex_e2e_test (purrc links libcheatah_regex.a into the module)
+    cheatah_thread_static      # thread_cr_test / thread_sys_test
     cheatah_websocket_static)  # websocket_sys_test
 
 gtest_discover_tests(cheatah_purrc_tests TEST_PREFIX "purrc:")
+
+# ── memory: cheatah-surface suite (real cheatah .purr programs, compiled + run — GREEN) ──────
+# Real cheatah programs (stdlib/memory/tests/cheatah_*.purr) exercising the memory surface end-to-end
+# (own / rread / rwrite / acquire / read / write(value|index,value)). The Owner engine is implemented,
+# so these are real output checks that run in the gate.
+add_executable(cheatah_memory_e2e_tests memory_cheatah_e2e_test.cpp)
+target_link_libraries(cheatah_memory_e2e_tests PRIVATE GTest::gmock_main)
+target_include_directories(cheatah_memory_e2e_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(cheatah_memory_e2e_tests PRIVATE
+    PURRC_PATH="$<TARGET_FILE:purrc>"
+    CHEATAH_RUNTIME_PATH="$<TARGET_FILE:cheatah>"
+    PURR_TEST_TMP="${CMAKE_CURRENT_BINARY_DIR}"
+    MEMORY_PURR_DIR="${CMAKE_SOURCE_DIR}/stdlib/memory/tests")
+add_dependencies(cheatah_memory_e2e_tests purrc cheatah
+    cheatah_ndarray_static cheatah_thread_static)  # header-only memory; thread lib for concurrent .purr
+gtest_discover_tests(cheatah_memory_e2e_tests TEST_PREFIX "memory-cheatah:")

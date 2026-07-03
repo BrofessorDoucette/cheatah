@@ -1,0 +1,35 @@
+# cheatah_concurrent_sum.purr — REAL cheatah concurrency over a shared Owner (the headline use case).
+# Four threads each take an EXCLUSIVE write lease `quota` times and increment. The drain-before-write
+# engine makes the total exact — 4 * 5000 = 20000 — regardless of the (nondeterministic) interleaving.
+# This is the C++ ManyWritersDeterministicSum test rewritten with the cheatah `thread` module.
+# Expected stdout:
+#   20000
+import io
+import memory
+import thread
+
+fn worker(owner : memory.Owner<int>, quota : int) {
+    let done = 0
+    while done < quota {
+        with owner.rwrite().acquire() as w {
+            w.write(w.read() + 1)
+        }
+        done = done + 1
+    }
+}
+
+fn main() {
+    let owner = memory.own(0)
+    # each spawned Thread joins when its `with` block closes; the four run concurrently until then.
+    with thread.spawn(worker, owner, 5000) {
+        with thread.spawn(worker, owner, 5000) {
+            with thread.spawn(worker, owner, 5000) {
+                with thread.spawn(worker, owner, 5000) {
+                }
+            }
+        }
+    }
+    with owner.rread().acquire() as r { io.print(r.read()) }   # 20000, exactly
+}
+
+main()

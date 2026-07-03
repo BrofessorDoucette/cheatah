@@ -494,3 +494,39 @@ io.print(sign(-1), sign(0), sign(7))
                                                    "neg zero pos\n");
     EXPECT_NE(gen.find("switch ("), std::string::npos);
 }
+
+// Identifiers that are legal cheatah names but C++ keywords (`delete`, `new`, `default`,
+// `switch`, `template`, `typename`, …) are emitted with a trailing `_` so the generated C++
+// compiles — applied symmetrically at declaration and every use site (fn/method/field/param/
+// var/loop/catch). cheatah's own keyword set is smaller (is_keyword, lexer.cpp), so these
+// stay valid source. String-literal contexts (a struct's printed field label) keep the
+// ORIGINAL spelling, not the escaped one.
+TEST(LangFeatures, CppKeywordIdentifiersAreEscaped) {
+    const std::string gen = e2e::expect_e2e_source("lang_cpp_keyword_escape", R"PURR(import io
+struct Box {
+    new: int
+    default: str
+    fn delete(self) { return self.new }
+}
+fn make(new) {
+    return Box({.new = new, .default = "d"})
+}
+let b = make(5)
+io.print(b.delete())
+io.print(b.default)
+let switch = 3
+for template in range(0, switch) { io.print(template) }
+try { raise "boom" } except typename { io.print(typename) }
+)PURR",
+                                                   "5\nd\n0\n1\n2\nboom\n");
+    // Declarations + use sites escaped: the keyword-named function, field, param, var, and
+    // loop/catch variables all carry the trailing underscore in the emitted C++.
+    EXPECT_NE(gen.find("delete_("), std::string::npos) << "method name not escaped:\n" << gen;
+    EXPECT_NE(gen.find("new_"), std::string::npos) << "field/param name not escaped:\n" << gen;
+    EXPECT_NE(gen.find("switch_"), std::string::npos) << "variable name not escaped:\n" << gen;
+    EXPECT_NE(gen.find("template_"), std::string::npos) << "loop variable not escaped:\n" << gen;
+    // The RAW keyword never appears as a bare C++ identifier (would not compile).
+    EXPECT_EQ(gen.find(" delete("), std::string::npos) << "unescaped `delete(` leaked:\n" << gen;
+    // A field's printed label keeps the ORIGINAL spelling (string literal, not an identifier).
+    EXPECT_NE(gen.find("\"new"), std::string::npos) << "field label should keep raw name:\n" << gen;
+}

@@ -85,9 +85,9 @@
           }
         },
         {
-          "comment": "A known stdlib module used as a `module.` prefix (e.g. the `math` in `math.sqrt`).",
+          "comment": "A known stdlib module used as a `module.` prefix (e.g. the `math` in `math.sqrt`, or the `parsers` in `parsers.json.read`). Keep in sync with the importable stdlib modules.",
           "name": "entity.name.namespace.cheatah",
-          "match": "\\b(io|os|sys|string|math|time|datetime|random|statistics|hashlib|socket|ndarray|linalg|html)\\b(?=\\s*\\.)"
+          "match": "\\b(io|os|sys|string|math|time|datetime|random|statistics|hashlib|socket|ndarray|linalg|aead|ed25519|tls|websocket|requests|parsers|regex|memory|thread|p256|x25519)\\b(?=\\s*\\.)"
         }
       ]
     },
@@ -129,7 +129,7 @@
 
     "keywords": {
       "patterns": [
-        { "name": "keyword.control.cheatah", "match": "\\b(if|else|while|for|in|return|try|except|raise|match|case|break|continue|elif|interface)\\b" },
+        { "name": "keyword.control.cheatah", "match": "\\b(if|else|while|for|in|return|try|except|raise|match|case|break|continue|elif|interface|with)\\b" },
         { "name": "keyword.control.import.cheatah", "match": "\\b(import|from|as)\\b" },
         {
           "comment": "Dual scope: default VS Code themes leave plain keyword.operator uncolored; keyword.operator.wordlike is their hook for word-shaped operators (same trick as keyword.operator.logical.python), so and/or/not color like keywords.",
@@ -183,7 +183,7 @@
           }
         },
         { "name": "storage.type.cheatah", "match": "\\b(let)\\b" },
-        { "name": "storage.modifier.cheatah", "match": "\\b(constexpr)\\b" }
+        { "name": "storage.modifier.cheatah", "match": "\\b(constexpr|auto)\\b" }
       ]
     },
 
