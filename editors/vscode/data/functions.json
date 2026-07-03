@@ -3494,6 +3494,30 @@
       }
     },
     {
+      "name": "own",
+      "signature": "own(T value, policy pol=policy::interleave)",
+      "brief": "Take sole ownership of value and hand back its Owner.",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the object to own (moved in)."
+        },
+        {
+          "name": "pol",
+          "desc": "the scheduling policy."
+        }
+      ],
+      "returns": "an Owner<T> that has consumed value.",
+      "tags": {
+        "complexity": "O(1) plus moving value.",
+        "alloc": "none of our own (the value owns its storage)."
+      },
+      "srcfile": "stdlib/memory/owner.hpp",
+      "srcline": 198,
+      "module": "memory",
+      "qualified": "memory.own"
+    },
+    {
       "name": "abs",
       "signature": "abs(const basic_ndarray< T > &a)",
       "brief": "Element-wise absolute value (the array form of math.abs; ≈ numpy.abs).",
@@ -5465,14 +5489,27 @@
       "name": "attr",
       "signature": "attr(const Document &doc, int id, std::string_view name)",
       "brief": "Value of attribute name on element id, or \"\" if absent (or id is not an element).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the element node id."
+        },
+        {
+          "name": "name",
+          "desc": "the attribute name."
+        }
+      ],
+      "returns": "the attribute value, or \"\" if absent.",
       "tags": {
         "complexity": "O(k) in the attribute count of id.",
         "alloc": "one result string."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 93,
+      "srcline": 105,
       "module": "parsers.xml",
       "qualified": "parsers.xml.attr"
     },
@@ -5480,14 +5517,23 @@
       "name": "children",
       "signature": "children(const Document &doc, int id)",
       "brief": "The child node ids of id, in document order (elements and text).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the node id."
+        }
+      ],
+      "returns": "the child node ids in document order.",
       "tags": {
         "complexity": "O(1) (returns a copy of the id list).",
         "alloc": "the id list."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 115,
+      "srcline": 137,
       "module": "parsers.xml",
       "qualified": "parsers.xml.children"
     },
@@ -5495,14 +5541,27 @@
       "name": "find",
       "signature": "find(const Document &doc, int id, std::string_view tag)",
       "brief": "The id of the first child element of id whose tag equals tag, or -1 if none.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the parent node id."
+        },
+        {
+          "name": "tag",
+          "desc": "the child tag to match."
+        }
+      ],
+      "returns": "the first matching child element id, or -1.",
       "tags": {
         "complexity": "O(c) in the direct-child count of id.",
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 123,
+      "srcline": 149,
       "module": "parsers.xml",
       "qualified": "parsers.xml.find"
     },
@@ -5510,14 +5569,27 @@
       "name": "findall",
       "signature": "findall(const Document &doc, int id, std::string_view tag)",
       "brief": "The ids of all direct child elements of id whose tag equals tag, in order.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the parent node id."
+        },
+        {
+          "name": "tag",
+          "desc": "the child tag to match."
+        }
+      ],
+      "returns": "the matching direct-child element ids.",
       "tags": {
         "complexity": "O(c) in the direct-child count of id.",
         "alloc": "the result id list."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 130,
+      "srcline": 160,
       "module": "parsers.xml",
       "qualified": "parsers.xml.findall"
     },
@@ -5525,14 +5597,27 @@
       "name": "has_attr",
       "signature": "has_attr(const Document &doc, int id, std::string_view name)",
       "brief": "Whether element id carries an attribute named name.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the element node id."
+        },
+        {
+          "name": "name",
+          "desc": "the attribute name."
+        }
+      ],
+      "returns": "whether id carries attribute name.",
       "tags": {
         "complexity": "O(k) in the attribute count of id.",
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 100,
+      "srcline": 116,
       "module": "parsers.xml",
       "qualified": "parsers.xml.has_attr"
     },
@@ -5540,14 +5625,23 @@
       "name": "is_element",
       "signature": "is_element(const Document &doc, int id)",
       "brief": "Whether id is a valid element node in doc.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the node id to test."
+        }
+      ],
+      "returns": "true iff id is a valid element node.",
       "tags": {
         "complexity": "O(1).",
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 79,
+      "srcline": 84,
       "module": "parsers.xml",
       "qualified": "parsers.xml.is_element"
     },
@@ -5555,14 +5649,27 @@
       "name": "iter",
       "signature": "iter(const Document &doc, int id, std::string_view tag)",
       "brief": "The ids of every element in the subtree rooted at id (including id itself) whose tag equals tag, in document order — the analogue of an XML tree .iter(tag).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the subtree root node id."
+        },
+        {
+          "name": "tag",
+          "desc": "the tag to match."
+        }
+      ],
+      "returns": "the matching element ids in the subtree, in document order.",
       "tags": {
         "complexity": "O(m) in the subtree size of id.",
         "alloc": "the result id list (and a transient walk stack)."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 138,
+      "srcline": 172,
       "module": "parsers.xml",
       "qualified": "parsers.xml.iter"
     },
@@ -5590,14 +5697,19 @@
       "name": "root",
       "signature": "root(const Document &doc)",
       "brief": "The document root's node id (its children are the top-level nodes).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        }
+      ],
+      "returns": "the root node id (its children are the top-level nodes).",
       "tags": {
         "complexity": "O(1).",
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 72,
+      "srcline": 74,
       "module": "parsers.xml",
       "qualified": "parsers.xml.root"
     },
@@ -5605,14 +5717,23 @@
       "name": "tag",
       "signature": "tag(const Document &doc, int id)",
       "brief": "The tag name of element id, or \"\" if id is not an element.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the element node id."
+        }
+      ],
+      "returns": "the tag name, or \"\" if id is not an element.",
       "tags": {
         "complexity": "O(1).",
         "alloc": "one result string."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 86,
+      "srcline": 94,
       "module": "parsers.xml",
       "qualified": "parsers.xml.tag"
     },
@@ -5620,14 +5741,23 @@
       "name": "text",
       "signature": "text(const Document &doc, int id)",
       "brief": "The concatenated text of node id: for a text node, its own text; for an element, all descendant text in document order (like an XML .textContent).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "doc",
+          "desc": "the document."
+        },
+        {
+          "name": "id",
+          "desc": "the node id."
+        }
+      ],
+      "returns": "the concatenated descendant text.",
       "tags": {
         "complexity": "O(m) in the number of descendants of id.",
         "alloc": "one result string."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 108,
+      "srcline": 127,
       "module": "parsers.xml",
       "qualified": "parsers.xml.text"
     },
