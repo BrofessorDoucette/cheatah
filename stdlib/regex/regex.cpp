@@ -189,29 +189,27 @@ struct Compiler {
 
 }  // namespace
 
-// ---- Dfa: the compiled program + its lazy-DFA cache -----------------------------------
+/// The compiled Thompson-NFA program plus its lazy-DFA cache — an internal implementation type
+/// (@ref Pattern holds one by `shared_ptr`; not part of the public surface).
 struct Dfa {
-    std::vector<Inst> prog;
-    int start_unanchored = 0;
-    int start_anchored = 0;
-    bool anchored_start = false;
-    bool anchored_end = false;
+    std::vector<Inst> prog;          ///< the compiled Thompson-NFA program.
+    int start_unanchored = 0;        ///< program entry pc for an unanchored start.
+    int start_anchored = 0;          ///< program entry pc for an anchored start.
+    bool anchored_start = false;     ///< whether the pattern is anchored at the start (`^`).
+    bool anchored_end = false;       ///< whether the pattern is anchored at the end (`$`).
 
-    // interned DFA states: canonical (sorted) pc-set key -> id; each state carries its pcs, an
-    // "accepting" flag, and a row of 256 lazily-filled transitions in ONE flat, contiguous
-    // array (tflat[state*256 + byte]; -1 = not computed) — one indirection per input byte.
-    std::unordered_map<std::string, int> intern;
-    std::vector<std::vector<int>> pcs;
-    std::vector<char> accepts;
-    std::vector<int> tflat;   // size == nstates*256
+    std::unordered_map<std::string, int> intern;  ///< canonical (sorted) pc-set key -> DFA state id.
+    std::vector<std::vector<int>> pcs;             ///< per-state pc set.
+    std::vector<char> accepts;                     ///< per-state "accepting" flag.
+    std::vector<int> tflat;   ///< flat transition table (`tflat[state*256+byte]`; -1 = uncomputed).
 
-    // The set of bytes an (anchored) match can START with — used to skip ahead with a fast
-    // byte scan instead of stepping the DFA over every non-candidate byte.
-    std::uint64_t first[4] = {0, 0, 0, 0};
-    int first_count = 0;             // popcount of `first` (0 = unknown / matches empty)
-    unsigned char first_byte = 0;    // the single required first byte when first_count == 1
-    bool matches_empty = false;      // the pattern can match the empty string at any position
+    std::uint64_t first[4] = {0, 0, 0, 0};  ///< bitset of bytes an anchored match can START with.
+    int first_count = 0;             ///< popcount of `first` (0 = unknown / matches empty).
+    unsigned char first_byte = 0;    ///< the single required first byte when `first_count == 1`.
+    bool matches_empty = false;      ///< the pattern can match the empty string at any position.
 
+    /// Add the epsilon-closure of @p pc to @p out. @param pc start program counter.
+    /// @param out accumulates the reachable Byte/Match pcs. @param seen per-pc visited flags.
     void add_closure(int pc, std::vector<int>& out, std::vector<char>& seen) const {
         if (pc < 0 || seen[pc]) return;
         seen[pc] = 1;
@@ -221,6 +219,8 @@ struct Dfa {
         else out.push_back(pc);  // Byte or Match — a real state
     }
 
+    /// Intern a pc @p set into a canonical DFA state (creating it if new).
+    /// @param set the pc set for the state. @return the state id.
     int intern_state(std::vector<int> set) {
         std::sort(set.begin(), set.end());
         set.erase(std::unique(set.begin(), set.end()), set.end());
@@ -237,6 +237,8 @@ struct Dfa {
         return id;
     }
 
+    /// The start DFA state for program entry @p entry. @param entry the program entry pc.
+    /// @return the interned start state id.
     int start_state(int entry) {
         std::vector<int> out;
         std::vector<char> seen(prog.size(), 0);
@@ -244,6 +246,8 @@ struct Dfa {
         return intern_state(std::move(out));
     }
 
+    /// Transition from @p state on input byte @p b, lazily filling the cache. @param state the current
+    /// DFA state id. @param b the input byte. @return the next state id.
     int step(int state, unsigned char b) {
         int cached = tflat[static_cast<std::size_t>(state) * 256 + b];
         if (cached != -1) return cached;
