@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # The numeric core, several modules linked into one program: each `import` lowers to its own
 # #include and a short namespace alias (math::, ndarray::, linalg::) in the generated C++.
 import io

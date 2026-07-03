@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Sophisticated multi-module system-level test: a small "Monte Carlo
 // simulation" app that only passes if `random`, `math`, `statistics`, and `io`
 // all cooperate end to end (purrc + the C++ backend + the runtime + the linked

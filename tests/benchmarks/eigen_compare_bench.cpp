@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // cheatah::linalg vs Eigen — a native, single-threaded C++ dense-linear-algebra
 // face-off (Eigen is the reference C++ library). Both sides run the SAME operation on
 // the SAME deterministic data at the SAME sizes the NumPy comparison uses, built at

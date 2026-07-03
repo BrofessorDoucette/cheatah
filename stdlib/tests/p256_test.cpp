@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // p256_test — NIST P-256 ECDSA correctness against the RFC 6979 Appendix A.2.5
 // test vector (P-256, SHA-256, message "sample"). Deterministic signing means
 // the (r, s) is fixed and checkable bit-for-bit; verification round-trips it.
@@ -66,6 +68,24 @@ TEST(CheatahP256, VerifyKnownVector) {
     EXPECT_FALSE(p256::verify_raw(pub, hash, bad));
     // A different message must fail.
     EXPECT_FALSE(p256::verify_raw(pub, cheatah::hashlib::sha256_digest("test"), sig));
+}
+
+// SECURITY (invalid-curve point validation, SP 800-56A): a public key whose coordinates are in
+// range but does NOT satisfy y^2 = x^3 - 3x + b is rejected before it enters the group law.
+TEST(CheatahP256, RejectsOffCurvePublicKey) {
+    const std::string hash = cheatah::hashlib::sha256_digest("sample");
+    const std::string sig = unhex(kR) + unhex(kS);
+    const std::string good = unhex(kUx) + unhex(kUy);
+    ASSERT_TRUE(p256::verify_raw(good, hash, sig));  // the genuine (on-curve) key verifies
+
+    std::string off = good;
+    off[63] ^= 0x01;  // flip the low bit of y: still < p, but no longer on the curve
+    EXPECT_FALSE(p256::verify_raw(off, hash, sig));
+
+    // A point with y = 0 (never on this curve) is also refused.
+    std::string y_zero = good;
+    for (int i = 32; i < 64; ++i) y_zero[i] = 0;
+    EXPECT_FALSE(p256::verify_raw(y_zero, hash, sig));
 }
 
 TEST(CheatahP256, PublicFromPrivate) {

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -84,6 +86,7 @@ std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_h
 std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view ciphertext);
 
+/// @cond INTERNAL — a test hook (pins the scalar reference path for cross-checking), not user API
 /**
  * Force the portable (non-AES-NI) AES-128-GCM path on/off. AES-128-GCM normally uses the
  * CPU's AES-NI + PCLMULQDQ instructions when present; this hook pins the scalar reference
@@ -93,6 +96,7 @@ std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_h
  * @complexity O(1). @alloc none. @test CheatahAead.AesGcmPortableMatchesHardware
  */
 void set_force_portable_crypto(bool on);
+/// @endcond
 
 /**
  * Whether AES-128-GCM is currently using the hardware (AES-NI + PCLMULQDQ) path: true on a

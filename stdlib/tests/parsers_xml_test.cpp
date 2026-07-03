@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // In-process unit tests for the `parsers.xml` slab-DOM reader (parsers/xml/xml.cpp). xml.cpp is
 // compiled DIRECTLY into this test binary (see CMakeLists) so its coverage is measured here — the
 // tests below exercise every parse branch (elements/attrs/text/entities/CDATA/comments/PI/DOCTYPE,
@@ -19,6 +21,7 @@ int doc_elem(const xml::Document& d, const char* tag) {
     return xml::find(d, xml::root(d), tag);
 }
 
+// cppcheck-suppress syntaxError  // cppcheck's tokenizer mishandles the embedded " in the raw string
 TEST(ParsersXml, ParsesElementsAttrsAndText) {
     auto d = xml::parse(R"(<doc><item id="1" flag>hello</item></doc>)");
     const int doc = doc_elem(d, "doc");

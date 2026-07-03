@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # cheatah_accumulate.purr — REAL cheatah test: many sequential leases accumulate deterministically.
 # The interleaving of lease acquire/release is exercised heavily but the result is exact — the
 # single-threaded analogue of the concurrency suite's "deterministic final" property.

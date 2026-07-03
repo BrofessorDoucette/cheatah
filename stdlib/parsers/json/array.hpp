@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 // cheatah::parsers::json — the JSON array token, now EXACTLY symmetric with String<S>: a class

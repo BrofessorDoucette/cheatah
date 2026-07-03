@@ -61,7 +61,7 @@ WARN_NO_PARAMDOC       = NO
 # Tests/scripts and the project-overview stdlib/README.md (a homepage duplicate)
 # are excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/optimizations.md docs/porting.md docs/security.md docs/cpp.md docs/runtime.md docs/purrc.md docs/biome.md docs/extensions.md docs/imports.md compiler/PYTHON.md CHANGELOG.md
+INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/optimizations.md docs/porting.md docs/security.md docs/cpp.md docs/runtime.md docs/purrc.md docs/biome.md docs/extensions.md docs/imports.md docs/threading.md compiler/PYTHON.md CHANGELOG.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
@@ -69,12 +69,47 @@ RECURSIVE              = YES
 # generator merges into that module's page), NOT as the enclosing directory's docs
 # (the default, which would swallow the content and emit nothing usable in XML).
 IMPLICIT_DIR_DOCS      = NO
-EXCLUDE                = stdlib/README.md
+# Wholly-INTERNAL headers are excluded as files: their symbols live in the module's main
+# namespace (or a non-`detail` sub-namespace), so no symbol pattern can catch them, and none
+# of them are the API a cheatah user should see. The code itself stays browsable in the repo —
+# this only keeps the machinery off the docs site / hover DB / Javadoc gate:
+#   - tls_lowlevel / websocket_lowlevel — C++-only raw-handle APIs (the resolver never
+#     surfaces them to cheatah; the guards are the public path)
+#   - rsa_verify / x509 — TLS's bignum + certificate plumbing (cheatah::tls::rsa / ::x509)
+#   - aes_gcm_ni — AEAD's hardware kernels (cheatah::aead::accel)
+#   - parsers/json simd + builder/cursor machinery (construction policies, scan kernels)
+EXCLUDE                = stdlib/README.md \
+                         stdlib/tls/tls_lowlevel.hpp \
+                         stdlib/tls/rsa_verify.hpp \
+                         stdlib/tls/x509.hpp \
+                         stdlib/websocket/websocket_lowlevel.hpp \
+                         stdlib/aead/aes_gcm_ni.hpp \
+                         stdlib/parsers/json/simd.hpp \
+                         stdlib/parsers/json/pool_builder.hpp \
+                         stdlib/parsers/json/owning_builder.hpp \
+                         stdlib/parsers/json/cursor.hpp
 EXCLUDE_PATTERNS       = */tests/* */scripts/*
 # Internal implementation helpers (any `detail` namespace) are NOT public API: the
 # site generator and the hover index already hide them, so they are excluded here
-# too (and from the 100%-Javadoc gate).
+# too (and from the 100%-Javadoc gate). Also hidden:
+#   - `testonly` namespaces (white-box seams behind CHEATAH_*_TESTING defines)
+#   - `module_abi` (the ABI marker purrc emits into every pure-cheatah library module)
+#   - requests' .purr implementation helpers (a .purr module emits every top-level fn
+#     into its namespace; these back the get/post/... verbs and are not user API)
 EXCLUDE_SYMBOLS        = *::detail::* *::detail
+EXCLUDE_SYMBOLS       += *::testonly::* *::testonly
+EXCLUDE_SYMBOLS       += *::module_abi
+# Function-level internals with globally-UNIQUE names (bare names — this Doxygen build
+# matches member symbols by name, and each of these appears in exactly one module):
+# requests' .purr implementation helpers, sys's runtime hook, and the tls/websocket
+# low-level entry points whose names don't collide with public API. The lowlevel
+# functions whose names DO collide (tls/websocket send/recv/close/shutdown/connect —
+# also public socket API) are hidden at their definitions instead (\cond in the .cpp).
+EXCLUDE_SYMBOLS       += percent_encode b64encode json_escape has_header
+EXCLUDE_SYMBOLS       += parse_hex parse_uint dechunk read_all
+EXCLUDE_SYMBOLS       += parse_response request_once strip_sensitive
+EXCLUDE_SYMBOLS       += set_argv client_connect connect_url send_text
+EXCLUDE_SYMBOLS       += module_abi cheatah_set_argv
 USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
 
 #---------------------------------------------------------------------------

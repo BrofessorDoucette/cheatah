@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level (whole-program) test for the `ed25519` stdlib module, written as a
 // worked EXAMPLE of the signature workflow that backs cheatah's binary-integrity
 // feature: a publisher signs a payload with a secret key, anyone holding only the

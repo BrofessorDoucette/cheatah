@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -6,6 +8,11 @@
  *        Python's `random` module. Backed by a seedable Mersenne Twister
  *        (`std::mt19937_64`); `gauss` gives normal deviates for Monte Carlo.
  *        `import random` to use it.
+ *
+ * The engine is PER-THREAD (`thread_local`): concurrent draws from `thread.spawn`ed workers
+ * never race, and each thread's stream is independent. A new thread self-seeds from
+ * `std::random_device` on first use; `seed(s)` seeds the CALLING thread's engine only, so a
+ * worker that wants a reproducible stream calls `seed` itself.
  *
  * Unit tests: `stdlib/tests/random_test.cpp`; the suite runs under
  * AddressSanitizer (the `asan` preset) and Valgrind
@@ -21,16 +28,18 @@
 namespace cheatah::random {
 
 /**
- * Seed the shared engine, making the stream reproducible.
+ * Seed the calling thread's engine, making its stream reproducible.
  *
- * Reseeds the single process-wide Mersenne Twister; all `random`/`uniform`/
- * `randint`/`gauss`/`choice` calls draw from it, so two runs seeded with the same
- * value produce identical sequences. Until `seed` is called the engine is seeded
- * non-deterministically from `std::random_device`.
+ * Reseeds THIS thread's Mersenne Twister; all `random`/`uniform`/`randint`/`gauss`/`choice`
+ * calls on the same thread draw from it, so two runs seeded with the same value produce
+ * identical sequences. Until `seed` is called a thread's engine is seeded
+ * non-deterministically from `std::random_device` — a `thread.spawn`ed worker that wants
+ * reproducibility calls `seed` itself (the main thread's seed does not reach it).
  * @param s the seed.
  * @complexity O(1) time.
  * @alloc none.
  * @test CheatahRandom.SeedMakesTheStreamReproducible
+ * @test CheatahRandom.EngineIsPerThread
  * @crtest RandomCompileRun.Seed
  * @systest StdlibE2E.Random
  */

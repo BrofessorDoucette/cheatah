@@ -1,12 +1,16 @@
 # Acknowledgments
 
-**cheatah © 2026 [Joshua Doucette](LICENSE) — MIT-licensed.** cheatah is original
-work by Joshua Doucette and is **dependency-free**: it bundles, vendors, and links
-**none** of the projects below at runtime. They are recognized here because their
-designs, specifications, reference algorithms, and documentation informed
-cheatah's syntax and standard library — and as a tip of the hat to the open-source
-"rules of the road." Credit for cheatah's own code remains with the author; credit
-for the prior art that inspired it is gladly given here.
+**cheatah © 2026 [BigBrain LLC](LICENSE) — MIT-licensed.** cheatah was designed and
+written by **Joshua Doucette — lead engineer and executive producer — on behalf of
+BigBrain LLC**. Every implementation and every design decision is **original work**;
+we have done our best, faithfully and in good conscience, to **avoid plagiarism of any
+kind** — no source was copied — while gratefully retaining the best ideas of the
+open-source giants upon whose shoulders we stand. cheatah is **dependency-free**: it
+bundles, vendors, and links **none** of the projects below at runtime. They are
+recognized here because their designs, specifications, reference algorithms, and
+documentation informed cheatah's syntax and standard library — and as a tip of the hat
+to the open-source "rules of the road." Credit for cheatah's own code remains with
+BigBrain LLC; credit for the prior art that inspired it is gladly given here.
 
 Each project remains the work and property of its respective authors, under its
 own license.
@@ -25,6 +29,8 @@ own license.
 | **LAPACK** | <https://www.netlib.org/lapack/> | Reference factorizations and solver semantics behind `linalg`. |
 | **Eigen** | <https://eigen.tuxfamily.org/> | The C++ reference library cheatah benchmarks its single-threaded numeric core against. |
 | **GLM** | <https://github.com/g-truc/glm> | Vector/matrix and graphics-math conventions (relevant to `cheatah-space` / `cheatah-plot`). |
+| **RE2** | <https://github.com/google/re2> | The linear-time, backtracking-free **lazy-DFA** approach behind the `regex` module (designed and written from scratch; no RE2 code). |
+| **IETF RFCs** | <https://www.rfc-editor.org/> | The wire specifications re-implemented from their text: TLS 1.3 (8446), ChaCha20-Poly1305 (8439), X25519 (7748), Ed25519 (8032), WebSocket (6455). |
 
 …and the broader open-source numerical and systems-programming community whose
 work makes a project like this possible.

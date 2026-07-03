@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Compile-run unit tests for the `ed25519` module: one test per function, each a tiny
 // .purr compiled by purrc and run under the cheatah runtime. Keys/signatures are hex.
 // The deterministic cases use the RFC 8032 §7.1 known-answer vectors; generate() is

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Compile-run system tests for the `parsers` module (C++-authored: parsers.url + parsers.json)
 // and the LANGUAGE features it exercises:
 //   * dotted TYPE imports — `import parsers.url.Parser as Parser` aliases a class, and the

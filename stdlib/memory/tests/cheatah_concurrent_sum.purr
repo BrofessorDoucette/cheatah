@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # cheatah_concurrent_sum.purr — REAL cheatah concurrency over a shared Owner (the headline use case).
 # Four threads each take an EXCLUSIVE write lease `quota` times and increment. The drain-before-write
 # engine makes the total exact — 4 * 5000 = 20000 — regardless of the (nondeterministic) interleaving.

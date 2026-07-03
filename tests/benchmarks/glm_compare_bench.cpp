@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // cheatah::linalg vs GLM — small fixed-size vector/matrix math (the 2-, 3-, 4-D
 // graphics regime GLM is built for). This is deliberately GLM's home turf and an
 // honest stress test of cheatah's *dynamic* NDArray at tiny sizes: GLM's types are

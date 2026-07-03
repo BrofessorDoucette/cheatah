@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Micro-benchmarks for cheatah::linalg (the numpy-style routines on ndarray).
 #include "linalg.hpp"
 #include "ndarray.hpp"

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Benchmark: cheatah::regex vs std::regex vs boost::regex on many string sizes, input shapes,
 // and adversarial (catastrophic-backtracking) inputs.
 //

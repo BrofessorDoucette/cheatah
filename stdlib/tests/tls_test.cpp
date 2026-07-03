@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Unit tests for the `tls` module's key schedule against the RFC 8448 trace constants
 // (the published TLS 1.3 test vectors, SHA-256 suite — suite-independent for the schedule).
 #include <gtest/gtest.h>

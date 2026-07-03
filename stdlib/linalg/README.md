@@ -21,6 +21,11 @@ let d = linalg.det(A)
 
 ## Functions
 
+Every routine below returns a fresh array. Each also has an allocation-free
+**out-parameter overload** (`solve(out, A, b)`, `svd(u, s, vh, A)`, …) in
+[routines.hpp](routines.hpp) for hot loops that reuse one scratch buffer per call —
+same math, caller-owned storage.
+
 ### Products
 - `dot` / `vdot` / `inner` — vector dot product (Σ aᵢbᵢ).
 - `outer` — outer product of two vectors → matrix.

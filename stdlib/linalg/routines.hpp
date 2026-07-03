@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -40,9 +42,9 @@ namespace cheatah::linalg {
 // The routines operate on cheatah::ndarray::NDArray, re-exported unqualified for brevity in the
 // signatures below. The directive below hides this re-export from the API doc generator so it
 // does not emit a phantom duplicate cheatah::linalg::NDArray class in the namespace/XML structure.
-/// \cond INTERNAL
+/// @cond INTERNAL
 using ndarray::NDArray;
-/// \endcond
+/// @endcond
 
 /// A complex scalar (`std::complex<double>`) — the element type of @ref CNDArray and
 /// the return type of the complex inner products @ref dot / @ref vdot.
@@ -114,6 +116,7 @@ double inner(const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray outer(const NDArray& a, const NDArray& b);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Outer product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref outer, writing the rank-1 result straight into @p out with no allocation.
@@ -126,6 +129,7 @@ NDArray outer(const NDArray& a, const NDArray& b);
  * @test LinalgRoutines.OuterIntoReusesBuffer
  */
 void outer(NDArray& out, const NDArray& a, const NDArray& b);
+/// @endcond
 /**
  * Matrix multiply.
  *
@@ -144,6 +148,7 @@ void outer(NDArray& out, const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray matmul(const NDArray& a, const NDArray& b);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Matmul into the CALLER'S buffer @p out (out FIRST, like assignment) — the user-provided-output
  * overload, NO result allocation (a hot loop, e.g. an MLP layer, hands the same scratch every call).
@@ -157,6 +162,7 @@ NDArray matmul(const NDArray& a, const NDArray& b);
  * @test LinalgRoutines.MatmulIntoReusesBuffer
  */
 void matmul(NDArray& out, const NDArray& a, const NDArray& b);
+/// @endcond
 
 // ---- complex products (complex inner-product spaces) ----
 /**
@@ -199,6 +205,7 @@ Cplx vdot(const CNDArray& a, const CNDArray& b);
  * @systest StdlibE2E.LinalgComplex
  */
 CNDArray matmul(const CNDArray& a, const CNDArray& b);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Complex matmul into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of the
  * complex @ref matmul, writing the product straight into @p out with no allocation.
@@ -212,6 +219,7 @@ CNDArray matmul(const CNDArray& a, const CNDArray& b);
  * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
  */
 void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b);
+/// @endcond
 /**
  * Conjugate transpose (Hermitian adjoint) Aᴴ of a **complex** matrix: transpose,
  * then conjugate every entry. A matrix is Hermitian iff `conj_transpose(A) == A`.
@@ -224,6 +232,7 @@ void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b);
  * @systest StdlibE2E.LinalgComplex
  */
 CNDArray conj_transpose(const CNDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Conjugate transpose into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref conj_transpose, writing the c×r adjoint straight into @p out with no allocation.
@@ -236,6 +245,7 @@ CNDArray conj_transpose(const CNDArray& a);
  * @test LinalgRoutines.ConjTransposeIntoReusesBuffer
  */
 void conj_transpose(CNDArray& out, const CNDArray& a);
+/// @endcond
 /**
  * Integer matrix power Aⁿ (negative n via @ref inv).
  *
@@ -252,6 +262,7 @@ void conj_transpose(CNDArray& out, const CNDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray matrix_power(const NDArray& a, long long n);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Matrix power into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref matrix_power.
@@ -263,6 +274,7 @@ NDArray matrix_power(const NDArray& a, long long n);
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void matrix_power(NDArray& out, const NDArray& a, long long n);
+/// @endcond
 /**
  * Kronecker product.
  *
@@ -279,6 +291,7 @@ void matrix_power(NDArray& out, const NDArray& a, long long n);
  * @systest StdlibE2E.Linalg
  */
 NDArray kron(const NDArray& a, const NDArray& b);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Kronecker product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref kron, writing the block product straight into @p out with no allocation.
@@ -291,6 +304,7 @@ NDArray kron(const NDArray& a, const NDArray& b);
  * @test LinalgRoutines.KronIntoReusesBuffer
  */
 void kron(NDArray& out, const NDArray& a, const NDArray& b);
+/// @endcond
 
 // ---- Decompositions ----
 /**
@@ -309,6 +323,7 @@ void kron(NDArray& out, const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray cholesky(const NDArray& a);                       // lower-triangular L (A = L Lᵀ)
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Cholesky factor into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref cholesky.
@@ -319,6 +334,7 @@ NDArray cholesky(const NDArray& a);                       // lower-triangular L 
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void cholesky(NDArray& out, const NDArray& a);
+/// @endcond
 /** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */
 struct QR {
     NDArray q;  ///< Orthonormal columns, m×n (the Q in A = Q·R).
@@ -340,6 +356,7 @@ struct QR {
  * @systest StdlibE2E.Linalg
  */
 QR qr(const NDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref qr,
  * filling @p q and @p r instead of allocating a @ref QR.
@@ -351,6 +368,7 @@ QR qr(const NDArray& a);
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
 void qr(NDArray& q, NDArray& r, const NDArray& a);
+/// @endcond
 /** Result of svd(): A = u·diag(s)·vh. */
 struct SVD {
     NDArray u;   ///< Left singular vectors, m×n.
@@ -374,6 +392,7 @@ struct SVD {
  * @systest StdlibE2E.Linalg
  */
 SVD svd(const NDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref svd,
  * filling @p u, @p s and @p vh instead of allocating an @ref SVD.
@@ -386,6 +405,7 @@ SVD svd(const NDArray& a);
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
 void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a);
+/// @endcond
 /**
  * Singular values only (≈ `numpy.linalg.svd(a, compute_uv=False)` / `svdvals`).
  *
@@ -402,6 +422,7 @@ void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray svdvals(const NDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Singular values into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref svdvals.
@@ -412,6 +433,7 @@ NDArray svdvals(const NDArray& a);
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void svdvals(NDArray& out, const NDArray& a);
+/// @endcond
 
 // ---- Matrix eigenvalues ----
 /** Result of eigh(): a real spectrum — column j of vectors is the eigenvector for values[j]. */
@@ -449,6 +471,7 @@ struct EigC {
  * @systest StdlibE2E.Linalg
  */
 EigC eig(const NDArray& a);                               // general square matrix
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of
  * @ref eig, filling @p values and @p vectors instead of allocating an @ref EigC.
@@ -461,6 +484,7 @@ EigC eig(const NDArray& a);                               // general square matr
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
 void eig(CNDArray& values, CNDArray& vectors, const NDArray& a);
+/// @endcond
 /**
  * Eigenvalues of a general square matrix (**complex**), descending.
  *
@@ -478,6 +502,7 @@ void eig(CNDArray& values, CNDArray& vectors, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 CNDArray eigvals(const NDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * General eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref eigvals.
@@ -488,6 +513,7 @@ CNDArray eigvals(const NDArray& a);
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void eigvals(CNDArray& out, const NDArray& a);
+/// @endcond
 /**
  * Eigen-decomposition of a symmetric matrix (Householder tridiagonalization + QL).
  *
@@ -505,6 +531,7 @@ void eigvals(CNDArray& out, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 Eig eigh(const NDArray& a);                               // symmetric / Hermitian
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Symmetric eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload
  * of @ref eigh, filling @p values and @p vectors instead of allocating an @ref Eig.
@@ -516,6 +543,7 @@ Eig eigh(const NDArray& a);                               // symmetric / Hermiti
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
 void eigh(NDArray& values, NDArray& vectors, const NDArray& a);
+/// @endcond
 /**
  * Eigenvalues of a symmetric matrix, descending (tridiagonal QL).
  *
@@ -531,6 +559,7 @@ void eigh(NDArray& values, NDArray& vectors, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray eigvalsh(const NDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Symmetric eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref eigvalsh.
@@ -541,6 +570,7 @@ NDArray eigvalsh(const NDArray& a);
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void eigvalsh(NDArray& out, const NDArray& a);
+/// @endcond
 /**
  * Result of the complex Hermitian eigh(): **real** eigenvalues (a Hermitian operator
  * has a real spectrum) with **complex** eigenvectors. Column j of vectors is the
@@ -568,6 +598,7 @@ struct EighC {
  * @systest StdlibE2E.LinalgComplex
  */
 EighC eigh(const CNDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Complex Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
  * overload of the complex @ref eigh, filling @p values and @p vectors instead of allocating an
@@ -580,6 +611,7 @@ EighC eigh(const CNDArray& a);
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
 void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a);
+/// @endcond
 /**
  * Eigenvalues of a **complex Hermitian** matrix, descending and **real**.
  *
@@ -594,6 +626,7 @@ void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a);
  * @systest StdlibE2E.LinalgComplex
  */
 NDArray eigvalsh(const CNDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Complex Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
  * overload of the complex @ref eigvalsh.
@@ -604,6 +637,7 @@ NDArray eigvalsh(const CNDArray& a);
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void eigvalsh(NDArray& out, const CNDArray& a);
+/// @endcond
 
 // ---- Norms and other numbers ----
 /**
@@ -722,6 +756,7 @@ double trace(const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Solve into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref solve.
  * @param out destination; a contiguous length-n vector, overwritten with the solution x.
@@ -732,6 +767,7 @@ NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void solve(NDArray& out, const NDArray& a, const NDArray& b);
+/// @endcond
 /**
  * Least-squares solution min‖A·x − b‖ (computed as @ref pinv (a)·b).
  *
@@ -749,6 +785,7 @@ void solve(NDArray& out, const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solution
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Least-squares solution into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref lstsq. Routes through the @ref matmul out-param so the final product is written into @p out
@@ -761,6 +798,7 @@ NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solut
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void lstsq(NDArray& out, const NDArray& a, const NDArray& b);
+/// @endcond
 /**
  * Matrix inverse via LU with partial pivoting.
  *
@@ -776,6 +814,7 @@ void lstsq(NDArray& out, const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 NDArray inv(const NDArray& a);
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref inv.
  * @param out destination; a contiguous n×n matrix, overwritten with A⁻¹.
@@ -785,6 +824,7 @@ NDArray inv(const NDArray& a);
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void inv(NDArray& out, const NDArray& a);
+/// @endcond
 /**
  * Moore–Penrose pseudo-inverse via SVD (any shape).
  *
@@ -801,6 +841,7 @@ void inv(NDArray& out, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 NDArray pinv(const NDArray& a);                           // Moore–Penrose pseudo-inverse
+/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Pseudo-inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
  * @ref pinv.
@@ -811,5 +852,6 @@ NDArray pinv(const NDArray& a);                           // Moore–Penrose pse
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 void pinv(NDArray& out, const NDArray& a);
+/// @endcond
 
 } // namespace cheatah::linalg

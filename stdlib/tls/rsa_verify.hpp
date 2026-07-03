@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 // rsa_verify.hpp — minimal RSA-PSS (rsa_pss_rsae_sha256) signature verification for the TLS 1.3
@@ -282,6 +284,10 @@ inline bool verify_pss_sha256(const std::string& cert_der, const std::string& me
     if (!parse_rsa_pubkey(cert_der, nb, eb)) return false;
     const Big n = from_be(nb), e = from_be(eb);
     if (n.empty() || e.empty()) return false;
+    // Reject dangerous/invalid public exponents: e must be odd and >= 3. With e = 1 (or a small
+    // even e) an attacker can forge a PSS-encoded "signature" (s = EM), since m = s^e reveals the
+    // encoding directly — a real RSA verifier never accepts such keys.
+    if ((e[0] & 1u) == 0 || cmp(e, Big{3u}) < 0) return false;
     if (sig.size() != nb.size()) return false;  // signature length must equal the modulus length
     const Big s = from_be(sig);
     if (cmp(s, n) >= 0) return false;  // signature representative out of range
@@ -291,6 +297,42 @@ inline bool verify_pss_sha256(const std::string& cert_der, const std::string& me
     if (bytelen(m) > em_len) return false;
     const std::string em = to_be(m, em_len);
     return pss_verify(hashlib::sha256_digest(message), em, em_bits);
+}
+
+// The fixed ASN.1 DigestInfo prefix for SHA-256 (RFC 8017 §9.2); the full DigestInfo is this prefix
+// followed by the raw 32-byte digest. Used by PKCS#1 v1.5 verification of certificate-chain
+// signatures (sha256WithRSAEncryption). SHA-384/512 chain signatures are not supported yet — the
+// caller fails those closed rather than accepting them unverified.
+inline std::string digestinfo_prefix_sha256() {
+    static const unsigned char p[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
+                                      0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
+    return std::string(reinterpret_cast<const char*>(p), sizeof p);
+}
+
+// Verify an RSASSA-PKCS1-v1_5 signature (RFC 8017 §8.2.2) against a caller-supplied RSA public key
+// (modulus @p nb, exponent @p eb as big-endian bytes) and a precomputed DigestInfo (@p digest_info =
+// a `digestinfo_prefix_*()` followed by the raw message digest). This is the signature scheme used
+// by X.509 certificate chains (sha256/384/512WithRSAEncryption). Strict EM check: EM must be exactly
+// `00 01 FF..FF(>=8) 00 || DigestInfo` — no trailing garbage, no short padding, no exponent tricks.
+inline bool verify_pkcs1v15(const std::string& nb, const std::string& eb,
+                            const std::string& digest_info, const std::string& sig) {
+    const Big n = from_be(nb), e = from_be(eb);
+    if (n.empty() || e.empty()) return false;
+    if ((e[0] & 1u) == 0 || cmp(e, Big{3u}) < 0) return false;  // exponent sanity (reject e<3/even)
+    const std::size_t k = (bitlen(n) + 7) / 8;                  // modulus length in bytes
+    if (sig.size() != k) return false;
+    const Big s = from_be(sig);
+    if (cmp(s, n) >= 0) return false;
+    if (k < digest_info.size() + 11) return false;  // 00 01 + >=8 FF + 00 + DigestInfo
+    const std::string em = to_be(modexp(s, e, n), k);
+    if (static_cast<unsigned char>(em[0]) != 0x00 || static_cast<unsigned char>(em[1]) != 0x01)
+        return false;
+    std::size_t i = 2;
+    while (i < k && static_cast<unsigned char>(em[i]) == 0xFF) ++i;
+    if (i < 2 + 8) return false;                                   // PS must be at least 8 bytes
+    if (i >= k || static_cast<unsigned char>(em[i]) != 0x00) return false;  // separator
+    ++i;
+    return em.compare(i, std::string::npos, digest_info) == 0;   // exact DigestInfo, no trailing bytes
 }
 
 }  // namespace cheatah::tls::rsa

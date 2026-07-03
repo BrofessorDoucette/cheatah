@@ -43,20 +43,23 @@ automatic string-concatenation optimization — at the cost of compile time.
 | `builtins`  | Always-available built-ins: `len`, `ord`/`chr`, `hex`/`oct`/`bin`, conversions, `hash`. |
 | `datetime`  | Civil date & time values and formatting. |
 | `ed25519`   | Ed25519 public-key signatures (RFC 8032), from scratch — sign, verify, keygen. Backs cheatah's [module-integrity](security.html) check. |
-| `hashlib`   | SHA-256 and SHA-512 digests (hex and raw). |
+| `hashlib`   | SHA-256/SHA-512 digests (hex and raw), HMAC, HKDF (RFC 5869), and Base64. |
 | `io`        | `print`, `str`/`repr`/`format`, `input`, file I/O. |
 | `linalg`    | numpy-style linear algebra on `ndarray`, SIMD-accelerated. |
 | `math`      | Scalar math (pure, allocation-free) + `abs`/`min`/`max`/`pow`. |
+| `memory`    | Ownership for shared state — `Owner<T>` with the request → acquire → lease flow (drain-before-write, write priorities, `memory.immediate`). The blessed way to share across threads. |
 | `ndarray`   | N-dimensional arrays **generic over the numeric element type** (deduced from the literals), with broadcasting + declarative SIMD. |
 | `os`        | Environment, process, and filesystem (`os.path`) helpers, plus `os.urandom` (CSPRNG). |
 | `p256`      | NIST P-256 ECDSA signatures, from scratch — used to verify server certificates in `tls`. |
-| `parsers`   | From-scratch input parsers — `parsers.json` (SIMD-accelerated JSON), `parsers.url`, and `parsers.html`. |
-| `random`    | Pseudo-random numbers and selection. |
+| `parsers`   | From-scratch input parsers — `parsers.json` (SIMD-accelerated JSON), `parsers.xml` (slab-DOM), `parsers.url`, and `parsers.html`. |
+| `random`    | Pseudo-random numbers and selection (per-thread engine — draws never race). |
+| `regex`     | From-scratch **linear-time** regular expressions (lazy DFA) — immune to ReDoS by construction. |
 | `requests`  | A pure-cheatah HTTP client (the first `.purr` stdlib module). |
 | `socket`    | TCP sockets — a small BSD-socket wrapper (Python-`socket`-flavored); owning `Conn`/`Listener` guards for `with`. |
 | `statistics`| Mean, median, variance, standard deviation. |
 | `string`    | Text ops + Python's `string` constants. |
 | `sys`       | Command-line arguments (`sys.argv`), Python-style. |
+| `thread`    | Real OS threads — `thread.spawn(f, args...)` → a join-on-destroy `Thread` guard; share mutable state through `memory.Owner` ([the contract](threading.html)). |
 | `time`      | Monotonic / wall clocks and sleeping. |
 | `tls`       | A from-scratch **TLS 1.3 client** (no OpenSSL); owning `Conn` guard for `with`. |
 | `websocket` | A from-scratch **WebSocket (RFC 6455) `wss://` client** over `tls`; owning `Client` guard for `with`. |

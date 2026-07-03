@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level tests for the (newly optimized) linalg library. Each runs a checked-in
 // .purr program through the real purrc → cheatah pipeline and cross-checks its output,
 // number for number, against an equivalent NumPy program. The .purr/.py sources live in

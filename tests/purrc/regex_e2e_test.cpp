@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // regex end-to-end adversarial suite (suite RegexE2E).
 //
 // Each test compiles a real .purr program with purrc and runs it under the cheatah runtime, checking

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 // cheatah::parsers::json — read<T>(): parse JSON DIRECTLY into a typed struct, no Node/variant DOM.

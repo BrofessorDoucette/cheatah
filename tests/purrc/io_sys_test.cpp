@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level (whole-module) test for the `io` stdlib module: ONE cohesive .purr
 // program that exercises EVERY public purr-callable entry point in stdlib/io/io.hpp
 // in a single run, compiles it with purrc, runs it under the cheatah runtime, and

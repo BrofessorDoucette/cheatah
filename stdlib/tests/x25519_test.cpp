@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Unit tests for the `x25519` module against the RFC 7748 test vectors (§5.2, §6.1) — the
 // from-scratch field arithmetic and Montgomery ladder must match the spec bit for bit.
 #include <gtest/gtest.h>

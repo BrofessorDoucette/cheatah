@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Shared compile-run harness for the cheatah end-to-end test suites.
 //
 // expect_e2e(name, src, expected[, env_prefix]) writes a .purr program, compiles

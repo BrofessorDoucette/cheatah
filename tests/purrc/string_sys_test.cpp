@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level test for the stdlib `string` module: one cohesive text-processing
 // pipeline that exercises EVERY public function in stdlib/string/string.hpp in a
 // single program (not isolated per-function prints — that is what the compile-run

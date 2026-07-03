@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // In-process unit tests for the HEADER-ONLY parts of the `parsers` module that cheatah_tests can
 // instantiate WITHOUT linking the compiled DOM parser (parsers/json/json.cpp): the URL parser
 // (parsers::url::Parser), the JSON schema factories (field/object), the typed struct reader

@@ -27,7 +27,8 @@ socket.close(lfd)
 - **Owning guards (RAII, `with`-friendly)** — `open(host, port)` → a `Conn`, and
   `serve(host, port, backlog)` → a `Listener`; each closes its fd on scope exit.
 - **Convenience** — `tcp_listen(host, port, backlog)`, `tcp_connect(host, port)`.
-- **Per-connection I/O** — `accept`, `recv`, `send`, `sendall`, `close`.
+- **Per-connection I/O** — `accept`, `recv`, `send`, `sendall`, `close`, plus
+  `set_timeout(fd, ms)` (recv/send deadlines) and `shutdown(fd)` (half-close).
 - **Low-level BSD** — `socket`, `set_reuseaddr`, `bind`, `listen`, `connect`,
   `local_port`, and `last_error` (the current `errno` text).
 

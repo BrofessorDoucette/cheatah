@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // previously_broken — a regression suite of programs/patterns that ONCE broke the
 // cheatah compiler or runtime. It is run FIRST in the QA gate (CTest label
 // "previously_broken") so a reintroduced regression fails fast, before the rest of the

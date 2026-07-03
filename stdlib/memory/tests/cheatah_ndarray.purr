@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # cheatah_ndarray.purr — REAL cheatah test: an Owner of an ndarray (the user's headline use case).
 # Set individual elements with the indexed setter `w.write(index, value)`; partial writes must leave
 # the rest untouched, and a later read must see exactly what was written. TDD spec. Expected stdout:

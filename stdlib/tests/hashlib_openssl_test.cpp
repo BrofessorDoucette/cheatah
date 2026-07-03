@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Byte-for-byte cross-check of the hashlib digests / HMAC / base64 against the system
 // `openssl` CLI over a range of inputs — empty, short, long, a sentence, and ALL 256 byte
 // values — so we validate against an independent reference implementation, not only the

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // CLI smoke tests for the toolchain executables: --help / -h print usage to stdout and
 // exit 0, and --version reports the tool name. (biome is a cheatah program with its own
 // `help`/`--help` command, covered by its own run.)

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // cheatah — the host executable that LOADS and RUNS compiled cheatah
 // programs. It dlopens a module produced by purrc, resolves its `purr_main`
 // entry point, and calls it.

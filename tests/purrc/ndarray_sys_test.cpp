@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level (whole-program) test for the `ndarray` stdlib module. Unlike the
 // per-function compile-run tests (tests/purrc/ndarray_cr_test.cpp), this drives a
 // single cohesive numeric program through EVERY purr-callable ndarray function and

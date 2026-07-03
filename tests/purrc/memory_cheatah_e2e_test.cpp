@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // memory cheatah-surface e2e (suite MemoryCheatah) — runs the REAL cheatah `.purr` programs in
 // stdlib/memory/tests/ and checks exact stdout. These are actual cheatah programs exercising the
 // memory surface (own / rwrite / rread / acquire / read / write / valid / expired), verified to parse

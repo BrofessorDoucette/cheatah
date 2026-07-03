@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level (whole-program) test for the `random` stdlib module. Unlike the
 // per-function compile-run tests (tests/purrc/random_cr_test.cpp), this drives a
 // single cohesive program through EVERY purr-callable random function and asserts

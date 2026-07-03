@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # cheatah_lease_state.purr — REAL cheatah test: a read lease is valid() while nobody needs it back.
 # In a single thread with no pending writer, a held read lease stays valid the whole time.
 # Expected. Expected stdout:

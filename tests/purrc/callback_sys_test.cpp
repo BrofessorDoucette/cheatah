@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // callback_sys_test.cpp — SYSTEM tests for cheatah's function-value feature: a
 // `fn` passed as an argument lowers to a callable that binds to a C++
 // `std::function<...>` parameter, so hand-written C++ modules can accept cheatah

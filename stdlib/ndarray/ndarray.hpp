@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -63,12 +65,12 @@ concept Numeric = std::is_arithmetic_v<T>;
 template <typename T>
 concept FloatingPoint = std::floating_point<T>;
 
-/// \cond INTERNAL
+/// @cond INTERNAL
 template <typename T>
 struct is_complex : std::false_type {};
 template <typename U>
 struct is_complex<std::complex<U>> : std::bool_constant<std::is_floating_point_v<U>> {};
-/// \endcond
+/// @endcond
 
 /// Whether `T` is a `std::complex` of a floating type — the trait behind @ref Field.
 template <typename T>
@@ -100,7 +102,7 @@ concept Element = Field<T> || std::movable<T>;
 template <typename T>
 concept Copyable = Element<T> && std::copyable<T>;
 
-/// \cond INTERNAL
+/// @cond INTERNAL
 template <typename T>
 struct real_base {
     using type = T;
@@ -109,7 +111,7 @@ template <typename U>
 struct real_base<std::complex<U>> {
     using type = U;
 };
-/// \endcond
+/// @endcond
 
 /// The real type underlying a @ref Field `T` (`double` for both `double` and
 /// `complex<double>`).
@@ -123,7 +125,7 @@ template <typename T>
 using complex_of_t = std::complex<real_base_t<T>>;
 
 namespace detail {
-/// \cond INTERNAL
+/// @cond INTERNAL
 /// An allocator identical to `std::allocator<T>` in every respect EXCEPT that
 /// DEFAULT (no-value) construction — what `vector(n)` / `resize(n)` perform — leaves a
 /// trivially-constructible element UNINITIALIZED instead of value-initializing it to 0.
@@ -152,7 +154,7 @@ struct default_init_allocator : std::allocator<T> {
         ::new (static_cast<void*>(p)) U(std::forward<Args>(args)...);
     }
 };
-/// \endcond
+/// @endcond
 
 /// C-order (row-major) strides for a shape.
 inline std::vector<std::ptrdiff_t> contiguous_strides(const std::vector<std::size_t>& shape) {
@@ -803,6 +805,7 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
 }
 
 // ---- element-wise ops (broadcasting, vectorized) ----
+/// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
 /**
  * Broadcast @p a and @p b to their common shape and apply @p op elementwise into a
  * fresh contiguous result. Fast path: when both operands are contiguous, a flat
@@ -908,6 +911,7 @@ void binary_op_into(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basi
         odst[static_cast<std::ptrdiff_t>(flat++)] = op(av.at(idx), bv.at(idx));
     } while (!rshape.empty() && detail::next_index(idx, rshape));
 }
+/// @endcond
 
 // Shared elementwise combiners: ONE functor type per op, used by BOTH the allocating
 // forms (add/sub/mul/divide) and the in-place compound operators (+=/-=/*=//=). Using a
@@ -982,6 +986,7 @@ basic_ndarray<T> divide(const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
     return binary_op(a, b, detail::div_op{});
 }
 
+/// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
 // ---- user-provided-output forms: write into the caller's buffer, NO allocation (see binary_op_into) ----
 /**
  * Element-wise `a + b` into the caller's buffer @p out (out FIRST) — the buffer-reuse overload, so a
@@ -1023,6 +1028,7 @@ template <Field T>
 void divide(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarray<T>& b) {
     binary_op_into(out, a, b, detail::div_op{});
 }
+/// @endcond
 
 // ---- Infix operators & in-place compound assignment ------------------------
 // cheatah lowers `a + b` / `a * 2.0` / `a += b` on ndarrays straight to these
@@ -1033,6 +1039,7 @@ void divide(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarra
 // an entire run — falling back to the allocating elementwise path only for
 // non-contiguous views or true broadcasts.
 
+/// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
 /**
  * In-place elementwise update `a = op(a, b)`, writing through @p a's buffer.
  * Contiguous @p a with a same-shape contiguous or single-element @p b runs as
@@ -1068,7 +1075,9 @@ void compound_apply(basic_ndarray<T>& a, const basic_ndarray<T>& b, Op op) {
     }
     a = binary_op(a, b, op);  // broadcast / non-contiguous fallback
 }
+/// @endcond
 
+/// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
 // ---- rvalue-reuse ("move") forms -----------------------------------------------------------------
 // "Copy vs move" for ndarray math. `a + b` on NAMED (lvalue) arrays MUST allocate — it can't clobber
 // `a`, which the caller still holds. But when the LEFT operand is an RVALUE — a temporary the caller
@@ -1218,6 +1227,7 @@ basic_ndarray<T> mul(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return mul(st
  */
 template <Field T>
 basic_ndarray<T> divide(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return divide(std::move(a), b); }
+/// @endcond
 
 /// Elementwise infix forms: `a + b`, `a - b`, `a * b`, `a / b` (broadcasting).
 /**
@@ -1249,6 +1259,7 @@ basic_ndarray<T> operator*(const basic_ndarray<T>& a, const basic_ndarray<T>& b)
 template <typename T>
 basic_ndarray<T> operator/(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return divide(a, b); }
 
+/// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
 /// rvalue-reuse infix forms: whichever operand is the expiring temporary is computed into IN PLACE
 /// (no alloc). `std::move(a) + b` reuses `a`, `a + std::move(b)` reuses `b` — symmetric. A chain
 /// `a + b + c` allocates once (for `a + b`) instead of twice. If BOTH are temporaries the left wins.
@@ -1288,6 +1299,7 @@ basic_ndarray<T> operator*(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return 
 /** `a / b` with both operands expiring; reuses the left buffer @p a. @param a expiring numerator. @param b expiring denominator. @return the quotient, in @p a's buffer. @complexity O(size). @alloc none on the fast path. */
 template <typename T>
 basic_ndarray<T> operator/(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return divide(std::move(a), std::move(b)); }
+/// @endcond
 
 /// Scalar infix forms, either side: `a * 2.0`, `0.5 * a`, `a + 1`, `1.0 / a`, ...
 /// The scalar converts to the array's element type (int literals work on float arrays). These go
@@ -1328,6 +1340,7 @@ template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T> operator/(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::div_op{}); }
 
+/// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
 /// rvalue-reuse scalar forms: a temporary array operand is computed into IN PLACE (no alloc). Only the
 /// commutative `s + a` / `s * a` get a scalar-LEFT reuse form; `s - a` / `s / a` keep the allocating
 /// const& form (a reversed in-place would be needed, not worth it for that rare case).
@@ -1355,6 +1368,7 @@ basic_ndarray<T> operator*(S s, basic_ndarray<T>&& a) { return mul(std::move(a),
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T> operator/(basic_ndarray<T>&& a, S s) { return divide(std::move(a), scalar(static_cast<T>(s))); }
+/// @endcond
 
 /// In-place compound assignment: `a += b`, `a -= b`, `a *= b`, `a /= b`
 /// (array or arithmetic-scalar right operand). See compound_apply.

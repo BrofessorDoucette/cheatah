@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level "application" test: a small TCP round-trip ("netcat"-style) app
 // that only passes if socket + string + io all cooperate end to end.
 //

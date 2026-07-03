@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -85,7 +87,7 @@ std::string sha512_digest(std::string_view data);  // 64 raw bytes
  * @param data raw message bytes.
  * @return the 32-byte MAC as raw bytes.
  * @complexity O(|key| + |data|).
- * @alloc the returned string.
+ * @alloc the returned 32-byte digest plus fixed key/inner/outer scratch buffers.
  * @test CheatahHashlib.HmacSha256
  * @crtest HashlibCompileRun.Hmac
  * @systest StdlibE2E.Hashlib
@@ -100,7 +102,7 @@ std::string hmac_sha256(std::string_view key, std::string_view data);
  * @param data raw message bytes.
  * @return the 64-byte MAC as raw bytes.
  * @complexity O(|key| + |data|).
- * @alloc the returned string.
+ * @alloc the returned 64-byte digest plus fixed key/inner/outer scratch buffers.
  * @test CheatahHashlib.HmacSha512
  * @crtest HashlibCompileRun.Hmac
  * @systest StdlibE2E.Hashlib
@@ -142,7 +144,7 @@ std::string base64_decode(std::string_view text);
  * @param ikm the input keying material.
  * @return the 32-byte pseudorandom key (PRK) as raw bytes.
  * @complexity O(|salt| + |ikm|).
- * @alloc the returned 32-byte string.
+ * @alloc the returned 32-byte PRK plus fixed HMAC scratch buffers.
  * @test CheatahHashlib.HkdfRfc5869Case1
  * @crtest HashlibCompileRun.Hkdf
  * @systest StdlibE2E.Hashlib
@@ -157,7 +159,7 @@ std::string hkdf_extract(std::string_view salt, std::string_view ikm);
  * @param length the number of output-keying-material bytes to produce.
  * @return the OKM as raw bytes, or "" when length is 0 or exceeds 255*32 (the RFC bound).
  * @complexity O(length).
- * @alloc the returned string.
+ * @alloc the returned keystream plus one HMAC scratch buffer per 32-byte output block.
  * @test CheatahHashlib.HkdfRfc5869Case1
  * @crtest HashlibCompileRun.Hkdf
  * @systest StdlibE2E.Hashlib

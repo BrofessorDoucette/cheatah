@@ -58,7 +58,8 @@ io.print(demo())                                                  # 16
 ```
 
 Reach for it for: raw pointers / manual allocation, arbitrary third-party C++ headers and
-libraries, lambdas, templates you write by hand, threads, and any other C++ feature not
-listed above. **Memory safety is *not* guaranteed inside `cpp { … }`** — a raw block bypasses
+libraries, lambdas, templates you write by hand, and any other C++ feature not listed
+above. (Threads no longer need the escape hatch — `import thread` spawns cheatah `fn`s
+natively; see the [threading contract](threading.html).) **Memory safety is *not* guaranteed inside `cpp { … }`** — a raw block bypasses
 the value-semantics guarantees, so lifetimes and undefined behavior are your responsibility,
 exactly as in C++. Keep it small and rare; everything around it stays native and safe.

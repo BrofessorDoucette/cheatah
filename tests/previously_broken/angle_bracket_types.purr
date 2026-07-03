@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # Regression (previously broken): the TYPE grammar was UNIFIED onto angle brackets. Struct fields,
 # `let` annotations, and interface method params now spell type arguments with `<...>` — the same
 # spelling already used by function params/returns and explicit call template args — instead of the

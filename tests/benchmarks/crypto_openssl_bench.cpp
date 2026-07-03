@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // crypto_openssl_bench — cheatah's crypto primitives vs OpenSSL (libcrypto), the de-facto
 // reference implementation. Digests, HMAC, and the two TLS 1.3 AEADs are timed on the same
 // 4 KiB payload (a typical TLS record) so the rows are directly comparable. The OpenSSL

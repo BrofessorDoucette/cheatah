@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level tests for the generated-code namespace aliasing. The whole program is
 // emitted inside a `namespace cheatah_program { … }`, where each stdlib module gets its
 // OWN short alias (`namespace io = ::cheatah::io;`, `namespace random = …`, …) so the

@@ -31,6 +31,7 @@
 #       QA_GATE_SKIP_DOCS=1       skip only the documentation-coverage stage
 #       QA_GATE_SKIP_EXTENSION=1  skip only the VS Code extension hover-DB sync check
 #       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
+#       QA_GATE_SKIP_TSAN=1       skip only the ThreadSanitizer stage (faster local runs)
 #       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
 #       QA_GATE_FULL_CR=1         ALSO run the full per-function compile-run battery
 #                                 (~200 tests; off by default — opt in when needed)
@@ -168,6 +169,23 @@ else
     UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1" \
     ASAN_OPTIONS="detect_leaks=1:abort_on_error=1" \
         ctest --preset asan --output-on-failure "${CR_EXCLUDE[@]}" || fail "sanitizer (ASan/UBSan) tests"
+fi
+
+# 5b. ThreadSanitizer: build + run the concurrency-relevant suites (hard gate) -
+# TSan cannot combine with ASan, so it is its own preset/build. Scoped to the suites that
+# actually run threads (thread module, per-thread random, memory once its engine lands) —
+# single-threaded suites add no TSan signal, and the purrc subprocess tests spawn
+# uninstrumented child binaries TSan cannot see into.
+if [ "${QA_GATE_SKIP_TSAN:-0}" = "1" ]; then
+    bold "Skipping ThreadSanitizer stage (QA_GATE_SKIP_TSAN=1)."
+else
+    bold "Configuring + building (TSan)…"
+    cmake --preset tsan        >/tmp/cheatah_cfg_tsan.log   2>&1 || { tail -20 /tmp/cheatah_cfg_tsan.log;   fail "configure (tsan)"; }
+    cmake --build --preset tsan --target cheatah_tests >/tmp/cheatah_build_tsan.log 2>&1 || { tail -30 /tmp/cheatah_build_tsan.log; fail "tsan build"; }
+    bold "Running concurrency-relevant suites under ThreadSanitizer…"
+    TSAN_OPTIONS="halt_on_error=1 second_deadlock_stack=1" \
+        ctest --preset tsan --output-on-failure -R 'CheatahThread|CheatahRandom|Memory' \
+        || fail "ThreadSanitizer tests"
 fi
 
 # 6. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------

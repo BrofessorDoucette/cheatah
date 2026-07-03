@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>memory::Request · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=826d8ab6">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="extensions.html" data-ref="extensions">Standard library extensions</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li><li><a href="md_stdlib_2memory_2DESIGN.html" data-ref="md_stdlib_2memory_2DESIGN">The memory module</a></li><li><a href="threading.html" data-ref="threading">The threading contract</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1memory.html" data-ref="namespacecheatah_1_1memory">memory</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1html.html" data-ref="namespacecheatah_1_1parsers_1_1html">html</a></li><li><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li><li><a href="namespacecheatah_1_1parsers_1_1xml.html" data-ref="namespacecheatah_1_1parsers_1_1xml">xml</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1regex.html" data-ref="namespacecheatah_1_1regex">regex</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1thread.html" data-ref="namespacecheatah_1_1thread">thread</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>memory::Request</code></h1>
+  <p class="lede">A promise for a lease — what <code><a href="classcheatah_1_1memory_1_1Owner.html#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c">Owner::rread()</a></code>/<code>rwrite&lt;…&gt;()</code> return. </p>
+</div>
+<div class="overview"><p>Move-only; block for the lease with <code><a href="classcheatah_1_1memory_1_1Request.html#classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf">acquire()</a></code>.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>LeaseT</code></td><td class="pdesc"><p>the <code><a href="classcheatah_1_1memory_1_1Lease.html">Lease</a></code> type this request resolves to.</p></td></tr></table></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">Request</span> <span class="overload-count">· 3 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(std::future&lt; LeaseT &gt; &amp;&amp;fut) noexcept</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L30" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Request_1a028cf61ea09276b187b5da4483bf20c9"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(Request &amp;&amp;) noexcept=default</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L32" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a028cf61ea09276b187b5da4483bf20c9" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Request_1a878bb8b2dddbd64c9dabaddb4d4cc6a7"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(const Request &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L35" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a878bb8b2dddbd64c9dabaddb4d4cc6a7" aria-label="permalink">#</a></span></div></div>
+  <p class="member-brief">Wrap the owner-supplied future. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fut</code></td><td class="pdesc"><p>the future the owner fulfills.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02">Request</a> &amp;</span> <span class="mname">operator=</span>(Request &amp;&amp;) noexcept=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L34" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Move-assign (a request is move-only). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code>*this</code>.</p></div></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">LeaseT</span> <span class="mname">acquire</span>(std::function&lt; void()&gt; on_interrupt={})</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L46" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">BLOCK until the owner grants, then return the lease. </p>
+  <div class="member-body"><p><code>on_interrupt</code> is the requester&#x27;s interruption handler — wired to the granted lease so if the owner later needs the lease back the handler fires. Omit it to rely purely on the lease&#x27;s <code><span class="tok-fn">valid</span>()</code>/<code><span class="tok-fn">expired</span>()</code> polling. One-shot.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>on_interrupt</code></td><td class="pdesc"><p>optional handler to run when the owner asks the lease to yield.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the granted lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) once granted; <strong>blocks</strong> until the owner fulfills the request.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none, unless <code>on_interrupt</code> is supplied — then one callback holder (via <code><a href="classcheatah_1_1memory_1_1Lease.html#classcheatah_1_1memory_1_1Lease_1acb32d70340c121f53b86f43877830800">Lease::on_interrupt</a></code>).</p></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1memory_1_1Request_1aec8dd3faf21015988b175f266e9289f2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::future&lt; LeaseT &gt;</span> <span class="mname">fut_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L53" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1aec8dd3faf21015988b175f266e9289f2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">owner-fulfilled; never exposed to cheatah. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02">Request</a></li><li><a href="#classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836">operator=</a></li><li><a href="#classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf">acquire</a></li><li><a href="#classcheatah_1_1memory_1_1Request_1aec8dd3faf21015988b175f266e9289f2">fut_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=9ff1126f"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

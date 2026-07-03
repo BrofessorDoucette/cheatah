@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level "real program" test for the `builtins` module: a single cohesive
 // program that exercises EVERY public, purr-callable built-in declared in
 // stdlib/builtins/builtins.hpp in one run, then asserts its stdout byte-for-byte.

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // End-to-end tests for purrc's cheatah-library emitter (`--emit-library`) and the
 // consumer-side integrity verification:
 //   - a TRANSPARENT module inlines its generated C++ source into a signed header (so the

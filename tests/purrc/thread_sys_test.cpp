@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level e2e for the `thread` module (suite StdlibE2E, like every module's *_sys_test): one
 // program driving the whole surface — spawn with mixed argument types, sequential join chains,
 // the `with` guard, joinable(), and a worker `raise` recovered in-language with try/except (the

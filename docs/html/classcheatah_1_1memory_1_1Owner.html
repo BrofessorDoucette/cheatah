@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>memory::Owner · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=826d8ab6">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="extensions.html" data-ref="extensions">Standard library extensions</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li><li><a href="md_stdlib_2memory_2DESIGN.html" data-ref="md_stdlib_2memory_2DESIGN">The memory module</a></li><li><a href="threading.html" data-ref="threading">The threading contract</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1memory.html" data-ref="namespacecheatah_1_1memory">memory</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1html.html" data-ref="namespacecheatah_1_1parsers_1_1html">html</a></li><li><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li><li><a href="namespacecheatah_1_1parsers_1_1xml.html" data-ref="namespacecheatah_1_1parsers_1_1xml">xml</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1regex.html" data-ref="namespacecheatah_1_1regex">regex</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1thread.html" data-ref="namespacecheatah_1_1thread">thread</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>memory::Owner</code></h1>
+  <p class="lede">The sole owner + scheduling coordinator for one <code>T</code>. </p>
+</div>
+<div class="overview"><p>Non-copyable and pinned, so the object never moves; every access goes through a request → acquire → lease.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>T</code></td><td class="pdesc"><p>the owned type.</p></td></tr></table></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">Owner</span> <span class="overload-count">· 3 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">Owner</span>(T &amp;&amp;value, policy pol=policy::interleave)</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L54" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Owner_1ad58debdc75f4b76af9d9e744a4c70e28"><code class="sig"><span class="mtype"></span> <span class="mname">Owner</span>(const Owner &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L56" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ad58debdc75f4b76af9d9e744a4c70e28" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Owner_1afe26d3af1ef87aaabbdb2e8ad4823405"><code class="sig"><span class="mtype"></span> <span class="mname">Owner</span>(Owner &amp;&amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L58" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1afe26d3af1ef87aaabbdb2e8ad4823405" aria-label="permalink">#</a></span></div></div>
+  <p class="member-brief">Take sole ownership by MOVING <code>value</code> in — the object is consumed (its resources move into the <a href="classcheatah_1_1memory_1_1Owner.html">Owner</a>), never copied. </p>
+  <div class="member-body"><p>An lvalue won&#x27;t bind here (bind an rvalue: <code><span class="tok-fn">own</span>(std::<span class="tok-fn">move</span>(x))</code>).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the object to take ownership of (moved in).</p></td></tr><tr><td class="pname"><code>pol</code></td><td class="pdesc"><p>the scheduling policy (interleave / writes_first).</p></td></tr></table></div></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">operator=</span> <span class="overload-count">· 2 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Owner.html#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a> &amp;</span> <span class="mname">operator=</span>(const Owner &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L57" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Owner_1aecfc13023578c435aeed0f59fafe67f6"><code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Owner.html#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a> &amp;</span> <span class="mname">operator=</span>(Owner &amp;&amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L59" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1aecfc13023578c435aeed0f59fafe67f6" aria-label="permalink">#</a></span></div></div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, read &gt; &gt;</span> <span class="mname">rread</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L64" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><a href="classcheatah_1_1memory_1_1Request.html">Request</a> a shared READ lease. </p>
+  <div class="member-body"><p>Blocks (inside <code>.<span class="tok-fn">acquire</span>()</code>) only if a write is pending/active; otherwise many read leases coexist.</p><div class="ret"><span class="ret-h">Returns</span> <p>a request for a read lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) amortized.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the request&#x27;s promise/future.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, write &gt; &gt;</span> <span class="mname">rwrite</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L83" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><a href="classcheatah_1_1memory_1_1Request.html">Request</a> an exclusive WRITE lease at compile-time <code>priority</code> (a plain int or the caller&#x27;s enum; higher = served first, ties FIFO). </p>
+  <div class="member-body"><p><code>priority &lt; <span class="tok-num">0</span></code> (spell it <code><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429">memory::immediate</a></code>) is an immediate-write.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>priority</code></td><td class="pdesc"><p>the compile-time write priority.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a request for a write lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(log k) to enqueue among k waiters (O(1) immediate).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the request&#x27;s promise/future (plus one queue node for a non-immediate write).</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">can_read</span>() const</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L113" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Gate &gt;</span> <span class="mname">make_gate</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L116" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, write &gt; &gt;</span> <span class="mname">grant_write</span>(long long prio)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L122" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, write &gt; &gt;</span> <span class="mname">grant_immediate</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L144" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">release_read</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L169" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">release_write</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L174" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">release_immediate</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L180" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">value_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L91" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7">policy</a></span> <span class="mname">policy_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L92" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::mutex</span> <span class="mname">mtx_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L93" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::condition_variable</span> <span class="mname">cv_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L94" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">readers_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L95" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">active read leases. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">writer_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L96" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">an active (non-suspended) write lease. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">writer_suspended_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L97" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">active writer paused for an immediate-write. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">immediate_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L98" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">an immediate-write holds exclusive access. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Gate &gt;</span> <span class="mname">read_gate_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L99" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">current read generation&#x27;s yield gate. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Gate &gt;</span> <span class="mname">writer_gate_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L100" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">the active writer&#x27;s gate (for preempt/resume). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::priority_queue&lt; Ticket, std::vector&lt; Ticket &gt;, ServedLater &gt;</span> <span class="mname">wq_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L108" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">waiting non-immediate writes. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">seq_</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L109" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d">operator=</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c">rread</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b">rwrite</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0">can_read</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725">make_gate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27">grant_write</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846">grant_immediate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae">release_read</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2">release_write</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6">release_immediate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66">value_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6">policy_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa">mtx_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8">cv_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1">readers_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb">writer_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2">writer_suspended_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f">immediate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f">read_gate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa">writer_gate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26">wq_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7">seq_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=9ff1126f"></script>
+<script src="cheatah-docs.js?v=969935ed"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

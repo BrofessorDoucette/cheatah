@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level test for the cheatah stdlib `math` module: ONE cohesive program
 // that exercises EVERY public function and constant declared in
 // stdlib/math/math.hpp (sqrt, cbrt, fabs, floor, ceil, trunc, round, exp, log,

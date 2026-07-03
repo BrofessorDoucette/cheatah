@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # gen.purr — Stage 2 Slice 1 of the pure-cheatah docs generator.
 # Reads a Doxygen namespace XML (docs/xml/*.xml) and emits a module reference page.
 # Uses parsers.xml (the from-scratch cheatah XML reader) — no Python, no regex.

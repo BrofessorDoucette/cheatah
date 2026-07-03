@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Unit tests for tls/rsa_verify.hpp — RSA-PSS (rsa_pss_rsae_sha256) signature verification used by the
 // TLS 1.3 CertificateVerify path. A FIXED vector (a 2048-bit RSA public key + a PSS-SHA256 signature
 // over a known message, produced once with OpenSSL) checks the accept path; the rest check that every
@@ -62,6 +64,27 @@ TEST(CheatahRsaVerify, RejectsWrongLengthSignature) {
     std::string sig = unhex(kSigHex);
     EXPECT_FALSE(rsa::verify_pss_sha256(unhex(kSpkiHex), kMsg, sig.substr(0, sig.size() - 1)));
     EXPECT_FALSE(rsa::verify_pss_sha256(unhex(kSpkiHex), kMsg, sig + std::string(1, '\0')));
+}
+
+// SECURITY: a key with a dangerous public exponent is rejected before any modexp. With e = 1
+// an attacker forges a signature trivially (m = s^1 = the PSS encoding they can compute), so a
+// real verifier refuses e < 3 and even e. We rewrite the exponent TLV in the SPKI (it ends with
+// `02 03 01 00 01` = 65537) to e = 1 and to e = 65536 (even) and confirm both are refused.
+TEST(CheatahRsaVerify, RejectsUnsafeExponent) {
+    const std::string spki(kSpkiHex);
+    const std::size_t at = spki.rfind("0203010001");  // the trailing exponent INTEGER
+    ASSERT_NE(at, std::string::npos);
+
+    std::string e1 = spki;
+    e1.replace(at, 10, "0203000001");  // exponent value 00 00 01 -> e = 1
+    EXPECT_FALSE(rsa::verify_pss_sha256(unhex(e1), kMsg, unhex(kSigHex)));
+
+    std::string e_even = spki;
+    e_even.replace(at, 10, "0203010000");  // exponent value 01 00 00 -> e = 65536 (even)
+    EXPECT_FALSE(rsa::verify_pss_sha256(unhex(e_even), kMsg, unhex(kSigHex)));
+
+    // Sanity: the untouched key (e = 65537) with its genuine signature still verifies.
+    EXPECT_TRUE(rsa::verify_pss_sha256(unhex(kSpkiHex), kMsg, unhex(kSigHex)));
 }
 
 // A blob with no rsaEncryption SubjectPublicKeyInfo (not an RSA cert) yields no key -> reject.

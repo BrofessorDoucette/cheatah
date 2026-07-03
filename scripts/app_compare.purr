@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # app_compare.purr — application-scale cheatah-vs-CPython benchmarks, written in
 # PURE CHEATAH (the benchmark harness dogfoods the language). The QA gate stays in
 # trusted Python/C++ tooling; benchmarks only measure already-verified code, so it is

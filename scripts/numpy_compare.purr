@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # numpy_compare.purr — cheatah `linalg` vs NumPy, written in PURE CHEATAH.
 # The harness builds a deterministic SPD matrix as a literal, embeds the SAME data in
 # both a cheatah program (linalg op in a timed loop) and a CPython program (the numpy

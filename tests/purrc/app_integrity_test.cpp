@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level "application" test: a small file-integrity / dedup tool written
 // in cheatah, compiled with purrc and run under the runtime. Unlike the
 // single-module e2e tests in stdlib_e2e_test.cpp, this program only produces the

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // p256_bench — ECDSA P-256 sign/verify throughput. Verify is the TLS hot path
 // (run once per handshake); sign is the JWT/ES256 path. Run with the release
 // preset: ./build/release/bin/cheatah_benchmarks --benchmark_filter=P256

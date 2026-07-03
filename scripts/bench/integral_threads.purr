@@ -1,0 +1,110 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+# integral_threads.purr — the trapezoid integral of integral.purr, parallelized with the
+# `thread` module: N workers each integrate a contiguous chunk into a LOCAL sum, then make ONE
+# lease write into a shared memory.Owner<float> — coordination at the edges, never in the hot
+# loop. Prints, for 1/2/4/8 workers: the integral (must match the single-thread value) and the
+# wall-clock seconds. The single-file baseline lives in integral.py / integral.purr.
+import io
+import math
+import memory
+import thread
+import time
+
+fn points() { return 20000000 }
+fn width() { return 50.0 / points() }
+
+# Integrate f(x) = sin(x)·e^(−x/100) over grid points [lo, hi) into a local sum; one lease
+# write at the end (an Owner lease in a 20M-iteration loop would time the lock, not the math).
+fn chunk(o : memory.Owner<float>, lo : int, hi : int) {
+    let h = width()
+    let s = 0.0
+    for i in range(lo, hi) {
+        let x = h * i
+        s = s + math.sin(x) * math.exp(-0.01 * x)
+    }
+    with o.rwrite().acquire() as w {
+        w.write(w.read() + s)
+    }
+}
+
+# The trapezoid endpoint correction (the half-weight first/last samples of integral.purr).
+fn edges() -> float {
+    let b = 50.0
+    return 0.5 * (math.sin(0.0) * math.exp(0.0) + math.sin(b) * math.exp(-0.01 * b))
+}
+
+fn report(tag : str, total : float, seconds : float) {
+    io.print(tag, (total + edges()) * width(), seconds)
+}
+
+fn run_1() {
+    let o = memory.own(0.0)
+    let t0 = time.monotonic()
+    chunk(o, 1, points())
+    let t1 = time.monotonic()
+    report("1:", o.rread().acquire().read(), t1 - t0)
+}
+
+fn run_2() {
+    let o = memory.own(0.0)
+    let n = points()
+    let t0 = time.monotonic()
+    with thread.spawn(chunk, o, 1, n / 2) {
+        with thread.spawn(chunk, o, n / 2, n) {
+        }
+    }
+    let t1 = time.monotonic()
+    report("2:", o.rread().acquire().read(), t1 - t0)
+}
+
+fn run_4() {
+    let o = memory.own(0.0)
+    let n = points()
+    let q = n / 4
+    let t0 = time.monotonic()
+    with thread.spawn(chunk, o, 1, q) {
+        with thread.spawn(chunk, o, q, 2 * q) {
+            with thread.spawn(chunk, o, 2 * q, 3 * q) {
+                with thread.spawn(chunk, o, 3 * q, n) {
+                }
+            }
+        }
+    }
+    let t1 = time.monotonic()
+    report("4:", o.rread().acquire().read(), t1 - t0)
+}
+
+fn run_8() {
+    let o = memory.own(0.0)
+    let n = points()
+    let e = n / 8
+    let t0 = time.monotonic()
+    with thread.spawn(chunk, o, 1, e) {
+        with thread.spawn(chunk, o, e, 2 * e) {
+            with thread.spawn(chunk, o, 2 * e, 3 * e) {
+                with thread.spawn(chunk, o, 3 * e, 4 * e) {
+                    with thread.spawn(chunk, o, 4 * e, 5 * e) {
+                        with thread.spawn(chunk, o, 5 * e, 6 * e) {
+                            with thread.spawn(chunk, o, 6 * e, 7 * e) {
+                                with thread.spawn(chunk, o, 7 * e, n) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    let t1 = time.monotonic()
+    report("8:", o.rread().acquire().read(), t1 - t0)
+}
+
+fn main() {
+    run_1()
+    run_2()
+    run_4()
+    run_8()
+}
+
+main()

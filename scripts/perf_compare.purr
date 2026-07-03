@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # perf_compare.purr — per-call cheatah-vs-CPython micro-benchmarks, in PURE CHEATAH.
 # The harness assembles each elision-proof loop (vary input + accumulate + print),
 # compiles the cheatah version with purrc, races the CPython twin, and reports ns/call.

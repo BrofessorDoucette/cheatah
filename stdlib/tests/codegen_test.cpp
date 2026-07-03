@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "codegen.hpp"
 #include "parser.hpp"
 
@@ -98,6 +100,26 @@ TEST(CheatahCodegen, ResolvesNestedSubmoduleCalls) {
     EXPECT_TRUE(contains(cg.source, "namespace os = ::cheatah::os;"));
     EXPECT_TRUE(contains(cg.source,
                          "os::path::join(std::string(\"a\"), std::string(\"b\"));"));
+}
+
+TEST(CheatahCodegen, DottedImportDoesNotDoubleTheSubmoduleSegment) {
+    // A DOTTED `import a.b` binds only the head `a` (Python semantics), so a call written in
+    // full — `a.b.fn(...)` — qualifies to `a::b::fn`, NOT `a::b::b::fn`. (Regression: binding
+    // the whole path to `a` re-appended the tail, breaking every `import os.path` + os.path.*.)
+    const CodegenResult cg = codegen(parse_source(
+        "import os.path\nos.path.join(\"a\", \"b\")\n").program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "os::path::join(std::string(\"a\"), std::string(\"b\"));"));
+    EXPECT_FALSE(contains(cg.source, "os::path::path::join"));  // the doubled form must not appear
+}
+
+TEST(CheatahCodegen, AliasedSubmoduleImportResolvesToFullPath) {
+    // `import a.b as x` binds the FULL path to `x`, so `x.fn(...)` reads `a::b::fn`.
+    const CodegenResult cg = codegen(parse_source(
+        "import os.path as p\np.join(\"a\", \"b\")\n").program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "os::path::join(std::string(\"a\"), std::string(\"b\"));"));
+    EXPECT_FALSE(contains(cg.source, "os::path::path::join"));
 }
 
 TEST(CheatahCodegen, NamespaceAliasSkippedWhenNameCollides) {

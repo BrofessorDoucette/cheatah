@@ -293,6 +293,17 @@ single-trust model:
 - **Your own input validation and secrets.** Bounds checks stop memory corruption,
   not logic bugs. Untrusted *input* to a trusted program is still your domain:
   validate ranges, sanitize before shelling out, and keep credentials out of source.
+- **`https://` authenticates the server by default.** The from-scratch `tls` 1.3 client (and
+  `requests`/`websocket` riding it) validates the server's X.509 certificate chain to a trusted
+  CA, matches the requested hostname against the certificate's `subjectAltName`, and checks the
+  validity dates — so it resists an active **man-in-the-middle**, not just a passive
+  eavesdropper. For a pinned/controlled peer you can opt out per-connection (`insecure`) or
+  trust a specific CA bundle (`ca_file`). Chain signatures are verified for RSA-PKCS1-SHA256,
+  ECDSA-P256-SHA256, and Ed25519; algorithms cheatah doesn't implement yet (P-384, SHA-384/512)
+  **fail closed**. Certificate revocation (OCSP/CRL) is not yet checked. The network **parsers**
+  are likewise hardened against hostile remote data: TLS records, WebSocket frames, HTTP
+  responses, and JSON are bounds-checked and size-capped so a malicious peer cannot corrupt
+  memory, crash the client, or exhaust its memory.
 - **The path-sniff checks have a small TOCTOU window.** The world-writable / magic checks
   in *Validated module loading* stat the path and then `dlopen` it, with a tiny
   time-of-check/time-of-use gap. (The integrity verification above closes this gap: it

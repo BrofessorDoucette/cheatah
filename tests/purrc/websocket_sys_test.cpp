@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System tests for the `websocket` module: a REAL RFC 6455 WebSocket handshake +
 // echo against Node's `ws` library (the reference WebSocket implementation) behind
 // Node's built-in TLS — test infrastructure only. The client side is pure cheatah:

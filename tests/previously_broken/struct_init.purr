@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # Regression (previously broken): C++20-style designated-initializer struct construction
 # `Type({.field = value})` did not parse, and a struct was not printable. Now it lowers to a
 # C++20 designated initializer — fields not listed default-initialize, so a value is never

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Unit tests for the `thread` module — spawn/Thread only (shared state is the memory module's
 // job and is tested there). Everything here is DETERMINISTIC: results are observed through
 // join-ordering or non-copyable accumulators (a std::atomic passed by reference), never through

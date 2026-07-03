@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Micro-benchmarks for cheatah::ndarray — the generic numeric core
 // (`basic_ndarray<T>`). These exercise the element-wise ops (vectorized via the
 // `std::execution::unseq` policy on the contiguous fast path) and the full

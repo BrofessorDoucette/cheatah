@@ -53,5 +53,20 @@ cheatah**, so a cheatah program cannot leak the session.
 A client is single-owner — don't `recv` and `send_text` the same client from two
 threads at once; separate clients are independent.
 
+## Security
+
+`recv()` treats every server frame as hostile: it enforces RFC 6455 framing before trusting a
+length — **per-frame (64 MiB) and reassembled-message (64 MiB) size caps** (so a huge or
+`header + len`-overflowing length cannot drive an out-of-bounds unmask or exhaust memory),
+**control frames ≤125 bytes and never fragmented**, reserved-bit / undefined-opcode rejection,
+and a validated fragmentation state machine. A malformed or oversized frame fails the
+connection instead of corrupting memory.
+
+`wss://` **authenticates the server by default**: the underlying `tls` client validates the
+certificate chain to a trusted CA, matches the hostname, and checks expiry — so a `wss://`
+connection resists an active MITM. For a pinned/controlled peer, `open`/`open_url` take an
+`insecure` flag (skip validation) and a `ca_file` (trust a specific PEM CA) — see the
+[`tls` README](../tls/README.md).
+
 Built on [`tls`](../tls/) (TLS 1.3, now verifying Ed25519 **and ECDSA P-256**
 server certificates), [`socket`](../socket/), and [`os`](../os/) (`urandom`).

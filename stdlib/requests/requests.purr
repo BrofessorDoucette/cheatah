@@ -1,23 +1,33 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # requests — HTTP for cheatah, in the spirit of Python's requests. THE FIRST STANDARD-LIBRARY
 # MODULE WRITTEN IN PURE CHEATAH (.purr): all protocol logic below is cheatah source, compiled
 # by purrc into an importable module. It rides on the C++-authored stdlib underneath —
-# `socket` for TCP and `parsers.url` for URL parsing.
+# `socket` for TCP, `tls` for HTTPS, and `parsers` for URL/JSON parsing.
 #
-# v1.1 speaks HTTP/1.1 over plain TCP, one connection per request (`Connection: close`):
+# v1.2 speaks HTTP/1.1 over plain TCP, one connection per request (`Connection: close`), and
+# covers the everyday Python-requests surface:
 #   let r = requests.get("http://host:port/path")
 #   let o = Options({.timeout_ms = 5000})
 #   o.params["symbol"] = "SPX"
 #   let q = requests.get(url, o)
-#   if q.ok() { io.print(q.body) }
-# Covers: query params (percent-encoded), custom headers, Content-Length / chunked /
-# close-delimited body framing, redirect following, per-request timeouts, response headers
-# (case-insensitive via lowercased keys), and `https://` through the cheatah `tls` module —
-# a from-scratch TLS 1.3 client over the cheatah crypto modules (x25519, aead, hashlib HKDF;
-# no OpenSSL). The tls module REFUSES servers it cannot authenticate (see tls.hpp).
+#   if q.ok() { io.print(q.status_code, q.text()) }
+#   let body = requests.Options({.json_body = requests.to_json({"side": "buy"})})
+#   let p = requests.post("https://host/order", body)
+# Verbs: get/post/put/patch/delete/head/options (and the generic request()). Request bodies:
+# raw `body`, form `data` (application/x-www-form-urlencoded), or `json_body` (application/json).
+# Auth: HTTP Basic via `auth_user`/`auth_pass`; Bearer/API-key by setting an `Authorization`
+# header yourself. Also: query params (percent-encoded), custom headers, Content-Length /
+# chunked / close-delimited body framing, redirect following with `history` and
+# `no_redirect`, per-request timeouts, case-insensitive response headers, `Set-Cookie`
+# capture, `raise_for_status()`, and `https://` through the from-scratch cheatah `tls` module
+# (a TLS 1.3 client over the cheatah crypto modules — x25519, aead, hashlib HKDF; no OpenSSL;
+# it REFUSES servers it cannot authenticate).
 
 import socket
 import string
 import tls
+import parsers
 import parsers.url.Parser as UrlParser
 import parsers.url.Url as Url
 
@@ -25,7 +35,10 @@ import parsers.url.Url as Url
 #
 # Unset fields take the documented defaults at request time: `timeout_ms <= 0` -> 30000,
 # `max_redirects <= 0` -> 5. `params` are appended to the request-target percent-encoded;
-# `headers` are sent verbatim (a User-Agent is added unless one is given).
+# `headers` are sent verbatim (a User-Agent is added unless one is given). A body is taken from
+# the first set of `json_body` -> `data` -> `body`; `Content-Type`/`Content-Length` are added
+# automatically unless already present in `headers`. `auth_user`/`auth_pass` add HTTP Basic.
+# Redirects are followed by default; set `no_redirect = true` to stop at the first 3xx.
 # @systest RequestsSys.QueryParams
 # @systest RequestsSys.CustomHeaders
 struct Options {
@@ -37,19 +50,44 @@ struct Options {
     timeout_ms: int
     # Maximum number of 3xx redirects to follow; <= 0 uses the default of 5.
     max_redirects: int
+    # Opt OUT of following 3xx redirects (cheatah's spelling of Python's `allow_redirects=False`).
+    # Redirects are followed BY DEFAULT (the zero value is "follow"); set true to stop at the 3xx.
+    no_redirect: bool
+    # A raw request body sent verbatim (lowest precedence; used when json_body/data are empty).
+    body: str
+    # Form fields serialized as application/x-www-form-urlencoded (percent-encoded).
+    data: dict<str, str>
+    # A pre-serialized JSON string sent as application/json (highest body precedence).
+    json_body: str
+    # HTTP Basic auth username; when non-empty, an `Authorization: Basic …` header is added.
+    auth_user: str
+    # HTTP Basic auth password (paired with auth_user).
+    auth_pass: str
+    # Maximum response body to accept, in bytes; <= 0 uses a 100 MiB default. A server that
+    # streams more (or declares a larger Content-Length) fails with an error instead of letting
+    # the client exhaust memory — a hard cap against a malicious/compromised peer.
+    max_bytes: int
+    # For https: skip TLS certificate validation (chain/hostname/expiry). Default false = verify,
+    # so an active man-in-the-middle is refused. Set true ONLY for a pinned/controlled peer.
+    insecure: bool
+    # For https: a PEM CA bundle to trust instead of the system store (empty = system default).
+    ca_file: str
 }
 
 # The outcome of one request.
 #
 # `error` distinguishes transport failures (DNS, refused, timeout, malformed URL/response)
 # from HTTP-level failures: a 404 is a COMPLETED exchange — ok() is false but error stays
-# "" and status/headers/body are real. Header names are stored LOWERCASED, so header()
-# lookup is case-insensitive (RFC 9110).
+# "" and status_code/headers/body are real. Header names are stored LOWERCASED, so header()
+# lookup is case-insensitive (RFC 9110). `cookies` holds `Set-Cookie` name=value pairs;
+# `history` holds the intermediate responses when redirects were followed.
 # @systest RequestsSys.NotFound
 # @systest RequestsSys.ErrorPaths
 struct Response {
     # HTTP status code (e.g. 200, 404); 0 when the request never completed (see `error`).
-    status: int
+    status_code: int
+    # HTTP reason phrase from the status line (e.g. "OK", "Not Found"); "" when absent.
+    reason: str
     # Response headers, with LOWERCASED names for case-insensitive lookup (use `header()`).
     headers: dict<str, str>
     # The response body bytes (decoded from chunked/Content-Length framing).
@@ -59,15 +97,20 @@ struct Response {
     # Transport-level error message (DNS/connect/timeout/TLS/malformed); "" on a completed
     # exchange, including a non-2xx HTTP status.
     error: str
+    # Cookies parsed from `Set-Cookie` response headers (name -> value; attributes dropped).
+    cookies: dict<str, str>
+    # The chain of intermediate responses when redirects were followed (oldest first); empty
+    # for a direct response.
+    history: list<Response>
 
     # Whether the exchange completed with a 2xx status.
     #
-    # @return true iff `error` is empty and `status` is in [200, 300).
+    # @return true iff `error` is empty and `status_code` is in [200, 300).
     # @complexity O(1).
     # @alloc none.
     # @systest RequestsSys.BasicGet
     fn ok(self) {
-        return self.error == "" and self.status >= 200 and self.status < 300
+        return self.error == "" and self.status_code >= 200 and self.status_code < 300
     }
 
     # Case-insensitive response-header lookup.
@@ -84,14 +127,80 @@ struct Response {
         }
         return ""
     }
+
+    # The response body as text (cheatah strings are byte-based, so text == content == body).
+    #
+    # @return the response body.
+    # @complexity O(1).
+    # @alloc none.
+    # @systest RequestsSys.BasicGet
+    fn text(self) {
+        return self.body
+    }
+
+    # The response body as raw bytes (identical to `text()`/`body`; cheatah `str` is byte-safe).
+    #
+    # @return the response body.
+    # @complexity O(1).
+    # @alloc none.
+    # @systest RequestsSys.BasicGet
+    fn content(self) {
+        return self.body
+    }
+
+    # Parse the JSON body into a caller-defined struct via the accelerated typed reader.
+    #
+    # This is the schema-typed `parsers.json.read` path: the target struct's schema is
+    # synthesized by purrc, so parsing goes straight into fields with no dynamic DOM. (A
+    # dynamic, struct-free `json()` for ad-hoc navigation is planned separately.)
+    # @param out a struct value to fill from the JSON body.
+    # @return true iff the body was valid JSON matching `out`'s schema.
+    # @complexity O(n) over the body length.
+    # @alloc fills `out`.
+    # @systest RequestsSys.JsonIntegration
+    fn json(self, out) {
+        return parsers.json.read(self.body, out)
+    }
+
+    # Raise on a 4xx/5xx status (Python's `raise_for_status`); a no-op otherwise.
+    #
+    # @return nothing — raises (status + reason + url) on a 4xx/5xx, otherwise returns normally.
+    # @complexity O(1).
+    # @alloc allocates the message only when raising.
+    # @systest RequestsSys.RaiseForStatus
+    fn raise_for_status(self) {
+        if self.status_code >= 400 and self.status_code < 600 {
+            raise str(self.status_code) + " " + self.reason + " for url: " + self.url
+        }
+    }
+
+    # Whether the status is a 3xx redirect.
+    #
+    # @return true iff `status_code` is in [300, 400).
+    # @complexity O(1).
+    # @alloc none.
+    # @systest RequestsSys.AllowRedirectsFalse
+    fn is_redirect(self) {
+        return self.status_code >= 300 and self.status_code < 400
+    }
+
+    # Whether the status is a permanent redirect (301 or 308).
+    #
+    # @return true iff `status_code` is 301 or 308.
+    # @complexity O(1).
+    # @alloc none.
+    # @systest RequestsSys.Redirect
+    fn is_permanent_redirect(self) {
+        return self.status_code == 301 or self.status_code == 308
+    }
 }
 
-# Percent-encode `text` for a query string.
+# Percent-encode `text` for a query string or form body.
 #
 # RFC 3986 unreserved characters pass through; everything else (including space)
 # becomes %XX with uppercase hex digits.
-# @param text the raw query-parameter name or value.
-# @return the percent-encoded form, safe to place in a request-target.
+# @param text the raw name or value.
+# @return the percent-encoded form, safe to place in a request-target or form body.
 # @complexity O(n) over the input length.
 # @alloc allocates the result.
 # @systest RequestsSys.QueryParams
@@ -110,6 +219,97 @@ fn percent_encode(text) {
     return out
 }
 
+# Base64-encode `data` (standard alphabet, `=` padding) — used for HTTP Basic auth.
+#
+# @param data the raw bytes to encode.
+# @return the base64 text.
+# @complexity O(n) over the input length.
+# @alloc allocates the result.
+# @systest RequestsSys.BasicAuth
+fn b64encode(data) {
+    let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    let out = ""
+    let n = len(data)
+    let i = 0
+    while i + 3 <= n {
+        let v = ord(data[i]) * 65536 + ord(data[i + 1]) * 256 + ord(data[i + 2])
+        out = out + alphabet[v // 262144] + alphabet[(v // 4096) % 64]
+        out = out + alphabet[(v // 64) % 64] + alphabet[v % 64]
+        i = i + 3
+    }
+    let rem = n - i
+    match rem {
+        case 1 {
+            let v = ord(data[i]) * 65536
+            out = out + alphabet[v // 262144] + alphabet[(v // 4096) % 64] + "=="
+        }
+        case 2 {
+            let v = ord(data[i]) * 65536 + ord(data[i + 1]) * 256
+            out = out + alphabet[v // 262144] + alphabet[(v // 4096) % 64] + alphabet[(v // 64) % 64] + "="
+        }
+        case _ {}
+    }
+    return out
+}
+
+# Escape a string for embedding as a JSON string value.
+#
+# @param text the raw string.
+# @return the escaped string (quotes, backslash, and the common control chars).
+# @complexity O(n) over the input length.
+# @alloc allocates the result.
+# @systest RequestsSys.PostJson
+fn json_escape(text) {
+    let out = ""
+    for ch in text {
+        match ord(ch) {
+            case 34 { out = out + "\\\"" }   # "
+            case 92 { out = out + "\\\\" }   # backslash
+            case 10 { out = out + "\\n" }    # newline
+            case 13 { out = out + "\\r" }    # carriage return
+            case 9 { out = out + "\\t" }     # tab
+            case _ { out = out + ch }
+        }
+    }
+    return out
+}
+
+# Serialize a flat string->string dict as a JSON object — the common `json=` case.
+#
+# For nested or non-string JSON, build the string yourself and pass it as `json_body`.
+# @param fields the name -> value pairs.
+# @return a JSON object string (`{"k":"v",…}`).
+# @complexity O(total characters).
+# @alloc allocates the result.
+# @systest RequestsSys.PostJson
+fn to_json(fields) {
+    let out = "{"
+    let sep = ""
+    for kv in fields {
+        out = out + sep + "\"" + json_escape(kv.first) + "\":\"" + json_escape(kv.second) + "\""
+        sep = ","
+    }
+    return out + "}"
+}
+
+# Case-insensitive presence test for a header name in a headers dict.
+#
+# @param headers the request headers (name -> value).
+# @param name the header name to look for, any capitalization.
+# @return true iff a header with that name (case-insensitive) is present.
+# @complexity O(k) over the number of headers.
+# @alloc allocates lowercased keys.
+# @systest RequestsSys.CustomHeaders
+fn has_header(headers, name) {
+    let target = string.lower(name)
+    for kv in headers {
+        if string.lower(kv.first) == target {
+            return true
+        }
+    }
+    return false
+}
+
 # Parse one hex chunk-size token (e.g. "1aF").
 #
 # @param text the hex token, both digit cases accepted, no prefix.
@@ -121,6 +321,12 @@ fn percent_encode(text) {
 fn parse_hex(text) {
     let n = 0
     for ch in text {
+        # Reject absurdly large sizes up front: this bounds `n` well below a 64-bit overflow
+        # (so the `n * 16` below can never wrap into a negative/small value) and rejects a
+        # chunk larger than any real body — defeating the chunk-size integer-overflow attack.
+        if n > 1099511627776 {  # 1 TiB
+            return -1
+        }
         let v = ord(ch)
         if v >= 48 and v <= 57 {
             n = n * 16 + (v - 48)
@@ -134,6 +340,32 @@ fn parse_hex(text) {
                     return -1
                 }
             }
+        }
+    }
+    return n
+}
+
+# Parse an unsigned decimal integer, safely — returns -1 on any non-digit, empty input, or a
+# value beyond 1 TiB (overflow guard). Used for the status code and Content-Length so a
+# malformed header sets `error` instead of throwing out of the "never raises" request path.
+#
+# Callers always pass a non-empty slice (a 3-char status field, or a non-empty Content-Length),
+# so an empty string is not handled specially.
+# @param text the decimal digits (e.g. a Content-Length value); must be non-empty.
+# @return the parsed value, or -1 when @p text is not a plain in-range unsigned integer.
+# @complexity O(n) over the digit count.
+# @alloc none.
+# @systest RequestsSys.MalformedContentLength
+fn parse_uint(text) {
+    let n = 0
+    for ch in text {
+        let v = ord(ch)
+        if v < 48 or v > 57 {
+            return -1
+        }
+        n = n * 10 + (v - 48)
+        if n > 1099511627776 {  # 1 TiB — larger than any status/length we accept
+            return -1
         }
     }
     return n
@@ -183,18 +415,21 @@ fn dechunk(raw, r: Response) {
 
 # Read the whole response from a connected socket (or TLS session for https).
 #
-# Reads every byte until the peer closes — or the socket timeout set by get_once
+# Reads every byte until the peer closes — or the socket timeout set by request_once
 # fires, which recv reports as "" (indistinguishable from close by design: we always
 # request `Connection: close`, so EOF IS the end of the response). When @p conn is open
 # the bytes are read (and decrypted) through its TLS session, mirroring the send path;
 # a closed @p conn reads the plain socket.
+# Stops once more than @p limit bytes have arrived so a malicious/compromised peer cannot
+# stream an unbounded body and exhaust memory; the caller treats an over-limit read as an error.
 # @param fd a connected socket descriptor from socket.tcp_connect.
 # @param conn the owning tls.Conn for https (open), or a closed Conn for plain http.
-# @return all bytes received.
-# @complexity O(n) over the response size.
-# @alloc allocates the received buffer.
+# @param limit the maximum number of body bytes to accept before bailing out.
+# @return the bytes received, bounded to at most one 64 KiB chunk beyond @p limit.
+# @complexity O(n) over the response size (bounded by @p limit).
+# @alloc allocates the received buffer (bounded by @p limit).
 # @systest RequestsSys.BasicGet
-fn read_all(fd, conn) {
+fn read_all(fd, conn, limit) {
     let raw = ""
     while true {
         let chunk = ""
@@ -207,23 +442,33 @@ fn read_all(fd, conn) {
             break
         }
         raw = raw + chunk
+        if len(raw) > limit {
+            break  # over the cap — stop reading; request_once turns this into an error
+        }
     }
     return raw
 }
 
 # Parse a raw HTTP/1.1 response (status line + headers + body) into `r`.
 #
-# Headers land in `r.headers` with LOWERCASED names and stripped values. Body framing
-# precedence: chunked when declared, else Content-Length, else everything to EOF (we
-# always send `Connection: close`). Malformed input sets `r.error` and returns early.
+# Headers land in `r.headers` with LOWERCASED names and stripped values; the reason phrase
+# fills `r.reason` and any `Set-Cookie` name=value pairs fill `r.cookies`. Body framing
+# precedence: chunked when declared, else Content-Length, else everything to EOF (we always
+# send `Connection: close`). A HEAD request carries no body regardless of the framing headers.
+# Malformed input sets `r.error` and returns early.
+# The status code and Content-Length are parsed with `parse_uint`, so a malformed value (e.g.
+# `Content-Length: abc`, a huge overflowing number, or a negative length) sets `error` instead
+# of throwing out of the request path; a Content-Length beyond @p limit is rejected outright.
 # @param raw the complete response bytes as received.
-# @param r the Response under construction (status/headers/body/error are filled in).
+# @param r the Response under construction (status_code/reason/headers/cookies/body/error).
+# @param method the request method (so HEAD skips body framing).
+# @param limit the maximum acceptable body size in bytes.
 # @return `r`, completed or carrying `error`.
 # @complexity O(n) over the response size.
 # @alloc allocates the parsed headers and body.
 # @systest RequestsSys.EofFraming
 # @systest RequestsSys.HeaderLookup
-fn parse_response(raw, r: Response) {
+fn parse_response(raw, r: Response, method, limit) {
     let head_end = string.find(raw, "\r\n\r\n")
     if head_end < 0 {
         r.error = "connection closed before a complete response head"
@@ -233,20 +478,31 @@ fn parse_response(raw, r: Response) {
         r.error = "malformed response head"
         return r
     }
-    let head = raw[:head_end]
-    let line_end = string.find(head, "\r\n")
+    # NOTE: this local is `head_block`, not `head`, to avoid shadowing the module's `head()`
+    # verb — a bare local named after a top-level fn is lowered as a function value, not the var.
+    let head_block = raw[:head_end]
+    let line_end = string.find(head_block, "\r\n")
     if line_end < 0 {
-        line_end = len(head)
+        line_end = len(head_block)
     }
-    let space = string.find(head, " ")
+    let space = string.find(head_block, " ")
     if space < 0 or space + 4 > line_end {
         r.error = "malformed status line"
         return r
     }
-    r.status = int(head[space + 1:space + 4])
+    let code = parse_uint(head_block[space + 1:space + 4])
+    if code < 0 {
+        r.error = "malformed status code"
+        return r
+    }
+    r.status_code = code
+    # reason phrase: the rest of the status line after the code (may be empty)
+    if space + 5 <= line_end {
+        r.reason = string.strip(head_block[space + 5:line_end])
+    }
 
-    # header lines -> r.headers (lowercased names, stripped values)
-    let rest = head[line_end + 2:]
+    # header lines -> r.headers (lowercased names, stripped values); Set-Cookie -> r.cookies
+    let rest = head_block[line_end + 2:]
     while len(rest) > 0 {
         let eol = string.find(rest, "\r\n")
         if eol < 0 {
@@ -256,7 +512,19 @@ fn parse_response(raw, r: Response) {
         let colon = string.find(line, ":")
         if colon > 0 {
             let name = string.lower(string.strip(line[:colon]))
-            r.headers[name] = string.strip(line[colon + 1:])
+            let value = string.strip(line[colon + 1:])
+            r.headers[name] = value
+            if name == "set-cookie" {
+                let semi = string.find(value, ";")
+                let pair = value
+                if semi >= 0 {
+                    pair = value[:semi]
+                }
+                let eq = string.find(pair, "=")
+                if eq > 0 {
+                    r.cookies[string.strip(pair[:eq])] = string.strip(pair[eq + 1:])
+                }
+            }
         }
         if eol == len(rest) {
             break
@@ -264,6 +532,10 @@ fn parse_response(raw, r: Response) {
         rest = rest[eol + 2:]
     }
 
+    if method == "HEAD" {
+        r.body = ""  # a HEAD response has headers only; never read a body
+        return r
+    }
     let body = raw[head_end + 4:]
     if r.header("transfer-encoding") == "chunked" {
         r.body = dechunk(body, r)
@@ -271,7 +543,15 @@ fn parse_response(raw, r: Response) {
     }
     let cl = r.header("content-length")
     if cl != "" {
-        let n = int(cl)
+        let n = parse_uint(cl)
+        if n < 0 {
+            r.error = "invalid Content-Length"
+            return r
+        }
+        if n > limit {
+            r.error = "Content-Length exceeds max_bytes"
+            return r
+        }
         if len(body) < n {
             r.error = "connection closed before the complete body arrived"
             return r
@@ -283,18 +563,20 @@ fn parse_response(raw, r: Response) {
     return r
 }
 
-# One GET exchange against an already-parsed URL (no redirect handling).
+# One request exchange against an already-parsed URL (no redirect handling).
 #
 # Connects, applies the timeout, appends `o.params` percent-encoded to the request-target,
-# sends the request (custom headers, default User-Agent, `Connection: close`), then reads
-# and parses the full response. Transport failures come back in `r.error`.
+# builds the body (json_body -> data -> body; GET/HEAD send none), sends the request (custom
+# headers, auto Content-Type/Content-Length/Authorization, default User-Agent, `Connection:
+# close`), then reads and parses the full response. Transport failures come back in `r.error`.
+# @param method the HTTP method ("GET", "POST", …).
 # @param u the parsed URL (scheme/host/port/target) from parsers.url.
-# @param o per-request options (timeout, params, headers).
+# @param o per-request options (timeout, params, headers, body, auth).
 # @param r the Response under construction.
 # @return the completed Response (a non-2xx status is a completed exchange, not an error).
 # @alloc allocates the request and response buffers.
-# @systest RequestsSys.BasicGet
-fn get_once(u: Url, o: Options, r: Response) {
+# @systest RequestsSys.PostJson
+fn request_once(method, u: Url, o: Options, r: Response) {
     let fd = socket.tcp_connect(u.host, u.port)
     if fd < 0 {
         r.error = "connect to " + u.host + ":" + str(u.port) + " failed: " + socket.last_error()
@@ -308,15 +590,34 @@ fn get_once(u: Url, o: Options, r: Response) {
 
     # https: run the TLS 1.3 handshake (SNI = the host) before any HTTP bytes. The owning
     # `conn` guard authenticates the server (or refuses) and closes/erases the session
-    # automatically when it leaves scope — so a request never leaks a TLS session. A closed
-    # `conn` (the default) means plain http.
+    # automatically when it leaves scope. A closed `conn` (the default) means plain http.
     let conn = tls.Conn()
     if u.scheme == "https" {
-        conn = tls.open(fd, u.host)
+        # Authenticate the server (chain + hostname + expiry) unless the caller opted out.
+        conn = tls.open(fd, u.host, o.insecure, o.ca_file)
         if not conn.is_open() {
             socket.close(fd)
             r.error = "tls: " + tls.last_error()
             return r
+        }
+    }
+
+    # body: json_body -> data (form) -> body; GET/HEAD never carry one.
+    let body = ""
+    let ctype = ""
+    if method != "GET" and method != "HEAD" {
+        if o.json_body != "" {
+            body = o.json_body
+            ctype = "application/json"
+        } elif len(o.data) > 0 {
+            let sep = ""
+            for kv in o.data {
+                body = body + sep + percent_encode(kv.first) + "=" + percent_encode(kv.second)
+                sep = "&"
+            }
+            ctype = "application/x-www-form-urlencoded"
+        } elif o.body != "" {
+            body = o.body
         }
     }
 
@@ -326,20 +627,30 @@ fn get_once(u: Url, o: Options, r: Response) {
     if string.find(target, "?") >= 0 {
         sep = "&"
     }
-    # NOTE: `for kv in d` iterates a dict's (key, value) PAIRS — kv.first / kv.second.
     for kv in o.params {
         target = target + sep + percent_encode(kv.first) + "=" + percent_encode(kv.second)
         sep = "&"
     }
 
-    let req = "GET " + target + " HTTP/1.1\r\nHost: " + u.host + ":" + str(u.port) + "\r\n"
+    let req = method + " " + target + " HTTP/1.1\r\nHost: " + u.host + ":" + str(u.port) + "\r\n"
     for kv in o.headers {
         req = req + kv.first + ": " + kv.second + "\r\n"
     }
-    if not ("user-agent" in o.headers or "User-Agent" in o.headers) {
-        req = req + "User-Agent: cheatah-requests/0.2\r\n"
+    if not has_header(o.headers, "User-Agent") {
+        req = req + "User-Agent: cheatah-requests/1.2\r\n"
     }
-    req = req + "Connection: close\r\nAccept: */*\r\n\r\n"
+    if o.auth_user != "" and not has_header(o.headers, "Authorization") {
+        req = req + "Authorization: Basic " + b64encode(o.auth_user + ":" + o.auth_pass) + "\r\n"
+    }
+    if ctype != "" and not has_header(o.headers, "Content-Type") {
+        req = req + "Content-Type: " + ctype + "\r\n"
+    }
+    if not has_header(o.headers, "Content-Length") {
+        if len(body) > 0 or method == "POST" or method == "PUT" or method == "PATCH" {
+            req = req + "Content-Length: " + str(len(body)) + "\r\n"
+        }
+    }
+    req = req + "Connection: close\r\nAccept: */*\r\n\r\n" + body
 
     let sent = 0
     if conn.is_open() {
@@ -353,62 +664,172 @@ fn get_once(u: Url, o: Options, r: Response) {
         r.error = "send failed"
         return r
     }
-    let raw = read_all(fd, conn)
+    let limit = o.max_bytes
+    if limit <= 0 {
+        limit = 104857600  # 100 MiB default cap on the response body
+    }
+    let raw = read_all(fd, conn, limit)
     conn.close()              # send close_notify before closing the socket (idempotent)
     socket.close(fd)
-    return parse_response(raw, r)
+    if len(raw) > limit {
+        r.error = "response body exceeds max_bytes (" + str(limit) + ")"
+        return r
+    }
+    return parse_response(raw, r, method, limit)
 }
 
-# Perform an HTTP GET, following up to max_redirects 3xx hops.
+# Strip credentials and cookies from `o` — used when a redirect crosses to a different host so
+# secrets scoped to the original host are never sent to another (the classic cross-origin
+# redirect credential leak). Clears Basic auth and drops any `Authorization`/`Cookie` header.
 #
-# Never raises for network conditions: every failure comes back as a Response with
-# `error` set (and status 0). Redirects (301/302/303/307/308) follow absolute and
-# host-relative Location targets; `https://` is reported in `error` until cheatah TLS
-# lands. Call with a URL alone, or pass Options for params/headers/timeout/redirects.
-# @param url the absolute `http://host[:port]/path[?query]` URL.
-# @param o per-request options; defaults to a 30 s timeout and 5 redirect hops.
-# @return the final Response — check `ok()`, then `status`/`headers`/`body`.
+# @param o the (per-request, already-copied) options to sanitize in place.
+# @return nothing — @p o is modified in place (auth cleared, sensitive headers dropped).
+# @complexity O(k) over the number of headers.
+# @alloc allocates the rebuilt header map.
+# @systest RequestsSys.RedirectStripsAuth
+fn strip_sensitive(o: Options) {
+    o.auth_user = ""
+    o.auth_pass = ""
+    let clean: dict<str, str> = {}
+    for kv in o.headers {
+        let lname = string.lower(kv.first)
+        if lname != "authorization" and lname != "cookie" {
+            clean[kv.first] = kv.second
+        }
+    }
+    o.headers = clean
+}
+
+# Perform an HTTP request, following up to max_redirects 3xx hops unless no_redirect.
+#
+# On a redirect to a DIFFERENT host, Basic-auth credentials and any `Authorization`/`Cookie`
+# header are stripped before the next hop, so secrets are never leaked to another origin.
+# Never raises for network conditions: every failure comes back as a Response with `error`
+# set (and status_code 0). Redirects (301/302/303/307/308) follow absolute and host-relative
+# Location targets, recording each hop in the returned Response's `history`; 303 (and 301/302
+# on a POST) switch the method to GET and drop the body, matching Python. Set
+# `o.no_redirect = true` to return the 3xx response directly.
+# @param method the HTTP method ("GET", "POST", …).
+# @param url the absolute `http(s)://host[:port]/path[?query]` URL.
+# @param o per-request options; defaults to a 30 s timeout and 5 redirect hops (redirects followed unless no_redirect).
+# @return the final Response — check `ok()`, then `status_code`/`headers`/`body`.
 # @systest RequestsSys.BasicGet
 # @systest RequestsSys.Redirect
 # @systest RequestsSys.RedirectLoop
-fn get(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
-    let max_hops = o.max_redirects
+fn request(method, url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    # Work on a private copy so redirect-time credential stripping never mutates the caller's
+    # Options (a value copy — its dicts/strings are deep-copied).
+    let opts = o
+    let max_hops = opts.max_redirects
     if max_hops <= 0 {
         max_hops = 5
     }
     let current = url
+    let cur_method = method
     let hop = 0
+    let origin_host = ""
+    let hist: list<Response> = []
     while hop <= max_hops {
         let r = Response({.url = current})
         let parser = UrlParser()
         let u = Url()
         if not parser.parse(current, u) {
             r.error = "malformed URL: " + current
+            r.history = hist
             return r
         }
-        r = get_once(u, o, r)
-        let redirect = r.error == "" and (r.status == 301 or r.status == 302 or r.status == 303 or r.status == 307 or r.status == 308)
-        if not redirect {
+        # Scope credentials to the original host: once a redirect has taken us elsewhere,
+        # strip auth/cookies so they are never sent to a different origin.
+        if origin_host == "" {
+            origin_host = u.host
+        } elif u.host != origin_host {
+            strip_sensitive(opts)
+        }
+        r = request_once(cur_method, u, opts, r)
+        let redirect = r.error == "" and (r.status_code == 301 or r.status_code == 302 or r.status_code == 303 or r.status_code == 307 or r.status_code == 308)
+        if opts.no_redirect or not redirect {
+            r.history = hist
             return r
         }
         let loc = r.header("location")
         if loc == "" {
-            r.error = "redirect (" + str(r.status) + ") without a Location header"
+            r.error = "redirect (" + str(r.status_code) + ") without a Location header"
+            r.history = hist
             return r
         }
+        let next = ""
         if string.startswith(loc, "http://") or string.startswith(loc, "https://") {
-            current = loc
+            next = loc
+        } elif string.startswith(loc, "/") {
+            next = u.scheme + "://" + u.host + ":" + str(u.port) + loc
         } else {
-            if string.startswith(loc, "/") {
-                current = u.scheme + "://" + u.host + ":" + str(u.port) + loc
-            } else {
-                r.error = "unsupported relative redirect Location: " + loc
-                return r
-            }
+            r.error = "unsupported relative redirect Location: " + loc
+            r.history = hist
+            return r
         }
+        hist.append(r)
+        # 303 always redirects as GET; 301/302 downgrade a POST to GET (Python semantics).
+        # 307/308 preserve the method and body. (No or-patterns, so 301/302 are separate cases.)
+        match r.status_code {
+            case 303 { cur_method = "GET" }
+            case 301 { if cur_method == "POST" { cur_method = "GET" } }
+            case 302 { if cur_method == "POST" { cur_method = "GET" } }
+            case _ {}
+        }
+        current = next
         hop = hop + 1
     }
     let r = Response({.url = current})
     r.error = "too many redirects (max_redirects = " + str(max_hops) + ")"
+    r.history = hist
     return r
+}
+
+# HTTP GET. @param url the URL. @param o per-request options.
+# @return the final Response. @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.BasicGet
+fn get(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("GET", url, o)
+}
+
+# HTTP POST. @param url the URL. @param o per-request options (body via json_body/data/body).
+# @return the final Response. @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.PostJson
+fn post(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("POST", url, o)
+}
+
+# HTTP PUT. @param url the URL. @param o per-request options (body via json_body/data/body).
+# @return the final Response. @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.PostJson
+fn put(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("PUT", url, o)
+}
+
+# HTTP PATCH. @param url the URL. @param o per-request options (body via json_body/data/body).
+# @return the final Response. @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.PostJson
+fn patch(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("PATCH", url, o)
+}
+
+# HTTP DELETE. @param url the URL. @param o per-request options.
+# @return the final Response. @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.Delete
+fn delete(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("DELETE", url, o)
+}
+
+# HTTP HEAD (headers only, no body). @param url the URL. @param o per-request options.
+# @return the final Response (empty body). @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.Head
+fn head(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("HEAD", url, o)
+}
+
+# HTTP OPTIONS. @param url the URL. @param o per-request options.
+# @return the final Response. @complexity one request plus any redirects.
+# @alloc request/response buffers. @systest RequestsSys.Options
+fn options(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
+    return request("OPTIONS", url, o)
 }

@@ -36,12 +36,26 @@
         "CHEATAH_BUILD_TESTS": "ON",
         "CHEATAH_BUILD_BENCHMARKS": "OFF"
       }
+    },
+    {
+      "name": "tsan",
+      "displayName": "ThreadSanitizer (Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/tsan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CHEATAH_TSAN": "ON",
+        "CHEATAH_BUILD_TESTS": "ON",
+        "CHEATAH_BUILD_BENCHMARKS": "OFF"
+      }
     }
   ],
   "buildPresets": [
     { "name": "debug", "configurePreset": "debug" },
     { "name": "release", "configurePreset": "release" },
     { "name": "asan", "configurePreset": "asan" },
+    { "name": "tsan", "configurePreset": "tsan" },
     {
       "name": "release-benchmarks",
       "displayName": "Build benchmarks only (Release)",
@@ -58,6 +72,11 @@
     {
       "name": "asan",
       "configurePreset": "asan",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "tsan",
+      "configurePreset": "tsan",
       "output": { "outputOnFailure": true }
     }
   ]

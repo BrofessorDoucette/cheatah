@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Unit tests for the `aead` module against the RFC 8439 §2.8.2 AEAD test vector, plus
 // round-trip, tamper-rejection, and malformed-input behavior.
 #include <gtest/gtest.h>

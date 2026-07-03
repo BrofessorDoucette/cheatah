@@ -4,6 +4,11 @@ Pseudo-random numbers from a seedable Mersenne Twister (`std::mt19937_64`); `gau
 gives normal deviates for Monte Carlo. (For cryptographic randomness use
 `os.urandom` / `ed25519`, not this module.)
 
+The engine is **per-thread**: concurrent draws from `thread.spawn`ed workers never
+race, and each thread's stream is independent. A thread self-seeds from
+`std::random_device` on first use; `seed(s)` seeds the **calling thread's** engine
+only — a worker that wants a reproducible stream calls `seed` itself.
+
 ```purr
 import random
 
@@ -15,7 +20,7 @@ pick = random.choice([1, 2, 3, 4, 5])
 
 ## Functions
 
-- `seed(s)` — seed the shared engine, making the stream reproducible.
+- `seed(s)` — seed the calling thread's engine, making its stream reproducible.
 - `random()` — uniform double in [0, 1).
 - `uniform(a, b)` — uniform double in [a, b].
 - `randint(a, b)` — uniform integer in [a, b] (inclusive).

@@ -48,6 +48,8 @@ work at every rank — `reshape` is the other way to set a shape.
   (`array([[1,2],[3,4]])` is 2-D), with the shape inferred from the nesting.
 - `scalar(value)` — 0-D array (broadcasts to anything).
 - `zeros(shape)` / `ones(shape)` / `full(shape, value)` — filled arrays.
+- `zeros_like(a)` / `ones_like(a)` / `full_like(a, value)` — filled arrays with
+  the same shape and element type as `a` (numpy's `*_like` family).
 - `arange(start, stop, step)` — 1-D range, like Python `range`.
 - `reshape(a, shape)` — same data, new shape (C-order).
 
@@ -57,6 +59,11 @@ work at every rank — `reshape` is the other way to set a shape.
 
 ### Element-wise ops (broadcasting)
 - `add` / `sub` / `mul` / `divide` — `a` op `b` over the common shape.
+
+Hot-loop notes (all selected automatically, nothing to call): infix `a + b` etc. are
+the same functions; an expiring operand's buffer is reused in place (`a + b + c`
+allocates once, not twice); and each op also has an allocation-free out-parameter
+overload (`add(out, a, b)`) in [ndarray.hpp](ndarray.hpp) for buffer-reuse loops.
 
 ### Element-wise math (numpy-style ufuncs)
 The array forms of the scalar `math` module: where `math.sqrt(x)` takes one number,

@@ -1,11 +1,15 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "tls.hpp"
 #include "tls_lowlevel.hpp"  // the C++-only raw handle API this module implements (+ tls::Conn uses)
 
 #include <cstdint>
 #include <cstring>
+#include <ctime>
 #include <map>
 #include <mutex>
 #include <string_view>
+#include <vector>
 
 #include <sys/random.h>  // getrandom: client random + ephemeral X25519 key
 
@@ -16,6 +20,7 @@
 #include "rsa_verify.hpp" // verify_pss_sha256 — CertificateVerify for RSA (rsa_pss_rsae_sha256) certs
 #include "socket.hpp"   // raw fd I/O underneath the record layer
 #include "x25519.hpp"   // the key exchange
+#include "x509.hpp"     // certificate chain / hostname / expiry validation (server AUTHENTICATION)
 
 // A from-scratch TLS 1.3 client (RFC 8446), cipher suite TLS_CHACHA20_POLY1305_SHA256 only.
 // The implementation walks the RFC top to bottom: record layer, transcript hash, the HKDF
@@ -387,7 +392,15 @@ std::string ed25519_spki_key(std::string_view cert_der) {
 
 // ---- the handshake state machine -------------------------------------------------
 
-long long handshake(long long fd, const std::string& server_name) {
+// The system CA trust store, parsed once and reused (loading ~150 CA certs on every handshake
+// would be wasteful). Thread-safe initialization via the C++ function-local static.
+const x509::TrustStore& default_trust() {
+    static const x509::TrustStore store = x509::load_trust("");
+    return store;
+}
+
+long long handshake(long long fd, const std::string& server_name, bool insecure,
+                    const std::string& ca_file) {
     t_error.clear();
 
     // Ephemeral X25519 key pair.
@@ -454,6 +467,7 @@ long long handshake(long long fd, const std::string& server_name) {
     // Encrypted handshake flight: EncryptedExtensions, Certificate, CertificateVerify, Finished.
     std::string handshake_bytes;  // decrypted, possibly spanning records
     std::string cert_der;
+    std::vector<std::string> cert_chain;  // the full certificate chain (leaf first) for validation
     bool verified_cert = false, server_finished = false;
     std::string transcript_at_cv, transcript_at_finished;
     while (!server_finished) {
@@ -495,11 +509,20 @@ long long handshake(long long fd, const std::string& server_name) {
             handshake_bytes.erase(0, 4 + mlen);
 
             if (mtype == 11 && msg.size() > 4 + 4 + 3 + 3) {  // Certificate
-                // certificate_request_context (1 byte, empty) + cert list; take the leaf.
-                std::size_t i = 4 + 1 + 3;  // header + context + list length
-                const unsigned leaf_len = get24(msg, i);
-                i += 3;
-                if (i + leaf_len <= msg.size()) cert_der = msg.substr(i, leaf_len);
+                // certificate_request_context (1 byte, empty) + the cert list. Walk every
+                // CertificateEntry (3-byte length | cert DER | 2-byte extensions | extensions)
+                // so the FULL chain is available for path validation, not just the leaf.
+                std::size_t i = 4 + 1 + 3;  // header + context length byte + cert-list length
+                while (i + 3 <= msg.size()) {
+                    const unsigned clen = get24(msg, i);
+                    i += 3;
+                    if (i + clen > msg.size()) break;
+                    cert_chain.push_back(msg.substr(i, clen));
+                    i += clen;
+                    if (i + 2 > msg.size()) break;
+                    i += 2 + get16(msg, i);  // skip the per-certificate extensions
+                }
+                if (!cert_chain.empty()) cert_der = cert_chain[0];  // the leaf signs CertificateVerify
                 transcript_at_cv = transcript + msg;  // transcript THROUGH Certificate
             }
             if (mtype == 15) {  // CertificateVerify
@@ -563,8 +586,16 @@ long long handshake(long long fd, const std::string& server_name) {
                     hashlib::hmac_sha256(finished_key, hashlib::sha256_digest(transcript));
                 // cppcheck-suppress stlcstrConstructor  // (ptr,len) subview of msg — not a c_str() copy
                 const std::string_view got(msg.data() + 4, msg.size() - 4);
-                if (got.size() != expect.size() ||
-                    std::memcmp(got.data(), expect.data(), expect.size()) != 0) {
+                // Constant-time MAC compare (parity with the AEAD tag check): always scan all
+                // 32 bytes of the secret `expect`, never early-exiting on a mismatching byte, so
+                // timing cannot reveal a partial match of the handshake MAC.
+                unsigned char diff = (got.size() == expect.size()) ? 0 : 1;
+                for (std::size_t i = 0; i < expect.size(); ++i) {
+                    const unsigned char g =
+                        i < got.size() ? static_cast<unsigned char>(got[i]) : 0;
+                    diff |= g ^ static_cast<unsigned char>(expect[i]);
+                }
+                if (diff != 0) {
                     fail("tls: server Finished MAC mismatch — handshake transcript tampered");
                     return -1;
                 }
@@ -577,6 +608,25 @@ long long handshake(long long fd, const std::string& server_name) {
     if (!verified_cert) {
         fail("tls: server never proved possession of its certificate key");
         return -1;
+    }
+
+    // AUTHENTICATE THE SERVER'S IDENTITY (unless the caller opted out of verification): build the
+    // presented chain to a trusted CA, match the hostname against the leaf's SAN, and check the
+    // validity dates. Key possession alone (above) does not prove identity — this is what stops an
+    // active man-in-the-middle presenting any certificate.
+    if (!insecure) {
+        x509::TrustStore custom;
+        const x509::TrustStore* store = &default_trust();
+        if (!ca_file.empty()) {
+            custom = x509::load_trust(ca_file);
+            store = &custom;
+        }
+        std::string verr;
+        if (!x509::validate(cert_chain, server_name, *store, static_cast<long long>(std::time(nullptr)),
+                            verr)) {
+            fail("tls: certificate validation failed — " + verr);
+            return -1;
+        }
     }
 
     // Application traffic secrets (transcript through server Finished), then OUR Finished
@@ -612,8 +662,10 @@ long long handshake(long long fd, const std::string& server_name) {
 
 } // namespace
 
-long long client_connect(long long fd, const std::string& server_name) {
-    return handshake(fd, server_name);
+/// @cond INTERNAL — the C++-only low-level session API (tls_lowlevel.hpp); cheatah uses the Conn guard
+long long client_connect(long long fd, const std::string& server_name, bool insecure,
+                         const std::string& ca_file) {
+    return handshake(fd, server_name, insecure, ca_file);
 }
 
 long long send(long long session, const std::string& data) {
@@ -729,6 +781,7 @@ long long shutdown(long long session) {
     // socket so the blocking recv returns EOF.
     return socket::shutdown(it->second.fd);
 }
+/// @endcond
 
 std::string last_error() { return t_error; }
 
@@ -756,8 +809,8 @@ long long Conn::close() {
     session_ = 0;
     return rc;
 }
-Conn open(long long fd, const std::string& server_name) {
-    return Conn(client_connect(fd, server_name));
+Conn open(long long fd, const std::string& server_name, bool insecure, const std::string& ca_file) {
+    return Conn(client_connect(fd, server_name, insecure, ca_file));
 }
 
 namespace detail {

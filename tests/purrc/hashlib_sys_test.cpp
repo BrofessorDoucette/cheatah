@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level (whole-program) test for the `hashlib` stdlib module. Unlike the
 // per-function compile-run test (tests/purrc/hashlib_cr_test.cpp), this drives a
 // single cohesive program that hashes several inputs through the module and

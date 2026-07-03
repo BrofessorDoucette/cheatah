@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -152,30 +154,34 @@ private:
 
 /**
  * Open a secure WebSocket connection and return it as an owning Client (the RAII,
- * `with`-friendly form of connect()).
+ * `with`-friendly form of connect()). The TLS server is AUTHENTICATED by default.
  * @param host the server host, e.g. "echo.websocket.org".
  * @param port the TLS port, normally 443.
  * @param path the request path, e.g. "/".
- * @param server_name the TLS SNI / Host (usually == @p host).
+ * @param server_name the TLS SNI / Host (usually == @p host); matched against the certificate SAN.
+ * @param insecure skip certificate validation (pinned/controlled peer only). Default false.
+ * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return an owning Client.
- * @throws std::runtime_error on connect/TLS/upgrade failure.
+ * @throws std::runtime_error on connect/TLS/validation/upgrade failure.
  * @complexity one TCP + one TLS handshake + one HTTP round trip.
  * @alloc the session.
  * @systest WebSocketSys.EchoRoundTrip
  */
 Client open(const std::string& host, long long port, const std::string& path,
-            const std::string& server_name);
+            const std::string& server_name, bool insecure = false, const std::string& ca_file = "");
 
 /**
  * Open a secure WebSocket connection from a `wss://host[:port]/path` URL and return it as an
- * owning Client (the RAII, `with`-friendly form of connect_url()).
+ * owning Client (the RAII, `with`-friendly form of connect_url()). Server AUTHENTICATED by default.
  * @param url the wss URL.
+ * @param insecure skip certificate validation (pinned/controlled peer only). Default false.
+ * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return an owning Client.
- * @throws std::runtime_error on a non-wss scheme or a connect failure.
+ * @throws std::runtime_error on a non-wss scheme or a connect/validation failure.
  * @complexity as open().
  * @alloc the session.
  * @test CheatahWebSocket.ClientDefaultIsClosed
  */
-Client open_url(const std::string& url);
+Client open_url(const std::string& url, bool insecure = false, const std::string& ca_file = "");
 
 }  // namespace cheatah::websocket

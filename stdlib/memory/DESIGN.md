@@ -1,22 +1,22 @@
-# `memory` — design & implementation notes (Owner / Lease / Request)
+# The memory module
 
-> **Status: implemented and shipping.** The Owner scheduling engine is built (`owner.hpp`) and green:
-> the C++ suites (`tests/memory_test.cpp`, `tests/memory_concurrency_test.cpp`) and the cheatah `.purr`
-> surface tests all pass in the gate, ASan/UBSan-clean. This document is the design rationale; the
-> API below matches the code (setter `write(...)` / symmetric `read(...)` getters, `Owner(T&&)`
-> move-in, concept-gated container access).
+Design and implementation notes for `Owner`, `Lease`, and `Request`.
 
 A **C++ backend** that cheatah `import memory`s. It gives ownership and access two names and
 enforces memory safety by construction. It is a **thin layer over bare standard-library primitives** —
-a shared mutex, stop tokens, and, for the request handshake, `std::promise` / `std::future`. What you
-get back from an accessor is a `memory::Request<Lease>`, a small **move-only wrapper around a
-`std::future`** (composition — no inheritance, no `friend`); you block for the lease with
-`.acquire(on_interrupt)`, so cheatah never has to learn the words "future"/"promise" yet. The safety
-comes from *what* we hand back (a lease you can only read/write through), not from hiding the plumbing.
+a hand-rolled coordinator built on one `std::mutex` + `std::condition_variable` and a
+`std::priority_queue`, plus `std::promise` / `std::future` for the request handshake. What you get back
+from an accessor is a `memory::Request<Lease>`, a small **move-only wrapper around a `std::future`**
+(composition — no inheritance, no `friend`); you block for the lease with `.acquire(on_interrupt)`, so
+cheatah never has to learn the words "future"/"promise" yet. The safety comes from *what* we hand back
+(a lease you can only read/write through), not from hiding the plumbing.
 
 **No garbage collection. No `view` type. No copy/clone. No heap of ours.** Just modern-C++
-`std::shared_mutex` / `std::stop_source` / `std::stop_token` / `std::promise` / `std::future` /
-`std::priority_queue`, wrapped into `Lease`, `Request`, and `Owner` (plus a free `own()` factory).
+`std::mutex` / `std::condition_variable` / `std::promise` / `std::future` / `std::priority_queue`
+(plus a small per-generation *gate* of `std::atomic`s for the yield signal), wrapped into `Lease`,
+`Request`, and `Owner` (plus a free `own()` factory). We hand-roll the priority reader/writer lock
+over one `std::mutex` + `condition_variable` rather than use `std::shared_mutex`, because a shared
+mutex cannot honor **write priorities** or the drain-before-write / immediate-write protocol below.
 
 The module is split into focused headers under a `memory.hpp` umbrella: `mode.hpp` (access-mode tags +
 the `Mode` concept), `policy.hpp` (the `policy` enum + `immediate`), `lease.hpp` (`Lease<T, Mode>`),
@@ -85,8 +85,8 @@ public:
     Request(Request&&) = default;                  // move-only, like the future it wraps
 
     // BLOCK until the owner grants, then return the lease. `on_interrupt` is the requester's
-    // interruption handler: it is wired (via Lease::on_interrupt, public — no friend) to the granted
-    // lease's stop token, so if the owner later needs the lease back (a writer waiting on a read; an
+    // interruption handler: it is wired (via Lease::on_interrupt, public — no friend) onto the granted
+    // lease's Gate, so if the owner later needs the lease back (a writer waiting on a read; an
     // immediate-write on a write) the handler fires. Optional — omit it to poll valid()/expired().
     LeaseT acquire(std::function<void()> on_interrupt = {});
 };
@@ -104,29 +104,34 @@ current location, so a renewed reader is just another `request.acquire(…)`.
 
 **Why the callback rides with the request.** Passing `on_interrupt` *into* `acquire` is what lets the
 owner truly own: the owner decides *when* to interrupt, and the requester only gets to *politely
-suggest what to do* when it happens. Mechanically, `acquire` blocks on the future, then registers
-`on_interrupt` as a `std::stop_callback` on the lease's `std::stop_token`, held for the lease's
-lifetime (kept behind a `std::unique_ptr` so the lease stays movable — `std::stop_callback` itself is
-non-movable). The handler fires in the interrupting thread, so keep it light (flip an atomic, notify a
-condition) and let your own loop react on its next `valid()` check.
+suggest what to do* when it happens. Mechanically, `acquire` blocks on the future, then hands
+`on_interrupt` to the lease via `Lease::on_interrupt`. The lease fires it **once**, the first time its
+own `valid()` observes the owner has flipped the `Gate` (`gate->valid == false`) — so the handler runs
+in the *holder's* thread on its next `valid()` check, not asynchronously. Keep it light (flip an
+atomic, notify a condition) and let your own loop react.
 
 ### `Lease<T, memory::read | memory::write | memory::write_renewable>` — the only handle to the object
 - The one way to touch the object. Holds its grant for its lifetime plus a direct pointer to the
   object. RAII / move-only.
-- **Access is `read()` / `write(value)`, never `get()`.** A read lease is read with `r.read()`
-  (→ `const T&`); a write lease is **set with `w.write(value)`** (the obvious setter — not
-  `w.write() = value`). For in-place mutation of a container/struct where copying the whole object to
-  set it would be wasteful, the write lease also offers a no-arg `w.write()` → `T&`
-  (`w.write()[i] = x`, `w.write().field = x`, `w.write().push_back(…)`). These are the **customization
-  seam** — a user can later define a lease type that decorates access without the owner or caller
-  changing. (Whether that dispatch is virtual or CRTP is deferred — see Open/deferred.)
-- **read lease** (`memory::read`, `std::shared_lock`): `r.read()` → `const T&`. Many coexist. Carries a
-  `std::stop_token`, so the reader can tell when the owner needs it to stop:
-  - `r.valid()`  == `!stop_requested()` — still ours to read.
-  - `r.expired()` == `stop_requested()` — a writer is waiting; finish this iteration and release.
-- **write lease** (`memory::write`, `std::unique_lock`): `w.write(value)` sets it; `w.write()` → `T&`
-  for in-place mutation; `w.read()` → `const T&` (a writer often reads-modify-writes). Exclusive. It
-  **also** carries `valid()`/`expired()` — but
+- **Access is `read()` / `write(…)`, never `get()`, and `write` NEVER returns an object.** A read lease
+  is read with `r.read()` (→ `const T&`); a write lease is **set with `w.write(value)`** (the obvious
+  setter — not `w.write() = value`). For fine-grained mutation without replacing the whole object, the
+  write lease offers **deduced element setters**: `w.write(index, v)` for an `Indexed` sequence
+  (vector / array / string / ndarray) and `w.write(key, v)` for a `Mapping` (map / unordered_map). A
+  write lease can also `w.read()` (→ `const T&`) for the read-modify-write it usually does. There is
+  deliberately **no** no-arg `w.write()` returning a mutable `T&` — every mutation goes through a
+  setter, so cheatah can never obtain a raw handle it could stash past the lease. `read()`/`write()`
+  remain the access seam a future decorated-lease type would hook (see Open/deferred).
+- **read lease** (`memory::read`, *logically shared* — the coordinator counts active readers; the lease
+  itself holds no lock): `r.read()` → `const T&`. Many coexist. Carries its generation's `Gate`, so the
+  reader can tell when the owner needs it to stop:
+  - `r.valid()`  — still ours to read (the `Gate` is valid).
+  - `r.expired()` == `!valid()` — the owner flipped the `Gate`; a writer is waiting, so finish this
+    iteration and release.
+- **write lease** (`memory::write`, *logically exclusive* — the coordinator's writer flag, not a
+  `std::lock`): `w.write(value)` replaces the object; `w.write(i, v)` / `w.write(k, v)` set one element;
+  `w.read()` → `const T&` (a writer often reads-modify-writes). It **also** carries `valid()`/`expired()`
+  — but
   a *normal* write is only ever tripped by an **immediate-write**. A long-running writer that wants to
   be preemptible loops `while (w.valid())` just like a reader; a writer that never checks simply runs
   its lease to completion.
@@ -136,9 +141,9 @@ condition) and let your own loop react on its next `valid()` check.
 1. **Reads are cheap when uncontended.** A `rread()` whose grant isn't blocked by a pending write is
    fulfilled at once — the returned request's `.acquire()` returns straight away with a shared-lock read
    lease, and any number coexist. The request/promise shape is uniform, but the fast path builds no wait.
-2. **A write request expires all reads.** `o.rwrite<…>()` requests a stop on the current
-   read-generation's single `std::stop_source`; **every** outstanding read lease (including one held
-   by the *same* thread now asking to write) flips to `expired()`. Each reader decides, right then,
+2. **A write request expires all reads.** `o.rwrite<…>()` flips the current read-generation's single
+   `Gate` (`valid → false`); **every** outstanding read lease (including one held by the *same* thread
+   now asking to write) sees `expired()` on its next check. Each reader decides, right then,
    **renew-or-not**.
 3. **The writer waits for a clean drain.** The write begins only **after every read lease has actually
    released**. Because the requester's own read lease expired too, it is *not* waiting on itself —
@@ -165,7 +170,7 @@ priority** — spelled with the named constant **`o.rwrite<memory::immediate>()`
 
 1. It **does not enter the priority queue** — it goes to the front of everything, above every
    non-negative level.
-2. It **preempts the active writer**: the owner trips that writer's stop token, so its lease flips to
+2. It **preempts the active writer**: the owner flips that writer's `Gate`, so its lease sees
    `expired()`. The active writer, seeing `!w.valid()` at its next check, **stops touching `w.write()`
    and waits** — it does *not* destroy the lease. (A writer that never loops on `valid()` runs its
    current lease to completion first — cooperative, never forced.) The owner internally suspends that
@@ -193,10 +198,10 @@ case — and you had to declare it.
 | role | standard type |
 |---|---|
 | the object + its storage | the value itself |
-| the reader/writer gate | `std::shared_mutex` |
-| a read lease | `std::shared_lock` |
-| a write lease | `std::unique_lock` |
-| "please stop reading" / "immediate-write: yield the write" | `std::stop_source` / `std::stop_token` (one source per read-generation; one per active write) |
+| the reader/writer coordinator | one `std::mutex` + `std::condition_variable` over explicit `readers_`/`writer_`/`immediate_` state (a hand-rolled priority R/W lock — `std::shared_mutex` can't honor write priority) |
+| a read lease | `Lease<T, read>` — *logical* share (the coordinator counts readers); holds no lock |
+| a write lease | `Lease<T, write>` — *logical* exclusion (the coordinator's writer flag); holds no lock |
+| "please stop reading" / "immediate-write: yield the write" | a per-generation `detail::Gate` — `std::atomic<bool> valid`/`acked` + a `wake` hook (one `Gate` per read-generation; one per active write) |
 | "you may re-lease; here's the new location" | `std::promise` / `std::future` |
 | write scheduling | `std::priority_queue`, keyed by the compile-time priority value |
 
@@ -249,5 +254,7 @@ blocking call, and needs no `friend`.)
   base so it stays zero-overhead and concept-constrained, in line with cheatah's no-vtable leanings)
   and how an owner is told to hand out the custom type are **deferred** — the base API is shaped for it
   now (access goes through `read()`/`write()`, not a raw `get()`), but the extension point isn't built.
-- The actual C++ implementation follows **after this review**; the companion
-  `tests/memory_test.cpp` pins the behaviour the implementation must satisfy.
+- **Custom decorated leases** and **runtime priority** are the only pieces above still on the shelf;
+  the coordinator, drain-before-write, priority queue, and immediate-write preempt/resume are all
+  implemented in `owner.hpp`. The companion `tests/memory_test.cpp` and `tests/memory_concurrency_test.cpp`
+  pin the behaviour, and the cheatah `.purr` programs in `tests/` exercise it through the language.

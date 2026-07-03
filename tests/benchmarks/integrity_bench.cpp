@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Micro-benchmarks for the per-load cost of each module-integrity tier
 // (runtime/integrity.cpp). Module verification is paid exactly ONCE, when the runtime
 // loads a module just before dlopen — never during the program's execution. So this

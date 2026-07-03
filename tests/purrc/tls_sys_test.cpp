@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System tests for the `tls` module: a REAL TLS 1.3 handshake against `openssl s_server`
 // (test infrastructure only — the client side is pure cheatah crypto: x25519, ChaCha20-
 // Poly1305, HKDF, Ed25519 verification). Also the refusal paths: a non-TLS peer, and a

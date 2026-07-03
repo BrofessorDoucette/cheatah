@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level test for the cheatah `datetime` module: a single cohesive .purr
 // program that exercises EVERY public function in stdlib/datetime/datetime.hpp
 // (timestamp, now, utcnow, today, format, year, month, day, hour, minute,

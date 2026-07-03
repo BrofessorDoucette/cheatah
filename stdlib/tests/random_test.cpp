@@ -1,6 +1,10 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "random.hpp"
 
+#include <atomic>
 #include <cmath>
+#include <thread>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -61,4 +65,26 @@ TEST(CheatahRandom, Choice) {
     const int picked = rnd::choice(xs);
     EXPECT_GE(picked, 1);
     EXPECT_LE(picked, 5);
+}
+
+TEST(CheatahRandom, EngineIsPerThread) {
+    // The engine is thread_local: concurrent draws never race (this test is the TSan-gate
+    // regression for the once-shared engine), and each thread's stream is independent — the main
+    // thread's seed does not reach a worker, and hammering from two threads does not perturb a
+    // reseeded main-thread stream.
+    rnd::seed(11);
+    const double expected_first = rnd::random();
+    std::atomic<bool> go{false};
+    auto hammer = [&go] {
+        while (!go) {}
+        rnd::seed(11);  // seeds THIS thread only
+        for (int i = 0; i < 5000; ++i) (void)rnd::random();
+    };
+    std::thread a(hammer), b(hammer);
+    go = true;
+    rnd::seed(11);  // reseed the main thread WHILE the workers draw
+    const double seen = rnd::random();
+    a.join();
+    b.join();
+    EXPECT_DOUBLE_EQ(seen, expected_first);  // untouched by 10k concurrent worker draws
 }

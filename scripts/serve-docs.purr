@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # serve-docs.purr — the cheatah docs preview server, written in pure cheatah. 🐆
 #
 # Serves docs/html over http://localhost so the generated site renders the way it

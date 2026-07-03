@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # Records with behavior. A `struct` lowers to a C++ struct; an `interface` lowers to a C++20
 # concept, and an interface-typed parameter (`s: Shape`) constrains the generated template —
 # checked at compile time, with no inheritance and no runtime dispatch.

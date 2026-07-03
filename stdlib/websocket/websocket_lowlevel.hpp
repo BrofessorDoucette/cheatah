@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -13,6 +15,7 @@
  * websocket.hpp). `websocket::Client` is implemented on top of this low-level API.
  */
 
+#include <cstdint>
 #include <string>
 
 #include "websocket.hpp"
@@ -24,31 +27,37 @@ namespace cheatah::websocket {
  * RFC 6455 upgrade handshake (a `Sec-WebSocket-Key` from the OS CSPRNG; the
  * server's `101 Switching Protocols` is required). Returns a session id used by
  * the other calls.
+ * The TLS server is AUTHENTICATED by default (cert chain + hostname + expiry, like `tls::open`).
  * @param host the server host, e.g. "echo.websocket.org".
  * @param port the TLS port, normally 443.
  * @param path the request path, e.g. "/".
- * @param server_name the TLS SNI / Host (usually == @p host).
+ * @param server_name the TLS SNI / Host (usually == @p host); matched against the certificate SAN.
+ * @param insecure skip certificate validation (pinned/controlled peer only). Default false.
+ * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return a session id (>= 0).
- * @throws std::runtime_error on connect/TLS/upgrade failure (message names the cause).
+ * @throws std::runtime_error on connect/TLS/validation/upgrade failure (message names the cause).
  * @complexity one TCP + one TLS handshake + one HTTP round trip.
  * @alloc the session (its reused read buffer is reserved here).
  * @test CheatahWebSocket.ConnectRejectsNon101
  * @systest WebSocketSys.EchoRoundTrip
  */
 long long connect(const std::string& host, long long port, const std::string& path,
-                  const std::string& server_name);
+                  const std::string& server_name, bool insecure = false,
+                  const std::string& ca_file = "");
 
 /**
  * Connect from a `wss://host[:port]/path` URL (convenience over connect()).
  * Only the wss scheme is accepted; port defaults to 443, path to "/".
  * @param url the wss URL.
+ * @param insecure skip certificate validation (pinned/controlled peer only). Default false.
+ * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return a session id (>= 0).
- * @throws std::runtime_error on a non-wss scheme or a connect failure.
+ * @throws std::runtime_error on a non-wss scheme or a connect/validation failure.
  * @complexity as connect().
  * @alloc the session.
  * @test CheatahWebSocket.ParsesWssUrl
  */
-long long connect_url(const std::string& url);
+long long connect_url(const std::string& url, bool insecure = false, const std::string& ca_file = "");
 
 /**
  * Send one application TEXT message as a single masked frame (clients MUST mask,
@@ -72,9 +81,11 @@ long long send_text(long long session, const std::string& message);
  * caller sees. Blocks until a full application message arrives.
  * @param session the session id.
  * @return the message payload; an EMPTY string once the peer has closed.
- * @throws std::runtime_error on a transport/protocol error.
- * @complexity O(message length); server frames are unmasked so no XOR is done.
- * @alloc the returned payload (one copy out of the reused read buffer).
+ * @throws std::runtime_error on a transport/protocol error, an oversized frame/message
+ *         (over the per-frame / reassembly caps), or an RFC 6455 framing violation.
+ * @complexity O(message length), BOUNDED by the frame + message caps — a hostile oversized
+ *             frame is refused, not processed; server frames are unmasked so no XOR is done.
+ * @alloc the returned payload (one copy out of the reused read buffer), bounded by the caps.
  * @test CheatahWebSocket.RecvReassemblesAndHandlesPing
  * @systest WebSocketSys.EchoRoundTrip
  */
@@ -101,5 +112,21 @@ long long close(long long session);
  * @complexity O(1) + one syscall. @alloc none.
  */
 long long shutdown(long long session);
+
+#ifdef CHEATAH_WEBSOCKET_TESTING
+namespace testonly {
+/**
+ * White-box seam (test builds only): create a session pre-loaded with raw frame bytes and
+ * overridable per-session caps, so recv()'s RFC 6455 frame validation can be exercised against
+ * crafted/hostile server frames with no TLS/socket. Free the returned handle with close().
+ * @param frames the raw bytes recv() will parse (must be self-contained).
+ * @param max_frame per-frame payload cap (0 -> default).
+ * @param max_message reassembled-message cap (0 -> default).
+ * @return a session handle usable with recv()/close().
+ */
+long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
+                             std::uint64_t max_message);
+}  // namespace testonly
+#endif  // CHEATAH_WEBSOCKET_TESTING
 
 } // namespace cheatah::websocket

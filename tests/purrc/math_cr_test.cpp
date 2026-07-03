@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Compile-run unit tests for the `math` module: one test per function. Each writes
 // a tiny .purr that calls a single math function, compiles it with purrc, runs it
 // under the cheatah runtime, and asserts the exact stdout. Complements the

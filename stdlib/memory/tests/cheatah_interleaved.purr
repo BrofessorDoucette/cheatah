@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # cheatah_interleaved.purr — REAL cheatah test: two owners, data-dependent lease interleaving, yet a
 # deterministic final state and a preserved invariant (a + b is conserved). This is the "nearly
 # indeterministic yet deterministic" idea expressed in a single thread: the ORDER of reads/writes is

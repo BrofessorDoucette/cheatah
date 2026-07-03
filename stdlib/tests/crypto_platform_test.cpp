@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Platform-sensitive crypto validation. These are the checks most likely to expose an
 // architecture / OS / compiler-specific bug, gathered into one self-contained, self-reporting
 // test so the SAME correctness bar can be confirmed on each target (x86-64, ARM/Apple Silicon,

@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # example.purr — how you'd use the `memory` module (Owner<T> + Lease<T, read|write>).
 # ILLUSTRATIVE: this is the real cheatah surface (it compiles). The Owner engine is still TDD, so it
 # won't RUN until that's implemented. No `view`, no `.copy()`: every accessor returns a Request you

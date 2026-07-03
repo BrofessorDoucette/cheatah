@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level "application" test: a small linear-algebra solver written in
 // cheatah that only passes if FOUR stdlib modules cooperate end to end —
 //   * ndarray : array / reshape / sub          (data construction + elementwise)

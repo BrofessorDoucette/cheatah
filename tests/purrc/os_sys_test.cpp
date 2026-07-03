@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level test for the cheatah `os` standard-library module.
 //
 // Unlike os_cr_test.cpp (one tiny program per function), this is a SINGLE

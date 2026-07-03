@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // websocket.cpp — a fast, from-scratch RFC 6455 WebSocket client over the
 // cheatah tls 1.3 client + socket. See websocket.hpp for the contract and the
 // performance design (reused read buffer, unmasked-recv fast path, word-XOR
@@ -28,7 +30,18 @@ struct Session {
     std::string buf;         // read buffer, REUSED across every frame
     std::size_t pos = 0;     // parse offset into buf (consumed prefix is buf[0,pos))
     bool closed = false;
+    std::uint64_t max_frame = 0;    // per-frame payload cap (0 -> the kMaxFramePayload default)
+    std::uint64_t max_message = 0;  // reassembled-message cap (0 -> the kMaxMessageBytes default)
 };
+
+// Hard caps a client MUST impose itself — RFC 6455 sets no upper bound on a frame or a
+// reassembled message, so a malicious server could otherwise (a) overflow `header + len`
+// in size_t math and drive an out-of-bounds unmask, or (b) stream an unbounded body to
+// exhaust memory. A single frame's payload and the reassembled message are each capped;
+// anything larger fails the connection. Control frames are bounded to 125 bytes (§5.5).
+constexpr std::uint64_t kMaxFramePayload = 64ull << 20;  // 64 MiB per frame
+constexpr std::uint64_t kMaxMessageBytes = 64ull << 20;  // 64 MiB reassembled total
+constexpr std::uint64_t kMaxControlPayload = 125;        // RFC 6455 §5.5
 
 [[nodiscard]] Session* as_session(long long h) {
     return reinterpret_cast<Session*>(static_cast<std::uintptr_t>(h));
@@ -135,11 +148,12 @@ long long send_frame(Session* s, unsigned char opcode, const std::string& payloa
 
 }  // namespace
 
+/// @cond INTERNAL — the C++-only low-level session API (websocket_lowlevel.hpp); cheatah uses the Client guard
 long long connect(const std::string& host, long long port, const std::string& path,
-                  const std::string& server_name) {
+                  const std::string& server_name, bool insecure, const std::string& ca_file) {
     const long long fd = socket::tcp_connect(host, port);
     if (fd < 0) throw std::runtime_error("websocket: TCP connect to " + host + " failed");
-    const long long tlss = tls::client_connect(fd, server_name);
+    const long long tlss = tls::client_connect(fd, server_name, insecure, ca_file);
     if (tlss < 0) {
         socket::close(fd);
         throw std::runtime_error("websocket: TLS handshake failed: " + tls::last_error());
@@ -184,7 +198,7 @@ long long connect(const std::string& host, long long port, const std::string& pa
     return as_handle(s);
 }
 
-long long connect_url(const std::string& url) {
+long long connect_url(const std::string& url, bool insecure, const std::string& ca_file) {
     const std::string scheme = "wss://";
     if (url.compare(0, scheme.size(), scheme) != 0)
         throw std::runtime_error("websocket: only wss:// URLs are supported: " + url);
@@ -198,7 +212,7 @@ long long connect_url(const std::string& url) {
     const long long port = colon == std::string::npos
                                ? 443
                                : static_cast<long long>(std::stol(authority.substr(colon + 1)));
-    return connect(host, port, path, host);
+    return connect(host, port, path, host, insecure, ca_file);
 }
 
 long long send_text(long long session, const std::string& message) {
@@ -208,6 +222,8 @@ long long send_text(long long session, const std::string& message) {
 std::string recv(long long session) {
     Session* s = as_session(session);
     if (s->closed) return std::string();
+    const std::uint64_t max_frame = s->max_frame != 0 ? s->max_frame : kMaxFramePayload;
+    const std::uint64_t max_message = s->max_message != 0 ? s->max_message : kMaxMessageBytes;
     std::string message;       // reassembly buffer for fragmented messages
     bool fragmenting = false;  // mid multi-frame message
     for (;;) {
@@ -231,6 +247,15 @@ std::string recv(long long session) {
                 len = (len << 8) | static_cast<unsigned char>(s->buf[s->pos + 2 + i]);
             header = 10;
         }
+        // Validate BEFORE trusting `len` in size math or a copy: reserved bits must be
+        // clear (no extension negotiated), a control frame must be <=125 bytes and not
+        // fragmented, and no frame may exceed the cap. Capping `len` here is what makes
+        // `header + len` below unable to overflow size_t.
+        if ((b0 & 0x70) != 0) throw std::runtime_error("websocket: reserved bits set");
+        if ((opcode & 0x08) != 0 && (len > kMaxControlPayload || !fin))
+            throw std::runtime_error("websocket: invalid control frame");
+        if (len > max_frame) throw std::runtime_error("websocket: frame too large");
+
         std::size_t mask_off = 0;
         if (masked) {
             mask_off = header;
@@ -261,27 +286,50 @@ std::string recv(long long session) {
                 s->closed = true;
                 return std::string();
             }
-            case 0x0:  // continuation
             case 0x1:  // text
             case 0x2:  // binary
-            default: {
-                // Single-frame message (the common case): copy the payload out of
-                // the buffer, advance, return — no reassembly buffer touched.
-                if (fin && !fragmenting) {
+                if (fragmenting)
+                    throw std::runtime_error("websocket: new data frame during a fragmented message");
+                if (fin) {  // single-frame message (the common case) — no reassembly buffer
                     std::string out(payload, len);
                     s->pos += header + len;
                     return out;
                 }
-                // Fragmented message: accumulate; the last fragment (fin) returns.
+                message.append(payload, len);  // first fragment (frame cap bounds it; total capped below)
+                s->pos += header + len;
+                fragmenting = true;
+                continue;
+            case 0x0:  // continuation
+                if (!fragmenting)
+                    throw std::runtime_error("websocket: continuation frame with no message in progress");
+                if (message.size() + len > max_message)
+                    throw std::runtime_error("websocket: message too large");
                 message.append(payload, len);
                 s->pos += header + len;
                 if (fin) return message;
-                fragmenting = true;
                 continue;
-            }
+            default:  // 0x3-0x7, 0xB-0xF are reserved/undefined — fail the connection
+                throw std::runtime_error("websocket: unknown opcode");
         }
     }
 }
+
+#ifdef CHEATAH_WEBSOCKET_TESTING
+namespace testonly {
+// A white-box seam (test builds only): build a session pre-loaded with raw frame bytes and
+// overridable caps, so recv()'s frame parser can be driven with crafted/hostile server frames
+// without any TLS/socket. The frames must be self-contained (recv never has to read more).
+// Free it with close(). Compiled ONLY into cheatah_tests; absent from the shipped library.
+long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
+                             std::uint64_t max_message) {
+    Session* s = new Session();
+    s->buf = frames;
+    s->max_frame = max_frame;
+    s->max_message = max_message;
+    return as_handle(s);
+}
+}  // namespace testonly
+#endif  // CHEATAH_WEBSOCKET_TESTING
 
 long long shutdown(long long session) {
     // Wake a reader blocked in recv() WITHOUT freeing the session: half-close the
@@ -305,6 +353,7 @@ long long close(long long session) {
     destroy(s);
     return 0;
 }
+/// @endcond
 
 // ---- owning RAII client ----
 // Each method forwards to the handle-based free function above; the guard adds deterministic
@@ -333,9 +382,11 @@ long long Client::close() {
     return rc;
 }
 Client open(const std::string& host, long long port, const std::string& path,
-            const std::string& server_name) {
-    return Client(connect(host, port, path, server_name));
+            const std::string& server_name, bool insecure, const std::string& ca_file) {
+    return Client(connect(host, port, path, server_name, insecure, ca_file));
 }
-Client open_url(const std::string& url) { return Client(connect_url(url)); }
+Client open_url(const std::string& url, bool insecure, const std::string& ca_file) {
+    return Client(connect_url(url, insecure, ca_file));
+}
 
 }  // namespace cheatah::websocket

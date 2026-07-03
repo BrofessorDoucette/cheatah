@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // json.cpp — implementation of the cheatah::parsers::json parser/serializer. All multi-line
 // logic lives here (declared in json.hpp); only trivial getters live in the token headers.
 //

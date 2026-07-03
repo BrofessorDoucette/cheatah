@@ -42,6 +42,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 option(CHEATAH_BUILD_TESTS      "Build the unit/integration test suites (fetches GoogleTest)" OFF)
 option(CHEATAH_BUILD_BENCHMARKS "Build Google Benchmark micro-benchmarks (fetches benchmark+Eigen)" OFF)
 option(CHEATAH_SANITIZE         "Build with AddressSanitizer + UndefinedBehaviorSanitizer" OFF)
+option(CHEATAH_TSAN             "Build with ThreadSanitizer (mutually exclusive with CHEATAH_SANITIZE)" OFF)
 
 # ---- Sanitizers (opt-in; applied to everything built here, incl. gtest) -----
 # ASan catches memory errors (OOB, use-after-free, leaks); UBSan catches undefined
@@ -52,6 +53,17 @@ if(CHEATAH_SANITIZE)
     add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer
                         -fno-sanitize-recover=all -g)
     add_link_options(-fsanitize=address,undefined)
+endif()
+
+# TSan catches data races (the `thread` module + anything it makes reachable). It cannot
+# combine with ASan in one binary, so it is its own option + preset (`tsan`); the QA gate
+# runs the concurrency-relevant suites under it.
+if(CHEATAH_TSAN)
+    if(CHEATAH_SANITIZE)
+        message(FATAL_ERROR "CHEATAH_TSAN and CHEATAH_SANITIZE cannot combine (TSan vs ASan)")
+    endif()
+    add_compile_options(-fsanitize=thread -fno-omit-frame-pointer -g)
+    add_link_options(-fsanitize=thread)
 endif()
 
 # ---- Third-party (test/benchmark only; the language itself has no deps) -----
@@ -132,6 +144,7 @@ add_dependencies(purrc
     cheatah_socket_static
     cheatah_regex_static
     cheatah_sys_static
+    cheatah_thread_static
     cheatah_ndarray_static
     cheatah_linalg_static)
 

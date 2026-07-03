@@ -1,15 +1,139 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // websocket_test — offline unit checks for the websocket client. The framing
 // and live round-trip are covered by the system tests (a real WSS server);
 // here we cover the input validation that needs no network.
 
+#include <cstdint>
 #include <stdexcept>
 #include <string>
 
 #include <gtest/gtest.h>
 
 #include "websocket.hpp"
+#include "websocket_lowlevel.hpp"  // recv()/close() + the CHEATAH_WEBSOCKET_TESTING frame-parser seam
 
 namespace ws = cheatah::websocket;
+
+namespace {
+
+// Build a raw (unmasked, server-style) WebSocket frame: FIN|opcode, a length encoding, payload.
+std::string frame(unsigned char b0, const std::string& payload) {
+    std::string f(1, static_cast<char>(b0));
+    const std::uint64_t n = payload.size();
+    if (n < 126) {
+        f.push_back(static_cast<char>(n));
+    } else {
+        f.push_back(static_cast<char>(126));
+        f.push_back(static_cast<char>((n >> 8) & 0xFF));
+        f.push_back(static_cast<char>(n & 0xFF));
+    }
+    return f + payload;
+}
+
+// A frame HEADER that DECLARES a length via the 64-bit field but carries no payload — the shape a
+// malicious server uses to overflow `header + len`. The cap must reject it before any read/copy.
+std::string len64_header(unsigned char b0, std::uint64_t declared) {
+    std::string f(1, static_cast<char>(b0));
+    f.push_back(static_cast<char>(127));
+    for (int sh = 56; sh >= 0; sh -= 8) f.push_back(static_cast<char>((declared >> sh) & 0xFF));
+    return f;
+}
+
+// A control-frame header declaring a length via the 16-bit field, no payload.
+std::string len16_header(unsigned char b0, std::uint64_t declared) {
+    std::string f(1, static_cast<char>(b0));
+    f.push_back(static_cast<char>(126));
+    f.push_back(static_cast<char>((declared >> 8) & 0xFF));
+    f.push_back(static_cast<char>(declared & 0xFF));
+    return f;
+}
+
+// Drive recv() over a synthetic session pre-loaded with `bytes` (frame-parser fuzzing seam), then
+// free it. Returns recv()'s result; rethrows whatever recv throws (after freeing the session).
+std::string recv_bytes(const std::string& bytes, std::uint64_t max_frame = 0,
+                       std::uint64_t max_message = 0) {
+    const long long h = ws::testonly::session_from_bytes(bytes, max_frame, max_message);
+    std::string out;
+    try {
+        out = ws::recv(h);
+    } catch (...) {
+        ws::close(h);
+        throw;
+    }
+    ws::close(h);
+    return out;
+}
+
+}  // namespace
+
+// === Red-team: a malicious server must not corrupt memory, OOM, or bypass RFC 6455 framing. ===
+
+// F1 (CRITICAL): a 64-bit length near 2^64 must be rejected BEFORE it overflows `header + len`
+// and drives an out-of-bounds unmask/copy. This is the memory-corruption bug.
+TEST(CheatahWebSocket, RejectsOverflowingFrameLength) {
+    // opcode 0x2 (binary), FIN; declared length = 0xFFFFFFFFFFFFFFFF (would wrap header+len).
+    EXPECT_THROW(recv_bytes(len64_header(0x82, 0xFFFFFFFFFFFFFFFFull)), std::runtime_error);
+    // A merely-huge (non-wrapping) length is rejected the same way (would otherwise OOM).
+    EXPECT_THROW(recv_bytes(len64_header(0x82, 8ull << 30)), std::runtime_error);  // 8 GiB
+    // Even the MASKED path (the actual out-of-bounds-write trigger) is refused before unmasking.
+    std::string masked = len64_header(0x82, 1ull << 40);
+    masked[1] = static_cast<char>(0x80 | 127);  // set the MASK bit in b1
+    EXPECT_THROW(recv_bytes(masked), std::runtime_error);
+}
+
+// F1: a frame just over the (here-tiny) cap is rejected; one at the cap is accepted.
+TEST(CheatahWebSocket, FramePayloadCapEnforced) {
+    EXPECT_THROW(recv_bytes(frame(0x82, std::string(101, 'x')), /*max_frame=*/100), std::runtime_error);
+    EXPECT_EQ(recv_bytes(frame(0x82, std::string(100, 'x')), /*max_frame=*/100), std::string(100, 'x'));
+}
+
+// F2 (OOM): a fragmented message that would exceed the reassembly cap is rejected.
+TEST(CheatahWebSocket, ReassembledMessageCapEnforced) {
+    // First fragment (text, FIN=0) of 5 bytes, then a continuation of 5 more; cap = 8 < 10.
+    const std::string frames = frame(0x01, "aaaaa") + frame(0x80, "bbbbb");
+    EXPECT_THROW(recv_bytes(frames, /*max_frame=*/0, /*max_message=*/8), std::runtime_error);
+}
+
+// F3: control frames must be <=125 bytes and MUST NOT be fragmented (RFC 6455 §5.5).
+TEST(CheatahWebSocket, RejectsOversizedControlFrame) {
+    EXPECT_THROW(recv_bytes(len16_header(0x89, 200)), std::runtime_error);  // ping, 200 bytes
+}
+TEST(CheatahWebSocket, RejectsFragmentedControlFrame) {
+    EXPECT_THROW(recv_bytes(frame(0x09, "abc")), std::runtime_error);  // ping, FIN=0
+}
+
+// F4: reserved bits set (no extension negotiated) and undefined opcodes fail the connection.
+TEST(CheatahWebSocket, RejectsReservedBits) {
+    EXPECT_THROW(recv_bytes(frame(0xC1, "")), std::runtime_error);  // RSV1 | text | FIN
+}
+TEST(CheatahWebSocket, RejectsUnknownOpcode) {
+    EXPECT_THROW(recv_bytes(frame(0x83, "")), std::runtime_error);  // opcode 0x3 (undefined)
+}
+
+// Fragmentation state machine: a stray continuation, or a new data frame mid-message, is invalid.
+TEST(CheatahWebSocket, RejectsContinuationWithNoMessage) {
+    EXPECT_THROW(recv_bytes(frame(0x80, "x")), std::runtime_error);  // continuation, FIN, no msg
+}
+TEST(CheatahWebSocket, RejectsNewDataFrameDuringFragment) {
+    const std::string frames = frame(0x01, "ab") + frame(0x81, "cd");  // text(FIN=0) then text(FIN)
+    EXPECT_THROW(recv_bytes(frames), std::runtime_error);
+}
+
+// === Blue-team: the valid paths still work (single frame, fragmentation, an interleaved pong). ===
+TEST(CheatahWebSocket, AcceptsValidSingleFrame) {
+    EXPECT_EQ(recv_bytes(frame(0x81, "hello")), "hello");   // text, FIN
+    const std::string bin("\x00\x01\x02", 3);               // NUL-containing binary payload
+    EXPECT_EQ(recv_bytes(frame(0x82, bin)), bin);           // binary, FIN — byte-safe
+}
+TEST(CheatahWebSocket, AcceptsFragmentedMessage) {
+    const std::string frames = frame(0x01, "he") + frame(0x00, "l") + frame(0x80, "lo");
+    EXPECT_EQ(recv_bytes(frames), "hello");
+}
+TEST(CheatahWebSocket, SkipsPongThenReturnsData) {
+    const std::string frames = frame(0x8A, "") + frame(0x81, "ok");  // pong (ignored), then text
+    EXPECT_EQ(recv_bytes(frames), "ok");
+}
 
 TEST(CheatahWebSocket, ConnectUrlRejectsNonWss) {
     // Only wss:// is supported; a non-wss scheme fails fast, before any socket work. open_url()

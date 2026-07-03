@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // p256.cpp — NIST P-256 (secp256r1) ECDSA, from scratch. See p256.hpp.
 //
 // Representation: a 256-bit value is uint64_t[4], LEAST-significant limb first.
@@ -490,6 +492,25 @@ std::string reduce_mod_n_be(const std::string& be32) {
 }  // namespace testonly
 #endif
 
+// Is (x, y) on the P-256 curve y^2 = x^3 - 3x + b (mod p)? Rejects an off-curve /
+// invalid-curve public key — SP 800-56A / FIPS 186 point validation, which the plain
+// coordinate-range check (x,y < p) does not catch.
+bool on_curve(const fe& x, const fe& y) {
+    const Mont& F = Fp();
+    fe xm, ym, x2, x3, tx, rhs, bm, y2;
+    to_mont(xm, x, F);
+    to_mont(ym, y, F);
+    mont_mul(x2, xm, xm, F);    // x^2
+    mont_mul(x3, x2, xm, F);    // x^3
+    mont_add(tx, xm, xm, F);    // 2x
+    mont_add(tx, tx, xm, F);    // 3x
+    mont_sub(rhs, x3, tx, F);   // x^3 - 3x
+    to_mont(bm, CURVE_B, F);
+    mont_add(rhs, rhs, bm, F);  // x^3 - 3x + b
+    mont_mul(y2, ym, ym, F);    // y^2
+    return std::memcmp(y2.data(), rhs.data(), sizeof(fe)) == 0;
+}
+
 bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
                 const std::string& sig_raw) {
     if (pubkey_xy.size() != 64 || sig_raw.size() != 64) return false;
@@ -513,6 +534,7 @@ bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
     fe qx = be_to_fe((const unsigned char*)pubkey_xy.data());
     fe qy = be_to_fe((const unsigned char*)pubkey_xy.data() + 32);
     if (geq(qx, P) || geq(qy, P)) return false;
+    if (!on_curve(qx, qy)) return false;  // reject off-curve / invalid-curve public keys
     Jac Q = affine_to_jac(qx, qy);
 
     Jac R;

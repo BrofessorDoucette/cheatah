@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -36,6 +38,7 @@ namespace cheatah::sys {
  */
 extern std::vector<std::string> argv;
 
+/// @cond INTERNAL — a runtime hook, not cheatah surface (programs read `sys.argv`)
 /**
  * Capture the process arguments into `argv`.
  *
@@ -49,5 +52,6 @@ extern std::vector<std::string> argv;
  * @test CheatahSys.Argv
  */
 void set_argv(int argc, char** argv_);
+/// @endcond
 
 } // namespace cheatah::sys

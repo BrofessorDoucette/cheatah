@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // Vectorized double-precision element-wise math kernels for ndarray's ufuncs.
 //
 // This translation unit is compiled IN ISOLATION with -ffast-math (see CMakeLists.txt)

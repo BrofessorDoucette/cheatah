@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // SPEC (for review) — the intended behaviour of the `memory` module. NOT wired into the build and
 // NOT expected to pass until the C++ backend engine is implemented; every test is a promise the
 // implementation must keep.

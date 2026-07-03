@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -156,16 +158,22 @@ private:
 
 /**
  * Run the TLS 1.3 client handshake over connected fd @p fd and return an owning Conn (the
- * RAII, `with`-friendly form of client_connect()).
+ * RAII, `with`-friendly form of client_connect()). By default the server is AUTHENTICATED:
+ * the certificate chain is built to a trusted CA, the hostname is matched against the leaf's
+ * subjectAltName, and the validity dates are checked — so the connection resists an active MITM.
  * @param fd a CONNECTED TCP socket (e.g. socket::Conn::fd()).
- * @param server_name the hostname for SNI and certificate name checks.
- * @return an owning Conn; on handshake failure its is_open() is false (see last_error()).
- * @complexity one network round trip + O(handshake bytes) crypto.
+ * @param server_name the hostname (SNI + certificate SAN match).
+ * @param insecure when true, skip chain/hostname/expiry validation (leaf-key possession only) —
+ *        for a pinned/controlled peer where identity is established out of band. Default false.
+ * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
+ * @return an owning Conn; on handshake or validation failure its is_open() is false (see last_error()).
+ * @complexity one network round trip + O(handshake bytes) crypto (+ a one-time CA-store parse).
  * @alloc the session state.
  * @test TlsSys.ConnGuardRoundTrip
  * @systest TlsSys.HttpsGet
  */
-Conn open(long long fd, const std::string& server_name);
+Conn open(long long fd, const std::string& server_name, bool insecure = false,
+          const std::string& ca_file = "");
 
 // Internal key-schedule primitives, exposed for the RFC 8448 vector tests only.
 namespace detail {

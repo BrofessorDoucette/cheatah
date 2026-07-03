@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "routines.hpp"
 
 #include <algorithm>
@@ -16,9 +18,9 @@
 // complex conjugate eigenvalue pairs — built from the real arithmetic below.
 namespace cheatah::linalg {
 
-/// \cond INTERNAL
+/// @cond INTERNAL
 using ndarray::NDArray;
-/// \endcond
+/// @endcond
 
 namespace {
 

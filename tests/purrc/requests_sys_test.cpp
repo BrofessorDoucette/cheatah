@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System tests for `requests` — THE FIRST PURE-CHEATAH STDLIB MODULE. Each test runs a real
 // loopback HTTP server (cheatah::socket, C++ thread), then compiles + runs a .purr program
 // that `import requests` and GETs from it over a genuine TCP connection, asserting stdout.

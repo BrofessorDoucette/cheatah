@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // purrc — the cheatah compiler.
 //
 // Compiles a .purr program into a loadable module that the cheatah runtime runs:

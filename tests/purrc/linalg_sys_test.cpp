@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level end-to-end test for the cheatah `linalg` stdlib module.
 //
 // Unlike the per-function compile-run tests (linalg_cr_test.cpp), this is ONE

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level test for the cheatah `time` module: a single cohesive .purr
 // program that exercises EVERY public function in stdlib/time/time.hpp
 // (time, time_ns, monotonic, monotonic_ns, perf_counter, perf_counter_ns,

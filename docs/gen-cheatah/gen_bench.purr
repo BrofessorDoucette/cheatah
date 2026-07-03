@@ -1,3 +1,5 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # gen_bench.purr — times the pure-cheatah doc-render work (parse every Doxygen namespace
 # XML + build each module's member HTML), for a like-for-like comparison against the same
 # task in Python (docs/gen-cheatah/gen_bench.py). Compute-only: files are read up front.

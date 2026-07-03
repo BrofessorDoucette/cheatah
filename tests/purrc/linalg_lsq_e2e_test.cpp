@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 // System-level test: least-squares regression written in cheatah, using the
 // native ndarray + linalg standard library. For each dimensionality n we build a
 // well-conditioned m×n design matrix X and a known coefficient vector β, form the

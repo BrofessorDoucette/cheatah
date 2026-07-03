@@ -1,3 +1,5 @@
+// Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+// Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
 /**
@@ -20,18 +22,24 @@ namespace cheatah::tls {
 
 /**
  * Run the TLS 1.3 handshake as a client over connected fd @p fd, requesting @p server_name
- * via SNI and authenticating the server as described in tls.hpp.
+ * via SNI and AUTHENTICATING the server as described in tls.hpp.
  *
  * @param fd a CONNECTED TCP socket.
- * @param server_name the hostname for SNI and (future) certificate name checks.
+ * @param server_name the hostname: sent as SNI AND matched against the certificate's SAN, and the
+ *        chain is built to a trusted CA with validity dates checked (unless @p insecure).
+ * @param insecure when true, skip certificate-chain / hostname / expiry validation and accept any
+ *        cert whose key the peer proves it holds (leaf-key possession only — for a pinned/controlled
+ *        peer). Default false: full validation, MITM-resistant.
+ * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return a session handle (>= 1), or -1 on failure (see last_error()).
- * @complexity one network round trip + O(handshake bytes) crypto.
+ * @complexity one network round trip + O(handshake bytes) crypto (+ a one-time CA-store parse).
  * @alloc the session state.
  * @test CheatahTls.KeySchedule
  * @crtest TlsSys.HandshakeAgainstOpenssl
  * @systest TlsSys.HttpsGet
  */
-long long client_connect(long long fd, const std::string& server_name);
+long long client_connect(long long fd, const std::string& server_name, bool insecure = false,
+                         const std::string& ca_file = "");
 
 /**
  * Encrypt and send @p data as TLS application data.
