@@ -13,19 +13,26 @@
  * requests — HTTP for cheatah, in the spirit of Python's requests. THE FIRST STANDARD-LIBRARY
  * MODULE WRITTEN IN PURE CHEATAH (.purr): all protocol logic below is cheatah source, compiled
  * by purrc into an importable module. It rides on the C++-authored stdlib underneath —
- * `socket` for TCP and `parsers.url` for URL parsing.
+ * `socket` for TCP, `tls` for HTTPS, and `parsers` for URL/JSON parsing.
  *
- * v1.1 speaks HTTP/1.1 over plain TCP, one connection per request (`Connection: close`):
+ * v1.2 speaks HTTP/1.1 over plain TCP, one connection per request (`Connection: close`), and
+ * covers the everyday Python-requests surface:
  *   let r = requests.get("http://host:port/path")
  *   let o = Options({.timeout_ms = 5000})
  *   o.params["symbol"] = "SPX"
  *   let q = requests.get(url, o)
- *   if q.ok() { io.print(q.body) }
- * Covers: query params (percent-encoded), custom headers, Content-Length / chunked /
- * close-delimited body framing, redirect following, per-request timeouts, response headers
- * (case-insensitive via lowercased keys), and `https://` through the cheatah `tls` module —
- * a from-scratch TLS 1.3 client over the cheatah crypto modules (x25519, aead, hashlib HKDF;
- * no OpenSSL). The tls module REFUSES servers it cannot authenticate (see tls.hpp).
+ *   if q.ok() { io.print(q.status_code, q.text()) }
+ *   let body = requests.Options({.json_body = requests.to_json({"side": "buy"})})
+ *   let p = requests.post("https://host/order", body)
+ * Verbs: get/post/put/patch/delete/head/options (and the generic request()). Request bodies:
+ * raw `body`, form `data` (application/x-www-form-urlencoded), or `json_body` (application/json).
+ * Auth: HTTP Basic via `auth_user`/`auth_pass`; Bearer/API-key by setting an `Authorization`
+ * header yourself. Also: query params (percent-encoded), custom headers, Content-Length /
+ * chunked / close-delimited body framing, redirect following with `history` and
+ * `no_redirect`, per-request timeouts, case-insensitive response headers, `Set-Cookie`
+ * capture, `raise_for_status()`, and `https://` through the from-scratch cheatah `tls` module
+ * (a TLS 1.3 client over the cheatah crypto modules — x25519, aead, hashlib HKDF; no OpenSSL;
+ * it REFUSES servers it cannot authenticate).
  */
 namespace cheatah::requests {
 
@@ -40,7 +47,10 @@ namespace tls = ::cheatah::tls;
  *
  * Unset fields take the documented defaults at request time: `timeout_ms <= 0` -> 30000,
  * `max_redirects <= 0` -> 5. `params` are appended to the request-target percent-encoded;
- * `headers` are sent verbatim (a User-Agent is added unless one is given).
+ * `headers` are sent verbatim (a User-Agent is added unless one is given). A body is taken from
+ * the first set of `json_body` -> `data` -> `body`; `Content-Type`/`Content-Length` are added
+ * automatically unless already present in `headers`. `auth_user`/`auth_pass` add HTTP Basic.
+ * Redirects are followed by default; set `no_redirect = true` to stop at the first 3xx.
  * @systest RequestsSys.QueryParams
  * @systest RequestsSys.CustomHeaders
  */
@@ -61,6 +71,46 @@ struct Options {
      * Maximum number of 3xx redirects to follow; <= 0 uses the default of 5.
      */
     long long max_redirects;
+    /**
+     * Opt OUT of following 3xx redirects (cheatah's spelling of Python's `allow_redirects=False`).
+     * Redirects are followed BY DEFAULT (the zero value is "follow"); set true to stop at the 3xx.
+     */
+    bool no_redirect;
+    /**
+     * A raw request body sent verbatim (lowest precedence; used when json_body/data are empty).
+     */
+    std::string body;
+    /**
+     * Form fields serialized as application/x-www-form-urlencoded (percent-encoded).
+     */
+    std::unordered_map<std::string, std::string> data;
+    /**
+     * A pre-serialized JSON string sent as application/json (highest body precedence).
+     */
+    std::string json_body;
+    /**
+     * HTTP Basic auth username; when non-empty, an `Authorization: Basic …` header is added.
+     */
+    std::string auth_user;
+    /**
+     * HTTP Basic auth password (paired with auth_user).
+     */
+    std::string auth_pass;
+    /**
+     * Maximum response body to accept, in bytes; <= 0 uses a 100 MiB default. A server that
+     * streams more (or declares a larger Content-Length) fails with an error instead of letting
+     * the client exhaust memory — a hard cap against a malicious/compromised peer.
+     */
+    long long max_bytes;
+    /**
+     * For https: skip TLS certificate validation (chain/hostname/expiry). Default false = verify,
+     * so an active man-in-the-middle is refused. Set true ONLY for a pinned/controlled peer.
+     */
+    bool insecure;
+    /**
+     * For https: a PEM CA bundle to trust instead of the system store (empty = system default).
+     */
+    std::string ca_file;
 };
 
 /**
@@ -68,8 +118,9 @@ struct Options {
  *
  * `error` distinguishes transport failures (DNS, refused, timeout, malformed URL/response)
  * from HTTP-level failures: a 404 is a COMPLETED exchange — ok() is false but error stays
- * "" and status/headers/body are real. Header names are stored LOWERCASED, so header()
- * lookup is case-insensitive (RFC 9110).
+ * "" and status_code/headers/body are real. Header names are stored LOWERCASED, so header()
+ * lookup is case-insensitive (RFC 9110). `cookies` holds `Set-Cookie` name=value pairs;
+ * `history` holds the intermediate responses when redirects were followed.
  * @systest RequestsSys.NotFound
  * @systest RequestsSys.ErrorPaths
  */
@@ -77,7 +128,11 @@ struct Response {
     /**
      * HTTP status code (e.g. 200, 404); 0 when the request never completed (see `error`).
      */
-    long long status;
+    long long status_code;
+    /**
+     * HTTP reason phrase from the status line (e.g. "OK", "Not Found"); "" when absent.
+     */
+    std::string reason;
     /**
      * Response headers, with LOWERCASED names for case-insensitive lookup (use `header()`).
      */
@@ -96,15 +151,24 @@ struct Response {
      */
     std::string error;
     /**
+     * Cookies parsed from `Set-Cookie` response headers (name -> value; attributes dropped).
+     */
+    std::unordered_map<std::string, std::string> cookies;
+    /**
+     * The chain of intermediate responses when redirects were followed (oldest first); empty
+     * for a direct response.
+     */
+    std::vector<Response> history;
+    /**
      * Whether the exchange completed with a 2xx status.
      *
-     * @return true iff `error` is empty and `status` is in [200, 300).
+     * @return true iff `error` is empty and `status_code` is in [200, 300).
      * @complexity O(1).
      * @alloc none.
      * @systest RequestsSys.BasicGet
      */
     auto ok() const {
-        return ((((*this).error == std::string("")) && ((*this).status >= 200LL)) && ((*this).status < 300LL));
+        return ((((*this).error == std::string("")) && ((*this).status_code >= 200LL)) && ((*this).status_code < 300LL));
     }
     /**
      * Case-insensitive response-header lookup.
@@ -122,24 +186,96 @@ struct Response {
         }
         return std::string("");
     }
+    /**
+     * The response body as text (cheatah strings are byte-based, so text == content == body).
+     *
+     * @return the response body.
+     * @complexity O(1).
+     * @alloc none.
+     * @systest RequestsSys.BasicGet
+     */
+    auto text() const {
+        return (*this).body;
+    }
+    /**
+     * The response body as raw bytes (identical to `text()`/`body`; cheatah `str` is byte-safe).
+     *
+     * @return the response body.
+     * @complexity O(1).
+     * @alloc none.
+     * @systest RequestsSys.BasicGet
+     */
+    auto content() const {
+        return (*this).body;
+    }
+    /**
+     * Parse the JSON body into a caller-defined struct via the accelerated typed reader.
+     *
+     * This is the schema-typed `parsers.json.read` path: the target struct's schema is
+     * synthesized by purrc, so parsing goes straight into fields with no dynamic DOM. (A
+     * dynamic, struct-free `json()` for ad-hoc navigation is planned separately.)
+     * @param out a struct value to fill from the JSON body.
+     * @return true iff the body was valid JSON matching `out`'s schema.
+     * @complexity O(n) over the body length.
+     * @alloc fills `out`.
+     * @systest RequestsSys.JsonIntegration
+     */
+    auto json(builtins::Value auto&& out) const {
+        return parsers::json::read((*this).body, out);
+    }
+    /**
+     * Raise on a 4xx/5xx status (Python's `raise_for_status`); a no-op otherwise.
+     *
+     * @return nothing — raises (status + reason + url) on a 4xx/5xx, otherwise returns normally.
+     * @complexity O(1).
+     * @alloc allocates the message only when raising.
+     * @systest RequestsSys.RaiseForStatus
+     */
+    auto raise_for_status() const {
+        if ((((*this).status_code >= 400LL) && ((*this).status_code < 600LL))) {
+            throw std::runtime_error(((((builtins::str((*this).status_code) + std::string(" ")) + builtins::str((*this).reason)) + std::string(" for url: ")) + builtins::str((*this).url)));
+        }
+    }
+    /**
+     * Whether the status is a 3xx redirect.
+     *
+     * @return true iff `status_code` is in [300, 400).
+     * @complexity O(1).
+     * @alloc none.
+     * @systest RequestsSys.AllowRedirectsFalse
+     */
+    auto is_redirect() const {
+        return (((*this).status_code >= 300LL) && ((*this).status_code < 400LL));
+    }
+    /**
+     * Whether the status is a permanent redirect (301 or 308).
+     *
+     * @return true iff `status_code` is 301 or 308.
+     * @complexity O(1).
+     * @alloc none.
+     * @systest RequestsSys.Redirect
+     */
+    auto is_permanent_redirect() const {
+        return (((*this).status_code == 301LL) || ((*this).status_code == 308LL));
+    }
 };
 
 }  // namespace cheatah::requests (paused for JSON schema synthesis)
 namespace cheatah::parsers::json {
 /** JSON schema for `Options`, synthesized by purrc from the struct's fields — powers `parsers.json.read` into this type. */
-template <> inline constexpr auto schema<::cheatah::requests::Options> = object(field("params", &::cheatah::requests::Options::params), field("headers", &::cheatah::requests::Options::headers), field("timeout_ms", &::cheatah::requests::Options::timeout_ms), field("max_redirects", &::cheatah::requests::Options::max_redirects));
+template <> inline constexpr auto schema<::cheatah::requests::Options> = object(field("params", &::cheatah::requests::Options::params), field("headers", &::cheatah::requests::Options::headers), field("timeout_ms", &::cheatah::requests::Options::timeout_ms), field("max_redirects", &::cheatah::requests::Options::max_redirects), field("no_redirect", &::cheatah::requests::Options::no_redirect), field("body", &::cheatah::requests::Options::body), field("data", &::cheatah::requests::Options::data), field("json_body", &::cheatah::requests::Options::json_body), field("auth_user", &::cheatah::requests::Options::auth_user), field("auth_pass", &::cheatah::requests::Options::auth_pass), field("max_bytes", &::cheatah::requests::Options::max_bytes), field("insecure", &::cheatah::requests::Options::insecure), field("ca_file", &::cheatah::requests::Options::ca_file));
 /** JSON schema for `Response`, synthesized by purrc from the struct's fields — powers `parsers.json.read` into this type. */
-template <> inline constexpr auto schema<::cheatah::requests::Response> = object(field("status", &::cheatah::requests::Response::status), field("headers", &::cheatah::requests::Response::headers), field("body", &::cheatah::requests::Response::body), field("url", &::cheatah::requests::Response::url), field("error", &::cheatah::requests::Response::error));
+template <> inline constexpr auto schema<::cheatah::requests::Response> = object(field("status_code", &::cheatah::requests::Response::status_code), field("reason", &::cheatah::requests::Response::reason), field("headers", &::cheatah::requests::Response::headers), field("body", &::cheatah::requests::Response::body), field("url", &::cheatah::requests::Response::url), field("error", &::cheatah::requests::Response::error), field("cookies", &::cheatah::requests::Response::cookies), field("history", &::cheatah::requests::Response::history));
 }  // namespace cheatah::parsers::json
 namespace cheatah::requests {
 
 /**
- * Percent-encode `text` for a query string.
+ * Percent-encode `text` for a query string or form body.
  *
  * RFC 3986 unreserved characters pass through; everything else (including space)
  * becomes %XX with uppercase hex digits.
- * @param text the raw query-parameter name or value.
- * @return the percent-encoded form, safe to place in a request-target.
+ * @param text the raw name or value.
+ * @return the percent-encoded form, safe to place in a request-target or form body.
  * @complexity O(n) over the input length.
  * @alloc allocates the result.
  * @systest RequestsSys.QueryParams
@@ -161,6 +297,137 @@ auto percent_encode(builtins::Value auto&& text) {
 
 
 /**
+ * Base64-encode `data` (standard alphabet, `=` padding) — used for HTTP Basic auth.
+ *
+ * @param data the raw bytes to encode.
+ * @return the base64 text.
+ * @complexity O(n) over the input length.
+ * @alloc allocates the result.
+ * @systest RequestsSys.BasicAuth
+ */
+auto b64encode(builtins::Value auto&& data) {
+    auto alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+    auto out = std::string("");
+    auto n = builtins::len(data);
+    auto i = 0LL;
+    while (((i + 3LL) <= n)) {
+        auto v = (((builtins::ord(builtins::index(data, i)) * 65536LL) + (builtins::ord(builtins::index(data, (i + 1LL))) * 256LL)) + builtins::ord(builtins::index(data, (i + 2LL))));
+        (out += builtins::index(alphabet, builtins::floordiv(v, 262144LL))) += builtins::index(alphabet, builtins::mod(builtins::floordiv(v, 4096LL), 64LL));
+        (out += builtins::index(alphabet, builtins::mod(builtins::floordiv(v, 64LL), 64LL))) += builtins::index(alphabet, builtins::mod(v, 64LL));
+        i += 3LL;
+    }
+    auto rem = (n - i);
+    {
+        auto __match_0 = rem;
+        switch (__match_0) {
+            case 1LL: {
+                auto v = (builtins::ord(builtins::index(data, i)) * 65536LL);
+                ((out += builtins::index(alphabet, builtins::floordiv(v, 262144LL))) += builtins::index(alphabet, builtins::mod(builtins::floordiv(v, 4096LL), 64LL))) += "==";
+                break;
+            }
+            case 2LL: {
+                auto v = ((builtins::ord(builtins::index(data, i)) * 65536LL) + (builtins::ord(builtins::index(data, (i + 1LL))) * 256LL));
+                (((out += builtins::index(alphabet, builtins::floordiv(v, 262144LL))) += builtins::index(alphabet, builtins::mod(builtins::floordiv(v, 4096LL), 64LL))) += builtins::index(alphabet, builtins::mod(builtins::floordiv(v, 64LL), 64LL))) += "=";
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+    return out;
+}
+
+
+/**
+ * Escape a string for embedding as a JSON string value.
+ *
+ * @param text the raw string.
+ * @return the escaped string (quotes, backslash, and the common control chars).
+ * @complexity O(n) over the input length.
+ * @alloc allocates the result.
+ * @systest RequestsSys.PostJson
+ */
+auto json_escape(builtins::Value auto&& text) {
+    auto out = std::string("");
+    for (auto& ch : text) {
+        {
+            auto __match_1 = builtins::ord(ch);
+            switch (__match_1) {
+                case 34LL: {
+                    out += "\\\"";
+                    break;
+                }
+                case 92LL: {
+                    out += "\\\\";
+                    break;
+                }
+                case 10LL: {
+                    out += "\\n";
+                    break;
+                }
+                case 13LL: {
+                    out += "\\r";
+                    break;
+                }
+                case 9LL: {
+                    out += "\\t";
+                    break;
+                }
+                default: {
+                    out += ch;
+                    break;
+                }
+            }
+        }
+    }
+    return out;
+}
+
+
+/**
+ * Serialize a flat string->string dict as a JSON object — the common `json=` case.
+ *
+ * For nested or non-string JSON, build the string yourself and pass it as `json_body`.
+ * @param fields the name -> value pairs.
+ * @return a JSON object string (`{"k":"v",…}`).
+ * @complexity O(total characters).
+ * @alloc allocates the result.
+ * @systest RequestsSys.PostJson
+ */
+auto to_json(builtins::Value auto&& fields) {
+    auto out = std::string("{");
+    auto sep = std::string("");
+    for (auto& kv : fields) {
+        (((((out += sep) += "\"") += json_escape(kv.first)) += "\":\"") += json_escape(kv.second)) += "\"";
+        sep = std::string(",");
+    }
+    return (builtins::str(out) + std::string("}"));
+}
+
+
+/**
+ * Case-insensitive presence test for a header name in a headers dict.
+ *
+ * @param headers the request headers (name -> value).
+ * @param name the header name to look for, any capitalization.
+ * @return true iff a header with that name (case-insensitive) is present.
+ * @complexity O(k) over the number of headers.
+ * @alloc allocates lowercased keys.
+ * @systest RequestsSys.CustomHeaders
+ */
+auto has_header(builtins::Value auto&& headers, builtins::Value auto&& name) {
+    auto target = string::lower(name);
+    for (auto& kv : headers) {
+        if ((string::lower(kv.first) == target)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/**
  * Parse one hex chunk-size token (e.g. "1aF").
  *
  * @param text the hex token, both digit cases accepted, no prefix.
@@ -173,6 +440,9 @@ auto percent_encode(builtins::Value auto&& text) {
 auto parse_hex(builtins::Value auto&& text) {
     auto n = 0LL;
     for (auto& ch : text) {
+        if ((n > 1099511627776LL)) {
+            return (-1LL);
+        }
         auto v = builtins::ord(ch);
         if (((v >= 48LL) && (v <= 57LL))) {
             n = ((n * 16LL) + (v - 48LL));
@@ -186,6 +456,35 @@ auto parse_hex(builtins::Value auto&& text) {
                     return (-1LL);
                 }
             }
+        }
+    }
+    return n;
+}
+
+
+/**
+ * Parse an unsigned decimal integer, safely — returns -1 on any non-digit, empty input, or a
+ * value beyond 1 TiB (overflow guard). Used for the status code and Content-Length so a
+ * malformed header sets `error` instead of throwing out of the "never raises" request path.
+ *
+ * Callers always pass a non-empty slice (a 3-char status field, or a non-empty Content-Length),
+ * so an empty string is not handled specially.
+ * @param text the decimal digits (e.g. a Content-Length value); must be non-empty.
+ * @return the parsed value, or -1 when @p text is not a plain in-range unsigned integer.
+ * @complexity O(n) over the digit count.
+ * @alloc none.
+ * @systest RequestsSys.MalformedContentLength
+ */
+auto parse_uint(builtins::Value auto&& text) {
+    auto n = 0LL;
+    for (auto& ch : text) {
+        auto v = builtins::ord(ch);
+        if (((v < 48LL) || (v > 57LL))) {
+            return (-1LL);
+        }
+        n = ((n * 10LL) + (v - 48LL));
+        if ((n > 1099511627776LL)) {
+            return (-1LL);
         }
     }
     return n;
@@ -240,19 +539,22 @@ auto dechunk(builtins::Value auto&& raw, builtins::Value auto&& r) {
 /**
  * Read the whole response from a connected socket (or TLS session for https).
  *
- * Reads every byte until the peer closes — or the socket timeout set by get_once
+ * Reads every byte until the peer closes — or the socket timeout set by request_once
  * fires, which recv reports as "" (indistinguishable from close by design: we always
  * request `Connection: close`, so EOF IS the end of the response). When @p conn is open
  * the bytes are read (and decrypted) through its TLS session, mirroring the send path;
  * a closed @p conn reads the plain socket.
+ * Stops once more than @p limit bytes have arrived so a malicious/compromised peer cannot
+ * stream an unbounded body and exhaust memory; the caller treats an over-limit read as an error.
  * @param fd a connected socket descriptor from socket.tcp_connect.
  * @param conn the owning tls.Conn for https (open), or a closed Conn for plain http.
- * @return all bytes received.
- * @complexity O(n) over the response size.
- * @alloc allocates the received buffer.
+ * @param limit the maximum number of body bytes to accept before bailing out.
+ * @return the bytes received, bounded to at most one 64 KiB chunk beyond @p limit.
+ * @complexity O(n) over the response size (bounded by @p limit).
+ * @alloc allocates the received buffer (bounded by @p limit).
  * @systest RequestsSys.BasicGet
  */
-auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn) {
+auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn, builtins::Value auto&& limit) {
     auto raw = std::string("");
     while (true) {
         auto chunk = std::string("");
@@ -265,6 +567,9 @@ auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn) {
             break;
         }
         raw += chunk;
+        if ((builtins::len(raw) > limit)) {
+            break;
+        }
     }
     return raw;
 }
@@ -273,18 +578,25 @@ auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn) {
 /**
  * Parse a raw HTTP/1.1 response (status line + headers + body) into `r`.
  *
- * Headers land in `r.headers` with LOWERCASED names and stripped values. Body framing
- * precedence: chunked when declared, else Content-Length, else everything to EOF (we
- * always send `Connection: close`). Malformed input sets `r.error` and returns early.
+ * Headers land in `r.headers` with LOWERCASED names and stripped values; the reason phrase
+ * fills `r.reason` and any `Set-Cookie` name=value pairs fill `r.cookies`. Body framing
+ * precedence: chunked when declared, else Content-Length, else everything to EOF (we always
+ * send `Connection: close`). A HEAD request carries no body regardless of the framing headers.
+ * Malformed input sets `r.error` and returns early.
+ * The status code and Content-Length are parsed with `parse_uint`, so a malformed value (e.g.
+ * `Content-Length: abc`, a huge overflowing number, or a negative length) sets `error` instead
+ * of throwing out of the request path; a Content-Length beyond @p limit is rejected outright.
  * @param raw the complete response bytes as received.
- * @param r the Response under construction (status/headers/body/error are filled in).
+ * @param r the Response under construction (status_code/reason/headers/cookies/body/error).
+ * @param method the request method (so HEAD skips body framing).
+ * @param limit the maximum acceptable body size in bytes.
  * @return `r`, completed or carrying `error`.
  * @complexity O(n) over the response size.
  * @alloc allocates the parsed headers and body.
  * @systest RequestsSys.EofFraming
  * @systest RequestsSys.HeaderLookup
  */
-auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r) {
+auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builtins::Value auto&& method, builtins::Value auto&& limit) {
     auto head_end = string::find(raw, std::string("\r\n\r\n"));
     if ((head_end < 0LL)) {
         r.error = std::string("connection closed before a complete response head");
@@ -294,18 +606,26 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r) {
         r.error = std::string("malformed response head");
         return r;
     }
-    auto head = builtins::slice(raw, 0LL, head_end);
-    auto line_end = string::find(head, std::string("\r\n"));
+    auto head_block = builtins::slice(raw, 0LL, head_end);
+    auto line_end = string::find(head_block, std::string("\r\n"));
     if ((line_end < 0LL)) {
-        line_end = builtins::len(head);
+        line_end = builtins::len(head_block);
     }
-    auto space = string::find(head, std::string(" "));
+    auto space = string::find(head_block, std::string(" "));
     if (((space < 0LL) || ((space + 4LL) > line_end))) {
         r.error = std::string("malformed status line");
         return r;
     }
-    r.status = builtins::to_int(builtins::slice(head, (space + 1LL), (space + 4LL)));
-    auto rest = builtins::slice(head, (line_end + 2LL), builtins::slice_end);
+    auto code = parse_uint(builtins::slice(head_block, (space + 1LL), (space + 4LL)));
+    if ((code < 0LL)) {
+        r.error = std::string("malformed status code");
+        return r;
+    }
+    r.status_code = code;
+    if (((space + 5LL) <= line_end)) {
+        r.reason = string::strip(builtins::slice(head_block, (space + 5LL), line_end));
+    }
+    auto rest = builtins::slice(head_block, (line_end + 2LL), builtins::slice_end);
     while ((builtins::len(rest) > 0LL)) {
         auto eol = string::find(rest, std::string("\r\n"));
         if ((eol < 0LL)) {
@@ -315,12 +635,28 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r) {
         auto colon = string::find(line, std::string(":"));
         if ((colon > 0LL)) {
             auto name = string::lower(string::strip(builtins::slice(line, 0LL, colon)));
-            r.headers[name] = string::strip(builtins::slice(line, (colon + 1LL), builtins::slice_end));
+            auto value = string::strip(builtins::slice(line, (colon + 1LL), builtins::slice_end));
+            r.headers[name] = value;
+            if ((name == std::string("set-cookie"))) {
+                auto semi = string::find(value, std::string(";"));
+                auto pair = value;
+                if ((semi >= 0LL)) {
+                    pair = builtins::slice(value, 0LL, semi);
+                }
+                auto eq = string::find(pair, std::string("="));
+                if ((eq > 0LL)) {
+                    r.cookies[string::strip(builtins::slice(pair, 0LL, eq))] = string::strip(builtins::slice(pair, (eq + 1LL), builtins::slice_end));
+                }
+            }
         }
         if ((eol == builtins::len(rest))) {
             break;
         }
         rest = builtins::slice(rest, (eol + 2LL), builtins::slice_end);
+    }
+    if ((method == std::string("HEAD"))) {
+        r.body = std::string("");
+        return r;
     }
     auto body = builtins::slice(raw, (head_end + 4LL), builtins::slice_end);
     if ((r.header(std::string("transfer-encoding")) == std::string("chunked"))) {
@@ -329,7 +665,15 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r) {
     }
     auto cl = r.header(std::string("content-length"));
     if ((cl != std::string(""))) {
-        auto n = builtins::to_int(cl);
+        auto n = parse_uint(cl);
+        if ((n < 0LL)) {
+            r.error = std::string("invalid Content-Length");
+            return r;
+        }
+        if ((n > limit)) {
+            r.error = std::string("Content-Length exceeds max_bytes");
+            return r;
+        }
         if ((builtins::len(body) < n)) {
             r.error = std::string("connection closed before the complete body arrived");
             return r;
@@ -343,19 +687,21 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r) {
 
 
 /**
- * One GET exchange against an already-parsed URL (no redirect handling).
+ * One request exchange against an already-parsed URL (no redirect handling).
  *
  * Connects, applies the timeout, appends `o.params` percent-encoded to the request-target,
- * sends the request (custom headers, default User-Agent, `Connection: close`), then reads
- * and parses the full response. Transport failures come back in `r.error`.
+ * builds the body (json_body -> data -> body; GET/HEAD send none), sends the request (custom
+ * headers, auto Content-Type/Content-Length/Authorization, default User-Agent, `Connection:
+ * close`), then reads and parses the full response. Transport failures come back in `r.error`.
+ * @param method the HTTP method ("GET", "POST", …).
  * @param u the parsed URL (scheme/host/port/target) from parsers.url.
- * @param o per-request options (timeout, params, headers).
+ * @param o per-request options (timeout, params, headers, body, auth).
  * @param r the Response under construction.
  * @return the completed Response (a non-2xx status is a completed exchange, not an error).
  * @alloc allocates the request and response buffers.
- * @systest RequestsSys.BasicGet
+ * @systest RequestsSys.PostJson
  */
-auto get_once(builtins::Value auto&& u, builtins::Value auto&& o, builtins::Value auto&& r) {
+auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, builtins::Value auto&& o, builtins::Value auto&& r) {
     auto fd = socket::tcp_connect(u.host, u.port);
     if ((fd < 0LL)) {
         r.error = (((((std::string("connect to ") + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string(" failed: ")) + builtins::str(socket::last_error()));
@@ -368,11 +714,32 @@ auto get_once(builtins::Value auto&& u, builtins::Value auto&& o, builtins::Valu
     socket::set_timeout(fd, timeout);
     auto conn = tls::Conn();
     if ((u.scheme == std::string("https"))) {
-        conn = tls::open(fd, u.host);
+        conn = tls::open(fd, u.host, o.insecure, o.ca_file);
         if ((!conn.is_open())) {
             socket::close(fd);
             r.error = (std::string("tls: ") + builtins::str(tls::last_error()));
             return r;
+        }
+    }
+    auto body = std::string("");
+    auto ctype = std::string("");
+    if (((method != std::string("GET")) && (method != std::string("HEAD")))) {
+        if ((o.json_body != std::string(""))) {
+            body = o.json_body;
+            ctype = std::string("application/json");
+        } else {
+            if ((builtins::len(o.data) > 0LL)) {
+                auto sep = std::string("");
+                for (auto& kv : o.data) {
+                    (((body += sep) += percent_encode(kv.first)) += "=") += percent_encode(kv.second);
+                    sep = std::string("&");
+                }
+                ctype = std::string("application/x-www-form-urlencoded");
+            } else {
+                if ((o.body != std::string(""))) {
+                    body = o.body;
+                }
+            }
         }
     }
     auto target = u.target;
@@ -384,14 +751,25 @@ auto get_once(builtins::Value auto&& u, builtins::Value auto&& o, builtins::Valu
         (((target += sep) += percent_encode(kv.first)) += "=") += percent_encode(kv.second);
         sep = std::string("&");
     }
-    auto req = ((((((std::string("GET ") + builtins::str(target)) + std::string(" HTTP/1.1\r\nHost: ")) + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string("\r\n"));
+    auto req = (((((((builtins::str(method) + std::string(" ")) + builtins::str(target)) + std::string(" HTTP/1.1\r\nHost: ")) + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string("\r\n"));
     for (auto& kv : o.headers) {
         (((req += kv.first) += ": ") += kv.second) += "\r\n";
     }
-    if ((!(builtins::contains(o.headers, std::string("user-agent")) || builtins::contains(o.headers, std::string("User-Agent"))))) {
-        req += "User-Agent: cheatah-requests/0.2\r\n";
+    if ((!has_header(o.headers, std::string("User-Agent")))) {
+        req += "User-Agent: cheatah-requests/1.2\r\n";
     }
-    req += "Connection: close\r\nAccept: */*\r\n\r\n";
+    if (((o.auth_user != std::string("")) && (!has_header(o.headers, std::string("Authorization"))))) {
+        ((req += "Authorization: Basic ") += b64encode(((builtins::str(o.auth_user) + std::string(":")) + builtins::str(o.auth_pass)))) += "\r\n";
+    }
+    if (((ctype != std::string("")) && (!has_header(o.headers, std::string("Content-Type"))))) {
+        ((req += "Content-Type: ") += ctype) += "\r\n";
+    }
+    if ((!has_header(o.headers, std::string("Content-Length")))) {
+        if (((((builtins::len(body) > 0LL) || (method == std::string("POST"))) || (method == std::string("PUT"))) || (method == std::string("PATCH")))) {
+            ((req += "Content-Length: ") += builtins::str(builtins::len(body))) += "\r\n";
+        }
+    }
+    (req += "Connection: close\r\nAccept: */*\r\n\r\n") += body;
     auto sent = 0LL;
     if (conn.is_open()) {
         sent = conn.send(req);
@@ -404,67 +782,164 @@ auto get_once(builtins::Value auto&& u, builtins::Value auto&& o, builtins::Valu
         r.error = std::string("send failed");
         return r;
     }
-    auto raw = read_all(fd, conn);
+    auto limit = o.max_bytes;
+    if ((limit <= 0LL)) {
+        limit = 104857600LL;
+    }
+    auto raw = read_all(fd, conn, limit);
     conn.close();
     socket::close(fd);
-    return parse_response(raw, r);
+    if ((builtins::len(raw) > limit)) {
+        r.error = ((std::string("response body exceeds max_bytes (") + builtins::str(limit)) + std::string(")"));
+        return r;
+    }
+    return parse_response(raw, r, method, limit);
 }
 
 
 /**
- * Perform an HTTP GET, following up to max_redirects 3xx hops.
+ * Strip credentials and cookies from `o` — used when a redirect crosses to a different host so
+ * secrets scoped to the original host are never sent to another (the classic cross-origin
+ * redirect credential leak). Clears Basic auth and drops any `Authorization`/`Cookie` header.
  *
- * Never raises for network conditions: every failure comes back as a Response with
- * `error` set (and status 0). Redirects (301/302/303/307/308) follow absolute and
- * host-relative Location targets; `https://` is reported in `error` until cheatah TLS
- * lands. Call with a URL alone, or pass Options for params/headers/timeout/redirects.
- * @param url the absolute `http://host[:port]/path[?query]` URL.
- * @param o per-request options; defaults to a 30 s timeout and 5 redirect hops.
- * @return the final Response — check `ok()`, then `status`/`headers`/`body`.
+ * @param o the (per-request, already-copied) options to sanitize in place.
+ * @return nothing — @p o is modified in place (auth cleared, sensitive headers dropped).
+ * @complexity O(k) over the number of headers.
+ * @alloc allocates the rebuilt header map.
+ * @systest RequestsSys.RedirectStripsAuth
+ */
+auto strip_sensitive(builtins::Value auto&& o) {
+    o.auth_user = std::string("");
+    o.auth_pass = std::string("");
+    std::unordered_map<std::string, std::string> clean;
+    for (auto& kv : o.headers) {
+        auto lname = string::lower(kv.first);
+        if (((lname != std::string("authorization")) && (lname != std::string("cookie")))) {
+            clean[kv.first] = kv.second;
+        }
+    }
+    o.headers = clean;
+}
+
+
+/**
+ * Perform an HTTP request, following up to max_redirects 3xx hops unless no_redirect.
+ *
+ * On a redirect to a DIFFERENT host, Basic-auth credentials and any `Authorization`/`Cookie`
+ * header are stripped before the next hop, so secrets are never leaked to another origin.
+ * Never raises for network conditions: every failure comes back as a Response with `error`
+ * set (and status_code 0). Redirects (301/302/303/307/308) follow absolute and host-relative
+ * Location targets, recording each hop in the returned Response's `history`; 303 (and 301/302
+ * on a POST) switch the method to GET and drop the body, matching Python. Set
+ * `o.no_redirect = true` to return the 3xx response directly.
+ * @param method the HTTP method ("GET", "POST", …).
+ * @param url the absolute `http(s)://host[:port]/path[?query]` URL.
+ * @param o per-request options; defaults to a 30 s timeout and 5 redirect hops (redirects followed unless no_redirect).
+ * @return the final Response — check `ok()`, then `status_code`/`headers`/`body`.
  * @systest RequestsSys.BasicGet
  * @systest RequestsSys.Redirect
  * @systest RequestsSys.RedirectLoop
  */
-auto get(builtins::Value auto&& url, builtins::Value auto&& o) {
-    auto max_hops = o.max_redirects;
+auto request(builtins::Value auto&& method, builtins::Value auto&& url, builtins::Value auto&& o) {
+    auto opts = o;
+    auto max_hops = opts.max_redirects;
     if ((max_hops <= 0LL)) {
         max_hops = 5LL;
     }
     auto current = url;
+    auto cur_method = method;
     auto hop = 0LL;
+    auto origin_host = std::string("");
+    std::vector<Response> hist;
     while ((hop <= max_hops)) {
         auto r = Response{.url = static_cast<std::string>(current)};
         auto parser = parsers::url::Parser();
         auto u = parsers::url::Url();
         if ((!parser.parse(current, u))) {
             r.error = (std::string("malformed URL: ") + builtins::str(current));
+            r.history = hist;
             return r;
         }
-        r = get_once(u, o, r);
-        auto redirect = ((r.error == std::string("")) && (((((r.status == 301LL) || (r.status == 302LL)) || (r.status == 303LL)) || (r.status == 307LL)) || (r.status == 308LL)));
-        if ((!redirect)) {
+        if ((origin_host == std::string(""))) {
+            origin_host = u.host;
+        } else {
+            if ((u.host != origin_host)) {
+                strip_sensitive(opts);
+            }
+        }
+        r = request_once(cur_method, u, opts, r);
+        auto redirect = ((r.error == std::string("")) && (((((r.status_code == 301LL) || (r.status_code == 302LL)) || (r.status_code == 303LL)) || (r.status_code == 307LL)) || (r.status_code == 308LL)));
+        if ((opts.no_redirect || (!redirect))) {
+            r.history = hist;
             return r;
         }
         auto loc = r.header(std::string("location"));
         if ((loc == std::string(""))) {
-            r.error = ((std::string("redirect (") + builtins::str(r.status)) + std::string(") without a Location header"));
+            r.error = ((std::string("redirect (") + builtins::str(r.status_code)) + std::string(") without a Location header"));
+            r.history = hist;
             return r;
         }
+        auto next = std::string("");
         if ((string::startswith(loc, std::string("http://")) || string::startswith(loc, std::string("https://")))) {
-            current = loc;
+            next = loc;
         } else {
             if (string::startswith(loc, std::string("/"))) {
-                current = (((((builtins::str(u.scheme) + std::string("://")) + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + builtins::str(loc));
+                next = (((((builtins::str(u.scheme) + std::string("://")) + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + builtins::str(loc));
             } else {
                 r.error = (std::string("unsupported relative redirect Location: ") + builtins::str(loc));
+                r.history = hist;
                 return r;
             }
         }
+        builtins::append(hist, r);
+        {
+            auto __match_2 = r.status_code;
+            switch (__match_2) {
+                case 303LL: {
+                    cur_method = std::string("GET");
+                    break;
+                }
+                case 301LL: {
+                    if ((cur_method == std::string("POST"))) {
+                        cur_method = std::string("GET");
+                    }
+                    break;
+                }
+                case 302LL: {
+                    if ((cur_method == std::string("POST"))) {
+                        cur_method = std::string("GET");
+                    }
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        }
+        current = next;
         hop += 1LL;
     }
     auto r = Response{.url = static_cast<std::string>(current)};
     r.error = ((std::string("too many redirects (max_redirects = ") + builtins::str(max_hops)) + std::string(")"));
+    r.history = hist;
     return r;
+}
+
+/**
+ * Convenience overload of `request` with the trailing default argument(s) applied.
+ * @param method as documented on the primary overload.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto request(builtins::Value auto&& method, builtins::Value auto&& url) { return request(method, url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP GET. @param url the URL. @param o per-request options.
+ * @return the final Response. @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.BasicGet
+ */
+auto get(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("GET"), url, o);
 }
 
 /**
@@ -473,6 +948,102 @@ auto get(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @return as the primary overload.
  */
 static auto get(builtins::Value auto&& url) { return get(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP POST. @param url the URL. @param o per-request options (body via json_body/data/body).
+ * @return the final Response. @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.PostJson
+ */
+auto post(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("POST"), url, o);
+}
+
+/**
+ * Convenience overload of `post` with the trailing default argument(s) applied.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto post(builtins::Value auto&& url) { return post(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP PUT. @param url the URL. @param o per-request options (body via json_body/data/body).
+ * @return the final Response. @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.PostJson
+ */
+auto put(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("PUT"), url, o);
+}
+
+/**
+ * Convenience overload of `put` with the trailing default argument(s) applied.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto put(builtins::Value auto&& url) { return put(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP PATCH. @param url the URL. @param o per-request options (body via json_body/data/body).
+ * @return the final Response. @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.PostJson
+ */
+auto patch(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("PATCH"), url, o);
+}
+
+/**
+ * Convenience overload of `patch` with the trailing default argument(s) applied.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto patch(builtins::Value auto&& url) { return patch(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP DELETE. @param url the URL. @param o per-request options.
+ * @return the final Response. @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.Delete
+ */
+auto delete_(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("DELETE"), url, o);
+}
+
+/**
+ * Convenience overload of `delete` with the trailing default argument(s) applied.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto delete_(builtins::Value auto&& url) { return delete_(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP HEAD (headers only, no body). @param url the URL. @param o per-request options.
+ * @return the final Response (empty body). @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.Head
+ */
+auto head(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("HEAD"), url, o);
+}
+
+/**
+ * Convenience overload of `head` with the trailing default argument(s) applied.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto head(builtins::Value auto&& url) { return head(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+
+/**
+ * HTTP OPTIONS. @param url the URL. @param o per-request options.
+ * @return the final Response. @complexity one request plus any redirects.
+ * @alloc request/response buffers. @systest RequestsSys.Options
+ */
+auto options(builtins::Value auto&& url, builtins::Value auto&& o) {
+    return request(std::string("OPTIONS"), url, o);
+}
+
+/**
+ * Convenience overload of `options` with the trailing default argument(s) applied.
+ * @param url as documented on the primary overload.
+ * @return as the primary overload.
+ */
+static auto options(builtins::Value auto&& url) { return options(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
 
 /// ABI/identity marker for the `requests` cheatah module: returns the module name.
 ///
