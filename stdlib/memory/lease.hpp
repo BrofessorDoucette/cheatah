@@ -38,62 +38,83 @@ struct Gate {
 };
 }  // namespace detail
 
+/**
+ * @brief The only handle to an owned object — a move-only RAII lease granted by an `Owner`.
+ *
+ * `M` is `read` (shared) or `write`/`write_renewable` (exclusive). Reads go through `read(...)`; a
+ * write lease sets through `write(...)`. The lease holds a direct pointer to the object plus the
+ * release callback it fires on destruction. @tparam T the owned type (`Ownable`). @tparam M the mode.
+ */
 template <Ownable T, Mode M>
 class Lease {
 public:
-    /// The owner's grant path (called only by `Owner`): the object pointer, the generation gate, and
-    /// the release callback fired on destruction. @complexity O(1). @alloc none.
+    /**
+     * The owner's grant path (called only by `Owner`). @complexity O(1). @alloc none.
+     * @param obj pointer to the owned object.
+     * @param gate the generation gate that carries the yield signal.
+     * @param release callback fired once on destruction to tell the owner this lease is done.
+     */
     Lease(T* obj, std::shared_ptr<detail::Gate> gate, std::function<void()> release) noexcept
         : obj_(obj), gate_(std::move(gate)), release_(std::move(release)) {}
 
+    /// Move-construct, taking over @p o's grant (it is left released). @param o the lease to move from.
     Lease(Lease&& o) noexcept { steal(o); }
+    /// Move-assign: release ours, then take over @p o's grant. @param o source. @return `*this`.
     Lease& operator=(Lease&& o) noexcept { if (this != &o) { drop(); steal(o); } return *this; }
     Lease(const Lease&) = delete;
     Lease& operator=(const Lease&) = delete;
+    /// Release the lease (fires the owner's release callback if still held).
     ~Lease() { drop(); }
 
-    /// Read the whole object. Available on every lease. A REFERENCE (`const T&`) — never a copy or `T*`.
+    /// Read the whole object. Available on every lease. @return a `const T&` — never a copy or `T*`.
     /// @complexity O(1). @alloc none.
     const T& read() const { return *obj_; }
 
-    /// Read element @p index of an Indexed sequence: `r.read(i)`. Mirrors `w.write(i, v)`. A REFERENCE.
+    /// Read element @p index of an Indexed sequence: `r.read(i)`. Mirrors `w.write(i, v)`.
+    /// @param index the position to read. @return a const reference to the element.
     /// @complexity `T::operator[]`. @alloc none.
     const auto& read(std::size_t index) const
         requires Indexed<T>
     { return (*obj_)[index]; }
 
     /// Read the value at @p key of a Mapping: `r.read(k)`. Mirrors `w.write(k, v)`. Throws if absent
-    /// (reading a missing key never inserts). A REFERENCE. @complexity `T::at`. @alloc none.
+    /// (reading a missing key never inserts). @tparam K a type convertible to the key type.
+    /// @param key the key to look up. @return a const reference to the mapped value.
+    /// @complexity `T::at`. @alloc none.
     template <class K>
         requires (Mapping<T> && std::convertible_to<K, typename T::key_type>)
     const auto& read(K&& key) const
     { return (*obj_).at(std::forward<K>(key)); }
 
-    /// Read the first element (containers with `front()`: vector / deque / list / string …). A REFERENCE.
-    /// @complexity O(1). @alloc none.
+    /// Read the first element (containers with `front()`: vector / deque / list / string …).
+    /// @return a const reference to the first element. @complexity O(1). @alloc none.
     const auto& read_front() const
         requires HasFront<T>
     { return (*obj_).front(); }
 
-    /// Read the last element (containers with `back()`). A REFERENCE. @complexity O(1). @alloc none.
+    /// Read the last element (containers with `back()`).
+    /// @return a const reference to the last element. @complexity O(1). @alloc none.
     const auto& read_back() const
         requires HasBack<T>
     { return (*obj_).back(); }
 
     /// Replace the whole object: `w.write(value)`. The primary write form. Write / write_renewable only.
-    /// @complexity O(1) plus assigning @p value. @alloc whatever `T`'s assignment allocates.
+    /// @param value the new value (moved in). @complexity O(1) plus assigning @p value.
+    /// @alloc whatever `T`'s assignment allocates.
     void write(T value)
         requires is_write_mode<M>
     { *obj_ = std::move(value); }
 
     /// Set element @p index of an Indexed sequence: `w.write(i, v)`. Deduced. Write modes only.
+    /// @tparam V the element value type. @param index the position to set. @param value the new element.
     /// @complexity `T::operator[]`. @alloc whatever the element assignment allocates.
     template <class V>
         requires (is_write_mode<M> && Indexed<T>)
     void write(std::size_t index, V&& value)
     { (*obj_)[index] = std::forward<V>(value); }
 
-    /// Set @p key of a Mapping: `w.write(k, v)`. Deduced. Write modes only.
+    /// Set @p key of a Mapping: `w.write(k, v)`. Deduced. Write modes only. @tparam K key type.
+    /// @tparam V value type. @param key the key to set (may insert). @param value the mapped value.
     /// @complexity `T::operator[]` (may insert). @alloc whatever the insert/assignment allocates.
     template <class K, class V>
         requires (is_write_mode<M> && Mapping<T> &&
@@ -102,7 +123,8 @@ public:
     { (*obj_)[std::forward<K>(key)] = std::forward<V>(value); }
 
     /// Still ours? `true` until the owner asks us to yield (a writer waiting; an immediate-write). The
-    /// holder observing `!valid()` is how the owner learns it has paused. @complexity O(1). @alloc none.
+    /// holder observing `!valid()` is how the owner learns it has paused. @return whether the lease is
+    /// still valid. @complexity O(1). @alloc none.
     bool valid() const noexcept {
         const bool v = gate_->valid.load(std::memory_order_acquire);
         if (!v) {
@@ -114,11 +136,13 @@ public:
         }
         return v;
     }
-    /// Asked to yield? The negation of valid(). @complexity O(1). @alloc none.
+    /// Asked to yield? The negation of valid(). @return `true` once the owner needs the lease back.
+    /// @complexity O(1). @alloc none.
     bool expired() const noexcept { return !valid(); }
 
     /// Register the "what to do if the owner interrupts me" handler; fires once, in the holder's thread,
     /// the first time `valid()` observes the stop. Replaces any previous handler. @complexity O(1).
+    /// @param handler the callback to run when the owner asks this lease to yield.
     void on_interrupt(std::function<void()> handler) { on_interrupt_ = std::move(handler); }
 
 private:

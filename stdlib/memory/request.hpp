@@ -19,23 +19,29 @@
 
 namespace cheatah::memory {
 
+/**
+ * @brief A promise for a lease — what `Owner::rread()`/`rwrite<…>()` return. Move-only; block for the
+ * lease with `acquire()`. @tparam LeaseT the `Lease` type this request resolves to.
+ */
 template <class LeaseT>
 class Request {
 public:
-    /// Wrap the owner-supplied future. @complexity O(1). @alloc none.
+    /// Wrap the owner-supplied future. @param fut the future the owner fulfills. @complexity O(1). @alloc none.
     explicit Request(std::future<LeaseT>&& fut) noexcept : fut_(std::move(fut)) {}
+    /// Move-construct (a request is move-only).
     Request(Request&&) noexcept = default;
+    /// Move-assign (a request is move-only). @return `*this`.
     Request& operator=(Request&&) noexcept = default;
     Request(const Request&) = delete;
 
     /**
      * BLOCK until the owner grants, then return the lease. @p on_interrupt is the requester's
-     * interruption handler — wired to the granted lease's stop token, so if the owner later needs the
-     * lease back the handler fires. Omit it to rely purely on the lease's `valid()`/`expired()`
-     * polling. One-shot: acquire once per request.
+     * interruption handler — wired to the granted lease so if the owner later needs the lease back the
+     * handler fires. Omit it to rely purely on the lease's `valid()`/`expired()` polling. One-shot.
+     * @param on_interrupt optional handler to run when the owner asks the lease to yield.
+     * @return the granted lease.
      * @complexity O(1) once granted; **blocks** until the owner fulfills the request.
-     * @alloc none, unless @p on_interrupt is supplied — then one `std::stop_callback` on the heap
-     *        (via `Lease::on_interrupt`).
+     * @alloc none, unless @p on_interrupt is supplied — then one callback holder (via `Lease::on_interrupt`).
      */
     LeaseT acquire(std::function<void()> on_interrupt = {}) {
         LeaseT lease = fut_.get();                       // block until the owner fulfills the promise

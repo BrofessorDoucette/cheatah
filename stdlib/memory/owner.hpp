@@ -40,12 +40,17 @@
 
 namespace cheatah::memory {
 
+/**
+ * @brief The sole owner + scheduling coordinator for one `T`. Non-copyable and pinned, so the object
+ * never moves; every access goes through a request → acquire → lease. @tparam T the owned type.
+ */
 template <Ownable T>
 class Owner {
 public:
     /// Take sole ownership by MOVING @p value in — the object is consumed (its resources move into the
-    /// Owner), never copied. An lvalue won't bind here (bind an rvalue: `own(std::move(x))`), which is
-    /// how we guarantee the value is moved, not copied.
+    /// Owner), never copied. An lvalue won't bind here (bind an rvalue: `own(std::move(x))`).
+    /// @param value the object to take ownership of (moved in).
+    /// @param pol the scheduling policy (interleave / writes_first).
     explicit Owner(T&& value, policy pol = policy::interleave)
         : value_(std::move(value)), policy_(pol) { read_gate_ = make_gate(); }
     Owner(const Owner&) = delete;                // copying an owner is forbidden — there is one owner.
@@ -54,7 +59,8 @@ public:
     Owner& operator=(Owner&&) = delete;
 
     /// Request a shared READ lease. Blocks (inside `.acquire()`) only if a write is pending/active;
-    /// otherwise many read leases coexist. @complexity O(1) amortized. @alloc the request's promise/future.
+    /// otherwise many read leases coexist. @return a request for a read lease.
+    /// @complexity O(1) amortized. @alloc the request's promise/future.
     Request<Lease<T, read>> rread() {
         std::promise<Lease<T, read>> p;
         auto fut = p.get_future();
@@ -68,10 +74,11 @@ public:
         return Request<Lease<T, read>>(std::move(fut));
     }
 
-    /// Request an exclusive WRITE lease at compile-time @p priority (a plain int or the caller's enum;
+    /// Request an exclusive WRITE lease at compile-time `priority` (a plain int or the caller's enum;
     /// higher = served first, ties FIFO). `priority < 0` (spell it `memory::immediate`) is an
-    /// immediate-write. @complexity O(log k) to enqueue among k waiters (O(1) immediate). @alloc the
-    /// request's promise/future (plus one queue node for a non-immediate write).
+    /// immediate-write. @tparam priority the compile-time write priority. @return a request for a write
+    /// lease. @complexity O(log k) to enqueue among k waiters (O(1) immediate). @alloc the request's
+    /// promise/future (plus one queue node for a non-immediate write).
     template <auto priority = 0>
     Request<Lease<T, write>> rwrite() {
         constexpr long long P = static_cast<long long>(priority);
@@ -183,8 +190,10 @@ private:
     }
 };
 
-// ── own() — take sole ownership of `value` and hand back its Owner ───────────────────────────
-/// @complexity O(1) plus moving @p T. @alloc none of our own (the value owns its storage).
+/// Take sole ownership of @p value and hand back its `Owner`. @tparam T the owned type.
+/// @param value the object to own (moved in). @param pol the scheduling policy.
+/// @return an `Owner<T>` that has consumed @p value.
+/// @complexity O(1) plus moving @p value. @alloc none of our own (the value owns its storage).
 template <Ownable T>
 Owner<T> own(T value, policy pol = policy::interleave) { return Owner<T>(std::move(value), pol); }
 

@@ -14,7 +14,9 @@ enum class policy : std::uint8_t {
     interleave,    ///< (default) readers renew *between* writes; writers + waiting readers are fair.
     writes_first,  ///< drain the ENTIRE write queue before renewing any reader (owner's declared choice).
 };
+/// Shorthand for `policy::interleave` — readers renew between writes (the default, fair) policy.
 inline constexpr policy interleave   = policy::interleave;
+/// Shorthand for `policy::writes_first` — drain the whole write queue before renewing any reader.
 inline constexpr policy writes_first = policy::writes_first;
 
 /// The readable spelling of an immediate-write priority. Any negative priority is immediate; this is
