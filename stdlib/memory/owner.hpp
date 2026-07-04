@@ -114,10 +114,18 @@ private:
     // (writer-preference — this is what forces the drain and prevents writer starvation).
     bool can_read() const { return !writer_ && !immediate_ && !writer_suspended_ && wq_.empty(); }
 
-    // A gate whose holder, on observing !valid, wakes our cv_ (it acks off our mutex).
+    // A gate whose holder, on observing !valid, wakes our cv_. The wake must synchronize on
+    // mtx_ before notifying: the holder acks from outside the lock, so a bare notify_all could
+    // land while grant_immediate() still holds mtx_ evaluating its wait predicate (acked read
+    // as false, waiter not yet blocked) — and since the ack is one-shot, that lost wakeup left
+    // the preempting write asleep forever against a writer spinning on valid(). Taking and
+    // releasing mtx_ first pins the wake after the waiter is actually waiting.
     std::shared_ptr<detail::Gate> make_gate() {
         auto g = std::make_shared<detail::Gate>();
-        g->wake = [this] { cv_.notify_all(); };
+        g->wake = [this] {
+            { std::lock_guard<std::mutex> lk(mtx_); }  // serialize with a waiter mid-predicate
+            cv_.notify_all();
+        };
         return g;
     }
 

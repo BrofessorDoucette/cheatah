@@ -32,7 +32,9 @@ namespace cheatah::memory {
 namespace detail {
 /// Shared signal between the owner and a lease. The owner flips `valid` false to ask the holder to
 /// yield; the holder sets `acked` when it observes that (so the owner knows it has paused) and calls
-/// `wake` so the owner's condition variable re-checks (the holder acks off the owner's mutex).
+/// `wake` so the owner's condition variable re-checks. `wake` (owner-provided) synchronizes on the
+/// owner's mutex before notifying — the ack is one-shot, so an unsynchronized notify racing a waiter
+/// mid-predicate would be lost and the waiter would sleep forever.
 struct Gate {
     std::atomic<bool>     valid{true};
     std::atomic<bool>     acked{false};
