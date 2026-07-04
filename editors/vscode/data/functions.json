@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 420,
+      "srcline": 422,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 171,
+      "srcline": 173,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 155,
+      "srcline": 157,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 199,
+      "srcline": 201,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 112,
+      "srcline": 114,
       "module": "",
       "qualified": "chr"
     },
@@ -141,7 +141,7 @@
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 496,
+      "srcline": 498,
       "module": "",
       "qualified": "contains"
     },
@@ -168,7 +168,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 450,
+      "srcline": 452,
       "module": "",
       "qualified": "endswith"
     },
@@ -191,7 +191,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 255,
+      "srcline": 257,
       "module": "",
       "qualified": "float"
     },
@@ -218,7 +218,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 359,
+      "srcline": 361,
       "module": "",
       "qualified": "floordiv"
     },
@@ -241,7 +241,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 396,
+      "srcline": 398,
       "module": "",
       "qualified": "hash"
     },
@@ -264,7 +264,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 127,
+      "srcline": 129,
       "module": "",
       "qualified": "hex"
     },
@@ -295,7 +295,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1935,
+      "srcline": 1937,
       "module": "",
       "qualified": "index"
     },
@@ -318,7 +318,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 229,
+      "srcline": 231,
       "module": "",
       "qualified": "int"
     },
@@ -341,7 +341,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 58,
+      "srcline": 60,
       "module": "",
       "qualified": "len"
     },
@@ -367,7 +367,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 538,
+      "srcline": 540,
       "module": "",
       "qualified": "mod"
     },
@@ -390,7 +390,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 141,
+      "srcline": 143,
       "module": "",
       "qualified": "oct"
     },
@@ -412,7 +412,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 97,
+      "srcline": 99,
       "module": "",
       "qualified": "ord"
     },
@@ -461,7 +461,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 674,
+      "srcline": 676,
       "module": "",
       "qualified": "slice"
     },
@@ -488,7 +488,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 435,
+      "srcline": 437,
       "module": "",
       "qualified": "startswith"
     },
@@ -511,7 +511,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 299,
+      "srcline": 301,
       "module": "",
       "qualified": "str"
     },
@@ -534,7 +534,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 199,
+      "srcline": 201,
       "module": "",
       "qualified": "to_bool"
     },
@@ -557,7 +557,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 255,
+      "srcline": 257,
       "module": "",
       "qualified": "to_float"
     },
@@ -580,7 +580,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 229,
+      "srcline": 231,
       "module": "",
       "qualified": "to_int"
     },
@@ -607,7 +607,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 316,
+      "srcline": 318,
       "module": "",
       "qualified": "truediv"
     },
@@ -640,7 +640,7 @@
         "test": "CheatahAead.AesGcmRejectsTamper"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 84,
+      "srcline": 86,
       "module": "aead",
       "qualified": "aead.aes128gcm_decrypt"
     },
@@ -673,7 +673,7 @@
         "test": "CheatahAead.AesGcmRoundTrip"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 68,
+      "srcline": 70,
       "module": "aead",
       "qualified": "aead.aes128gcm_encrypt"
     },
@@ -708,7 +708,7 @@
         "systest": "StdlibE2E.Aead"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 51,
+      "srcline": 53,
       "module": "aead",
       "qualified": "aead.chacha20poly1305_decrypt"
     },
@@ -743,7 +743,7 @@
         "systest": "StdlibE2E.Aead"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 33,
+      "srcline": 35,
       "module": "aead",
       "qualified": "aead.chacha20poly1305_encrypt"
     },
@@ -759,7 +759,7 @@
         "test": "CryptoPlatform.Report"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 107,
+      "srcline": 109,
       "module": "aead",
       "qualified": "aead.crypto_hardware_active"
     },
@@ -782,7 +782,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 136,
+      "srcline": 138,
       "module": "datetime",
       "qualified": "datetime.day",
       "perf": {
@@ -816,7 +816,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 93,
+      "srcline": 95,
       "module": "datetime",
       "qualified": "datetime.format",
       "perf": {
@@ -846,7 +846,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 150,
+      "srcline": 152,
       "module": "datetime",
       "qualified": "datetime.hour",
       "perf": {
@@ -876,7 +876,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 164,
+      "srcline": 166,
       "module": "datetime",
       "qualified": "datetime.minute",
       "perf": {
@@ -906,7 +906,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 122,
+      "srcline": 124,
       "module": "datetime",
       "qualified": "datetime.month",
       "perf": {
@@ -931,7 +931,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 50,
+      "srcline": 52,
       "module": "datetime",
       "qualified": "datetime.now",
       "perf": {
@@ -961,7 +961,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 178,
+      "srcline": 180,
       "module": "datetime",
       "qualified": "datetime.second",
       "perf": {
@@ -986,7 +986,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 37,
+      "srcline": 39,
       "module": "datetime",
       "qualified": "datetime.timestamp",
       "perf": {
@@ -1011,7 +1011,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 76,
+      "srcline": 78,
       "module": "datetime",
       "qualified": "datetime.today",
       "perf": {
@@ -1036,7 +1036,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 63,
+      "srcline": 65,
       "module": "datetime",
       "qualified": "datetime.utcnow",
       "perf": {
@@ -1066,7 +1066,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 192,
+      "srcline": 194,
       "module": "datetime",
       "qualified": "datetime.weekday",
       "perf": {
@@ -1096,7 +1096,7 @@
         "systest": "StdlibE2E.Datetime"
       },
       "srcfile": "stdlib/datetime/datetime.hpp",
-      "srcline": 108,
+      "srcline": 110,
       "module": "datetime",
       "qualified": "datetime.year",
       "perf": {
@@ -1106,6 +1106,27 @@
         "speedup": 8.0,
         "vs": "cpython"
       }
+    },
+    {
+      "name": "from_hex",
+      "signature": "from_hex(std::string_view hex)",
+      "brief": "Hex DECODE — the inverse of to_hex.",
+      "params": [
+        {
+          "name": "hex",
+          "desc": "the hex text (both a-f and A-F accepted; no 0x prefix)."
+        }
+      ],
+      "returns": "the decoded raw bytes (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(|hex|).",
+        "alloc": "the returned bytes.",
+        "test": "CheatahHashlib.HexRoundTrip"
+      },
+      "srcfile": "stdlib/ed25519/ed25519.cpp",
+      "srcline": 290,
+      "module": "ed25519",
+      "qualified": "ed25519.from_hex"
     },
     {
       "name": "generate",
@@ -1121,7 +1142,7 @@
         "systest": "StdlibE2E.Ed25519"
       },
       "srcfile": "stdlib/ed25519/ed25519.hpp",
-      "srcline": 47,
+      "srcline": 49,
       "module": "ed25519",
       "qualified": "ed25519.generate"
     },
@@ -1144,7 +1165,7 @@
         "systest": "StdlibE2E.Ed25519"
       },
       "srcfile": "stdlib/ed25519/ed25519.hpp",
-      "srcline": 63,
+      "srcline": 65,
       "module": "ed25519",
       "qualified": "ed25519.public_key"
     },
@@ -1171,9 +1192,34 @@
         "systest": "StdlibE2E.Ed25519"
       },
       "srcfile": "stdlib/ed25519/ed25519.hpp",
-      "srcline": 80,
+      "srcline": 82,
       "module": "ed25519",
       "qualified": "ed25519.sign"
+    },
+    {
+      "name": "to_hex",
+      "signature": "to_hex(const std::uint8_t *data, std::size_t n)",
+      "brief": "Lowercase-hex ENCODE overload for a raw byte buffer (the form the digest and Ed25519 paths use).",
+      "params": [
+        {
+          "name": "data",
+          "desc": "pointer to the bytes."
+        },
+        {
+          "name": "n",
+          "desc": "the number of bytes."
+        }
+      ],
+      "returns": "the lowercase hex text (length 2*n).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.HexRoundTrip"
+      },
+      "srcfile": "stdlib/ed25519/ed25519.cpp",
+      "srcline": 291,
+      "module": "ed25519",
+      "qualified": "ed25519.to_hex"
     },
     {
       "name": "verify",
@@ -1202,21 +1248,25 @@
         "systest": "StdlibE2E.Ed25519"
       },
       "srcfile": "stdlib/ed25519/ed25519.hpp",
-      "srcline": 99,
+      "srcline": 101,
       "module": "ed25519",
       "qualified": "ed25519.verify"
     },
     {
       "name": "base64_decode",
-      "signature": "base64_decode(std::string_view text)",
+      "signature": "base64_decode(std::string_view text, bool strict=false)",
       "brief": "Base64 DECODE (RFC 4648 standard alphabet) of ASCII to the raw bytes.",
       "params": [
         {
           "name": "text",
           "desc": "the base64 text."
+        },
+        {
+          "name": "strict",
+          "desc": "when true, a non-alphabet, non-whitespace byte makes the decode FAIL CLOSED (returns \"\") instead of being ignored — used by X.509 PEM parsing so a malformed body is rejected rather than decoded to garbage. Defaults to false (lenient, Python-like)."
         }
       ],
-      "returns": "the decoded raw bytes (may contain embedded NULs).",
+      "returns": "the decoded raw bytes (may contain embedded NULs); \"\" in strict mode on a bad byte.",
       "tags": {
         "complexity": "O(|text|).",
         "alloc": "the returned string.",
@@ -1225,7 +1275,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 136,
+      "srcline": 143,
       "module": "hashlib",
       "qualified": "hashlib.base64_decode"
     },
@@ -1248,9 +1298,30 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 121,
+      "srcline": 125,
       "module": "hashlib",
       "qualified": "hashlib.base64_encode"
+    },
+    {
+      "name": "from_hex",
+      "signature": "from_hex(std::string_view hex)",
+      "brief": "Hex DECODE — the inverse of to_hex.",
+      "params": [
+        {
+          "name": "hex",
+          "desc": "the hex text (both a-f and A-F accepted; no 0x prefix)."
+        }
+      ],
+      "returns": "the decoded raw bytes (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(|hex|).",
+        "alloc": "the returned bytes.",
+        "test": "CheatahHashlib.HexRoundTrip"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 180,
+      "module": "hashlib",
+      "qualified": "hashlib.from_hex"
     },
     {
       "name": "hkdf_expand",
@@ -1279,7 +1350,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 165,
+      "srcline": 209,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_expand"
     },
@@ -1306,7 +1377,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 150,
+      "srcline": 194,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_extract"
     },
@@ -1333,7 +1404,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 93,
+      "srcline": 97,
       "module": "hashlib",
       "qualified": "hashlib.hmac_sha256"
     },
@@ -1360,7 +1431,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 108,
+      "srcline": 112,
       "module": "hashlib",
       "qualified": "hashlib.hmac_sha512"
     },
@@ -1383,7 +1454,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 38,
+      "srcline": 42,
       "module": "hashlib",
       "qualified": "hashlib.sha256",
       "perf": {
@@ -1413,7 +1484,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 66,
+      "srcline": 70,
       "module": "hashlib",
       "qualified": "hashlib.sha256_digest"
     },
@@ -1436,7 +1507,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 54,
+      "srcline": 58,
       "module": "hashlib",
       "qualified": "hashlib.sha512"
     },
@@ -1459,9 +1530,30 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 79,
+      "srcline": 83,
       "module": "hashlib",
       "qualified": "hashlib.sha512_digest"
+    },
+    {
+      "name": "to_hex",
+      "signature": "to_hex(std::string_view bytes)",
+      "brief": "Lowercase-hex ENCODE of raw bytes: each byte becomes two hex digits, no 0x prefix and no separator.",
+      "params": [
+        {
+          "name": "bytes",
+          "desc": "the raw bytes to encode."
+        }
+      ],
+      "returns": "the lowercase hex text (length 2*|bytes|).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.HexRoundTrip"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 156,
+      "module": "hashlib",
+      "qualified": "hashlib.to_hex"
     },
     {
       "name": "format",
@@ -1486,7 +1578,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 390,
+      "srcline": 392,
       "module": "io",
       "qualified": "io.format",
       "perf": {
@@ -1512,7 +1604,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 410,
+      "srcline": 412,
       "module": "io",
       "qualified": "io.input",
       "perf": {
@@ -1543,7 +1635,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 578,
+      "srcline": 580,
       "module": "io",
       "qualified": "io.open",
       "perf": {
@@ -1570,7 +1662,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 218,
+      "srcline": 220,
       "module": "io",
       "qualified": "io.print",
       "perf": {
@@ -1597,7 +1689,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 594,
+      "srcline": 596,
       "module": "io",
       "qualified": "io.read_file",
       "perf": {
@@ -1623,7 +1715,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 123,
+      "srcline": 125,
       "module": "io",
       "qualified": "io.repr",
       "perf": {
@@ -1653,7 +1745,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 246,
+      "srcline": 248,
       "module": "io",
       "qualified": "io.rprint"
     },
@@ -1673,7 +1765,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 189,
+      "srcline": 191,
       "module": "io",
       "qualified": "io.str",
       "perf": {
@@ -1703,7 +1795,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 323,
+      "srcline": 325,
       "module": "linalg",
       "qualified": "linalg.cholesky",
       "perf": {
@@ -1732,7 +1824,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 671,
+      "srcline": 673,
       "module": "linalg",
       "qualified": "linalg.cond",
       "perf": {
@@ -1761,7 +1853,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 232,
+      "srcline": 234,
       "module": "linalg",
       "qualified": "linalg.conj_transpose",
       "perf": {
@@ -1787,7 +1879,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 686,
+      "srcline": 688,
       "module": "linalg",
       "qualified": "linalg.det",
       "perf": {
@@ -1820,7 +1912,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 178,
+      "srcline": 180,
       "module": "linalg",
       "qualified": "linalg.dot",
       "perf": {
@@ -1849,7 +1941,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 471,
+      "srcline": 473,
       "module": "linalg",
       "qualified": "linalg.eig",
       "perf": {
@@ -1875,7 +1967,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 598,
+      "srcline": 600,
       "module": "linalg",
       "qualified": "linalg.eigh",
       "perf": {
@@ -1904,7 +1996,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 502,
+      "srcline": 504,
       "module": "linalg",
       "qualified": "linalg.eigvals",
       "perf": {
@@ -1933,7 +2025,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 626,
+      "srcline": 628,
       "module": "linalg",
       "qualified": "linalg.eigvalsh",
       "perf": {
@@ -1966,7 +2058,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 101,
+      "srcline": 103,
       "module": "linalg",
       "qualified": "linalg.inner",
       "perf": {
@@ -1992,7 +2084,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 814,
+      "srcline": 816,
       "module": "linalg",
       "qualified": "linalg.inv",
       "perf": {
@@ -2025,7 +2117,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 291,
+      "srcline": 293,
       "module": "linalg",
       "qualified": "linalg.kron",
       "perf": {
@@ -2058,7 +2150,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 785,
+      "srcline": 787,
       "module": "linalg",
       "qualified": "linalg.lstsq",
       "perf": {
@@ -2088,7 +2180,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 205,
+      "srcline": 207,
       "module": "linalg",
       "qualified": "linalg.matmul",
       "perf": {
@@ -2121,7 +2213,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 262,
+      "srcline": 264,
       "module": "linalg",
       "qualified": "linalg.matrix_power",
       "perf": {
@@ -2150,7 +2242,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 701,
+      "srcline": 703,
       "module": "linalg",
       "qualified": "linalg.matrix_rank",
       "perf": {
@@ -2179,7 +2271,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 656,
+      "srcline": 658,
       "module": "linalg",
       "qualified": "linalg.norm",
       "perf": {
@@ -2212,7 +2304,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 116,
+      "srcline": 118,
       "module": "linalg",
       "qualified": "linalg.outer",
       "perf": {
@@ -2241,7 +2333,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 841,
+      "srcline": 843,
       "module": "linalg",
       "qualified": "linalg.pinv",
       "perf": {
@@ -2270,7 +2362,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 356,
+      "srcline": 358,
       "module": "linalg",
       "qualified": "linalg.qr",
       "perf": {
@@ -2290,7 +2382,7 @@
         "test": "LinalgSmoke.SimdFeaturesReported"
       },
       "srcfile": "stdlib/linalg/simd.hpp",
-      "srcline": 65,
+      "srcline": 67,
       "module": "linalg",
       "qualified": "linalg.simd_features",
       "perf": {
@@ -2310,7 +2402,7 @@
         "test": "LinalgSmoke.SimdFeaturesReported"
       },
       "srcfile": "stdlib/linalg/simd.hpp",
-      "srcline": 75,
+      "srcline": 77,
       "module": "linalg",
       "qualified": "linalg.simd_lane_doubles",
       "perf": {
@@ -2337,7 +2429,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 723,
+      "srcline": 725,
       "module": "linalg",
       "qualified": "linalg.slogdet",
       "perf": {
@@ -2370,7 +2462,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 756,
+      "srcline": 758,
       "module": "linalg",
       "qualified": "linalg.solve",
       "perf": {
@@ -2399,7 +2491,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 392,
+      "srcline": 394,
       "module": "linalg",
       "qualified": "linalg.svd",
       "perf": {
@@ -2428,7 +2520,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 422,
+      "srcline": 424,
       "module": "linalg",
       "qualified": "linalg.svdvals",
       "perf": {
@@ -2457,7 +2549,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 737,
+      "srcline": 739,
       "module": "linalg",
       "qualified": "linalg.trace",
       "perf": {
@@ -2490,7 +2582,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 193,
+      "srcline": 195,
       "module": "linalg",
       "qualified": "linalg.vdot",
       "perf": {
@@ -2516,7 +2608,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 55,
+      "srcline": 57,
       "module": "math",
       "qualified": "math.abs",
       "perf": {
@@ -2546,7 +2638,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 362,
+      "srcline": 364,
       "module": "math",
       "qualified": "math.acos",
       "perf": {
@@ -2576,7 +2668,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 348,
+      "srcline": 350,
       "module": "math",
       "qualified": "math.asin",
       "perf": {
@@ -2606,7 +2698,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 376,
+      "srcline": 378,
       "module": "math",
       "qualified": "math.atan",
       "perf": {
@@ -2640,7 +2732,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 391,
+      "srcline": 393,
       "module": "math",
       "qualified": "math.atan2",
       "perf": {
@@ -2670,7 +2762,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 164,
+      "srcline": 166,
       "module": "math",
       "qualified": "math.cbrt",
       "perf": {
@@ -2700,7 +2792,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 205,
+      "srcline": 207,
       "module": "math",
       "qualified": "math.ceil",
       "perf": {
@@ -2734,7 +2826,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 437,
+      "srcline": 439,
       "module": "math",
       "qualified": "math.copysign",
       "perf": {
@@ -2764,7 +2856,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 319,
+      "srcline": 321,
       "module": "math",
       "qualified": "math.cos",
       "perf": {
@@ -2794,7 +2886,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 448,
+      "srcline": 450,
       "module": "math",
       "qualified": "math.degrees",
       "perf": {
@@ -2824,7 +2916,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 249,
+      "srcline": 251,
       "module": "math",
       "qualified": "math.exp",
       "perf": {
@@ -2854,7 +2946,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 175,
+      "srcline": 177,
       "module": "math",
       "qualified": "math.fabs",
       "perf": {
@@ -2884,7 +2976,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 529,
+      "srcline": 531,
       "module": "math",
       "qualified": "math.factorial",
       "perf": {
@@ -2914,7 +3006,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 190,
+      "srcline": 192,
       "module": "math",
       "qualified": "math.floor",
       "perf": {
@@ -2948,7 +3040,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 421,
+      "srcline": 423,
       "module": "math",
       "qualified": "math.fmod",
       "perf": {
@@ -2982,7 +3074,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 514,
+      "srcline": 516,
       "module": "math",
       "qualified": "math.gcd",
       "perf": {
@@ -3016,7 +3108,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 406,
+      "srcline": 408,
       "module": "math",
       "qualified": "math.hypot",
       "perf": {
@@ -3046,7 +3138,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 498,
+      "srcline": 500,
       "module": "math",
       "qualified": "math.isfinite",
       "perf": {
@@ -3076,7 +3168,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 487,
+      "srcline": 489,
       "module": "math",
       "qualified": "math.isinf",
       "perf": {
@@ -3106,7 +3198,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 473,
+      "srcline": 475,
       "module": "math",
       "qualified": "math.isnan",
       "perf": {
@@ -3136,7 +3228,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 263,
+      "srcline": 265,
       "module": "math",
       "qualified": "math.log",
       "perf": {
@@ -3166,7 +3258,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 291,
+      "srcline": 293,
       "module": "math",
       "qualified": "math.log10",
       "perf": {
@@ -3196,7 +3288,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 277,
+      "srcline": 279,
       "module": "math",
       "qualified": "math.log2",
       "perf": {
@@ -3232,7 +3324,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 111,
+      "srcline": 113,
       "module": "math",
       "qualified": "math.max",
       "perf": {
@@ -3268,7 +3360,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 83,
+      "srcline": 85,
       "module": "math",
       "qualified": "math.min",
       "perf": {
@@ -3302,7 +3394,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 130,
+      "srcline": 132,
       "module": "math",
       "qualified": "math.pow",
       "perf": {
@@ -3332,7 +3424,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 459,
+      "srcline": 461,
       "module": "math",
       "qualified": "math.radians",
       "perf": {
@@ -3362,7 +3454,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 235,
+      "srcline": 237,
       "module": "math",
       "qualified": "math.round",
       "perf": {
@@ -3392,7 +3484,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 305,
+      "srcline": 307,
       "module": "math",
       "qualified": "math.sin",
       "perf": {
@@ -3422,7 +3514,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 150,
+      "srcline": 152,
       "module": "math",
       "qualified": "math.sqrt",
       "perf": {
@@ -3452,7 +3544,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 334,
+      "srcline": 336,
       "module": "math",
       "qualified": "math.tan",
       "perf": {
@@ -3482,7 +3574,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 220,
+      "srcline": 222,
       "module": "math",
       "qualified": "math.trunc",
       "perf": {
@@ -3513,7 +3605,7 @@
         "alloc": "none of our own (the value owns its storage)."
       },
       "srcfile": "stdlib/memory/owner.hpp",
-      "srcline": 198,
+      "srcline": 200,
       "module": "memory",
       "qualified": "memory.own"
     },
@@ -3535,7 +3627,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1675,
+      "srcline": 1677,
       "module": "ndarray",
       "qualified": "ndarray.abs",
       "perf": {
@@ -3565,7 +3657,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 941,
+      "srcline": 943,
       "module": "ndarray",
       "qualified": "ndarray.add",
       "perf": {
@@ -3602,7 +3694,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 763,
+      "srcline": 765,
       "module": "ndarray",
       "qualified": "ndarray.arange",
       "perf": {
@@ -3627,7 +3719,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 646,
+      "srcline": 648,
       "module": "ndarray",
       "qualified": "ndarray.array",
       "perf": {
@@ -3656,7 +3748,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 505,
+      "srcline": 507,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes",
       "perf": {
@@ -3683,7 +3775,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 552,
+      "srcline": 554,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to",
       "perf": {
@@ -3708,7 +3800,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1601,
+      "srcline": 1603,
       "module": "ndarray",
       "qualified": "ndarray.cbrt",
       "perf": {
@@ -3738,7 +3830,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1491,
+      "srcline": 1493,
       "module": "ndarray",
       "qualified": "ndarray.complex",
       "perf": {
@@ -3764,7 +3856,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1518,
+      "srcline": 1520,
       "module": "ndarray",
       "qualified": "ndarray.conj",
       "perf": {
@@ -3789,7 +3881,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1651,
+      "srcline": 1653,
       "module": "ndarray",
       "qualified": "ndarray.cos",
       "perf": {
@@ -3819,7 +3911,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 983,
+      "srcline": 985,
       "module": "ndarray",
       "qualified": "ndarray.divide",
       "perf": {
@@ -3845,7 +3937,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1614,
+      "srcline": 1616,
       "module": "ndarray",
       "qualified": "ndarray.exp",
       "perf": {
@@ -3878,7 +3970,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 703,
+      "srcline": 705,
       "module": "ndarray",
       "qualified": "ndarray.full",
       "perf": {
@@ -3908,7 +4000,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 719,
+      "srcline": 721,
       "module": "ndarray",
       "qualified": "ndarray.full_like"
     },
@@ -3935,7 +4027,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1744,
+      "srcline": 1746,
       "module": "ndarray",
       "qualified": "ndarray.get",
       "perf": {
@@ -3961,7 +4053,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1561,
+      "srcline": 1563,
       "module": "ndarray",
       "qualified": "ndarray.imag",
       "perf": {
@@ -3986,7 +4078,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 527,
+      "srcline": 529,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous",
       "perf": {
@@ -4011,7 +4103,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1626,
+      "srcline": 1628,
       "module": "ndarray",
       "qualified": "ndarray.log",
       "perf": {
@@ -4037,7 +4129,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1727,
+      "srcline": 1729,
       "module": "ndarray",
       "qualified": "ndarray.mean",
       "perf": {
@@ -4067,7 +4159,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 969,
+      "srcline": 971,
       "module": "ndarray",
       "qualified": "ndarray.mul",
       "perf": {
@@ -4093,7 +4185,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 688,
+      "srcline": 690,
       "module": "ndarray",
       "qualified": "ndarray.ones",
       "perf": {
@@ -4118,7 +4210,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 747,
+      "srcline": 749,
       "module": "ndarray",
       "qualified": "ndarray.ones_like"
     },
@@ -4141,7 +4233,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1539,
+      "srcline": 1541,
       "module": "ndarray",
       "qualified": "ndarray.real",
       "perf": {
@@ -4171,7 +4263,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 782,
+      "srcline": 784,
       "module": "ndarray",
       "qualified": "ndarray.reshape",
       "perf": {
@@ -4197,7 +4289,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 660,
+      "srcline": 662,
       "module": "ndarray",
       "qualified": "ndarray.scalar",
       "perf": {
@@ -4223,7 +4315,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1758,
+      "srcline": 1760,
       "module": "ndarray",
       "qualified": "ndarray.shape_of",
       "perf": {
@@ -4249,7 +4341,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1639,
+      "srcline": 1641,
       "module": "ndarray",
       "qualified": "ndarray.sin",
       "perf": {
@@ -4278,7 +4370,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1774,
+      "srcline": 1776,
       "module": "ndarray",
       "qualified": "ndarray.size_of",
       "perf": {
@@ -4304,7 +4396,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1589,
+      "srcline": 1591,
       "module": "ndarray",
       "qualified": "ndarray.sqrt",
       "perf": {
@@ -4337,7 +4429,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 955,
+      "srcline": 957,
       "module": "ndarray",
       "qualified": "ndarray.sub",
       "perf": {
@@ -4363,7 +4455,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1692,
+      "srcline": 1694,
       "module": "ndarray",
       "qualified": "ndarray.sum",
       "perf": {
@@ -4388,7 +4480,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1663,
+      "srcline": 1665,
       "module": "ndarray",
       "qualified": "ndarray.tan",
       "perf": {
@@ -4414,7 +4506,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1877,
+      "srcline": 1879,
       "module": "ndarray",
       "qualified": "ndarray.to_string",
       "perf": {
@@ -4440,7 +4532,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 675,
+      "srcline": 677,
       "module": "ndarray",
       "qualified": "ndarray.zeros",
       "perf": {
@@ -4466,7 +4558,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 734,
+      "srcline": 736,
       "module": "ndarray",
       "qualified": "ndarray.zeros_like"
     },
@@ -4489,7 +4581,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 58,
+      "srcline": 60,
       "module": "os",
       "qualified": "os.chdir",
       "perf": {
@@ -4511,7 +4603,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 200,
+      "srcline": 202,
       "module": "os",
       "qualified": "os.cpu_count",
       "perf": {
@@ -4536,7 +4628,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 45,
+      "srcline": 47,
       "module": "os",
       "qualified": "os.getcwd",
       "perf": {
@@ -4570,7 +4662,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 159,
+      "srcline": 161,
       "module": "os",
       "qualified": "os.getenv",
       "perf": {
@@ -4595,7 +4687,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 186,
+      "srcline": 188,
       "module": "os",
       "qualified": "os.getpid",
       "perf": {
@@ -4625,7 +4717,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 73,
+      "srcline": 75,
       "module": "os",
       "qualified": "os.listdir",
       "perf": {
@@ -4652,7 +4744,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 100,
+      "srcline": 102,
       "module": "os",
       "qualified": "os.makedirs",
       "perf": {
@@ -4679,7 +4771,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 87,
+      "srcline": 89,
       "module": "os",
       "qualified": "os.mkdir",
       "perf": {
@@ -4706,7 +4798,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 129,
+      "srcline": 131,
       "module": "os",
       "qualified": "os.remove",
       "perf": {
@@ -4737,7 +4829,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 143,
+      "srcline": 145,
       "module": "os",
       "qualified": "os.rename",
       "perf": {
@@ -4764,7 +4856,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 114,
+      "srcline": 116,
       "module": "os",
       "qualified": "os.rmdir",
       "perf": {
@@ -4799,7 +4891,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 175,
+      "srcline": 177,
       "module": "os",
       "qualified": "os.setenv",
       "perf": {
@@ -4826,7 +4918,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 215,
+      "srcline": 217,
       "module": "os",
       "qualified": "os.system",
       "perf": {
@@ -4853,7 +4945,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 232,
+      "srcline": 234,
       "module": "os",
       "qualified": "os.urandom"
     },
@@ -4876,7 +4968,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 345,
+      "srcline": 347,
       "module": "os.path",
       "qualified": "os.path.abspath",
       "perf": {
@@ -4906,7 +4998,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 315,
+      "srcline": 317,
       "module": "os.path",
       "qualified": "os.path.basename",
       "perf": {
@@ -4936,7 +5028,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 330,
+      "srcline": 332,
       "module": "os.path",
       "qualified": "os.path.dirname",
       "perf": {
@@ -4966,7 +5058,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 272,
+      "srcline": 274,
       "module": "os.path",
       "qualified": "os.path.exists",
       "perf": {
@@ -4996,7 +5088,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 370,
+      "srcline": 372,
       "module": "os.path",
       "qualified": "os.path.getsize",
       "perf": {
@@ -5026,7 +5118,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 300,
+      "srcline": 302,
       "module": "os.path",
       "qualified": "os.path.isdir",
       "perf": {
@@ -5056,7 +5148,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 286,
+      "srcline": 288,
       "module": "os.path",
       "qualified": "os.path.isfile",
       "perf": {
@@ -5090,7 +5182,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 253,
+      "srcline": 255,
       "module": "os.path",
       "qualified": "os.path.join",
       "perf": {
@@ -5120,7 +5212,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 356,
+      "srcline": 358,
       "module": "os.path",
       "qualified": "os.path.normpath",
       "perf": {
@@ -5150,7 +5242,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 388,
+      "srcline": 390,
       "module": "os.path",
       "qualified": "os.path.splitext",
       "perf": {
@@ -5175,7 +5267,7 @@
         "test": "CheatahP256.PublicFromPrivate"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 79,
+      "srcline": 81,
       "module": "p256",
       "qualified": "p256.public_from_private"
     },
@@ -5200,7 +5292,7 @@
         "test": "CheatahP256.SignKnownVector"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 69,
+      "srcline": 71,
       "module": "p256",
       "qualified": "p256.sign_raw"
     },
@@ -5221,7 +5313,7 @@
         "test": "CheatahP256.SpkiExtractsPoint"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 92,
+      "srcline": 94,
       "module": "p256",
       "qualified": "p256.spki_ec_point"
     },
@@ -5250,7 +5342,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 42,
+      "srcline": 44,
       "module": "p256",
       "qualified": "p256.verify_der"
     },
@@ -5279,7 +5371,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 56,
+      "srcline": 58,
       "module": "p256",
       "qualified": "p256.verify_raw"
     },
@@ -5303,7 +5395,7 @@
         "alloc": "one result string on the heap."
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 42,
+      "srcline": 44,
       "module": "parsers.html",
       "qualified": "parsers.html.escape",
       "perf": {
@@ -5334,7 +5426,7 @@
         "alloc": "one result string on the heap."
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 106,
+      "srcline": 108,
       "module": "parsers.html",
       "qualified": "parsers.html.get_attr",
       "perf": {
@@ -5362,7 +5454,7 @@
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 116,
+      "srcline": 118,
       "module": "parsers.html",
       "qualified": "parsers.html.has_attr",
       "perf": {
@@ -5386,7 +5478,7 @@
         "alloc": "the token vector and its strings on the heap."
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 96,
+      "srcline": 98,
       "module": "parsers.html",
       "qualified": "parsers.html.parse",
       "perf": {
@@ -5410,7 +5502,7 @@
         "alloc": "one result string on the heap."
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 56,
+      "srcline": 58,
       "module": "parsers.html",
       "qualified": "parsers.html.unescape",
       "perf": {
@@ -5433,7 +5525,7 @@
         "test": "Json.DumpRoundTrip"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
-      "srcline": 61,
+      "srcline": 63,
       "module": "parsers.json",
       "qualified": "parsers.json.dump"
     },
@@ -5449,7 +5541,7 @@
         "test": "Json.ParseObject"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
-      "srcline": 52,
+      "srcline": 54,
       "module": "parsers.json",
       "qualified": "parsers.json.parse"
     },
@@ -5465,7 +5557,7 @@
         "test": "JsonRead.*"
       },
       "srcfile": "stdlib/parsers/json/read.hpp",
-      "srcline": 374,
+      "srcline": 376,
       "module": "parsers.json",
       "qualified": "parsers.json.read"
     },
@@ -5481,7 +5573,7 @@
         "test": "Json.ParseObject"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
-      "srcline": 34,
+      "srcline": 36,
       "module": "parsers.json",
       "qualified": "parsers.json.to_view"
     },
@@ -5509,7 +5601,7 @@
         "alloc": "one result string."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 105,
+      "srcline": 107,
       "module": "parsers.xml",
       "qualified": "parsers.xml.attr"
     },
@@ -5533,7 +5625,7 @@
         "alloc": "the id list."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 137,
+      "srcline": 139,
       "module": "parsers.xml",
       "qualified": "parsers.xml.children"
     },
@@ -5561,7 +5653,7 @@
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 149,
+      "srcline": 151,
       "module": "parsers.xml",
       "qualified": "parsers.xml.find"
     },
@@ -5589,7 +5681,7 @@
         "alloc": "the result id list."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 160,
+      "srcline": 162,
       "module": "parsers.xml",
       "qualified": "parsers.xml.findall"
     },
@@ -5617,7 +5709,7 @@
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 116,
+      "srcline": 118,
       "module": "parsers.xml",
       "qualified": "parsers.xml.has_attr"
     },
@@ -5641,7 +5733,7 @@
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 84,
+      "srcline": 86,
       "module": "parsers.xml",
       "qualified": "parsers.xml.is_element"
     },
@@ -5669,7 +5761,7 @@
         "alloc": "the result id list (and a transient walk stack)."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 172,
+      "srcline": 174,
       "module": "parsers.xml",
       "qualified": "parsers.xml.iter"
     },
@@ -5689,7 +5781,7 @@
         "alloc": "the node slab and its strings on the heap (owned by the returned Document)."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 65,
+      "srcline": 67,
       "module": "parsers.xml",
       "qualified": "parsers.xml.parse"
     },
@@ -5709,7 +5801,7 @@
         "alloc": "none."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 74,
+      "srcline": 76,
       "module": "parsers.xml",
       "qualified": "parsers.xml.root"
     },
@@ -5733,7 +5825,7 @@
         "alloc": "one result string."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 94,
+      "srcline": 96,
       "module": "parsers.xml",
       "qualified": "parsers.xml.tag"
     },
@@ -5757,7 +5849,7 @@
         "alloc": "one result string."
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 127,
+      "srcline": 129,
       "module": "parsers.xml",
       "qualified": "parsers.xml.text"
     },
@@ -5780,7 +5872,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 117,
+      "srcline": 119,
       "module": "random",
       "qualified": "random.choice",
       "perf": {
@@ -5814,7 +5906,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 100,
+      "srcline": 102,
       "module": "random",
       "qualified": "random.gauss",
       "perf": {
@@ -5848,7 +5940,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 85,
+      "srcline": 87,
       "module": "random",
       "qualified": "random.randint",
       "perf": {
@@ -5873,7 +5965,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 57,
+      "srcline": 59,
       "module": "random",
       "qualified": "random.random",
       "perf": {
@@ -5903,7 +5995,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 44,
+      "srcline": 46,
       "module": "random",
       "qualified": "random.seed",
       "perf": {
@@ -5934,7 +6026,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 71,
+      "srcline": 73,
       "module": "random",
       "qualified": "random.uniform",
       "perf": {
@@ -5961,7 +6053,7 @@
         "alloc": "the compiled program + DFA cache on the heap (owned by the returned Pattern)."
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 50,
+      "srcline": 52,
       "module": "regex",
       "qualified": "regex.compile"
     },
@@ -5985,7 +6077,7 @@
         "alloc": "the matching itself allocates nothing beyond growing the shared DFA cache; on a hit, .text owns one copy of the matched bytes (end - begin). Use .begin/.end to avoid even that."
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 96,
+      "srcline": 98,
       "module": "regex",
       "qualified": "regex.find"
     },
@@ -6009,7 +6101,7 @@
         "alloc": "none beyond growing the shared DFA cache; never an intermediate string."
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 72,
+      "srcline": 74,
       "module": "regex",
       "qualified": "regex.full_match"
     },
@@ -6033,7 +6125,7 @@
         "alloc": "none beyond growing the shared DFA cache; never an intermediate string."
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 61,
+      "srcline": 63,
       "module": "regex",
       "qualified": "regex.search"
     },
@@ -6050,7 +6142,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1014,
+      "srcline": 975,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -6067,7 +6159,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 950,
+      "srcline": 911,
       "module": "requests",
       "qualified": "requests.get"
     },
@@ -6084,7 +6176,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1030,
+      "srcline": 991,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -6101,7 +6193,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1046,
+      "srcline": 1007,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -6118,7 +6210,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 998,
+      "srcline": 959,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -6135,7 +6227,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 966,
+      "srcline": 927,
       "module": "requests",
       "qualified": "requests.post"
     },
@@ -6152,7 +6244,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 982,
+      "srcline": 943,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -6173,7 +6265,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 934,
+      "srcline": 895,
       "module": "requests",
       "qualified": "requests.request"
     },
@@ -6194,7 +6286,7 @@
         "systest": "RequestsSys.PostJson"
       },
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 398,
+      "srcline": 359,
       "module": "requests",
       "qualified": "requests.to_json"
     },
@@ -6217,7 +6309,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 82,
+      "srcline": 84,
       "module": "socket",
       "qualified": "socket.accept",
       "perf": {
@@ -6252,7 +6344,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 209,
+      "srcline": 211,
       "module": "socket",
       "qualified": "socket.bind",
       "perf": {
@@ -6279,7 +6371,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 149,
+      "srcline": 151,
       "module": "socket",
       "qualified": "socket.close",
       "perf": {
@@ -6314,7 +6406,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 243,
+      "srcline": 245,
       "module": "socket",
       "qualified": "socket.connect",
       "perf": {
@@ -6336,7 +6428,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 288,
+      "srcline": 290,
       "module": "socket",
       "qualified": "socket.last_error",
       "perf": {
@@ -6367,7 +6459,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 225,
+      "srcline": 227,
       "module": "socket",
       "qualified": "socket.listen",
       "perf": {
@@ -6394,7 +6486,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 258,
+      "srcline": 260,
       "module": "socket",
       "qualified": "socket.local_port",
       "perf": {
@@ -6425,7 +6517,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 537,
+      "srcline": 539,
       "module": "socket",
       "qualified": "socket.open"
     },
@@ -6452,7 +6544,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 100,
+      "srcline": 102,
       "module": "socket",
       "qualified": "socket.recv",
       "perf": {
@@ -6483,7 +6575,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 116,
+      "srcline": 118,
       "module": "socket",
       "qualified": "socket.send",
       "perf": {
@@ -6514,7 +6606,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 133,
+      "srcline": 135,
       "module": "socket",
       "qualified": "socket.sendall",
       "perf": {
@@ -6549,7 +6641,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 552,
+      "srcline": 554,
       "module": "socket",
       "qualified": "socket.serve"
     },
@@ -6572,7 +6664,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 192,
+      "srcline": 194,
       "module": "socket",
       "qualified": "socket.set_reuseaddr",
       "perf": {
@@ -6603,7 +6695,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 274,
+      "srcline": 276,
       "module": "socket",
       "qualified": "socket.set_timeout"
     },
@@ -6623,7 +6715,7 @@
         "alloc": "none."
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 161,
+      "srcline": 163,
       "module": "socket",
       "qualified": "socket.shutdown"
     },
@@ -6641,7 +6733,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 177,
+      "srcline": 179,
       "module": "socket",
       "qualified": "socket.socket",
       "perf": {
@@ -6672,7 +6764,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 64,
+      "srcline": 66,
       "module": "socket",
       "qualified": "socket.tcp_connect",
       "perf": {
@@ -6707,7 +6799,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 47,
+      "srcline": 49,
       "module": "socket",
       "qualified": "socket.tcp_listen",
       "perf": {
@@ -6734,7 +6826,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 63,
+      "srcline": 65,
       "module": "statistics",
       "qualified": "statistics.count",
       "perf": {
@@ -6764,7 +6856,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 86,
+      "srcline": 88,
       "module": "statistics",
       "qualified": "statistics.mean",
       "perf": {
@@ -6794,7 +6886,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 190,
+      "srcline": 192,
       "module": "statistics",
       "qualified": "statistics.median",
       "perf": {
@@ -6824,7 +6916,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 130,
+      "srcline": 132,
       "module": "statistics",
       "qualified": "statistics.pstdev",
       "perf": {
@@ -6854,7 +6946,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 105,
+      "srcline": 107,
       "module": "statistics",
       "qualified": "statistics.pvariance",
       "perf": {
@@ -6884,7 +6976,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 173,
+      "srcline": 175,
       "module": "statistics",
       "qualified": "statistics.stdev",
       "perf": {
@@ -6914,7 +7006,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 46,
+      "srcline": 48,
       "module": "statistics",
       "qualified": "statistics.sum",
       "perf": {
@@ -6944,7 +7036,7 @@
         "systest": "StdlibE2E.Statistics"
       },
       "srcfile": "stdlib/statistics/statistics.hpp",
-      "srcline": 148,
+      "srcline": 150,
       "module": "statistics",
       "qualified": "statistics.variance",
       "perf": {
@@ -6974,7 +7066,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 77,
+      "srcline": 79,
       "module": "string",
       "qualified": "string.capitalize",
       "perf": {
@@ -7004,7 +7096,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 331,
+      "srcline": 333,
       "module": "string",
       "qualified": "string.capwords",
       "perf": {
@@ -7042,7 +7134,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 417,
+      "srcline": 419,
       "module": "string",
       "qualified": "string.center",
       "perf": {
@@ -7076,7 +7168,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 208,
+      "srcline": 210,
       "module": "string",
       "qualified": "string.contains",
       "perf": {
@@ -7110,7 +7202,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 253,
+      "srcline": 255,
       "module": "string",
       "qualified": "string.count",
       "perf": {
@@ -7144,7 +7236,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 183,
+      "srcline": 185,
       "module": "string",
       "qualified": "string.endswith",
       "perf": {
@@ -7178,7 +7270,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 223,
+      "srcline": 225,
       "module": "string",
       "qualified": "string.find",
       "perf": {
@@ -7208,7 +7300,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 477,
+      "srcline": 479,
       "module": "string",
       "qualified": "string.isalnum",
       "perf": {
@@ -7238,7 +7330,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 463,
+      "srcline": 465,
       "module": "string",
       "qualified": "string.isalpha",
       "perf": {
@@ -7268,7 +7360,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 449,
+      "srcline": 451,
       "module": "string",
       "qualified": "string.isdigit",
       "perf": {
@@ -7298,7 +7390,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 522,
+      "srcline": 524,
       "module": "string",
       "qualified": "string.islower",
       "perf": {
@@ -7328,7 +7420,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 492,
+      "srcline": 494,
       "module": "string",
       "qualified": "string.isspace",
       "perf": {
@@ -7358,7 +7450,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 507,
+      "srcline": 509,
       "module": "string",
       "qualified": "string.isupper",
       "perf": {
@@ -7392,7 +7484,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 353,
+      "srcline": 355,
       "module": "string",
       "qualified": "string.join",
       "perf": {
@@ -7430,7 +7522,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 383,
+      "srcline": 385,
       "module": "string",
       "qualified": "string.ljust",
       "perf": {
@@ -7460,7 +7552,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 63,
+      "srcline": 65,
       "module": "string",
       "qualified": "string.lower",
       "perf": {
@@ -7494,7 +7586,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 138,
+      "srcline": 140,
       "module": "string",
       "qualified": "string.lstrip",
       "perf": {
@@ -7532,7 +7624,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 270,
+      "srcline": 272,
       "module": "string",
       "qualified": "string.replace",
       "perf": {
@@ -7566,7 +7658,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 238,
+      "srcline": 240,
       "module": "string",
       "qualified": "string.rfind",
       "perf": {
@@ -7604,7 +7696,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 400,
+      "srcline": 402,
       "module": "string",
       "qualified": "string.rjust",
       "perf": {
@@ -7638,7 +7730,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 153,
+      "srcline": 155,
       "module": "string",
       "qualified": "string.rstrip",
       "perf": {
@@ -7668,7 +7760,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 301,
+      "srcline": 303,
       "module": "string",
       "qualified": "string.split",
       "perf": {
@@ -7698,7 +7790,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 316,
+      "srcline": 318,
       "module": "string",
       "qualified": "string.splitlines",
       "perf": {
@@ -7732,7 +7824,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 169,
+      "srcline": 171,
       "module": "string",
       "qualified": "string.startswith",
       "perf": {
@@ -7766,7 +7858,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 123,
+      "srcline": 125,
       "module": "string",
       "qualified": "string.strip",
       "perf": {
@@ -7796,7 +7888,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 105,
+      "srcline": 107,
       "module": "string",
       "qualified": "string.swapcase",
       "perf": {
@@ -7826,7 +7918,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 91,
+      "srcline": 93,
       "module": "string",
       "qualified": "string.title",
       "perf": {
@@ -7856,7 +7948,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 49,
+      "srcline": 51,
       "module": "string",
       "qualified": "string.upper",
       "perf": {
@@ -7890,7 +7982,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 433,
+      "srcline": 435,
       "module": "string",
       "qualified": "string.zfill",
       "perf": {
@@ -7924,7 +8016,7 @@
         "systest": "StdlibE2E.Thread"
       },
       "srcfile": "stdlib/thread/thread.hpp",
-      "srcline": 217,
+      "srcline": 219,
       "module": "thread",
       "qualified": "thread.spawn"
     },
@@ -7942,7 +8034,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 65,
+      "srcline": 67,
       "module": "time",
       "qualified": "time.monotonic",
       "perf": {
@@ -7967,7 +8059,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 79,
+      "srcline": 81,
       "module": "time",
       "qualified": "time.monotonic_ns",
       "perf": {
@@ -7992,7 +8084,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 94,
+      "srcline": 96,
       "module": "time",
       "qualified": "time.perf_counter",
       "perf": {
@@ -8017,7 +8109,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 108,
+      "srcline": 110,
       "module": "time",
       "qualified": "time.perf_counter_ns",
       "perf": {
@@ -8042,7 +8134,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 123,
+      "srcline": 125,
       "module": "time",
       "qualified": "time.process_time",
       "perf": {
@@ -8072,7 +8164,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 138,
+      "srcline": 140,
       "module": "time",
       "qualified": "time.sleep",
       "perf": {
@@ -8094,7 +8186,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 36,
+      "srcline": 38,
       "module": "time",
       "qualified": "time.time",
       "perf": {
@@ -8119,7 +8211,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 50,
+      "srcline": 52,
       "module": "time",
       "qualified": "time.time_ns",
       "perf": {
@@ -8129,6 +8221,27 @@
         "speedup": 6.0,
         "vs": "cpython"
       }
+    },
+    {
+      "name": "from_hex",
+      "signature": "from_hex(std::string_view hex)",
+      "brief": "Hex DECODE — the inverse of to_hex.",
+      "params": [
+        {
+          "name": "hex",
+          "desc": "the hex text (both a-f and A-F accepted; no 0x prefix)."
+        }
+      ],
+      "returns": "the decoded raw bytes (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(|hex|).",
+        "alloc": "the returned bytes.",
+        "test": "CheatahHashlib.HexRoundTrip"
+      },
+      "srcfile": "stdlib/tls/tls.cpp",
+      "srcline": 43,
+      "module": "tls",
+      "qualified": "tls.from_hex"
     },
     {
       "name": "last_error",
@@ -8144,7 +8257,7 @@
         "systest": "TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 44,
+      "srcline": 46,
       "module": "tls",
       "qualified": "tls.last_error"
     },
@@ -8178,9 +8291,34 @@
         "systest": "TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 173,
+      "srcline": 175,
       "module": "tls",
       "qualified": "tls.open"
+    },
+    {
+      "name": "to_hex",
+      "signature": "to_hex(const std::uint8_t *data, std::size_t n)",
+      "brief": "Lowercase-hex ENCODE overload for a raw byte buffer (the form the digest and Ed25519 paths use).",
+      "params": [
+        {
+          "name": "data",
+          "desc": "pointer to the bytes."
+        },
+        {
+          "name": "n",
+          "desc": "the number of bytes."
+        }
+      ],
+      "returns": "the lowercase hex text (length 2*n).",
+      "tags": {
+        "complexity": "O(n).",
+        "alloc": "the returned string.",
+        "test": "CheatahHashlib.HexRoundTrip"
+      },
+      "srcfile": "stdlib/tls/tls.cpp",
+      "srcline": 42,
+      "module": "tls",
+      "qualified": "tls.to_hex"
     },
     {
       "name": "open",
@@ -8219,7 +8357,7 @@
         "systest": "WebSocketSys.EchoRoundTrip"
       },
       "srcfile": "stdlib/websocket/websocket.hpp",
-      "srcline": 168,
+      "srcline": 170,
       "module": "websocket",
       "qualified": "websocket.open"
     },
@@ -8248,7 +8386,7 @@
         "test": "CheatahWebSocket.ClientDefaultIsClosed"
       },
       "srcfile": "stdlib/websocket/websocket.hpp",
-      "srcline": 183,
+      "srcline": 185,
       "module": "websocket",
       "qualified": "websocket.open_url"
     },
@@ -8275,7 +8413,7 @@
         "systest": "StdlibE2E.X25519"
       },
       "srcfile": "stdlib/x25519/x25519.hpp",
-      "srcline": 33,
+      "srcline": 35,
       "module": "x25519",
       "qualified": "x25519.x25519"
     },
@@ -8298,7 +8436,7 @@
         "systest": "StdlibE2E.X25519"
       },
       "srcfile": "stdlib/x25519/x25519.hpp",
-      "srcline": 46,
+      "srcline": 48,
       "module": "x25519",
       "qualified": "x25519.x25519_base"
     }
