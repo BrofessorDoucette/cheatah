@@ -355,7 +355,7 @@ def main():
     results = {}
     existing = {}
     if os.path.exists(OUT):
-        existing = json.load(open(OUT)).get("functions", {})
+        existing = {e["name"]: e for e in json.load(open(OUT)).get("functions", [])}
     for key, case in sorted(REG.items()):
         mod = key.split(".")[0]
         if only and mod not in only:
@@ -398,7 +398,18 @@ def main():
                        f"{sys.version_info.micro}",
             "numpy": npv,
             "generated": time.strftime("%Y-%m-%d")}
-    json.dump({"meta": meta, "functions": results}, open(OUT, "w"), indent=1, sort_keys=True)
+    # A LIST of full records (every field present + has_compare), sorted by name — the
+    # shape parsers.json's typed reader consumes in the pure-cheatah docs generator.
+    FIELDS = {"kind": "", "note": "", "cheatah_ns": 0.0, "compare_ns": 0.0, "speedup": 0.0,
+              "vs": "", "cheatah_us": 0.0, "numpy_us": 0.0, "dims": "", "warn": ""}
+    recs = []
+    for name in sorted(results):
+        e = results[name]
+        rec = {"name": name}
+        rec.update({f: e.get(f, dflt) for f, dflt in FIELDS.items()})
+        rec["has_compare"] = "compare_ns" in e
+        recs.append(rec)
+    json.dump({"meta": meta, "functions": recs}, open(OUT, "w"), indent=1, sort_keys=True)
     print(f"\nwrote {OUT}  ({len([1 for r in results.values() if r.get('kind')=='compared'])} compared, "
           f"machine={meta['machine']}, cheatah@{commit}, CPython {meta['cpython']})")
 

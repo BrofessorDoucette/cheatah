@@ -37,7 +37,9 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 # so the machine-specific numbers live in ONE provenance-tagged file, not 218 headers.
 _PERF_FILE = ROOT / "docs" / "perf_data.json"
 _perf = json.loads(_PERF_FILE.read_text()) if _PERF_FILE.exists() else {}
-PERF = _perf.get("functions", {})
+# functions is a LIST of full records (every field present + has_compare) so the
+# pure-cheatah generator reads the same file through parsers.json's typed reader.
+PERF = {e["name"]: e for e in _perf.get("functions", [])}
 PERF_META = _perf.get("meta", {})
 MOD_SHORT: dict[str, str] = {}   # namespace refid -> dotted module name (e.g. "os.path")
 # A module's README.md (stdlib/<mod>/README.md) is merged in as the overview of that
@@ -82,7 +84,7 @@ def perf_row(refid: str, name: str) -> str:
         body = html.escape(e.get("note", ""))
     elif kind in ("compared", "cheatah_only"):
         body = f'<strong>{_fmt_ns(e["cheatah_ns"])}</strong> in cheatah'
-        cmp = e.get("compare_ns", e.get("python_ns"))   # back-compat field name
+        cmp = e["compare_ns"] if e.get("has_compare") else None
         if kind == "compared" and cmp is not None:
             if e.get("vs") == "numpy":
                 tgt = f'NumPy {PERF_META.get("numpy", "")}'.strip()

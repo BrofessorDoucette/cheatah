@@ -1,1280 +1,3189 @@
 {
-  "functions": {
-    "builtins.append": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.ascii": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.bin": {
-      "cheatah_ns": 71.47,
-      "compare_ns": 97.59,
-      "kind": "compared",
-      "speedup": 1.4,
-      "vs": "cpython"
-    },
-    "builtins.bool": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.chr": {
-      "cheatah_ns": 2.27,
-      "compare_ns": 82.42,
-      "kind": "compared",
-      "speedup": 36.3,
-      "vs": "cpython"
-    },
-    "builtins.contains": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.endswith": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.float": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.hash": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.hex": {
-      "cheatah_ns": 22.66,
-      "compare_ns": 86.02,
-      "kind": "compared",
-      "speedup": 3.8,
-      "vs": "cpython"
-    },
-    "builtins.index": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.int": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.len": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.oct": {
-      "cheatah_ns": 24.42,
-      "compare_ns": 88.22,
-      "kind": "compared",
-      "speedup": 3.6,
-      "vs": "cpython"
-    },
-    "builtins.ord": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.range": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.slice": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.startswith": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.to_bool": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.to_float": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "builtins.to_int": {
-      "kind": "note",
-      "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead"
-    },
-    "datetime.day": {
-      "cheatah_ns": 33.26,
-      "compare_ns": 267.19,
-      "kind": "compared",
-      "speedup": 8.0,
-      "vs": "cpython"
-    },
-    "datetime.format": {
-      "cheatah_ns": 111.41,
-      "compare_ns": 1437.3,
-      "kind": "compared",
-      "speedup": 12.9,
-      "vs": "cpython"
-    },
-    "datetime.hour": {
-      "cheatah_ns": 32.37,
-      "compare_ns": 256.26,
-      "kind": "compared",
-      "speedup": 7.9,
-      "vs": "cpython"
-    },
-    "datetime.minute": {
-      "cheatah_ns": 34.08,
-      "compare_ns": 252.86,
-      "kind": "compared",
-      "speedup": 7.4,
-      "vs": "cpython"
-    },
-    "datetime.month": {
-      "cheatah_ns": 32.88,
-      "compare_ns": 258.67,
-      "kind": "compared",
-      "speedup": 7.9,
-      "vs": "cpython"
-    },
-    "datetime.now": {
-      "cheatah_ns": 109.55,
-      "compare_ns": 679.95,
-      "kind": "compared",
-      "speedup": 6.2,
-      "vs": "cpython"
-    },
-    "datetime.second": {
-      "cheatah_ns": 32.67,
-      "compare_ns": 254.88,
-      "kind": "compared",
-      "speedup": 7.8,
-      "vs": "cpython"
-    },
-    "datetime.timestamp": {
-      "cheatah_ns": 17.46,
-      "compare_ns": 330.34,
-      "kind": "compared",
-      "speedup": 18.9,
-      "vs": "cpython"
-    },
-    "datetime.today": {
-      "cheatah_ns": 76.85,
-      "compare_ns": 707.15,
-      "kind": "compared",
-      "speedup": 9.2,
-      "vs": "cpython"
-    },
-    "datetime.utcnow": {
-      "cheatah_ns": 93.9,
-      "compare_ns": 911.35,
-      "kind": "compared",
-      "speedup": 9.7,
-      "vs": "cpython"
-    },
-    "datetime.weekday": {
-      "cheatah_ns": 33.0,
-      "compare_ns": 264.47,
-      "kind": "compared",
-      "speedup": 8.0,
-      "vs": "cpython"
-    },
-    "datetime.year": {
-      "cheatah_ns": 32.65,
-      "compare_ns": 262.26,
-      "kind": "compared",
-      "speedup": 8.0,
-      "vs": "cpython"
-    },
-    "hashlib.sha256": {
-      "cheatah_ns": 394.39,
-      "compare_ns": 430.05,
-      "kind": "compared",
-      "speedup": 1.1,
-      "vs": "cpython"
-    },
-    "parsers.html.escape": {
-      "cheatah_ns": 75.96,
-      "compare_ns": 330.68,
-      "kind": "compared",
-      "speedup": 4.4,
-      "vs": "cpython"
-    },
-    "parsers.html.get_attr": {
-      "kind": "note",
-      "note": "returns a parse structure — not reduced to one scalar here"
-    },
-    "parsers.html.has_attr": {
-      "kind": "note",
-      "note": "returns a parse structure — not reduced to one scalar here"
-    },
-    "parsers.html.parse": {
-      "kind": "note",
-      "note": "returns a parse structure — not reduced to one scalar here"
-    },
-    "parsers.html.unescape": {
-      "cheatah_ns": 97.42,
-      "compare_ns": 1517.79,
-      "kind": "compared",
-      "speedup": 15.6,
-      "vs": "cpython"
-    },
-    "io.format": {
-      "kind": "note",
-      "note": "string templating — closest CPython twin (f-strings) isn't a function call"
-    },
-    "io.input": {
-      "kind": "note",
-      "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
-    },
-    "io.open": {
-      "kind": "note",
-      "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
-    },
-    "io.print": {
-      "kind": "note",
-      "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
-    },
-    "io.read_file": {
-      "kind": "note",
-      "note": "I/O-bound — dominated by the OS, not micro-benchmarked"
-    },
-    "io.repr": {
-      "cheatah_ns": 236.69,
-      "compare_ns": 179.79,
-      "kind": "compared",
-      "speedup": 0.8,
-      "vs": "cpython"
-    },
-    "io.str": {
-      "cheatah_ns": 78.61,
-      "compare_ns": 96.95,
-      "kind": "compared",
-      "speedup": 1.2,
-      "vs": "cpython"
-    },
-    "linalg.cholesky": {
-      "cheatah_us": 12.99,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 24.22
-    },
-    "linalg.cond": {
-      "cheatah_us": 206.12,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 195.0
-    },
-    "linalg.conj_transpose": {
-      "kind": "numpy"
-    },
-    "linalg.det": {
-      "cheatah_us": 13.76,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 45.14
-    },
-    "linalg.dot": {
-      "cheatah_us": 1.94,
-      "dims": "16384-elt vectors",
-      "kind": "numpy_cmp",
-      "numpy_us": 7.75
-    },
-    "linalg.eig": {
-      "kind": "numpy"
-    },
-    "linalg.eigh": {
-      "cheatah_us": 225.35,
-      "dims": "64×64, with vectors",
-      "kind": "numpy_cmp",
-      "numpy_us": 379.38
-    },
-    "linalg.eigvals": {
-      "cheatah_us": 6.25,
-      "dims": "16×16, general",
-      "kind": "numpy_cmp",
-      "numpy_us": 11.67
-    },
-    "linalg.eigvalsh": {
-      "cheatah_us": 1.69,
-      "dims": "8×8",
-      "kind": "numpy_cmp",
-      "numpy_us": 3.91
-    },
-    "linalg.inner": {
-      "kind": "numpy"
-    },
-    "linalg.inv": {
-      "cheatah_us": 31.47,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 133.6
-    },
-    "linalg.kron": {
-      "cheatah_us": 1.01,
-      "dims": "8×8 ⊗ 8×8",
-      "kind": "numpy_cmp",
-      "numpy_us": 11.81
-    },
-    "linalg.lstsq": {
-      "kind": "numpy"
-    },
-    "linalg.matmul": {
-      "cheatah_us": 71.69,
-      "dims": "96×96 · 96×96",
-      "kind": "numpy_cmp",
-      "numpy_us": 315.07
-    },
-    "linalg.matrix_power": {
-      "cheatah_us": 79.99,
-      "dims": "64×64, A³",
-      "kind": "numpy_cmp",
-      "numpy_us": 218.48
-    },
-    "linalg.matrix_rank": {
-      "cheatah_us": 209.11,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 197.71
-    },
-    "linalg.norm": {
-      "cheatah_us": 0.09,
-      "dims": "32×32 Frobenius",
-      "kind": "numpy_cmp",
-      "numpy_us": 1.41
-    },
-    "linalg.outer": {
-      "cheatah_us": 0.47,
-      "dims": "64-vec → 64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 3.56
-    },
-    "linalg.pinv": {
-      "cheatah_us": 592.08,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 733.54
-    },
-    "linalg.qr": {
-      "cheatah_us": 62.13,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 123.8
-    },
-    "linalg.simd_features": {
-      "kind": "note",
-      "note": "queries CPU SIMD support — not a hot path"
-    },
-    "linalg.simd_lane_doubles": {
-      "kind": "note",
-      "note": "queries CPU SIMD width — not a hot path"
-    },
-    "linalg.slogdet": {
-      "cheatah_us": 13.91,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 46.14
-    },
-    "linalg.solve": {
-      "cheatah_us": 16.58,
-      "dims": "64×64",
-      "kind": "numpy_cmp",
-      "numpy_us": 47.83
-    },
-    "linalg.svd": {
-      "cheatah_us": 363.81,
-      "dims": "64×64, full U+s+Vᵀ",
-      "kind": "numpy_cmp",
-      "numpy_us": 652.36
-    },
-    "linalg.svdvals": {
-      "cheatah_us": 201.66,
-      "dims": "64×64, values only",
-      "kind": "numpy_cmp",
-      "numpy_us": 187.19
-    },
-    "linalg.trace": {
-      "cheatah_us": 0.08,
-      "dims": "256×256",
-      "kind": "numpy_cmp",
-      "numpy_us": 1.12
-    },
-    "linalg.vdot": {
-      "kind": "numpy"
-    },
-    "math.abs": {
-      "cheatah_ns": 0.44,
-      "compare_ns": 59.09,
-      "kind": "compared",
-      "speedup": 134.2,
-      "vs": "cpython"
-    },
-    "math.acos": {
-      "cheatah_ns": 22.18,
-      "compare_ns": 89.94,
-      "kind": "compared",
-      "speedup": 4.1,
-      "vs": "cpython"
-    },
-    "math.asin": {
-      "cheatah_ns": 22.04,
-      "compare_ns": 88.14,
-      "kind": "compared",
-      "speedup": 4.0,
-      "vs": "cpython"
-    },
-    "math.atan": {
-      "cheatah_ns": 9.54,
-      "compare_ns": 59.56,
-      "kind": "compared",
-      "speedup": 6.2,
-      "vs": "cpython"
-    },
-    "math.atan2": {
-      "cheatah_ns": 8.77,
-      "compare_ns": 68.0,
-      "kind": "compared",
-      "speedup": 7.8,
-      "vs": "cpython"
-    },
-    "math.cbrt": {
-      "cheatah_ns": 7.97,
-      "compare_ns": 64.02,
-      "kind": "compared",
-      "speedup": 8.0,
-      "vs": "cpython"
-    },
-    "math.ceil": {
-      "cheatah_ns": 1.8,
-      "compare_ns": 69.3,
-      "kind": "compared",
-      "speedup": 38.5,
-      "vs": "cpython"
-    },
-    "math.copysign": {
-      "cheatah_ns": 1.77,
-      "compare_ns": 58.74,
-      "kind": "compared",
-      "speedup": 33.2,
-      "vs": "cpython"
-    },
-    "math.cos": {
-      "cheatah_ns": 15.05,
-      "compare_ns": 62.42,
-      "kind": "compared",
-      "speedup": 4.1,
-      "vs": "cpython"
-    },
-    "math.degrees": {
-      "cheatah_ns": 1.95,
-      "compare_ns": 55.36,
-      "kind": "compared",
-      "speedup": 28.4,
-      "vs": "cpython"
-    },
-    "math.exp": {
-      "cheatah_ns": 2.94,
-      "compare_ns": 59.39,
-      "kind": "compared",
-      "speedup": 20.2,
-      "vs": "cpython"
-    },
-    "math.fabs": {
-      "cheatah_ns": 1.87,
-      "compare_ns": 58.59,
-      "kind": "compared",
-      "speedup": 31.4,
-      "vs": "cpython"
-    },
-    "math.factorial": {
-      "cheatah_ns": 2.2,
-      "compare_ns": 53.75,
-      "kind": "compared",
-      "speedup": 24.5,
-      "vs": "cpython"
-    },
-    "math.floor": {
-      "cheatah_ns": 1.94,
-      "compare_ns": 70.17,
-      "kind": "compared",
-      "speedup": 36.2,
-      "vs": "cpython"
-    },
-    "math.fmod": {
-      "cheatah_ns": 4.95,
-      "compare_ns": 63.02,
-      "kind": "compared",
-      "speedup": 12.7,
-      "vs": "cpython"
-    },
-    "math.gcd": {
-      "cheatah_ns": 5.25,
-      "compare_ns": 83.47,
-      "kind": "compared",
-      "speedup": 15.9,
-      "vs": "cpython"
-    },
-    "math.hypot": {
-      "cheatah_ns": 8.53,
-      "compare_ns": 76.94,
-      "kind": "compared",
-      "speedup": 9.0,
-      "vs": "cpython"
-    },
-    "math.isfinite": {
-      "cheatah_ns": 1.91,
-      "compare_ns": 60.02,
-      "kind": "compared",
-      "speedup": 31.4,
-      "vs": "cpython"
-    },
-    "math.isinf": {
-      "cheatah_ns": 0.68,
-      "compare_ns": 61.5,
-      "kind": "compared",
-      "speedup": 90.8,
-      "vs": "cpython"
-    },
-    "math.isnan": {
-      "cheatah_ns": 0.75,
-      "compare_ns": 58.58,
-      "kind": "compared",
-      "speedup": 78.3,
-      "vs": "cpython"
-    },
-    "math.log": {
-      "cheatah_ns": 9.94,
-      "compare_ns": 61.57,
-      "kind": "compared",
-      "speedup": 6.2,
-      "vs": "cpython"
-    },
-    "math.log10": {
-      "cheatah_ns": 12.96,
-      "compare_ns": 63.2,
-      "kind": "compared",
-      "speedup": 4.9,
-      "vs": "cpython"
-    },
-    "math.log2": {
-      "cheatah_ns": 10.47,
-      "compare_ns": 60.78,
-      "kind": "compared",
-      "speedup": 5.8,
-      "vs": "cpython"
-    },
-    "math.max": {
-      "cheatah_ns": 0.7,
-      "compare_ns": 117.03,
-      "kind": "compared",
-      "speedup": 168.0,
-      "vs": "cpython"
-    },
-    "math.min": {
-      "cheatah_ns": 0.44,
-      "compare_ns": 122.18,
-      "kind": "compared",
-      "speedup": 274.9,
-      "vs": "cpython"
-    },
-    "math.pow": {
-      "cheatah_ns": 0.54,
-      "compare_ns": 70.29,
-      "kind": "compared",
-      "speedup": 129.1,
-      "vs": "cpython"
-    },
-    "math.radians": {
-      "cheatah_ns": 1.78,
-      "compare_ns": 54.6,
-      "kind": "compared",
-      "speedup": 30.6,
-      "vs": "cpython"
-    },
-    "math.round": {
-      "cheatah_ns": 1.95,
-      "compare_ns": 103.71,
-      "kind": "compared",
-      "speedup": 53.3,
-      "vs": "cpython"
-    },
-    "math.sin": {
-      "cheatah_ns": 14.68,
-      "compare_ns": 62.54,
-      "kind": "compared",
-      "speedup": 4.3,
-      "vs": "cpython"
-    },
-    "math.sqrt": {
-      "cheatah_ns": 1.8,
-      "compare_ns": 58.51,
-      "kind": "compared",
-      "speedup": 32.6,
-      "vs": "cpython"
-    },
-    "math.tan": {
-      "cheatah_ns": 22.33,
-      "compare_ns": 69.5,
-      "kind": "compared",
-      "speedup": 3.1,
-      "vs": "cpython"
-    },
-    "math.trunc": {
-      "cheatah_ns": 1.9,
-      "compare_ns": 69.53,
-      "kind": "compared",
-      "speedup": 36.6,
-      "vs": "cpython"
-    },
-    "ndarray.abs": {
-      "kind": "numpy"
-    },
-    "ndarray.add": {
-      "cheatah_us": 2.24,
-      "dims": "16384-elt array + scalar",
-      "kind": "numpy_cmp",
-      "numpy_us": 2.71
-    },
-    "ndarray.arange": {
-      "kind": "numpy"
-    },
-    "ndarray.array": {
-      "kind": "numpy"
-    },
-    "ndarray.binary_op": {
-      "kind": "numpy"
-    },
-    "ndarray.broadcast_shapes": {
-      "kind": "numpy"
-    },
-    "ndarray.broadcast_to": {
-      "kind": "numpy"
-    },
-    "ndarray.cbrt": {
-      "kind": "numpy"
-    },
-    "ndarray.complex": {
-      "kind": "numpy"
-    },
-    "ndarray.conj": {
-      "kind": "numpy"
-    },
-    "ndarray.cos": {
-      "kind": "numpy"
-    },
-    "ndarray.divide": {
-      "kind": "numpy"
-    },
-    "ndarray.exp": {
-      "cheatah_us": 11.73,
-      "dims": "16384-elt array",
-      "kind": "numpy_cmp",
-      "numpy_us": 46.54
-    },
-    "ndarray.full": {
-      "kind": "numpy"
-    },
-    "ndarray.get": {
-      "kind": "numpy"
-    },
-    "ndarray.imag": {
-      "kind": "numpy"
-    },
-    "ndarray.is_contiguous": {
-      "kind": "numpy"
-    },
-    "ndarray.log": {
-      "kind": "numpy"
-    },
-    "ndarray.mean": {
-      "kind": "numpy"
-    },
-    "ndarray.mul": {
-      "kind": "numpy"
-    },
-    "ndarray.ones": {
-      "kind": "numpy"
-    },
-    "ndarray.real": {
-      "kind": "numpy"
-    },
-    "ndarray.reshape": {
-      "kind": "numpy"
-    },
-    "ndarray.scalar": {
-      "kind": "numpy"
-    },
-    "ndarray.shape_of": {
-      "kind": "numpy"
-    },
-    "ndarray.sin": {
-      "cheatah_us": 12.14,
-      "dims": "16384-elt array",
-      "kind": "numpy_cmp",
-      "numpy_us": 85.44
-    },
-    "ndarray.size_of": {
-      "kind": "numpy"
-    },
-    "ndarray.sqrt": {
-      "cheatah_us": 13.87,
-      "dims": "16384-elt array",
-      "kind": "numpy_cmp",
-      "numpy_us": 13.91
-    },
-    "ndarray.sub": {
-      "kind": "numpy"
-    },
-    "ndarray.sum": {
-      "kind": "numpy"
-    },
-    "ndarray.tan": {
-      "kind": "numpy"
-    },
-    "ndarray.to_string": {
-      "kind": "numpy"
-    },
-    "ndarray.zeros": {
-      "kind": "numpy"
-    },
-    "os.chdir": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.cpu_count": {
-      "cheatah_ns": 1520.73,
-      "compare_ns": 1647.02,
-      "kind": "compared",
-      "speedup": 1.1,
-      "vs": "cpython"
-    },
-    "os.getcwd": {
-      "cheatah_ns": 365.43,
-      "compare_ns": 316.17,
-      "kind": "compared",
-      "speedup": 0.9,
-      "vs": "cpython"
-    },
-    "os.getenv": {
-      "cheatah_ns": 65.29,
-      "compare_ns": 357.06,
-      "kind": "compared",
-      "speedup": 5.5,
-      "vs": "cpython"
-    },
-    "os.getpid": {
-      "cheatah_ns": 66.3,
-      "compare_ns": 141.86,
-      "kind": "compared",
-      "speedup": 2.1,
-      "vs": "cpython"
-    },
-    "os.listdir": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.makedirs": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.mkdir": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.path.abspath": {
-      "cheatah_ns": 159.22,
-      "compare_ns": 308.54,
-      "kind": "compared",
-      "speedup": 1.9,
-      "vs": "cpython"
-    },
-    "os.path.basename": {
-      "cheatah_ns": 92.33,
-      "compare_ns": 213.82,
-      "kind": "compared",
-      "speedup": 2.3,
-      "vs": "cpython"
-    },
-    "os.path.dirname": {
-      "cheatah_ns": 163.64,
-      "compare_ns": 295.86,
-      "kind": "compared",
-      "speedup": 1.8,
-      "vs": "cpython"
-    },
-    "os.path.exists": {
-      "cheatah_ns": 378.38,
-      "compare_ns": 772.43,
-      "kind": "compared",
-      "speedup": 2.0,
-      "vs": "cpython"
-    },
-    "os.path.getsize": {
-      "cheatah_ns": 378.84,
-      "compare_ns": 796.31,
-      "kind": "compared",
-      "speedup": 2.1,
-      "vs": "cpython"
-    },
-    "os.path.isdir": {
-      "cheatah_ns": 380.93,
-      "compare_ns": 807.56,
-      "kind": "compared",
-      "speedup": 2.1,
-      "vs": "cpython"
-    },
-    "os.path.isfile": {
-      "cheatah_ns": 380.0,
-      "compare_ns": 793.28,
-      "kind": "compared",
-      "speedup": 2.1,
-      "vs": "cpython"
-    },
-    "os.path.join": {
-      "cheatah_ns": 127.93,
-      "compare_ns": 378.79,
-      "kind": "compared",
-      "speedup": 3.0,
-      "vs": "cpython"
-    },
-    "os.path.normpath": {
-      "cheatah_ns": 315.27,
-      "compare_ns": 170.81,
-      "kind": "compared",
-      "speedup": 0.5,
-      "vs": "cpython"
-    },
-    "os.path.splitext": {
-      "kind": "note",
-      "note": "returns a (root, ext) pair — not reduced to one scalar here"
-    },
-    "os.remove": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.rename": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.rmdir": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.setenv": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "os.system": {
-      "kind": "note",
-      "note": "filesystem/process syscall — not micro-benchmarked"
-    },
-    "random.choice": {
-      "cheatah_ns": 3.16,
-      "compare_ns": 4246.55,
-      "kind": "compared",
-      "speedup": 1344.0,
-      "vs": "numpy"
-    },
-    "random.gauss": {
-      "cheatah_ns": 147.69,
-      "compare_ns": 378.87,
-      "kind": "compared",
-      "speedup": 2.6,
-      "vs": "numpy"
-    },
-    "random.randint": {
-      "cheatah_ns": 3.13,
-      "compare_ns": 1139.77,
-      "kind": "compared",
-      "speedup": 363.6,
-      "vs": "numpy"
-    },
-    "random.random": {
-      "cheatah_ns": 48.8,
-      "compare_ns": 252.28,
-      "kind": "compared",
-      "speedup": 5.2,
-      "vs": "numpy"
-    },
-    "random.seed": {
-      "kind": "note",
-      "note": "one-time initialization — not a hot path"
-    },
-    "random.uniform": {
-      "cheatah_ns": 50.29,
-      "compare_ns": 898.88,
-      "kind": "compared",
-      "speedup": 17.9,
-      "vs": "numpy"
-    },
-    "socket.accept": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.bind": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.close": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.connect": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.last_error": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.listen": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.local_port": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.recv": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.send": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.sendall": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.set_reuseaddr": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.socket": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.tcp_connect": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "socket.tcp_listen": {
-      "kind": "note",
-      "note": "network/syscall-bound — not micro-benchmarked"
-    },
-    "statistics.count": {
-      "cheatah_ns": 5.87,
-      "compare_ns": 114.63,
-      "kind": "compared",
-      "speedup": 19.5,
-      "vs": "numpy"
-    },
-    "statistics.mean": {
-      "cheatah_ns": 21.52,
-      "compare_ns": 2086.53,
-      "kind": "compared",
-      "speedup": 97.0,
-      "vs": "numpy"
-    },
-    "statistics.median": {
-      "cheatah_ns": 89.6,
-      "compare_ns": 6857.59,
-      "kind": "compared",
-      "speedup": 76.5,
-      "vs": "numpy"
-    },
-    "statistics.pstdev": {
-      "cheatah_ns": 42.01,
-      "compare_ns": 7188.82,
-      "kind": "compared",
-      "speedup": 171.1,
-      "vs": "numpy"
-    },
-    "statistics.pvariance": {
-      "cheatah_ns": 40.14,
-      "compare_ns": 6588.72,
-      "kind": "compared",
-      "speedup": 164.1,
-      "vs": "numpy"
-    },
-    "statistics.stdev": {
-      "cheatah_ns": 43.46,
-      "compare_ns": 7242.12,
-      "kind": "compared",
-      "speedup": 166.7,
-      "vs": "numpy"
-    },
-    "statistics.sum": {
-      "cheatah_ns": 18.96,
-      "compare_ns": 1433.62,
-      "kind": "compared",
-      "speedup": 75.6,
-      "vs": "numpy"
-    },
-    "statistics.variance": {
-      "cheatah_ns": 39.45,
-      "compare_ns": 6405.73,
-      "kind": "compared",
-      "speedup": 162.4,
-      "vs": "numpy"
-    },
-    "string.capitalize": {
-      "cheatah_ns": 49.19,
-      "compare_ns": 145.26,
-      "kind": "compared",
-      "speedup": 3.0,
-      "vs": "cpython"
-    },
-    "string.capwords": {
-      "cheatah_ns": 203.04,
-      "compare_ns": 472.94,
-      "kind": "compared",
-      "speedup": 2.3,
-      "vs": "cpython"
-    },
-    "string.center": {
-      "cheatah_ns": 53.91,
-      "compare_ns": 77.81,
-      "kind": "compared",
-      "speedup": 1.4,
-      "vs": "cpython"
-    },
-    "string.contains": {
-      "cheatah_ns": 7.34,
-      "compare_ns": 44.66,
-      "kind": "compared",
-      "speedup": 6.1,
-      "vs": "cpython"
-    },
-    "string.count": {
-      "cheatah_ns": 19.28,
-      "compare_ns": 78.43,
-      "kind": "compared",
-      "speedup": 4.1,
-      "vs": "cpython"
-    },
-    "string.endswith": {
-      "cheatah_ns": 5.57,
-      "compare_ns": 66.6,
-      "kind": "compared",
-      "speedup": 12.0,
-      "vs": "cpython"
-    },
-    "string.find": {
-      "cheatah_ns": 5.65,
-      "compare_ns": 75.93,
-      "kind": "compared",
-      "speedup": 13.4,
-      "vs": "cpython"
-    },
-    "string.isalnum": {
-      "cheatah_ns": 5.11,
-      "compare_ns": 52.6,
-      "kind": "compared",
-      "speedup": 10.3,
-      "vs": "cpython"
-    },
-    "string.isalpha": {
-      "cheatah_ns": 5.47,
-      "compare_ns": 45.83,
-      "kind": "compared",
-      "speedup": 8.4,
-      "vs": "cpython"
-    },
-    "string.isdigit": {
-      "cheatah_ns": 0.86,
-      "compare_ns": 41.97,
-      "kind": "compared",
-      "speedup": 48.9,
-      "vs": "cpython"
-    },
-    "string.islower": {
-      "cheatah_ns": 3.29,
-      "compare_ns": 42.02,
-      "kind": "compared",
-      "speedup": 12.8,
-      "vs": "cpython"
-    },
-    "string.isspace": {
-      "cheatah_ns": 2.35,
-      "compare_ns": 41.79,
-      "kind": "compared",
-      "speedup": 17.8,
-      "vs": "cpython"
-    },
-    "string.isupper": {
-      "cheatah_ns": 3.11,
-      "compare_ns": 45.15,
-      "kind": "compared",
-      "speedup": 14.5,
-      "vs": "cpython"
-    },
-    "string.join": {
-      "cheatah_ns": 34.32,
-      "compare_ns": 91.32,
-      "kind": "compared",
-      "speedup": 2.7,
-      "vs": "cpython"
-    },
-    "string.ljust": {
-      "cheatah_ns": 25.27,
-      "compare_ns": 74.54,
-      "kind": "compared",
-      "speedup": 2.9,
-      "vs": "cpython"
-    },
-    "string.lower": {
-      "cheatah_ns": 40.79,
-      "compare_ns": 73.18,
-      "kind": "compared",
-      "speedup": 1.8,
-      "vs": "cpython"
-    },
-    "string.lstrip": {
-      "cheatah_ns": 11.84,
-      "compare_ns": 61.77,
-      "kind": "compared",
-      "speedup": 5.2,
-      "vs": "cpython"
-    },
-    "string.replace": {
-      "cheatah_ns": 49.63,
-      "compare_ns": 85.15,
-      "kind": "compared",
-      "speedup": 1.7,
-      "vs": "cpython"
-    },
-    "string.rfind": {
-      "cheatah_ns": 3.25,
-      "compare_ns": 75.99,
-      "kind": "compared",
-      "speedup": 23.4,
-      "vs": "cpython"
-    },
-    "string.rjust": {
-      "cheatah_ns": 39.62,
-      "compare_ns": 76.43,
-      "kind": "compared",
-      "speedup": 1.9,
-      "vs": "cpython"
-    },
-    "string.rstrip": {
-      "cheatah_ns": 13.17,
-      "compare_ns": 64.06,
-      "kind": "compared",
-      "speedup": 4.9,
-      "vs": "cpython"
-    },
-    "string.split": {
-      "cheatah_ns": 113.89,
-      "compare_ns": 118.36,
-      "kind": "compared",
-      "speedup": 1.0,
-      "vs": "cpython"
-    },
-    "string.splitlines": {
-      "cheatah_ns": 34.2,
-      "compare_ns": 88.25,
-      "kind": "compared",
-      "speedup": 2.6,
-      "vs": "cpython"
-    },
-    "string.startswith": {
-      "cheatah_ns": 6.46,
-      "compare_ns": 66.83,
-      "kind": "compared",
-      "speedup": 10.3,
-      "vs": "cpython"
-    },
-    "string.strip": {
-      "cheatah_ns": 29.07,
-      "compare_ns": 63.75,
-      "kind": "compared",
-      "speedup": 2.2,
-      "vs": "cpython"
-    },
-    "string.swapcase": {
-      "cheatah_ns": 70.34,
-      "compare_ns": 160.01,
-      "kind": "compared",
-      "speedup": 2.3,
-      "vs": "cpython"
-    },
-    "string.title": {
-      "cheatah_ns": 63.72,
-      "compare_ns": 151.69,
-      "kind": "compared",
-      "speedup": 2.4,
-      "vs": "cpython"
-    },
-    "string.upper": {
-      "cheatah_ns": 41.67,
-      "compare_ns": 74.72,
-      "kind": "compared",
-      "speedup": 1.8,
-      "vs": "cpython"
-    },
-    "string.zfill": {
-      "cheatah_ns": 39.55,
-      "compare_ns": 79.7,
-      "kind": "compared",
-      "speedup": 2.0,
-      "vs": "cpython"
-    },
-    "time.monotonic": {
-      "cheatah_ns": 16.85,
-      "compare_ns": 61.31,
-      "kind": "compared",
-      "speedup": 3.6,
-      "vs": "cpython"
-    },
-    "time.monotonic_ns": {
-      "cheatah_ns": 13.6,
-      "compare_ns": 79.43,
-      "kind": "compared",
-      "speedup": 5.8,
-      "vs": "cpython"
-    },
-    "time.perf_counter": {
-      "cheatah_ns": 17.88,
-      "compare_ns": 61.65,
-      "kind": "compared",
-      "speedup": 3.4,
-      "vs": "cpython"
-    },
-    "time.perf_counter_ns": {
-      "cheatah_ns": 14.44,
-      "compare_ns": 84.22,
-      "kind": "compared",
-      "speedup": 5.8,
-      "vs": "cpython"
-    },
-    "time.process_time": {
-      "cheatah_ns": 146.14,
-      "compare_ns": 227.52,
-      "kind": "compared",
-      "speedup": 1.6,
-      "vs": "cpython"
-    },
-    "time.sleep": {
-      "kind": "note",
-      "note": "blocks for a requested duration — not micro-benchmarked"
-    },
-    "time.time": {
-      "cheatah_ns": 16.92,
-      "compare_ns": 64.28,
-      "kind": "compared",
-      "speedup": 3.8,
-      "vs": "cpython"
-    },
-    "time.time_ns": {
-      "cheatah_ns": 13.66,
-      "compare_ns": 82.27,
-      "kind": "compared",
-      "speedup": 6.0,
-      "vs": "cpython"
-    }
+ "functions": [
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.append",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
   },
-  "meta": {
-    "cheatah_commit": "dffe895",
-    "cpython": "3.12.3",
-    "generated": "2026-06-10",
-    "machine": "x86_64",
-    "numpy": "1.26.4"
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.ascii",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 71.47,
+   "cheatah_us": 0.0,
+   "compare_ns": 97.59,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "builtins.bin",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.bool",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 2.27,
+   "cheatah_us": 0.0,
+   "compare_ns": 82.42,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "builtins.chr",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 36.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.contains",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.endswith",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.float",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.hash",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 22.66,
+   "cheatah_us": 0.0,
+   "compare_ns": 86.02,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "builtins.hex",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.index",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.int",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.len",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 24.42,
+   "cheatah_us": 0.0,
+   "compare_ns": 88.22,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "builtins.oct",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.ord",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.range",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.slice",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.startswith",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.to_bool",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.to_float",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "builtins.to_int",
+   "note": "header-inlined to ~sub-nanosecond; the win over CPython is its eliminated ~60 ns per-call interpreter overhead",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 33.26,
+   "cheatah_us": 0.0,
+   "compare_ns": 267.19,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.day",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 8.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 111.41,
+   "cheatah_us": 0.0,
+   "compare_ns": 1437.3,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.format",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 12.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 32.37,
+   "cheatah_us": 0.0,
+   "compare_ns": 256.26,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.hour",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 7.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 34.08,
+   "cheatah_us": 0.0,
+   "compare_ns": 252.86,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.minute",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 7.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 32.88,
+   "cheatah_us": 0.0,
+   "compare_ns": 258.67,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.month",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 7.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 109.55,
+   "cheatah_us": 0.0,
+   "compare_ns": 679.95,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.now",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 6.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 32.67,
+   "cheatah_us": 0.0,
+   "compare_ns": 254.88,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.second",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 7.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 17.46,
+   "cheatah_us": 0.0,
+   "compare_ns": 330.34,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.timestamp",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 18.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 76.85,
+   "cheatah_us": 0.0,
+   "compare_ns": 707.15,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.today",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 9.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 93.9,
+   "cheatah_us": 0.0,
+   "compare_ns": 911.35,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.utcnow",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 9.7,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 33.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 264.47,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.weekday",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 8.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 32.65,
+   "cheatah_us": 0.0,
+   "compare_ns": 262.26,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "datetime.year",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 8.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 394.39,
+   "cheatah_us": 0.0,
+   "compare_ns": 430.05,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "hashlib.sha256",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "io.format",
+   "note": "string templating \u2014 closest CPython twin (f-strings) isn't a function call",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "io.input",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "io.open",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "io.print",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "io.read_file",
+   "note": "I/O-bound \u2014 dominated by the OS, not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 236.69,
+   "cheatah_us": 0.0,
+   "compare_ns": 179.79,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "io.repr",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 78.61,
+   "cheatah_us": 0.0,
+   "compare_ns": 96.95,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "io.str",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 12.99,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.cholesky",
+   "note": "",
+   "numpy_us": 24.22,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 206.12,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.cond",
+   "note": "",
+   "numpy_us": 195.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "linalg.conj_transpose",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 13.76,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.det",
+   "note": "",
+   "numpy_us": 45.14,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 1.94,
+   "compare_ns": 0.0,
+   "dims": "16384-elt vectors",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.dot",
+   "note": "",
+   "numpy_us": 7.75,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "linalg.eig",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 225.35,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764, with vectors",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.eigh",
+   "note": "",
+   "numpy_us": 379.38,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 6.25,
+   "compare_ns": 0.0,
+   "dims": "16\u00d716, general",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.eigvals",
+   "note": "",
+   "numpy_us": 11.67,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 1.69,
+   "compare_ns": 0.0,
+   "dims": "8\u00d78",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.eigvalsh",
+   "note": "",
+   "numpy_us": 3.91,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "linalg.inner",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 31.47,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.inv",
+   "note": "",
+   "numpy_us": 133.6,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 1.01,
+   "compare_ns": 0.0,
+   "dims": "8\u00d78 \u2297 8\u00d78",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.kron",
+   "note": "",
+   "numpy_us": 11.81,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "linalg.lstsq",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 71.69,
+   "compare_ns": 0.0,
+   "dims": "96\u00d796 \u00b7 96\u00d796",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.matmul",
+   "note": "",
+   "numpy_us": 315.07,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 79.99,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764, A\u00b3",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.matrix_power",
+   "note": "",
+   "numpy_us": 218.48,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 209.11,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.matrix_rank",
+   "note": "",
+   "numpy_us": 197.71,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.09,
+   "compare_ns": 0.0,
+   "dims": "32\u00d732 Frobenius",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.norm",
+   "note": "",
+   "numpy_us": 1.41,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.47,
+   "compare_ns": 0.0,
+   "dims": "64-vec \u2192 64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.outer",
+   "note": "",
+   "numpy_us": 3.56,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 592.08,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.pinv",
+   "note": "",
+   "numpy_us": 733.54,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 62.13,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.qr",
+   "note": "",
+   "numpy_us": 123.8,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "linalg.simd_features",
+   "note": "queries CPU SIMD support \u2014 not a hot path",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "linalg.simd_lane_doubles",
+   "note": "queries CPU SIMD width \u2014 not a hot path",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 13.91,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.slogdet",
+   "note": "",
+   "numpy_us": 46.14,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 16.58,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.solve",
+   "note": "",
+   "numpy_us": 47.83,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 363.81,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764, full U+s+V\u1d40",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.svd",
+   "note": "",
+   "numpy_us": 652.36,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 201.66,
+   "compare_ns": 0.0,
+   "dims": "64\u00d764, values only",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.svdvals",
+   "note": "",
+   "numpy_us": 187.19,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.08,
+   "compare_ns": 0.0,
+   "dims": "256\u00d7256",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "linalg.trace",
+   "note": "",
+   "numpy_us": 1.12,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "linalg.vdot",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.44,
+   "cheatah_us": 0.0,
+   "compare_ns": 59.09,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.abs",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 134.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 22.18,
+   "cheatah_us": 0.0,
+   "compare_ns": 89.94,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.acos",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 22.04,
+   "cheatah_us": 0.0,
+   "compare_ns": 88.14,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.asin",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 9.54,
+   "cheatah_us": 0.0,
+   "compare_ns": 59.56,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.atan",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 6.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 8.77,
+   "cheatah_us": 0.0,
+   "compare_ns": 68.0,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.atan2",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 7.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 7.97,
+   "cheatah_us": 0.0,
+   "compare_ns": 64.02,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.cbrt",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 8.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.8,
+   "cheatah_us": 0.0,
+   "compare_ns": 69.3,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.ceil",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 38.5,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.77,
+   "cheatah_us": 0.0,
+   "compare_ns": 58.74,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.copysign",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 33.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 15.05,
+   "cheatah_us": 0.0,
+   "compare_ns": 62.42,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.cos",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.95,
+   "cheatah_us": 0.0,
+   "compare_ns": 55.36,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.degrees",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 28.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 2.94,
+   "cheatah_us": 0.0,
+   "compare_ns": 59.39,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.exp",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 20.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.87,
+   "cheatah_us": 0.0,
+   "compare_ns": 58.59,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.fabs",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 31.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 2.2,
+   "cheatah_us": 0.0,
+   "compare_ns": 53.75,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.factorial",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 24.5,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.94,
+   "cheatah_us": 0.0,
+   "compare_ns": 70.17,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.floor",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 36.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 4.95,
+   "cheatah_us": 0.0,
+   "compare_ns": 63.02,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.fmod",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 12.7,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 5.25,
+   "cheatah_us": 0.0,
+   "compare_ns": 83.47,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.gcd",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 15.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 8.53,
+   "cheatah_us": 0.0,
+   "compare_ns": 76.94,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.hypot",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 9.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.91,
+   "cheatah_us": 0.0,
+   "compare_ns": 60.02,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.isfinite",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 31.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.68,
+   "cheatah_us": 0.0,
+   "compare_ns": 61.5,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.isinf",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 90.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.75,
+   "cheatah_us": 0.0,
+   "compare_ns": 58.58,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.isnan",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 78.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 9.94,
+   "cheatah_us": 0.0,
+   "compare_ns": 61.57,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.log",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 6.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 12.96,
+   "cheatah_us": 0.0,
+   "compare_ns": 63.2,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.log10",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 10.47,
+   "cheatah_us": 0.0,
+   "compare_ns": 60.78,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.log2",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 5.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.7,
+   "cheatah_us": 0.0,
+   "compare_ns": 117.03,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.max",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 168.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.44,
+   "cheatah_us": 0.0,
+   "compare_ns": 122.18,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.min",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 274.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.54,
+   "cheatah_us": 0.0,
+   "compare_ns": 70.29,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.pow",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 129.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.78,
+   "cheatah_us": 0.0,
+   "compare_ns": 54.6,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.radians",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 30.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.95,
+   "cheatah_us": 0.0,
+   "compare_ns": 103.71,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.round",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 53.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 14.68,
+   "cheatah_us": 0.0,
+   "compare_ns": 62.54,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.sin",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.8,
+   "cheatah_us": 0.0,
+   "compare_ns": 58.51,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.sqrt",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 32.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 22.33,
+   "cheatah_us": 0.0,
+   "compare_ns": 69.5,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.tan",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1.9,
+   "cheatah_us": 0.0,
+   "compare_ns": 69.53,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "math.trunc",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 36.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.abs",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 2.24,
+   "compare_ns": 0.0,
+   "dims": "16384-elt array + scalar",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "ndarray.add",
+   "note": "",
+   "numpy_us": 2.71,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.arange",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.array",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.binary_op",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.broadcast_shapes",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.broadcast_to",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.cbrt",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.complex",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.conj",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.cos",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.divide",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 11.73,
+   "compare_ns": 0.0,
+   "dims": "16384-elt array",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "ndarray.exp",
+   "note": "",
+   "numpy_us": 46.54,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.full",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.get",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.imag",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.is_contiguous",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.log",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.mean",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.mul",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.ones",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.real",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.reshape",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.scalar",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.shape_of",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 12.14,
+   "compare_ns": 0.0,
+   "dims": "16384-elt array",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "ndarray.sin",
+   "note": "",
+   "numpy_us": 85.44,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.size_of",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 13.87,
+   "compare_ns": 0.0,
+   "dims": "16384-elt array",
+   "has_compare": false,
+   "kind": "numpy_cmp",
+   "name": "ndarray.sqrt",
+   "note": "",
+   "numpy_us": 13.91,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.sub",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.sum",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.tan",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.to_string",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "numpy",
+   "name": "ndarray.zeros",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.chdir",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 1520.73,
+   "cheatah_us": 0.0,
+   "compare_ns": 1647.02,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.cpu_count",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 365.43,
+   "cheatah_us": 0.0,
+   "compare_ns": 316.17,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.getcwd",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 65.29,
+   "cheatah_us": 0.0,
+   "compare_ns": 357.06,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.getenv",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 5.5,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 66.3,
+   "cheatah_us": 0.0,
+   "compare_ns": 141.86,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.getpid",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.listdir",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.makedirs",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.mkdir",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 159.22,
+   "cheatah_us": 0.0,
+   "compare_ns": 308.54,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.abspath",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 92.33,
+   "cheatah_us": 0.0,
+   "compare_ns": 213.82,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.basename",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 163.64,
+   "cheatah_us": 0.0,
+   "compare_ns": 295.86,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.dirname",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 378.38,
+   "cheatah_us": 0.0,
+   "compare_ns": 772.43,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.exists",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 378.84,
+   "cheatah_us": 0.0,
+   "compare_ns": 796.31,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.getsize",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 380.93,
+   "cheatah_us": 0.0,
+   "compare_ns": 807.56,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.isdir",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 380.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 793.28,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.isfile",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 127.93,
+   "cheatah_us": 0.0,
+   "compare_ns": 378.79,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.join",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 315.27,
+   "cheatah_us": 0.0,
+   "compare_ns": 170.81,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "os.path.normpath",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 0.5,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.path.splitext",
+   "note": "returns a (root, ext) pair \u2014 not reduced to one scalar here",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.remove",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.rename",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.rmdir",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.setenv",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "os.system",
+   "note": "filesystem/process syscall \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 75.96,
+   "cheatah_us": 0.0,
+   "compare_ns": 330.68,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "parsers.html.escape",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "parsers.html.get_attr",
+   "note": "returns a parse structure \u2014 not reduced to one scalar here",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "parsers.html.has_attr",
+   "note": "returns a parse structure \u2014 not reduced to one scalar here",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "parsers.html.parse",
+   "note": "returns a parse structure \u2014 not reduced to one scalar here",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 97.42,
+   "cheatah_us": 0.0,
+   "compare_ns": 1517.79,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "parsers.html.unescape",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 15.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 3.16,
+   "cheatah_us": 0.0,
+   "compare_ns": 4246.55,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "random.choice",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1344.0,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 147.69,
+   "cheatah_us": 0.0,
+   "compare_ns": 378.87,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "random.gauss",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.6,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 3.13,
+   "cheatah_us": 0.0,
+   "compare_ns": 1139.77,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "random.randint",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 363.6,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 48.8,
+   "cheatah_us": 0.0,
+   "compare_ns": 252.28,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "random.random",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 5.2,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "random.seed",
+   "note": "one-time initialization \u2014 not a hot path",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 50.29,
+   "cheatah_us": 0.0,
+   "compare_ns": 898.88,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "random.uniform",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 17.9,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.accept",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.bind",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.close",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.connect",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.last_error",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.listen",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.local_port",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.recv",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.send",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.sendall",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.set_reuseaddr",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.socket",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.tcp_connect",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "socket.tcp_listen",
+   "note": "network/syscall-bound \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 5.87,
+   "cheatah_us": 0.0,
+   "compare_ns": 114.63,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.count",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 19.5,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 21.52,
+   "cheatah_us": 0.0,
+   "compare_ns": 2086.53,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.mean",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 97.0,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 89.6,
+   "cheatah_us": 0.0,
+   "compare_ns": 6857.59,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.median",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 76.5,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 42.01,
+   "cheatah_us": 0.0,
+   "compare_ns": 7188.82,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.pstdev",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 171.1,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 40.14,
+   "cheatah_us": 0.0,
+   "compare_ns": 6588.72,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.pvariance",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 164.1,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 43.46,
+   "cheatah_us": 0.0,
+   "compare_ns": 7242.12,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.stdev",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 166.7,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 18.96,
+   "cheatah_us": 0.0,
+   "compare_ns": 1433.62,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.sum",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 75.6,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 39.45,
+   "cheatah_us": 0.0,
+   "compare_ns": 6405.73,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "statistics.variance",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 162.4,
+   "vs": "numpy",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 49.19,
+   "cheatah_us": 0.0,
+   "compare_ns": 145.26,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.capitalize",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 203.04,
+   "cheatah_us": 0.0,
+   "compare_ns": 472.94,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.capwords",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 53.91,
+   "cheatah_us": 0.0,
+   "compare_ns": 77.81,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.center",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 7.34,
+   "cheatah_us": 0.0,
+   "compare_ns": 44.66,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.contains",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 6.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 19.28,
+   "cheatah_us": 0.0,
+   "compare_ns": 78.43,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.count",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.1,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 5.57,
+   "cheatah_us": 0.0,
+   "compare_ns": 66.6,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.endswith",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 12.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 5.65,
+   "cheatah_us": 0.0,
+   "compare_ns": 75.93,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.find",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 13.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 5.11,
+   "cheatah_us": 0.0,
+   "compare_ns": 52.6,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.isalnum",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 10.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 5.47,
+   "cheatah_us": 0.0,
+   "compare_ns": 45.83,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.isalpha",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 8.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.86,
+   "cheatah_us": 0.0,
+   "compare_ns": 41.97,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.isdigit",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 48.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 3.29,
+   "cheatah_us": 0.0,
+   "compare_ns": 42.02,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.islower",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 12.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 2.35,
+   "cheatah_us": 0.0,
+   "compare_ns": 41.79,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.isspace",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 17.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 3.11,
+   "cheatah_us": 0.0,
+   "compare_ns": 45.15,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.isupper",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 14.5,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 34.32,
+   "cheatah_us": 0.0,
+   "compare_ns": 91.32,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.join",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.7,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 25.27,
+   "cheatah_us": 0.0,
+   "compare_ns": 74.54,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.ljust",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 40.79,
+   "cheatah_us": 0.0,
+   "compare_ns": 73.18,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.lower",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 11.84,
+   "cheatah_us": 0.0,
+   "compare_ns": 61.77,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.lstrip",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 5.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 49.63,
+   "cheatah_us": 0.0,
+   "compare_ns": 85.15,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.replace",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.7,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 3.25,
+   "cheatah_us": 0.0,
+   "compare_ns": 75.99,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.rfind",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 23.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 39.62,
+   "cheatah_us": 0.0,
+   "compare_ns": 76.43,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.rjust",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 13.17,
+   "cheatah_us": 0.0,
+   "compare_ns": 64.06,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.rstrip",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 4.9,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 113.89,
+   "cheatah_us": 0.0,
+   "compare_ns": 118.36,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.split",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 34.2,
+   "cheatah_us": 0.0,
+   "compare_ns": 88.25,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.splitlines",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 6.46,
+   "cheatah_us": 0.0,
+   "compare_ns": 66.83,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.startswith",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 10.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 29.07,
+   "cheatah_us": 0.0,
+   "compare_ns": 63.75,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.strip",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.2,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 70.34,
+   "cheatah_us": 0.0,
+   "compare_ns": 160.01,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.swapcase",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.3,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 63.72,
+   "cheatah_us": 0.0,
+   "compare_ns": 151.69,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.title",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 41.67,
+   "cheatah_us": 0.0,
+   "compare_ns": 74.72,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.upper",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 39.55,
+   "cheatah_us": 0.0,
+   "compare_ns": 79.7,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "string.zfill",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 2.0,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 16.85,
+   "cheatah_us": 0.0,
+   "compare_ns": 61.31,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.monotonic",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 13.6,
+   "cheatah_us": 0.0,
+   "compare_ns": 79.43,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.monotonic_ns",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 5.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 17.88,
+   "cheatah_us": 0.0,
+   "compare_ns": 61.65,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.perf_counter",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.4,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 14.44,
+   "cheatah_us": 0.0,
+   "compare_ns": 84.22,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.perf_counter_ns",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 5.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 146.14,
+   "cheatah_us": 0.0,
+   "compare_ns": 227.52,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.process_time",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 1.6,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 0.0,
+   "cheatah_us": 0.0,
+   "compare_ns": 0.0,
+   "dims": "",
+   "has_compare": false,
+   "kind": "note",
+   "name": "time.sleep",
+   "note": "blocks for a requested duration \u2014 not micro-benchmarked",
+   "numpy_us": 0.0,
+   "speedup": 0.0,
+   "vs": "",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 16.92,
+   "cheatah_us": 0.0,
+   "compare_ns": 64.28,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.time",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 3.8,
+   "vs": "cpython",
+   "warn": ""
+  },
+  {
+   "cheatah_ns": 13.66,
+   "cheatah_us": 0.0,
+   "compare_ns": 82.27,
+   "dims": "",
+   "has_compare": true,
+   "kind": "compared",
+   "name": "time.time_ns",
+   "note": "",
+   "numpy_us": 0.0,
+   "speedup": 6.0,
+   "vs": "cpython",
+   "warn": ""
   }
+ ],
+ "meta": {
+  "cheatah_commit": "dffe895",
+  "cpython": "3.12.3",
+  "generated": "2026-06-10",
+  "machine": "x86_64",
+  "numpy": "1.26.4"
+ }
 }
