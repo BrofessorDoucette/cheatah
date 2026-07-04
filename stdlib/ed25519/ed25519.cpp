@@ -286,35 +286,9 @@ void sha512(u8* out, const u8* in, std::size_t n) {
     for (int i = 0; i < 64; ++i) out[i] = static_cast<u8>(d[i]);
 }
 
-// ---- byte/hex helpers ----
-std::string from_hex(std::string_view hex) {
-    if (hex.size() % 2 != 0) throw std::invalid_argument("ed25519: odd-length hex");
-    auto nib = [](char c) -> int {
-        if (c >= '0' && c <= '9') return c - '0';
-        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-        return -1;
-    };
-    std::string out;
-    out.reserve(hex.size() / 2);
-    for (std::size_t i = 0; i < hex.size(); i += 2) {
-        const int hi = nib(hex[i]), lo = nib(hex[i + 1]);
-        if (hi < 0 || lo < 0) throw std::invalid_argument("ed25519: non-hex character");
-        out.push_back(static_cast<char>((hi << 4) | lo));
-    }
-    return out;
-}
-
-std::string to_hex(const u8* p, std::size_t n) {
-    static const char hexd[] = "0123456789abcdef";
-    std::string out;
-    out.reserve(n * 2);
-    for (std::size_t i = 0; i < n; ++i) {
-        out.push_back(hexd[p[i] >> 4]);
-        out.push_back(hexd[p[i] & 0xF]);
-    }
-    return out;
-}
+// ---- byte/hex helpers: the ONE canonical implementation lives in hashlib ----
+using hashlib::from_hex;   // hex -> bytes (throws on odd length / non-hex); inverse of to_hex.
+using hashlib::to_hex;     // bytes -> lowercase hex — both the (u8*, n) and string_view overloads.
 
 void secure_random(u8* out, std::size_t n) {
 #if defined(_WIN32)

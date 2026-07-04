@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <stdexcept>
 #include <vector>
 
 namespace cheatah::hashlib {
@@ -54,16 +55,9 @@ constexpr std::uint64_t K512[80] = {
     0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL,
 };
 
-std::string to_hex(const std::uint8_t* p, std::size_t n) {
-    static const char hexd[] = "0123456789abcdef";
-    std::string out;
-    out.reserve(n * 2);
-    for (std::size_t i = 0; i < n; ++i) {
-        out.push_back(hexd[p[i] >> 4]);
-        out.push_back(hexd[p[i] & 0xF]);
-    }
-    return out;
-}
+// to_hex / from_hex are this module's PUBLIC canonical byte<->hex helpers (defined after this
+// anonymous namespace, declared in hashlib.hpp). The digest paths below and the tls / ed25519 /
+// x509 modules all share that one implementation instead of re-rolling their own.
 
 // SHA-256 core: returns the raw 32-byte digest.
 std::array<std::uint8_t, 32> sha256_raw(std::string_view data) {
@@ -215,6 +209,41 @@ std::string hmac_sha512(std::string_view key, std::string_view data) {
     return sha512_digest(outer + sha512_digest(inner + std::string(data)));
 }
 
+// ---- Hex (the one canonical byte<->hex for the whole crypto stack) -----------------
+
+std::string to_hex(const std::uint8_t* data, std::size_t n) {
+    static const char hexd[] = "0123456789abcdef";
+    std::string out;
+    out.reserve(n * 2);
+    for (std::size_t i = 0; i < n; ++i) {
+        out.push_back(hexd[data[i] >> 4]);
+        out.push_back(hexd[data[i] & 0xF]);
+    }
+    return out;
+}
+
+std::string to_hex(std::string_view bytes) {
+    return to_hex(reinterpret_cast<const std::uint8_t*>(bytes.data()), bytes.size());
+}
+
+std::string from_hex(std::string_view hex) {
+    if (hex.size() % 2 != 0) throw std::invalid_argument("hashlib::from_hex: odd-length hex");
+    auto nibble = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        return -1;
+    };
+    std::string out;
+    out.reserve(hex.size() / 2);
+    for (std::size_t i = 0; i < hex.size(); i += 2) {
+        const int hi = nibble(hex[i]), lo = nibble(hex[i + 1]);
+        if (hi < 0 || lo < 0) throw std::invalid_argument("hashlib::from_hex: non-hex character");
+        out.push_back(static_cast<char>((hi << 4) | lo));
+    }
+    return out;
+}
+
 // ---- Base64 (RFC 4648, standard alphabet) -----------------------------------------
 
 namespace {
@@ -252,7 +281,7 @@ std::string base64_encode(std::string_view data) {
     return out;
 }
 
-std::string base64_decode(std::string_view text) {
+std::string base64_decode(std::string_view text, bool strict) {
     std::array<int, 256> rev;
     rev.fill(-1);
     for (int i = 0; i < 64; ++i) rev[static_cast<unsigned char>(kB64[i])] = i;
@@ -263,7 +292,13 @@ std::string base64_decode(std::string_view text) {
     for (unsigned char c : text) {
         if (c == '=') break;             // padding -> end of data
         const int d = rev[c];
-        if (d < 0) continue;             // skip whitespace / non-alphabet bytes
+        if (d < 0) {
+            // Whitespace is always skipped. Any OTHER non-alphabet byte is silently ignored in the
+            // default (lenient) mode, but REJECTED — empty result — in strict mode. X.509 PEM parsing
+            // uses strict so a malformed body fails closed instead of decoding to garbage.
+            if (strict && c != ' ' && c != '\n' && c != '\r' && c != '\t') return std::string();
+            continue;                    // skip whitespace / (lenient) non-alphabet bytes
+        }
         buf = (buf << 6) | d;
         bits += 6;
         if (bits >= 8) {

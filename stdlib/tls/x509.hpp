@@ -34,49 +34,16 @@ namespace cheatah::tls::x509 {
 
 // ---- small helpers ---------------------------------------------------------------------------
 
-inline std::string to_hex(const std::string& b) {
-    static const char* H = "0123456789abcdef";
-    std::string out;
-    out.reserve(b.size() * 2);
-    for (unsigned char c : b) {
-        out.push_back(H[c >> 4]);
-        out.push_back(H[c & 0xF]);
-    }
-    return out;
-}
+// Byte<->hex and base64 are the ONE canonical implementation in hashlib. X.509 PEM parsing needs a
+// FAIL-CLOSED base64 (a malformed body must be rejected, not decoded to garbage), so it passes
+// hashlib::base64_decode's `strict` flag; see the call site below.
+using cheatah::hashlib::to_hex;
 
 inline char lower_ascii(char c) { return (c >= 'A' && c <= 'Z') ? static_cast<char>(c - 'A' + 'a') : c; }
 inline std::string lower(const std::string& s) {
     std::string r(s);
     for (char& c : r) c = lower_ascii(c);
     return r;
-}
-
-// Standard base64 decode, ignoring ASCII whitespace (for PEM bodies). Returns "" on a bad char.
-inline std::string base64_decode(const std::string& in) {
-    auto val = [](unsigned char c) -> int {
-        if (c >= 'A' && c <= 'Z') return c - 'A';
-        if (c >= 'a' && c <= 'z') return c - 'a' + 26;
-        if (c >= '0' && c <= '9') return c - '0' + 52;
-        if (c == '+') return 62;
-        if (c == '/') return 63;
-        return -1;
-    };
-    std::string out;
-    int acc = 0, bits = 0;
-    for (unsigned char c : in) {
-        if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue;
-        if (c == '=') break;
-        const int v = val(c);
-        if (v < 0) return std::string();
-        acc = (acc << 6) | v;
-        bits += 6;
-        if (bits >= 8) {
-            bits -= 8;
-            out.push_back(static_cast<char>((acc >> bits) & 0xFF));
-        }
-    }
-    return out;
 }
 
 // Days since the Unix epoch for a civil (proleptic Gregorian) date — Howard Hinnant's algorithm,
@@ -366,7 +333,7 @@ inline void add_pem(const std::string& pem, TrustStore& store) {
         const std::size_t s = p + begin.size();
         const std::size_t e = pem.find(end, s);
         if (e == std::string::npos) break;
-        const std::string der = base64_decode(pem.substr(s, e - s));
+        const std::string der = hashlib::base64_decode(pem.substr(s, e - s), /*strict=*/true);
         Cert c;
         if (!der.empty() && parse_cert(der, c)) store.by_subject[c.subject].push_back(std::move(c));
         p = e + end.size();

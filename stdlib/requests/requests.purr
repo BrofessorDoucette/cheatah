@@ -24,6 +24,7 @@
 # (a TLS 1.3 client over the cheatah crypto modules — x25519, aead, hashlib HKDF; no OpenSSL;
 # it REFUSES servers it cannot authenticate).
 
+import hashlib
 import socket
 import string
 import tls
@@ -215,39 +216,6 @@ fn percent_encode(text) {
             let v = ord(ch)
             out = out + "%" + hexdigits[v // 16] + hexdigits[v % 16]
         }
-    }
-    return out
-}
-
-# Base64-encode `data` (standard alphabet, `=` padding) — used for HTTP Basic auth.
-#
-# @param data the raw bytes to encode.
-# @return the base64 text.
-# @complexity O(n) over the input length.
-# @alloc allocates the result.
-# @systest RequestsSys.BasicAuth
-fn b64encode(data) {
-    let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    let out = ""
-    let n = len(data)
-    let i = 0
-    while i + 3 <= n {
-        let v = ord(data[i]) * 65536 + ord(data[i + 1]) * 256 + ord(data[i + 2])
-        out = out + alphabet[v // 262144] + alphabet[(v // 4096) % 64]
-        out = out + alphabet[(v // 64) % 64] + alphabet[v % 64]
-        i = i + 3
-    }
-    let rem = n - i
-    match rem {
-        case 1 {
-            let v = ord(data[i]) * 65536
-            out = out + alphabet[v // 262144] + alphabet[(v // 4096) % 64] + "=="
-        }
-        case 2 {
-            let v = ord(data[i]) * 65536 + ord(data[i + 1]) * 256
-            out = out + alphabet[v // 262144] + alphabet[(v // 4096) % 64] + alphabet[(v // 64) % 64] + "="
-        }
-        case _ {}
     }
     return out
 }
@@ -640,7 +608,7 @@ fn request_once(method, u: Url, o: Options, r: Response) {
         req = req + "User-Agent: cheatah-requests/1.2\r\n"
     }
     if o.auth_user != "" and not has_header(o.headers, "Authorization") {
-        req = req + "Authorization: Basic " + b64encode(o.auth_user + ":" + o.auth_pass) + "\r\n"
+        req = req + "Authorization: Basic " + hashlib.base64_encode(o.auth_user + ":" + o.auth_pass) + "\r\n"
     }
     if ctype != "" and not has_header(o.headers, "Content-Type") {
         req = req + "Content-Type: " + ctype + "\r\n"

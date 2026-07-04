@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "hashlib.hpp"
 
+#include <stdexcept>
 #include <string>
 
 #include <gtest/gtest.h>
@@ -168,6 +169,33 @@ TEST(CheatahHashlib, Base64RoundTrip) {
     EXPECT_EQ(hl::base64_decode("FPuc"), raw3);
     // Decode tolerates embedded whitespace/newlines (PEM-style wrapping).
     EXPECT_EQ(hl::base64_decode("Zm9v\r\nYmFy"), "foobar");
+}
+
+// Hex ENCODE/DECODE are ONE canonical pair (shared by tls/ed25519/x509) — tested together here.
+TEST(CheatahHashlib, HexRoundTrip) {
+    // to_hex: string_view overload — lowercase, no `0x` prefix, no separator.
+    EXPECT_EQ(hl::to_hex(""), "");
+    EXPECT_EQ(hl::to_hex(std::string("\x00\x0f\xff\x10", 4)), "000fff10");
+    // to_hex: the raw (pointer, length) overload agrees with the string_view one.
+    const unsigned char raw[] = {0xde, 0xad, 0xbe, 0xef};
+    EXPECT_EQ(hl::to_hex(raw, sizeof raw), "deadbeef");
+    // from_hex is the exact inverse: every one of the 256 byte values round-trips.
+    std::string all;
+    for (int i = 0; i < 256; ++i) all.push_back(static_cast<char>(i));
+    EXPECT_EQ(hl::from_hex(hl::to_hex(all)), all);
+    // Uppercase hex decodes identically to lowercase.
+    EXPECT_EQ(hl::from_hex("DEADBEEF"), hl::from_hex("deadbeef"));
+    // Fails closed: an odd length and a non-hex character both throw.
+    EXPECT_THROW(hl::from_hex("abc"), std::invalid_argument);
+    EXPECT_THROW(hl::from_hex("zz"), std::invalid_argument);
+}
+
+// The strict base64_decode (fail-closed on a bad byte) that X.509 PEM parsing relies on.
+TEST(CheatahHashlib, Base64DecodeStrict) {
+    EXPECT_EQ(hl::base64_decode("Zm9v!YmFy"), "foobar");             // lenient: '!' ignored
+    EXPECT_EQ(hl::base64_decode("Zm9v!YmFy", /*strict=*/true), "");  // strict: '!' rejected -> ""
+    // Strict still skips PEM whitespace and honors '=' padding.
+    EXPECT_EQ(hl::base64_decode("Zm9v\r\nYmE=", /*strict=*/true), "fooba");
 }
 
 // RFC 5869 test case 1 (SHA-256): extract + expand to 42 bytes.

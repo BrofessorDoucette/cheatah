@@ -669,14 +669,9 @@ TEST(CheatahRequests, ToJsonAndEscape) {
     EXPECT_EQ(req::to_json(empty), "{}");
 }
 
-// b64encode covers the three tail lengths (0/1/2 trailing bytes) and known vectors.
-TEST(CheatahRequests, Base64Encode) {
-    EXPECT_EQ(req::b64encode(std::string("")), "");
-    EXPECT_EQ(req::b64encode(std::string("Man")), "TWFu");   // rem 0
-    EXPECT_EQ(req::b64encode(std::string("M")), "TQ==");     // rem 1
-    EXPECT_EQ(req::b64encode(std::string("Ma")), "TWE=");    // rem 2
-    EXPECT_EQ(req::b64encode(std::string("user:pass")), "dXNlcjpwYXNz");
-}
+// Base64 for HTTP Basic auth is the single canonical hashlib.base64_encode (tested in the hashlib
+// suite: CheatahHashlib.Base64KnownVectors / Base64RoundTrip). requests no longer re-implements it;
+// the auth-header integration is covered end-to-end by RequestsSys.BasicAuth.
 
 // === Red-team: a malicious/compromised server must not crash or exhaust the client. ===
 

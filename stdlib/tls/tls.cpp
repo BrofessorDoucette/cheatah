@@ -36,35 +36,11 @@ thread_local std::string t_error;  // last_error() text for this thread
 
 void fail(std::string_view what) { t_error = std::string(what); }
 
-// ---- hex <-> bytes (the crypto modules speak hex for keys) -------------------
-
-std::string to_hex(std::string_view raw) {
-    static constexpr char kHex[] = "0123456789abcdef";
-    std::string out;
-    out.reserve(raw.size() * 2);
-    for (const char ch : raw) {
-        out.push_back(kHex[static_cast<unsigned char>(ch) >> 4]);
-        out.push_back(kHex[static_cast<unsigned char>(ch) & 0xF]);
-    }
-    return out;
-}
-
-std::string from_hex(std::string_view hex) {
-    std::string out;
-    out.reserve(hex.size() / 2);
-    for (std::size_t i = 0; i + 1 < hex.size(); i += 2) {
-        unsigned v = 0;
-        for (int k = 0; k < 2; ++k) {
-            const char ch = hex[i + k];
-            v <<= 4;
-            if (ch >= '0' && ch <= '9') v |= static_cast<unsigned>(ch - '0');
-            else if (ch >= 'a' && ch <= 'f') v |= static_cast<unsigned>(ch - 'a' + 10);
-            else if (ch >= 'A' && ch <= 'F') v |= static_cast<unsigned>(ch - 'A' + 10);  // LCOV_EXCL_LINE: from_hex is fed only lowercase x25519 hex; the uppercase branch is defensive parity
-        }
-        out.push_back(static_cast<char>(v));
-    }
-    return out;
-}
+// ---- hex <-> bytes: the ONE canonical implementation lives in hashlib -----------
+// The crypto modules speak hex for keys; tls feeds from_hex only valid, even-length lowercase
+// x25519 hex, so the canonical from_hex's odd-length/non-hex throws are never reached here.
+using hashlib::to_hex;     // bytes -> lowercase hex (string_view / (uint8_t*, n) overloads).
+using hashlib::from_hex;   // hex -> bytes (throws on odd length / non-hex).
 
 // 16/24-bit big-endian helpers for the wire format.
 void put16(std::string& out, unsigned v) {

@@ -15,6 +15,8 @@
  * `stdlib/tests/hashlib_test.cpp`; the suite runs under AddressSanitizer (the `asan`
  * preset) and Valgrind (`security/run-valgrind.sh`) on every QA-gate run.
  */
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <string_view>
 
@@ -128,14 +130,54 @@ std::string base64_encode(std::string_view data);
  * Python's `base64.b64decode` on a clean stream).
  *
  * @param text the base64 text.
- * @return the decoded raw bytes (may contain embedded NULs).
+ * @param strict when true, a non-alphabet, non-whitespace byte makes the decode FAIL CLOSED (returns
+ *        `""`) instead of being ignored — used by X.509 PEM parsing so a malformed body is rejected
+ *        rather than decoded to garbage. Defaults to false (lenient, Python-like).
+ * @return the decoded raw bytes (may contain embedded NULs); `""` in strict mode on a bad byte.
  * @complexity O(|text|).
  * @alloc the returned string.
  * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip
  * @crtest HashlibCompileRun.Base64
  * @systest StdlibE2E.Hashlib
  */
-std::string base64_decode(std::string_view text);
+std::string base64_decode(std::string_view text, bool strict = false);
+
+/**
+ * Lowercase-hex ENCODE of raw bytes: each byte becomes two hex digits, no `0x` prefix and no
+ * separator. The single canonical bytes->hex used across the crypto modules (tls, ed25519, x509),
+ * overloaded for a `string_view`/`std::string` or a raw `(pointer, length)` buffer.
+ *
+ * @param bytes the raw bytes to encode.
+ * @return the lowercase hex text (length `2*|bytes|`).
+ * @complexity O(n).
+ * @alloc the returned string.
+ * @test CheatahHashlib.HexRoundTrip
+ */
+std::string to_hex(std::string_view bytes);
+
+/**
+ * Lowercase-hex ENCODE overload for a raw byte buffer (the form the digest and Ed25519 paths use).
+ *
+ * @param data pointer to the bytes.
+ * @param n the number of bytes.
+ * @return the lowercase hex text (length `2*n`).
+ * @complexity O(n).
+ * @alloc the returned string.
+ * @test CheatahHashlib.HexRoundTrip
+ */
+std::string to_hex(const std::uint8_t* data, std::size_t n);
+
+/**
+ * Hex DECODE — the inverse of @ref to_hex. Accepts an even-length hex string in either digit case.
+ *
+ * @param hex the hex text (both `a-f` and `A-F` accepted; no `0x` prefix).
+ * @return the decoded raw bytes (may contain embedded NULs).
+ * @throws std::invalid_argument on an odd length or a non-hex character.
+ * @complexity O(|hex|).
+ * @alloc the returned bytes.
+ * @test CheatahHashlib.HexRoundTrip
+ */
+std::string from_hex(std::string_view hex);
 
 /**
  * HKDF-Extract (RFC 5869): PRK = HMAC-SHA-256(salt, ikm).
