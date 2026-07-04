@@ -77,6 +77,12 @@ io.print(io.format("{} ate {} fish", "cat", 3))
 )PURR", "cat ate 3 fish\n");
 }
 
+TEST(IoCompileRun, Fixed) {
+    e2e::expect_e2e("io_fixed", R"PURR(import io
+io.print(io.fixed(2.675, 2), io.fixed(12.0, 1), io.fixed(1.5, 0), io.fixed(-1.25, 1))
+)PURR", "2.67 12.0 2 -1.2\n");
+}
+
 TEST(IoCompileRun, OpenWriteRead) {
     e2e::expect_e2e("io_open", R"PURR(import io
 let f = io.open("/tmp/cr_io_open.txt", "w")

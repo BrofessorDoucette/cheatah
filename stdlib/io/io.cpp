@@ -2,12 +2,23 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "io.hpp"
 
+#include <algorithm>
+#include <cstdio>
+
 // Compiled (non-template) symbols of the io module. Linked into a cheatah
 // executable only when the program `import io`s.
 namespace cheatah::io {
 
 std::string str(const std::string& value) { return value; }
 std::string str(bool b) { return b ? "True" : "False"; }
+
+std::string fixed(double value, long long places) {
+    const int p = static_cast<int>(std::clamp<long long>(places, 0, 17));
+    const int n = std::snprintf(nullptr, 0, "%.*f", p, value);
+    std::string out(static_cast<std::size_t>(n), '\0');
+    std::snprintf(out.data(), out.size() + 1, "%.*f", p, value);
+    return out;
+}
 
 std::string repr(const std::string& value) { return "'" + value + "'"; }
 std::string repr(const char* value) { return "'" + std::string(value) + "'"; }

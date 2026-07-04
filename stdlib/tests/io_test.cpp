@@ -106,6 +106,17 @@ TEST(CheatahIo, StrFormatsPythonStyle) {
     EXPECT_EQ(io::str(std::string("meow")), "meow");
 }
 
+TEST(CheatahIo, FixedFormatsAndRounds) {
+    EXPECT_EQ(io::fixed(3.14159, 2), "3.14");
+    EXPECT_EQ(io::fixed(2.675, 2), "2.67");     // binary 2.675 is 2.67499…: correct rounding
+    EXPECT_EQ(io::fixed(12.0, 1), "12.0");
+    EXPECT_EQ(io::fixed(0.5, 0), "0");          // half-to-even at the integer boundary
+    EXPECT_EQ(io::fixed(1.5, 0), "2");
+    EXPECT_EQ(io::fixed(-1.25, 1), "-1.2");
+    EXPECT_EQ(io::fixed(7.0, -3), "7");         // negative places clamps to 0
+    EXPECT_EQ(io::fixed(0.1, 17), "0.10000000000000001");  // places capped at 17
+}
+
 TEST(CheatahIo, ReprQuotesStrings) {
     EXPECT_EQ(io::repr(std::string("meow")), "'meow'");
     EXPECT_EQ(io::repr("purr"), "'purr'");

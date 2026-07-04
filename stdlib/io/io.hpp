@@ -105,6 +105,24 @@ std::string str(const std::string& value);
  */
 std::string str(bool b);
 
+/**
+ * Fixed-point float formatting — Python's `f"{x:.2f}"` / `"%.2f" % x` as a function.
+ *
+ * Renders @p value with exactly @p places digits after the decimal point, correctly
+ * rounded (the C `printf("%.*f")` semantics, which match Python's fixed-point format
+ * of the same double). Negative @p places is treated as 0; @p places is capped at 17
+ * (beyond a double's meaningful precision).
+ * @param value the number to format.
+ * @param places digits after the decimal point (clamped to [0, 17]).
+ * @return the fixed-point text (e.g. `fixed(2.675, 2)` -> `"2.67"`).
+ * @complexity O(places) plus the integer-digit count.
+ * @alloc allocates the result string.
+ * @test CheatahIo.FixedFormatsAndRounds
+ * @crtest IoCompileRun.Fixed
+ * @systest StdlibE2E.Io
+ */
+std::string fixed(double value, long long places);
+
 // repr() renders a value the way it appears INSIDE a container (strings quoted).
 // Forward-declared here so the str(list)/str(dict) overloads below can call it for
 // their elements; the definitions live further down.
