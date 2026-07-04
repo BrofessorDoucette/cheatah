@@ -18,7 +18,7 @@
  * caller), so the one way to share a mutable object is to pass a pinned `memory.Owner<T>` — it
  * travels BY REFERENCE — and go through its request -> acquire -> lease flow. cheatah does not
  * detect or prevent data races: what you do across threads is AT YOUR OWN RISK, and the
- * `Owner`'s leases are the recommended safe path. See `docs/threading.md` for the full contract.
+ * `Owner`'s leases are the recommended safe path. The full contract lives on the module page (stdlib/thread/README.md).
  *
  * A worker that throws does not kill the program: the exception is caught in the thread and
  * RE-THROWN at `t.join()` (catch it there with `try`). If the thread is never explicitly joined,

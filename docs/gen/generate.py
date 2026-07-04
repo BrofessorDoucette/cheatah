@@ -23,7 +23,9 @@ from pathlib import Path
 VERS: dict[str, str] = {}
 
 def _ver(text: str) -> str:
-    return hashlib.md5(text.encode()).hexdigest()[:8]
+    # sha256 (not md5): the pure-cheatah generator port shares this exact scheme via
+    # the stdlib hashlib module, which deliberately carries no legacy digests.
+    return hashlib.sha256(text.encode()).hexdigest()[:8]
 
 ROOT = Path(__file__).resolve().parent.parent.parent        # repo root
 XML = ROOT / "docs" / "xml"
@@ -621,6 +623,10 @@ class Renderer:
         key = key.rstrip("/")
         if key in self.modules:
             return f'<a href="{self.modules[key]}.html">{self.inline(el)}</a>'
+        # A repo-relative source path we render a source page for (e.g. a guide linking
+        # stdlib/memory/owner.hpp) -> that source page, so "show me the C++" is one click.
+        if key in self.src_map:
+            return f'<a href="{self.src_map[key]}">{self.inline(el)}</a>'
         return self.inline(el)
 
     def t_anchor(self, el) -> str:
@@ -781,7 +787,8 @@ def build_sidebar(compounds: dict[str, Compound]) -> str:
     # Guide pages, in a deliberate reading order. The two language-comparison pages
     # (cheatah ↔ Python, cheatah ↔ C++) live in their OWN "Language parity" section.
     GUIDE_ORDER = {"why": 0, "getting-started": 1, "porting": 2, "imports": 3,
-                   "performance": 4, "optimizations": 5, "security": 6, "md_CHANGELOG": 8}
+                   "ownership": 4, "performance": 5, "optimizations": 6, "security": 7,
+                   "md_CHANGELOG": 9}
     # "Essential tools": the compiler first (users meet purrc before the runtime), then the
     # runtime, the package manager, and the extensions.
     TOOLS_ORDER = {"purrc": 0, "runtime": 1, "biome": 2, "extensions": 3}
@@ -933,7 +940,8 @@ def build_test_index() -> dict[str, tuple[str, str]]:
     the in-process unit tests (stdlib/tests) and the compile-run + system-level
     tests (tests/purrc)."""
     idx: dict[str, tuple[str, str]] = {}
-    for tdir in (ROOT / "stdlib" / "tests", ROOT / "tests" / "purrc"):
+    for tdir in (ROOT / "stdlib" / "tests", ROOT / "stdlib" / "memory" / "tests",
+                 ROOT / "tests" / "purrc"):
         if not tdir.is_dir():
             continue
         for f in sorted(tdir.glob("*.cpp")):
@@ -1107,7 +1115,8 @@ def main() -> int:
         for m in comp.members:
             if m.srcfile:
                 src_files.add(m.srcfile)
-    for tdir in (ROOT / "stdlib" / "tests", ROOT / "tests" / "purrc"):
+    for tdir in (ROOT / "stdlib" / "tests", ROOT / "stdlib" / "memory" / "tests",
+                 ROOT / "tests" / "purrc"):
         if tdir.is_dir():
             src_files.update(str(f.relative_to(ROOT)) for f in tdir.glob("*.cpp"))
     src_map = {p: src_page_name(p) for p in sorted(src_files) if (ROOT / p).is_file()}

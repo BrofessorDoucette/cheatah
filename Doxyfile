@@ -61,7 +61,7 @@ WARN_NO_PARAMDOC       = NO
 # Tests/scripts and the project-overview stdlib/README.md (a homepage duplicate)
 # are excluded.
 #---------------------------------------------------------------------------
-INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/optimizations.md docs/porting.md docs/security.md docs/cpp.md docs/runtime.md docs/purrc.md docs/biome.md docs/extensions.md docs/imports.md docs/threading.md compiler/PYTHON.md CHANGELOG.md
+INPUT                  = stdlib docs/mainpage.md docs/why.md docs/getting_started.md docs/performance.md docs/optimizations.md docs/porting.md docs/security.md docs/cpp.md docs/runtime.md docs/purrc.md docs/biome.md docs/extensions.md docs/imports.md docs/ownership.md compiler/PYTHON.md CHANGELOG.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
@@ -79,6 +79,7 @@ IMPLICIT_DIR_DOCS      = NO
 #   - aes_gcm_ni — AEAD's hardware kernels (cheatah::aead::accel)
 #   - parsers/json simd + builder/cursor machinery (construction policies, scan kernels)
 EXCLUDE                = stdlib/README.md \
+                         stdlib/memory/DESIGN.md \
                          stdlib/tls/tls_lowlevel.hpp \
                          stdlib/tls/rsa_verify.hpp \
                          stdlib/tls/x509.hpp \
