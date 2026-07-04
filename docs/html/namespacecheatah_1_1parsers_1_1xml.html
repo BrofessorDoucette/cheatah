@@ -32,7 +32,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">Document</span> <span class="mname">parse</span>(std::string_view xml)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L241" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a5352d4ecdfadc18495a7415f2a9350a1" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L243" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a5352d4ecdfadc18495a7415f2a9350a1" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Parse <code>xml</code> into a Document (slab DOM). </p>
   <div class="member-body"><p>Never throws.</p><p>The returned document always has at least the root node (<code><a href="namespacecheatah_1_1parsers_1_1xml.html#namespacecheatah_1_1parsers_1_1xml_1a6de8256d45b9968fd431c6674d5f74ef">root</a></code>). Malformed input is tolerated: unterminated tags/comments/CDATA consume to end-of-input, and a <code>&lt;/x&gt;</code> with no matching open element is ignored rather than aborting the parse.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>xml</code></td><td class="pdesc"><p>the document text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the parsed document (root-only for empty/blank input).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) time in the length of <code>xml</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the node slab and its strings on the heap (owned by the returned Document).</p></span></div></div>
@@ -40,7 +40,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">int</span> <span class="mname">root</span>(const Document &amp;doc)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L248" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a6de8256d45b9968fd431c6674d5f74ef" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L250" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a6de8256d45b9968fd431c6674d5f74ef" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The document root&#x27;s node id (its children are the top-level nodes). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the root node id (its children are the top-level nodes).</p></div></div>
@@ -48,7 +48,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">is_element</span>(const Document &amp;doc, int id)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L250" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a7b549e2337d41ba42d887f4dc7cfbe1d" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L252" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a7b549e2337d41ba42d887f4dc7cfbe1d" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Whether <code>id</code> is a valid element node in <code>doc</code>. </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the node id to test.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true iff <code>id</code> is a valid element node.</p></div></div>
@@ -56,7 +56,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::string</span> <span class="mname">tag</span>(const Document &amp;doc, int id)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L255" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a0bea376bfa1b9b1758599ebc403a44f7" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L257" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a0bea376bfa1b9b1758599ebc403a44f7" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The tag name of element <code>id</code>, or &quot;&quot; if <code>id</code> is not an element. </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result string.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the element node id.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the tag name, or &quot;&quot; if <code>id</code> is not an element.</p></div></div>
@@ -64,7 +64,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::string</span> <span class="mname">attr</span>(const Document &amp;doc, int id, std::string_view name)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L260" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a4549cb1a7994cfa91045fe79a8052cdc" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L262" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a4549cb1a7994cfa91045fe79a8052cdc" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Value of attribute <code>name</code> on element <code>id</code>, or &quot;&quot; if absent (or <code>id</code> is not an element). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(k) in the attribute count of <code>id</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result string.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the element node id.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the attribute name.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the attribute value, or &quot;&quot; if absent.</p></div></div>
@@ -72,7 +72,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">has_attr</span>(const Document &amp;doc, int id, std::string_view name)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L267" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a364fbf4dd2f19d632d4b1d40208fe1a2" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L269" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a364fbf4dd2f19d632d4b1d40208fe1a2" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Whether element <code>id</code> carries an attribute named <code>name</code>. </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(k) in the attribute count of <code>id</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the element node id.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the attribute name.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>whether <code>id</code> carries attribute <code>name</code>.</p></div></div>
@@ -80,7 +80,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::string</span> <span class="mname">text</span>(const Document &amp;doc, int id)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L274" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a8e88a5f5fe14994a2d079c2ed435f84b" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L276" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a8e88a5f5fe14994a2d079c2ed435f84b" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The concatenated text of node <code>id:</code> for a text node, its own text; for an element, all descendant text in document order (like an XML <code>.textContent</code>). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(m) in the number of descendants of <code>id</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result string.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the node id.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the concatenated descendant text.</p></div></div>
@@ -88,7 +88,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::vector&lt; int &gt;</span> <span class="mname">children</span>(const Document &amp;doc, int id)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L280" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a31244547cb5187b9729b6c9e2fc0e629" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L282" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a31244547cb5187b9729b6c9e2fc0e629" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The child node ids of <code>id</code>, in document order (elements and text). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) (returns a copy of the id list).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the id list.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the node id.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the child node ids in document order.</p></div></div>
@@ -96,7 +96,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">int</span> <span class="mname">find</span>(const Document &amp;doc, int id, std::string_view tag)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L285" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a26786bf6f4f05e7cabad310a269dbbf5" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L287" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a26786bf6f4f05e7cabad310a269dbbf5" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The id of the <strong>first child element</strong> of <code>id</code> whose tag equals <code>tag</code>, or -1 if none. </p>
   <div class="member-body"><p>(Direct children only — not descendants; use <a href="namespacecheatah_1_1parsers_1_1xml.html#namespacecheatah_1_1parsers_1_1xml_1a471b828b69121c075a2937f99cadbd01">iter</a> for the whole subtree.)</p><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(c) in the direct-child count of <code>id</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the parent node id.</p></td></tr><tr><td class="pname"><code>tag</code></td><td class="pdesc"><p>the child tag to match.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the first matching child element id, or -1.</p></div></div>
@@ -104,7 +104,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::vector&lt; int &gt;</span> <span class="mname">findall</span>(const Document &amp;doc, int id, std::string_view tag)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L295" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a27da490bfd1c7fa7f62b374e4d5cbc1f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L297" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a27da490bfd1c7fa7f62b374e4d5cbc1f" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The ids of <strong>all direct child elements</strong> of <code>id</code> whose tag equals <code>tag</code>, in order. </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(c) in the direct-child count of <code>id</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the result id list.</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the parent node id.</p></td></tr><tr><td class="pname"><code>tag</code></td><td class="pdesc"><p>the child tag to match.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the matching direct-child element ids.</p></div></div>
@@ -112,14 +112,14 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::vector&lt; int &gt;</span> <span class="mname">iter</span>(const Document &amp;doc, int id, std::string_view tag)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L306" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a471b828b69121c075a2937f99cadbd01" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_xml_xml_cpp.html#L308" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1xml_1a471b828b69121c075a2937f99cadbd01" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The ids of <strong>every element in the subtree</strong> rooted at <code>id</code> (including <code>id</code> itself) whose tag equals <code>tag</code>, in document order — the analogue of an XML tree <code>.<span class="tok-fn">iter</span>(tag)</code>. </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(m) in the subtree size of <code>id</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the result id list (and a transient walk stack).</p></span></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>doc</code></td><td class="pdesc"><p>the document.</p></td></tr><tr><td class="pname"><code>id</code></td><td class="pdesc"><p>the subtree root node id.</p></td></tr><tr><td class="pname"><code>tag</code></td><td class="pdesc"><p>the tag to match.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the matching element ids in the subtree, in document order.</p></div></div>
 </section></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a5352d4ecdfadc18495a7415f2a9350a1">parse</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a6de8256d45b9968fd431c6674d5f74ef">root</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a7b549e2337d41ba42d887f4dc7cfbe1d">is_element</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a0bea376bfa1b9b1758599ebc403a44f7">tag</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a4549cb1a7994cfa91045fe79a8052cdc">attr</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a364fbf4dd2f19d632d4b1d40208fe1a2">has_attr</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a8e88a5f5fe14994a2d079c2ed435f84b">text</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a31244547cb5187b9729b6c9e2fc0e629">children</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a26786bf6f4f05e7cabad310a269dbbf5">find</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a27da490bfd1c7fa7f62b374e4d5cbc1f">findall</a></li><li><a href="#namespacecheatah_1_1parsers_1_1xml_1a471b828b69121c075a2937f99cadbd01">iter</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=9ff1126f"></script>
+<script src="search-index.js?v=5515ab72"></script>
 <script src="cheatah-docs.js?v=969935ed"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>

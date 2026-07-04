@@ -32,7 +32,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Owner.html">Owner</a>&lt; T &gt;</span> <span class="mname">own</span>(T value, policy pol=policy::interleave)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L198" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a6547bc2dde09c094a7bd3fcaa6d744ea" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L200" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a6547bc2dde09c094a7bd3fcaa6d744ea" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Take sole ownership of <code>value</code> and hand back its <code><a href="classcheatah_1_1memory_1_1Owner.html">Owner</a></code>. </p>
   <div class="member-body"><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>T</code></td><td class="pdesc"><p>the owned type.</p></td></tr></table></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the object to own (moved in).</p></td></tr><tr><td class="pname"><code>pol</code></td><td class="pdesc"><p>the scheduling policy.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an <code><a href="classcheatah_1_1memory_1_1Owner.html">Owner</a>&lt;T&gt;</code> that has consumed <code>value</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus moving <code>value</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none of our own (the value owns its storage).</p></span></div></div>
@@ -40,7 +40,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">is_write_mode</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_mode_hpp.html#L27" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a261a48cb93b07ecd38a046521a7b0dde" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_mode_hpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a261a48cb93b07ecd38a046521a7b0dde" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">True for the two exclusive (write) modes. </p>
   <div class="member-body"></div>
@@ -48,7 +48,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7">policy</a></span> <span class="mname">interleave</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L18" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a7d33572366d02cc7a59cc0786eb3c58d" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L20" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a7d33572366d02cc7a59cc0786eb3c58d" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Shorthand for <code>policy::interleave</code> — readers renew between writes (the default, fair) policy. </p>
   <div class="member-body"></div>
@@ -56,7 +56,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7">policy</a></span> <span class="mname">writes_first</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L20" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a21b2922f7b904c5f393d3aa7b788e271" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L22" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a21b2922f7b904c5f393d3aa7b788e271" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Shorthand for <code>policy::writes_first</code> — drain the whole write queue before renewing any reader. </p>
   <div class="member-body"></div>
@@ -64,7 +64,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">long long</span> <span class="mname">immediate</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L24" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L26" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">The readable spelling of an immediate-write priority. </p>
   <div class="member-body"><p>Any negative priority is immediate; this is simply its name: <code>x.rwrite&lt;<a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429">memory::immediate</a>&gt;()</code> reads better than <code>x.rwrite&lt;-<span class="tok-num">1</span>&gt;()</code>.</p></div>
@@ -72,14 +72,14 @@
   <div class="member-head">
     <span class="badge badge-enum">enum</span>
     <code class="sig"><span class="mtype">std::uint8_t</span> <span class="mname">policy</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L13" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_policy_hpp.html#L15" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">How the owner schedules pending writes against reads. Chosen at construction (a stored value). </p>
   <div class="member-body"></div>
 </section></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1memory_1a6547bc2dde09c094a7bd3fcaa6d744ea">own</a></li><li><a href="#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7">policy</a></li><li><a href="#namespacecheatah_1_1memory_1a261a48cb93b07ecd38a046521a7b0dde">is_write_mode</a></li><li><a href="#namespacecheatah_1_1memory_1a7d33572366d02cc7a59cc0786eb3c58d">interleave</a></li><li><a href="#namespacecheatah_1_1memory_1a21b2922f7b904c5f393d3aa7b788e271">writes_first</a></li><li><a href="#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429">immediate</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=9ff1126f"></script>
+<script src="search-index.js?v=5515ab72"></script>
 <script src="cheatah-docs.js?v=969935ed"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>

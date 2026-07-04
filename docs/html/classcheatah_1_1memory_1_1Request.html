@@ -33,14 +33,14 @@
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mname">Request</span> <span class="overload-count">· 3 overloads</span></code>
   </div>
-  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(std::future&lt; LeaseT &gt; &amp;&amp;fut) noexcept</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L30" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Request_1a028cf61ea09276b187b5da4483bf20c9"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(Request &amp;&amp;) noexcept=default</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L32" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a028cf61ea09276b187b5da4483bf20c9" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Request_1a878bb8b2dddbd64c9dabaddb4d4cc6a7"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(const Request &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L35" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a878bb8b2dddbd64c9dabaddb4d4cc6a7" aria-label="permalink">#</a></span></div></div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(std::future&lt; LeaseT &gt; &amp;&amp;fut) noexcept</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L32" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Request_1a028cf61ea09276b187b5da4483bf20c9"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(Request &amp;&amp;) noexcept=default</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L34" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a028cf61ea09276b187b5da4483bf20c9" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Request_1a878bb8b2dddbd64c9dabaddb4d4cc6a7"><code class="sig"><span class="mtype"></span> <span class="mname">Request</span>(const Request &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L37" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a878bb8b2dddbd64c9dabaddb4d4cc6a7" aria-label="permalink">#</a></span></div></div>
   <p class="member-brief">Wrap the owner-supplied future. </p>
   <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fut</code></td><td class="pdesc"><p>the future the owner fulfills.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
 </section><section class="member" id="classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02">Request</a> &amp;</span> <span class="mname">operator=</span>(Request &amp;&amp;) noexcept=default</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L34" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L36" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Move-assign (a request is move-only). </p>
   <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code>*this</code>.</p></div></div>
@@ -48,7 +48,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">LeaseT</span> <span class="mname">acquire</span>(std::function&lt; void()&gt; on_interrupt={})</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L46" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L48" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">BLOCK until the owner grants, then return the lease. </p>
   <div class="member-body"><p><code>on_interrupt</code> is the requester&#x27;s interruption handler — wired to the granted lease so if the owner later needs the lease back the handler fires. Omit it to rely purely on the lease&#x27;s <code><span class="tok-fn">valid</span>()</code>/<code><span class="tok-fn">expired</span>()</code> polling. One-shot.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>on_interrupt</code></td><td class="pdesc"><p>optional handler to run when the owner asks the lease to yield.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the granted lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) once granted; <strong>blocks</strong> until the owner fulfills the request.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none, unless <code>on_interrupt</code> is supplied — then one callback holder (via <code><a href="classcheatah_1_1memory_1_1Lease.html#classcheatah_1_1memory_1_1Lease_1acb32d70340c121f53b86f43877830800">Lease::on_interrupt</a></code>).</p></span></div></div>
@@ -56,14 +56,14 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::future&lt; LeaseT &gt;</span> <span class="mname">fut_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L53" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1aec8dd3faf21015988b175f266e9289f2" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_request_hpp.html#L55" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Request_1aec8dd3faf21015988b175f266e9289f2" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">owner-fulfilled; never exposed to cheatah. </p>
   <div class="member-body"></div>
 </section></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1memory_1_1Request_1a35163128a00b180c3a85393d2678cc02">Request</a></li><li><a href="#classcheatah_1_1memory_1_1Request_1ac63b216261bdf82ce884f1dc042c8836">operator=</a></li><li><a href="#classcheatah_1_1memory_1_1Request_1a793a9d7cf4e84a9960c85e9f3871e3bf">acquire</a></li><li><a href="#classcheatah_1_1memory_1_1Request_1aec8dd3faf21015988b175f266e9289f2">fut_</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=9ff1126f"></script>
+<script src="search-index.js?v=5515ab72"></script>
 <script src="cheatah-docs.js?v=969935ed"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>

@@ -3,7 +3,13 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
-## Unreleased (v1.4.0-alpha) — ownership, threads, and safe borrows
+## v1.3.0-alpha (2026-07-03) — deterministic resource cleanup, ownership + native threads, first-class crypto/networking
+
+The standard-library release: cheatah gains a `with` statement and owning RAII guards, an
+ownership/borrow engine (`memory`) feeding real OS threads (`thread`), the crypto + networking
+modules become first-class (and 100% tested against real peers), and pure cheatah is now provably
+leak-free. Copyright is held by **BigBrain LLC** (lead engineer and producer: Joshua Doucette, on
+its behalf); MIT-licensed.
 
 ### New `memory` module — an ownership/borrow engine (`Owner` / `Lease` / `Request`)
 - **`memory.own(value) -> Owner<T>`** takes SOLE ownership by **moving** the value in (it is
@@ -76,13 +82,6 @@ changes between releases.
   list (`p256`/`x25519` added) and highlights `constexpr`/`auto`; added a LICENSE file and CHANGELOG,
   refreshed README, dropped the committed `.vsix` build artifact.
 
-## v1.3.0-alpha (2026-07-01) — deterministic resource cleanup, an airtight memory-leak guarantee, first-class crypto/networking
-
-The standard-library release: cheatah gains a `with` statement and owning RAII guards, the
-crypto + networking modules become first-class (and 100% tested against real peers), and pure
-cheatah is now provably leak-free. Copyright is held by **BigBrain LLC** (lead engineer and
-producer: Joshua Doucette, on its behalf); MIT-licensed.
-
 ### `with` + owning RAII guards (deterministic cleanup)
 - **New `with resource [as name] { … }` statement** — binds a resource for the block and runs
   its destructor on **every** exit path (return, break, exception). Lowers to a lean C++ scope;
@@ -122,6 +121,10 @@ gate (100% line+function coverage, 100% Javadoc, ASan/UBSan/Valgrind clean):
   (each leaf-cert algorithm and record cipher), `websocket` against a real Node `ws` server,
   `requests`/`socket` over a loopback server — all merged into the 100% line+function gate.
   `parsers` is now hand-written C++ (its `.purr` was retired).
+- **PEM parsing fails closed**: X.509 certificate bodies decode with a strict base64 mode — a
+  non-alphabet, non-whitespace byte rejects the certificate instead of decoding to garbage — and
+  the crypto modules now share hashlib's single canonical `to_hex`/`from_hex` (the duplicated
+  per-module hex helpers are gone).
 
 ### Compiler (`purrc`)
 - **Pure-cheatah modules with `struct`s are now fully documented**: purrc emits Javadoc for

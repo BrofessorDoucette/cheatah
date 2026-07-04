@@ -32,7 +32,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::string_view</span> <span class="mname">to_view</span>(const Node &amp;value) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L191" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4f24c6bd94be5478cd15421debf42af5" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L193" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4f24c6bd94be5478cd15421debf42af5" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Read a <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a>&#x27;s characters when it is a string (either backing), else an empty view. </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">ParseObject</span></code></span></div></div>
@@ -40,7 +40,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a></span> <span class="mname">parse</span>(std::string_view text, bool *ok=nullptr)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L203" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1afb155cedbb3d89484fedc4664aebe84a" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L205" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1afb155cedbb3d89484fedc4664aebe84a" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Parse <code>text</code> into a SELF-CONTAINED <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a> (owning containers AND owned strings — every string is copied, not a view), so the result is safe to return, cache, or outlive <code>text</code>. </p>
   <div class="member-body"><p>On success *ok is set true; on malformed input *ok is set false and the result is JSON null. For the zero-copy, source-viewing form (no string copies), reuse a <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html">Parser</a> and call <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html#classcheatah_1_1parsers_1_1json_1_1Parser_1a20e580e6505d57056c2a5343de0ad184">Parser::parse</a>.</p><p>Validate is a COMPILE-TIME switch: the default (true) does full bounds/structure checking and rejects malformed input; parse&lt;false&gt;(...) strips every such check from the binary via <code><span class="tok-kw">if</span> <span class="tok-kw">constexpr</span></code> (see the <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html">Parser</a> docs) and does not write *ok — for trusted, known-well-formed input only, as feeding it malformed input is undefined behavior.</p><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the input length</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>allocates the owned document tree (arrays, objects, and copied strings)</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">ParseObject</span></code></span></div></div>
@@ -48,7 +48,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">template <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a></span> <span class="mname">parse&lt; true &gt;</span>(std::string_view, bool *)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L211" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a1efde2c5b501a2f34a3ddb3dbb55ba1f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L213" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a1efde2c5b501a2f34a3ddb3dbb55ba1f" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -56,7 +56,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">template <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a></span> <span class="mname">parse&lt; false &gt;</span>(std::string_view, bool *)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L212" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1af63d38058a35ba771812b85cfe57cac2" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L214" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1af63d38058a35ba771812b85cfe57cac2" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -65,14 +65,14 @@
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mname">dump</span> <span class="overload-count">· 2 overloads</span></code>
   </div>
-  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype">void</span> <span class="mname">dump</span>(const Document &amp;value, std::string &amp;out)</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L214" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a130ee703d53da5ab54d43a1a7c61ee5b" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1parsers_1_1json_1a2b7ff8156ab1652f965cd3bbd06a69e3"><code class="sig"><span class="mtype">std::string</span> <span class="mname">dump</span>(const Document &amp;value)</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L218" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a2b7ff8156ab1652f965cd3bbd06a69e3" aria-label="permalink">#</a></span></div></div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype">void</span> <span class="mname">dump</span>(const Document &amp;value, std::string &amp;out)</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L216" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a130ee703d53da5ab54d43a1a7c61ee5b" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1parsers_1_1json_1a2b7ff8156ab1652f965cd3bbd06a69e3"><code class="sig"><span class="mtype">std::string</span> <span class="mname">dump</span>(const Document &amp;value)</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L220" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a2b7ff8156ab1652f965cd3bbd06a69e3" aria-label="permalink">#</a></span></div></div>
   <p class="member-brief">Serialize a <a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a> by APPENDING to the caller&#x27;s buffer — stream into a preallocated/reused std::string rather than allocating a fresh one. </p>
   <div class="member-body"><p>This is the efficient path (push_back/append into one growing buffer); it deliberately avoids std::stringstream, which adds formatting, locale, and virtual-streambuf overhead per write. Reserve <code>out</code> once and reuse it across calls.</p><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(nodes)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none of its own (grows <code>out</code> only if its capacity is exceeded)</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Json</span>.<span class="tn-case">DumpRoundTrip</span></code></span></div></div>
 </section><section class="member" id="namespacecheatah_1_1parsers_1_1json_1abd17de2d70206912569a9610709ae09f">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">read</span>(std::string_view text, T &amp;out)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_read_hpp.html#L374" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1abd17de2d70206912569a9610709ae09f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_read_hpp.html#L376" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1abd17de2d70206912569a9610709ae09f" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Parse <code>text</code> directly into <code>out</code> (a struct with a schema&lt;&gt;, a supported scalar, std::vector, std::array, std::optional, or std::string/std::string_view). </p>
   <div class="member-body"><p>Returns true on success. With Validate=true the input is fully checked (including no trailing junk); with Validate=false every bounds/structure check is compiled out for trusted, well-formed input (malformed input is then undefined behavior, and no success/trailing check is performed — it always returns true).</p><p>std::string fields OWN their characters (safe to outlive <code>text</code>); std::string_view fields VIEW <code>text</code> (which must then outlive <code>out</code>) and reject escaped strings.</p><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the input length</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>only the owned std::string fields / vector growth in <code>out</code> — no DOM, no <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> tree</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">JsonRead</span>.<span class="tn-case">*</span></code></span></div></div>
@@ -80,7 +80,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">Field&lt; Class, Member &gt;</span> <span class="mname">field</span>(std::string_view name, Member Class::*ptr) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_schema_hpp.html#L40" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a0f656795fe8485f53664c00c60cadf6a" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_schema_hpp.html#L42" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a0f656795fe8485f53664c00c60cadf6a" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -88,7 +88,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">ObjectSchema&lt; Fields... &gt;</span> <span class="mname">object</span>(Fields... fs) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_schema_hpp.html#L56" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a829f498d1bf1c998fbab8631879ac021" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_schema_hpp.html#L58" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a829f498d1bf1c998fbab8631879ac021" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -97,14 +97,14 @@
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mname">String</span> <span class="overload-count">· 3 overloads</span></code>
   </div>
-  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">String</span>(const char *) -&gt; String&lt; std::string_view &gt;</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L58" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1af1332478fe692de615e2e4c5ccdcc861" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1parsers_1_1json_1a33af4ee44239576e9e97e0921eda2585"><code class="sig"><span class="mtype"></span> <span class="mname">String</span>(std::string_view) -&gt; String&lt; std::string_view &gt;</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L59" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a33af4ee44239576e9e97e0921eda2585" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1parsers_1_1json_1a4a3d1e0d1af5dd4686ef9af303d284cf"><code class="sig"><span class="mtype"></span> <span class="mname">String</span>(std::string) -&gt; String&lt; std::string &gt;</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L60" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4a3d1e0d1af5dd4686ef9af303d284cf" aria-label="permalink">#</a></span></div></div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">String</span>(const char *) -&gt; String&lt; std::string_view &gt;</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L60" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1af1332478fe692de615e2e4c5ccdcc861" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1parsers_1_1json_1a33af4ee44239576e9e97e0921eda2585"><code class="sig"><span class="mtype"></span> <span class="mname">String</span>(std::string_view) -&gt; String&lt; std::string_view &gt;</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L61" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a33af4ee44239576e9e97e0921eda2585" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1parsers_1_1json_1a4a3d1e0d1af5dd4686ef9af303d284cf"><code class="sig"><span class="mtype"></span> <span class="mname">String</span>(std::string) -&gt; String&lt; std::string &gt;</code><span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L62" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4a3d1e0d1af5dd4686ef9af303d284cf" aria-label="permalink">#</a></span></div></div>
   
   <div class="member-body"></div>
 </section><section class="member" id="namespacecheatah_1_1parsers_1_1json_1a782a5f3e24c165df1bf66894c1516998">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">decode_escapes</span>(std::string_view raw, std::string &amp;out)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L90" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a782a5f3e24c165df1bf66894c1516998" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L92" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a782a5f3e24c165df1bf66894c1516998" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -112,7 +112,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">match</span>(Cursor &amp;c, std::string_view lit) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a9cabb5f06ac77fcd68878c196f367ba6" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L31" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a9cabb5f06ac77fcd68878c196f367ba6" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -120,7 +120,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">scan_string</span>(Cursor &amp;c, std::string_view &amp;raw, bool &amp;esc)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L142" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1ab5383b9e726ebd2b75fc80d2375a039d" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L144" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1ab5383b9e726ebd2b75fc80d2375a039d" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -128,7 +128,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">void</span> <span class="mname">skip_ws</span>(Cursor &amp;c) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L23" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a0d58f1d3fd2ca2fd93c99a1837e584ce" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L25" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a0d58f1d3fd2ca2fd93c99a1837e584ce" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -136,7 +136,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">no_schema</span> <span class="mname">schema</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_schema_hpp.html#L64" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a60b9c63a5f7e24efde2befa90fb5d763" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_schema_hpp.html#L66" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a60b9c63a5f7e24efde2befa90fb5d763" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -144,7 +144,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">auto</span> <span class="mname">schema&lt;::cheatah::requests::Options &gt;</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_requests_requests_hpp.html#L266" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1aac28952df46c31c798432845c1565b21" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_requests_requests_hpp.html#L270" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1aac28952df46c31c798432845c1565b21" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">JSON schema for <code>Options</code>, synthesized by purrc from the struct&#x27;s fields — powers <code><a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1abd17de2d70206912569a9610709ae09f">parsers.json.read</a></code> into this type. </p>
   <div class="member-body"></div>
@@ -152,7 +152,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">auto</span> <span class="mname">schema&lt;::cheatah::requests::Response &gt;</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_requests_requests_hpp.html#L268" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a8fb842f75256341d334789c84174b417" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_requests_requests_hpp.html#L272" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a8fb842f75256341d334789c84174b417" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">JSON schema for <code>Response</code>, synthesized by purrc from the struct&#x27;s fields — powers <code><a href="namespacecheatah_1_1parsers_1_1json.html#namespacecheatah_1_1parsers_1_1json_1abd17de2d70206912569a9610709ae09f">parsers.json.read</a></code> into this type. </p>
   <div class="member-body"></div>
@@ -160,7 +160,7 @@
   <div class="member-head">
     <span class="badge badge-type">type</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a></span> <span class="mname">Document</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_document_hpp.html#L10" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_document_hpp.html#L12" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -168,7 +168,7 @@
   <div class="member-head">
     <span class="badge badge-type">type</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Array.html">Array</a>&lt; std::vector&lt; <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> &gt; &gt;</span> <span class="mname">OwnedArray</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L30" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4f0c5a42d99447e2ecedd4534fe871f7" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L32" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4f0c5a42d99447e2ecedd4534fe871f7" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -176,7 +176,7 @@
   <div class="member-head">
     <span class="badge badge-type">type</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Array.html">Array</a>&lt; std::span&lt; const <a href="classcheatah_1_1parsers_1_1json_1_1Node.html">Node</a> &gt; &gt;</span> <span class="mname">ArrayView</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L31" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a824e068f901795673ce8e6a97edd28e0" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L33" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a824e068f901795673ce8e6a97edd28e0" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -184,7 +184,7 @@
   <div class="member-head">
     <span class="badge badge-type">type</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Object.html">Object</a>&lt; std::vector&lt; Member &gt; &gt;</span> <span class="mname">OwnedObject</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L50" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4e39f7b610a7167a974c4d26d6e5c403" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L52" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a4e39f7b610a7167a974c4d26d6e5c403" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -192,14 +192,14 @@
   <div class="member-head">
     <span class="badge badge-type">type</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1parsers_1_1json_1_1Object.html">Object</a>&lt; std::span&lt; const Member &gt; &gt;</span> <span class="mname">ObjectView</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L51" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1af8cd90afffadb56e27e2947c795acc0f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_fwd_hpp.html#L53" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1af8cd90afffadb56e27e2947c795acc0f" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
 </section></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1parsers_1_1json_1a4f24c6bd94be5478cd15421debf42af5">to_view</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1afb155cedbb3d89484fedc4664aebe84a">parse</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a1efde2c5b501a2f34a3ddb3dbb55ba1f">parse&lt; true &gt;</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1af63d38058a35ba771812b85cfe57cac2">parse&lt; false &gt;</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a130ee703d53da5ab54d43a1a7c61ee5b">dump</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1abd17de2d70206912569a9610709ae09f">read</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a0f656795fe8485f53664c00c60cadf6a">field</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a829f498d1bf1c998fbab8631879ac021">object</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1af1332478fe692de615e2e4c5ccdcc861">String</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a782a5f3e24c165df1bf66894c1516998">decode_escapes</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a9cabb5f06ac77fcd68878c196f367ba6">match</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1ab5383b9e726ebd2b75fc80d2375a039d">scan_string</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a0d58f1d3fd2ca2fd93c99a1837e584ce">skip_ws</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a7e2b939f67340eaa0c2f8d83366e39d4">Document</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a4f0c5a42d99447e2ecedd4534fe871f7">OwnedArray</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a824e068f901795673ce8e6a97edd28e0">ArrayView</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a4e39f7b610a7167a974c4d26d6e5c403">OwnedObject</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1af8cd90afffadb56e27e2947c795acc0f">ObjectView</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a60b9c63a5f7e24efde2befa90fb5d763">schema</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1aac28952df46c31c798432845c1565b21">schema&lt;::cheatah::requests::Options &gt;</a></li><li><a href="#namespacecheatah_1_1parsers_1_1json_1a8fb842f75256341d334789c84174b417">schema&lt;::cheatah::requests::Response &gt;</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=9ff1126f"></script>
+<script src="search-index.js?v=5515ab72"></script>
 <script src="cheatah-docs.js?v=969935ed"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
