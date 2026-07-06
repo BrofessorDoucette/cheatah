@@ -5,6 +5,7 @@
 // Poly1305, HKDF, Ed25519 verification). Also the refusal paths: a non-TLS peer, and a
 // closed port.
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <thread>
@@ -366,4 +367,226 @@ TEST(TlsSys, HttpsGet) {
                             "/\", o)\nio.print(r.status_code)\nio.print(r.ok())\n"
                             "io.print(len(r.body) > 0)\n";
     e2e::expect_e2e("requests_https_get", src, "200\nTrue\nTrue\n");
+}
+
+namespace {
+std::string slurp(const std::string& path) {
+    FILE* f = std::fopen(path.c_str(), "rb");
+    if (!f) return "";
+    std::string out;
+    char buf[4096];
+    std::size_t n;
+    while ((n = std::fread(buf, 1, sizeof buf, f)) > 0) out.append(buf, n);
+    std::fclose(f);
+    return out;
+}
+
+// Run `openssl s_client` against our server and return its stdout. `-verify_return_error` +
+// `-CAfile <our cert>` makes OpenSSL — the reference implementation — FAIL unless our from-scratch
+// server handshake (ServerHello, key schedule, Certificate, Ed25519 CertificateVerify, Finished)
+// is byte-correct and the cert validates. So a passing assertion is OpenSSL certifying our server.
+std::string run_s_client(long long port, const std::string& ca_path, const std::string& request) {
+    const std::string cmd =
+        "printf '" + request + "' | openssl s_client -connect 127.0.0.1:" + std::to_string(port) +
+        " -tls1_3 -CAfile '" + ca_path + "' -verify_return_error -servername localhost -quiet 2>&1";
+    FILE* p = popen(cmd.c_str(), "r");
+    if (!p) return "";
+    std::string out;
+    char buf[4096];
+    std::size_t n;
+    while ((n = std::fread(buf, 1, sizeof buf, p)) > 0) out.append(buf, n);
+    pclose(p);
+    return out;
+}
+}  // namespace
+
+// The MIRROR of HandshakeAgainstOpenssl: now the SERVER is pure cheatah and OpenSSL is the client.
+// A cheatah TLS server (tls::server_accept, Ed25519 cert) accepts one connection, and `openssl
+// s_client -verify_return_error` completes the TLS 1.3 handshake and reads our reply — so OpenSSL
+// validates our ServerHello + certificate flight + Ed25519 CertificateVerify + Finished end to end.
+// HTTPS with zero non-cheatah software on the server side.
+TEST(TlsSys, ServerHandshakeAgainstOpenssl) {
+    const long long port = 47971;
+    const std::string dir = PURR_TEST_TMP;
+    const std::string cert = dir + "/tls_srv_cert_" + std::to_string(port) + ".pem";
+    const std::string key = dir + "/tls_srv_key_" + std::to_string(port) + ".pem";
+    const std::string gen = "openssl req -x509 -newkey ed25519 -keyout '" + key + "' -out '" +
+                            cert + "' -days 2 -nodes -subj /CN=localhost "
+                            "-addext subjectAltName=DNS:localhost 2>/dev/null";
+    ASSERT_EQ(std::system(gen.c_str()), 0) << "could not generate an Ed25519 cert (test infra)";
+    const std::string cert_pem = slurp(cert), key_pem = slurp(key);
+    ASSERT_FALSE(cert_pem.empty());
+    ASSERT_FALSE(key_pem.empty());
+
+    const long long listen_fd = sock::tcp_listen("127.0.0.1", port, 4);
+    ASSERT_GE(listen_fd, 0) << sock::last_error();
+
+    // Server thread: accept ONE client, run the cheatah TLS server handshake, answer its GET.
+    std::string srv_err;
+    std::thread server([&] {
+        const long long conn = sock::accept(listen_fd);
+        if (conn < 0) { srv_err = "accept failed"; return; }
+        sock::set_timeout(conn, 5000);
+        const long long s = tls::server_accept(conn, cert_pem, key_pem);
+        if (s < 0) { srv_err = tls::last_error(); sock::close(conn); return; }
+        tls::recv(s, 4096);  // drain the client's request line
+        const std::string body = "hello from a pure-cheatah TLS server";
+        tls::send(s, "HTTP/1.0 200 ok\r\nContent-Length: " + std::to_string(body.size()) +
+                         "\r\nConnection: close\r\n\r\n" + body);
+        tls::close(s);
+        sock::close(conn);
+    });
+
+    const std::string out = run_s_client(port, cert, "GET / HTTP/1.0\\r\\n\\r\\n");
+    server.join();
+    sock::close(listen_fd);
+
+    EXPECT_TRUE(srv_err.empty()) << "cheatah server: " << srv_err;
+    EXPECT_NE(out.find("hello from a pure-cheatah TLS server"), std::string::npos)
+        << "openssl s_client output:\n" << out;
+}
+
+// The server's certificate/key pre-flight refusals — checked before any socket read, so a bad fd
+// is never touched. A malformed cert PEM, a non-Ed25519 key, and a cert/key algorithm mismatch each
+// fail fast with a named error rather than starting a doomed handshake.
+TEST(TlsSys, ServerRejectsBadCredentials) {
+    const std::string dir = PURR_TEST_TMP;
+    // A valid Ed25519 cert + key to mix and match against bad ones.
+    const std::string ed_cert = dir + "/tls_bad_ed_cert.pem", ed_key = dir + "/tls_bad_ed_key.pem";
+    ASSERT_EQ(std::system(("openssl req -x509 -newkey ed25519 -keyout '" + ed_key + "' -out '" +
+                           ed_cert + "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
+    const std::string ed_cert_pem = slurp(ed_cert), ed_key_pem = slurp(ed_key);
+    // A P-256 cert whose key is NOT Ed25519 (to trip the "cert is not Ed25519" check via a valid
+    // Ed25519 *key* paired with a non-Ed25519 *cert*).
+    const std::string ec_cert = dir + "/tls_bad_ec_cert.pem", ec_key = dir + "/tls_bad_ec_key.pem";
+    ASSERT_EQ(std::system(("openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -keyout '" +
+                           ec_key + "' -out '" + ec_cert +
+                           "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
+    const std::string ec_cert_pem = slurp(ec_cert);
+
+    EXPECT_LT(tls::server_accept(-1, "not a certificate", ed_key_pem), 0);   // malformed cert PEM
+    EXPECT_FALSE(tls::last_error().empty());
+    EXPECT_LT(tls::server_accept(-1, ed_cert_pem, "not a key"), 0);          // non-Ed25519 key
+    EXPECT_LT(tls::server_accept(-1, ec_cert_pem, ed_key_pem), 0);          // cert not Ed25519
+}
+
+// The server's ClientHello refusals against crafted TCP peers (mirror of RefusesBadPeer for the
+// client): a peer that closes immediately, one that sends a non-handshake record, and one that
+// sends a type-22 record with a junk body. Each must fail server_accept with a non-empty error.
+TEST(TlsSys, ServerRejectsBadClientHello) {
+    const std::string dir = PURR_TEST_TMP;
+    const std::string cert = dir + "/tls_srvrej_cert.pem", key = dir + "/tls_srvrej_key.pem";
+    ASSERT_EQ(std::system(("openssl req -x509 -newkey ed25519 -keyout '" + key + "' -out '" + cert +
+                           "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
+    const std::string cert_pem = slurp(cert), key_pem = slurp(key);
+
+    // (record bytes to send, "" = just close). type-21 alert record, and a type-22 junk record.
+    std::string alert;  // content_type 21, ver 0303, len 2, body
+    alert.push_back(21); alert.push_back(0x03); alert.push_back(0x03);
+    alert.push_back(0x00); alert.push_back(0x02); alert.push_back(2); alert.push_back(40);
+    std::string junk_hs;  // content_type 22, ver 0303, len 4, garbage that isn't a ClientHello
+    junk_hs.push_back(22); junk_hs.push_back(0x03); junk_hs.push_back(0x03);
+    junk_hs.push_back(0x00); junk_hs.push_back(0x04);
+    junk_hs.append(4, static_cast<char>(0xEE));
+    const std::vector<std::string> payloads = {"", alert, junk_hs};
+
+    for (const std::string& p : payloads) {
+        const long long listen_fd = sock::tcp_listen("127.0.0.1", 0, 4);
+        ASSERT_GE(listen_fd, 0);
+        const long long port = sock::local_port(listen_fd);
+        std::string err;
+        std::thread server([&] {
+            const long long conn = sock::accept(listen_fd);
+            if (conn < 0) return;
+            sock::set_timeout(conn, 2000);
+            const long long s = tls::server_accept(conn, cert_pem, key_pem);
+            if (s < 0) err = tls::last_error();
+            else tls::close(s);
+            sock::close(conn);
+        });
+        const long long fd = sock::tcp_connect("127.0.0.1", port);
+        ASSERT_GE(fd, 0);
+        if (!p.empty()) sock::sendall(fd, p);
+        sock::close(fd);
+        server.join();
+        sock::close(listen_fd);
+        EXPECT_FALSE(err.empty()) << "server should have refused this ClientHello";
+    }
+}
+
+namespace {
+// Wrap raw handshake bytes in a TLS plaintext record of the given content type.
+std::string tls_record(unsigned type, const std::string& body) {
+    std::string r;
+    r.push_back(static_cast<char>(type));
+    r.push_back(0x03);
+    r.push_back(0x03);
+    r.push_back(static_cast<char>((body.size() >> 8) & 0xFF));
+    r.push_back(static_cast<char>(body.size() & 0xFF));
+    r += body;
+    return r;
+}
+}  // namespace
+
+// A crafted client that sends a WELL-FORMED ClientHello (so the server proceeds through ServerHello
+// and its whole encrypted flight) and then misbehaves — closing, or sending an alert / a wrong-type
+// record / a bogus "encrypted" record where the client Finished belongs. Each drives one of the
+// server's post-ServerHello refusal branches (EOF, client alert, unexpected record, failed record
+// authentication). A zero X25519 share additionally drives the invalid-key-share refusal.
+TEST(TlsSys, ServerRejectsMidHandshake) {
+    const std::string dir = PURR_TEST_TMP;
+    const std::string cert = dir + "/tls_srvmid_cert.pem", key = dir + "/tls_srvmid_key.pem";
+    ASSERT_EQ(std::system(("openssl req -x509 -newkey ed25519 -keyout '" + key + "' -out '" + cert +
+                           "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
+    const std::string cert_pem = slurp(cert), key_pem = slurp(key);
+
+    const std::string good_share(32, 'K');          // any valid u-coordinate
+    const std::string zero_share(32, '\0');         // low-order point -> x25519 yields no secret
+    const std::string ch = tls::detail::build_client_hello("localhost", good_share);
+
+    enum Mode { CLOSE, ALERT, WRONG_TYPE, BOGUS_AEAD, ZERO_KEY };
+    for (int m = CLOSE; m <= ZERO_KEY; ++m) {
+        const long long listen_fd = sock::tcp_listen("127.0.0.1", 0, 4);
+        ASSERT_GE(listen_fd, 0);
+        const long long port = sock::local_port(listen_fd);
+        std::string err;
+        std::thread server([&] {
+            const long long conn = sock::accept(listen_fd);
+            if (conn < 0) return;
+            sock::set_timeout(conn, 2000);
+            const long long s = tls::server_accept(conn, cert_pem, key_pem);
+            if (s < 0) err = tls::last_error();
+            else tls::close(s);
+            sock::close(conn);
+        });
+        const long long fd = sock::tcp_connect("127.0.0.1", port);
+        ASSERT_GE(fd, 0);
+        if (m == ZERO_KEY) {
+            sock::set_timeout(fd, 2000);
+            sock::sendall(fd, tls_record(22, tls::detail::build_client_hello("localhost", zero_share)));
+        } else {
+            sock::sendall(fd, tls_record(22, ch));   // a valid ClientHello: server sends its flight
+            // Drain the WHOLE flight (a short read timeout returns "" once the server has sent it
+            // all and is blocked reading our Finished) — so the server reaches its client-Finished
+            // read and our misbehavior below lands there, not on an early send.
+            sock::set_timeout(fd, 300);
+            while (!sock::recv(fd, 16384).empty()) { /* keep draining */ }
+            sock::set_timeout(fd, 2000);
+            if (m == ALERT) {
+                std::string a;
+                a.push_back(2);
+                a.push_back(40);                      // fatal handshake_failure
+                sock::sendall(fd, tls_record(21, a));
+            } else if (m == WRONG_TYPE) {
+                sock::sendall(fd, tls_record(22, std::string(4, 'x')));  // plaintext where 23 is due
+            } else if (m == BOGUS_AEAD) {
+                sock::sendall(fd, tls_record(23, std::string(64, 'Z')));  // fails AEAD authentication
+            }
+            // CLOSE: send nothing more.
+        }
+        sock::close(fd);
+        server.join();
+        sock::close(listen_fd);
+        EXPECT_FALSE(err.empty()) << "server should refuse mid-handshake (mode " << m << ")";
+    }
 }

@@ -42,6 +42,20 @@ long long client_connect(long long fd, const std::string& server_name, bool inse
                          const std::string& ca_file = "");
 
 /**
+ * Run the TLS 1.3 SERVER handshake over accepted fd @p fd, presenting @p cert_pem and signing
+ * with its Ed25519 key @p key_pem (see tls::accept in tls.hpp for the owning-guard form).
+ *
+ * @param fd a CONNECTED TCP socket (one accepted client).
+ * @param cert_pem the server leaf certificate, PEM (Ed25519).
+ * @param key_pem the matching PKCS#8 Ed25519 private key, PEM.
+ * @return a session handle (>= 1), or -1 on failure (see last_error()).
+ * @complexity one network round trip + O(handshake bytes) crypto.
+ * @alloc the session state.
+ * @systest TlsSys.ServerHandshakeAgainstOpenssl
+ */
+long long server_accept(long long fd, const std::string& cert_pem, const std::string& key_pem);
+
+/**
  * Encrypt and send @p data as TLS application data.
  *
  * @param session a session handle from client_connect().

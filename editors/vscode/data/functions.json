@@ -7080,6 +7080,35 @@
       "qualified": "time.time_ns"
     },
     {
+      "name": "accept",
+      "signature": "accept(long long fd, const std::string &cert_pem, const std::string &key_pem)",
+      "brief": "Run the TLS 1.3 SERVER handshake over an accepted TCP fd and return an owning Conn — the with-friendly server counterpart to open().",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a CONNECTED TCP socket from socket::accept()/Listener (e.g. one client of a server loop)."
+        },
+        {
+          "name": "cert_pem",
+          "desc": "the server's leaf certificate, PEM (-----BEGIN CERTIFICATE-----)."
+        },
+        {
+          "name": "key_pem",
+          "desc": "the matching PKCS#8 Ed25519 private key, PEM (-----BEGIN PRIVATE KEY-----)."
+        }
+      ],
+      "returns": "an owning Conn; on handshake failure its is_open() is false (see last_error()).",
+      "tags": {
+        "complexity": "one network round trip + O(handshake bytes) crypto.",
+        "alloc": "the session state.",
+        "systest": "TlsSys.ServerHandshakeAgainstOpenssl"
+      },
+      "srcfile": "stdlib/tls/tls.hpp",
+      "srcline": 195,
+      "module": "tls",
+      "qualified": "tls.accept"
+    },
+    {
       "name": "from_hex",
       "signature": "from_hex(std::string_view hex)",
       "brief": "Hex DECODE — the inverse of to_hex.",

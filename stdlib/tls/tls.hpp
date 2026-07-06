@@ -175,6 +175,25 @@ private:
 Conn open(long long fd, const std::string& server_name, bool insecure = false,
           const std::string& ca_file = "");
 
+/**
+ * Run the TLS 1.3 SERVER handshake over an accepted TCP fd and return an owning Conn — the
+ * `with`-friendly server counterpart to open(). We present @p cert_pem and prove possession of
+ * its key by signing the handshake, so a client that validates the certificate gets an
+ * authenticated, encrypted channel with **no OpenSSL** anywhere.
+ *
+ * The server certificate must be **Ed25519** (the leaf's key and the private key both Ed25519);
+ * this is the from-scratch signing path cheatah owns end to end. Both suites (ChaCha20-Poly1305
+ * and AES-128-GCM) and X25519 key exchange are supported; the client picks the suite.
+ * @param fd a CONNECTED TCP socket from socket::accept()/Listener (e.g. one client of a server loop).
+ * @param cert_pem the server's leaf certificate, PEM (`-----BEGIN CERTIFICATE-----`).
+ * @param key_pem the matching PKCS#8 Ed25519 private key, PEM (`-----BEGIN PRIVATE KEY-----`).
+ * @return an owning Conn; on handshake failure its is_open() is false (see last_error()).
+ * @complexity one network round trip + O(handshake bytes) crypto.
+ * @alloc the session state.
+ * @systest TlsSys.ServerHandshakeAgainstOpenssl
+ */
+Conn accept(long long fd, const std::string& cert_pem, const std::string& key_pem);
+
 // Internal key-schedule primitives, exposed for the RFC 8448 vector tests only.
 namespace detail {
 /**
@@ -189,6 +208,38 @@ std::string expand_label(std::string_view secret, std::string_view label,
  */
 std::string derive_secret(std::string_view secret, std::string_view label,
                           std::string_view transcript);
+
+// Server-handshake parsers, exposed as test seams so crafted-input unit tests can drive every
+// refusal branch deterministically (no network peer needed). Not part of the cheatah surface.
+/**
+ * Parse a ClientHello (choose a supported suite, extract the client X25519 share + session id).
+ * @param msg the handshake message bytes. @param client_pub_raw filled with the 32-byte share.
+ * @param chosen_suite filled with the negotiated cipher suite. @param session_id filled with the
+ * legacy_session_id to echo. @return true iff usable (TLS 1.3, X25519, a shared suite).
+ * @test CheatahTls.ParseClientHelloRejectsMalformed
+ */
+bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsigned& chosen_suite,
+                        std::string& session_id);
+/**
+ * A PEM block's DER bytes (strict base64). @param pem the PEM text. @param label e.g.
+ * "CERTIFICATE". @return the decoded DER, or "" when the block is absent/malformed.
+ * @test CheatahTls.PemBlockExtractsAndRejects
+ */
+std::string pem_block(const std::string& pem, const std::string& label);
+/**
+ * The 32-byte Ed25519 seed from a PKCS#8 private-key DER. @param der the key DER.
+ * @return the 32-byte seed, or "" when @p der is not a PKCS#8 Ed25519 key.
+ * @test CheatahTls.PemBlockExtractsAndRejects
+ */
+std::string ed25519_seed_from_pkcs8(std::string_view der);
+/**
+ * Build a ClientHello handshake message (offering both suites + an X25519 key share) — the test
+ * seam a crafted "malformed client" peer uses to drive the server handshake past ServerHello.
+ * @param server_name the SNI host. @param pub_raw a 32-byte X25519 client share.
+ * @return the ClientHello message bytes.
+ * @systest TlsSys.ServerRejectsMidHandshake
+ */
+std::string build_client_hello(const std::string& server_name, std::string_view pub_raw);
 } // namespace detail
 
 } // namespace cheatah::tls

@@ -366,6 +366,342 @@ std::string ed25519_spki_key(std::string_view cert_der) {
     return "";  // LCOV_EXCL_LINE: only when an Ed25519 CertificateVerify names a non-Ed25519 leaf — a malformed peer we don't mirror
 }
 
+// ---- server-side handshake construction (mirror of the client builders above) --------
+
+// A PEM block's DER bytes (strict base64 — a non-alphabet byte rejects the block, like x509).
+// @p label is e.g. "CERTIFICATE" or "PRIVATE KEY". Returns "" if the block is absent/malformed.
+std::string pem_block(const std::string& pem, const std::string& label) {
+    const std::string begin = "-----BEGIN " + label + "-----";
+    const std::string end = "-----END " + label + "-----";
+    const std::size_t s = pem.find(begin);
+    if (s == std::string::npos) return "";
+    const std::size_t b = s + begin.size();
+    const std::size_t e = pem.find(end, b);
+    if (e == std::string::npos) return "";
+    return hashlib::base64_decode(pem.substr(b, e - b), /*strict=*/true);
+}
+
+// The 32-byte Ed25519 seed from a PKCS#8 private key DER: the id-Ed25519 AlgorithmIdentifier
+// (30 05 06 03 2B 65 70) followed by 04 22 04 20 (OCTET STRING { OCTET STRING[32] }) and the seed.
+std::string ed25519_seed_from_pkcs8(std::string_view der) {
+    static const unsigned char kPat[] = {0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70,
+                                         0x04, 0x22, 0x04, 0x20};
+    for (std::size_t i = 0; i + sizeof kPat + 32 <= der.size(); ++i) {
+        if (std::memcmp(der.data() + i, kPat, sizeof kPat) == 0) {
+            return std::string(der.substr(i + sizeof kPat, 32));
+        }
+    }
+    return "";
+}
+
+// Parse a ClientHello: choose a cipher suite we support (ChaCha20 preferred), extract the client's
+// X25519 key share + its legacy_session_id (echoed in ServerHello), confirm it offered TLS 1.3.
+bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsigned& chosen_suite,
+                        std::string& session_id) {
+    client_pub_raw.clear();  // never leave stale out-params on a rejected/partial parse
+    session_id.clear();
+    if (msg.size() < 4 || static_cast<unsigned char>(msg[0]) != 1) return false;  // client_hello
+    std::string_view b = msg.substr(4);
+    std::size_t i = 2 + 32;                          // legacy_version + random
+    if (b.size() < i + 1) return false;
+    const unsigned sid_len = static_cast<unsigned char>(b[i]);
+    i += 1;
+    if (b.size() < i + sid_len) return false;
+    session_id = std::string(b.substr(i, sid_len));  // must be echoed back verbatim
+    i += sid_len;
+    if (b.size() < i + 2) return false;
+    const unsigned cs_len = get16(b, i);
+    i += 2;
+    if (b.size() < i + cs_len) return false;
+    bool has_chacha = false, has_aes = false;
+    for (std::size_t j = 0; j + 2 <= cs_len; j += 2) {
+        const unsigned suite = get16(b, i + j);
+        if (suite == 0x1303) has_chacha = true;
+        if (suite == 0x1301) has_aes = true;
+    }
+    i += cs_len;
+    if (has_chacha) chosen_suite = 0x1303;
+    else if (has_aes) chosen_suite = 0x1301;
+    else return false;                               // no cipher suite in common
+    if (b.size() < i + 1) return false;
+    const unsigned comp_len = static_cast<unsigned char>(b[i]);
+    i += 1 + comp_len;
+    if (b.size() < i + 2) return false;
+    const unsigned ext_len = get16(b, i);
+    i += 2;
+    const std::size_t ext_end = i + ext_len;
+    bool saw_13 = false;
+    while (i + 4 <= ext_end && ext_end <= b.size()) {
+        const unsigned etype = get16(b, i);
+        const unsigned elen = get16(b, i + 2);
+        i += 4;
+        if (i + elen > b.size()) return false;
+        if (etype == 43 && elen >= 1) {              // supported_versions (list): look for 0x0304
+            const unsigned n = static_cast<unsigned char>(b[i]);
+            for (std::size_t j = 0; j + 2 <= n && i + 1 + j + 2 <= b.size(); j += 2) {
+                if (get16(b, i + 1 + j) == 0x0304) saw_13 = true;
+            }
+        }
+        if (etype == 51 && elen >= 2) {              // key_share (list): find our x25519 (0x001d)
+            const unsigned ks_len = get16(b, i);
+            std::size_t j = i + 2;
+            const std::size_t ks_end = i + 2 + ks_len;
+            while (j + 4 <= ks_end && ks_end <= b.size()) {
+                const unsigned group = get16(b, j);
+                const unsigned klen = get16(b, j + 2);
+                if (group == 0x001d && klen == 32 && j + 4 + 32 <= b.size()) {
+                    client_pub_raw = std::string(b.substr(j + 4, 32));
+                }
+                j += 4 + klen;
+            }
+        }
+        i += elen;
+    }
+    return saw_13 && client_pub_raw.size() == 32;
+}
+
+// Build a ServerHello: echo the client's session id, our chosen suite, our X25519 key share.
+std::string build_server_hello(std::string_view session_id, unsigned suite,
+                               std::string_view pub_raw) {
+    std::string body;
+    put16(body, 0x0303);                             // legacy_version
+    body += random_bytes(32);                        // random
+    body.push_back(static_cast<char>(session_id.size()));
+    body += session_id;                              // echo legacy_session_id (RFC 8446 §4.1.3)
+    put16(body, suite);                              // cipher_suite
+    body.push_back(0);                               // legacy_compression_method (null)
+
+    std::string ext;
+    put16(ext, 43);                                  // supported_versions: TLS 1.3
+    put16(ext, 2);
+    put16(ext, 0x0304);
+    {                                                // key_share (51): our X25519 KeyShareEntry
+        std::string entry;
+        put16(entry, 0x001d);
+        put16(entry, 32);
+        entry += pub_raw;
+        put16(ext, 51);
+        put16(ext, static_cast<unsigned>(entry.size()));
+        ext += entry;
+    }
+    put16(body, static_cast<unsigned>(ext.size()));
+    body += ext;
+
+    std::string msg;
+    msg.push_back(2);                                // server_hello
+    put24(msg, static_cast<unsigned>(body.size()));
+    msg += body;
+    return msg;
+}
+
+// The TLS 1.3 SERVER handshake over connected fd @p fd, presenting @p cert_pem (an Ed25519 leaf)
+// and proving possession with @p key_pem (its PKCS#8 Ed25519 private key). Mirror of handshake():
+// same key schedule and record I/O, roles reversed — we SIGN CertificateVerify instead of verifying
+// it, and send the certificate flight. Returns a session handle (>= 1) or -1 (see last_error()).
+long long server_handshake(long long fd, const std::string& cert_pem, const std::string& key_pem) {
+    t_error.clear();
+
+    const std::string leaf_der = pem_block(cert_pem, "CERTIFICATE");
+    if (leaf_der.empty()) {
+        fail("tls: server certificate PEM is missing or malformed");
+        return -1;
+    }
+    const std::string seed = ed25519_seed_from_pkcs8(pem_block(key_pem, "PRIVATE KEY"));
+    if (seed.size() != 32) {
+        fail("tls: server private key is not a PKCS#8 Ed25519 key");
+        return -1;
+    }
+    if (ed25519_spki_key(leaf_der).size() != 32) {
+        fail("tls: server certificate is not an Ed25519 leaf (only Ed25519 server certs are supported)");
+        return -1;
+    }
+
+    // ClientHello (plaintext; tolerate a leading ChangeCipherSpec compat record).
+    std::string buffer, payload;
+    unsigned rtype = 0;
+    for (;;) {
+        if (!read_record(fd, buffer, rtype, payload)) {
+            fail("tls: connection closed before ClientHello");
+            return -1;
+        }
+        if (rtype == 20) continue;
+        if (rtype != 22) {
+            fail("tls: expected a ClientHello");
+            return -1;
+        }
+        break;
+    }
+    std::string client_pub_raw, session_id;
+    unsigned suite = 0;
+    if (!parse_client_hello(payload, client_pub_raw, suite, session_id)) {
+        fail("tls: malformed ClientHello (or no TLS 1.3 / X25519 / shared cipher suite)");
+        return -1;
+    }
+    const bool aes_gcm = (suite == 0x1301);
+    std::string transcript = payload;  // ClientHello
+
+    // Our ephemeral X25519 key pair, and ServerHello.
+    const std::string priv_raw = random_bytes(32);
+    if (priv_raw.size() != 32) {
+        fail("tls: system random unavailable");  // LCOV_EXCL_LINE: getentropy failure — unreachable on a working host
+        return -1;  // LCOV_EXCL_LINE
+    }
+    const std::string priv_hex = to_hex(priv_raw);
+    const std::string pub_raw = from_hex(x25519::x25519_base(priv_hex));
+    const std::string server_hello = build_server_hello(session_id, suite, pub_raw);
+    transcript += server_hello;
+    if (!write_record(fd, 22, server_hello)) {
+        fail("tls: cannot send ServerHello");  // LCOV_EXCL_LINE: a mid-handshake socket write failure
+        return -1;  // LCOV_EXCL_LINE
+    }
+    write_record(fd, 20, std::string(1, '\x01'));  // middlebox-compat ChangeCipherSpec (not in transcript)
+
+    // Key schedule (identical to the client; the transcript now spans ClientHello + ServerHello).
+    const std::string shared_hex = x25519::x25519(priv_hex, to_hex(client_pub_raw));
+    if (shared_hex.empty()) {
+        fail("tls: invalid client key share");
+        return -1;
+    }
+    const std::string zeros(32, '\0');
+    const std::string early = hashlib::hkdf_extract(std::string(), zeros);
+    const std::string derived = derive_secret_impl(early, "derived", "");
+    const std::string hs_secret = hashlib::hkdf_extract(derived, from_hex(shared_hex));
+    const std::string c_hs = derive_secret_impl(hs_secret, "c hs traffic", transcript);
+    const std::string s_hs = derive_secret_impl(hs_secret, "s hs traffic", transcript);
+    Keys server_keys = traffic_keys(s_hs, aes_gcm);  // we SEND under the server secret
+    Keys client_keys = traffic_keys(c_hs, aes_gcm);  // we RECEIVE under the client secret
+
+    // Encrypted flight: EncryptedExtensions (empty), Certificate, CertificateVerify, Finished —
+    // each sealed as its own handshake record (inner type 22).
+    std::string ee;
+    ee.push_back(8);         // encrypted_extensions
+    put24(ee, 2);
+    put16(ee, 0);            // extensions: empty
+    transcript += ee;
+    if (!seal_record(fd, server_keys, 22, ee)) {
+        fail("tls: cannot send EncryptedExtensions");  // LCOV_EXCL_LINE: a mid-handshake socket write failure
+        return -1;  // LCOV_EXCL_LINE
+    }
+
+    std::string cert_msg;
+    {
+        std::string entry;                                    // one CertificateEntry
+        put24(entry, static_cast<unsigned>(leaf_der.size()));
+        entry += leaf_der;
+        put16(entry, 0);                                      // per-cert extensions: none
+        std::string cbody;
+        cbody.push_back(0);                                   // certificate_request_context: empty
+        put24(cbody, static_cast<unsigned>(entry.size()));
+        cbody += entry;
+        cert_msg.push_back(11);                               // certificate
+        put24(cert_msg, static_cast<unsigned>(cbody.size()));
+        cert_msg += cbody;
+    }
+    transcript += cert_msg;
+    if (!seal_record(fd, server_keys, 22, cert_msg)) {
+        fail("tls: cannot send Certificate");  // LCOV_EXCL_LINE: a mid-handshake socket write failure
+        return -1;  // LCOV_EXCL_LINE
+    }
+
+    std::string cv_msg;
+    {
+        // Same signed content the client verifies: 64 spaces, the context string, a NUL, then the
+        // transcript hash through Certificate. Ed25519 signs the content directly.
+        std::string signed_content(64, ' ');
+        signed_content += "TLS 1.3, server CertificateVerify";
+        signed_content.push_back('\0');
+        signed_content += hashlib::sha256_digest(transcript);
+        const std::string sig = from_hex(ed25519::sign(to_hex(seed), signed_content));
+        std::string vbody;
+        put16(vbody, 0x0807);                                 // ed25519
+        put16(vbody, static_cast<unsigned>(sig.size()));
+        vbody += sig;
+        cv_msg.push_back(15);                                 // certificate_verify
+        put24(cv_msg, static_cast<unsigned>(vbody.size()));
+        cv_msg += vbody;
+    }
+    transcript += cv_msg;
+    if (!seal_record(fd, server_keys, 22, cv_msg)) {
+        fail("tls: cannot send CertificateVerify");  // LCOV_EXCL_LINE: a mid-handshake socket write failure
+        return -1;  // LCOV_EXCL_LINE
+    }
+
+    std::string fin_msg;
+    {
+        const std::string finished_key = expand_label_impl(s_hs, "finished", "", 32);
+        const std::string verify =
+            hashlib::hmac_sha256(finished_key, hashlib::sha256_digest(transcript));
+        fin_msg.push_back(20);                                // finished
+        put24(fin_msg, static_cast<unsigned>(verify.size()));
+        fin_msg += verify;
+    }
+    if (!seal_record(fd, server_keys, 22, fin_msg)) {
+        fail("tls: cannot send server Finished");  // LCOV_EXCL_LINE: a mid-handshake socket write failure
+        return -1;  // LCOV_EXCL_LINE
+    }
+    transcript += fin_msg;
+
+    // Application traffic secrets (transcript through the server's Finished).
+    const std::string derived2 = derive_secret_impl(hs_secret, "derived", "");
+    const std::string master = hashlib::hkdf_extract(derived2, zeros);
+    const std::string c_ap = derive_secret_impl(master, "c ap traffic", transcript);
+    const std::string s_ap = derive_secret_impl(master, "s ap traffic", transcript);
+
+    // Client Finished (encrypted under the client handshake keys); verify its MAC over the
+    // transcript through the server Finished.
+    const std::string c_finished_key = expand_label_impl(c_hs, "finished", "", 32);
+    const std::string expect =
+        hashlib::hmac_sha256(c_finished_key, hashlib::sha256_digest(transcript));
+    bool client_finished = false;
+    while (!client_finished) {
+        if (!read_record(fd, buffer, rtype, payload)) {
+            fail("tls: connection closed before the client Finished");
+            return -1;
+        }
+        if (rtype == 20) continue;  // ChangeCipherSpec compat
+        if (rtype == 21) {
+            fail("tls: client alert during the handshake — " + alert_text(payload));
+            return -1;
+        }
+        if (rtype != 23) {
+            fail("tls: unexpected plaintext record awaiting the client Finished");
+            return -1;
+        }
+        unsigned inner_type = 0;
+        std::string content;
+        if (!open_record(client_keys, payload, inner_type, content)) {
+            fail("tls: client Finished failed authentication");
+            return -1;
+        }
+        if (inner_type != 22 || content.size() < 4 || static_cast<unsigned char>(content[0]) != 20) {
+            fail("tls: expected a client Finished");  // LCOV_EXCL_LINE: a key-scheduled malicious client we do not mirror
+            return -1;  // LCOV_EXCL_LINE
+        }
+        // cppcheck-suppress stlcstrConstructor  // (ptr,len) subview of content — not a c_str() copy
+        const std::string_view got(content.data() + 4, content.size() - 4);
+        unsigned char diff = (got.size() == expect.size()) ? 0 : 1;  // constant-time MAC compare
+        for (std::size_t i = 0; i < expect.size(); ++i) {
+            const unsigned char g = i < got.size() ? static_cast<unsigned char>(got[i]) : 0;
+            diff |= g ^ static_cast<unsigned char>(expect[i]);
+        }
+        if (diff != 0) {
+            fail("tls: client Finished MAC mismatch — handshake transcript tampered");  // LCOV_EXCL_LINE: a key-scheduled malicious client we do not mirror
+            return -1;  // LCOV_EXCL_LINE
+        }
+        client_finished = true;
+    }
+
+    Session s;
+    s.fd = fd;
+    s.client_keys = traffic_keys(s_ap, aes_gcm);  // our sending direction (server app secret)
+    s.server_keys = traffic_keys(c_ap, aes_gcm);  // the peer's direction (client app secret)
+    s.read_buffer = std::move(buffer);
+    const std::lock_guard<std::mutex> lock(g_mutex);
+    const long long handle = g_next_handle++;
+    g_sessions[handle] = std::move(s);
+    return handle;
+}
+
 // ---- the handshake state machine -------------------------------------------------
 
 // The system CA trust store, parsed once and reused (loading ~150 CA certs on every handshake
@@ -644,6 +980,10 @@ long long client_connect(long long fd, const std::string& server_name, bool inse
     return handshake(fd, server_name, insecure, ca_file);
 }
 
+long long server_accept(long long fd, const std::string& cert_pem, const std::string& key_pem) {
+    return server_handshake(fd, cert_pem, key_pem);
+}
+
 long long send(long long session, const std::string& data) {
     t_error.clear();
     // Lock ONLY for the map lookup (see recv): the socket write below runs without
@@ -788,6 +1128,9 @@ long long Conn::close() {
 Conn open(long long fd, const std::string& server_name, bool insecure, const std::string& ca_file) {
     return Conn(client_connect(fd, server_name, insecure, ca_file));
 }
+Conn accept(long long fd, const std::string& cert_pem, const std::string& key_pem) {
+    return Conn(server_handshake(fd, cert_pem, key_pem));
+}
 
 namespace detail {
 std::string expand_label(std::string_view secret, std::string_view label,
@@ -797,6 +1140,19 @@ std::string expand_label(std::string_view secret, std::string_view label,
 std::string derive_secret(std::string_view secret, std::string_view label,
                           std::string_view transcript) {
     return cheatah::tls::derive_secret_impl(secret, label, transcript);
+}
+bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsigned& chosen_suite,
+                        std::string& session_id) {
+    return cheatah::tls::parse_client_hello(msg, client_pub_raw, chosen_suite, session_id);
+}
+std::string pem_block(const std::string& pem, const std::string& label) {
+    return cheatah::tls::pem_block(pem, label);
+}
+std::string ed25519_seed_from_pkcs8(std::string_view der) {
+    return cheatah::tls::ed25519_seed_from_pkcs8(der);
+}
+std::string build_client_hello(const std::string& server_name, std::string_view pub_raw) {
+    return cheatah::tls::build_client_hello(server_name, pub_raw);
 }
 } // namespace detail
 

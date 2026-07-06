@@ -1,8 +1,10 @@
-# `tls` — a from-scratch TLS 1.3 client
+# `tls` — a from-scratch TLS 1.3 client and server
 
-A minimal, dependency-free **TLS 1.3 client** (RFC 8446) built entirely on cheatah's own
-crypto modules — `x25519` key exchange, the `aead` ChaCha20-Poly1305 (and AES-GCM) record
-cipher, and `hashlib`'s HKDF key schedule. **No OpenSSL.**
+A minimal, dependency-free **TLS 1.3** implementation (RFC 8446) — both a **client** and a
+**server** handshake — built entirely on cheatah's own crypto modules: `x25519` key exchange,
+the `aead` ChaCha20-Poly1305 (and AES-GCM) record cipher, `hashlib`'s HKDF key schedule, and
+`ed25519` signatures. **No OpenSSL.** The handshake is validated against OpenSSL as the peer in
+both directions (our client vs `openssl s_server`, our server vs `openssl s_client`).
 
 ## Server authentication (MITM-resistant by default)
 
@@ -52,8 +54,13 @@ with socket.open("example.com", 443) as sock {
 
 ## API (cheatah-facing)
 
-- **`tls.open(fd, server_name) -> Conn`** — run the handshake over a connected fd; returns an
-  owning `Conn`. On failure `conn.is_open()` is false (see `tls.last_error()`).
+- **`tls.open(fd, server_name) -> Conn`** — run the **client** handshake over a connected fd,
+  authenticating the server; returns an owning `Conn`. On failure `conn.is_open()` is false
+  (see `tls.last_error()`).
+- **`tls.accept(fd, cert_pem, key_pem) -> Conn`** — run the **server** handshake over an accepted
+  fd, presenting an **Ed25519** leaf `cert_pem` and signing with its PKCS#8 `key_pem`; returns an
+  owning `Conn`. This is the "HTTPS with zero non-cheatah software" path — pair it with a
+  `socket` accept loop (see `scripts/serve-docs.purr --tls`).
 - **`Conn`** methods: `send(data)`, `recv(bufsize)`, `shutdown()`, `close()`, `is_open()`,
   `id()`. The `Conn` sends `close_notify` and erases its session automatically at scope exit —
   held as a plain `let` or in a `with`, it cannot leak.
@@ -70,6 +77,8 @@ from cheatah, so cheatah code cannot leak a session — it uses the `tls.Conn` g
 
 **Scope (v1):** TLS 1.3 only, cipher suites TLS_CHACHA20_POLY1305_SHA256 and
 TLS_AES_128_GCM_SHA256, X25519 key share, SNI, and X.509 chain + hostname + expiry validation
-(RSA-PKCS1-SHA256 / ECDSA-P256-SHA256 / Ed25519 chain signatures). Not yet: ECDSA P-384 and
+(RSA-PKCS1-SHA256 / ECDSA-P256-SHA256 / Ed25519 chain signatures). The **server** side presents
+an **Ed25519** leaf certificate (the from-scratch signing path cheatah owns end to end); the
+client picks the record cipher. Not yet: non-Ed25519 **server** certificates, ECDSA P-384 and
 SHA-384/512 chain signatures (refused, not accepted), certificate revocation (OCSP/CRL), and
 client certificates.

@@ -23,6 +23,10 @@
 #   cheatah serve-docs.so                  # 127.0.0.1:8080 (local preview)
 #   cheatah serve-docs.so 80 0.0.0.0       # production: any port/interface
 #
+# HTTPS with ZERO non-cheatah software: set CHEATAH_DOCS_TLS_CERT + CHEATAH_DOCS_TLS_KEY to an
+# Ed25519 leaf cert + its PKCS#8 key (PEM paths) and each connection is wrapped with tls.accept
+# — our own from-scratch TLS 1.3 server. Then `cheatah serve-docs.so 443 0.0.0.0`.
+#
 # Env: CHEATAH_DOCS_LOG=1 logs every request (quiet by default — four workers
 # logging every hit costs more than serving it).
 
@@ -34,6 +38,7 @@ import thread
 import memory
 import hashlib
 import requests
+import tls
 import sys
 
 # Map a path's extension to a Content-Type.
@@ -97,31 +102,117 @@ fn resp_head(status, ctype, clen, etag, keep) {
     return h + "\r\n"
 }
 
-fn send_plain(conn, status, text, keep) {
+# A tiny text/plain response (400/405/431) as complete bytes; these always close the connection.
+fn plain_bytes(status, text) {
     let body = status + " " + text
-    socket.sendall(conn, resp_head(status, "text/plain; charset=utf-8", len(body), "", keep) + body)
+    return resp_head(status, "text/plain; charset=utf-8", len(body), "", false) + body
 }
 
-# Serve one connection: HTTP/1.1 keep-alive with pipelining (leftover bytes after
-# a request head are the start of the next request), hard caps on head size and
-# requests-per-connection, and an idle timeout so a slow client cannot pin a
-# worker (the slowloris defense).
+# The reply for one request: the exact bytes to send, whether to keep the connection
+# alive afterwards, and whether to close immediately (a hard error / disallowed method).
+struct Reply {
+    out: str
+    keep: bool
+    hard_close: bool
+}
+
+# Route ONE complete request head into a Reply. The transport-independent core: both the
+# plaintext and TLS serve loops build their responses here, so the HTTP semantics (keep-alive
+# negotiation, ETag/304, GET/HEAD, 404) live in exactly one place. The site bytes come from a
+# shared read lease on the pinned Owner.
+fn respond(head_block, is_last, bodies_o : memory.Owner<dict<str, str>>,
+           ctypes : dict<str, str>, etags : dict<str, str>, log) -> Reply {
+    let line_end = string.find(head_block, "\r\n")
+    if line_end < 0 { line_end = len(head_block) }
+    let parts = string.split(head_block[:line_end])
+    if len(parts) < 3 {
+        return Reply({.out = plain_bytes("400 Bad Request", "malformed request line"),
+                      .keep = false, .hard_close = true})
+    }
+    let method = parts[0]
+    let target = parts[1]
+    let version = parts[2]
+
+    # the two headers we act on (names are case-insensitive)
+    let keep = version == "HTTP/1.1"     # 1.1 defaults to keep-alive, 1.0 to close
+    let want_etag = ""
+    let rest = head_block[line_end + 2:]
+    while len(rest) > 0 {
+        let eol = string.find(rest, "\r\n")
+        if eol < 0 { eol = len(rest) }
+        let line = rest[:eol]
+        let colon = string.find(line, ":")
+        if colon > 0 {
+            let name = string.lower(string.strip(line[:colon]))
+            let value = string.strip(line[colon + 1:])
+            if name == "connection" {
+                let v = string.lower(value)
+                if string.contains(v, "close") { keep = false }
+                if string.contains(v, "keep-alive") { keep = true }
+            }
+            if name == "if-none-match" { want_etag = value }
+        }
+        if eol == len(rest) { break }
+        rest = rest[eol + 2:]
+    }
+    if is_last { keep = false }          # last request before we recycle the connection
+
+    # A disallowed method may carry a body we will not parse; close so leftover bytes can never
+    # be misread as the next request.
+    if method != "GET" and method != "HEAD" {
+        return Reply({.out = plain_bytes("405 Method Not Allowed", "GET and HEAD only"),
+                      .keep = false, .hard_close = true})
+    }
+    let q = string.find(target, "?")
+    if q >= 0 { target = target[:q] }
+    let path = target
+    if path == "/" { path = "/index.html" }
+
+    let status = "404"
+    let out = ""
+    if path in ctypes {
+        let etag = etags[path]
+        if want_etag == etag {
+            out = resp_head("304 Not Modified", ctypes[path], 0, etag, keep)
+            status = "304"
+        } else {
+            if method == "HEAD" {
+                with bodies_o.rread().acquire() as r {
+                    out = resp_head("200 OK", ctypes[path], len(r.read(path)), etag, keep)
+                }
+            } else {
+                with bodies_o.rread().acquire() as r {
+                    out = resp_head("200 OK", ctypes[path], len(r.read(path)), etag, keep) + r.read(path)
+                }
+            }
+            status = "200"
+        }
+    } else {
+        let body = "<h1>404 Not Found</h1>"
+        out = resp_head("404 Not Found", "text/html; charset=utf-8", len(body), "", keep) + body
+    }
+    if log { io.print(status, method, target) }
+    return Reply({.out = out, .keep = keep, .hard_close = false})
+}
+
+# Serve one PLAINTEXT connection: HTTP/1.1 keep-alive with pipelining (leftover bytes after a
+# request head are the start of the next request), hard caps on head size and requests-per-
+# connection, and an idle timeout so a slow client cannot pin a worker (the slowloris defense).
 fn handle_conn(conn, bodies_o : memory.Owner<dict<str, str>>,
                ctypes : dict<str, str>, etags : dict<str, str>, log) {
     socket.set_timeout(conn, 2000)      # idle / slow-client timeout (slowloris defense)
     let buf = ""
     let served = 0
     while served < 500 {                 # requests per connection before recycling
-        # ---- read until we hold a complete request head --------------------
         let head_end = string.find(buf, "\r\n\r\n")
         while head_end < 0 {
             if len(buf) > 16384 {        # request-head cap
-                send_plain(conn, "431 Request Header Fields Too Large", "head too large", false)
+                socket.sendall(conn, plain_bytes("431 Request Header Fields Too Large", "head too large"))
                 socket.close(conn)
                 return
             }
             let chunk = socket.recv(conn, 8192)
-            if chunk == "" {         # idle timeout, EOF, or error: the connection is done
+            if chunk == "" {             # idle timeout, EOF, or error: the connection is done
                 socket.close(conn)
                 return
             }
@@ -129,89 +220,47 @@ fn handle_conn(conn, bodies_o : memory.Owner<dict<str, str>>,
             head_end = string.find(buf, "\r\n\r\n")
         }
         let head_block = buf[:head_end]
-        buf = buf[head_end + 4:]     # pipelining: keep whatever follows for the next round
-
-        # ---- request line ---------------------------------------------------
-        let line_end = string.find(head_block, "\r\n")
-        if line_end < 0 { line_end = len(head_block) }
-        let parts = string.split(head_block[:line_end])
-        if len(parts) < 3 {
-            send_plain(conn, "400 Bad Request", "malformed request line", false)
-            socket.close(conn)
-            return
-        }
-        let method = parts[0]
-        let target = parts[1]
-        let version = parts[2]
-
-        # ---- the two headers we act on (names are case-insensitive) --------
-        let keep = version == "HTTP/1.1"     # 1.1 defaults to keep-alive, 1.0 to close
-        let want_etag = ""
-        let rest = head_block[line_end + 2:]
-        while len(rest) > 0 {
-            let eol = string.find(rest, "\r\n")
-            if eol < 0 { eol = len(rest) }
-            let line = rest[:eol]
-            let colon = string.find(line, ":")
-            if colon > 0 {
-                let name = string.lower(string.strip(line[:colon]))
-                let value = string.strip(line[colon + 1:])
-                if name == "connection" {
-                    let v = string.lower(value)
-                    if string.contains(v, "close") { keep = false }
-                    if string.contains(v, "keep-alive") { keep = true }
-                }
-                if name == "if-none-match" { want_etag = value }
-            }
-            if eol == len(rest) { break }
-            rest = rest[eol + 2:]
-        }
-        if served + 1 == 500 { keep = false }
-
-        # ---- route ----------------------------------------------------------
-        if method != "GET" and method != "HEAD" {
-            # A disallowed method may carry a body we will not parse; close so the
-            # leftover bytes can never be misread as the next request.
-            send_plain(conn, "405 Method Not Allowed", "GET and HEAD only", false)
-            socket.close(conn)
-            return
-        }
-        let q = string.find(target, "?")
-        if q >= 0 { target = target[:q] }
-        let path = target
-        if path == "/" { path = "/index.html" }
-
-        let status = "404"
-        if path in ctypes {
-            let etag = etags[path]
-            if want_etag == etag {
-                socket.sendall(conn, resp_head("304 Not Modified", ctypes[path], 0, etag, keep))
-                status = "304"
-            } else {
-                if method == "HEAD" {
-                    with bodies_o.rread().acquire() as r {
-                        socket.sendall(conn, resp_head("200 OK", ctypes[path], len(r.read(path)), etag, keep))
-                    }
-                } else {
-                    with bodies_o.rread().acquire() as r {
-                        socket.sendall(conn, resp_head("200 OK", ctypes[path], len(r.read(path)), etag, keep) + r.read(path))
-                    }
-                }
-                status = "200"
-            }
-        } else {
-            let body = "<h1>404 Not Found</h1>"
-            socket.sendall(conn, resp_head("404 Not Found", "text/html; charset=utf-8", len(body), "", keep) + body)
-        }
-        if log { io.print(status, method, target) }
-
-        if not keep {
+        buf = buf[head_end + 4:]         # pipelining: keep whatever follows for the next round
+        let reply = respond(head_block, served + 1 == 500, bodies_o, ctypes, etags, log)
+        socket.sendall(conn, reply.out)
+        if reply.hard_close or not reply.keep {
             socket.close(conn)
             return
         }
         served = served + 1
     }
     socket.close(conn)
+}
+
+# Serve one TLS connection: the same HTTP loop as handle_conn, but every read/write goes through
+# the encrypting tls.Conn instead of the raw fd. `tc` is borrowed (the worker owns the guard).
+fn serve_tls(tc : tls.Conn, bodies_o : memory.Owner<dict<str, str>>,
+             ctypes : dict<str, str>, etags : dict<str, str>, log) {
+    let buf = ""
+    let served = 0
+    while served < 500 {
+        let head_end = string.find(buf, "\r\n\r\n")
+        while head_end < 0 {
+            if len(buf) > 16384 {
+                tc.send(plain_bytes("431 Request Header Fields Too Large", "head too large"))
+                return
+            }
+            let chunk = tc.recv(8192)
+            if chunk == "" {             # close_notify, EOF, timeout, or error
+                return
+            }
+            buf = buf + chunk
+            head_end = string.find(buf, "\r\n\r\n")
+        }
+        let head_block = buf[:head_end]
+        buf = buf[head_end + 4:]
+        let reply = respond(head_block, served + 1 == 500, bodies_o, ctypes, etags, log)
+        tc.send(reply.out)
+        if reply.hard_close or not reply.keep {
+            return
+        }
+        served = served + 1
+    }
 }
 
 # One worker: accept forever on the shared listener. All workers (and the main
@@ -238,6 +287,41 @@ fn spawn_workers(n : int, listen_fd : int, bodies_o : memory.Owner<dict<str, str
     }
     with thread.spawn(worker, listen_fd, bodies_o, ctypes, etags, log) {
         return spawn_workers(n - 1, listen_fd, bodies_o, ctypes, etags, log)
+    }
+}
+
+# One TLS worker: accept a TCP connection, run the cheatah TLS 1.3 server handshake against it
+# (presenting the Ed25519 cert + key), and serve HTTP over the encrypted channel. The tls.Conn
+# guard closes the session at scope exit; the TCP fd (not owned by tls) is closed after.
+fn tls_worker(listen_fd : int, cert_pem : str, key_pem : str,
+              bodies_o : memory.Owner<dict<str, str>>,
+              ctypes : dict<str, str>, etags : dict<str, str>, log) {
+    while true {
+        let conn = socket.accept(listen_fd)
+        if conn >= 0 {
+            socket.set_timeout(conn, 5000)     # covers the handshake + slow-client reads
+            with tls.accept(conn, cert_pem, key_pem) as tc {
+                if tc.is_open() {
+                    serve_tls(tc, bodies_o, ctypes, etags, log)
+                } elif log {
+                    io.print("tls handshake failed:", tls.last_error())
+                }
+            }
+            socket.close(conn)
+        }
+    }
+}
+
+# The TLS mirror of spawn_workers.
+fn spawn_tls_workers(n : int, listen_fd : int, cert_pem : str, key_pem : str,
+                     bodies_o : memory.Owner<dict<str, str>>,
+                     ctypes : dict<str, str>, etags : dict<str, str>, log) -> int {
+    if n <= 0 {
+        tls_worker(listen_fd, cert_pem, key_pem, bodies_o, ctypes, etags, log)
+        return 0
+    }
+    with thread.spawn(tls_worker, listen_fd, cert_pem, key_pem, bodies_o, ctypes, etags, log) {
+        return spawn_tls_workers(n - 1, listen_fd, cert_pem, key_pem, bodies_o, ctypes, etags, log)
     }
 }
 
@@ -287,6 +371,32 @@ fn main() {
     if env_workers != "" {
         let w = requests.parse_uint(env_workers)
         if w > 0 and w <= 256 { nworkers = w }
+    }
+
+    # ---- HTTPS when a cert + key are provided (pure-cheatah TLS 1.3) ---------
+    let cert_path = os.getenv("CHEATAH_DOCS_TLS_CERT")
+    let key_path = os.getenv("CHEATAH_DOCS_TLS_KEY")
+    if cert_path != "" and key_path != "" {
+        let cert_pem = io.read_file(cert_path)
+        let key_pem = io.read_file(key_path)
+        if cert_pem == "" or key_pem == "" {
+            io.print("could not read TLS cert/key (" + cert_path + ", " + key_path + ")")
+            return
+        }
+        # self-check: our own requests client speaks HTTPS to our own TLS server (localhost, both
+        # ends ours — skip cert validation; production clients validate the real cert).
+        with thread.spawn(tls_worker, listen_fd, cert_pem, key_pem, bodies_o, ctypes, etags, log) {
+            let opt = requests.Options({.timeout_ms = 5000, .insecure = true})
+            let check = requests.get("https://127.0.0.1:" + str(port) + "/index.html", opt)
+            if not check.ok() {
+                io.print("TLS self-check FAILED: " + check.error + " " + str(check.status_code))
+            } else {
+                io.print("🐆 cheatah docs (HTTPS): " + str(pages) + " assets, " + str(total) + " bytes in RAM, " + str(nworkers) + " workers")
+                io.print("🐆 self-check OK (" + str(len(check.body)) + " bytes) — serving at https://" + host + ":" + str(port) + "/")
+            }
+            spawn_tls_workers(nworkers - 2, listen_fd, cert_pem, key_pem, bodies_o, ctypes, etags, log)
+        }
+        return
     }
 
     # ---- self-check: our own requests client, against our own server --------
