@@ -1,40 +1,2042 @@
 # Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 # Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
-# gen.purr — Stage 2 Slice 1 of the pure-cheatah docs generator.
-# Reads a Doxygen namespace XML (docs/xml/*.xml) and emits a module reference page.
-# Uses parsers.xml (the from-scratch cheatah XML reader) — no Python, no regex.
-import io
-import parsers.xml
-import sys
+# gen.purr — the cheatah docs site generator, in pure cheatah. 🐆
+#
+# The 1:1 port of docs/gen/generate.py (kept for the gen_bench parity benchmark):
+# reads the Doxygen XML in docs/xml/ and renders the site into docs/html/, byte-
+# identical to the Python generator's output. Standing on our own stdlib:
+#   parsers.xml  — the slab-DOM Doxygen XML reader (mixed text/element children)
+#   parsers.html — escape() (byte-identical to Python's html.escape)
+#   parsers.json — the typed reader for docs/perf_data.json (list-of-records)
+#   hashlib      — sha256 cache-busting query strings (?v=…)
+#   io.fixed     — printf-fixed float formatting for the perf rows
+#   requests     — parse_uint + json_escape (the search index is JSON)
+#
+#   purrc docs/gen-cheatah/gen.purr -o gen.so && cheatah gen.so     # from the repo root
 
-# Text of the first child element named `tag` under `id` (or "" if absent).
-fn child_text(d, id, tag) {
-    return parsers.xml.text(d, parsers.xml.find(d, id, tag))
+import io
+import os
+import string
+import sys
+import hashlib
+import requests
+import parsers.xml
+import parsers.html
+import parsers.json
+
+# ---------------------------------------------------------------------------
+# Model structs
+# ---------------------------------------------------------------------------
+
+# docs/perf_data.json: {"meta": {...}, "functions": [record, ...]} — every record
+# carries every field (parsers.json.read fills a struct; nothing is optional).
+struct PerfMeta {
+    cheatah_commit: str
+    cpython: str
+    generated: str
+    machine: str
+    numpy: str
 }
 
-fn gen_module(path) {
-    let src = io.read_file(path)
-    let d = parsers.xml.parse(src)
-    let r = parsers.xml.root(d)
+struct PerfEntry {
+    name: str
+    kind: str
+    note: str
+    cheatah_ns: float
+    compare_ns: float
+    speedup: float
+    vs: str
+    cheatah_us: float
+    numpy_us: float
+    dims: str
+    warn: str
+    has_compare: bool
+}
+
+struct PerfData {
+    meta: PerfMeta
+    functions: list<PerfEntry>
+}
+
+# One documented symbol (ids index into its compound's parsers.xml Document; -1 = absent).
+struct Member {
+    id: str
+    kind: str
+    name: str
+    args: str
+    is_static: bool
+    type_id: int
+    brief_id: int
+    detail_id: int
+    compound: str
+    srcfile: str
+    srcline: str
+}
+
+# One page-producing compound (namespace / class / markdown page).
+struct Compound {
+    refid: str
+    kind: str
+    name: str
+    short: str
+    title: str
+    brief_id: int
+    detail_id: int
+    members: list<Member>
+}
+
+# The generator's whole state (Documents are re-parsed per page — see doc_of).
+struct Gen {
+    comps: list<Compound>          # insertion order == index.xml order
+    comp_idx: dict<str, int>       # refid -> index into comps
+    mi: dict<str, str>             # member id -> owning compound refid
+    modules: dict<str, str>        # module short name -> refid
+    mod_short: dict<str, str>      # namespace refid -> dotted module name
+    valid: dict<str, bool>         # refids/anchors that have a page/target
+    src_map: dict<str, str>        # repo-relative source path -> source-page html name
+    test_index: dict<str, str>     # "Suite.Name" -> path <US> line
+    app_usage: dict<str, str>      # "module <US> func" -> <US>-joined sorted test names
+    readme_key: dict<str, str>     # module short -> the README page's doc key (refid)
+    readme_node: dict<str, int>    # module short -> detaileddescription node id
+    classes_of: dict<str, str>     # owning module short -> <US>-joined class refids (sorted)
+    perf: list<PerfEntry>
+    perf_i: dict<str, int>         # "module.name" -> index into perf
+    perf_numpy: str
+    perf_cpython: str
+    vers_css: str
+    vers_js: str
+    vers_search: str
+    cur_module: str
+    cur_func: str
+    kw: dict<str, bool>            # cheatah (+ Python) keywords for the highlighter
+    consts: dict<str, bool>
+    cpp_kw: dict<str, bool>
+    cpp_consts: dict<str, bool>
+    block_tags: dict<str, bool>    # children of <para> that render block-level
+}
+
+# ---------------------------------------------------------------------------
+# Small utilities
+# ---------------------------------------------------------------------------
+
+# The unit separator (0x1f) — this file's stand-in for Python tuples/sets:
+# composite dict keys and joined lists that can never collide with content.
+fn us() { return chr(31) }
+
+fn esc(s) { return parsers.html.escape(s) }
+
+fn spaces(n) {
     let out = ""
-    for cd in parsers.xml.iter(d, r, "compounddef") {
-        let modname = child_text(d, cd, "compoundname")
-        out = out + "<h1><code>" + modname + "</code></h1>\n"
-        for md in parsers.xml.iter(d, cd, "memberdef") {
-            let kind = parsers.xml.attr(d, md, "kind")
-            let nm = child_text(d, md, "name")
-            let args = child_text(d, md, "argsstring")
-            out = out + "  <section class=\"member\"><span class=\"badge\">" + kind
-            out = out + "</span> <code>" + nm + args + "</code></section>\n"
+    let i = 0
+    while i < n {
+        out = out + " "
+        i = i + 1
+    }
+    return out
+}
+
+fn list_contains(xs, v) {
+    for x in xs {
+        if x == v { return true }
+    }
+    return false
+}
+
+# Insertion sort, ascending bytewise (== Python's codepoint order for UTF-8), stable.
+fn sorted_strs(xs) {
+    let out: list<str> = []
+    for x in xs { out.append(x) }
+    let i = 1
+    while i < len(out) {
+        let j = i
+        while j > 0 and out[j - 1] > out[j] {
+            let tmp = out[j - 1]
+            out[j - 1] = out[j]
+            out[j] = tmp
+            j = j - 1
+        }
+        i = i + 1
+    }
+    return out
+}
+
+# Python's `{v:g}` for a value already rounded to one decimal: fixed(v, 1) with a
+# bare trailing ".0" stripped ("12.0" -> "12", "12.3" stays).
+fn strip_g(s) {
+    if string.endswith(s, ".0") { return s[:len(s) - 2] }
+    return s
+}
+
+fn fmt_g1(x) { return strip_g(io.fixed(x, 1)) }
+
+fn fmt_ns(ns) {
+    if ns < 100.0 { return io.fixed(ns, 2) + " ns/call" }
+    return io.fixed(ns, 0) + " ns/call"
+}
+
+fn fmt_us(v) {
+    if v < 100.0 { return io.fixed(v, 2) + " µs/op" }
+    return io.fixed(v, 0) + " µs/op"
+}
+
+# Byte classes for the token scanners (\w == [A-Za-z0-9_], all ASCII — multibyte
+# UTF-8 bytes are >= 0x80 and land in "other", exactly like Python's tokenizer
+# treats the site's ×/≈/µ glyphs).
+fn is_word_b(b) {
+    if b >= 48 and b <= 57 { return true }
+    if b >= 65 and b <= 90 { return true }
+    if b >= 97 and b <= 122 { return true }
+    return b == 95
+}
+
+fn is_digit_b(b) { return b >= 48 and b <= 57 }
+
+fn is_alpha_b(b) {
+    if b >= 65 and b <= 90 { return true }
+    return b >= 97 and b <= 122
+}
+
+fn is_space_b(b) {
+    if b == 32 or b == 9 or b == 10 or b == 13 { return true }
+    return b == 11 or b == 12
+}
+
+fn byte_at(s, i) -> int {
+    if i < 0 or i >= len(s) { return -1 }
+    return ord(s[i:i + 1])
+}
+
+# ---------------------------------------------------------------------------
+# Syntax highlighting — the hand tokenizers (they mirror generate.py's regexes,
+# which are that generator's own logic too; everything reusable is stdlib).
+# ---------------------------------------------------------------------------
+
+# `"(?:\\.|[^"\\\n])*"` — a quoted string with backslash escapes, single line.
+# Returns the index one past the closing quote, or -1 when unterminated.
+fn string_token_end(text, i) {
+    let q = byte_at(text, i)
+    let j = i + 1
+    while j < len(text) {
+        let b = byte_at(text, j)
+        if b == 92 {                       # backslash: skip the escaped char
+            if j + 1 >= len(text) { return -1 }
+            j = j + 2
+        } else {
+            if b == q { return j + 1 }
+            if b == 10 { return -1 }
+            j = j + 1
+        }
+    }
+    return -1
+}
+
+# `\b\d+\.?\d*(?:[eE][+-]?\d+)?\b` with regex-faithful backtracking on the
+# trailing \b (a boundary: word-ness differs across the match's end). Returns
+# the end index of the number token, or -1.
+fn number_token_end(text, i, allow_suffix) {
+    if not is_digit_b(byte_at(text, i)) { return -1 }
+    if is_word_b(byte_at(text, i - 1)) { return -1 }    # leading \b
+    let d1 = i
+    while is_digit_b(byte_at(text, d1)) { d1 = d1 + 1 }         # \d+ (greedy)
+    let candidates: list<int> = []
+    let has_dot = byte_at(text, d1) == 46
+    let d2 = d1
+    if has_dot {
+        d2 = d1 + 1
+        while is_digit_b(byte_at(text, d2)) { d2 = d2 + 1 }     # \d* (greedy)
+    }
+    # exponent after the dot-form (present first, then absent), then dot-form
+    # shrinking \d* toward the dot, then the bare \d+ form. That is the regex's
+    # backtracking order; the first end passing the trailing \b wins.
+    if has_dot {
+        let k = d2
+        while k >= d1 + 1 {
+            let eb = byte_at(text, k)
+            if eb == 101 or eb == 69 {
+                let e2 = k + 1
+                let sb = byte_at(text, e2)
+                if sb == 43 or sb == 45 { e2 = e2 + 1 }
+                let e3 = e2
+                while is_digit_b(byte_at(text, e3)) { e3 = e3 + 1 }
+                if e3 > e2 { candidates.append(e3) }
+            }
+            candidates.append(k)
+            k = k - 1
+        }
+    }
+    let eb = byte_at(text, d1)
+    if eb == 101 or eb == 69 {
+        let e2 = d1 + 1
+        let sb = byte_at(text, e2)
+        if sb == 43 or sb == 45 { e2 = e2 + 1 }
+        let e3 = e2
+        while is_digit_b(byte_at(text, e3)) { e3 = e3 + 1 }
+        if e3 > e2 { candidates.append(e3) }
+    }
+    candidates.append(d1)
+    for cand in candidates {
+        let stop = cand
+        if allow_suffix {                   # C++: (?:[uUlLfF]+)? before the \b
+            while true {
+                let sb = byte_at(text, stop)
+                if sb == 117 or sb == 85 or sb == 108 or sb == 76 or sb == 102 or sb == 70 {
+                    stop = stop + 1
+                } else { break }
+            }
+        }
+        # trailing \b: last matched byte vs next byte — exactly one side a word char.
+        let last_w = is_word_b(byte_at(text, stop - 1))
+        let next_w = is_word_b(byte_at(text, stop))
+        if last_w != next_w { return stop }
+        if allow_suffix and stop != cand {  # suffix form failed; also try without it
+            let lw = is_word_b(byte_at(text, cand - 1))
+            let nw = is_word_b(byte_at(text, cand))
+            if lw != nw { return cand }
+        }
+    }
+    return -1
+}
+
+# Identifier continuation with Python's Unicode \w semantics for the one class
+# the corpus contains: subscript digits (U+2080-U+2089, e.g. log₂ in math.hpp).
+fn word_end(text, j) -> int {
+    let k = j
+    while true {
+        if is_word_b(byte_at(text, k)) {
+            k = k + 1
+        } elif byte_at(text, k) == 226 and byte_at(text, k + 1) == 130 and byte_at(text, k + 2) >= 128 and byte_at(text, k + 2) <= 137 {
+            k = k + 3
+        } else {
+            break
+        }
+    }
+    return k
+}
+
+fn wrap_tok(cls, val) { return "<span class=\"tok-" + cls + "\">" + esc(val) + "</span>" }
+
+# The cheatah/`#`-comment tokenizer (generate.py's highlight_code / _TOKEN_RE).
+fn highlight_code(g, text) {
+    let out = ""
+    let i = 0
+    while i < len(text) {
+        let b = byte_at(text, i)
+        if b == 35 {                                    # '#' comment to end of line
+            let e = string.find(text[i:], "\n")
+            let stop = len(text)
+            if e >= 0 { stop = i + e }
+            out = out + wrap_tok("com", text[i:stop])
+            i = stop
+        } elif b == 64 and is_alpha_b(byte_at(text, i + 1)) {   # @tag
+            let j = word_end(text, i + 1)
+            out = out + wrap_tok("doc", text[i:j])
+            i = j
+        } elif b == 34 or b == 39 {                     # string
+            let e = string_token_end(text, i)
+            if e >= 0 {
+                out = out + wrap_tok("str", text[i:e])
+                i = e
+            } else {
+                out = out + esc(text[i:i + 1])
+                i = i + 1
+            }
+        } else {
+            let ne = number_token_end(text, i, false)
+            if ne >= 0 {
+                out = out + wrap_tok("num", text[i:ne])
+                i = ne
+            } elif is_alpha_b(b) or b == 95 {           # identifier / keyword
+                let j = word_end(text, i + 1)
+                let word = text[i:j]
+                if word in g.kw {
+                    out = out + wrap_tok("kw", word)
+                } elif word in g.consts {
+                    out = out + wrap_tok("const", word)
+                } elif byte_at(text, j) == 40 {         # call site: next char '('
+                    out = out + wrap_tok("fn", word)
+                } else {
+                    out = out + esc(word)
+                }
+                i = j
+            } else {
+                out = out + esc(text[i:i + 1])
+                i = i + 1
+            }
         }
     }
     return out
 }
 
+# A C++ preprocessor line: `#include <…>`, `#define NAME …` (generate.py's _CPP_PRE_RE).
+fn highlight_cpp_pre(text) {
+    let out = ""
+    let i = 0
+    while i < len(text) {
+        let b = byte_at(text, i)
+        if b == 35 {                                    # `#\s*directive`
+            let j = i + 1
+            while is_space_b(byte_at(text, j)) { j = j + 1 }
+            let k = j
+            while is_word_b(byte_at(text, k)) { k = k + 1 }
+            if k > j and (is_alpha_b(byte_at(text, j)) or byte_at(text, j) == 95) {
+                out = out + wrap_tok("kw", text[i:k])
+                i = k
+                continue
+            }
+            out = out + esc(text[i:i + 1])
+            i = i + 1
+        } elif b == 60 {                                # <header> include target
+            let seg = text[i:]
+            let e = string.find(seg, ">")
+            let nl = string.find(seg, "\n")
+            if e > 0 and (nl < 0 or e < nl) {
+                out = out + wrap_tok("str", text[i:i + e + 1])
+                i = i + e + 1
+            } else {
+                out = out + esc(text[i:i + 1])
+                i = i + 1
+            }
+        } elif b == 34 {                                # string
+            let e = string_token_end(text, i)
+            if e >= 0 {
+                out = out + wrap_tok("str", text[i:e])
+                i = e
+            } else {
+                out = out + esc(text[i:i + 1])
+                i = i + 1
+            }
+        } else {
+            out = out + esc(text[i:i + 1])
+            i = i + 1
+        }
+    }
+    return out
+}
+
+# The C++ tokenizer (generate.py's _highlight_cpp_line / _CPP_TOKEN_RE).
+fn highlight_cpp_line(g, text) {
+    if string.startswith(string.lstrip(text), "#") { return highlight_cpp_pre(text) }
+    let out = ""
+    let i = 0
+    while i < len(text) {
+        let b = byte_at(text, i)
+        if b == 47 and byte_at(text, i + 1) == 47 {     # // comment
+            let e = string.find(text[i:], "\n")
+            let stop = len(text)
+            if e >= 0 { stop = i + e }
+            out = out + wrap_tok("com", text[i:stop])
+            i = stop
+        } elif b == 64 and is_alpha_b(byte_at(text, i + 1)) {
+            let j = word_end(text, i + 1)
+            out = out + wrap_tok("doc", text[i:j])
+            i = j
+        } elif b == 34 or b == 39 {
+            let e = string_token_end(text, i)
+            if e >= 0 {
+                out = out + wrap_tok("str", text[i:e])
+                i = e
+            } else {
+                out = out + esc(text[i:i + 1])
+                i = i + 1
+            }
+        } else {
+            let ne = number_token_end(text, i, true)
+            if ne >= 0 {
+                out = out + wrap_tok("num", text[i:ne])
+                i = ne
+            } elif is_alpha_b(b) or b == 95 {
+                let j = word_end(text, i + 1)
+                let word = text[i:j]
+                if word in g.cpp_kw {
+                    out = out + wrap_tok("kw", word)
+                } elif word in g.cpp_consts {
+                    out = out + wrap_tok("const", word)
+                } elif text[j:j + 2] == "::" {          # namespace/type qualifier
+                    out = out + wrap_tok("ns", word)
+                } elif byte_at(text, j) == 40 {
+                    out = out + wrap_tok("fn", word)
+                } else {
+                    out = out + esc(word)
+                }
+                i = j
+            } else {
+                out = out + esc(text[i:i + 1])
+                i = i + 1
+            }
+        }
+    }
+    return out
+}
+
+fn highlight_block(g, text, lang) {
+    let out = ""
+    let sep = ""
+    for line in string.split(text, "\n") {
+        if lang == "cpp" {
+            out = out + sep + highlight_cpp_line(g, line)
+        } else {
+            out = out + sep + highlight_code(g, line)
+        }
+        sep = "\n"
+    }
+    return out
+}
+
+# ---------------------------------------------------------------------------
+# Verdict coloring + SIDEBYSIDE (generate.py's _color_verdict / apply_sidebyside)
+# ---------------------------------------------------------------------------
+
+# Match `[\d.]+×` starting at i; returns the end (past ×) or -1.
+fn digits_x_end(text, i) {
+    let j = i
+    while is_digit_b(byte_at(text, j)) or byte_at(text, j) == 46 { j = j + 1 }
+    if j == i { return -1 }
+    if text[j:j + 2] == "×" { return j + 2 }            # × is 2 UTF-8 bytes
+    return -1
+}
+
+# One "up" alternative at position i: `cheatah\s+[\d.]+×` | `≈?[\d.]+×\s+faster`.
+fn verdict_up_end(text, i) {
+    if text[i:i + 7] == "cheatah" {
+        let j = i + 7
+        let k = j
+        while is_space_b(byte_at(text, k)) { k = k + 1 }
+        if k > j {
+            let e = digits_x_end(text, k)
+            if e >= 0 { return e }
+        }
+    }
+    let j = i
+    if text[i:i + 3] == "≈" { j = i + 3 }               # ≈ is 3 UTF-8 bytes
+    let e = digits_x_end(text, j)
+    if e >= 0 {
+        let k = e
+        while is_space_b(byte_at(text, k)) { k = k + 1 }
+        if k > e and text[k:k + 6] == "faster" { return k + 6 }
+    }
+    return -1
+}
+
+# `NumPy\s+[\d.]+×` | `Eigen\s+[\d.]+×` | `≈?[\d.]+×\s+slower`
+fn verdict_down_end(text, i) {
+    if text[i:i + 5] == "NumPy" or text[i:i + 5] == "Eigen" {
+        let j = i + 5
+        let k = j
+        while is_space_b(byte_at(text, k)) { k = k + 1 }
+        if k > j {
+            let e = digits_x_end(text, k)
+            if e >= 0 { return e }
+        }
+    }
+    let j = i
+    if text[i:i + 3] == "≈" { j = i + 3 }
+    let e = digits_x_end(text, j)
+    if e >= 0 {
+        let k = e
+        while is_space_b(byte_at(text, k)) { k = k + 1 }
+        if k > e and text[k:k + 6] == "slower" { return k + 6 }
+    }
+    return -1
+}
+
+fn color_verdict(inner) {
+    # up pass, then down pass over its result — the down patterns cannot match
+    # inside an inserted perf-faster span, mirroring the Python sub order.
+    let mid = ""
+    let i = 0
+    while i < len(inner) {
+        let e = verdict_up_end(inner, i)
+        if e >= 0 {
+            mid = mid + "<span class=\"perf-faster\">" + inner[i:e] + "</span>"
+            i = e
+        } else {
+            mid = mid + inner[i:i + 1]
+            i = i + 1
+        }
+    }
+    let out = ""
+    i = 0
+    while i < len(mid) {
+        let e = verdict_down_end(mid, i)
+        if e >= 0 {
+            out = out + "<span class=\"perf-slower\">" + mid[i:e] + "</span>"
+            i = e
+        } else {
+            out = out + mid[i:i + 1]
+            i = i + 1
+        }
+    }
+    return out
+}
+
+fn sxs_pane(label, code) {
+    return "<figure class=\"xpile-pane\">" + code + "<figcaption>" + "<span class=\"fname\">" + esc(label) + "</span></figcaption></figure>"
+}
+
+# `<p>SIDEBYSIDE: left | right</p>` + two fenced code blocks -> a two-column grid
+# (generate.py's _SXS_RE, hand-matched: same anchors, same lazy "first end" scans).
+fn apply_sidebyside(content) {
+    let out = ""
+    let pos = 0
+    while true {
+        let m = string.find(content[pos:], "SIDEBYSIDE:")
+        if m < 0 { break }
+        let mark = pos + m
+        # the enclosing <p> must precede with only whitespace between
+        let p_open = string.rfind(content[:mark], "<p>")
+        let ok = p_open >= 0
+        if ok { ok = string.strip(content[p_open + 3:mark]) == "" }
+        let p_close = string.find(content[mark:], "</p>")
+        if ok and p_close >= 0 {
+            let inner = content[mark + 11:mark + p_close]      # after "SIDEBYSIDE:"
+            let bar = string.find(inner, "|")
+            let lt = string.find(inner, "<")
+            if bar > 0 and lt < 0 {
+                let left = string.strip(inner[:bar])
+                let right = string.strip(inner[bar + 1:])
+                # two <pre class="code"><code>…</code></pre> blocks, whitespace apart
+                let scan = mark + p_close + 4
+                while is_space_b(byte_at(content, scan)) { scan = scan + 1 }
+                if string.startswith(content[scan:], "<pre class=\"code\"><code>") {
+                    let e1 = string.find(content[scan:], "</code></pre>")
+                    if e1 >= 0 {
+                        let end1 = scan + e1 + 13
+                        let scan2 = end1
+                        while is_space_b(byte_at(content, scan2)) { scan2 = scan2 + 1 }
+                        if string.startswith(content[scan2:], "<pre class=\"code\"><code>") {
+                            let e2 = string.find(content[scan2:], "</code></pre>")
+                            if e2 >= 0 {
+                                let end2 = scan2 + e2 + 13
+                                out = out + content[pos:p_open] + "<div class=\"xpile\">" + sxs_pane(left, content[scan:end1]) + sxs_pane(right, content[scan2:end2]) + "</div>"
+                                pos = end2
+                                continue
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        out = out + content[pos:mark + 11]
+        pos = mark + 11
+    }
+    return out + content[pos:]
+}
+
+# ---------------------------------------------------------------------------
+# Test scrapers (generate.py's TEST_RE / _CALL_RE — our regex module has no
+# capture groups, and these scrapers are the generator's own logic on both sides)
+# ---------------------------------------------------------------------------
+
+# First `TEST(Suite, Name)` / `TEST_F` / `TEST_P` in a line -> "Suite<US>Name" or "".
+fn find_test_in_line(line) {
+    let pos = 0
+    while true {
+        let m = string.find(line[pos:], "TEST")
+        if m < 0 { return "" }
+        let i = pos + m
+        pos = i + 4
+        if is_word_b(byte_at(line, i - 1)) { continue }         # \b before TEST
+        let j = i + 4
+        if line[j:j + 2] == "_F" or line[j:j + 2] == "_P" { j = j + 2 }
+        if is_word_b(byte_at(line, j)) { continue }             # TESTX / TEST_Foo
+        let k = j
+        while is_space_b(byte_at(line, k)) { k = k + 1 }
+        if byte_at(line, k) != 40 { continue }
+        k = k + 1
+        while is_space_b(byte_at(line, k)) { k = k + 1 }
+        let s0 = k
+        while is_word_b(byte_at(line, k)) { k = k + 1 }
+        if k == s0 { continue }
+        let suite = line[s0:k]
+        while is_space_b(byte_at(line, k)) { k = k + 1 }
+        if byte_at(line, k) != 44 { continue }
+        k = k + 1
+        while is_space_b(byte_at(line, k)) { k = k + 1 }
+        let n0 = k
+        while is_word_b(byte_at(line, k)) { k = k + 1 }
+        if k == n0 { continue }
+        let cname = line[n0:k]
+        while is_space_b(byte_at(line, k)) { k = k + 1 }
+        if byte_at(line, k) != 41 { continue }
+        return suite + us() + cname
+    }
+    return ""
+}
+
+fn src_page_name(rel_path) {
+    let out = "src_"
+    let i = 0
+    while i < len(rel_path) {
+        let b = byte_at(rel_path, i)
+        if is_word_b(b) and b != 95 {
+            out = out + rel_path[i:i + 1]
+        } else {
+            out = out + "_"
+        }
+        i = i + 1
+    }
+    return out + ".html"
+}
+
+# ---------------------------------------------------------------------------
+# Description rendering
+# ---------------------------------------------------------------------------
+
+# ElementTree `findtext(tag)` semantics: the child's text BEFORE its first
+# element child (its leading text node), not the full descendant text.
+fn first_text(doc, id) {
+    for c in parsers.xml.children(doc, id) {
+        if parsers.xml.is_element(doc, c) { return "" }
+        return parsers.xml.text(doc, c)
+    }
+    return ""
+}
+
+# Doxygen encodes every space in code as <sp/>; expand them back (recursive).
+fn code_text(doc, id) -> str {
+    let out = ""
+    for c in parsers.xml.children(doc, id) {
+        if parsers.xml.is_element(doc, c) {
+            if parsers.xml.tag(doc, c) == "sp" {
+                let v = parsers.xml.attr(doc, c, "value")
+                let n = 1
+                if v != "" and string.isdigit(v) { n = requests.parse_uint(v) }
+                out = out + spaces(n)
+            } else {
+                out = out + code_text(doc, c)
+            }
+        } else {
+            out = out + parsers.xml.text(doc, c)
+        }
+    }
+    return out
+}
+
+# Color a gtest `Suite.Case` like a highlighted qualified name.
+fn test_name_html(tname) {
+    let d = string.find(tname, ".")
+    if d >= 0 {
+        return "<span class=\"tn-suite\">" + esc(tname[:d]) + "</span>." + "<span class=\"tn-case\">" + esc(tname[d + 1:]) + "</span>"
+    }
+    return "<span class=\"tn-case\">" + esc(tname) + "</span>"
+}
+
+fn link_test(g, tname) {
+    let inner = test_name_html(tname)
+    if tname in g.test_index {
+        let loc = g.test_index[tname]
+        let d = string.find(loc, us())
+        let lpath = loc[:d]
+        let lline = loc[d + 1:]
+        if lpath in g.src_map {
+            let href = g.src_map[lpath]
+            if lline != "" { href = href + "#L" + lline }
+            return "<a href=\"" + href + "\"><code>" + inner + "</code></a>"
+        }
+    }
+    return "<code>" + inner + "</code>"
+}
+
+# re.split(r"[,\s]+") — split on runs of commas/whitespace, dropping empties.
+fn split_names(text) {
+    let names: list<str> = []
+    let cur = ""
+    let i = 0
+    while i < len(text) {
+        let b = byte_at(text, i)
+        if b == 44 or is_space_b(b) {
+            if cur != "" { names.append(cur) }
+            cur = ""
+        } else {
+            cur = cur + text[i:i + 1]
+        }
+        i = i + 1
+    }
+    if cur != "" { names.append(cur) }
+    return names
+}
+
+fn render_tests(g, text) {
+    let out = ""
+    let sep = ""
+    for n in split_names(string.strip(text)) {
+        out = out + sep + link_test(g, n)
+        sep = " "
+    }
+    return out
+}
+
+# Every system test the current function appears in (tag + cross-module usage),
+# truncated at 3 with the rest in a "…" title.
+fn render_systests(g, text) {
+    let names = split_names(string.strip(text))
+    let ukey = g.cur_module + us() + g.cur_func
+    if ukey in g.app_usage {
+        for extra in string.split(g.app_usage[ukey], us()) {
+            if extra != "" and not list_contains(names, extra) { names.append(extra) }
+        }
+    }
+    let out = ""
+    let sep = ""
+    let i = 0
+    while i < len(names) and i < 3 {
+        out = out + sep + link_test(g, names[i])
+        sep = " "
+        i = i + 1
+    }
+    if len(names) > 3 {
+        let rest = ""
+        let rsep = ""
+        while i < len(names) {
+            rest = rest + rsep + names[i]
+            rsep = ", "
+            i = i + 1
+        }
+        out = out + sep + "<span class=\"more\" title=\"" + esc(rest) + "\">…</span>"
+    }
+    return out
+}
+
+# The 'Performance' tag row for <module>.<name>, if perf_data covers it.
+fn perf_row(g, refid, mname) {
+    if not (refid in g.mod_short) { return "" }
+    let key = g.mod_short[refid] + "." + mname
+    if not (key in g.perf_i) { return "" }
+    let e = g.perf[g.perf_i[key]]
+    let body = ""
+    if e.kind == "numpy_cmp" {
+        let cu = e.cheatah_us
+        let nu = e.numpy_us
+        let speed = 0.0
+        if cu != 0.0 { speed = nu / cu }
+        let faster = speed >= 1.0
+        let factor = speed
+        let verb = "faster"
+        let cls = "perf-faster"
+        if not faster {
+            factor = 0.0
+            if speed != 0.0 { factor = 1.0 / speed }
+            verb = "slower"
+            cls = "perf-slower"
+        }
+        let tgt = string.strip("NumPy " + g.perf_numpy)
+        body = "<strong>" + fmt_us(cu) + "</strong> in cheatah · " + fmt_us(nu) + " in " + tgt + " · <strong class=\"" + cls + "\">≈" + fmt_g1(factor) + "× " + verb + "</strong>"
+        if e.dims != "" {
+            body = body + " <span class=\"perf-dims\">(" + esc(e.dims) + ")</span>"
+        }
+    } elif e.kind == "numpy" {
+        body = "numeric — the honest baseline is NumPy/LAPACK, not a pure-Python loop; " + "see the vs-NumPy table on this page"
+    } elif e.kind == "note" {
+        body = esc(e.note)
+    } elif e.kind == "compared" or e.kind == "cheatah_only" {
+        body = "<strong>" + fmt_ns(e.cheatah_ns) + "</strong> in cheatah"
+        if e.kind == "compared" and e.has_compare {
+            let tgt = ""
+            if e.vs == "numpy" {
+                tgt = string.strip("NumPy " + g.perf_numpy)
+            } else {
+                let cp = g.perf_cpython
+                if cp == "" { cp = "3.x" }
+                tgt = "CPython " + cp
+            }
+            let faster = e.speedup >= 1.0
+            let verb = "faster"
+            let cls = "perf-faster"
+            let factor = e.speedup
+            if not faster {
+                verb = "slower"
+                cls = "perf-slower"
+                factor = 1.0 / e.speedup
+            }
+            body = body + " · " + fmt_ns(e.compare_ns) + " in " + tgt + " · <strong class=\"" + cls + "\">≈" + fmt_g1(factor) + "× " + verb + "</strong>"
+        } else {
+            body = body + " · <em>(no direct equivalent)</em>"
+        }
+    } else {
+        return ""
+    }
+    return "<div class=\"tag tag-perf\"><span class=\"tag-k\">Performance</span>" + "<span class=\"tag-v\">" + body + "</span></div>"
+}
+
+# One node of a Doxygen description -> HTML. THE renderer: a text node escapes;
+# an element dispatches on its tag; unknown tags render their children inline.
+# All child loops live inside this one function (cheatah has no forward
+# declarations, so mutual recursion is spelled as self-recursion).
+fn render_node(g, doc, id) -> str {
+    if not parsers.xml.is_element(doc, id) {
+        return esc(parsers.xml.text(doc, id))
+    }
+    let t = parsers.xml.tag(doc, id)
+    if t == "para" {
+        let out = ""
+        let buf = ""
+        for c in parsers.xml.children(doc, id) {
+            let is_block = false
+            if parsers.xml.is_element(doc, c) {
+                is_block = parsers.xml.tag(doc, c) in g.block_tags
+            }
+            if is_block {
+                let flushed = string.strip(buf)
+                if flushed != "" { out = out + "<p>" + flushed + "</p>" }
+                buf = ""
+                out = out + render_node(g, doc, c)
+            } else {
+                buf = buf + render_node(g, doc, c)
+            }
+        }
+        let flushed = string.strip(buf)
+        if flushed != "" { out = out + "<p>" + flushed + "</p>" }
+        return out
+    }
+    if t == "parameterlist" {
+        let rows = ""
+        for item in parsers.xml.findall(doc, id, "parameteritem") {
+            let names = ""
+            let nsep = ""
+            for n in parsers.xml.iter(doc, item, "parametername") {
+                names = names + nsep + esc(parsers.xml.text(doc, n))
+                nsep = ", "
+            }
+            let desc = ""
+            let pd = parsers.xml.find(doc, item, "parameterdescription")
+            if pd >= 0 {
+                for p in parsers.xml.children(doc, pd) {
+                    if parsers.xml.is_element(doc, p) { desc = desc + render_node(g, doc, p) }
+                }
+            }
+            rows = rows + "<tr><td class=\"pname\"><code>" + names + "</code></td>" + "<td class=\"pdesc\">" + desc + "</td></tr>"
+        }
+        let title = "Parameters"
+        if parsers.xml.attr(doc, id, "kind") == "templateparam" { title = "Template parameters" }
+        return "<div class=\"params\"><div class=\"params-h\">" + title + "</div>" + "<table class=\"params-t\">" + rows + "</table></div>"
+    }
+    if t == "simplesect" {
+        let kind = parsers.xml.attr(doc, id, "kind")
+        let title = ""
+        if kind == "return" { title = "Returns" }
+        elif kind == "note" { title = "Note" }
+        elif kind == "see" { title = "See also" }
+        elif kind == "warning" { title = "Warning" }
+        elif kind == "remark" { title = "Remark" }
+        elif kind == "attention" { title = "Attention" }
+        elif kind == "pre" { title = "Precondition" }
+        elif kind == "post" { title = "Postcondition" }
+        elif kind == "par" { title = "" }
+        elif kind != "" { title = string.capitalize(kind) }
+        let body = ""
+        for c in parsers.xml.children(doc, id) {
+            if parsers.xml.is_element(doc, c) { body = body + render_node(g, doc, c) }
+        }
+        if kind == "return" {
+            return "<div class=\"ret\"><span class=\"ret-h\">" + title + "</span> " + body + "</div>"
+        }
+        let cls = "admon note"
+        if kind != "" { cls = "admon " + kind }
+        return "<div class=\"" + cls + "\"><div class=\"admon-h\">" + title + "</div>" + "<div class=\"admon-b\">" + body + "</div></div>"
+    }
+    if t == "xrefsect" {
+        let xt = parsers.xml.find(doc, id, "xreftitle")
+        let title = ""
+        if xt >= 0 { title = string.strip(parsers.xml.text(doc, xt)) }
+        let cls = "xref"
+        if title == "Complexity" { cls = "complexity" }
+        elif title == "Allocation" { cls = "alloc" }
+        elif title == "Test" { cls = "test" }
+        elif title == "Compile-run test" { cls = "crtest" }
+        elif title == "System test" { cls = "systest" }
+        elif title == "Todo" { cls = "todo" }
+        elif title == "Bug" { cls = "bug" }
+        let label = title
+        if title == "Test" { label = "Unit test" }
+        let body = ""
+        let xd = parsers.xml.find(doc, id, "xrefdescription")
+        if title == "System test" {
+            body = render_systests(g, parsers.xml.text(doc, xd))
+        } elif title == "Test" or title == "Compile-run test" {
+            body = render_tests(g, parsers.xml.text(doc, xd))
+        } else {
+            if xd >= 0 {
+                for c in parsers.xml.children(doc, xd) {
+                    if parsers.xml.is_element(doc, c) { body = body + render_node(g, doc, c) }
+                }
+            }
+        }
+        return "<div class=\"tag tag-" + cls + "\"><span class=\"tag-k\">" + esc(label) + "</span><span class=\"tag-v\">" + body + "</span></div>"
+    }
+    if t == "itemizedlist" or t == "orderedlist" {
+        let items = ""
+        for li in parsers.xml.findall(doc, id, "listitem") {
+            let inner = ""
+            for c in parsers.xml.children(doc, li) { inner = inner + render_node(g, doc, c) }
+            items = items + "<li>" + inner + "</li>"
+        }
+        if t == "orderedlist" { return "<ol>" + items + "</ol>" }
+        return "<ul>" + items + "</ul>"
+    }
+    if t == "variablelist" {
+        let out = "<dl class='vlist'>"
+        for c in parsers.xml.children(doc, id) {
+            if parsers.xml.is_element(doc, c) {
+                let ct = parsers.xml.tag(doc, c)
+                if ct == "varlistentry" {
+                    let term = parsers.xml.find(doc, c, "term")
+                    let inner = ""
+                    if term >= 0 {
+                        for tc in parsers.xml.children(doc, term) { inner = inner + render_node(g, doc, tc) }
+                    }
+                    out = out + "<dt>" + inner + "</dt>"
+                } elif ct == "listitem" {
+                    let inner = ""
+                    for lc in parsers.xml.children(doc, c) {
+                        if parsers.xml.is_element(doc, lc) { inner = inner + render_node(g, doc, lc) }
+                    }
+                    out = out + "<dd>" + inner + "</dd>"
+                }
+            }
+        }
+        return out + "</dl>"
+    }
+    if t == "table" {
+        let rows = ""
+        for r in parsers.xml.findall(doc, id, "row") {
+            let cells = ""
+            for c in parsers.xml.findall(doc, r, "entry") {
+                let ctag = "td"
+                if parsers.xml.attr(doc, c, "thead") == "yes" { ctag = "th" }
+                let inner = ""
+                for p in parsers.xml.children(doc, c) {
+                    if parsers.xml.is_element(doc, p) { inner = inner + render_node(g, doc, p) }
+                }
+                let key = string.strip(parsers.xml.text(doc, c))
+                if ctag == "td" and key in g.modules {
+                    inner = "<a href=\"" + g.modules[key] + ".html\" class=\"mod-link\">" + inner + "</a>"
+                } elif ctag == "td" {
+                    inner = color_verdict(inner)
+                }
+                cells = cells + "<" + ctag + ">" + inner + "</" + ctag + ">"
+            }
+            rows = rows + "<tr>" + cells + "</tr>"
+        }
+        return "<table class=\"dtable\">" + rows + "</table>"
+    }
+    if t == "programlisting" {
+        let fname = string.lower(parsers.xml.attr(doc, id, "filename"))
+        let is_cpp = string.endswith(fname, ".cpp") or string.endswith(fname, ".hpp") or string.endswith(fname, ".cc") or string.endswith(fname, ".hh") or string.endswith(fname, ".h") or string.endswith(fname, ".cxx") or string.endswith(fname, ".hxx") or string.endswith(fname, ".ipp") or string.endswith(fname, ".c")
+        let lines = ""
+        let sep = ""
+        for cl in parsers.xml.findall(doc, id, "codeline") {
+            let raw = code_text(doc, cl)
+            if is_cpp {
+                lines = lines + sep + highlight_cpp_line(g, raw)
+            } else {
+                lines = lines + sep + highlight_code(g, raw)
+            }
+            sep = chr(10)
+        }
+        return "<pre class=\"code\"><code>" + lines + "</code></pre>"
+    }
+    if t == "sect1" or t == "sect2" or t == "sect3" {
+        let ti = parsers.xml.find(doc, id, "title")
+        let title = ""
+        if ti >= 0 { title = first_text(doc, ti) }
+        let body = ""
+        for c in parsers.xml.children(doc, id) {
+            if parsers.xml.is_element(doc, c) and parsers.xml.tag(doc, c) != "title" {
+                body = body + render_node(g, doc, c)
+            }
+        }
+        let h = ""
+        if title != "" {
+            let sid = parsers.xml.attr(doc, id, "id")
+            let idattr = ""
+            if sid != "" { idattr = " id=\"" + esc(sid) + "\"" }
+            h = "<h2" + idattr + ">" + esc(title) + "</h2>"
+        }
+        return h + body
+    }
+    if t == "hruler" { return "<hr>" }
+    if t == "linebreak" { return "<br>" }
+    if t == "computeroutput" {
+        let all_sp = true
+        for c in parsers.xml.children(doc, id) {
+            if parsers.xml.is_element(doc, c) and parsers.xml.tag(doc, c) != "sp" { all_sp = false }
+        }
+        if all_sp {
+            return "<code>" + highlight_code(g, code_text(doc, id)) + "</code>"
+        }
+        let inner = ""
+        for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+        return "<code>" + inner + "</code>"
+    }
+    if t == "bold" {
+        let inner = ""
+        for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+        return "<strong>" + inner + "</strong>"
+    }
+    if t == "emphasis" {
+        let inner = ""
+        for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+        return "<em>" + inner + "</em>"
+    }
+    if t == "ref" {
+        let refid = parsers.xml.attr(doc, id, "refid")
+        let kindref = parsers.xml.attr(doc, id, "kindref")
+        if kindref == "" { kindref = "compound" }
+        let target = refid
+        if kindref != "compound" {
+            target = ""
+            if refid in g.mi { target = g.mi[refid] }
+        }
+        let inner = ""
+        for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+        if not (target in g.valid) and not (refid in g.valid) { return inner }
+        let href = refid + ".html"
+        if kindref != "compound" {
+            let compound = target
+            if compound == "" {
+                let cut = string.rfind(refid, "_1")
+                compound = refid
+                if cut >= 0 { compound = refid[:cut] }
+            }
+            href = compound + ".html#" + refid
+        }
+        return "<a href=\"" + href + "\">" + inner + "</a>"
+    }
+    if t == "ulink" {
+        let url = parsers.xml.attr(doc, id, "url")
+        let inner = ""
+        for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+        if string.contains(url, "://") or string.startswith(url, "mailto:") {
+            return "<a href=\"" + esc(url) + "\" target=\"_blank\" rel=\"noopener\">" + inner + "</a>"
+        }
+        let key = url
+        while string.startswith(key, "../") { key = key[3:] }
+        while string.startswith(key, "./") { key = key[2:] }
+        key = string.rstrip(key, "/")
+        if key in g.modules {
+            return "<a href=\"" + g.modules[key] + ".html\">" + inner + "</a>"
+        }
+        if key in g.src_map {
+            return "<a href=\"" + g.src_map[key] + "\">" + inner + "</a>"
+        }
+        return inner
+    }
+    if t == "anchor" { return "" }
+    if t == "parametername" {
+        let inner = ""
+        for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+        return inner
+    }
+    # unknown / passthrough: inline children
+    let inner = ""
+    for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
+    return inner
+}
+
+# Element children of a description container, dispatched (Renderer.render).
+fn render_desc(g, doc, id) {
+    if id < 0 { return "" }
+    let out = ""
+    for c in parsers.xml.children(doc, id) {
+        if parsers.xml.is_element(doc, c) { out = out + render_node(g, doc, c) }
+    }
+    return out
+}
+
+# Brief description as inline HTML — the first <para>'s full inline content.
+fn render_brief(g, doc, id) {
+    if id < 0 { return "" }
+    let p = parsers.xml.find(doc, id, "para")
+    if p < 0 { return "" }
+    let out = ""
+    for c in parsers.xml.children(doc, p) { out = out + render_node(g, doc, c) }
+    return out
+}
+
+# ---------------------------------------------------------------------------
+# Page assembly
+# ---------------------------------------------------------------------------
+
+fn kind_badge(kind) {
+    if kind == "function" { return "fn" }
+    if kind == "variable" { return "var" }
+    if kind == "typedef" { return "type" }
+    return kind
+}
+
+fn member_signature(g, doc, m: Member) {
+    let typ = ""
+    if m.type_id >= 0 {
+        for c in parsers.xml.children(doc, m.type_id) { typ = typ + render_node(g, doc, c) }
+    }
+    let static_html = ""
+    if m.is_static { static_html = "<span class=\"kw\">static</span> " }
+    return static_html + "<span class=\"mtype\">" + typ + "</span> <span class=\"mname\">" + esc(m.name) + "</span>" + esc(m.args)
+}
+
+fn src_link_of(g, m: Member) {
+    if m.srcfile == "" { return "" }
+    if not (m.srcfile in g.src_map) { return "" }
+    let href = g.src_map[m.srcfile]
+    if m.srcline != "" { href = href + "#L" + m.srcline }
+    return href
+}
+
+fn render_member(g, doc, m: Member) {
+    let badge = kind_badge(m.kind)
+    g.cur_func = m.name
+    let brief = render_brief(g, doc, m.brief_id)
+    let detail = render_desc(g, doc, m.detail_id) + perf_row(g, m.compound, m.name)
+    let src = src_link_of(g, m)
+    let src_html = ""
+    if src != "" {
+        src_html = "<a class=\"src-link\" href=\"" + src + "\" title=\"View source\">source</a>"
+    }
+    let brief_html = ""
+    if brief != "" { brief_html = "<p class=\"member-brief\">" + brief + "</p>" }
+    return "<section class=\"member\" id=\"" + m.id + "\">\n" + "  <div class=\"member-head\">\n" + "    <span class=\"badge badge-" + badge + "\">" + badge + "</span>\n" + "    <code class=\"sig\">" + member_signature(g, doc, m) + "</code>\n" + "    <span class=\"member-actions\">" + src_html + "<a class=\"anchor\" href=\"#" + m.id + "\" aria-label=\"permalink\">#</a></span>\n" + "  </div>\n" + "  " + brief_html + "\n" + "  <div class=\"member-body\">" + detail + "</div>\n" + "</section>"
+}
+
+# Consolidate the overloads of one function into a single reference block.
+fn render_member_group(g, doc, members, idxs: list<int>) {
+    if len(idxs) == 1 { return render_member(g, doc, members[idxs[0]]) }
+    let head = members[idxs[0]]
+    g.cur_func = head.name
+    let badge = kind_badge(head.kind)
+    # the shared prose comes from the first overload that carries detail
+    let primary = idxs[0]
+    for i in idxs {
+        if members[i].detail_id >= 0 and string.strip(render_desc(g, doc, members[i].detail_id)) != "" {
+            primary = i
+            break
+        }
+    }
+    let brief = render_brief(g, doc, members[primary].brief_id)
+    if brief == "" {
+        for i in idxs {
+            let b2 = render_brief(g, doc, members[i].brief_id)
+            if b2 != "" {
+                brief = b2
+                break
+            }
+        }
+    }
+    let detail = render_desc(g, doc, members[primary].detail_id) + perf_row(g, head.compound, head.name)
+    let rows = ""
+    for i in idxs {
+        let m = members[i]
+        let src = src_link_of(g, m)
+        let src_html = ""
+        if src != "" {
+            src_html = "<a class=\"src-link\" href=\"" + src + "\" title=\"View source\">source</a>"
+        }
+        let idattr = ""
+        if m.id != head.id { idattr = " id=\"" + m.id + "\"" }
+        rows = rows + "<div class=\"overload\"" + idattr + "><code class=\"sig\">" + member_signature(g, doc, m) + "</code>" + "<span class=\"member-actions\">" + src_html + "<a class=\"anchor\" href=\"#" + m.id + "\" aria-label=\"permalink\">#</a></span></div>"
+    }
+    let brief_html = ""
+    if brief != "" { brief_html = "<p class=\"member-brief\">" + brief + "</p>" }
+    return "<section class=\"member\" id=\"" + head.id + "\">\n" + "  <div class=\"member-head\">\n" + "    <span class=\"badge badge-" + badge + "\">" + badge + "</span>\n" + "    <code class=\"sig\"><span class=\"mname\">" + esc(head.name) + "</span> <span class=\"overload-count\">· " + str(len(idxs)) + " overloads</span></code>\n" + "  </div>\n" + "  <div class=\"overload-list\">" + rows + "</div>\n" + "  " + brief_html + "\n" + "  <div class=\"member-body\">" + detail + "</div>\n" + "</section>"
+}
+
+fn page_shell(g, title, sidebar, content, toc) {
+    let body = string.replace(content, "🐾", "<span class=\"paw\">🐾</span>")
+    body = apply_sidebyside(body)
+    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"index.html\"><img src=\"cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    <div class=\"search\"><input id=\"q\" type=\"search\" placeholder=\"Search the standard library…\" autocomplete=\"off\" spellcheck=\"false\">\n" + "      <div id=\"results\" class=\"results\" hidden></div>\n" + "    </div>\n" + "    <button id=\"theme\" class=\"theme-btn\" title=\"Toggle theme\" aria-label=\"Toggle theme\">◐</button>\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<script src=\"search-index.js?v=" + g.vers_search + "\"></script>\n" + "<script src=\"cheatah-docs.js?v=" + g.vers_js + "\"></script>\n" + "<footer class=\"sitefoot\">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+}
+
+# One module entry in the sidebar tree (submodules as collapsible dropdowns).
+fn side_node(g, kids, refid) -> str {
+    let c = g.comps[g.comp_idx[refid]]
+    let leaf = c.short
+    let cut = string.rfind(leaf, "::")
+    if cut >= 0 { leaf = leaf[cut + 2:] }
+    let link = "<a href=\"" + c.refid + ".html\" data-ref=\"" + c.refid + "\">" + esc(leaf) + "</a>"
+    if c.short in kids {
+        let inner = ""
+        for k in string.split(kids[c.short], us()) {
+            if k != "" { inner = inner + "<li>" + side_node(g, kids, k) + "</li>" }
+        }
+        if inner != "" {
+            return "<details class=\"side-sub\"><summary>" + link + "</summary><ul>" + inner + "</ul></details>"
+        }
+    }
+    return link
+}
+
+fn guide_link(c: Compound) {
+    let label = c.title
+    if label == "" { label = c.short }
+    return "<li><a href=\"" + c.refid + ".html\" data-ref=\"" + c.refid + "\">" + esc(label) + "</a></li>"
+}
+
+# Sort "lower<US>refid" pairs, return the refids joined with <US>.
+fn sort_pair_refids(joined_pairs) {
+    let toks = string.split(joined_pairs, us())
+    let pairs: list<str> = []
+    let i = 0
+    while i + 1 < len(toks) {
+        pairs.append(toks[i] + us() + toks[i + 1])
+        i = i + 2
+    }
+    let out = ""
+    let sep = ""
+    for p in sorted_strs(pairs) {
+        let cut = string.rfind(p, us())
+        out = out + sep + p[cut + 1:]
+        sep = us()
+    }
+    return out
+}
+
+fn build_sidebar(g) {
+    let parts = "<a class=\"side-home\" href=\"index.html\">Overview</a>"
+    # guide-page buckets, each sorted by an explicit order key
+    let tools_keys: list<str> = []
+    let guide_keys: list<str> = []
+    let parity_keys: list<str> = []
+    let ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "page" and c.refid != "indexpage" and c.refid != "complexity" and c.refid != "alloc" and c.refid != "test" and c.refid != "crtest" and c.refid != "systest" {
+            let r = c.refid
+            if r == "purrc" { tools_keys.append("0" + us() + str(ci)) }
+            elif r == "runtime" { tools_keys.append("1" + us() + str(ci)) }
+            elif r == "biome" { tools_keys.append("2" + us() + str(ci)) }
+            elif r == "extensions" { tools_keys.append("3" + us() + str(ci)) }
+            elif r == "md_compiler_2PYTHON" { parity_keys.append("0" + us() + str(ci)) }
+            elif r == "cpp" { parity_keys.append("1" + us() + str(ci)) }
+            else {
+                let ord_key = "99"
+                if r == "why" { ord_key = "00" }
+                elif r == "getting-started" { ord_key = "01" }
+                elif r == "porting" { ord_key = "02" }
+                elif r == "imports" { ord_key = "03" }
+                elif r == "ownership" { ord_key = "04" }
+                elif r == "performance" { ord_key = "05" }
+                elif r == "optimizations" { ord_key = "06" }
+                elif r == "security" { ord_key = "07" }
+                elif r == "md_CHANGELOG" { ord_key = "09" }
+                let label = c.title
+                if label == "" { label = c.short }
+                guide_keys.append(ord_key + us() + string.lower(label) + us() + str(ci))
+            }
+        }
+        ci = ci + 1
+    }
+    let tools_sorted = sorted_strs(tools_keys)
+    if len(tools_sorted) > 0 {
+        let tlinks = ""
+        for k in tools_sorted {
+            let cut = string.rfind(k, us())
+            tlinks = tlinks + guide_link(g.comps[requests.parse_uint(k[cut + 1:])])
+        }
+        parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Essential tools</div><ul>" + tlinks + "</ul></div>"
+    }
+    # Guides — inject the Transpiler entry right before performance/security/changelog
+    let links = ""
+    let injected = false
+    for k in sorted_strs(guide_keys) {
+        let cut = string.rfind(k, us())
+        let c = g.comps[requests.parse_uint(k[cut + 1:])]
+        if (c.refid == "performance" or c.refid == "security" or c.refid == "md_CHANGELOG") and not injected {
+            links = links + "<li><a href=\"transpiler.html\" data-ref=\"transpiler\">Transpiler</a></li>"
+            injected = true
+        }
+        links = links + guide_link(c)
+    }
+    if not injected {
+        links = links + "<li><a href=\"transpiler.html\" data-ref=\"transpiler\">Transpiler</a></li>"
+    }
+    parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Guides</div><ul>" + links + "</ul></div>"
+    let parity_sorted = sorted_strs(parity_keys)
+    if len(parity_sorted) > 0 {
+        let plinks = ""
+        for k in parity_sorted {
+            let cut = string.rfind(k, us())
+            plinks = plinks + guide_link(g.comps[requests.parse_uint(k[cut + 1:])])
+        }
+        parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Language parity</div><ul>" + plinks + "</ul></div>"
+    }
+    # Modules: top-level entries with nested submodules
+    let kid_keys: dict<str, str> = {}
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "namespace" and string.contains(c.short, "::") {
+            let cut = string.rfind(c.short, "::")
+            let parent = c.short[:cut]
+            let prev = ""
+            if parent in kid_keys { prev = kid_keys[parent] + us() }
+            kid_keys[parent] = prev + string.lower(c.short) + us() + c.refid
+        }
+        ci = ci + 1
+    }
+    let kids: dict<str, str> = {}
+    for kv in kid_keys { kids[kv.first] = sort_pair_refids(kv.second) }
+    let top_keys: list<str> = []
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "namespace" and not string.contains(c.short, "::") {
+            top_keys.append(string.lower(c.short) + us() + c.refid)
+        }
+        ci = ci + 1
+    }
+    let mods = ""
+    for k in sorted_strs(top_keys) {
+        let cut = string.rfind(k, us())
+        mods = mods + "<li class=\"side-mod\">" + side_node(g, kids, k[cut + 1:]) + "</li>"
+    }
+    parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Modules</div><ul>" + mods + "</ul></div>"
+    return parts
+}
+
+fn build_toc(members) {
+    if len(members) == 0 { return "" }
+    let parts = "<div class=\"toc-h\">On this page</div><ul>"
+    let seen: dict<str, bool> = {}
+    for m in members {
+        if m.kind == "function" and not (m.name in seen) {
+            seen[m.name] = true
+            parts = parts + "<li><a href=\"#" + m.id + "\">" + esc(m.name) + "</a></li>"
+        }
+    }
+    for m in members {
+        if m.kind != "function" {
+            parts = parts + "<li><a href=\"#" + m.id + "\">" + esc(m.name) + "</a></li>"
+        }
+    }
+    return parts + "</ul>"
+}
+
+# Documents are not storable in containers (no qualified template args), so each
+# page re-parses its compound XML — deterministic parsing keeps the node ids
+# recorded at load valid against the fresh parse.
+fn doc_of(refid) {
+    let path = "docs/xml/" + refid + ".xml"
+    if os.path.isfile(path) { return parsers.xml.parse(io.read_file(path)) }
+    return parsers.xml.parse("")
+}
+
+fn render_compound_page(g, ci, sidebar) {
+    let c = g.comps[ci]
+    let doc_key = c.refid
+    let is_page = c.kind == "page"
+    let kind_label = "Guide"
+    if c.kind == "namespace" { kind_label = "Module" }
+    elif c.kind == "class" { kind_label = "Class" }
+    elif c.kind == "struct" { kind_label = "Struct" }
+    elif c.kind == "concept" { kind_label = "Concept" }
+    g.cur_module = c.short
+    let cdoc = doc_of(doc_key)
+    let brief = render_brief(g, cdoc, c.brief_id)
+    let detail = ""
+    if c.kind == "namespace" and c.short in g.readme_key {
+        let rdoc = doc_of(g.readme_key[c.short])
+        detail = render_desc(g, rdoc, g.readme_node[c.short])
+    }
+    detail = detail + render_desc(g, cdoc, c.detail_id)
+    # group members: functions (overload-consolidated), variables, types
+    let sections = ""
+    let fn_names: list<str> = []
+    for m in c.members {
+        if m.kind == "function" and not list_contains(fn_names, m.name) { fn_names.append(m.name) }
+    }
+    if len(fn_names) > 0 {
+        let body = ""
+        for fname in fn_names {
+            let idxs: list<int> = []
+            let mi2 = 0
+            while mi2 < len(c.members) {
+                if c.members[mi2].kind == "function" and c.members[mi2].name == fname {
+                    idxs.append(mi2)
+                }
+                mi2 = mi2 + 1
+            }
+            body = body + render_member_group(g, cdoc, c.members, idxs)
+        }
+        sections = sections + "<h2 class=\"group\">Functions</h2>" + body
+    }
+    let var_body = ""
+    for m in c.members {
+        if m.kind == "variable" { var_body = var_body + render_member(g, cdoc, m) }
+    }
+    if var_body != "" {
+        sections = sections + "<h2 class=\"group\">Constants & variables</h2>" + var_body
+    }
+    let type_body = ""
+    for m in c.members {
+        if m.kind == "typedef" or m.kind == "enum" {
+            type_body = type_body + render_member(g, cdoc, m)
+        }
+    }
+    if type_body != "" { sections = sections + "<h2 class=\"group\">Types</h2>" + type_body }
+    # a module page lists its own classes
+    let class_section = ""
+    if c.kind == "namespace" and c.short in g.classes_of {
+        let items = ""
+        for cref in string.split(g.classes_of[c.short], us()) {
+            if cref == "" { continue }
+            let cc = g.comps[g.comp_idx[cref]]
+            let leaf = cc.short
+            let cut = string.rfind(leaf, "::")
+            if cut >= 0 { leaf = leaf[cut + 2:] }
+            let ccdoc = doc_of(cc.refid)
+            let cbrief = render_brief(g, ccdoc, cc.brief_id)
+            let extra = ""
+            if cbrief != "" { extra = " — " + cbrief }
+            items = items + "<li><a href=\"" + cc.refid + ".html\"><code>" + esc(leaf) + "</code></a>" + extra + "</li>"
+        }
+        if items != "" {
+            class_section = "<h2 class=\"group\">Classes</h2><ul class=\"class-list\">" + items + "</ul>"
+        }
+    }
+    let title_html = "<code>" + esc(c.short) + "</code>"
+    if is_page { title_html = esc(c.title) }
+    let brief_html = ""
+    if brief != "" { brief_html = "<p class=\"lede\">" + brief + "</p>" }
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">" + kind_label + "</div>\n" + "  <h1>" + title_html + "</h1>\n" + "  " + brief_html + "\n" + "</div>\n" + "<div class=\"overview\">" + detail + "</div>\n" + class_section + "\n" + sections
+    let page_title = c.short
+    if is_page { page_title = c.title }
+    return page_shell(g, page_title, sidebar, content, build_toc(c.members))
+}
+
+fn render_home(g, ci, sidebar) {
+    let c = g.comps[ci]
+    let hdoc = doc_of(c.refid)
+    let detail = render_desc(g, hdoc, c.detail_id)
+    let content = "<div class=\"home\">\n" + "  <div class=\"hero\">\n" + "    <img class=\"hero-logo\" src=\"cheatah-logo.png\" alt=\"\">\n" + "    <div class=\"hero-text\">\n" + "      <h1 class=\"hero-title\">cheatah</h1>\n" + "      <p class=\"hero-tagline\">Programs so fast they purrrrrrrrrrrrr like a kitten.</p>\n" + "    </div>\n" + "  </div>\n" + "  " + detail + "</div>"
+    return page_shell(g, "cheatah standard library", sidebar, content, "")
+}
+
+fn render_source_page(g, rel_path, sidebar) {
+    let raw = io.read_file(rel_path)
+    let is_cpp = false
+    let dot = string.rfind(rel_path, ".")
+    if dot >= 0 {
+        let ext = string.lower(rel_path[dot:])
+        is_cpp = ext == ".cpp" or ext == ".hpp" or ext == ".cc" or ext == ".hh" or ext == ".cxx" or ext == ".hxx" or ext == ".h" or ext == ".ipp" or ext == ".inl" or ext == ".c" or ext == ".tpp" or ext == ".js"
+    }
+    let rows = ""
+    let i = 1
+    for line in string.splitlines(raw) {
+        let hl = ""
+        if is_cpp {
+            hl = highlight_cpp_line(g, line)
+        } else {
+            hl = highlight_code(g, line)
+        }
+        rows = rows + "<div class=\"srcline\" id=\"L" + str(i) + "\">" + "<a class=\"lnno\" href=\"#L" + str(i) + "\">" + str(i) + "</a>" + "<code class=\"lc\">" + hl + "</code></div>"
+        i = i + 1
+    }
+    let content = "<div class=\"page-head\"><div class=\"eyebrow\">Source</div>" + "<h1><code>" + esc(rel_path) + "</code></h1></div>" + "<div class=\"srcview\">" + rows + "</div>"
+    return page_shell(g, rel_path + " · source", sidebar, content, "")
+}
+
+fn xpile_pane(fname, lang_label, code_html) {
+    return "<figure class=\"xpile-pane\">" + "<pre class=\"code\"><code>" + code_html + "</code></pre>" + "<figcaption><span class=\"fname\">" + esc(fname) + "</span>" + "<span class=\"xpile-lang\">" + esc(lang_label) + "</span></figcaption></figure>"
+}
+
+fn rstrip_newlines(s) {
+    let e = len(s)
+    while e > 0 and byte_at(s, e - 1) == 10 { e = e - 1 }
+    return s[:e]
+}
+
+fn transpiler_section(g, ex_name, blurb) {
+    let purr_f = "gen/" + ex_name + ".purr"
+    let cpp_f = "gen/" + ex_name + ".gen.cpp"
+    if not os.path.isfile(purr_f) or not os.path.isfile(cpp_f) { return "" }
+    let purr_html = highlight_block(g, rstrip_newlines(io.read_file(purr_f)), "purr")
+    let cpp_html = highlight_block(g, rstrip_newlines(io.read_file(cpp_f)), "cpp")
+    return "<section class=\"xpile-ex\" id=\"" + ex_name + "\">" + "<h2 class=\"group\"><code>" + ex_name + ".purr</code></h2>" + "<p class=\"xpile-blurb\">" + blurb + "</p>" + "<div class=\"xpile\">" + xpile_pane(ex_name + ".purr", "cheatah", purr_html) + xpile_pane(ex_name + ".gen.cpp", "C++", cpp_html) + "</div></section>"
+}
+
+fn render_transpiler_page(g, sidebar) {
+    let ex_names = ["fizzbuzz", "http_response", "grades", "palette", "vectors", "numerics", "shapes"]
+    let blurbs = [ "Ranges, <code>if</code>, floor division <code>//</code>, and string building.", "A <code>+</code>-chain self-append lowers to one chained <code>((head += a) += b) += c;</code> — no temporary per piece.", "A <code>struct</code> with a method, a <code>list</code>, and method-call (UFCS) syntax.", "A scoped <code>enum</code> with <code>match</code>/<code>case</code> — the <code>enum class</code> lowering, with a generated <code>operator&lt;&lt;</code>.", "<code>ndarray</code> arrays through <code>linalg</code> routines — the numeric core, with per-module namespace aliases (<code>ndarray::</code>, <code>linalg::</code>).", "Four modules linked into one program: <code>math</code>, <code>ndarray</code> and <code>linalg</code> each lower to an <code>#include</code> and a short namespace alias, solving a 3×3 system on the SIMD core.", "An <code>interface</code> lowers to a C++20 <b>concept</b> (a <code>static_assert</code> checks every <code>struct</code> that fulfills it), and an interface-typed parameter constrains the generated template — no inheritance."
+    ]
+    let sections = ""
+    let toc_items = ""
+    let i = 0
+    while i < len(ex_names) {
+        let s = transpiler_section(g, ex_names[i], blurbs[i])
+        if s != "" {
+            sections = sections + s
+            toc_items = toc_items + "<li><a href=\"#" + ex_names[i] + "\">" + esc(ex_names[i]) + "</a></li>"
+        }
+        i = i + 1
+    }
+    let intro = "<p><code>purrc</code> is a <strong>transpiler</strong>: it compiles a " + "<code>.purr</code> program to modern C++ — the <code>.gen.cpp</code> shown on " + "the right — which is then built at <code>-O3 -march=native</code> into a loadable " + "module the <code>cheatah</code> runtime runs. The whole program is emitted inside a " + "<code>namespace cheatah_program</code>, where each module gets its own short alias " + "(<code>io::</code>, <code>ndarray::</code>, …) and the exported entry point is a " + "one-line <code>extern \"C\"</code> trampoline.</p>" + "<p>These are the programs in the repository's <code>gen/</code> folder; regenerate " + "them with <code>bash gen/generate.sh</code> to see how a language change moves the " + "output.</p>"
+    let content = "<div class=\"page-head\"><div class=\"eyebrow\">Guide</div>" + "<h1>Transpiler</h1>" + "<p class=\"lede\">What <code>purrc</code> emits — every <code>gen/</code> " + "example, <code>.purr</code> beside its generated C++.</p></div>" + "<div class=\"overview\">" + intro + "</div>" + sections
+    let toc = ""
+    if toc_items != "" { toc = "<div class=\"toc-h\">On this page</div><ul>" + toc_items + "</ul>" }
+    return page_shell(g, "Transpiler", sidebar, content, toc)
+}
+
+fn jstr(s) { return "\"" + requests.json_escape(s) + "\"" }
+
+fn build_search_index(g) {
+    let out = "window.SEARCH=["
+    let sep = ""
+    let ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        ci = ci + 1
+        if c.kind == "page" { continue }
+        out = out + sep + "{\"n\":" + jstr(c.short) + ",\"k\":" + jstr(c.kind) + ",\"u\":" + jstr(c.refid + ".html") + "}"
+        sep = ","
+        let seen: dict<str, bool> = {}
+        for m in c.members {
+            if m.kind == "function" {
+                if m.name in seen { continue }
+                seen[m.name] = true
+            }
+            out = out + sep + "{\"n\":" + jstr(m.name) + ",\"k\":" + jstr(m.kind) + ",\"u\":" + jstr(c.refid + ".html#" + m.id) + ",\"c\":" + jstr(c.short) + "}"
+        }
+    }
+    return out + "];"
+}
+
+# ---------------------------------------------------------------------------
+# Loading
+# ---------------------------------------------------------------------------
+
+fn text_of_child(doc, id, ctag) {
+    let n = parsers.xml.find(doc, id, ctag)
+    if n < 0 { return "" }
+    return first_text(doc, n)
+}
+
+# "…/stdlib/<mod>/README.md"? -> the module name, else "".
+fn readme_module_of(path) {
+    if not string.endswith(path, "/README.md") { return "" }
+    let dirpath = path[:len(path) - 10]
+    let cut = string.rfind(dirpath, "/")
+    if cut < 0 { return "" }
+    let mod = dirpath[cut + 1:]
+    let parent = dirpath[:cut]
+    if parent == "stdlib" or string.endswith(parent, "/stdlib") {
+        # every char of mod must be \w (the Python pattern is stdlib/(\w+)/README\.md$)
+        let i = 0
+        while i < len(mod) {
+            if not is_word_b(byte_at(mod, i)) { return "" }
+            i = i + 1
+        }
+        if mod != "" { return mod }
+    }
+    return ""
+}
+
+fn is_internal_namespace(nsname) {
+    for seg in string.split(nsname, "::") {
+        if seg == "detail" { return true }
+        if string.contains(seg, "anonymous") { return true }
+        if string.startswith(seg, "@") { return true }
+    }
+    return false
+}
+
+# Parse index.xml + every compound XML into g.
+fn load_all(g) {
+    let idx = parsers.xml.parse(io.read_file("docs/xml/index.xml"))
+    let idx_root = parsers.xml.find(idx, parsers.xml.root(idx), "doxygenindex")
+    for c in parsers.xml.findall(idx, idx_root, "compound") {
+        let kind = parsers.xml.attr(idx, c, "kind")
+        if kind != "namespace" and kind != "class" and kind != "page" { continue }
+        let refid = parsers.xml.attr(idx, c, "refid")
+        let cdoc = parsers.xml.parse(io.read_file("docs/xml/" + refid + ".xml"))
+        let dox = parsers.xml.find(cdoc, parsers.xml.root(cdoc), "doxygen")
+        let cdef = parsers.xml.find(cdoc, dox, "compounddef")
+        if cdef < 0 { continue }
+        if kind == "page" {
+            let loc = parsers.xml.find(cdoc, cdef, "location")
+            let lfile = ""
+            if loc >= 0 { lfile = parsers.xml.attr(cdoc, loc, "file") }
+            let mod = readme_module_of(lfile)
+            if mod != "" {
+                g.readme_key[mod] = refid
+                g.readme_node[mod] = parsers.xml.find(cdoc, cdef, "detaileddescription")
+                continue
+            }
+        }
+        let cname = text_of_child(cdoc, cdef, "compoundname")
+        if cname == "" { cname = text_of_child(idx, c, "name") }
+        if cname == "" { cname = refid }
+        if kind == "namespace" and is_internal_namespace(cname) { continue }
+        let comp = Compound({.refid = refid, .kind = kind, .name = cname})
+        comp.short = string.replace(cname, "cheatah::", "")
+        comp.title = text_of_child(cdoc, cdef, "title")
+        if comp.title == "" { comp.title = comp.short }
+        comp.brief_id = parsers.xml.find(cdoc, cdef, "briefdescription")
+        comp.detail_id = parsers.xml.find(cdoc, cdef, "detaileddescription")
+        if kind == "namespace" {
+            g.mod_short[refid] = string.replace(comp.short, "::", ".")
+        }
+        let seen_ids: dict<str, bool> = {}
+        for md in parsers.xml.iter(cdoc, cdef, "memberdef") {
+            let mid = parsers.xml.attr(cdoc, md, "id")
+            if mid in seen_ids { continue }
+            seen_ids[mid] = true
+            let m = Member({.id = mid})
+            m.kind = parsers.xml.attr(cdoc, md, "kind")
+            m.is_static = parsers.xml.attr(cdoc, md, "static") == "yes"
+            m.name = text_of_child(cdoc, md, "name")
+            m.type_id = parsers.xml.find(cdoc, md, "type")
+            m.args = string.strip(text_of_child(cdoc, md, "argsstring"))
+            m.brief_id = parsers.xml.find(cdoc, md, "briefdescription")
+            m.detail_id = parsers.xml.find(cdoc, md, "detaileddescription")
+            m.compound = refid
+            let loc = parsers.xml.find(cdoc, md, "location")
+            if loc >= 0 {
+                m.srcfile = parsers.xml.attr(cdoc, loc, "bodyfile")
+                if m.srcfile == "" { m.srcfile = parsers.xml.attr(cdoc, loc, "declfile") }
+                if m.srcfile == "" { m.srcfile = parsers.xml.attr(cdoc, loc, "file") }
+                m.srcline = parsers.xml.attr(cdoc, loc, "bodystart")
+                if m.srcline == "" { m.srcline = parsers.xml.attr(cdoc, loc, "declline") }
+                if m.srcline == "" { m.srcline = parsers.xml.attr(cdoc, loc, "line") }
+            }
+            comp.members.append(m)
+            g.mi[mid] = refid
+        }
+        if comp.kind == "namespace" and len(comp.members) == 0 { continue }
+        g.comp_idx[refid] = len(g.comps)
+        g.comps.append(comp)
+    }
+}
+
+fn cpp_files_sorted(dirpath) {
+    let out: list<str> = []
+    if not os.path.isdir(dirpath) { return out }
+    for f in os.listdir(dirpath) {
+        if string.endswith(f, ".cpp") { out.append(f) }
+    }
+    return sorted_strs(out)
+}
+
+fn build_test_index(g) {
+    for tdir in ["stdlib/tests", "stdlib/memory/tests", "tests/purrc"] {
+        for f in cpp_files_sorted(tdir) {
+            let rel = tdir + "/" + f
+            let lineno = 1
+            for line in string.splitlines(io.read_file(rel)) {
+                let hit = find_test_in_line(line)
+                if hit != "" {
+                    let cut = string.find(hit, us())
+                    g.test_index[hit[:cut] + "." + hit[cut + 1:]] = rel + us() + str(lineno)
+                }
+                lineno = lineno + 1
+            }
+        }
+    }
+}
+
+fn qual_module_of(qual) {
+    if qual == "" { return "builtins" }
+    if qual == "math" or qual == "io" or qual == "string" or qual == "ndarray" or qual == "linalg" or qual == "os" or qual == "socket" or qual == "statistics" or qual == "random" or qual == "hashlib" or qual == "datetime" or qual == "time" {
+        return qual
+    }
+    if qual == "os.path" { return "os::path" }
+    return us()          # sentinel: not a mapped module
+}
+
+# Scan the app system tests: (module, function) -> the system tests calling it.
+fn build_app_usage(g) {
+    let raw: dict<str, bool> = {}
+    for f in cpp_files_sorted("tests/purrc") {
+        if not string.startswith(f, "app_") { continue }
+        let text = io.read_file("tests/purrc/" + f)
+        let tname = ""
+        for line in string.splitlines(text) {
+            let hit = find_test_in_line(line)
+            if hit != "" {
+                let cut = string.find(hit, us())
+                tname = hit[:cut] + "." + hit[cut + 1:]
+                break
+            }
+        }
+        if tname == "" { continue }
+        let a = string.find(text, "R\"PURR(")
+        if a < 0 { continue }
+        let b = string.find(text[a:], ")PURR\"")
+        if b < 0 { continue }
+        let purr = text[a + 7:a + b]
+        # every `qual.func(` call site
+        let i = 0
+        while i < len(purr) {
+            let bb = byte_at(purr, i)
+            if is_word_b(bb) {
+                let segs: list<str> = []
+                let j = i
+                while true {
+                    let s0 = j
+                    while is_word_b(byte_at(purr, j)) { j = j + 1 }
+                    segs.append(purr[s0:j])
+                    if byte_at(purr, j) == 46 and is_word_b(byte_at(purr, j + 1)) {
+                        j = j + 1
+                    } else { break }
+                }
+                let k = j
+                while is_space_b(byte_at(purr, k)) { k = k + 1 }
+                if byte_at(purr, k) == 40 and len(segs) > 0 {
+                    let qual = ""
+                    let qsep = ""
+                    let si = 0
+                    while si + 1 < len(segs) {
+                        qual = qual + qsep + segs[si]
+                        qsep = "."
+                        si = si + 1
+                    }
+                    let mod = qual_module_of(qual)
+                    if mod != us() {
+                        raw[mod + us() + segs[len(segs) - 1] + us() + tname] = true
+                    }
+                    i = k + 1
+                    continue
+                }
+                i = j
+            } else {
+                i = i + 1
+            }
+        }
+    }
+    # group "mod<US>func<US>test" -> app_usage["mod<US>func"] = sorted joined tests
+    let grouped: dict<str, str> = {}
+    for kv in raw {
+        let key = kv.first
+        let c2 = string.rfind(key, us())
+        let mk = key[:c2]
+        let tname = key[c2 + 1:]
+        let prev = ""
+        if mk in grouped { prev = grouped[mk] + us() }
+        grouped[mk] = prev + tname
+    }
+    for kv in grouped {
+        let names = sorted_strs(string.split(kv.second, us()))
+        let joined = ""
+        let sep = ""
+        for n in names {
+            joined = joined + sep + n
+            sep = us()
+        }
+        g.app_usage[kv.first] = joined
+    }
+}
+
+fn add_kw(d, words) {
+    for w in string.split(words, " ") { d[w] = true }
+}
+
+fn write_file(path, content) {
+    with io.open(path, "w") as f {
+        f.write(content)
+    }
+}
+
+# Walk a description subtree registering section/anchor ids as valid link targets.
+fn register_anchors(g, doc, id) {
+    if id < 0 { return 0 }
+    let stack = [id]
+    while len(stack) > 0 {
+        let last = len(stack) - 1
+        let n = stack[last]
+        let next_stack: list<int> = []
+        let i = 0
+        while i < last {
+            next_stack.append(stack[i])
+            i = i + 1
+        }
+        stack = next_stack
+        if parsers.xml.is_element(doc, n) {
+            let t = parsers.xml.tag(doc, n)
+            if t == "sect1" or t == "sect2" or t == "sect3" or t == "sect4" or t == "anchor" {
+                let sid = parsers.xml.attr(doc, n, "id")
+                if sid != "" { g.valid[sid] = true }
+            }
+            for c in parsers.xml.children(doc, n) { stack.append(c) }
+        }
+    }
+    return 0
+}
+
+# ---------------------------------------------------------------------------
+# main
+# ---------------------------------------------------------------------------
+
 fn main() {
-    let path = "docs/xml/namespacecheatah_1_1math.xml"
-    if len(sys.argv) > 1 { path = sys.argv[1] }
-    io.print(gen_module(path))
+    if not os.path.isdir("docs/xml") {
+        io.print("generate: docs/xml not found — run Doxygen with GENERATE_XML=YES first")
+        return
+    }
+    let g = Gen({.cur_module = ""})
+
+    # highlighter vocabularies (the compiler's keywords + Python's, minus literals)
+    add_kw(g.kw, "and as break case constexpr continue elif else enum except false fn for from if import in interface let match not or raise return struct true try while with")
+    add_kw(g.kw, "def class lambda yield pass global nonlocal del assert finally is await async")
+    add_kw(g.consts, "true false None True False")
+    add_kw(g.cpp_kw, "alignas alignof auto bool break case char class concept const constexpr continue decltype default delete do double else enum explicit extern float for friend if inline int long mutable namespace new noexcept nullptr operator private protected public requires return short signed sizeof static static_assert struct switch template this throw true false try typedef typename union unsigned using virtual void volatile while")
+    add_kw(g.cpp_consts, "true false nullptr")
+    add_kw(g.block_tags, "parameterlist simplesect xrefsect itemizedlist orderedlist variablelist table programlisting hruler sect1 sect2 sect3")
+
+    # per-function perf numbers (regenerated by scripts/perf_suite.py, not the gate)
+    if os.path.isfile("docs/perf_data.json") {
+        let pd = PerfData({.meta = PerfMeta({.numpy = ""})})
+        if parsers.json.read(io.read_file("docs/perf_data.json"), pd) {
+            g.perf = pd.functions
+            g.perf_numpy = pd.meta.numpy
+            g.perf_cpython = pd.meta.cpython
+            let i = 0
+            while i < len(g.perf) {
+                g.perf_i[g.perf[i].name] = i
+                i = i + 1
+            }
+        }
+    }
+
+    load_all(g)
+    let ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "namespace" { g.modules[c.short] = c.refid }
+        g.valid[c.refid] = true
+        ci = ci + 1
+    }
+    # section anchors in details/briefs/READMEs are valid link targets too
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        let adoc = doc_of(c.refid)
+        register_anchors(g, adoc, c.detail_id)
+        register_anchors(g, adoc, c.brief_id)
+        if c.short in g.readme_key {
+            let ardoc = doc_of(g.readme_key[c.short])
+            register_anchors(g, ardoc, g.readme_node[c.short])
+        }
+        ci = ci + 1
+    }
+
+    # source pages: every file a member is defined in + the test sources
+    let src_set: dict<str, bool> = {}
+    ci = 0
+    while ci < len(g.comps) {
+        for m in g.comps[ci].members {
+            if m.srcfile != "" { src_set[m.srcfile] = true }
+        }
+        ci = ci + 1
+    }
+    for tdir in ["stdlib/tests", "stdlib/memory/tests", "tests/purrc"] {
+        for f in cpp_files_sorted(tdir) { src_set[tdir + "/" + f] = true }
+    }
+    let src_paths: list<str> = []
+    for kv in src_set { src_paths.append(kv.first) }
+    src_paths = sorted_strs(src_paths)
+    let src_sorted: list<str> = []
+    for p in src_paths {
+        if os.path.isfile(p) {
+            g.src_map[p] = src_page_name(p)
+            src_sorted.append(p)
+        }
+    }
+    build_test_index(g)
+    build_app_usage(g)
+
+    if not os.path.isdir("docs/html") { os.makedirs("docs/html") }
+
+    # class -> owning module (sorted by lowercased short), then synthesize any
+    # module page referenced as a parent/owner but lacking its own namespace
+    let class_keys: dict<str, str> = {}
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "class" and string.contains(c.short, "::") {
+            let cut = string.rfind(c.short, "::")
+            let owner = c.short[:cut]
+            let prev = ""
+            if owner in class_keys { prev = class_keys[owner] + us() }
+            class_keys[owner] = prev + string.lower(c.short) + us() + c.refid
+        }
+        ci = ci + 1
+    }
+    let needed: dict<str, bool> = {}
+    for kv in class_keys {
+        g.classes_of[kv.first] = sort_pair_refids(kv.second)
+        needed[kv.first] = true
+    }
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "namespace" {
+            let segs = string.split(c.short, "::")
+            let prefix = ""
+            let sep = ""
+            let i = 0
+            while i + 1 < len(segs) {
+                prefix = prefix + sep + segs[i]
+                sep = "::"
+                needed[prefix] = true
+                i = i + 1
+            }
+        }
+        ci = ci + 1
+    }
+    let missing: list<str> = []
+    for kv in needed {
+        if not (kv.first in g.modules) { missing.append(kv.first) }
+    }
+    for short in sorted_strs(missing) {
+        let srefid = "nsx_" + string.replace(short, "::", "_")
+        let sc = Compound({.refid = srefid, .kind = "namespace"})
+        sc.name = "cheatah::" + short
+        sc.short = short
+        sc.title = string.replace(short, "::", ".")
+        sc.brief_id = -1
+        sc.detail_id = -1
+        g.comp_idx[srefid] = len(g.comps)
+        g.comps.append(sc)
+        g.mod_short[srefid] = string.replace(short, "::", ".")
+        g.valid[srefid] = true
+    }
+
+    let sidebar = build_sidebar(g)
+
+    # content hashes for cache busting (?v=…)
+    let search_js = build_search_index(g)
+    g.vers_css = hashlib.sha256(io.read_file("docs/gen/assets/cheatah-docs.css"))[:8]
+    g.vers_js = hashlib.sha256(io.read_file("docs/gen/assets/cheatah-docs.js"))[:8]
+    g.vers_search = hashlib.sha256(search_js)[:8]
+
+    let pages = 0
+    for p in src_sorted {
+        write_file("docs/html/" + g.src_map[p], render_source_page(g, p, sidebar))
+        pages = pages + 1
+    }
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "page" {
+            if c.refid == "indexpage" {
+                write_file("docs/html/index.html", render_home(g, ci, sidebar))
+                pages = pages + 1
+            } elif c.refid != "complexity" and c.refid != "alloc" and c.refid != "test" and c.refid != "crtest" and c.refid != "systest" {
+                write_file("docs/html/" + c.refid + ".html", render_compound_page(g, ci, sidebar))
+                pages = pages + 1
+            }
+        } else {
+            write_file("docs/html/" + c.refid + ".html", render_compound_page(g, ci, sidebar))
+            pages = pages + 1
+        }
+        ci = ci + 1
+    }
+    write_file("docs/html/transpiler.html", render_transpiler_page(g, sidebar))
+    pages = pages + 1
+    write_file("docs/html/search-index.js", search_js)
+    write_file("docs/html/cheatah-docs.css", io.read_file("docs/gen/assets/cheatah-docs.css"))
+    write_file("docs/html/cheatah-docs.js", io.read_file("docs/gen/assets/cheatah-docs.js"))
+    if os.path.isfile("docs/theme/cheatah-logo.png") {
+        write_file("docs/html/cheatah-logo.png", io.read_file("docs/theme/cheatah-logo.png"))
+    }
+    io.print("generate: wrote " + str(pages) + " pages + search index -> " + os.path.join(os.getcwd(), "docs/html"))
 }
 
 main()
