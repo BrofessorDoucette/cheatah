@@ -173,6 +173,42 @@ expectDef("designated-init field .streaming", at(PURR, "streaming"),
 expectHover("unwrapped field d.handle", at(PURR, "handle"),
   ["handle"]);
 
+// 7. MISS-THEN-CREATE: a header that appears AFTER the first (failed) lookup must resolve on the
+// very next request — negative results are never cached (the stale-cache class of "no popup").
+check("miss-then-create is not cached", () => {
+  const os = require("os");
+  const fs = require("fs");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cheatah-ext-test-"));
+  try {
+    stub.workspace._folders = [{ uri: { fsPath: tmp } }];
+    if (ext.resolveModuleHeader("latemod") != null) throw new Error("resolved before creation");
+    fs.mkdirSync(path.join(tmp, "latemod"));
+    fs.writeFileSync(path.join(tmp, "latemod", "latemod.hpp"), "namespace cheatah { }\n");
+    const got = ext.resolveModuleHeader("latemod");
+    if (got !== path.join(tmp, "latemod", "latemod.hpp")) throw new Error(`still unresolved: ${got}`);
+  } finally {
+    stub.workspace._folders = [{ uri: { fsPath: FIXTURES } }];
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+// 8. ANCESTOR ROOTS: with the workspace pointing somewhere unrelated, a document INSIDE the
+// package tree still resolves its module — the document's own ancestors are import roots,
+// exactly like purrc treats the source tree.
+check("document-ancestor roots resolve without a workspace", () => {
+  const os = require("os");
+  stub.workspace._folders = [{ uri: { fsPath: os.tmpdir() } }];
+  ext._resetResolverCaches(); // a warm cache must not mask the root walk
+  try {
+    const t = hoverText(at(PURR, "open_sensor"));
+    if (!t || !t.includes("Open the first available sensor")) {
+      throw new Error(`no hover via ancestor roots — got: ${t && t.slice(0, 120)}`);
+    }
+  } finally {
+    stub.workspace._folders = [{ uri: { fsPath: FIXTURES } }];
+  }
+});
+
 if (failures) {
   console.log(`RESULT: FAIL (${failures} case(s))`);
   process.exit(1);

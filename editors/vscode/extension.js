@@ -114,8 +114,8 @@ function optionalInner(signature) {
 // Resolve a module-built var to the TYPE NAME its members belong to: the origin callable's
 // declaration is found in the module header, and an optional return unwraps to its inner type.
 // Returns { typeName, hdr } (hdr = the header declaring the origin) or null.
-function moduleVarType(v) {
-  const hdr = resolveModuleHeader(v.modPath);
+function moduleVarType(v, docDir) {
+  const hdr = resolveModuleHeader(v.modPath, docDir);
   if (!hdr) return null;
   const origin = findHeaderEntityDeep(hdr, v.fn, { call: true });
   if (!origin) return null;
@@ -184,10 +184,25 @@ function isDesignatedInit(document, range) {
   return i > 0 && line[i - 1] === "." && (i === 1 || !/[A-Za-z0-9_)\]]/.test(line[i - 2]));
 }
 
+// The resolver trace — an Output channel a user can actually see. Off by default; flip the
+// `cheatah.trace.resolver` setting when hover/Go-to-Definition shows nothing to learn why.
+let _traceChannel = null;
+function trace(msg) {
+  try {
+    if (!vscode.workspace.getConfiguration("cheatah").get("trace.resolver", false)) return;
+    if (!_traceChannel && vscode.window && vscode.window.createOutputChannel) {
+      _traceChannel = vscode.window.createOutputChannel("cheatah");
+    }
+    if (_traceChannel) _traceChannel.appendLine(msg);
+  } catch (_e) { /* tracing must never break resolution */ }
+}
+
 // The directories to resolve user module headers from: the `cheatah.root` install, any
 // `cheatah.importRoots` the user configured (mirrors purrc's --import-root), each open
-// workspace folder, then the headers bundled in the extension.
-function moduleRoots() {
+// workspace folder, the CURRENT DOCUMENT's own ancestor directories (purrc treats the source's
+// tree as import roots, so an ad-hoc file resolves its own package even with no workspace),
+// then the headers bundled in the extension.
+function moduleRoots(docDir) {
   const roots = [];
   const cfg = vscode.workspace.getConfiguration("cheatah");
   const wsFolders = (vscode.workspace.workspaceFolders || []).map((wf) => wf.uri.fsPath);
@@ -195,25 +210,38 @@ function moduleRoots() {
   if (r) roots.push(r);
   const extra = cfg.get("importRoots");
   // A configured importRoot may be ABSOLUTE or RELATIVE. A relative one is resolved against each
-  // workspace folder (so `"trading/bigbrain"` works portably for a project nested in the workspace,
-  // mirroring how purrc takes --import-root paths). This is the knob for a monorepo whose cheatah
-  // modules don't sit at the workspace root.
+  // workspace folder (so a project nested in the workspace works portably, mirroring how purrc
+  // takes --import-root paths). This is the knob for a monorepo whose cheatah modules don't sit
+  // at the workspace root.
   if (Array.isArray(extra)) for (const e of extra) if (e) {
     if (path.isAbsolute(e)) roots.push(e);
     else if (wsFolders.length) for (const wf of wsFolders) roots.push(path.join(wf, e));
     else roots.push(e);
   }
   for (const wf of wsFolders) roots.push(wf);
+  if (docDir) {
+    let d = docDir;
+    for (let i = 0; i < 8 && d && d !== path.dirname(d) && d !== os.homedir(); i++) {
+      if (!roots.includes(d)) roots.push(d);
+      let isRepoRoot = false;
+      try { isRepoRoot = fs.existsSync(path.join(d, ".git")); } catch (_e) { /* ignore */ }
+      if (isRepoRoot) break; // the repo root is included, and that's far enough up
+      d = path.dirname(d);
+    }
+  }
   if (EXT_ROOT) roots.push(path.join(EXT_ROOT, "headers"));
   return roots;
 }
 
-const _headerCache = new Map(); // dotted module path -> absolute header path | null
-const _hppIndex = new Map();    // root -> [absolute .hpp/.h paths] (lazy, per session)
+const _headerCache = new Map(); // dotted module path -> absolute header path (HITS only)
+const _hppIndex = new Map();    // root -> { at: Date.now(), out: [absolute .hpp/.h paths] }
+const HPP_INDEX_TTL_MS = 15000; // newly created headers appear within this window
 
-// Index every header under a root once (skipping build/vendor dirs), cached for the session.
+// Index every header under a root (skipping build/vendor dirs), cached briefly — a session-long
+// cache made headers created AFTER activation invisible until a window reload.
 function indexHeaders(root) {
-  if (_hppIndex.has(root)) return _hppIndex.get(root);
+  const hit = _hppIndex.get(root);
+  if (hit && Date.now() - hit.at < HPP_INDEX_TTL_MS) return hit.out;
   const out = [];
   const SKIP = new Set([
     "node_modules", ".git", "build", "build-release", "build-headless",
@@ -231,19 +259,23 @@ function indexHeaders(root) {
     }
   };
   try { walk(root, 0); } catch (_e) { /* ignore */ }
-  _hppIndex.set(root, out);
+  _hppIndex.set(root, { at: Date.now(), out });
   return out;
 }
 
 // Resolve a dotted module path (e.g. "neural", "information.autoencoder") to its C++ header,
-// generically: first the conventional layouts under each root, then a cached recursive scan
-// scored by directory layout / the cheatah import bridge. Cached per module path.
-function resolveModuleHeader(modPath) {
-  if (_headerCache.has(modPath)) return _headerCache.get(modPath);
+// generically: first the conventional layouts under each root, then a briefly-cached recursive
+// scan scored by directory layout / the cheatah import bridge. HITS are cached (and re-validated
+// against the filesystem); MISSES never are — a header created a moment later must resolve on the
+// very next hover, not after a window reload.
+function resolveModuleHeader(modPath, docDir) {
+  const cached = _headerCache.get(modPath);
+  if (cached && fs.existsSync(cached)) return cached;
+  _headerCache.delete(modPath);
   const segs = modPath.split(".");
   const last = segs[segs.length - 1];
   const parent = segs.length > 1 ? segs[segs.length - 2] : null;
-  const roots = moduleRoots();
+  const roots = moduleRoots(docDir);
   const rel = [
     segs.join("/") + ".hpp",
     segs.join("/") + "/" + last + ".hpp",
@@ -253,7 +285,11 @@ function resolveModuleHeader(modPath) {
   for (const root of roots) {
     for (const r of rel) {
       const abs = path.join(root, r);
-      if (fs.existsSync(abs)) { _headerCache.set(modPath, abs); return abs; }
+      if (fs.existsSync(abs)) {
+        _headerCache.set(modPath, abs);
+        trace(`resolve ${modPath} -> ${abs}`);
+        return abs;
+      }
     }
   }
   // Recursive fallback: a file named <last>.hpp, scored by how well it fits the module.
@@ -272,7 +308,8 @@ function resolveModuleHeader(modPath) {
       if (score > bestScore) { bestScore = score; best = abs; }
     }
   }
-  _headerCache.set(modPath, best);
+  if (best) _headerCache.set(modPath, best);
+  trace(`resolve ${modPath} -> ${best || "MISS"} (roots: ${roots.join(" | ")})`);
   return best;
 }
 
@@ -280,11 +317,13 @@ function resolveModuleHeader(modPath) {
 // imported straight from source, Python-style: `import check` where `check.purr` sits next to the
 // importing file (a test helper, a sibling utility). Searches the importing file's own directory
 // FIRST (where purrc inserts the source dir as the first --import-root), then the configured roots.
-// Cached per (modPath, docDir).
+// HITS cached per (modPath, docDir) and re-validated; misses retried every time.
 const _purrModCache = new Map();
 function resolvePurrModule(modPath, docDir) {
   const key = docDir + "\0" + modPath;
-  if (_purrModCache.has(key)) return _purrModCache.get(key);
+  const cached = _purrModCache.get(key);
+  if (cached && fs.existsSync(cached)) return cached;
+  _purrModCache.delete(key);
   const segs = modPath.split(".");
   const last = segs[segs.length - 1];
   const rels = [
@@ -294,7 +333,7 @@ function resolvePurrModule(modPath, docDir) {
     last + "/" + last + ".purr",
   ];
   let found = null;
-  for (const root of [docDir, ...moduleRoots()]) {
+  for (const root of [docDir, ...moduleRoots(docDir)]) {
     if (!root) continue;
     for (const r of rels) {
       const abs = path.join(root, r);
@@ -302,28 +341,38 @@ function resolvePurrModule(modPath, docDir) {
     }
     if (found) break;
   }
-  _purrModCache.set(key, found);
+  if (found) _purrModCache.set(key, found);
+  trace(`resolve(.purr) ${modPath} -> ${found || "MISS"}`);
   return found;
+}
+
+// The file's mtime (ms), or -1 when unreadable — the freshness key for the text/defs caches.
+function mtimeOf(abs) {
+  try { return fs.statSync(abs).mtimeMs; } catch (_e) { return -1; }
 }
 
 // Parse an imported `.purr` source's declarations (types / methods / top-level fns), reusing the same
 // parseDefs scanner the open-document path uses, so a sibling-source module hovers identically to a
-// header-backed one. Cached per session (a closed sibling module rarely changes mid-edit).
-const _purrDefsCache = new Map();
+// header-backed one. Cached per file mtime, so an edited module re-parses.
+const _purrDefsCache = new Map(); // abs -> { m: mtimeMs, defs }
 function parsePurrFile(abs) {
-  if (_purrDefsCache.has(abs)) return _purrDefsCache.get(abs);
+  const m = mtimeOf(abs);
+  const hit = _purrDefsCache.get(abs);
+  if (hit && hit.m === m) return hit.defs;
   let defs = { types: new Map(), methods: new Map(), functions: new Map() };
   try { defs = parseDefs(fs.readFileSync(abs, "utf8")); } catch (_e) { /* ignore */ }
-  _purrDefsCache.set(abs, defs);
+  _purrDefsCache.set(abs, { m, defs });
   return defs;
 }
 
-const _headerTextCache = new Map(); // abs path -> text
+const _headerTextCache = new Map(); // abs path -> { m: mtimeMs, txt }
 function readHeader(abs) {
-  if (_headerTextCache.has(abs)) return _headerTextCache.get(abs);
+  const m = mtimeOf(abs);
+  const hit = _headerTextCache.get(abs);
+  if (hit && hit.m === m) return hit.txt;
   let txt = "";
   try { txt = fs.readFileSync(abs, "utf8"); } catch (_e) { /* ignore */ }
-  _headerTextCache.set(abs, txt);
+  _headerTextCache.set(abs, { m, txt });
   return txt;
 }
 
@@ -409,13 +458,13 @@ function parseHeaderEntity(headerText, name, opts = {}) {
 function resolveInclude(rel, fromDir) {
   const here = path.resolve(fromDir, rel);
   if (fs.existsSync(here)) return here;
-  for (const root of moduleRoots()) {
+  for (const root of moduleRoots(fromDir)) {
     const direct = path.join(root, rel);
     if (fs.existsSync(direct)) return direct;
   }
   const base = path.basename(rel);
   let best = null, bestShared = -1;
-  for (const root of moduleRoots()) {
+  for (const root of moduleRoots(fromDir)) {
     for (const h of indexHeaders(root)) {
       if (path.basename(h) !== base) continue;
       let shared = 0;
@@ -847,21 +896,25 @@ function renderUserModule(modPath, hdrAbs) {
 // member by its real kind (function vs type vs constant; a `vk.Instance()` call still
 // reads as a type) and pop up its documentation link. Resolved from the same roots as
 // module headers; cached per module path.
-const _symbolsCache = new Map(); // dotted module path -> { Name: {kind, vk, doc} } | null
-function loadModuleSymbols(modPath) {
+const _symbolsCache = new Map(); // dotted module path -> { file, m: mtimeMs, syms } (HITS only)
+function loadModuleSymbols(modPath, docDir) {
   if (!modPath) return null;
-  if (_symbolsCache.has(modPath)) return _symbolsCache.get(modPath);
+  const hit = _symbolsCache.get(modPath);
+  if (hit && mtimeOf(hit.file) === hit.m) return hit.syms;
+  _symbolsCache.delete(modPath);
   const rel = modPath.split(".").join(path.sep);
-  let result = null;
-  for (const root of moduleRoots()) {
+  for (const root of moduleRoots(docDir)) {
     const cand = path.join(root, rel, "symbols.json");
     if (fs.existsSync(cand)) {
-      try { result = JSON.parse(fs.readFileSync(cand, "utf8")).symbols || null; } catch (_e) { result = null; }
-      if (result) break;
+      let syms = null;
+      try { syms = JSON.parse(fs.readFileSync(cand, "utf8")).symbols || null; } catch (_e) { syms = null; }
+      if (syms) {
+        _symbolsCache.set(modPath, { file: cand, m: mtimeOf(cand), syms });
+        return syms;
+      }
     }
   }
-  _symbolsCache.set(modPath, result);
-  return result;
+  return null;
 }
 
 // The semantic token index for a package symbol's kind (see semanticLegend): functions
@@ -907,6 +960,7 @@ const hoverProvider = {
     if (!range) return undefined;
     const word = document.getText(range);
     const prefix = prefixBefore(document, range);
+    const docDir = path.dirname(document.uri.fsPath);
     const defs = parseDefs(document.getText());
     // When the prefix names an imported MODULE (a stdlib module or a user import/alias), `prefix.word`
     // is a MODULE member — never a local method/field that merely shares the name. Resolve it through
@@ -928,7 +982,7 @@ const hoverProvider = {
     // and a link to the official documentation.
     if (prefix && imp.pathOf.has(prefix)) {
       const mp = imp.pathOf.get(prefix);
-      const syms = loadModuleSymbols(mp);
+      const syms = loadModuleSymbols(mp, docDir);
       if (syms && syms[word]) return new vscode.Hover(renderModuleSymbol(prefix, word, syms[word], mp), range);
     }
 
@@ -953,11 +1007,11 @@ const hoverProvider = {
       const mv = parseModuleVars(document.getText(), imp);
       if (mv.has(prefix)) {
         const v = mv.get(prefix);
-        const vt = moduleVarType(v);
+        const vt = moduleVarType(v, docDir);
         if (vt && vt.optional && !v.unwrapped && (word === "value" || word === "has_value")) {
           return new vscode.Hover(renderOptionalMethod(prefix, word, vt.typeName, v), range);
         }
-        const hdr = resolveModuleHeader(v.modPath);
+        const hdr = resolveModuleHeader(v.modPath, docDir);
         const found = hdr && findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
         if (found) return new vscode.Hover(renderHeaderEntity(found.ent, found.hdr), range);
         if (vt) {
@@ -973,7 +1027,7 @@ const hoverProvider = {
     if (!prefix && isDesignatedInit(document, range)) {
       const di = designatedInitType(document, position, imp);
       if (di) {
-        const hdr = resolveModuleHeader(di.modPath);
+        const hdr = resolveModuleHeader(di.modPath, docDir);
         const owner = hdr && findHeaderEntityDeep(hdr, di.type, {});
         const f = owner && parseStructField(readHeader(owner.hdr), di.type, word);
         if (f) return new vscode.Hover(renderHeaderField(f), range);
@@ -993,10 +1047,9 @@ const hoverProvider = {
 
     // 5. USER MODULES: a function/class from an imported header (resolved from the workspace),
     // or the module name / alias itself. Generic — no project paths baked in.
-    const docDir = path.dirname(document.uri.fsPath);
     if (prefix && imp.pathOf.has(prefix)) {
       const modPath = imp.pathOf.get(prefix);
-      const hdr = resolveModuleHeader(modPath);
+      const hdr = resolveModuleHeader(modPath, docDir);
       if (hdr) {
         const found = findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
         if (found) return new vscode.Hover(renderHeaderEntity(found.ent, found.hdr), range);
@@ -1013,7 +1066,7 @@ const hoverProvider = {
     }
     if (!prefix && imp.locals.has(word)) {
       const mp = imp.pathOf.get(word) || word;
-      return new vscode.Hover(renderUserModule(mp, resolveModuleHeader(mp) || resolvePurrModule(mp, docDir)), range);
+      return new vscode.Hover(renderUserModule(mp, resolveModuleHeader(mp, docDir) || resolvePurrModule(mp, docDir)), range);
     }
     return undefined;
   },
@@ -1043,6 +1096,7 @@ const definitionProvider = {
     if (!range) return undefined;
     const word = document.getText(range);
     const prefix = prefixBefore(document, range);
+    const docDir = path.dirname(document.uri.fsPath);
     const defs = parseDefs(document.getText());
     // A module prefix (`dq.learn`) resolves through the MODULE, never a local method/field of the
     // same name — so `dq.learn` lands on the module's `learn` while a bare `learn(…)` stays local.
@@ -1069,12 +1123,12 @@ const definitionProvider = {
       const mv = parseModuleVars(document.getText(), imp);
       if (mv.has(prefix)) {
         const v = mv.get(prefix);
-        const vt = moduleVarType(v);
+        const vt = moduleVarType(v, docDir);
         if (vt && vt.optional && !v.unwrapped && (word === "value" || word === "has_value")) {
           const t = findHeaderEntityDeep(vt.hdr, vt.typeName, {});
           if (t) return new vscode.Location(vscode.Uri.file(t.hdr), new vscode.Position(t.ent.line, 0));
         }
-        const hdr = resolveModuleHeader(v.modPath);
+        const hdr = resolveModuleHeader(v.modPath, docDir);
         const found = hdr && findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
         if (found) return new vscode.Location(vscode.Uri.file(found.hdr), new vscode.Position(found.ent.line, 0));
         if (vt) {
@@ -1088,7 +1142,7 @@ const definitionProvider = {
     if (!prefix && isDesignatedInit(document, range)) {
       const di = designatedInitType(document, position, imp);
       if (di) {
-        const hdr = resolveModuleHeader(di.modPath);
+        const hdr = resolveModuleHeader(di.modPath, docDir);
         const owner = hdr && findHeaderEntityDeep(hdr, di.type, {});
         const f = owner && parseStructField(readHeader(owner.hdr), di.type, word);
         if (f) return new vscode.Location(vscode.Uri.file(owner.hdr), new vscode.Position(f.line, 0));
@@ -1113,16 +1167,15 @@ const definitionProvider = {
     }
     // A USER module (imported header): the module name/alias → its header; `mod.fn` → the
     // declaration line in that header. Resolved generically from the workspace/import roots.
-    const docDir = path.dirname(document.uri.fsPath);
     if (!prefix && imp.locals.has(word)) {
-      const hdr = resolveModuleHeader(imp.pathOf.get(word) || word);
+      const hdr = resolveModuleHeader(imp.pathOf.get(word) || word, docDir);
       if (hdr) return new vscode.Location(vscode.Uri.file(hdr), new vscode.Position(0, 0));
       const purr = resolvePurrModule(imp.pathOf.get(word) || word, docDir);  // a sibling .purr module
       if (purr) return new vscode.Location(vscode.Uri.file(purr), new vscode.Position(0, 0));
     }
     if (prefix && imp.pathOf.has(prefix)) {
       const modPath = imp.pathOf.get(prefix);
-      const hdr = resolveModuleHeader(modPath);
+      const hdr = resolveModuleHeader(modPath, docDir);
       if (hdr) {
         // follow re-exports to the declaring header; pick constructor vs type by usage
         const found = findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
@@ -1244,7 +1297,7 @@ const semanticProvider = {
         // types and enum values color distinctly — `vk.CreateInstance` as a call, `vk.Instance`
         // as a type even though `vk.Instance()` looks like a call. Without one, fall back to the
         // PascalCase-is-a-type heuristic.
-        const syms = loadModuleSymbols(imp.pathOf.get(cm[1]) || cm[1]);
+        const syms = loadModuleSymbols(imp.pathOf.get(cm[1]) || cm[1], path.dirname(document.uri.fsPath));
         const segRe = /\.([A-Za-z_]\w*)/g;
         let sm, prevType = false;
         while ((sm = segRe.exec(cm[2])) !== null) {
@@ -1376,8 +1429,15 @@ function activate(context) {
 
 function deactivate() {}
 
+// Drop every resolver cache — a test hook (the live extension relies on the validation/TTL
+// policies above instead).
+function _resetResolverCaches() {
+  _headerCache.clear(); _hppIndex.clear(); _purrModCache.clear();
+  _purrDefsCache.clear(); _headerTextCache.clear(); _symbolsCache.clear();
+}
+
 module.exports = {
   activate, deactivate, parseDefs, loadDb, renderDoc, perfLine,
   parseImports, parseModuleVars, resolveModuleHeader, parseHeaderEntity, readHeader,
-  definitionProvider, hoverProvider,
+  definitionProvider, hoverProvider, _resetResolverCaches,
 };

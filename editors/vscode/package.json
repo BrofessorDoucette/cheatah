@@ -145,9 +145,16 @@
         },
         "cheatah.importRoots": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "default": [],
           "description": "Extra directories to resolve YOUR OWN cheatah module headers from for Go to Definition and hover docs (mirrors purrc's --import-root). Point these at the folders that contain your user modules' headers; the extension also searches the open workspace folders and the bundled stdlib headers."
+        },
+        "cheatah.trace.resolver": {
+          "type": "boolean",
+          "default": false,
+          "description": "Log every module-header resolution attempt (roots tried, hit/miss) to the 'cheatah' Output channel — turn on when hover/Go-to-Definition shows nothing to see why in seconds."
         }
       }
     },
@@ -155,10 +162,19 @@
       {
         "language": "cheatah",
         "scopes": {
-          "namespace": ["entity.name.namespace.cheatah"],
-          "type": ["support.type.cheatah", "entity.name.type.cheatah"],
-          "enumMember": ["constant.other.caps.cheatah"],
-          "function": ["entity.name.function.call.cheatah"]
+          "namespace": [
+            "entity.name.namespace.cheatah"
+          ],
+          "type": [
+            "support.type.cheatah",
+            "entity.name.type.cheatah"
+          ],
+          "enumMember": [
+            "constant.other.caps.cheatah"
+          ],
+          "function": [
+            "entity.name.function.call.cheatah"
+          ]
         }
       }
     ]
