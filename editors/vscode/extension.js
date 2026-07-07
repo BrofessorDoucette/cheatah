@@ -86,16 +86,102 @@ function parseImports(text) {
 // Infer the module a local variable's TYPE comes from, by spotting its construction from an imported
 // module: `let m = geometry.Mesh(cfg)` → `m` resolves against module `geometry`'s header. A
 // var's methods/fields live in the same header as the constructor it was built from, so this lets
-// Ctrl-click / hover on `m.method` land on that method's declaration. Returns var -> dotted
-// module path for every `let v = <importLocal>.<Ctor>(…)` in the file.
+// Ctrl-click / hover on `m.method` land on that method's declaration. Returns var ->
+// { modPath, fn } for every `let v = <importLocal>.<fnOrCtor>(…)` in the file — `fn` is the origin
+// callable, so the resolver can read its RETURN TYPE (e.g. `std::optional<T>`, the optional
+// pattern every fallible module call uses). A second form chains through the unwrap:
+// `let d = v.value()` inherits v's module with `unwrapped: true`, so d's fields/methods resolve
+// against the optional's inner type.
 function parseModuleVars(text, imp) {
   const vars = new Map();
-  const re = /^\s*let\s+([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)\.[A-Za-z_]\w*\s*\(/;
+  const reMod = /^\s*let\s+([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*\(/;
   for (const raw of text.split(/\r?\n/)) {
-    const m = raw.match(re);
-    if (m && imp.pathOf.has(m[2])) vars.set(m[1], imp.pathOf.get(m[2]));
+    const m = raw.match(reMod);
+    if (!m) continue;
+    if (imp.pathOf.has(m[2])) vars.set(m[1], { modPath: imp.pathOf.get(m[2]), fn: m[3] });
+    else if (m[3] === "value" && vars.has(m[2])) vars.set(m[1], { ...vars.get(m[2]), unwrapped: true });
   }
   return vars;
+}
+
+// The inner T of a `std::optional<T>` in a declaration's return position — the type a fallible
+// module call actually yields once unwrapped.
+function optionalInner(signature) {
+  const m = /std::optional<\s*([A-Za-z_][\w:]*)\s*>/.exec(signature || "");
+  return m ? m[1] : null;
+}
+
+// Resolve a module-built var to the TYPE NAME its members belong to: the origin callable's
+// declaration is found in the module header, and an optional return unwraps to its inner type.
+// Returns { typeName, hdr } (hdr = the header declaring the origin) or null.
+function moduleVarType(v) {
+  const hdr = resolveModuleHeader(v.modPath);
+  if (!hdr) return null;
+  const origin = findHeaderEntityDeep(hdr, v.fn, { call: true });
+  if (!origin) return null;
+  const inner = optionalInner(origin.ent.signature);
+  if (inner) return { typeName: inner, hdr: origin.hdr, optional: true };
+  // A constructor call (`geometry.Mesh(…)`) — the type IS the callable's name.
+  if (origin.ent.kind === "constructor" || origin.ent.kind === "type") return { typeName: v.fn, hdr: origin.hdr };
+  return null;
+}
+
+// Find ONE FIELD of `struct/class typeName` in a header: its declaration line, type text, and the
+// doc comment above it. Line-scans the struct body by brace depth (fields are depth-1 lines that
+// declare a name without parentheses).
+function parseStructField(headerText, typeName, fieldName) {
+  const lines = headerText.split(/\r?\n/);
+  const headRe = new RegExp("\\b(struct|class)\\s+" + typeName + "\\b");
+  const fieldRe = new RegExp("^\\s*[A-Za-z_][\\w:<>,*&\\s]*?[\\s*&]" + fieldName + "\\s*(=|;|\\[)");
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*(\/\/|\*|#)/.test(lines[i]) || !headRe.test(lines[i])) continue;
+    let depth = 0, started = false;
+    for (let j = i; j < lines.length; j++) {
+      const t = lines[j];
+      if (depth === 1 && !/^\s*(\/\/|\*|#)/.test(t) && !t.includes("(") && fieldRe.test(t)) {
+        const decl = t.trim().replace(/\s*;\s*(\/\/.*)?$/, "");
+        return { name: fieldName, decl, line: j, doc: docAbove(lines, j), owner: typeName };
+      }
+      depth += (t.match(/{/g) || []).length - (t.match(/}/g) || []).length;
+      if (depth > 0) started = true;
+      if (started && depth <= 0) break;
+    }
+    break; // the first matching struct head is the one
+  }
+  return null;
+}
+
+// The struct a DESIGNATED-INIT field belongs to: hovering `streaming` in
+//   let s = mod.ThingDesc({
+//       .streaming = true,
+//   })
+// has no `obj.` prefix — the `.` hangs on its own — so walk UPWARD (brace-balanced, bounded) for
+// the nearest still-open `<importLocal>.<Type>({` constructor head. Returns
+// { modPath, type } or null.
+function designatedInitType(document, position, imp) {
+  let balance = 0; // net braces between the hover line and the candidate head, walking upward
+  for (let i = position.line; i >= 0 && position.line - i < 60; i--) {
+    const text = document.lineAt(i).text;
+    const upto = i === position.line ? text.slice(0, position.character) : text;
+    const heads = [...upto.matchAll(/([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*\(\s*\{/g)];
+    if (heads.length) {
+      const h = heads[heads.length - 1];
+      const after = upto.slice(h.index + h[0].length);
+      const net = 1 + (after.match(/{/g) || []).length - (after.match(/}/g) || []).length + balance;
+      if (net > 0 && imp.pathOf.has(h[1])) return { modPath: imp.pathOf.get(h[1]), type: h[2] };
+    }
+    balance += (upto.match(/{/g) || []).length - (upto.match(/}/g) || []).length;
+    if (balance > 0) return null; // the enclosing block opened above without a constructor head
+  }
+  return null;
+}
+
+// Is the word at `range` a designated-init field — preceded directly by `.` that does NOT chain
+// off an identifier (`{ .field = … }` rather than `obj.field`)?
+function isDesignatedInit(document, range) {
+  const line = document.lineAt(range.start.line).text;
+  const i = range.start.character;
+  return i > 0 && line[i - 1] === "." && (i === 1 || !/[A-Za-z0-9_)\]]/.test(line[i - 2]));
 }
 
 // The directories to resolve user module headers from: the `cheatah.root` install, any
@@ -713,6 +799,38 @@ function renderHeaderEntity(ent, hdrAbs) {
   return md;
 }
 
+// A FIELD harvested from a module header's struct — `desc.streaming`, `d.handle`, a designated
+// initializer — with the doc comment above its declaration.
+function renderHeaderField(f) {
+  const md = new vscode.MarkdownString(undefined, true);
+  md.appendCodeblock(f.decl, "cpp");
+  appendFnDoc(md, parsePurrDoc(f.doc));
+  md.appendMarkdown(`\nField of \`${f.owner}\`.\n`);
+  md.appendMarkdown(`\n*Ctrl-click to open*\n`);
+  return md;
+}
+
+// The optional-pattern accessors on a fallible module call's result: `v.has_value()` /
+// `v.value()` where `let v = mod.open_thing(…)` returned `std::optional<T>`. Documented in terms
+// of the ORIGIN call and the INNER type, which is what the reader actually wants to know.
+function renderOptionalMethod(varName, word, inner, v) {
+  const md = new vscode.MarkdownString(undefined, true);
+  if (word === "has_value") {
+    md.appendCodeblock(`${varName}.has_value() -> bool`, "cheatah");
+    md.appendMarkdown(
+      `\nWhether \`${v.fn}\` produced a \`${inner}\` — \`${v.fn}\` returns ` +
+      `\`std::optional<${inner}>\` (the optional pattern: failure is an empty optional, ` +
+      `never a sentinel or an exception).\n`);
+  } else {
+    md.appendCodeblock(`${varName}.value() -> ${inner}`, "cheatah");
+    md.appendMarkdown(
+      `\nThe \`${inner}\` inside the optional that \`${v.fn}\` returned. Only call after ` +
+      `\`${varName}.has_value()\` — an empty optional throws.\n`);
+  }
+  md.appendMarkdown(`\n*Ctrl-click to open \`${inner}\`*\n`);
+  return md;
+}
+
 // A user module name / import alias → a short "import" card linking to its header.
 function renderUserModule(modPath, hdrAbs) {
   const md = new vscode.MarkdownString(undefined, true);
@@ -828,12 +946,37 @@ const hoverProvider = {
         if (f) return new vscode.Hover(renderMember({ field: f, owner: def.name }), range);
       }
       // A member of a LOCAL var built from an imported module (`let m = geometry.Mesh(…)`;
-      // hover `m.area`) → that method/field declaration in the module's header.
+      // hover `m.area`) → that method/field declaration in the module's header. A var whose
+      // origin returned `std::optional<T>` also documents the optional accessors themselves
+      // (`v.value()` / `v.has_value()`), and an UNWRAPPED var (`let d = v.value()`) resolves
+      // its members as fields/methods of the inner T.
       const mv = parseModuleVars(document.getText(), imp);
       if (mv.has(prefix)) {
-        const hdr = resolveModuleHeader(mv.get(prefix));
+        const v = mv.get(prefix);
+        const vt = moduleVarType(v);
+        if (vt && vt.optional && !v.unwrapped && (word === "value" || word === "has_value")) {
+          return new vscode.Hover(renderOptionalMethod(prefix, word, vt.typeName, v), range);
+        }
+        const hdr = resolveModuleHeader(v.modPath);
         const found = hdr && findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
         if (found) return new vscode.Hover(renderHeaderEntity(found.ent, found.hdr), range);
+        if (vt) {
+          const f = parseStructField(readHeader(vt.hdr), vt.typeName, word);
+          if (f) return new vscode.Hover(renderHeaderField(f), range);
+        }
+      }
+    }
+
+    // 2b. A designated-init field (`.streaming = true` inside `mod.ThingDesc({ … })`) — no
+    // prefix hangs on the word, so recover the constructor head upward and resolve the field
+    // in that struct's declaring header.
+    if (!prefix && isDesignatedInit(document, range)) {
+      const di = designatedInitType(document, position, imp);
+      if (di) {
+        const hdr = resolveModuleHeader(di.modPath);
+        const owner = hdr && findHeaderEntityDeep(hdr, di.type, {});
+        const f = owner && parseStructField(readHeader(owner.hdr), di.type, word);
+        if (f) return new vscode.Hover(renderHeaderField(f), range);
       }
     }
 
@@ -920,12 +1063,35 @@ const definitionProvider = {
         return new vscode.Location(document.uri, new vscode.Position(et.line, 0));
       }
       // A member of a LOCAL var built from an imported module (`let m = geometry.Mesh(…)`):
-      // `m.method` → that method's declaration line in the module's header.
+      // `m.method` → that method's declaration line in the module's header. The optional
+      // accessors (`v.value()` / `v.has_value()`) jump to the INNER type's declaration — the
+      // thing the reader is unwrapping — and an unwrapped var's members jump to the field line.
       const mv = parseModuleVars(document.getText(), imp);
       if (mv.has(prefix)) {
-        const hdr = resolveModuleHeader(mv.get(prefix));
+        const v = mv.get(prefix);
+        const vt = moduleVarType(v);
+        if (vt && vt.optional && !v.unwrapped && (word === "value" || word === "has_value")) {
+          const t = findHeaderEntityDeep(vt.hdr, vt.typeName, {});
+          if (t) return new vscode.Location(vscode.Uri.file(t.hdr), new vscode.Position(t.ent.line, 0));
+        }
+        const hdr = resolveModuleHeader(v.modPath);
         const found = hdr && findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
         if (found) return new vscode.Location(vscode.Uri.file(found.hdr), new vscode.Position(found.ent.line, 0));
+        if (vt) {
+          const f = parseStructField(readHeader(vt.hdr), vt.typeName, word);
+          if (f) return new vscode.Location(vscode.Uri.file(vt.hdr), new vscode.Position(f.line, 0));
+        }
+      }
+    }
+    // A designated-init field (`.streaming = …` inside `mod.ThingDesc({ … })`) → its declaration
+    // line in the struct's header.
+    if (!prefix && isDesignatedInit(document, range)) {
+      const di = designatedInitType(document, position, imp);
+      if (di) {
+        const hdr = resolveModuleHeader(di.modPath);
+        const owner = hdr && findHeaderEntityDeep(hdr, di.type, {});
+        const f = owner && parseStructField(readHeader(owner.hdr), di.type, word);
+        if (f) return new vscode.Location(vscode.Uri.file(owner.hdr), new vscode.Position(f.line, 0));
       }
     }
     // A top-level function defined in this file → its `fn` line (before any stdlib header).

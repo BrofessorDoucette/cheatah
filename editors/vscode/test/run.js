@@ -1,0 +1,180 @@
+#!/usr/bin/env node
+// Headless unit tests for the extension's hover/definition providers: run with
+//   node editors/vscode/test/run.js
+// The `vscode` module is replaced by test/stub/vscode.js; module headers resolve against
+// test/fixtures (a generic `lab.sensor` user package pinning the token-module shape:
+// descriptor struct + optional-returning opener + closer).
+"use strict";
+
+const path = require("path");
+const Module = require("module");
+
+// Route require("vscode") to the stub BEFORE loading the extension.
+const stub = require("./stub/vscode.js");
+const origLoad = Module._load;
+Module._load = function (request, parent, isMain) {
+  if (request === "vscode") return stub;
+  return origLoad.call(this, request, parent, isMain);
+};
+
+const HERE = __dirname;
+const EXT = path.dirname(HERE);
+const FIXTURES = path.join(HERE, "fixtures");
+stub.workspace._folders = [{ uri: { fsPath: FIXTURES } }];
+
+const ext = require(path.join(EXT, "extension.js"));
+ext.loadDb({ extensionPath: EXT });
+
+// ---- a fake TextDocument over a .purr buffer -----------------------------------------
+function makeDoc(text, fsPath) {
+  const lines = text.split(/\r?\n/);
+  return {
+    languageId: "cheatah",
+    uri: { fsPath, scheme: "file" },
+    getText(range) {
+      if (!range) return text;
+      const lt = lines[range.start.line] || "";
+      return lt.slice(range.start.character, range.end.character);
+    },
+    lineCount: lines.length,
+    lineAt: (line) => ({ text: lines[line] || "" }),
+    getWordRangeAtPosition(position, regex) {
+      const lineText = lines[position.line] || "";
+      const re = new RegExp(regex.source, "g");
+      let m;
+      while ((m = re.exec(lineText)) !== null) {
+        if (m.index <= position.character && position.character <= m.index + m[0].length) {
+          return new stub.Range(position.line, m.index, position.line, m.index + m[0].length);
+        }
+        if (m.index > position.character) break;
+      }
+      return undefined;
+    },
+  };
+}
+
+// Position of the Nth occurrence of `needle` in `text` (1-based), as a stub Position.
+function at(text, needle, occurrence = 1) {
+  const lines = text.split(/\r?\n/);
+  let seen = 0;
+  for (let i = 0; i < lines.length; i++) {
+    let from = 0;
+    for (;;) {
+      const idx = lines[i].indexOf(needle, from);
+      if (idx === -1) break;
+      seen += 1;
+      if (seen === occurrence) return new stub.Position(i, idx + 1);
+      from = idx + 1;
+    }
+  }
+  throw new Error(`fixture text is missing occurrence ${occurrence} of "${needle}"`);
+}
+
+// ---- the .purr program under test ----------------------------------------------------
+const PURR = `import io
+import lab.sensor as sensor
+
+let count = 0
+let dev = sensor.open_sensor(sensor.SensorDesc({
+    .streaming = true,
+    .tag_count = count,
+}))
+if dev.has_value() == false {
+    io.print("no sensor")
+} else {
+    let d = dev.value()
+    io.print(d.handle)
+    sensor.close_sensor(d)
+}
+`;
+const DOC = makeDoc(PURR, path.join(FIXTURES, "program.purr"));
+const HDR = path.join(FIXTURES, "lab", "sensor", "sensor.hpp");
+const hdrText = require("fs").readFileSync(HDR, "utf8");
+const hdrLineOf = (needle) => hdrText.split(/\r?\n/).findIndex((l) => l.includes(needle));
+
+// ---- tiny checker ---------------------------------------------------------------------
+let failures = 0;
+function check(name, fn) {
+  try {
+    fn();
+    console.log(`  PASS ${name}`);
+  } catch (e) {
+    failures += 1;
+    console.log(`  FAIL ${name}: ${e.message}`);
+  }
+}
+function hoverText(pos) {
+  const h = ext.hoverProvider.provideHover(DOC, pos);
+  if (!h) return null;
+  const c = h.contents;
+  return (Array.isArray(c) ? c : [c]).map((x) => (x && x.value) || String(x)).join("\n");
+}
+function defAt(pos) {
+  return ext.definitionProvider.provideDefinition(DOC, pos);
+}
+function expectHover(name, needlePos, mustContain) {
+  check(`hover ${name}`, () => {
+    const t = hoverText(needlePos);
+    if (!t) throw new Error("no hover");
+    for (const s of mustContain) {
+      if (!t.includes(s)) throw new Error(`hover lacks "${s}" — got:\n${t.slice(0, 400)}`);
+    }
+  });
+}
+function expectDef(name, needlePos, file, line) {
+  check(`definition ${name}`, () => {
+    const d = defAt(needlePos);
+    if (!d) throw new Error("no definition");
+    const uri = d.uri || (d[0] && d[0].uri);
+    const got = uri && uri.fsPath;
+    if (got !== file) throw new Error(`lands in ${got}, want ${file}`);
+    if (line != null) {
+      const gotLine = (d.range && d.range.start.line) != null ? d.range.start.line : d.pos.line;
+      if (gotLine !== line) throw new Error(`lands on line ${gotLine}, want ${line}`);
+    }
+  });
+}
+
+console.log("== extension provider tests (lab.sensor fixture) ==");
+
+// 1. A module function call: `sensor.open_sensor(…)`.
+expectHover("module fn open_sensor", at(PURR, "open_sensor"),
+  ["open_sensor", "Open the first available sensor"]);
+expectDef("module fn open_sensor", at(PURR, "open_sensor"),
+  HDR, hdrLineOf("inline std::optional<Sensor> open_sensor"));
+
+// 2. A struct constructed in a nested call: `sensor.SensorDesc({ … })`.
+expectHover("module struct SensorDesc", at(PURR, "SensorDesc"),
+  ["SensorDesc"]);
+expectDef("module struct SensorDesc", at(PURR, "SensorDesc"),
+  HDR, hdrLineOf("struct SensorDesc {"));
+
+// 3. Optional methods on the opener's result: `dev.value()` / `dev.has_value()`.
+expectHover("optional dev.value()", at(PURR, "value", 2),
+  ["Sensor"]);
+expectDef("optional dev.value()", at(PURR, "value", 2),
+  HDR, hdrLineOf("struct Sensor {"));
+expectHover("optional dev.has_value()", at(PURR, "has_value"),
+  ["Sensor"]);
+
+// 4. The closer, taking the unwrapped value: `sensor.close_sensor(d)`.
+expectHover("module fn close_sensor", at(PURR, "close_sensor"),
+  ["close_sensor", "Close an open sensor"]);
+expectDef("module fn close_sensor", at(PURR, "close_sensor"),
+  HDR, hdrLineOf("inline void close_sensor"));
+
+// 5. A designated-init field inside the nested constructor: `.streaming = true`.
+expectHover("designated-init field .streaming", at(PURR, "streaming"),
+  ["streaming", "Stream continuously"]);
+expectDef("designated-init field .streaming", at(PURR, "streaming"),
+  HDR, hdrLineOf("bool streaming"));
+
+// 6. A field of the unwrapped value: `d.handle` (d = dev.value()).
+expectHover("unwrapped field d.handle", at(PURR, "handle"),
+  ["handle"]);
+
+if (failures) {
+  console.log(`RESULT: FAIL (${failures} case(s))`);
+  process.exit(1);
+}
+console.log("RESULT: PASS");

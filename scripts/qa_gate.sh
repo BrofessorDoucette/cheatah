@@ -112,6 +112,14 @@ else
         fail "VS Code extension hover DB changed — run 'bash docs/build-docs.sh && python3 editors/vscode/scripts/gen-hover-docs.py', commit editors/vscode/data/functions.json, then push again"
     fi
     bold "VS Code extension hover DB is up to date."
+    # The extension's provider unit tests (hover/definition over a fixture user package):
+    # headless node, no VS Code needed — see editors/vscode/test/run.js.
+    if command -v node >/dev/null 2>&1; then
+        bold "Running the VS Code extension provider tests…"
+        node editors/vscode/test/run.js || fail "VS Code extension provider tests"
+    else
+        bold "node not found — skipping the extension provider tests."
+    fi
 fi
 
 # 2. Configure ---------------------------------------------------------------
