@@ -150,7 +150,13 @@ io.print(sizeof(int))
 io.print(sizeof(float))
 io.print(sizeof(bool))
 io.print(sizeof(f32) * 256)
-)PURR", "1\n2\n4\n8\n8\n8\n8\n1\n1024\n");
+io.print(sizeof(uint8))
+io.print(sizeof(int16))
+io.print(sizeof(float32))
+io.print(sizeof(float64))
+io.print(sizeof(int64))
+io.print(sizeof(uint32))
+)PURR", "1\n2\n4\n8\n8\n8\n8\n1\n1024\n1\n2\n4\n8\n8\n4\n");
 }
 
 TEST(BuiltinsCompileRun, SizeofExpr) {

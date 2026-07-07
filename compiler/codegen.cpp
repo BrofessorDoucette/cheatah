@@ -43,22 +43,36 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
     return it->second;
 }
 
-// The C++ spelling behind a cheatah `sizeof(<type>)` call. Two families: the EXPLICIT WIDTH
-// names (f32/f64, i8…i64, u8…u64 — core spellings, no header needed) that ABI-facing code
-// (GPU buffers, wire formats, file layouts) sizes its elements with, and cheatah's own value
-// types (whose widths are implementation policy — int is currently i64, float is f64 — which is
-// exactly why foreign layouts must NOT be sized with them). Lowered to a real C++ `sizeof`, so
-// no byte count is ever hardcoded on either side. Returns nullopt for any other argument (then
-// lowered as an ordinary expression — C++ `sizeof(expr)` semantics, the STATIC size of a value).
+// The C++ type behind a cheatah width name. Every width has BOTH spellings — abbreviated
+// (f32) and full (float32) — and the table is built from ONE canonical entry per width, so the
+// two spellings are the same type BY CONSTRUCTION, not by convention. The canonical types are
+// what graphics/realtime code standardizes on: the <cstdint> EXACT-width integers (std::int8_t …
+// std::uint64_t — core spellings like `int`/`short` only guarantee minimums), and IEEE-754
+// binary32/64 as `float`/`double` (the community floats; C++23's std::float32_t is not yet
+// portable enough to be the canon). builtins.hpp includes <cstdint>, so the spellings always
+// resolve in generated code. cheatah's own value types round out the table (their widths are
+// implementation policy — int is currently i64, float f64 — which is exactly why foreign
+// layouts, GPU buffers, and wire formats should be sized with the width names instead).
 std::optional<std::string> sizeof_type_spelling(const std::string& name) {
-    static const std::map<std::string, std::string> kSpellings = {
-        {"f32", "float"},        {"f64", "double"},
-        {"i8", "signed char"},   {"i16", "short"},
-        {"i32", "int"},          {"i64", "long long"},
-        {"u8", "unsigned char"}, {"u16", "unsigned short"},
-        {"u32", "unsigned int"}, {"u64", "unsigned long long"},
-        {"int", "long long"},    {"float", "double"},           {"bool", "bool"},
-    };
+    static const std::map<std::string, std::string> kSpellings = [] {
+        std::map<std::string, std::string> m;
+        // {abbreviated, full, the one canonical C++ type both deduce to}
+        static constexpr struct { const char* abbrev; const char* full; const char* cpp; } kWidths[] = {
+            {"f32", "float32", "float"},          {"f64", "float64", "double"},
+            {"i8", "int8", "std::int8_t"},        {"i16", "int16", "std::int16_t"},
+            {"i32", "int32", "std::int32_t"},     {"i64", "int64", "std::int64_t"},
+            {"u8", "uint8", "std::uint8_t"},      {"u16", "uint16", "std::uint16_t"},
+            {"u32", "uint32", "std::uint32_t"},   {"u64", "uint64", "std::uint64_t"},
+        };
+        for (const auto& w : kWidths) {
+            m.emplace(w.abbrev, w.cpp);
+            m.emplace(w.full, w.cpp);
+        }
+        m.emplace("int", "long long");
+        m.emplace("float", "double");
+        m.emplace("bool", "bool");
+        return m;
+    }();
     const auto it = kSpellings.find(name);
     if (it == kSpellings.end()) return std::nullopt;
     return it->second;
