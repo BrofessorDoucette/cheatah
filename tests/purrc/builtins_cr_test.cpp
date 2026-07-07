@@ -133,3 +133,32 @@ io.print(7 // 2)
 io.print(-7 // 2)
 )PURR", "3\n-4\n");
 }
+
+TEST(BuiltinsCompileRun, Sizeof) {
+    // sizeof(<type>) is a compile-time builtin lowered to C++ sizeof — never a hardcoded byte
+    // count. Two argument families: the EXPLICIT width names (f32, i64, u8, …) that ABI-facing
+    // code (GPU buffers, wire formats) sizes elements with, and cheatah's own value types —
+    // whose widths are implementation policy (int is i64, float is f64 today), which is exactly
+    // why a foreign layout must be sized with the width names, not with them.
+    e2e::expect_e2e("builtins_sizeof", R"PURR(import io
+io.print(sizeof(u8))
+io.print(sizeof(i16))
+io.print(sizeof(f32))
+io.print(sizeof(f64))
+io.print(sizeof(i64))
+io.print(sizeof(int))
+io.print(sizeof(float))
+io.print(sizeof(bool))
+io.print(sizeof(f32) * 256)
+)PURR", "1\n2\n4\n8\n8\n8\n8\n1\n1024\n");
+}
+
+TEST(BuiltinsCompileRun, SizeofExpr) {
+    // sizeof(<expression>) keeps C++ semantics: the STATIC size of the value's type (an int
+    // variable is 8 bytes regardless of its value) — distinct from len(), which is a length.
+    e2e::expect_e2e("builtins_sizeof_expr", R"PURR(import io
+let n = 5
+io.print(sizeof(n))
+io.print(sizeof(1.5))
+)PURR", "8\n8\n");
+}

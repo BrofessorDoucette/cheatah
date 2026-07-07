@@ -43,6 +43,27 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
     return it->second;
 }
 
+// The C++ spelling behind a cheatah `sizeof(<type>)` call. Two families: the EXPLICIT WIDTH
+// names (f32/f64, i8…i64, u8…u64 — core spellings, no header needed) that ABI-facing code
+// (GPU buffers, wire formats, file layouts) sizes its elements with, and cheatah's own value
+// types (whose widths are implementation policy — int is currently i64, float is f64 — which is
+// exactly why foreign layouts must NOT be sized with them). Lowered to a real C++ `sizeof`, so
+// no byte count is ever hardcoded on either side. Returns nullopt for any other argument (then
+// lowered as an ordinary expression — C++ `sizeof(expr)` semantics, the STATIC size of a value).
+std::optional<std::string> sizeof_type_spelling(const std::string& name) {
+    static const std::map<std::string, std::string> kSpellings = {
+        {"f32", "float"},        {"f64", "double"},
+        {"i8", "signed char"},   {"i16", "short"},
+        {"i32", "int"},          {"i64", "long long"},
+        {"u8", "unsigned char"}, {"u16", "unsigned short"},
+        {"u32", "unsigned int"}, {"u64", "unsigned long long"},
+        {"int", "long long"},    {"float", "double"},           {"bool", "bool"},
+    };
+    const auto it = kSpellings.find(name);
+    if (it == kSpellings.end()) return std::nullopt;
+    return it->second;
+}
+
 // C++ keywords a cheatah identifier can legally be but C++ cannot. cheatah's own keyword set
 // (is_keyword, lexer.cpp) is far smaller, so `delete`, `new`, `default`, `class`, `int`, … are
 // valid cheatah identifiers yet reserved in C++ — emitting one verbatim (`auto delete(...)`)
@@ -1804,6 +1825,17 @@ private:
                     if (id.name == "str" && !defined_names_.count("str") && c.args.size() == 1 &&
                         is_stringy(*c.args[0])) {
                         return gen_expr(*c.args[0], indent);
+                    }
+                    // `sizeof(f32)`, `sizeof(int)`, `sizeof(expr)` — the compile-time size
+                    // builtin, lowered to a real C++ sizeof (see sizeof_type_spelling above).
+                    // A user-defined `sizeof` function shadows it, like `str`.
+                    if (id.name == "sizeof" && !defined_names_.count("sizeof") &&
+                        c.args.size() == 1) {
+                        if (c.args[0]->kind == ExprKind::Ident) {
+                            const auto& t = static_cast<const Ident&>(*c.args[0]);
+                            if (auto s = sizeof_type_spelling(t.name)) return "sizeof(" + *s + ")";
+                        }
+                        return "sizeof(" + gen_expr(*c.args[0], indent) + ")";
                     }
                     if (auto bi = builtin_cpp_name(id.name)) {
                         return builtins_ns_ + *bi + "(" + gen_args(c.args, false, indent) + ")";
