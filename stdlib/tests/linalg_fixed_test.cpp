@@ -367,6 +367,36 @@ TEST(LinalgFixed, DeterminantAndInverse) {
                  std::domain_error);
 }
 
+// ---- The type is not secretly limited to the graphics sizes -----------------------------------
+
+TEST(LinalgFixed, WorksBeyondTheAliasedSizes) {
+    // The aliases stop at 4 because that is where graphics stops; the TYPE does not. This also
+    // exercises `dot`'s general recursive pairwise sum, which the 2/3/4 cases short-circuit past.
+    la::Vec<double, 8> a;
+    la::Vec<double, 8> b;
+    for (std::size_t i = 0; i < 8; ++i) {
+        a[i] = static_cast<double>(i + 1);  // 1..8
+        b[i] = 1.0;
+    }
+    EXPECT_DOUBLE_EQ(la::dot(a, b), 36.0);       // 1+2+...+8
+    EXPECT_DOUBLE_EQ(la::squared_norm(b), 8.0);  // eight ones
+    EXPECT_DOUBLE_EQ(la::norm(b), std::sqrt(8.0));
+    EXPECT_DOUBLE_EQ(la::norm(la::normalize(a)), 1.0);
+
+    // An odd length exercises the uneven split of the recursion (5 = 2 + 3).
+    la::Vec<float, 5> odd{1.0F, 2.0F, 3.0F, 4.0F, 5.0F};
+    EXPECT_FLOAT_EQ(la::dot(odd, odd), 55.0F);  // 1+4+9+16+25
+
+    // And a bigger matrix still multiplies, transposes and transforms.
+    const la::Mat<double, 5, 5> identity5 = la::Mat<double, 5, 5>::identity();
+    EXPECT_DOUBLE_EQ(la::trace(identity5), 5.0);
+    EXPECT_TRUE(la::transpose(identity5) == identity5);
+    const la::Vec<double, 5> five{1.0, 2.0, 3.0, 4.0, 5.0};
+    const la::Vec<double, 5> through = identity5 * five;
+    EXPECT_TRUE(through == five);
+    EXPECT_TRUE(la::matmul(identity5, identity5) == identity5);
+}
+
 // ---- The same answers as NDArray, which is the promise the name makes -------------------------
 
 TEST(LinalgFixed, AgreesWithTheDynamicNDArray) {
