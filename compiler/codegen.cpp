@@ -421,10 +421,12 @@ public:
             if (aliased_roots_.count(root))
                 os << "namespace " << root << " = ::cheatah::" << root << ";\n";
         }
-        // From-imports: `using Sym = ::cheatah::<module>::Sym;` so the bare symbol resolves as a type
-        // (a struct or enum), matching the aliases_ entry that resolves `Sym.MEMBER`.
+        // From-imports: a using-DECLARATION `using ::cheatah::<module>::Sym;` brings the bare symbol
+        // into scope — a type (struct/enum) OR a function/value, unlike a type-alias which is
+        // types-only. This matches the aliases_ entry that resolves `Sym.MEMBER` / `Sym(...)`.
         for (const auto& [sym, path] : from_imports_) {
-            os << "using " << cpp_ident(sym) << " = ::cheatah";
+            (void)sym;  // the name is the last path segment; the using-declaration re-introduces it
+            os << "using ::cheatah";
             for (const std::string& seg : path) os << "::" << cpp_ident(seg);
             os << ";\n";
         }

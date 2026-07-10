@@ -196,17 +196,18 @@ TEST(LibraryModule, FromImportBindsEnumAndStructBare) {
     write_file(dir + "/geo.purr",
                "import ndarray\n"
                "enum QuatCol { X, Y, Z, W }\n"
-               "struct Vec { x: int  y: int }\n");
+               "struct Vec { x: int  y: int }\n"
+               "fn width() -> int { return 4 }\n");   // a FUNCTION, from-imported alongside the types
     ASSERT_EQ(run(kPurrc + " --emit-library --transparent " + dir + "/geo.purr -o " + dir + "/geo.hpp"), 0);
     const std::string prog = root + "/prog.purr", mod = root + "/prog.so";
     write_file(prog,
                "import io\n"
                "import ndarray\n"
-               "import QuatCol, Vec from geo\n"       // two symbols, one statement, module dropped
+               "import QuatCol, Vec, width from geo\n"  // type, struct, AND function — one statement
                "let q = ndarray.zeros([4])\n"
                "q[QuatCol.W] = 7.0\n"                 // enum member as a bare subscript
                "let v: Vec = Vec({ .x = 3, .y = 4 })\n"  // struct as a bare type AND constructor
-               "io.print(q[QuatCol.W], v.x, v.y)\n");
+               "io.print(q[QuatCol.W], v.x, v.y, width())\n");  // bare function call
     ASSERT_EQ(run("CHEATAH_MODULE_PATH=" + root + " " + kPurrc + " " + prog + " -o " + mod), 0);
     FILE* pipe = popen((std::string(CHEATAH_RUNTIME_PATH) + " " + mod + " 2>/dev/null").c_str(), "r");
     ASSERT_NE(pipe, nullptr);
@@ -214,7 +215,7 @@ TEST(LibraryModule, FromImportBindsEnumAndStructBare) {
     char buf[64];
     while (std::fgets(buf, sizeof buf, pipe)) out += buf;
     pclose(pipe);
-    EXPECT_EQ(out, "7 3 4\n");
+    EXPECT_EQ(out, "7 3 4 4\n");
 }
 
 TEST(LibraryModule, TamperedModuleFailsClosed) {
