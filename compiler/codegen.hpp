@@ -65,8 +65,9 @@ struct LibOptions {
                                // an exported function's result is never removed)
     // A folded sibling C++ base (see --base-header). `base_hoist` is its #include/#pragma/#define
     // lines, emitted at FILE SCOPE before the namespace; `base_body` is the rest, emitted INSIDE
-    // `namespace cheatah::<module_name>` BEFORE the transpiled types, so the .purr can call it and
-    // it need not see generated structs. Both empty by default => byte-identical output.
+    // `namespace cheatah::<module_name>` AFTER the transpiled types and BEFORE the functions — so a
+    // hand-written getter/setter CAN read a .purr struct, and the .purr functions CAN call the base.
+    // Both empty by default => byte-identical output.
     std::string base_hoist;
     std::string base_body;
 };

@@ -58,17 +58,22 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
 std::optional<std::string> width_cpp_type(const std::string& name) {
     static const std::map<std::string, std::string> kSpellings = [] {
         std::map<std::string, std::string> m;
-        // {abbreviated, full, the one canonical C++ type both deduce to}
-        static constexpr struct { const char* abbrev; const char* full; const char* cpp; } kWidths[] = {
-            {"f32", "float32", "float"},          {"f64", "float64", "double"},
-            {"i8", "int8", "std::int8_t"},        {"i16", "int16", "std::int16_t"},
-            {"i32", "int32", "std::int32_t"},     {"i64", "int64", "std::int64_t"},
-            {"u8", "uint8", "std::uint8_t"},      {"u16", "uint16", "std::uint16_t"},
-            {"u32", "uint32", "std::uint32_t"},   {"u64", "uint64", "std::uint64_t"},
+        // {abbreviated, full, the <cstdint> name, the one canonical C++ type all three deduce to}.
+        // Three spellings per integer width so a user names whichever they prefer with no
+        // difference: our short `i32`, the long `int32`, OR the original C library name `int32_t`
+        // (`std::int32_t` without the namespace) — all the SAME type by construction. The floats
+        // have no <cstdint> name (that header is integer-only), so they carry just the two spellings.
+        static constexpr struct { const char* abbrev; const char* full; const char* stdname; const char* cpp; } kWidths[] = {
+            {"f32", "float32", nullptr,     "float"},          {"f64", "float64", nullptr,     "double"},
+            {"i8",  "int8",    "int8_t",    "std::int8_t"},    {"i16", "int16",   "int16_t",   "std::int16_t"},
+            {"i32", "int32",   "int32_t",   "std::int32_t"},   {"i64", "int64",   "int64_t",   "std::int64_t"},
+            {"u8",  "uint8",   "uint8_t",   "std::uint8_t"},   {"u16", "uint16",  "uint16_t",  "std::uint16_t"},
+            {"u32", "uint32",  "uint32_t",  "std::uint32_t"},  {"u64", "uint64",  "uint64_t",  "std::uint64_t"},
         };
         for (const auto& w : kWidths) {
             m.emplace(w.abbrev, w.cpp);
             m.emplace(w.full, w.cpp);
+            if (w.stdname) m.emplace(w.stdname, w.cpp);  // the original cstdint spelling (int32_t, …)
         }
         return m;
     }();
@@ -556,14 +561,14 @@ public:
 
         hdr << "namespace cheatah::" << opts.module_name << " {\n\n";
         emit_aliases(hdr, alias_builtins);
-
-        // The folded base's body: inside the module namespace, BEFORE the transpiled types and
-        // functions, so the .purr can call it (unqualified C++ lookup) and it need not see the
-        // generated structs. This is the whole feature in one line.
-        if (!opts.base_body.empty()) hdr << opts.base_body << "\n\n";
-
         emit_types(hdr, prog);
         emit_json_schemas(hdr, prog, "cheatah::" + opts.module_name);
+
+        // The folded base's body: inside the module namespace, AFTER the transpiled types and BEFORE
+        // the functions. So a hand-written C++ getter/setter CAN read a .purr struct's fields, and the
+        // .purr functions CAN call the base (unqualified C++ lookup) — the header holds the accessor
+        // layer, the .purr holds the heavy logic. This is the whole feature in one line.
+        if (!opts.base_body.empty()) hdr << opts.base_body << "\n\n";
 
         // Functions. Today every cheatah function lowers to a constrained template
         // (untyped params -> `Value auto`), and templates MUST be header-visible in both

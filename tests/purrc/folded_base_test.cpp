@@ -153,3 +153,35 @@ TEST(FoldedBase, CppBlockSurvivesInLibraryHeader) {
     EXPECT_NE(hdr.find("inline std::string bang"), std::string::npos);  // the cpp{} body is emitted
     EXPECT_LT(hdr.find("inline std::string bang"), hdr.find("namespace cheatah::gr"));  // at file scope
 }
+
+// Case 6 — the accessor pattern: a folded C++ getter READS a .purr struct's field, and the .purr
+// calls it. This is the point of the after-types splice: the header holds the accessor layer, the
+// .purr holds the logic. The base is emitted AFTER the struct (so it can see it) and BEFORE the fn.
+TEST(FoldedBase, FoldedGetterReadsPurrStruct) {
+    const std::string dir = make_dir("getter", "pt");
+    write_file(dir + "/pt.hpp",
+               "// a getter over the .purr struct Point — organization in the header\n"
+               "[[nodiscard]] inline long long manhattan(const Point& p) {\n"
+               "    return (p.x < 0 ? -p.x : p.x) + (p.y < 0 ? -p.y : p.y);\n}\n");
+    write_file(dir + "/pt.purr",
+               "struct Point {\n    x: int\n    y: int\n}\n"
+               "fn make(x: int, y: int) -> Point {\n    return Point({ .x = x, .y = y })\n}\n"
+               "fn dist(p: Point) -> int {\n    return manhattan(p)\n}\n");
+
+    ASSERT_EQ(run(kPurrc + " --emit-library --transparent " + dir + "/pt.purr --import-root " + dir), 0);
+    const std::string hdr = read_file(dir + "/pt.gen.hpp");
+    const std::size_t st = hdr.find("struct Point");
+    const std::size_t get = hdr.find("manhattan(const Point&");
+    const std::size_t fn = hdr.find("dist");
+    ASSERT_NE(st, std::string::npos);
+    ASSERT_NE(get, std::string::npos);
+    ASSERT_NE(fn, std::string::npos);
+    EXPECT_LT(st, get);   // the struct is defined BEFORE the getter (so the getter can read it)
+    EXPECT_LT(get, fn);   // the getter is defined BEFORE the .purr fn that calls it
+
+    // And it runs: the .purr calls the C++ getter over a .purr struct it built.
+    const std::string prog = dir + "/../use.purr", mod = dir + "/../use.so";
+    write_file(prog, "import io\nimport pt\nio.print(pt.dist(pt.make(-3, 4)))\n");
+    ASSERT_EQ(run(kPurrc + " " + prog + " -o " + mod + " --import-root " + dir), 0);
+    EXPECT_EQ(capture(std::string(CHEATAH_RUNTIME_PATH) + " " + mod), "7\n");
+}
