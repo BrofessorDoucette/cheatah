@@ -8,5 +8,6 @@
  *        (cheatah::linalg). Include this to pull in the whole public surface, or
  *        include the individual headers below for finer-grained dependencies.
  */
+#include "fixed.hpp"     // fixed-extent, allocation-free arrays (vec3f/mat4f) — NDArray, but faster
 #include "routines.hpp"  // numpy-style routines on ndarray (matmul/solve/inv/svd/eig/…)
 #include "simd.hpp"      // host SIMD feature reporting

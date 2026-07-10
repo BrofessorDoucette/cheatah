@@ -1,6 +1,8 @@
 # cheatah `linalg`
 
-NumPy-style linear algebra on `ndarray`, with SIMD-accelerated contiguous kernels.
+NumPy-style linear algebra on `ndarray`, with SIMD-accelerated contiguous kernels —
+plus **[fixed-extent arrays](#fixed-extent-arrays)**, the same mathematics with the
+shape moved into the type, for the small-and-hot regime.
 
 The routines mirror [numpy.linalg](https://numpy.org/doc/stable/reference/routines.linalg.html)
 and operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). The general
@@ -9,6 +11,65 @@ matrix can have complex conjugate eigenvalue pairs, e.g. a rotation has ±i — 
 the Hermitian solvers `eigh`/`eigvalsh` return a guaranteed-real spectrum (the same
 split as numpy). Kernels are compiled at `-O3 -march=native` so the hot loops
 auto-vectorize.
+
+## Fixed-extent arrays
+
+An `NDArray` carries its shape at runtime and its elements on the heap. That is what
+makes it general — and, for a 3-D direction or a 4×4 transform, it is the whole cost:
+an allocation and an indirection to move sixteen floats.
+
+`linalg::Fixed<T, Dims...>` is the same idea with the shape in the type. The elements
+live inline, so the value is trivially copyable and nothing allocates; the loops have
+compile-time trip counts and auto-vectorize. **These are the types for high-performance
+work** — transforms, contact frames, small filter state — where the same matrix is
+built and consumed millions of times a second. Everything else matches `NDArray`: the
+element types, the `(row, column)` index, numpy's vocabulary, and the answers.
+
+```cpp
+using namespace cheatah::linalg;
+vec3f up{0.0F, 1.0F, 0.0F};          // 12 bytes, no allocation
+mat4f mvp = projection * view;       // 64 bytes — exactly a push constant
+vec3f n = normalize(cross(up, dir));
+```
+
+Aliases: `vec2f`…`vec4f`, `vec2d`…`vec4d`, `mat2f`…`mat4f`, `mat2d`…`mat4d`;
+`Vec<T,N>` and `Mat<T,R,C>` for anything else. Rank 1 (vector) and rank 2 (matrix).
+
+**A matrix is stored column-major**, unlike `NDArray`. The indexing you write does not
+change, but `data()` hands back columns. That is deliberate and measured: `m * v`
+becomes a sum of scaled columns — contiguous and vertical — instead of four horizontal
+dot products behind a shuffle network, and the buffer is already in the order GPU APIs
+expect, so uploading a transform is a copy rather than a transpose.
+
+### Speed
+
+Benchmarked against [GLM](https://github.com/g-truc/glm) across the **complete overlap
+of the two APIs** — 104 pairs: every vector and matrix operation, at sizes 2/3/4, in
+both `float` and `double` ([`fixed_glm_bench.cpp`](../../tests/benchmarks/fixed_glm_bench.cpp)).
+Both sides compile in the same translation unit with the same flags, so neither gets an
+instruction set the other lacks.
+
+`Fixed` is **at parity with or faster than GLM on every operation**, with no stable
+deficit anywhere (the residual few percent on sub-nanosecond ops flips sign between
+runs). A representative sample:
+
+| operation | `Fixed` | GLM |
+|-----------|---------|-----|
+| `mat4f::identity()` | **0.67 ns** | 1.80 ns |
+| `mat4f * mat4f` | **3.45 ns** | 5.84 ns |
+| `inverse(mat4d)` | **12.7 ns** | 17.4 ns |
+| `mat4f + mat4f` | **0.70 ns** | 1.39 ns |
+| `dot(vec4f, vec4f)` | **0.90 ns** | 1.07 ns |
+| `mat4f * vec4f` | **1.49 ns** | 1.54 ns |
+
+Three choices earn most of that, and each is a comment in
+[fixed.hpp](fixed.hpp): `dot` sums **pairwise** rather than left-to-right, so the adds
+issue independently instead of chaining at the latency of one — and the rounding error
+grows as O(log n) rather than O(n); `normalize` takes **one reciprocal then multiplies**,
+where dividing each component would pay N divides; and `matmul`/`m * v` build the result
+from **scaled columns**, seeding it with the first term instead of accumulating into a
+zeroed buffer. No intrinsics: the code is shaped so the compiler vectorizes it, which is
+the same promise the rest of `linalg` makes.
 
 ## Usage
 

@@ -11,7 +11,8 @@ add_executable(cheatah_benchmarks
     ndarray_bench.cpp
     # Native C++ comparisons: cheatah's numeric core vs the reference libraries.
     eigen_compare_bench.cpp   # vs Eigen — dynamic dense linear algebra
-    glm_compare_bench.cpp     # vs GLM  — small fixed-size vector/matrix math
+    glm_compare_bench.cpp
+    fixed_glm_bench.cpp        # vs GLM  — the FIXED-extent types, the complete API overlap     # vs GLM  — small fixed-size vector/matrix math
     # Per-tier cost of module-integrity verification — compiles the runtime's
     # integrity.cpp directly so it times the exact code path the host uses.
     integrity_bench.cpp

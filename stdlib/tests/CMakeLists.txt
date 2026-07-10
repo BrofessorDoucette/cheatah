@@ -28,6 +28,7 @@ add_executable(cheatah_tests
     rsa_verify_test.cpp
     x509_test.cpp
     ndarray_test.cpp
+    linalg_fixed_test.cpp
     linalg_routines_test.cpp
     linalg_smoke_test.cpp
     socket_test.cpp
