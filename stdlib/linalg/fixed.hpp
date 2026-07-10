@@ -458,9 +458,22 @@ constexpr T pairwise_sum(const std::array<T, N>& values) {
  */
 template <ndarray::Field T, std::size_t N>
 constexpr T dot(const Vec<T, N>& a, const Vec<T, N>& b) {
-    std::array<T, N> products{};
-    for (std::size_t i = 0; i < N; ++i) { products[i] = a[i] * b[i]; }
-    return detail::pairwise_sum(products);
+    // The small sizes are written out, in exactly the pairwise order @ref detail::pairwise_sum uses.
+    // Materializing an array of products first reads tidier, but at an awkward width — a 3-vector of
+    // doubles is 24 bytes — it spills to the stack instead of staying in registers.
+    if constexpr (N == 1) {
+        return a[0] * b[0];
+    } else if constexpr (N == 2) {
+        return a[0] * b[0] + a[1] * b[1];
+    } else if constexpr (N == 3) {
+        return (a[0] * b[0] + a[1] * b[1]) + a[2] * b[2];
+    } else if constexpr (N == 4) {
+        return (a[0] * b[0] + a[1] * b[1]) + (a[2] * b[2] + a[3] * b[3]);
+    } else {
+        std::array<T, N> products{};
+        for (std::size_t i = 0; i < N; ++i) { products[i] = a[i] * b[i]; }
+        return detail::pairwise_sum(products);
+    }
 }
 
 /**

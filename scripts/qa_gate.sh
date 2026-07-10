@@ -213,6 +213,13 @@ cmake --build --preset release-benchmarks >/tmp/cheatah_build_bench.log 2>&1 || 
 bold "Running benchmarks (smoke pass, min-time ${MIN_TIME})…"
 ./build/release/bin/cheatah_benchmarks --benchmark_min_time="${MIN_TIME}" || fail "benchmark run"
 
+# 7b. Fixed-vs-GLM performance gate (hard gate) ------------------------------
+#     linalg::Fixed exists to match GLM at GLM's own game; assert it still does, so a change that
+#     quietly de-vectorizes a hot path fails here rather than in a consumer's frame budget. Tolerant
+#     by ratio AND absolute gap, with a confirmation re-run, so sub-nanosecond noise never flakes it.
+bold "Performance gate: linalg::Fixed vs GLM…"
+./scripts/bench_gate.sh || fail "linalg::Fixed regressed against GLM"
+
 # 8. Refresh the editor (best-effort, NOT a gate) ----------------------------
 #    The runtime was just rebuilt above; package the VS Code extension with the
 #    current hover DB + a copy of THIS runtime's stdlib headers, and (re)install it,
