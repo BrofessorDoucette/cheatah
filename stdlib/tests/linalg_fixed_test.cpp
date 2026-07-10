@@ -419,3 +419,207 @@ TEST(LinalgFixed, AgreesWithTheDynamicNDArray) {
     }
     EXPECT_NEAR(la::determinant(fixed), la::det(dynamic), 1e-12);
 }
+
+// ---- The GLSL/GLM surface: geometry ------------------------------------------------------------
+
+TEST(LinalgFixed, Geometry) {
+    const la::vec3f a{1.0F, 2.0F, 3.0F};
+    const la::vec3f b{4.0F, 6.0F, 8.0F};
+    EXPECT_FLOAT_EQ(la::distance(a, b), std::sqrt(9.0F + 16.0F + 25.0F));
+    EXPECT_FLOAT_EQ(la::distance_squared(a, b), 50.0F);
+    EXPECT_DOUBLE_EQ(la::distance(la::vec2d{0.0, 0.0}, la::vec2d{3.0, 4.0}), 5.0);
+
+    // reflect off the floor (normal +y): the y-component flips, x and z survive.
+    const la::vec3f down{1.0F, -1.0F, 0.0F};
+    const la::vec3f up{0.0F, 1.0F, 0.0F};
+    EXPECT_TRUE(la::reflect(down, up) == (la::vec3f{1.0F, 1.0F, 0.0F}));
+    // A vector reflected twice about the same normal returns to itself (dot with unit normal).
+    EXPECT_TRUE(la::reflect(la::reflect(down, up), up) == down);
+
+    // refract with equal indices (eta = 1) does not bend, so a unit vector stays unit.
+    const la::vec3f incident = la::normalize(la::vec3f{1.0F, -1.0F, 0.0F});
+    EXPECT_FLOAT_EQ(la::norm(la::refract(incident, up, 1.0F)), 1.0F);
+    // Total internal reflection returns the zero vector.
+    const la::vec2d grazing = la::normalize(la::vec2d{1.0, -0.01});
+    EXPECT_TRUE(la::refract(grazing, la::vec2d{0.0, 1.0}, 5.0) == la::vec2d{});
+
+    // faceforward keeps a normal on the incident's side. dot(nref, I) < 0 -> return n unchanged.
+    EXPECT_TRUE(la::faceforward(up, down, up) == up);
+    const la::vec3f away{0.0F, 1.0F, 0.0F};
+    EXPECT_TRUE(la::faceforward(up, la::vec3f{0.0F, 1.0F, 0.0F}, away) == (la::vec3f{0.0F, -1.0F, 0.0F}));
+}
+
+// ---- The GLSL/GLM surface: component-wise common builtins ---------------------------------------
+
+TEST(LinalgFixed, CommonUnary) {
+    EXPECT_TRUE(la::abs(la::vec4f{-1.0F, 2.0F, -3.0F, 0.0F}) == (la::vec4f{1.0F, 2.0F, 3.0F, 0.0F}));
+    EXPECT_TRUE(la::sign(la::vec3f{-2.0F, 0.0F, 5.0F}) == (la::vec3f{-1.0F, 0.0F, 1.0F}));
+    // Works on a matrix too — it is elementwise over the whole array.
+    EXPECT_TRUE(la::abs(la::mat2d{-1.0, 2.0, -3.0, 4.0}) == (la::mat2d{1.0, 2.0, 3.0, 4.0}));
+    EXPECT_TRUE(la::sign(la::mat2f{-4.0F, 0.0F, 8.0F, -1.0F}) == (la::mat2f{-1.0F, 0.0F, 1.0F, -1.0F}));
+    EXPECT_TRUE(la::abs(la::vec2d{-1.5, -2.5}) == (la::vec2d{1.5, 2.5}));
+}
+
+TEST(LinalgFixed, MinMaxClamp) {
+    const la::vec3f a{1.0F, 5.0F, 3.0F};
+    const la::vec3f b{4.0F, 2.0F, 6.0F};
+    EXPECT_TRUE(la::min(a, b) == (la::vec3f{1.0F, 2.0F, 3.0F}));
+    EXPECT_TRUE(la::max(a, b) == (la::vec3f{4.0F, 5.0F, 6.0F}));
+    EXPECT_TRUE(la::min(la::vec3f{1.0F, 5.0F, 9.0F}, 4.0F) == (la::vec3f{1.0F, 4.0F, 4.0F}));
+    EXPECT_TRUE(la::max(la::vec3f{1.0F, 5.0F, 9.0F}, 4.0F) == (la::vec3f{4.0F, 5.0F, 9.0F}));
+
+    // scalar-bound clamp — pinning a colour to [0, 1]
+    EXPECT_TRUE(la::clamp(la::vec4f{-1.0F, 0.5F, 2.0F, 0.0F}, 0.0F, 1.0F) ==
+                (la::vec4f{0.0F, 0.5F, 1.0F, 0.0F}));
+    // per-element bounds
+    EXPECT_TRUE(la::clamp(la::vec3d{5.0, -5.0, 0.5}, la::vec3d{0.0, 0.0, 0.0},
+                          la::vec3d{1.0, 1.0, 1.0}) == (la::vec3d{1.0, 0.0, 0.5}));
+    // matrices too (double, to exercise that instantiation)
+    EXPECT_TRUE(la::min(la::mat2d{1.0, 4.0, 3.0, 2.0}, la::mat2d{2.0, 2.0, 2.0, 2.0}) ==
+                (la::mat2d{1.0, 2.0, 2.0, 2.0}));
+    EXPECT_TRUE(la::max(la::mat2d::filled(1.0), 3.0) == la::mat2d::filled(3.0));
+}
+
+TEST(LinalgFixed, MixStep) {
+    // mix with a scalar factor is a lerp
+    EXPECT_TRUE(la::mix(la::vec3f{0.0F, 0.0F, 0.0F}, la::vec3f{2.0F, 4.0F, 6.0F}, 0.5F) ==
+                (la::vec3f{1.0F, 2.0F, 3.0F}));
+    EXPECT_TRUE(la::mix(la::vec2d{1.0, 1.0}, la::vec2d{3.0, 5.0}, 0.0) == (la::vec2d{1.0, 1.0}));
+    EXPECT_TRUE(la::mix(la::vec2d{1.0, 1.0}, la::vec2d{3.0, 5.0}, 1.0) == (la::vec2d{3.0, 5.0}));
+    // per-element factor
+    EXPECT_TRUE(la::mix(la::vec3f{0.0F, 0.0F, 0.0F}, la::vec3f{10.0F, 10.0F, 10.0F},
+                        la::vec3f{0.0F, 0.5F, 1.0F}) == (la::vec3f{0.0F, 5.0F, 10.0F}));
+
+    // step: below the edge is 0, at or above is 1
+    EXPECT_TRUE(la::step(2.0F, la::vec3f{1.0F, 2.0F, 3.0F}) == (la::vec3f{0.0F, 1.0F, 1.0F}));
+    EXPECT_TRUE(la::step(0.0, la::vec2d{-1.0, 1.0}) == (la::vec2d{0.0, 1.0}));
+
+    // smoothstep: clamped at the edges, 0.5 at the midpoint, Hermite in between
+    const la::vec4f s = la::smoothstep(0.0F, 1.0F, la::vec4f{-1.0F, 0.0F, 0.5F, 2.0F});
+    EXPECT_FLOAT_EQ(s[0], 0.0F);
+    EXPECT_FLOAT_EQ(s[1], 0.0F);
+    EXPECT_FLOAT_EQ(s[2], 0.5F);
+    EXPECT_FLOAT_EQ(s[3], 1.0F);
+    // monotone and within [0,1]
+    const la::vec2d q = la::smoothstep(0.0, 10.0, la::vec2d{2.5, 7.5});
+    EXPECT_GT(q[1], q[0]);
+    EXPECT_GE(q[0], 0.0);
+    EXPECT_LE(q[1], 1.0);
+}
+
+// ---- The GLSL/GLM surface: matrix builtins -----------------------------------------------------
+
+TEST(LinalgFixed, MatrixExtras) {
+    // Hadamard product multiplies corresponding entries (NOT the matrix product).
+    const la::mat2f m{1.0F, 2.0F, 3.0F, 4.0F};
+    const la::mat2f k{2.0F, 0.0F, 0.0F, 2.0F};
+    EXPECT_TRUE(la::matrix_comp_mult(m, k) == (la::mat2f{2.0F, 0.0F, 0.0F, 8.0F}));
+
+    // outer product: (i, j) = c[i] * r[j]
+    const la::Mat<float, 2, 3> op = la::outer_product(la::vec2f{1.0F, 2.0F}, la::vec3f{3.0F, 4.0F, 5.0F});
+    EXPECT_FLOAT_EQ(op(0, 0), 3.0F);
+    EXPECT_FLOAT_EQ(op(0, 2), 5.0F);
+    EXPECT_FLOAT_EQ(op(1, 1), 8.0F);
+    // outer_product(c, r) == c as a column times r as a row, so its rank is one: rows are multiples.
+    EXPECT_FLOAT_EQ(op(1, 0) / op(0, 0), 2.0F);
+
+    // inverse_transpose carries normals: for an orthonormal (rotation) matrix it equals the matrix
+    // itself, since transpose(inverse(R)) = transpose(transpose(R)) = R.
+    const double c = std::cos(0.7);
+    const double s = std::sin(0.7);
+    const la::mat3d rot{c, -s, 0.0, s, c, 0.0, 0.0, 0.0, 1.0};
+    const la::mat3d it = la::inverse_transpose(rot);
+    for (std::size_t i = 0; i < 9; ++i) { EXPECT_NEAR(it.data()[i], rot.data()[i], 1e-12); }
+    // For a non-uniform scale S = diag(2, 4), inverse_transpose is diag(1/2, 1/4).
+    const la::mat2d scale{2.0, 0.0, 0.0, 4.0};
+    const la::mat2d nrm = la::inverse_transpose(scale);
+    EXPECT_NEAR(nrm(0, 0), 0.5, 1e-12);
+    EXPECT_NEAR(nrm(1, 1), 0.25, 1e-12);
+    // Singular still throws (via inverse).
+    EXPECT_THROW((void)la::inverse_transpose(la::mat3d{}), std::domain_error);
+}
+
+// ---- Enum subscripting: a scoped enum names an axis, and only when indexing --------------------
+
+namespace {
+/// A caller's scoped enum. It stays strongly typed everywhere except at a subscript, which is the
+/// whole point of ndarray::Subscript.
+enum class Axis : std::size_t { X = 0, Y = 1, Z = 2 };
+enum class Basis : std::size_t { Right = 0, Up = 1, Forward = 2 };
+}  // namespace
+
+TEST(LinalgFixed, EnumIndexingOnVectorsAndMatrices) {
+    la::vec3f v{7.0F, 8.0F, 9.0F};
+    // read a component by name
+    EXPECT_FLOAT_EQ(v[Axis::X], 7.0F);
+    EXPECT_FLOAT_EQ(v[Axis::Z], 9.0F);
+    // write by name (non-const overload)
+    v[Axis::Y] = 42.0F;
+    EXPECT_FLOAT_EQ(v[1], 42.0F);
+    // const overload
+    const la::vec3f& cv = v;
+    EXPECT_FLOAT_EQ(cv[Axis::Y], 42.0F);
+    // a plain integer still resolves the ordinary overload
+    EXPECT_FLOAT_EQ(v[std::size_t{0}], 7.0F);
+
+    la::mat3f m = la::mat3f::identity();
+    // both indices named
+    EXPECT_FLOAT_EQ(m(Axis::Y, Axis::Y), 1.0F);
+    EXPECT_FLOAT_EQ(m(Axis::X, Axis::Y), 0.0F);
+    // mixed: one enum, one integer
+    EXPECT_FLOAT_EQ(m(Axis::Z, std::size_t{2}), 1.0F);
+    EXPECT_FLOAT_EQ(m(std::size_t{0}, Axis::X), 1.0F);
+    // write by name
+    m(Axis::X, Axis::Z) = 5.0F;
+    EXPECT_FLOAT_EQ(m(0, 2), 5.0F);
+    // const overloads (both-enum and mixed)
+    const la::mat3f& cm = m;
+    EXPECT_FLOAT_EQ(cm(Axis::X, Axis::Z), 5.0F);
+    EXPECT_FLOAT_EQ(cm(Axis::Y, std::size_t{1}), 1.0F);
+    EXPECT_FLOAT_EQ(cm(std::size_t{2}, Axis::Z), 1.0F);
+}
+
+TEST(LinalgFixed, NamedRowsAndColumns) {
+    const la::mat3f id = la::mat3f::identity();
+    // a basis vector by name — the axis an enum was made for
+    EXPECT_TRUE(la::column(id, Basis::Forward) == (la::vec3f{0.0F, 0.0F, 1.0F}));
+    EXPECT_TRUE(la::column(id, Basis::Right) == (la::vec3f{1.0F, 0.0F, 0.0F}));
+    // a plain integer index still works
+    EXPECT_TRUE(la::column(id, 1) == (la::vec3f{0.0F, 1.0F, 0.0F}));
+    EXPECT_TRUE(la::row(id, 2) == (la::vec3f{0.0F, 0.0F, 1.0F}));
+    EXPECT_TRUE(la::row(id, Axis::X) == (la::vec3f{1.0F, 0.0F, 0.0F}));
+
+    // On a real (column-major) transform, column j is the image of basis vector j.
+    const la::mat3f t{2.0F, 0.0F, 1.0F, 0.0F, 3.0F, 2.0F, 0.0F, 0.0F, 1.0F};
+    EXPECT_TRUE(la::column(t, Axis::X) == (la::vec3f{2.0F, 0.0F, 0.0F}));  // where x-hat lands
+    EXPECT_TRUE(la::row(t, Axis::X) == (la::vec3f{2.0F, 0.0F, 1.0F}));
+    // A non-square matrix: row length is the column count and vice-versa.
+    const la::Mat<double, 2, 3> wide{1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+    EXPECT_TRUE(la::row(wide, 1) == (la::vec3d{4.0, 5.0, 6.0}));
+    EXPECT_TRUE(la::column(wide, 2) == (la::vec2d{3.0, 6.0}));
+}
+
+// ---- from_indices: the one-pass elementwise builder the component-wise ops ride on --------------
+
+TEST(LinalgFixed, FromIndices) {
+    // A vector built from its flat index.
+    const la::vec4f v = la::vec4f::from_indices([](std::size_t i) { return static_cast<float>(i * i); });
+    EXPECT_TRUE(v == (la::vec4f{0.0F, 1.0F, 4.0F, 9.0F}));
+
+    // For a matrix the index runs over STORAGE order (column-major), so building the identity by
+    // "1 on the diagonal" means indices divisible by rows+1 — the same fact identity() uses.
+    const la::mat3f id =
+        la::mat3f::from_indices([](std::size_t i) { return i % 4 == 0 ? 1.0F : 0.0F; });
+    EXPECT_TRUE(id == la::mat3f::identity());
+
+    // It is usable at compile time.
+    constexpr la::vec3d ramp = la::vec3d::from_indices([](std::size_t i) { return static_cast<double>(i); });
+    static_assert(ramp[2] == 2.0);
+
+    // Column-major storage is observable: element k of the buffer is what f(k) returned.
+    const la::mat2f m = la::mat2f::from_indices([](std::size_t i) { return static_cast<float>(i); });
+    EXPECT_EQ(m.data()[0], 0.0F);
+    EXPECT_EQ(m.data()[3], 3.0F);
+    EXPECT_EQ(m(0, 0), 0.0F);
+    EXPECT_EQ(m(0, 1), 2.0F);  // flat index 2 is (row 0, col 1) in column-major
+}

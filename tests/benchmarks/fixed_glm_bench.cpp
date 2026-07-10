@@ -13,9 +13,15 @@
 // Inputs are re-read through DoNotOptimize each iteration, so nothing is hoisted or folded away.
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-#include <glm/gtx/norm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>  // glm::inverseTranspose
+#include <glm/gtc/type_ptr.hpp>        // glm::value_ptr — the flat, column-major buffer
+#include <glm/gtx/norm.hpp>            // glm::length2, glm::distance2
 
 #include <benchmark/benchmark.h>
+
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 #include "fixed.hpp"
 
@@ -25,15 +31,25 @@ namespace {
 
 // ---- deterministic, well-conditioned inputs, identical on both sides ---------------------------
 
-/// A cheatah Fixed vector/matrix filled with `base + index`, plus a diagonal boost for matrices so
-/// the matrix is non-singular and `inverse` is meaningful.
+/// A cheatah Fixed vector/matrix filled the SAME way as gmfill below, so the two sides of every
+/// benchmark operate on identical inputs (the parity check enforces this): element (r, c) is
+/// `base + r*cols + c`, with a diagonal boost for matrices so `inverse` is meaningful. Indexing by
+/// (r, c) — not by flat position — is what keeps it in step with GLM, since the two libraries store
+/// a matrix in opposite orders.
 template <class L>
 L lfill(double base) {
     L v;
     using T = typename L::value_type;
-    for (std::size_t i = 0; i < L::size; ++i) { v.data()[i] = static_cast<T>(base + double(i)); }
-    if constexpr (L::rank == 2) {
-        for (std::size_t i = 0; i < L::rows; ++i) { v(i, i) += static_cast<T>(10 * L::rows); }
+    if constexpr (L::rank == 1) {
+        for (std::size_t i = 0; i < L::size; ++i) { v[i] = static_cast<T>(base + double(i)); }
+    } else {
+        for (std::size_t r = 0; r < L::rows; ++r) {
+            for (std::size_t c = 0; c < L::cols; ++c) {
+                T x = static_cast<T>(base + double(r * L::cols + c));
+                if (r == c) { x += static_cast<T>(10 * L::rows); }
+                v(r, c) = x;
+            }
+        }
     }
     return v;
 }
@@ -60,6 +76,108 @@ G gmfill(double base) {
     }
     return m;
 }
+
+// ---- output parity: a benchmark that times the wrong answer is worthless ------------------------
+// Before anything is timed, prove Fixed and GLM compute the SAME result for every operation this
+// file benchmarks. Both store column-major, so a Fixed's data() and GLM's value_ptr line up flat;
+// scalar results (dot, length, det, …) compare directly. On any mismatch the binary aborts with the
+// offending op named, so a benchmark can never quietly compare against a different computation.
+
+/// True iff the flat buffers agree to a float tolerance (arrays: vectors and matrices alike).
+template <class L, class G>
+bool same_buffer(const L& l, const G& g) {
+    const auto* gp = glm::value_ptr(g);
+    for (std::size_t i = 0; i < L::size; ++i) {
+        if (std::fabs(static_cast<double>(l.data()[i]) - static_cast<double>(gp[i])) > 1e-4) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/// True iff two scalars agree to a float tolerance.
+inline bool same_scalar(double a, double b) { return std::fabs(a - b) < 1e-4; }
+
+void abort_if(bool ok, const char* op) {
+    if (!ok) {
+        std::fprintf(stderr, "\nfixed_glm_bench: OUTPUT MISMATCH in '%s' — Fixed and GLM disagree.\n",
+                     op);
+        std::abort();
+    }
+}
+
+/// Check one vector op family (L is a Fixed vector, G the matching GLM vector) at the same inputs the
+/// benchmarks use, so the verification and the measurement are of the same computation.
+template <class L, class G>
+void verify_vec() {
+    const L la_a = lfill<L>(1.0), la_b = lfill<L>(2.0);
+    const G g_a = gvfill<G>(1.0), g_b = gvfill<G>(2.0);
+    using T = typename L::value_type;
+    using GT = typename G::value_type;
+    abort_if(same_buffer(la_a + la_b, g_a + g_b), "vec +");
+    abort_if(same_buffer(la_a - la_b, g_a - g_b), "vec -");
+    abort_if(same_buffer(-la_a, -g_a), "vec neg");
+    abort_if(same_buffer(la_a * T(2), g_a * GT(2)), "vec * scalar");
+    abort_if(same_buffer(la_a / T(2), g_a / GT(2)), "vec / scalar");
+    abort_if(same_scalar(la::dot(la_a, la_b), glm::dot(g_a, g_b)), "dot");
+    abort_if(same_scalar(la::norm(la_a), glm::length(g_a)), "length");
+    abort_if(same_scalar(la::squared_norm(la_a), glm::length2(g_a)), "length2");
+    abort_if(same_buffer(la::normalize(la_a), glm::normalize(g_a)), "normalize");
+    abort_if(same_scalar(la::distance(la_a, la_b), glm::distance(g_a, g_b)), "distance");
+    abort_if(same_scalar(la::distance_squared(la_a, la_b), glm::distance2(g_a, g_b)), "distance2");
+    abort_if(same_buffer(la::reflect(la_a, la::normalize(la_b)), glm::reflect(g_a, glm::normalize(g_b))),
+             "reflect");
+    abort_if(same_buffer(la::abs(la_a), glm::abs(g_a)), "abs");
+    abort_if(same_buffer(la::sign(la_a), glm::sign(g_a)), "sign");
+    abort_if(same_buffer(la::min(la_a, la_b), glm::min(g_a, g_b)), "min");
+    abort_if(same_buffer(la::max(la_a, la_b), glm::max(g_a, g_b)), "max");
+    abort_if(same_buffer(la::clamp(la_a, T(0), T(1)), glm::clamp(g_a, GT(0), GT(1))), "clamp");
+    abort_if(same_buffer(la::mix(la_a, la_b, T(0.5)), glm::mix(g_a, g_b, GT(0.5))), "mix");
+    abort_if(same_buffer(la::step(T(1), la_a), glm::step(GT(1), g_a)), "step");
+    abort_if(same_buffer(la::smoothstep(T(0), T(2), la_a), glm::smoothstep(GT(0), GT(2), g_a)),
+             "smoothstep");
+}
+
+/// Check one matrix op family (M a Fixed square matrix, G the matching GLM matrix; V/GV the vectors).
+template <class M, class G, class V, class GV>
+void verify_mat() {
+    const M la_a = lfill<M>(1.0), la_b = lfill<M>(2.0);
+    const G g_a = gmfill<G>(1.0), g_b = gmfill<G>(2.0);
+    const V la_v = lfill<V>(1.0);
+    const GV g_v = gvfill<GV>(1.0);
+    using T = typename M::value_type;
+    using GT = typename G::value_type;
+    abort_if(same_buffer(la_a + la_b, g_a + g_b), "mat +");
+    abort_if(same_buffer(la_a * T(2), g_a * GT(2)), "mat * scalar");
+    abort_if(same_buffer(la::matmul(la_a, la_b), g_a * g_b), "matmul");
+    abort_if(same_buffer(la_a * la_v, g_a * g_v), "mat * vec");
+    abort_if(same_buffer(la::transpose(la_a), glm::transpose(g_a)), "transpose");
+    abort_if(same_scalar(la::determinant(la_a), glm::determinant(g_a)), "determinant");
+    abort_if(same_buffer(la::inverse(la_a), glm::inverse(g_a)), "inverse");
+    abort_if(same_buffer(la::matrix_comp_mult(la_a, la_b), glm::matrixCompMult(g_a, g_b)),
+             "matrixCompMult");
+    abort_if(same_buffer(la::outer_product(la_v, la_v), glm::outerProduct(g_v, g_v)), "outerProduct");
+    abort_if(same_buffer(la::inverse_transpose(la_a), glm::inverseTranspose(g_a)), "inverseTranspose");
+    abort_if(same_buffer(M::identity(), G(1)), "identity");
+}
+
+/// Runs at static init, before any benchmark: the whole suite verifies against GLM, or aborts.
+const bool kOutputsVerified = [] {
+    verify_vec<la::vec3f, glm::vec3>();
+    verify_vec<la::vec4f, glm::vec4>();
+    verify_vec<la::vec3d, glm::dvec3>();
+    verify_vec<la::vec4d, glm::dvec4>();
+    verify_mat<la::mat3f, glm::mat3, la::vec3f, glm::vec3>();
+    verify_mat<la::mat4f, glm::mat4, la::vec4f, glm::vec4>();
+    verify_mat<la::mat3d, glm::dmat3, la::vec3d, glm::dvec3>();
+    verify_mat<la::mat4d, glm::dmat4, la::vec4d, glm::dvec4>();
+    // cross is 3-D only.
+    abort_if(same_buffer(la::cross(lfill<la::vec3f>(1.0), lfill<la::vec3f>(2.0)),
+                         glm::cross(gvfill<glm::vec3>(1.0), gvfill<glm::vec3>(2.0))),
+             "cross");
+    std::fprintf(stderr, "fixed_glm_bench: outputs verified against GLM on all benchmarked ops.\n");
+    return true;
+}();
 
 // ---- vector operations --------------------------------------------------------------------------
 
@@ -223,5 +341,94 @@ PAIR_MAT(la::mat4f, glm::mat4, la::vec4f, glm::vec4, "mat4f")
 PAIR_MAT(la::mat2d, glm::dmat2, la::vec2d, glm::dvec2, "mat2d")
 PAIR_MAT(la::mat3d, glm::dmat3, la::vec3d, glm::dvec3, "mat3d")
 PAIR_MAT(la::mat4d, glm::dmat4, la::vec4d, glm::dvec4, "mat4d")
+
+// ---- the GLSL/GLM "common" and geometric surface ------------------------------------------------
+// The rest of the overlap: distance/reflect/refract on vectors, and the component-wise builtins.
+// Same DoNotOptimize discipline; VEC_BENCH already fixes the two vector operands a=lfill(1), b=lfill(2)
+// (for GLM, gvfill), so these reuse it. A few need three operands or a scalar, written out here.
+
+VEC_BENCH(distance, la::distance(a, b), glm::distance(a, b))
+VEC_BENCH(distance2, la::distance_squared(a, b), glm::distance2(a, b))
+VEC_BENCH(reflect, la::reflect(a, la::normalize(b)), glm::reflect(a, glm::normalize(b)))
+VEC_BENCH(vabs, la::abs(a), glm::abs(a))
+VEC_BENCH(vsign, la::sign(a), glm::sign(a))
+VEC_BENCH(vmin, la::min(a, b), glm::min(a, b))
+VEC_BENCH(vmax, la::max(a, b), glm::max(a, b))
+VEC_BENCH(vclamp, la::clamp(a, typename L::value_type(0), typename L::value_type(1)),
+          glm::clamp(a, typename G::value_type(0), typename G::value_type(1)))
+VEC_BENCH(vmix, la::mix(a, b, typename L::value_type(0.5)),
+          glm::mix(a, b, typename G::value_type(0.5)))
+VEC_BENCH(vstep, la::step(typename L::value_type(1), a), glm::step(typename G::value_type(1), a))
+VEC_BENCH(vsmoothstep, la::smoothstep(typename L::value_type(0), typename L::value_type(2), a),
+          glm::smoothstep(typename G::value_type(0), typename G::value_type(2), a))
+
+#define PAIR_COMMON(L, G, TAG)                                                    \
+    BENCHMARK(bm_distance_fixed<L>)->Name("BM_distance_" TAG "_fixed");           \
+    BENCHMARK(bm_distance_glm<G>)->Name("BM_distance_" TAG "_glm");               \
+    BENCHMARK(bm_distance2_fixed<L>)->Name("BM_distance2_" TAG "_fixed");         \
+    BENCHMARK(bm_distance2_glm<G>)->Name("BM_distance2_" TAG "_glm");             \
+    BENCHMARK(bm_reflect_fixed<L>)->Name("BM_reflect_" TAG "_fixed");             \
+    BENCHMARK(bm_reflect_glm<G>)->Name("BM_reflect_" TAG "_glm");                 \
+    BENCHMARK(bm_vabs_fixed<L>)->Name("BM_abs_" TAG "_fixed");                    \
+    BENCHMARK(bm_vabs_glm<G>)->Name("BM_abs_" TAG "_glm");                        \
+    BENCHMARK(bm_vsign_fixed<L>)->Name("BM_sign_" TAG "_fixed");                  \
+    BENCHMARK(bm_vsign_glm<G>)->Name("BM_sign_" TAG "_glm");                      \
+    BENCHMARK(bm_vmin_fixed<L>)->Name("BM_min_" TAG "_fixed");                    \
+    BENCHMARK(bm_vmin_glm<G>)->Name("BM_min_" TAG "_glm");                        \
+    BENCHMARK(bm_vmax_fixed<L>)->Name("BM_max_" TAG "_fixed");                    \
+    BENCHMARK(bm_vmax_glm<G>)->Name("BM_max_" TAG "_glm");                        \
+    BENCHMARK(bm_vclamp_fixed<L>)->Name("BM_clamp_" TAG "_fixed");                \
+    BENCHMARK(bm_vclamp_glm<G>)->Name("BM_clamp_" TAG "_glm");                    \
+    BENCHMARK(bm_vmix_fixed<L>)->Name("BM_mix_" TAG "_fixed");                    \
+    BENCHMARK(bm_vmix_glm<G>)->Name("BM_mix_" TAG "_glm");                        \
+    BENCHMARK(bm_vstep_fixed<L>)->Name("BM_step_" TAG "_fixed");                  \
+    BENCHMARK(bm_vstep_glm<G>)->Name("BM_step_" TAG "_glm");                      \
+    BENCHMARK(bm_vsmoothstep_fixed<L>)->Name("BM_smoothstep_" TAG "_fixed");      \
+    BENCHMARK(bm_vsmoothstep_glm<G>)->Name("BM_smoothstep_" TAG "_glm");
+
+PAIR_COMMON(la::vec3f, glm::vec3, "vec3f")
+PAIR_COMMON(la::vec4f, glm::vec4, "vec4f")
+PAIR_COMMON(la::vec3d, glm::dvec3, "vec3d")
+PAIR_COMMON(la::vec4d, glm::dvec4, "vec4d")
+
+// matrixCompMult, outerProduct, inverseTranspose — matrix builtins beyond the ordinary product.
+MAT_BENCH(compmult, la::matrix_comp_mult(a, b), glm::matrixCompMult(a, b))
+MAT_BENCH(invtrans, la::inverse_transpose(a), glm::inverseTranspose(a))
+
+template <class L, class G>
+void bm_outer_fixed(benchmark::State& state) {
+    L c = lfill<L>(1.0);
+    L r = lfill<L>(2.0);
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(c);
+        benchmark::DoNotOptimize(r);
+        auto m = la::outer_product(c, r);
+        benchmark::DoNotOptimize(&m);
+    }
+}
+template <class GV>
+void bm_outer_glm(benchmark::State& state) {
+    GV c = gvfill<GV>(1.0);
+    GV r = gvfill<GV>(2.0);
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(c);
+        benchmark::DoNotOptimize(r);
+        auto m = glm::outerProduct(c, r);
+        benchmark::DoNotOptimize(&m);
+    }
+}
+
+#define PAIR_MAT_EXTRA(L, G, V, GV, TAG)                                          \
+    BENCHMARK(bm_compmult_fixed<L>)->Name("BM_compmult_" TAG "_fixed");           \
+    BENCHMARK(bm_compmult_glm<G>)->Name("BM_compmult_" TAG "_glm");               \
+    BENCHMARK(bm_invtrans_fixed<L>)->Name("BM_invtrans_" TAG "_fixed");           \
+    BENCHMARK(bm_invtrans_glm<G>)->Name("BM_invtrans_" TAG "_glm");               \
+    BENCHMARK((bm_outer_fixed<V, GV>))->Name("BM_outer_" TAG "_fixed");           \
+    BENCHMARK(bm_outer_glm<GV>)->Name("BM_outer_" TAG "_glm");
+
+PAIR_MAT_EXTRA(la::mat3f, glm::mat3, la::vec3f, glm::vec3, "mat3f")
+PAIR_MAT_EXTRA(la::mat4f, glm::mat4, la::vec4f, glm::vec4, "mat4f")
+PAIR_MAT_EXTRA(la::mat3d, glm::dmat3, la::vec3d, glm::dvec3, "mat3d")
+PAIR_MAT_EXTRA(la::mat4d, glm::dmat4, la::vec4d, glm::dvec4, "mat4d")
 
 }  // namespace

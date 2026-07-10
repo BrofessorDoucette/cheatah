@@ -204,6 +204,49 @@ make a single core as fast as it can possibly be, and let *you* decide when to m
 that by your core count. Predictable single-core speed composes; opaque auto-parallelism
 doesn't. And composing it is now a language feature, not a shell trick — measured next.
 
+## Small fixed-size math vs GLM {#vs-glm}
+
+The `NDArray` above is shape-generic and heap-backed — the right tool when the shape is
+data. When the shape is a *fact about the program* — a 3-D direction, a 4×4 transform — the
+generality is pure overhead: an allocation and an indirection to move sixteen floats.
+[`cheatah::linalg::Fixed`](@ref cheatah::linalg::Fixed) is the same mathematics with the
+extents moved into the type, so nothing allocates and the loops have compile-time trip
+counts. Its natural comparison is not NumPy but **[GLM](https://github.com/g-truc/glm)**,
+the C++ library the graphics world reaches for.
+
+We measure the **complete overlap of the two APIs** — 160 pairs: every vector and matrix
+operation (arithmetic, `dot`, `cross`, `length`, `normalize`, `distance`, `reflect`,
+`min`/`max`/`clamp`, `mix`, `step`/`smoothstep`, `matmul`, `transpose`, `determinant`,
+`inverse`, `matrixCompMult`, `outerProduct`, `inverseTranspose`), at sizes 2/3/4, in both
+`float` and `double`. Both sides compile in one translation unit with the same flags, so
+neither is handed an instruction set the other lacks, and the benchmark **verifies the two
+produce identical results before it times either** — a fast wrong answer cannot pose as a
+win.
+
+**`Fixed` is faster than or at parity with GLM on every one — 37 faster, 123 at parity,
+none slower.** It wins where structure pays:
+
+| operation | `Fixed` | GLM | |
+|-----------|--------:|----:|---|
+| `mat4f::identity()` | **0.67 ns** | 1.80 ns | 2.7× |
+| `mat4f * mat4f` | **3.45 ns** | 5.84 ns | 1.7× |
+| `inverse(mat4d)` | **12.7 ns** | 17.4 ns | 1.4× |
+| `abs(vec4f)` | **0.52 ns** | 0.86 ns | 1.6× |
+| `mat4f + mat4f` | **0.70 ns** | 1.39 ns | 2.0× |
+| `dot(vec4f, vec4f)` | **0.85 ns** | 1.00 ns | 1.2× |
+
+No intrinsics earn that — the code is *shaped* so the compiler vectorizes it, the same
+promise the rest of `linalg` makes. A matrix is stored **column-major**, so `m · v` is a sum
+of contiguous columns rather than four horizontal dot products behind a shuffle network (and
+`data()` uploads straight into a GPU push constant with no transpose); `dot` sums **pairwise**
+and, at width ≥ 4, packs the products into one SIMD multiply (which also lowers the rounding
+error to O(log n)); `min`/`max`/`abs`/`clamp` are branchless always-writes that lower to
+`minps`/`maxps`; and every elementwise op builds its result in **one pass**, never zeroing a
+buffer only to overwrite it. The full op-by-op table lives on the
+[linalg reference](@ref cheatah::linalg), and a
+[hard gate](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/bench_gate.sh)
+fails the build if any pair ever regresses past GLM.
+
 ## Composing parallelism with `thread` {#vs-parallel}
 
 The `thread` module makes the "you decide when to multiply by your core count" promise
