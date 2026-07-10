@@ -187,6 +187,36 @@ TEST(LibraryModule, DocCommentsBecomeJavadoc) {
     EXPECT_EQ(hdr.find("*/\nauto undocumented("), std::string::npos) << hdr;
 }
 
+TEST(LibraryModule, FromImportBindsEnumAndStructBare) {
+    // `import Sym[, Sym…] from mod` binds each symbol at file scope, so a consumer names a
+    // module's enum member or struct WITHOUT the module prefix — `QuatCol.W`, `Vec({…})` — and it
+    // resolves unambiguously to `::cheatah::geo::QuatCol::W` / `::cheatah::geo::Vec`.
+    const std::string dir = make_module_dir("fi", "geo");
+    const std::string root = dir.substr(0, dir.rfind('/'));
+    write_file(dir + "/geo.purr",
+               "import ndarray\n"
+               "enum QuatCol { X, Y, Z, W }\n"
+               "struct Vec { x: int  y: int }\n");
+    ASSERT_EQ(run(kPurrc + " --emit-library --transparent " + dir + "/geo.purr -o " + dir + "/geo.hpp"), 0);
+    const std::string prog = root + "/prog.purr", mod = root + "/prog.so";
+    write_file(prog,
+               "import io\n"
+               "import ndarray\n"
+               "import QuatCol, Vec from geo\n"       // two symbols, one statement, module dropped
+               "let q = ndarray.zeros([4])\n"
+               "q[QuatCol.W] = 7.0\n"                 // enum member as a bare subscript
+               "let v: Vec = Vec({ .x = 3, .y = 4 })\n"  // struct as a bare type AND constructor
+               "io.print(q[QuatCol.W], v.x, v.y)\n");
+    ASSERT_EQ(run("CHEATAH_MODULE_PATH=" + root + " " + kPurrc + " " + prog + " -o " + mod), 0);
+    FILE* pipe = popen((std::string(CHEATAH_RUNTIME_PATH) + " " + mod + " 2>/dev/null").c_str(), "r");
+    ASSERT_NE(pipe, nullptr);
+    std::string out;
+    char buf[64];
+    while (std::fgets(buf, sizeof buf, pipe)) out += buf;
+    pclose(pipe);
+    EXPECT_EQ(out, "7 3 4\n");
+}
+
 TEST(LibraryModule, TamperedModuleFailsClosed) {
     const std::string dir = make_module_dir("x", "foo");
     const std::string root = dir.substr(0, dir.rfind('/'));

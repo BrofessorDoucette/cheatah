@@ -338,6 +338,20 @@ public:
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::Import) {
                 const auto& imp = static_cast<const Import&>(*s);
+                if (!imp.symbols.empty()) {
+                    // A from-import (`import Sym from a.b`): each Sym binds to the FULL path a::b::Sym,
+                    // so `Sym.MEMBER` / `Sym({…})` / `x: Sym` work WITHOUT the module prefix. A `using`
+                    // (emitted by emit_aliases) makes the bare name resolve as a type; the aliases_ entry
+                    // makes `Sym.MEMBER` lower to a::b::Sym::MEMBER via the normal module-path machinery.
+                    for (const std::string& sym : imp.symbols) {
+                        std::vector<std::string> path = imp.module;
+                        path.push_back(sym);
+                        aliases_[sym] = path;
+                        from_imports_.emplace_back(sym, path);
+                    }
+                    roots_.insert(imp.module.front());
+                    continue;
+                }
                 const std::string key = imp.alias.empty() ? imp.module.front() : imp.alias;
                 // A non-aliased `import a.b.c` binds only the HEAD `a` (Python semantics: the
                 // call site still writes `a.b.c.fn` in full, and the tail is appended there).
@@ -406,6 +420,13 @@ public:
         for (const std::string& root : roots_) {
             if (aliased_roots_.count(root))
                 os << "namespace " << root << " = ::cheatah::" << root << ";\n";
+        }
+        // From-imports: `using Sym = ::cheatah::<module>::Sym;` so the bare symbol resolves as a type
+        // (a struct or enum), matching the aliases_ entry that resolves `Sym.MEMBER`.
+        for (const auto& [sym, path] : from_imports_) {
+            os << "using " << cpp_ident(sym) << " = ::cheatah";
+            for (const std::string& seg : path) os << "::" << cpp_ident(seg);
+            os << ";\n";
         }
         os << "\n";
     }
@@ -2084,6 +2105,9 @@ private:
     std::set<std::string> const_vars_;
     // Imported-module roots that are safe to alias (root ∉ defined_names_).
     std::set<std::string> aliased_roots_;
+    // From-imported symbols: (bare name, full module path incl. the symbol). Drives the `using`
+    // declarations in emit_aliases; the parallel aliases_ entries drive `Sym.MEMBER` resolution.
+    std::vector<std::pair<std::string, std::vector<std::string>>> from_imports_;
     // The namespace prefix for built-in calls: the short alias `builtins::` normally,
     // or the explicit `cheatah::builtins::` if the program itself defines `builtins`.
     std::string builtins_ns_ = "builtins::";

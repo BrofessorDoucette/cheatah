@@ -149,11 +149,51 @@ private:
         advance();  // import
         auto imp = std::make_unique<Import>();
         if (!check(TokenKind::Identifier)) {
-            error("expected a module name after 'import'");
+            error("expected a module or symbol name after 'import'");
             synchronize();
             return nullptr;
         }
-        imp->module.push_back(advance().text);
+        const std::string first = advance().text;
+
+        // `import <sym>[, <sym>…] from <module.path>` — a from-import binds the named symbols directly,
+        // usable without the module prefix. Detected by a following `,` or `from`.
+        if (check_kw("from") || check(TokenKind::Comma)) {
+            imp->symbols.push_back(first);
+            while (check(TokenKind::Comma)) {
+                advance();
+                if (!check(TokenKind::Identifier)) {
+                    error("expected a symbol name after ','");
+                    synchronize();
+                    return nullptr;
+                }
+                imp->symbols.push_back(advance().text);
+            }
+            if (!check_kw("from")) {
+                error("expected 'from' after the imported symbols");
+                synchronize();
+                return nullptr;
+            }
+            advance();  // from
+            if (!check(TokenKind::Identifier)) {
+                error("expected a module name after 'from'");
+                synchronize();
+                return nullptr;
+            }
+            imp->module.push_back(advance().text);
+            while (check(TokenKind::Dot)) {
+                advance();
+                if (!check(TokenKind::Identifier)) {
+                    error("expected a name after '.' in the module path");
+                    synchronize();
+                    return nullptr;
+                }
+                imp->module.push_back(advance().text);
+            }
+            return imp;
+        }
+
+        // `import <module.path> [as <alias>]` — the classic module import.
+        imp->module.push_back(first);
         while (check(TokenKind::Dot)) {
             advance();
             if (!check(TokenKind::Identifier)) {

@@ -157,9 +157,12 @@ struct Stmt {
 using StmtPtr = std::unique_ptr<Stmt>;
 using Block = std::vector<StmtPtr>;
 
-struct Import : Stmt {  // import <module> [as <alias>]   (module is a dotted path)
-    std::vector<std::string> module;
-    std::string alias;  // empty if no `as`
+struct Import : Stmt {  // import <module> [as <alias>]   OR   import <sym>[, <sym>…] from <module>
+    std::vector<std::string> module;   // the dotted module path (the SOURCE module in a from-import)
+    std::string alias;                 // empty if no `as`
+    std::vector<std::string> symbols;  // non-empty => a from-import: these names bind to <module>::<name>
+                                       // and are usable WITHOUT the module prefix (structs/enums as
+                                       // first-class objects, e.g. `import QuatCol from quat` → QuatCol.X)
     Import() : Stmt(StmtKind::Import) {}
 };
 
