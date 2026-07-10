@@ -1,7 +1,7 @@
 // Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 //
-// cheatah::linalg::Fixed vs GLM — the COMPLETE overlap of the two APIs, at every size and both
+// cheatah::fixarray::Fixed vs GLM — the COMPLETE overlap of the two APIs, at every size and both
 // precisions. glm_compare_bench.cpp measures the dynamic NDArray on GLM's home turf (and loses on
 // purpose: a heap allocation to move sixteen doubles). This file measures the fixed-extent types,
 // which exist precisely so that comparison is winnable.
@@ -23,9 +23,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "fixed.hpp"
+#include "fixarray.hpp"
 
-namespace la = cheatah::linalg;
+namespace fa = cheatah::fixarray;
 
 namespace {
 
@@ -119,22 +119,22 @@ void verify_vec() {
     abort_if(same_buffer(-la_a, -g_a), "vec neg");
     abort_if(same_buffer(la_a * T(2), g_a * GT(2)), "vec * scalar");
     abort_if(same_buffer(la_a / T(2), g_a / GT(2)), "vec / scalar");
-    abort_if(same_scalar(la::dot(la_a, la_b), glm::dot(g_a, g_b)), "dot");
-    abort_if(same_scalar(la::norm(la_a), glm::length(g_a)), "length");
-    abort_if(same_scalar(la::squared_norm(la_a), glm::length2(g_a)), "length2");
-    abort_if(same_buffer(la::normalize(la_a), glm::normalize(g_a)), "normalize");
-    abort_if(same_scalar(la::distance(la_a, la_b), glm::distance(g_a, g_b)), "distance");
-    abort_if(same_scalar(la::distance_squared(la_a, la_b), glm::distance2(g_a, g_b)), "distance2");
-    abort_if(same_buffer(la::reflect(la_a, la::normalize(la_b)), glm::reflect(g_a, glm::normalize(g_b))),
+    abort_if(same_scalar(fa::dot(la_a, la_b), glm::dot(g_a, g_b)), "dot");
+    abort_if(same_scalar(fa::norm(la_a), glm::length(g_a)), "length");
+    abort_if(same_scalar(fa::squared_norm(la_a), glm::length2(g_a)), "length2");
+    abort_if(same_buffer(fa::normalize(la_a), glm::normalize(g_a)), "normalize");
+    abort_if(same_scalar(fa::distance(la_a, la_b), glm::distance(g_a, g_b)), "distance");
+    abort_if(same_scalar(fa::distance_squared(la_a, la_b), glm::distance2(g_a, g_b)), "distance2");
+    abort_if(same_buffer(fa::reflect(la_a, fa::normalize(la_b)), glm::reflect(g_a, glm::normalize(g_b))),
              "reflect");
-    abort_if(same_buffer(la::abs(la_a), glm::abs(g_a)), "abs");
-    abort_if(same_buffer(la::sign(la_a), glm::sign(g_a)), "sign");
-    abort_if(same_buffer(la::min(la_a, la_b), glm::min(g_a, g_b)), "min");
-    abort_if(same_buffer(la::max(la_a, la_b), glm::max(g_a, g_b)), "max");
-    abort_if(same_buffer(la::clamp(la_a, T(0), T(1)), glm::clamp(g_a, GT(0), GT(1))), "clamp");
-    abort_if(same_buffer(la::mix(la_a, la_b, T(0.5)), glm::mix(g_a, g_b, GT(0.5))), "mix");
-    abort_if(same_buffer(la::step(T(1), la_a), glm::step(GT(1), g_a)), "step");
-    abort_if(same_buffer(la::smoothstep(T(0), T(2), la_a), glm::smoothstep(GT(0), GT(2), g_a)),
+    abort_if(same_buffer(fa::abs(la_a), glm::abs(g_a)), "abs");
+    abort_if(same_buffer(fa::sign(la_a), glm::sign(g_a)), "sign");
+    abort_if(same_buffer(fa::min(la_a, la_b), glm::min(g_a, g_b)), "min");
+    abort_if(same_buffer(fa::max(la_a, la_b), glm::max(g_a, g_b)), "max");
+    abort_if(same_buffer(fa::clamp(la_a, T(0), T(1)), glm::clamp(g_a, GT(0), GT(1))), "clamp");
+    abort_if(same_buffer(fa::mix(la_a, la_b, T(0.5)), glm::mix(g_a, g_b, GT(0.5))), "mix");
+    abort_if(same_buffer(fa::step(T(1), la_a), glm::step(GT(1), g_a)), "step");
+    abort_if(same_buffer(fa::smoothstep(T(0), T(2), la_a), glm::smoothstep(GT(0), GT(2), g_a)),
              "smoothstep");
 }
 
@@ -149,30 +149,30 @@ void verify_mat() {
     using GT = typename G::value_type;
     abort_if(same_buffer(la_a + la_b, g_a + g_b), "mat +");
     abort_if(same_buffer(la_a * T(2), g_a * GT(2)), "mat * scalar");
-    abort_if(same_buffer(la::matmul(la_a, la_b), g_a * g_b), "matmul");
+    abort_if(same_buffer(fa::matmul(la_a, la_b), g_a * g_b), "matmul");
     abort_if(same_buffer(la_a * la_v, g_a * g_v), "mat * vec");
-    abort_if(same_buffer(la::transpose(la_a), glm::transpose(g_a)), "transpose");
-    abort_if(same_scalar(la::determinant(la_a), glm::determinant(g_a)), "determinant");
-    abort_if(same_buffer(la::inverse(la_a), glm::inverse(g_a)), "inverse");
-    abort_if(same_buffer(la::matrix_comp_mult(la_a, la_b), glm::matrixCompMult(g_a, g_b)),
+    abort_if(same_buffer(fa::transpose(la_a), glm::transpose(g_a)), "transpose");
+    abort_if(same_scalar(fa::determinant(la_a), glm::determinant(g_a)), "determinant");
+    abort_if(same_buffer(fa::inverse(la_a), glm::inverse(g_a)), "inverse");
+    abort_if(same_buffer(fa::matrix_comp_mult(la_a, la_b), glm::matrixCompMult(g_a, g_b)),
              "matrixCompMult");
-    abort_if(same_buffer(la::outer_product(la_v, la_v), glm::outerProduct(g_v, g_v)), "outerProduct");
-    abort_if(same_buffer(la::inverse_transpose(la_a), glm::inverseTranspose(g_a)), "inverseTranspose");
+    abort_if(same_buffer(fa::outer_product(la_v, la_v), glm::outerProduct(g_v, g_v)), "outerProduct");
+    abort_if(same_buffer(fa::inverse_transpose(la_a), glm::inverseTranspose(g_a)), "inverseTranspose");
     abort_if(same_buffer(M::identity(), G(1)), "identity");
 }
 
 /// Runs at static init, before any benchmark: the whole suite verifies against GLM, or aborts.
 const bool kOutputsVerified = [] {
-    verify_vec<la::vec3f, glm::vec3>();
-    verify_vec<la::vec4f, glm::vec4>();
-    verify_vec<la::vec3d, glm::dvec3>();
-    verify_vec<la::vec4d, glm::dvec4>();
-    verify_mat<la::mat3f, glm::mat3, la::vec3f, glm::vec3>();
-    verify_mat<la::mat4f, glm::mat4, la::vec4f, glm::vec4>();
-    verify_mat<la::mat3d, glm::dmat3, la::vec3d, glm::dvec3>();
-    verify_mat<la::mat4d, glm::dmat4, la::vec4d, glm::dvec4>();
+    verify_vec<fa::vec3f, glm::vec3>();
+    verify_vec<fa::vec4f, glm::vec4>();
+    verify_vec<fa::vec3d, glm::dvec3>();
+    verify_vec<fa::vec4d, glm::dvec4>();
+    verify_mat<fa::mat3f, glm::mat3, fa::vec3f, glm::vec3>();
+    verify_mat<fa::mat4f, glm::mat4, fa::vec4f, glm::vec4>();
+    verify_mat<fa::mat3d, glm::dmat3, fa::vec3d, glm::dvec3>();
+    verify_mat<fa::mat4d, glm::dmat4, fa::vec4d, glm::dvec4>();
     // cross is 3-D only.
-    abort_if(same_buffer(la::cross(lfill<la::vec3f>(1.0), lfill<la::vec3f>(2.0)),
+    abort_if(same_buffer(fa::cross(lfill<fa::vec3f>(1.0), lfill<fa::vec3f>(2.0)),
                          glm::cross(gvfill<glm::vec3>(1.0), gvfill<glm::vec3>(2.0))),
              "cross");
     std::fprintf(stderr, "fixed_glm_bench: outputs verified against GLM on all benchmarked ops.\n");
@@ -208,11 +208,11 @@ VEC_BENCH(vsub, a - b, a - b)
 VEC_BENCH(vneg, -a, -a)
 VEC_BENCH(vmuls, a * typename L::value_type(2), a* typename G::value_type(2))
 VEC_BENCH(vdivs, a / typename L::value_type(2), a / typename G::value_type(2))
-VEC_BENCH(vdot, la::dot(a, b), glm::dot(a, b))
-VEC_BENCH(vlen, la::norm(a), glm::length(a))
-VEC_BENCH(vlen2, la::squared_norm(a), glm::length2(a))
-VEC_BENCH(vnorm, la::normalize(a), glm::normalize(a))
-VEC_BENCH(vcross, la::cross(a, b), glm::cross(a, b))
+VEC_BENCH(vdot, fa::dot(a, b), glm::dot(a, b))
+VEC_BENCH(vlen, fa::norm(a), glm::length(a))
+VEC_BENCH(vlen2, fa::squared_norm(a), glm::length2(a))
+VEC_BENCH(vnorm, fa::normalize(a), glm::normalize(a))
+VEC_BENCH(vcross, fa::cross(a, b), glm::cross(a, b))
 
 #define PAIR_VEC_COMMON(L, G, TAG)                                    \
     BENCHMARK(bm_vadd_fixed<L>)->Name("BM_add_" TAG "_fixed");        \
@@ -234,16 +234,16 @@ VEC_BENCH(vcross, la::cross(a, b), glm::cross(a, b))
     BENCHMARK(bm_vnorm_fixed<L>)->Name("BM_normalize_" TAG "_fixed"); \
     BENCHMARK(bm_vnorm_glm<G>)->Name("BM_normalize_" TAG "_glm");
 
-PAIR_VEC_COMMON(la::vec2f, glm::vec2, "vec2f")
-PAIR_VEC_COMMON(la::vec3f, glm::vec3, "vec3f")
-PAIR_VEC_COMMON(la::vec4f, glm::vec4, "vec4f")
-PAIR_VEC_COMMON(la::vec2d, glm::dvec2, "vec2d")
-PAIR_VEC_COMMON(la::vec3d, glm::dvec3, "vec3d")
-PAIR_VEC_COMMON(la::vec4d, glm::dvec4, "vec4d")
+PAIR_VEC_COMMON(fa::vec2f, glm::vec2, "vec2f")
+PAIR_VEC_COMMON(fa::vec3f, glm::vec3, "vec3f")
+PAIR_VEC_COMMON(fa::vec4f, glm::vec4, "vec4f")
+PAIR_VEC_COMMON(fa::vec2d, glm::dvec2, "vec2d")
+PAIR_VEC_COMMON(fa::vec3d, glm::dvec3, "vec3d")
+PAIR_VEC_COMMON(fa::vec4d, glm::dvec4, "vec4d")
 
-BENCHMARK(bm_vcross_fixed<la::vec3f>)->Name("BM_cross_vec3f_fixed");
+BENCHMARK(bm_vcross_fixed<fa::vec3f>)->Name("BM_cross_vec3f_fixed");
 BENCHMARK(bm_vcross_glm<glm::vec3>)->Name("BM_cross_vec3f_glm");
-BENCHMARK(bm_vcross_fixed<la::vec3d>)->Name("BM_cross_vec3d_fixed");
+BENCHMARK(bm_vcross_fixed<fa::vec3d>)->Name("BM_cross_vec3d_fixed");
 BENCHMARK(bm_vcross_glm<glm::dvec3>)->Name("BM_cross_vec3d_glm");
 
 // ---- matrix operations --------------------------------------------------------------------------
@@ -272,10 +272,10 @@ BENCHMARK(bm_vcross_glm<glm::dvec3>)->Name("BM_cross_vec3d_glm");
 
 MAT_BENCH(madd, a + b, a + b)
 MAT_BENCH(mmuls, a * typename L::value_type(2), a* typename G::value_type(2))
-MAT_BENCH(mmul, la::matmul(a, b), a* b)
-MAT_BENCH(mtrans, la::transpose(a), glm::transpose(a))
-MAT_BENCH(mdet, la::determinant(a), glm::determinant(a))
-MAT_BENCH(minv, la::inverse(a), glm::inverse(a))
+MAT_BENCH(mmul, fa::matmul(a, b), a* b)
+MAT_BENCH(mtrans, fa::transpose(a), glm::transpose(a))
+MAT_BENCH(mdet, fa::determinant(a), glm::determinant(a))
+MAT_BENCH(minv, fa::inverse(a), glm::inverse(a))
 
 /// Matrix * vector, the transform a renderer applies per vertex.
 template <class L, class V>
@@ -335,31 +335,31 @@ void bm_identity_glm(benchmark::State& state) {
     BENCHMARK(bm_identity_fixed<L>)->Name("BM_identity_" TAG "_fixed");     \
     BENCHMARK(bm_identity_glm<G>)->Name("BM_identity_" TAG "_glm");
 
-PAIR_MAT(la::mat2f, glm::mat2, la::vec2f, glm::vec2, "mat2f")
-PAIR_MAT(la::mat3f, glm::mat3, la::vec3f, glm::vec3, "mat3f")
-PAIR_MAT(la::mat4f, glm::mat4, la::vec4f, glm::vec4, "mat4f")
-PAIR_MAT(la::mat2d, glm::dmat2, la::vec2d, glm::dvec2, "mat2d")
-PAIR_MAT(la::mat3d, glm::dmat3, la::vec3d, glm::dvec3, "mat3d")
-PAIR_MAT(la::mat4d, glm::dmat4, la::vec4d, glm::dvec4, "mat4d")
+PAIR_MAT(fa::mat2f, glm::mat2, fa::vec2f, glm::vec2, "mat2f")
+PAIR_MAT(fa::mat3f, glm::mat3, fa::vec3f, glm::vec3, "mat3f")
+PAIR_MAT(fa::mat4f, glm::mat4, fa::vec4f, glm::vec4, "mat4f")
+PAIR_MAT(fa::mat2d, glm::dmat2, fa::vec2d, glm::dvec2, "mat2d")
+PAIR_MAT(fa::mat3d, glm::dmat3, fa::vec3d, glm::dvec3, "mat3d")
+PAIR_MAT(fa::mat4d, glm::dmat4, fa::vec4d, glm::dvec4, "mat4d")
 
 // ---- the GLSL/GLM "common" and geometric surface ------------------------------------------------
 // The rest of the overlap: distance/reflect/refract on vectors, and the component-wise builtins.
 // Same DoNotOptimize discipline; VEC_BENCH already fixes the two vector operands a=lfill(1), b=lfill(2)
 // (for GLM, gvfill), so these reuse it. A few need three operands or a scalar, written out here.
 
-VEC_BENCH(distance, la::distance(a, b), glm::distance(a, b))
-VEC_BENCH(distance2, la::distance_squared(a, b), glm::distance2(a, b))
-VEC_BENCH(reflect, la::reflect(a, la::normalize(b)), glm::reflect(a, glm::normalize(b)))
-VEC_BENCH(vabs, la::abs(a), glm::abs(a))
-VEC_BENCH(vsign, la::sign(a), glm::sign(a))
-VEC_BENCH(vmin, la::min(a, b), glm::min(a, b))
-VEC_BENCH(vmax, la::max(a, b), glm::max(a, b))
-VEC_BENCH(vclamp, la::clamp(a, typename L::value_type(0), typename L::value_type(1)),
+VEC_BENCH(distance, fa::distance(a, b), glm::distance(a, b))
+VEC_BENCH(distance2, fa::distance_squared(a, b), glm::distance2(a, b))
+VEC_BENCH(reflect, fa::reflect(a, fa::normalize(b)), glm::reflect(a, glm::normalize(b)))
+VEC_BENCH(vabs, fa::abs(a), glm::abs(a))
+VEC_BENCH(vsign, fa::sign(a), glm::sign(a))
+VEC_BENCH(vmin, fa::min(a, b), glm::min(a, b))
+VEC_BENCH(vmax, fa::max(a, b), glm::max(a, b))
+VEC_BENCH(vclamp, fa::clamp(a, typename L::value_type(0), typename L::value_type(1)),
           glm::clamp(a, typename G::value_type(0), typename G::value_type(1)))
-VEC_BENCH(vmix, la::mix(a, b, typename L::value_type(0.5)),
+VEC_BENCH(vmix, fa::mix(a, b, typename L::value_type(0.5)),
           glm::mix(a, b, typename G::value_type(0.5)))
-VEC_BENCH(vstep, la::step(typename L::value_type(1), a), glm::step(typename G::value_type(1), a))
-VEC_BENCH(vsmoothstep, la::smoothstep(typename L::value_type(0), typename L::value_type(2), a),
+VEC_BENCH(vstep, fa::step(typename L::value_type(1), a), glm::step(typename G::value_type(1), a))
+VEC_BENCH(vsmoothstep, fa::smoothstep(typename L::value_type(0), typename L::value_type(2), a),
           glm::smoothstep(typename G::value_type(0), typename G::value_type(2), a))
 
 #define PAIR_COMMON(L, G, TAG)                                                    \
@@ -386,14 +386,14 @@ VEC_BENCH(vsmoothstep, la::smoothstep(typename L::value_type(0), typename L::val
     BENCHMARK(bm_vsmoothstep_fixed<L>)->Name("BM_smoothstep_" TAG "_fixed");      \
     BENCHMARK(bm_vsmoothstep_glm<G>)->Name("BM_smoothstep_" TAG "_glm");
 
-PAIR_COMMON(la::vec3f, glm::vec3, "vec3f")
-PAIR_COMMON(la::vec4f, glm::vec4, "vec4f")
-PAIR_COMMON(la::vec3d, glm::dvec3, "vec3d")
-PAIR_COMMON(la::vec4d, glm::dvec4, "vec4d")
+PAIR_COMMON(fa::vec3f, glm::vec3, "vec3f")
+PAIR_COMMON(fa::vec4f, glm::vec4, "vec4f")
+PAIR_COMMON(fa::vec3d, glm::dvec3, "vec3d")
+PAIR_COMMON(fa::vec4d, glm::dvec4, "vec4d")
 
 // matrixCompMult, outerProduct, inverseTranspose — matrix builtins beyond the ordinary product.
-MAT_BENCH(compmult, la::matrix_comp_mult(a, b), glm::matrixCompMult(a, b))
-MAT_BENCH(invtrans, la::inverse_transpose(a), glm::inverseTranspose(a))
+MAT_BENCH(compmult, fa::matrix_comp_mult(a, b), glm::matrixCompMult(a, b))
+MAT_BENCH(invtrans, fa::inverse_transpose(a), glm::inverseTranspose(a))
 
 template <class L, class G>
 void bm_outer_fixed(benchmark::State& state) {
@@ -402,7 +402,7 @@ void bm_outer_fixed(benchmark::State& state) {
     for (auto _ : state) {
         benchmark::DoNotOptimize(c);
         benchmark::DoNotOptimize(r);
-        auto m = la::outer_product(c, r);
+        auto m = fa::outer_product(c, r);
         benchmark::DoNotOptimize(&m);
     }
 }
@@ -426,9 +426,9 @@ void bm_outer_glm(benchmark::State& state) {
     BENCHMARK((bm_outer_fixed<V, GV>))->Name("BM_outer_" TAG "_fixed");           \
     BENCHMARK(bm_outer_glm<GV>)->Name("BM_outer_" TAG "_glm");
 
-PAIR_MAT_EXTRA(la::mat3f, glm::mat3, la::vec3f, glm::vec3, "mat3f")
-PAIR_MAT_EXTRA(la::mat4f, glm::mat4, la::vec4f, glm::vec4, "mat4f")
-PAIR_MAT_EXTRA(la::mat3d, glm::dmat3, la::vec3d, glm::dvec3, "mat3d")
-PAIR_MAT_EXTRA(la::mat4d, glm::dmat4, la::vec4d, glm::dvec4, "mat4d")
+PAIR_MAT_EXTRA(fa::mat3f, glm::mat3, fa::vec3f, glm::vec3, "mat3f")
+PAIR_MAT_EXTRA(fa::mat4f, glm::mat4, fa::vec4f, glm::vec4, "mat4f")
+PAIR_MAT_EXTRA(fa::mat3d, glm::dmat3, fa::vec3d, glm::dvec3, "mat3d")
+PAIR_MAT_EXTRA(fa::mat4d, glm::dmat4, fa::vec4d, glm::dvec4, "mat4d")
 
 }  // namespace

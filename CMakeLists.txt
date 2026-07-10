@@ -104,8 +104,10 @@ endif()
 # Helper that builds each stdlib module as a dual static+shared library.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheatahLibrary.cmake)
 
-# Numeric core: ndarray must be built before linalg (linalg links it).
+# Numeric core: ndarray must be built before linalg (linalg links it) and before fixarray (the
+# header-only fixed-extent module builds on ndarray's element concepts + Subscript indexing).
 add_subdirectory(stdlib/ndarray)
+add_subdirectory(stdlib/fixarray)
 add_subdirectory(stdlib/linalg)
 
 # Crypto modules are added before the compiler + runtime because BOTH link them (purrc

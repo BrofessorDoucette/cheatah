@@ -209,7 +209,7 @@ doesn't. And composing it is now a language feature, not a shell trick — measu
 The `NDArray` above is shape-generic and heap-backed — the right tool when the shape is
 data. When the shape is a *fact about the program* — a 3-D direction, a 4×4 transform — the
 generality is pure overhead: an allocation and an indirection to move sixteen floats.
-[`cheatah::linalg::Fixed`](@ref cheatah::linalg::Fixed) is the same mathematics with the
+[`cheatah::fixarray::Fixed`](@ref cheatah::fixarray::Fixed) is the same mathematics with the
 extents moved into the type, so nothing allocates and the loops have compile-time trip
 counts. Its natural comparison is not NumPy but **[GLM](https://github.com/g-truc/glm)**,
 the C++ library the graphics world reaches for.
@@ -236,14 +236,14 @@ none slower.** It wins where structure pays:
 | `dot(vec4f, vec4f)` | **0.85 ns** | 1.00 ns | 1.2× |
 
 No intrinsics earn that — the code is *shaped* so the compiler vectorizes it, the same
-promise the rest of `linalg` makes. A matrix is stored **column-major**, so `m · v` is a sum
+promise the numeric core makes throughout. A matrix is stored **column-major**, so `m · v` is a sum
 of contiguous columns rather than four horizontal dot products behind a shuffle network (and
 `data()` uploads straight into a GPU push constant with no transpose); `dot` sums **pairwise**
 and, at width ≥ 4, packs the products into one SIMD multiply (which also lowers the rounding
 error to O(log n)); `min`/`max`/`abs`/`clamp` are branchless always-writes that lower to
 `minps`/`maxps`; and every elementwise op builds its result in **one pass**, never zeroing a
 buffer only to overwrite it. The full op-by-op table lives on the
-[linalg reference](@ref cheatah::linalg), and a
+[fixarray reference](@ref cheatah::fixarray), and a
 [hard gate](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/bench_gate.sh)
 fails the build if any pair ever regresses past GLM.
 

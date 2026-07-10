@@ -23,6 +23,7 @@ add_executable(cheatah_benchmarks
 
 target_link_libraries(cheatah_benchmarks PRIVATE
     cheatah::linalg_static
+    cheatah::fixarray         # header-only: the fixed-extent types (fixed_glm_bench.cpp)
     cheatah::ndarray_static
     cheatah::ed25519_static   # ed25519 BEFORE hashlib (static archives resolve left-to-right)
     cheatah::p256_static

@@ -28,7 +28,7 @@ add_executable(cheatah_tests
     rsa_verify_test.cpp
     x509_test.cpp
     ndarray_test.cpp
-    linalg_fixed_test.cpp
+    fixarray_test.cpp
     linalg_routines_test.cpp
     linalg_smoke_test.cpp
     socket_test.cpp
@@ -72,6 +72,7 @@ target_link_libraries(cheatah_tests PRIVATE
     cheatah::socket_static
     cheatah::thread_static
     cheatah::ndarray_static
+    cheatah::fixarray
     cheatah::linalg_static
     GTest::gmock_main
 )

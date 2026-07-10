@@ -1,10 +1,11 @@
 // Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+// cheatah-deps: ndarray
 #pragma once
 
 /**
- * @file fixed.hpp
- * @brief cheatah `linalg` — fixed-extent arrays (@ref cheatah::linalg::Fixed): exactly like an
+ * @file fixarray.hpp
+ * @brief cheatah `fixarray` — fixed-extent arrays (@ref cheatah::fixarray::Fixed): exactly like an
  *        @ref cheatah::ndarray::NDArray, only faster.
  *
  * An @ref cheatah::ndarray::NDArray carries its shape at runtime and its elements on the heap, which
@@ -12,7 +13,7 @@
  * 4×4 transform — that generality is the whole cost: a heap allocation, a stride computation and an
  * indirection per operation, to move sixteen floats.
  *
- * @ref cheatah::linalg::Fixed is the same idea with the shape moved into the type. The extents are
+ * @ref cheatah::fixarray::Fixed is the same idea with the shape moved into the type. The extents are
  * template parameters, the elements live inline (a `std::array`, so the value is trivially copyable
  * and sits on the stack or straight inside another struct), the loops have compile-time trip counts
  * and auto-vectorize, and nothing allocates. **These are the types to reach for in high-performance
@@ -34,7 +35,7 @@
  * is a copy rather than a transpose. Only reach for `data()` when you mean the raw buffer.
  *
  * ```
- * using namespace cheatah::linalg;
+ * using namespace cheatah::fixarray;
  * vec3f up{0.0F, 1.0F, 0.0F};        // a 3-vector, 12 bytes, no allocation
  * mat4f m = mat4f::identity();       // a 4x4, 64 bytes — exactly a push constant
  * vec3f v = normalize(cross(up, w)); // numpy's vocabulary, glm's speed
@@ -43,10 +44,10 @@
  * Rank 1 (a vector) and rank 2 (a matrix) are supported; higher ranks are a mechanical extension of
  * the same storage and are added when a caller needs one.
  *
- * This header is templates only — nothing is compiled into `libcheatah_linalg` — so the caller's
- * optimization flags apply. The routines in @ref routines.hpp remain the home of the heavy,
- * shape-generic numerics (LU, QR, SVD, eigen); `Fixed` owns the small closed forms where a general
- * factorization would cost more than the answer.
+ * This module is templates only — header-only, nothing is compiled into a library — so the caller's
+ * optimization flags apply. The `linalg` module remains the home of the heavy, shape-generic numerics
+ * on `NDArray` (LU, QR, SVD, eigen); `Fixed` owns the small closed forms where a general factorization
+ * would cost more than the answer.
  *
  * **Performance.** Benchmarked against [GLM](https://github.com/g-truc/glm) over the complete overlap
  * of the two APIs — 160 pairs, every operation, sizes 2/3/4, `float` and `double`, with the outputs
@@ -66,7 +67,7 @@
 
 #include "ndarray.hpp"
 
-namespace cheatah::linalg {
+namespace cheatah::fixarray {
 
 /// The product of a pack of extents — a fixed array's element count, `1` for an empty pack.
 /// @tparam Dims the extents.
@@ -136,7 +137,7 @@ class Fixed {
      * @return the identity matrix.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Identity
+     * @test Fixarray.Identity
      */
     static constexpr Fixed identity()
         requires(rank == 2 && rows == cols)
@@ -153,7 +154,7 @@ class Fixed {
      * @return the filled array.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Filled
+     * @test Fixarray.Filled
      */
     static constexpr Fixed filled(T value) {
         Fixed result;
@@ -172,7 +173,7 @@ class Fixed {
      * @return the array whose element `i` is `f(i)`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.FromIndices
+     * @test Fixarray.FromIndices
      */
     template <class F>
     static constexpr Fixed from_indices(F&& f) {
@@ -185,7 +186,7 @@ class Fixed {
      * @return a reference to the element.
      * @complexity O(1).
      * @alloc none.
-     * @test LinalgFixed.VectorIndexing
+     * @test Fixarray.VectorIndexing
      */
     constexpr T& operator[](std::size_t i)
         requires(rank == 1)
@@ -211,7 +212,7 @@ class Fixed {
      * @return a const reference to the element.
      * @complexity O(1).
      * @alloc none.
-     * @test LinalgFixed.VectorIndexing
+     * @test Fixarray.VectorIndexing
      */
     constexpr const T& operator[](std::size_t i) const
         requires(rank == 1)
@@ -236,7 +237,7 @@ class Fixed {
      * @return a reference to the element.
      * @complexity O(1).
      * @alloc none.
-     * @test LinalgFixed.MatrixIndexing
+     * @test Fixarray.MatrixIndexing
      */
     constexpr T& operator()(std::size_t row, std::size_t col)
         requires(rank == 2)
@@ -264,7 +265,7 @@ class Fixed {
      * @return a const reference to the element.
      * @complexity O(1).
      * @alloc none.
-     * @test LinalgFixed.MatrixIndexing
+     * @test Fixarray.MatrixIndexing
      */
     constexpr const T& operator()(std::size_t row, std::size_t col) const
         requires(rank == 2)
@@ -290,7 +291,7 @@ class Fixed {
      * @return the first element's address.
      * @complexity O(1).
      * @alloc none.
-     * @test LinalgFixed.Data
+     * @test Fixarray.Data
      */
     constexpr T* data() { return data_.data(); }
 
@@ -299,7 +300,7 @@ class Fixed {
      * @return the first element's address.
      * @complexity O(1).
      * @alloc none.
-     * @test LinalgFixed.Data
+     * @test Fixarray.Data
      */
     constexpr const T* data() const { return data_.data(); }
 
@@ -310,7 +311,7 @@ class Fixed {
      * @return true iff every element matches.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Equality
+     * @test Fixarray.Equality
      */
     constexpr bool operator==(const Fixed& other) const = default;
 
@@ -320,7 +321,7 @@ class Fixed {
      * @return a reference to this array.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     constexpr Fixed& operator+=(const Fixed& other) {
         for (std::size_t i = 0; i < size; ++i) { data_[i] += other.data_[i]; }
@@ -333,7 +334,7 @@ class Fixed {
      * @return a reference to this array.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     constexpr Fixed& operator-=(const Fixed& other) {
         for (std::size_t i = 0; i < size; ++i) { data_[i] -= other.data_[i]; }
@@ -346,7 +347,7 @@ class Fixed {
      * @return a reference to this array.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     constexpr Fixed& operator*=(T scalar) {
         for (std::size_t i = 0; i < size; ++i) { data_[i] *= scalar; }
@@ -359,7 +360,7 @@ class Fixed {
      * @return a reference to this array.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     constexpr Fixed& operator/=(T scalar) {
         for (std::size_t i = 0; i < size; ++i) { data_[i] /= scalar; }
@@ -372,7 +373,7 @@ class Fixed {
      * @return `a + b`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     friend constexpr Fixed operator+(Fixed a, const Fixed& b) { return a += b; }
 
@@ -382,7 +383,7 @@ class Fixed {
      * @return `a - b`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     friend constexpr Fixed operator-(Fixed a, const Fixed& b) { return a -= b; }
 
@@ -392,7 +393,7 @@ class Fixed {
      * @return `-a`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     friend constexpr Fixed operator-(Fixed a) { return a *= static_cast<T>(-1); }
 
@@ -402,7 +403,7 @@ class Fixed {
      * @return `a * scalar`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     friend constexpr Fixed operator*(Fixed a, T scalar) { return a *= scalar; }
 
@@ -412,7 +413,7 @@ class Fixed {
      * @return `scalar * a`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     friend constexpr Fixed operator*(T scalar, Fixed a) { return a *= scalar; }
 
@@ -422,7 +423,7 @@ class Fixed {
      * @return `a / scalar`.
      * @complexity O(size).
      * @alloc none.
-     * @test LinalgFixed.Arithmetic
+     * @test Fixarray.Arithmetic
      */
     friend constexpr Fixed operator/(Fixed a, T scalar) { return a /= scalar; }
 
@@ -505,7 +506,7 @@ namespace detail {
  * @return their sum.
  * @complexity O(N).
  * @alloc none.
- * @test LinalgFixed.DotAndCross
+ * @test Fixarray.DotAndCross
  */
 template <ndarray::Field T, std::size_t N>
 constexpr T pairwise_sum(const std::array<T, N>& values) {
@@ -538,7 +539,7 @@ constexpr T pairwise_sum(const std::array<T, N>& values) {
  * @return the inner product.
  * @complexity O(N).
  * @alloc none.
- * @test LinalgFixed.DotAndCross
+ * @test Fixarray.DotAndCross
  */
 template <ndarray::Field T, std::size_t N>
 constexpr T dot(const Vec<T, N>& a, const Vec<T, N>& b) {
@@ -568,7 +569,7 @@ constexpr T dot(const Vec<T, N>& a, const Vec<T, N>& b) {
  * @return `a × b`.
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DotAndCross
+ * @test Fixarray.DotAndCross
  */
 template <ndarray::Field T>
 constexpr Vec<T, 3> cross(const Vec<T, 3>& a, const Vec<T, 3>& b) {
@@ -584,7 +585,7 @@ constexpr Vec<T, 3> cross(const Vec<T, 3>& a, const Vec<T, 3>& b) {
  * @return `Σ vᵢ²`.
  * @complexity O(N).
  * @alloc none.
- * @test LinalgFixed.NormAndNormalize
+ * @test Fixarray.NormAndNormalize
  */
 template <ndarray::Field T, std::size_t N>
 constexpr T squared_norm(const Vec<T, N>& v) {
@@ -599,7 +600,7 @@ constexpr T squared_norm(const Vec<T, N>& v) {
  * @return `sqrt(Σ vᵢ²)`.
  * @complexity O(N).
  * @alloc none.
- * @test LinalgFixed.NormAndNormalize
+ * @test Fixarray.NormAndNormalize
  */
 template <ndarray::FloatingPoint T, std::size_t N>
 T norm(const Vec<T, N>& v) {
@@ -615,12 +616,12 @@ T norm(const Vec<T, N>& v) {
  * @throws std::domain_error when @p v has zero length, since it has no direction.
  * @complexity O(N).
  * @alloc none.
- * @test LinalgFixed.NormAndNormalize
+ * @test Fixarray.NormAndNormalize
  */
 template <ndarray::FloatingPoint T, std::size_t N>
 Vec<T, N> normalize(const Vec<T, N>& v) {
     const T squared = squared_norm(v);
-    if (squared == T{0}) { throw std::domain_error("linalg::normalize: the zero vector has no direction"); }
+    if (squared == T{0}) { throw std::domain_error("fixarray::normalize: the zero vector has no direction"); }
     // One reciprocal, then N multiplies. Dividing each component instead costs N divides, and a
     // divide is roughly three times the latency of a multiply.
     const T inverse_length = T{1} / std::sqrt(squared);
@@ -634,7 +635,7 @@ Vec<T, N> normalize(const Vec<T, N>& v) {
  * @return the `C×R` transpose.
  * @complexity O(R·C).
  * @alloc none.
- * @test LinalgFixed.TransposeAndTrace
+ * @test Fixarray.TransposeAndTrace
  */
 template <ndarray::Field T, std::size_t R, std::size_t C>
 constexpr Mat<T, C, R> transpose(const Mat<T, R, C>& m) {
@@ -652,7 +653,7 @@ constexpr Mat<T, C, R> transpose(const Mat<T, R, C>& m) {
  * @return `Σ mᵢᵢ`.
  * @complexity O(N).
  * @alloc none.
- * @test LinalgFixed.TransposeAndTrace
+ * @test Fixarray.TransposeAndTrace
  */
 template <ndarray::Field T, std::size_t N>
 constexpr T trace(const Mat<T, N, N>& m) {
@@ -670,7 +671,7 @@ constexpr T trace(const Mat<T, N, N>& m) {
  * @return the `R×C` product.
  * @complexity O(R·K·C).
  * @alloc none.
- * @test LinalgFixed.Matmul
+ * @test Fixarray.Matmul
  */
 template <ndarray::Field T, std::size_t R, std::size_t K, std::size_t C>
 constexpr Mat<T, R, C> matmul(const Mat<T, R, K>& a, const Mat<T, K, C>& b) {
@@ -698,7 +699,7 @@ constexpr Mat<T, R, C> matmul(const Mat<T, R, K>& a, const Mat<T, K, C>& b) {
  * @return `matmul(a, b)`.
  * @complexity O(R·K·C).
  * @alloc none.
- * @test LinalgFixed.Matmul
+ * @test Fixarray.Matmul
  */
 template <ndarray::Field T, std::size_t R, std::size_t K, std::size_t C>
 constexpr Mat<T, R, C> operator*(const Mat<T, R, K>& a, const Mat<T, K, C>& b) {
@@ -712,7 +713,7 @@ constexpr Mat<T, R, C> operator*(const Mat<T, R, K>& a, const Mat<T, K, C>& b) {
  * @return the `R`-vector `m · v`.
  * @complexity O(R·C).
  * @alloc none.
- * @test LinalgFixed.Matmul
+ * @test Fixarray.Matmul
  */
 template <ndarray::Field T, std::size_t R, std::size_t C>
 constexpr Vec<T, R> operator*(const Mat<T, R, C>& m, const Vec<T, C>& v) {
@@ -737,7 +738,7 @@ constexpr Vec<T, R> operator*(const Mat<T, R, C>& m, const Vec<T, C>& v) {
  * @return `det(m)`.
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DeterminantAndInverse
+ * @test Fixarray.DeterminantAndInverse
  */
 template <ndarray::Field T>
 constexpr T determinant(const Mat<T, 2, 2>& m) {
@@ -751,7 +752,7 @@ constexpr T determinant(const Mat<T, 2, 2>& m) {
  * @return `det(m)`.
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DeterminantAndInverse
+ * @test Fixarray.DeterminantAndInverse
  */
 template <ndarray::Field T>
 constexpr T determinant(const Mat<T, 3, 3>& m) {
@@ -768,7 +769,7 @@ constexpr T determinant(const Mat<T, 3, 3>& m) {
  * @return `det(m)`.
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DeterminantAndInverse
+ * @test Fixarray.DeterminantAndInverse
  */
 template <ndarray::Field T>
 constexpr T determinant(const Mat<T, 4, 4>& m) {
@@ -797,12 +798,12 @@ constexpr T determinant(const Mat<T, 4, 4>& m) {
  * @throws std::domain_error when @p m is singular (zero determinant).
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DeterminantAndInverse
+ * @test Fixarray.DeterminantAndInverse
  */
 template <ndarray::FloatingPoint T>
 constexpr Mat<T, 2, 2> inverse(const Mat<T, 2, 2>& m) {
     const T det = determinant(m);
-    if (det == T{0}) { throw std::domain_error("linalg::inverse: the matrix is singular"); }
+    if (det == T{0}) { throw std::domain_error("fixarray::inverse: the matrix is singular"); }
     const T inv_det = T{1} / det;
     Mat<T, 2, 2> result;
     result(0, 0) = m(1, 1) * inv_det;
@@ -820,12 +821,12 @@ constexpr Mat<T, 2, 2> inverse(const Mat<T, 2, 2>& m) {
  * @throws std::domain_error when @p m is singular (zero determinant).
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DeterminantAndInverse
+ * @test Fixarray.DeterminantAndInverse
  */
 template <ndarray::FloatingPoint T>
 constexpr Mat<T, 3, 3> inverse(const Mat<T, 3, 3>& m) {
     const T det = determinant(m);
-    if (det == T{0}) { throw std::domain_error("linalg::inverse: the matrix is singular"); }
+    if (det == T{0}) { throw std::domain_error("fixarray::inverse: the matrix is singular"); }
     const T inv_det = T{1} / det;
     Mat<T, 3, 3> result;
     result(0, 0) = (m(1, 1) * m(2, 2) - m(1, 2) * m(2, 1)) * inv_det;
@@ -849,7 +850,7 @@ constexpr Mat<T, 3, 3> inverse(const Mat<T, 3, 3>& m) {
  * @throws std::domain_error when @p m is singular (zero determinant).
  * @complexity O(1).
  * @alloc none.
- * @test LinalgFixed.DeterminantAndInverse
+ * @test Fixarray.DeterminantAndInverse
  */
 template <ndarray::FloatingPoint T>
 constexpr Mat<T, 4, 4> inverse(const Mat<T, 4, 4>& m) {
@@ -868,7 +869,7 @@ constexpr Mat<T, 4, 4> inverse(const Mat<T, 4, 4>& m) {
     const T c0 = m(2, 0) * m(3, 1) - m(3, 0) * m(2, 1);
 
     const T det = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
-    if (det == T{0}) { throw std::domain_error("linalg::inverse: the matrix is singular"); }
+    if (det == T{0}) { throw std::domain_error("fixarray::inverse: the matrix is singular"); }
     const T d = T{1} / det;
 
     Mat<T, 4, 4> r;
@@ -906,7 +907,7 @@ constexpr Mat<T, 4, 4> inverse(const Mat<T, 4, 4>& m) {
  * @param a,b the points.
  * @return `‖a − b‖`.
  * @complexity O(N). @alloc none.
- * @test LinalgFixed.Geometry
+ * @test Fixarray.Geometry
  */
 template <ndarray::FloatingPoint T, std::size_t N>
 T distance(const Vec<T, N>& a, const Vec<T, N>& b) {
@@ -920,7 +921,7 @@ T distance(const Vec<T, N>& a, const Vec<T, N>& b) {
  * @param a,b the points.
  * @return `‖a − b‖²`.
  * @complexity O(N). @alloc none.
- * @test LinalgFixed.Geometry
+ * @test Fixarray.Geometry
  */
 template <ndarray::Field T, std::size_t N>
 constexpr T distance_squared(const Vec<T, N>& a, const Vec<T, N>& b) {
@@ -935,7 +936,7 @@ constexpr T distance_squared(const Vec<T, N>& a, const Vec<T, N>& b) {
  * @param normal the unit surface normal.
  * @return the reflected vector.
  * @complexity O(N). @alloc none.
- * @test LinalgFixed.Geometry
+ * @test Fixarray.Geometry
  */
 template <ndarray::Field T, std::size_t N>
 constexpr Vec<T, N> reflect(const Vec<T, N>& incident, const Vec<T, N>& normal) {
@@ -953,7 +954,7 @@ constexpr Vec<T, N> reflect(const Vec<T, N>& incident, const Vec<T, N>& normal) 
  * @param eta the ratio of indices of refraction (source over destination).
  * @return the refracted vector, or the zero vector under total internal reflection.
  * @complexity O(N). @alloc none.
- * @test LinalgFixed.Geometry
+ * @test Fixarray.Geometry
  */
 template <ndarray::FloatingPoint T, std::size_t N>
 Vec<T, N> refract(const Vec<T, N>& incident, const Vec<T, N>& normal, T eta) {
@@ -972,7 +973,7 @@ Vec<T, N> refract(const Vec<T, N>& incident, const Vec<T, N>& normal, T eta) {
  * @param reference the reference normal the result is oriented against.
  * @return @p n or `-n`.
  * @complexity O(N). @alloc none.
- * @test LinalgFixed.Geometry
+ * @test Fixarray.Geometry
  */
 template <ndarray::Numeric T, std::size_t N>
 constexpr Vec<T, N> faceforward(const Vec<T, N>& n, const Vec<T, N>& incident,
@@ -993,7 +994,7 @@ constexpr Vec<T, N> faceforward(const Vec<T, N>& n, const Vec<T, N>& incident,
  * @param x the array.
  * @return `|x|` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.CommonUnary
+ * @test Fixarray.CommonUnary
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> abs(const Fixed<T, Dims...>& x) {
@@ -1010,7 +1011,7 @@ constexpr Fixed<T, Dims...> abs(const Fixed<T, Dims...>& x) {
  * @param x the array.
  * @return the elementwise sign.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.CommonUnary
+ * @test Fixarray.CommonUnary
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> sign(const Fixed<T, Dims...>& x) {
@@ -1027,7 +1028,7 @@ constexpr Fixed<T, Dims...> sign(const Fixed<T, Dims...>& x) {
  * @param a,b the arrays.
  * @return `min(aᵢ, bᵢ)` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MinMaxClamp
+ * @test Fixarray.MinMaxClamp
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> min(const Fixed<T, Dims...>& a, const Fixed<T, Dims...>& b) {
@@ -1045,7 +1046,7 @@ constexpr Fixed<T, Dims...> min(const Fixed<T, Dims...>& a, const Fixed<T, Dims.
  * @param x the array. @param s the ceiling applied to every element.
  * @return `min(xᵢ, s)` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MinMaxClamp
+ * @test Fixarray.MinMaxClamp
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> min(const Fixed<T, Dims...>& x, T s) {
@@ -1062,7 +1063,7 @@ constexpr Fixed<T, Dims...> min(const Fixed<T, Dims...>& x, T s) {
  * @param a,b the arrays.
  * @return `max(aᵢ, bᵢ)` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MinMaxClamp
+ * @test Fixarray.MinMaxClamp
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> max(const Fixed<T, Dims...>& a, const Fixed<T, Dims...>& b) {
@@ -1080,7 +1081,7 @@ constexpr Fixed<T, Dims...> max(const Fixed<T, Dims...>& a, const Fixed<T, Dims.
  * @param x the array. @param s the floor applied to every element.
  * @return `max(xᵢ, s)` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MinMaxClamp
+ * @test Fixarray.MinMaxClamp
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> max(const Fixed<T, Dims...>& x, T s) {
@@ -1098,7 +1099,7 @@ constexpr Fixed<T, Dims...> max(const Fixed<T, Dims...>& x, T s) {
  * @param x the array. @param lo the lower bound. @param hi the upper bound.
  * @return `min(max(xᵢ, lo), hi)` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MinMaxClamp
+ * @test Fixarray.MinMaxClamp
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> clamp(const Fixed<T, Dims...>& x, T lo, T hi) {
@@ -1117,7 +1118,7 @@ constexpr Fixed<T, Dims...> clamp(const Fixed<T, Dims...>& x, T lo, T hi) {
  * @param x the array. @param lo the lower bounds. @param hi the upper bounds.
  * @return `min(max(xᵢ, loᵢ), hiᵢ)` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MinMaxClamp
+ * @test Fixarray.MinMaxClamp
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> clamp(const Fixed<T, Dims...>& x, const Fixed<T, Dims...>& lo,
@@ -1139,7 +1140,7 @@ constexpr Fixed<T, Dims...> clamp(const Fixed<T, Dims...>& x, const Fixed<T, Dim
  * @param a,b the endpoints. @param t the blend factor.
  * @return the interpolated array.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MixStep
+ * @test Fixarray.MixStep
  */
 template <ndarray::FloatingPoint T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> mix(const Fixed<T, Dims...>& a, const Fixed<T, Dims...>& b, T t) {
@@ -1153,7 +1154,7 @@ constexpr Fixed<T, Dims...> mix(const Fixed<T, Dims...>& a, const Fixed<T, Dims.
  * @param a,b the endpoints. @param t the per-element blend factors.
  * @return the interpolated array.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MixStep
+ * @test Fixarray.MixStep
  */
 template <ndarray::FloatingPoint T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> mix(const Fixed<T, Dims...>& a, const Fixed<T, Dims...>& b,
@@ -1169,7 +1170,7 @@ constexpr Fixed<T, Dims...> mix(const Fixed<T, Dims...>& a, const Fixed<T, Dims.
  * @param edge the threshold. @param x the array.
  * @return `xᵢ < edge ? 0 : 1` elementwise.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MixStep
+ * @test Fixarray.MixStep
  */
 template <ndarray::Numeric T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> step(T edge, const Fixed<T, Dims...>& x) {
@@ -1185,7 +1186,7 @@ constexpr Fixed<T, Dims...> step(T edge, const Fixed<T, Dims...>& x) {
  * @param edge0 the lower edge. @param edge1 the upper edge. @param x the array.
  * @return the smoothstepped array.
  * @complexity O(size). @alloc none.
- * @test LinalgFixed.MixStep
+ * @test Fixarray.MixStep
  */
 template <ndarray::FloatingPoint T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> smoothstep(T edge0, T edge1, const Fixed<T, Dims...>& x) {
@@ -1205,7 +1206,7 @@ constexpr Fixed<T, Dims...> smoothstep(T edge0, T edge1, const Fixed<T, Dims...>
  * @param a,b the matrices.
  * @return the elementwise product.
  * @complexity O(R·C). @alloc none.
- * @test LinalgFixed.MatrixExtras
+ * @test Fixarray.MatrixExtras
  */
 template <ndarray::Field T, std::size_t R, std::size_t C>
 constexpr Mat<T, R, C> matrix_comp_mult(const Mat<T, R, C>& a, const Mat<T, R, C>& b) {
@@ -1220,7 +1221,7 @@ constexpr Mat<T, R, C> matrix_comp_mult(const Mat<T, R, C>& a, const Mat<T, R, C
  * @param c the column vector. @param r the row vector.
  * @return the `R×C` outer product.
  * @complexity O(R·C). @alloc none.
- * @test LinalgFixed.MatrixExtras
+ * @test Fixarray.MatrixExtras
  */
 template <ndarray::Field T, std::size_t R, std::size_t C>
 constexpr Mat<T, R, C> outer_product(const Vec<T, R>& c, const Vec<T, C>& r) {
@@ -1237,7 +1238,7 @@ constexpr Mat<T, R, C> outer_product(const Vec<T, R>& c, const Vec<T, C>& r) {
  * @return `(m⁻¹)ᵀ`.
  * @throws std::domain_error when @p m is singular (via @ref inverse).
  * @complexity O(1) at the fixed sizes. @alloc none.
- * @test LinalgFixed.MatrixExtras
+ * @test Fixarray.MatrixExtras
  */
 template <ndarray::FloatingPoint T, std::size_t N>
 constexpr Mat<T, N, N> inverse_transpose(const Mat<T, N, N>& m) {
@@ -1257,7 +1258,7 @@ constexpr Mat<T, N, N> inverse_transpose(const Mat<T, N, N>& m) {
  * @param m the matrix. @param i the row, `0 <= i < R`.
  * @return the `C`-vector of that row.
  * @complexity O(C). @alloc none.
- * @test LinalgFixed.NamedRowsAndColumns
+ * @test Fixarray.NamedRowsAndColumns
  */
 template <ndarray::Field T, std::size_t R, std::size_t C, ::cheatah::ndarray::Subscript Ix>
 constexpr Vec<T, C> row(const Mat<T, R, C>& m, Ix i) {
@@ -1275,7 +1276,7 @@ constexpr Vec<T, C> row(const Mat<T, R, C>& m, Ix i) {
  * @param m the matrix. @param j the column, `0 <= j < C`.
  * @return the `R`-vector of that column.
  * @complexity O(R). @alloc none.
- * @test LinalgFixed.NamedRowsAndColumns
+ * @test Fixarray.NamedRowsAndColumns
  */
 template <ndarray::Field T, std::size_t R, std::size_t C, ::cheatah::ndarray::Subscript Ix>
 constexpr Vec<T, R> column(const Mat<T, R, C>& m, Ix j) {
@@ -1285,4 +1286,4 @@ constexpr Vec<T, R> column(const Mat<T, R, C>& m, Ix j) {
     return result;
 }
 
-}  // namespace cheatah::linalg
+}  // namespace cheatah::fixarray
