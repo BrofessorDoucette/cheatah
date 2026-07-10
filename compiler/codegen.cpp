@@ -575,7 +575,12 @@ private:
     // include the module header. Same constrained-template lowering as gen_fn.
     void gen_fn_library(std::ostringstream& os, const FnDef& fd) {
         emit_doc(os, fd.doc);
-        os << (fd.is_constexpr ? "constexpr " : "") << "auto " << cpp_ident(fd.name) << "(";
+        // Honour a `-> Type` hint exactly as program-mode gen_fn does. Without this the return type
+        // is always deduced, so a body that only `raise`s deduces `void` and callers cannot use the
+        // result — which makes an interface OUTLINE (declared surface, unimplemented bodies)
+        // impossible to express in a library module.
+        os << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type) << " "
+           << cpp_ident(fd.name) << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
             os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
         }
@@ -737,6 +742,9 @@ private:
         if (type_name.empty()) return "auto";
         if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>";
         if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>";
+        // `list<T>` — recurse on the element so `list<Material>` / `list<int>` map correctly.
+        if (type_name.rfind("list<", 0) == 0 && type_name.back() == '>')
+            return "std::vector<" + return_type_cpp(type_name.substr(5, type_name.size() - 6)) + ">";
         if (type_name == "int") return "long long";
         if (type_name == "float") return "double";
         if (type_name == "str") return "std::string";

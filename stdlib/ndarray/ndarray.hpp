@@ -102,6 +102,23 @@ concept Element = Field<T> || std::movable<T>;
 template <typename T>
 concept Copyable = Element<T> && std::copyable<T>;
 
+/// Subscript<T>: what may address an axis — an integer, OR a scoped `enum class` whose ordinal names
+/// the position (a column label). This concept is the ONLY door through which a scoped enum becomes an
+/// integer: `enum class` values stay strongly typed everywhere else, and the implicit
+/// enum-to-index conversion is confined to array subscripting, exactly where a named column belongs.
+template <typename T>
+concept Subscript = std::is_convertible_v<T, long long> || std::is_enum_v<T>;
+
+/// The integer position an @ref Subscript addresses. For a scoped enum this is its underlying ordinal;
+/// this `static_cast` is the whole of the enum-to-index conversion the language sanctions.
+/// @tparam Ix the subscript type: an integer, or a scoped `enum class`.
+/// @param i the subscript to resolve.
+/// @return the integer position it names (a scoped enum's underlying ordinal).
+template <Subscript Ix>
+[[nodiscard]] constexpr long long subscript_index(Ix i) noexcept {
+    return static_cast<long long>(i);
+}
+
 /// @cond INTERNAL
 template <typename T>
 struct real_base {
@@ -389,9 +406,9 @@ public:
      * @systest StdlibE2E.Ndarray
      */
     template <typename... Ix>
-        requires(std::conjunction_v<std::is_convertible<Ix, long long>...> && sizeof...(Ix) > 0)
+        requires((Subscript<Ix> && ...) && sizeof...(Ix) > 0)
     T& item_ref(Ix... ixs) {
-        const std::array<long long, sizeof...(Ix)> raw{static_cast<long long>(ixs)...};
+        const std::array<long long, sizeof...(Ix)> raw{subscript_index(ixs)...};
         if (raw.size() != shape_.size())
             throw std::out_of_range("ndarray subscript: wrong number of indices");
         std::size_t pos = offset_;
@@ -405,10 +422,14 @@ public:
         return (*data_)[pos];
     }
 
-    /// 1-D subscript: `mask[i] = v` assignment and raw element writes.
+    /// 1-D subscript: `mask[i] = v` assignment and raw element writes. Accepts an integer or a scoped
+    /// enum column label (see @ref Subscript), so `q[QuatCol::W] = v` writes column W of a 1-D row.
     /// @param i the element index (negative counts from the end, Python-style).
     /// @return a mutable reference to element @p i.
-    T& operator[](long long i) { return item_ref(i); }
+    template <Subscript Ix>
+    T& operator[](Ix i) {
+        return item_ref(subscript_index(i));
+    }
 
     /**
      * Read one element by a full multidimensional index (one component per axis), resolved via
@@ -1932,12 +1953,11 @@ namespace cheatah::builtins {
  * @crtest NdarrayCompileRun.Subscript
  * @systest StdlibE2E.Ndarray
  */
-template <typename T, typename... Ix>
-    requires(std::conjunction_v<std::is_convertible<Ix, long long>...>)
-T index(const ::cheatah::ndarray::basic_ndarray<T>& a, long long first, Ix... rest) {
-    // const_cast is sound: item_ref only computes a position; we copy the value out.
-    return const_cast<::cheatah::ndarray::basic_ndarray<T>&>(a).item_ref(
-        first, static_cast<long long>(rest)...);
+template <typename T, ::cheatah::ndarray::Subscript First, ::cheatah::ndarray::Subscript... Ix>
+T index(const ::cheatah::ndarray::basic_ndarray<T>& a, First first, Ix... rest) {
+    // const_cast is sound: item_ref only computes a position; we copy the value out. Any index may be
+    // a scoped enum column label — item_ref performs the one sanctioned conversion (ndarray::Subscript).
+    return const_cast<::cheatah::ndarray::basic_ndarray<T>&>(a).item_ref(first, rest...);
 }
 
 }  // namespace cheatah::builtins
