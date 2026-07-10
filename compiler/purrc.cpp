@@ -9,6 +9,7 @@
 // a shared module (exporting purr_main()). The module statically links the stdlib
 // libraries the program imported, so it is self-contained when the runtime loads it.
 
+#include <algorithm>
 #include <cctype>
 #include <cstdlib>
 #include <fstream>
@@ -188,6 +189,75 @@ std::string base_name(const std::string& p) {
 std::string dir_name(const std::string& p) {
     const std::size_t slash = p.find_last_of("/\\");
     return slash == std::string::npos ? std::string(".") : p.substr(0, slash);
+}
+
+// True when a file's first line is the purrc-generated marker. The sibling-fold auto-detect uses
+// this to never fold a PREVIOUS generated output into itself.
+bool is_generated_file(const std::string& path) {
+    std::ifstream f(path);
+    std::string first;
+    if (!std::getline(f, first)) return false;
+    while (!first.empty() && (first.back() == '\r' || first.back() == '\n')) first.pop_back();
+    return first == ::cheatah::kGeneratedMarker;
+}
+
+// A hand-written C++ base file, split for folding into a module.
+struct BaseFold {
+    std::string hoist;               // #include/#pragma/#define + comment lines -> file scope
+    std::string body;                // the rest -> inside `namespace cheatah::<m>`, before types
+    std::vector<std::string> deps;   // tokens from the base's own `// cheatah-deps:` line
+    std::vector<std::string> links;  // tokens from the base's own `// cheatah-link:` line
+};
+
+// Split a hand-written base C++ file into the file-scope HOIST region (leading #include/#pragma/
+// #define and comment/blank lines) and the BODY (everything from the first real declaration on).
+// An #include cannot live inside a namespace, so its directives must precede the namespace; the body
+// is what gets wrapped. The base's own `#pragma once` is dropped (the generated header emits one),
+// and its `// cheatah-deps:`/`// cheatah-link:` markers are lifted out to be merged into the output.
+BaseFold fold_base(const std::string& text) {
+    BaseFold out;
+    std::istringstream in(text);
+    std::string line;
+    bool in_body = false;
+    bool in_block_comment = false;
+    while (std::getline(in, line)) {
+        if (in_body) {
+            out.body += line;
+            out.body += "\n";
+            continue;
+        }
+        const std::string t = trim(line);
+        // A marker line is lifted, never emitted verbatim.
+        auto marker_tokens = [&](const char* tag, std::vector<std::string>& into) -> bool {
+            const std::string s(tag);
+            if (t.compare(0, s.size(), s) != 0) return false;
+            std::istringstream toks(t.substr(s.size()));
+            std::string tok;
+            while (toks >> tok) into.push_back(tok);
+            return true;
+        };
+        if (!in_block_comment && marker_tokens("// cheatah-deps:", out.deps)) continue;
+        if (!in_block_comment && marker_tokens("// cheatah-link:", out.links)) continue;
+
+        const bool blank = t.empty();
+        const bool comment = in_block_comment || t.compare(0, 2, "//") == 0 || t.compare(0, 2, "/*") == 0;
+        const bool directive = !t.empty() && t[0] == '#';
+        if (blank || comment || directive) {
+            if (t.compare(0, 2, "/*") == 0 && t.find("*/") == std::string::npos) in_block_comment = true;
+            else if (in_block_comment && t.find("*/") != std::string::npos) in_block_comment = false;
+            // Drop the base's own `#pragma once`; keep every other hoistable line.
+            if (!(directive && t.find("pragma") != std::string::npos && t.find("once") != std::string::npos)) {
+                out.hoist += line;
+                out.hoist += "\n";
+            }
+            continue;
+        }
+        // First real declaration: the body starts here.
+        in_body = true;
+        out.body += line;
+        out.body += "\n";
+    }
+    return out;
 }
 
 // Write <output>.sha512 in sha512sum format (so `sha512sum -c` also validates it).
@@ -407,16 +477,19 @@ ResolvedModule resolve_module(const std::string& m) {
     //    but not required. This is the path an external project / package manager uses.
     for (const std::string& root : g_import_roots) {
         for (const std::string& inc : {root + "/" + m, root}) {
-            const std::string hdr = inc + "/" + m + ".hpp";
-            if (!file_exists(hdr)) continue;
-            ResolvedModule r;
-            r.include_dir = inc;
-            r.header = hdr;
-            r.resolved = true;
-            r.cheatah_lib = file_exists(hdr + ".sha512");
-            const std::string ar = inc + "/libcheatah_" + m + ".a";
-            if (file_exists(ar)) r.archive = ar;
-            return r;
+            // Prefer <m>.gen.hpp (a module with folded hand-written C++) over a plain <m>.hpp.
+            for (const std::string& fname : {m + ".gen.hpp", m + ".hpp"}) {
+                const std::string hdr = inc + "/" + fname;
+                if (!file_exists(hdr)) continue;
+                ResolvedModule r;
+                r.include_dir = inc;
+                r.header = hdr;
+                r.resolved = true;
+                r.cheatah_lib = file_exists(hdr + ".sha512");
+                const std::string ar = inc + "/libcheatah_" + m + ".a";
+                if (file_exists(ar)) r.archive = ar;
+                return r;
+            }
         }
     }
     // 2) Signed cheatah library modules on the env path / baked root (unchanged behavior).
@@ -445,6 +518,24 @@ ResolvedModule resolve_module(const std::string& m) {
     r.header = r.include_dir + "/" + m + ".hpp";
     r.resolved = file_exists(r.header);
     return r;
+}
+
+// codegen emits `#include "<m>.hpp"` for every import, but a module with folded C++ resolves to
+// `<m>.gen.hpp`. Rewrite those includes so the consumer picks up the merged header (which carries the
+// namespace) rather than the naked hand-written fragment. Only modules that actually resolve to a
+// `.gen.hpp` are touched; stdlib includes (`ndarray.hpp`, …) are left alone.
+void rewrite_gen_includes(std::string& text, const std::vector<std::string>& modules) {
+    for (const std::string& m : modules) {
+        const ResolvedModule r = resolve_module(m);
+        const std::string gen = m + ".gen.hpp";
+        if (!r.resolved || r.header.size() < gen.size() ||
+            r.header.compare(r.header.size() - gen.size(), gen.size(), gen) != 0)
+            continue;
+        const std::string from = "#include \"" + m + ".hpp\"";
+        const std::string to = "#include \"" + gen + "\"";
+        for (std::size_t pos = 0; (pos = text.find(from, pos)) != std::string::npos; pos += to.size())
+            text.replace(pos, from.size(), to);
+    }
 }
 
 // Report any imported module that resolves to no header. A clear compiler error (telling the
@@ -491,16 +582,31 @@ std::vector<std::string> module_link_flags(const std::string& header_path) {
 // --sign, an Ed25519 signature. Returns a process exit code.
 int emit_library(const std::string& input, const std::string& source, std::string output,
                  bool transparent, const std::string& sign_key, bool remove_unused, bool split,
-                 const std::string& reexport_ns) {
+                 const std::string& reexport_ns, const std::string& base_header,
+                 const std::string& base_source) {
+    const bool has_base = !base_header.empty() || !base_source.empty();
+    // A folded C++ base makes the output a `.gen.hpp`, so it never overwrites the hand-written base.
+    const std::string out_ext = has_base ? ".gen.hpp" : ".hpp";
     if (output.empty()) {
         std::string base = input;
         const std::string ext = ".purr";
         if (base.size() >= ext.size() && base.compare(base.size() - ext.size(), ext.size(), ext) == 0)
             base.erase(base.size() - ext.size());
-        output = base + ".hpp";
+        output = base + out_ext;
+    }
+    // Refuse to write over a hand-written base — even if -o points at it.
+    if ((!base_header.empty() && output == base_header) ||
+        (!base_source.empty() && output == base_source)) {
+        std::cerr << "purrc: refusing to overwrite the hand-written base '"
+                  << (output == base_header ? base_header : base_source)
+                  << "' — the folded output is a .gen.hpp\n";
+        return 1;
     }
     std::string name = base_name(output);
-    if (name.size() > 4 && name.compare(name.size() - 4, 4, ".hpp") == 0)
+    // Strip `.gen.hpp` or `.hpp` so the module name stays `foo` either way.
+    if (name.size() > 8 && name.compare(name.size() - 8, 8, ".gen.hpp") == 0)
+        name.erase(name.size() - 8);
+    else if (name.size() > 4 && name.compare(name.size() - 4, 4, ".hpp") == 0)
         name.erase(name.size() - 4);
 
     const ParseResult pr = parse_source(source);
@@ -517,6 +623,22 @@ int emit_library(const std::string& input, const std::string& source, std::strin
     // build is never "transparent" (which would inline everything into the header).
     opts.transparent = transparent && !split;
     opts.remove_unused = remove_unused;
+
+    // Fold the hand-written base C++ into the module: its includes hoisted to file scope, its body
+    // wrapped in `namespace cheatah::<m>` before the transpiled types. A base .cpp is folded the same
+    // way (its definitions must be `inline`, since a transparent header is included in many TUs). The
+    // base's own cheatah-deps / cheatah-link markers are merged into the output below.
+    BaseFold base;
+    for (const std::string& bf : {base_header, base_source}) {
+        if (bf.empty()) continue;
+        const BaseFold f = fold_base(read_binary(bf));
+        base.hoist += f.hoist;
+        base.body += f.body;
+        base.deps.insert(base.deps.end(), f.deps.begin(), f.deps.end());
+        base.links.insert(base.links.end(), f.links.begin(), f.links.end());
+    }
+    opts.base_hoist = base.hoist;
+    opts.base_body = base.body;
     const CodegenResult cg = codegen_library(pr.program, opts);
     if (!cg.ok()) {
         for (const std::string& d : cg.diagnostics) std::cerr << "purrc: " << d << "\n";
@@ -524,15 +646,30 @@ int emit_library(const std::string& input, const std::string& source, std::strin
     }
 
     // Record the module's own imports in the header (`// cheatah-deps: ...`), so a program
-    // importing THIS module transitively resolves and links them (see all_modules below).
+    // importing THIS module transitively resolves and links them (see all_modules below). A folded
+    // base's own cheatah-deps are merged in, so a consumer of foo.gen.hpp gets the base's include
+    // dirs too.
     std::string header_text = cg.header_source;
-    if (!cg.modules.empty()) {
-        std::string marker = "// cheatah-deps:";
-        for (const std::string& dep : cg.modules) marker += " " + dep;
-        marker += "\n";
+    rewrite_gen_includes(header_text, cg.modules);  // an imported .gen module: #include its .gen.hpp
+    std::vector<std::string> deps = cg.modules;
+    for (const std::string& d : base.deps)
+        if (std::find(deps.begin(), deps.end(), d) == deps.end()) deps.push_back(d);
+    std::string prepend;
+    if (!deps.empty()) {
+        prepend += "// cheatah-deps:";
+        for (const std::string& dep : deps) prepend += " " + dep;
+        prepend += "\n";
+    }
+    // A folded base's cheatah-link flags ride along too, so foo.gen.hpp's consumer links them.
+    if (!base.links.empty()) {
+        prepend += "// cheatah-link:";
+        for (const std::string& l : base.links) prepend += " " + l;
+        prepend += "\n";
+    }
+    if (!prepend.empty()) {
         const std::size_t first_nl = header_text.find('\n');
         header_text.insert(first_nl == std::string::npos ? header_text.size() : first_nl + 1,
-                           marker);
+                           prepend);
     }
     // --reexport: append a host-namespace alias so a consumer can reference <ns>::<m> directly — the
     // job a hand-written re-export shim used to do. The module itself stays ::cheatah::<m>.
@@ -830,6 +967,13 @@ void print_usage(std::ostream& os) {
           "         [--cxxflag <flag>]         extra C++ COMPILE flag, forwarded verbatim to the\n"
           "                                    backend (repeatable; e.g. -fblocks, -DFOO, -I<dir>).\n"
           "                                    Also read from CHEATAH_CXXFLAGS_EXTRA (biome sets it)\n"
+          "         [--base-header <f>]        fold a hand-written C++ header into this module,\n"
+          "                                    inside namespace cheatah::<m>, before the transpiled\n"
+          "                                    body — so the .purr calls it by bare name. Output\n"
+          "                                    becomes <m>.gen.hpp. Auto-set from a same-stem sibling\n"
+          "         [--base-source <f>]        likewise fold a C++ source (program / non-transparent)\n"
+          "         [--no-adjacent]            do NOT auto-detect a same-stem sibling .hpp/.cpp\n"
+          "                                    (debug: compile the .purr alone; never breaks a build)\n"
           "         [--no-remove-variables]    keep unused locals (skip dead-variable removal)\n"
           "         [--no-optimize-cpp]        disable ALL generated-C++ optimizations\n"
           "         [--no-crypto-selftest]     trust SIMD crypto from CPUID, skip the runtime\n"
@@ -870,6 +1014,9 @@ int main(int argc, char** argv) {
     std::string reexport_ns;       // --reexport <ns>: also expose the module under <ns>::<m> (a
                                    // namespace alias appended to the header), so a host project writes
                                    // <ns>::<m>::… instead of ::cheatah::<m>::… — no hand-written shim.
+    std::string base_header;       // --base-header <f>: fold a hand-written C++ header into the module
+    std::string base_source;       // --base-source <f>: fold a hand-written C++ source into the module
+    bool no_adjacent = false;      // --no-adjacent: do not auto-detect same-stem sibling .hpp/.cpp
     bool want_check = false;       // --check: syntax-only, #line-mapped diagnostics (editor)
     bool want_validate_cpp = false;// --validate-cpp: validate the generated C++ before compiling
     bool no_remove_vars = false;   // --no-remove-variables: keep unused locals (opt out of DCE)
@@ -905,6 +1052,18 @@ int main(int argc, char** argv) {
             split = true;
         } else if (a == "--reexport" && i + 1 < argc) {
             reexport_ns = argv[++i];
+        } else if (a == "--base-header" && i + 1 < argc) {
+            // A hand-written C++ header folded into this module's generated output, inside
+            // `namespace cheatah::<module>`, before the transpiled body — so the .purr and the C++
+            // are one module. Implicitly set from a same-stem sibling unless --no-adjacent.
+            base_header = argv[++i];
+        } else if (a == "--base-source" && i + 1 < argc) {
+            // Like --base-header, but folded into the generated .gen.cpp (program mode / non-transparent).
+            base_source = argv[++i];
+        } else if (a == "--no-adjacent") {
+            // Turn OFF the implicit magic: do not auto-detect same-stem sibling .hpp/.cpp. Explicit
+            // --base-header/--base-source still apply. The debug lever and the never-break-a-build pin.
+            no_adjacent = true;
         } else if (a == "--check") {
             want_check = true;
         } else if (a == "--validate-cpp") {
@@ -956,6 +1115,21 @@ int main(int argc, char** argv) {
     // next to the source, or in a subfolder, just works). Declared --import-root dirs follow.
     g_import_roots.insert(g_import_roots.begin(), dir_name(input));
 
+    // The magic: a same-stem sibling foo.hpp/foo.cpp beside foo.purr is folded into this module,
+    // AS IF it were written inside foo.purr. It is literally the explicit --base-header/--base-source
+    // flags, auto-set. --no-adjacent turns it off (debugging, and the never-break-a-build pin); a
+    // sibling that is itself a purrc-generated file is skipped, so a previous output is never
+    // re-folded into itself.
+    if (!no_adjacent) {
+        std::string stem = input;
+        const std::string ext = ".purr";
+        if (stem.size() >= ext.size() && stem.compare(stem.size() - ext.size(), ext.size(), ext) == 0)
+            stem.erase(stem.size() - ext.size());
+        const std::string sib_h = stem + ".hpp", sib_c = stem + ".cpp";
+        if (base_header.empty() && file_exists(sib_h) && !is_generated_file(sib_h)) base_header = sib_h;
+        if (base_source.empty() && file_exists(sib_c) && !is_generated_file(sib_c)) base_source = sib_c;
+    }
+
     // Syntax-only check (the editor's error provider): no module is produced.
     if (want_check) return run_check(input, source, /*remove_unused=*/!no_remove_vars);
 
@@ -964,10 +1138,23 @@ int main(int argc, char** argv) {
     // program `.so` defaulting below.
     if (emit_lib)
         return emit_library(input, source, output, transparent, sign_key, !no_remove_vars, split,
-                            reexport_ns);
+                            reexport_ns, base_header, base_source);
 
     if (output.empty()) {
         output = default_output(input);
+    }
+    // Program mode folds a base HEADER the same way (hoist + file-scope body), plus a base SOURCE.
+    // A base header here is a naked fragment spliced at file scope, exactly like a top-level cpp{}.
+    BaseFold prog_base;
+    if (!base_header.empty()) {
+        const BaseFold h = fold_base(read_binary(base_header));
+        prog_base.hoist += h.hoist;
+        prog_base.body += h.body;
+    }
+    if (!base_source.empty()) {
+        const BaseFold c = fold_base(read_binary(base_source));
+        prog_base.hoist += c.hoist;
+        prog_base.body += c.body;
     }
 
     const ParseResult pr = parse_source(source);
@@ -979,7 +1166,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    const CodegenResult cg = codegen(pr.program, /*source_file=*/"", /*remove_unused=*/!no_remove_vars);
+    const CodegenResult cg = codegen(pr.program, /*source_file=*/"", /*remove_unused=*/!no_remove_vars,
+                                     prog_base.hoist, prog_base.body);
     if (!cg.ok()) {
         for (const std::string& d : cg.diagnostics) {
             std::cerr << "purrc: " << d << "\n";
@@ -988,6 +1176,8 @@ int main(int argc, char** argv) {
     }
 
     // Emit the generated C++ next to the output (kept, so it can be inspected).
+    std::string program_source = cg.source;
+    rewrite_gen_includes(program_source, cg.modules);  // an imported .gen module: #include its .gen.hpp
     const std::string gen_path = output + ".gen.cpp";
     {
         std::ofstream gen(gen_path);
@@ -995,7 +1185,7 @@ int main(int argc, char** argv) {
             std::cerr << "purrc: cannot write '" << gen_path << "'\n";
             return 1;
         }
-        gen << cg.source;
+        gen << program_source;
     }
 
     // Optional validation of the GENERATED C++ — after codegen, before the backend compiles

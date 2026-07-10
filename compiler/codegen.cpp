@@ -43,17 +43,19 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
     return it->second;
 }
 
-// The C++ type behind a cheatah width name. Every width has BOTH spellings — abbreviated
-// (f32) and full (float32) — and the table is built from ONE canonical entry per width, so the
-// two spellings are the same type BY CONSTRUCTION, not by convention. The canonical types are
+// The C++ type behind a cheatah explicit-width name (the ONE canonical table). Every width has
+// BOTH spellings — abbreviated (f32) and full (float32) — inserted from ONE entry per width, so
+// the two spellings are the same type BY CONSTRUCTION, not by convention. The canonical types are
 // what graphics/realtime code standardizes on: the <cstdint> EXACT-width integers (std::int8_t …
 // std::uint64_t — core spellings like `int`/`short` only guarantee minimums), and IEEE-754
 // binary32/64 as `float`/`double` (the community floats; C++23's std::float32_t is not yet
 // portable enough to be the canon). builtins.hpp includes <cstdint>, so the spellings always
-// resolve in generated code. cheatah's own value types round out the table (their widths are
-// implementation policy — int is currently i64, float f64 — which is exactly why foreign
-// layouts, GPU buffers, and wire formats should be sized with the width names instead).
-std::optional<std::string> sizeof_type_spelling(const std::string& name) {
+// resolve in generated code. This is the SINGLE SOURCE OF TRUTH consulted by BOTH the `sizeof`
+// name table AND the declarable-type mappers (map_type / map_type_string / return_type_cpp), so
+// a width usable in `sizeof(i32)` is exactly a width usable as `let x: i32` — they cannot drift.
+// A width name is an OPT-IN storage type: cheatah's own `int` stays i64 and `float` stays f64
+// (implementation policy), so a program only narrows where it explicitly asks for a width.
+std::optional<std::string> width_cpp_type(const std::string& name) {
     static const std::map<std::string, std::string> kSpellings = [] {
         std::map<std::string, std::string> m;
         // {abbreviated, full, the one canonical C++ type both deduce to}
@@ -68,14 +70,22 @@ std::optional<std::string> sizeof_type_spelling(const std::string& name) {
             m.emplace(w.abbrev, w.cpp);
             m.emplace(w.full, w.cpp);
         }
-        m.emplace("int", "long long");
-        m.emplace("float", "double");
-        m.emplace("bool", "bool");
         return m;
     }();
     const auto it = kSpellings.find(name);
     if (it == kSpellings.end()) return std::nullopt;
     return it->second;
+}
+
+// The C++ spelling behind a cheatah `sizeof(<type>)` argument: the explicit widths above plus
+// cheatah's own value types (whose widths are policy — int is i64, float f64 — which is exactly
+// why foreign GPU/wire/file layouts should be sized with the width names instead).
+std::optional<std::string> sizeof_type_spelling(const std::string& name) {
+    if (auto w = width_cpp_type(name)) return w;
+    if (name == "int") return "long long";
+    if (name == "float") return "double";
+    if (name == "bool") return "bool";
+    return std::nullopt;
 }
 
 // C++ keywords a cheatah identifier can legally be but C++ cannot. cheatah's own keyword set
@@ -247,6 +257,9 @@ std::string map_type(const TypeRef& t) {
     if (t.name == "float") return "double";
     if (t.name == "str") return "std::string";
     if (t.name == "bool") return "bool";
+    // An explicit-width storage type (opt-in): `i32` -> std::int32_t, `f32` -> float, etc.
+    // Consulted before the containers so `list[i8]`/`dict[str,u16]`/`array[i32,N]` recurse into it.
+    if (auto w = width_cpp_type(t.name)) return *w;
     if (t.name == "list" && t.args.size() == 1) {
         return "std::vector<" + map_type(t.args[0]) + ">";
     }
@@ -257,10 +270,8 @@ std::string map_type(const TypeRef& t) {
         return "std::array<" + map_type(t.args[0]) + ", " + t.array_size + ">";
     }
     if (t.name == "ndarray") {  // the element type follows the enforced param/return spelling
-        if (t.args.size() == 1 && t.args[0].name == "int")
-            return "::cheatah::ndarray::basic_ndarray<long long>";
-        if (t.args.size() == 1 && t.args[0].name == "float")
-            return "::cheatah::ndarray::basic_ndarray<double>";
+        if (t.args.size() == 1)  // ndarray[int] -> <long long>, ndarray[float] -> <double>, ndarray[i16] -> <std::int16_t>
+            return "::cheatah::ndarray::basic_ndarray<" + map_type(t.args[0]) + ">";
         return "::cheatah::ndarray::NDArray";  // bare `ndarray` — the element-erased default (double)
     }
     return t.name;  // a struct name
@@ -274,6 +285,30 @@ std::string map_type_arg(const TypeRef& t) {
     if (t.is_value) return t.name;  // non-type template argument — the literal, as-is
     if (t.name == "ndarray" && t.args.empty()) return "::cheatah::ndarray::NDArray";
     return map_type(t);
+}
+
+// Whether a type annotation involves an explicit-width name (i32/f32/u8/…) ANYWHERE — the
+// element of a `list[i8]`, the value of a `dict[str,u8]`, and so on. Only such a declared type
+// must OVERRIDE literal CTAD (which would deduce the default long long/double and mis-type the
+// container); a plain int/float/str type deduces correctly and is left untouched, so no existing
+// codegen churns. See the contextual-typing branch in gen_expr's ListLit/DictLit.
+bool type_uses_width(const TypeRef& t) {
+    if (width_cpp_type(t.name)) return true;
+    for (const TypeRef& a : t.args) if (type_uses_width(a)) return true;
+    return false;
+}
+
+// The same test on a flat type SPELLING (a `-> list<i8>` return hint reaches codegen as a
+// string): scan its identifier tokens for a width name. Bracket/comma/space all delimit, so
+// `list<dict<str,u8>>` finds `u8` and `list<int>` finds none.
+bool spelling_uses_width(const std::string& s) {
+    std::string tok;
+    auto flush = [&]() -> bool { const bool w = !tok.empty() && width_cpp_type(tok).has_value(); tok.clear(); return w; };
+    for (char c : s) {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) tok += c;
+        else if (flush()) return true;
+    }
+    return flush();
 }
 
 class Codegen {
@@ -343,7 +378,7 @@ public:
     // needed, and one header per imported module). @p pragma_once adds `#pragma once`
     // for a library header.
     void emit_preamble(std::ostringstream& os, bool pragma_once) {
-        os << "// Generated by purrc — do not edit.\n";
+        os << kGeneratedMarker << "\n";
         if (pragma_once) os << "#pragma once\n";
         // The prelude consolidates the std headers the generated code leans on, the
         // always-available built-ins, and the PURR_EXPORT macro — so every generated
@@ -418,11 +453,15 @@ public:
         }
     }
 
-    CodegenResult run(const Program& prog) {
+    CodegenResult run(const Program& prog, const std::string& base_hoist = "",
+                      const std::string& base_body = "") {
         const bool alias_builtins = analyze(prog);
 
         std::ostringstream os;
         emit_preamble(os, /*pragma_once=*/false);
+
+        // A folded sibling C++ base: its #include/#pragma lines at file scope after the preamble.
+        if (!base_hoist.empty()) os << base_hoist << "\n";
 
         // Raw C++ escape hatch: top-level `cpp { … }` blocks stay at FILE SCOPE (outside
         // the program namespace below), so they can carry #includes and global helpers
@@ -432,6 +471,9 @@ public:
                 os << static_cast<const RawCpp&>(*s).code << "\n";
             }
         }
+        // The folded base's body sits beside the cpp{} helpers, at file scope, so the program can
+        // call it by unqualified lookup from inside cheatah_program.
+        if (!base_body.empty()) os << base_body << "\n";
 
         // The whole program lives in a dedicated namespace. This is what makes the module
         // aliases SAFE: a `namespace random = ::cheatah::random;` here cannot redefine the
@@ -489,6 +531,10 @@ public:
         // Header: the importable surface. `#pragma once` because consumers #include it.
         std::ostringstream hdr;
         emit_preamble(hdr, /*pragma_once=*/true);
+
+        // A folded sibling C++ base: its #include/#pragma lines at file scope, after the module
+        // #includes and before the namespace (an #include cannot appear inside a namespace).
+        if (!opts.base_hoist.empty()) hdr << opts.base_hoist << "\n";
         // The .purr module doc block becomes the header's @file Javadoc, so Doxygen (and
         // the editor's hover DB built from its XML) documents a generated module exactly
         // like a hand-written one. JAVADOC_AUTOBRIEF makes the first sentence the brief.
@@ -497,8 +543,25 @@ public:
             file_doc << "@file " << opts.module_name << ".hpp\n\n" << prog.module_doc;
             emit_doc(hdr, file_doc.str());
         }
+
+        // Raw C++ escape hatch: top-level `cpp { … }` blocks stay at FILE SCOPE (outside the module
+        // namespace below), so they can carry #includes and global helpers the module's functions use.
+        // Mirrors the program-mode loop in run(); without it a top-level `cpp{}` in a library module is
+        // silently dropped.
+        for (const StmtPtr& s : prog.body) {
+            if (s->kind == StmtKind::RawCpp) {
+                hdr << static_cast<const RawCpp&>(*s).code << "\n";
+            }
+        }
+
         hdr << "namespace cheatah::" << opts.module_name << " {\n\n";
         emit_aliases(hdr, alias_builtins);
+
+        // The folded base's body: inside the module namespace, BEFORE the transpiled types and
+        // functions, so the .purr can call it (unqualified C++ lookup) and it need not see the
+        // generated structs. This is the whole feature in one line.
+        if (!opts.base_body.empty()) hdr << opts.base_body << "\n\n";
+
         emit_types(hdr, prog);
         emit_json_schemas(hdr, prog, "cheatah::" + opts.module_name);
 
@@ -586,7 +649,9 @@ private:
         }
         os << ") {\n";
         deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this function body
+        return_type_hint_ = spelling_uses_width(fd.return_type) ? return_type_cpp(fd.return_type) : "";
         gen_block(os, fd.body, "    ");
+        return_type_hint_.clear();
         os << "}\n\n";
 
         // Default parameters lower to FORWARDING OVERLOADS, one per trailing-default suffix —
@@ -689,17 +754,15 @@ private:
             if (spelling == "float") return "double";
             if (spelling == "str") return "std::string";
             if (spelling == "bool") return "bool";
+            if (auto w = width_cpp_type(spelling)) return *w;  // opt-in width: i32 -> std::int32_t, etc.
             if (spelling == "ndarray") return "::cheatah::ndarray::NDArray";
             return map_qualified_type(spelling);  // dotted -> resolved; a plain name -> unchanged
         }
         const std::string base = spelling.substr(0, lt);
         std::string args = spelling.substr(lt + 1);
         if (!args.empty() && args.back() == '>') args.pop_back();
-        if (base == "ndarray") {  // the enforced element spellings, as in map_type
-            if (args == "int") return "::cheatah::ndarray::basic_ndarray<long long>";
-            if (args == "float") return "::cheatah::ndarray::basic_ndarray<double>";
-            return "::cheatah::ndarray::NDArray";
-        }
+        if (base == "ndarray")  // ndarray[int]-><long long>, ndarray[float]-><double>, ndarray[i16]-><std::int16_t>
+            return "::cheatah::ndarray::basic_ndarray<" + map_type_string(args) + ">";
         if (base == "list") return "std::vector<" + map_type_args(args) + ">";
         if (base == "dict") return "std::unordered_map<" + map_type_args(args) + ">";
         if (base == "array") return "std::array<" + map_type_args(args) + ">";
@@ -723,16 +786,12 @@ private:
         if (type_name.find('.') != std::string::npos) {
             return map_qualified_type(type_name) + "& ";
         }
-        // `: ndarray<float>` / `: ndarray<int>` — the enforced spelling for an
-        // ndarray parameter: a concrete mutable reference (in-place updates reach
-        // the caller's array; a wrong element type fails to compile).
-        if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>& ";
-        if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>& ";
-        // A list of ndarrays (e.g. a brain's feature snapshots) -> a concrete vector ref.
-        if (type_name == "list<ndarray<float>>")
-            return "std::vector<::cheatah::ndarray::basic_ndarray<double>>& ";
-        if (type_name == "list<ndarray<int>>")
-            return "std::vector<::cheatah::ndarray::basic_ndarray<long long>>& ";
+        // `: ndarray<T>` (or a list of them) — the enforced spelling for an ndarray parameter:
+        // a concrete mutable reference (in-place updates reach the caller's array; a wrong element
+        // type fails to compile). Any element width flows through map_type_string, so `ndarray<i16>`
+        // and `list<ndarray<u8>>` bind correctly alongside the int/float defaults.
+        if (type_name.rfind("ndarray<", 0) == 0 || type_name.rfind("list<ndarray<", 0) == 0)
+            return map_type_string(type_name) + "& ";
         return builtins_ns_ + kValueConcept;
     }
 
@@ -740,15 +799,16 @@ private:
     // (the abbreviated-template default, kept when no hint is given).
     std::string return_type_cpp(const std::string& type_name) const {
         if (type_name.empty()) return "auto";
-        if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>";
-        if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>";
-        // `list<T>` — recurse on the element so `list<Material>` / `list<int>` map correctly.
+        // ndarray[T] value return (any element width) — delegate to the shared spelling mapper.
+        if (type_name.rfind("ndarray<", 0) == 0) return map_type_string(type_name);
+        // `list<T>` — recurse on the element so `list<Material>` / `list<int>` / `list<i8>` map correctly.
         if (type_name.rfind("list<", 0) == 0 && type_name.back() == '>')
             return "std::vector<" + return_type_cpp(type_name.substr(5, type_name.size() - 6)) + ">";
         if (type_name == "int") return "long long";
         if (type_name == "float") return "double";
         if (type_name == "str") return "std::string";
         if (type_name == "bool") return "bool";
+        if (auto w = width_cpp_type(type_name)) return *w;  // opt-in width return type
         if (type_name.find('.') != std::string::npos) return map_qualified_type(type_name);
         return type_name;  // a struct / enum / void name (emitted verbatim)
     }
@@ -759,12 +819,9 @@ private:
         if (type_name.rfind("const ", 0) == 0) {
             return "const " + lambda_param_cpp(type_name.substr(6));
         }
-        if (type_name == "ndarray<float>") return "::cheatah::ndarray::basic_ndarray<double>&";
-        if (type_name == "ndarray<int>") return "::cheatah::ndarray::basic_ndarray<long long>&";
-        if (type_name == "list<ndarray<float>>")
-            return "std::vector<::cheatah::ndarray::basic_ndarray<double>>&";
-        if (type_name == "list<ndarray<int>>")
-            return "std::vector<::cheatah::ndarray::basic_ndarray<long long>>&";
+        // `ndarray<T>` / `list<ndarray<T>>` by mutable reference (any element width via map_type_string).
+        if (type_name.rfind("ndarray<", 0) == 0 || type_name.rfind("list<ndarray<", 0) == 0)
+            return map_type_string(type_name) + "&";
         // A module-qualified struct/class (`state.State`) binds by reference (the brain's callbacks
         // mutate the caller's State/Memory in place; matches the param_prefix spelling for CTAD).
         if (type_name.find('.') != std::string::npos) return map_qualified_type(type_name) + "&";
@@ -836,6 +893,14 @@ private:
         os << ";\n\n";
     }
 
+    // Whether a field type is a byte-width integer (i8/u8 == signed/unsigned char). A struct's
+    // generated pretty-print / operator<< stream fields DIRECTLY (not through str()), so these must
+    // be promoted with unary `+` to print as NUMBERS, not characters — the same gotcha str() fixes.
+    static bool is_char_width(const std::string& tname) {
+        const auto w = width_cpp_type(tname);
+        return w && (*w == "std::int8_t" || *w == "std::uint8_t");
+    }
+
     void gen_struct(std::ostringstream& os, const StructDef& sd) {
         const bool streamable = struct_is_streamable(sd);
         emit_doc(os, sd.doc);
@@ -863,6 +928,8 @@ private:
                 os << "        os_ << std::string(indent_ + 4, ' ') << \"" << f.name << " = \";\n";
                 if (struct_fields_.count(f.type.name))  // a (streamable) struct field -> recurse
                     os << "        this->" << cpp_ident(f.name) << ".cheatah_pretty_print(os_, indent_ + 4);\n";
+                else if (is_char_width(f.type.name))  // i8/u8 -> promote so it prints as a number
+                    os << "        os_ << +this->" << cpp_ident(f.name) << ";\n";
                 else
                     os << "        os_ << this->" << cpp_ident(f.name) << ";\n";
                 os << "        os_ << \"" << (i + 1 < sd.fields.size() ? "," : "") << "\\n\";\n";
@@ -891,7 +958,8 @@ private:
                << "& v_) {\n";
             os << "    return os_ << \"" << sd.name << "(\"";
             for (std::size_t i = 0; i < sd.fields.size(); ++i) {
-                os << " << \"" << (i == 0 ? "" : ", ") << sd.fields[i].name << "=\" << v_."
+                os << " << \"" << (i == 0 ? "" : ", ") << sd.fields[i].name << "=\" << "
+                   << (is_char_width(sd.fields[i].type.name) ? "+v_." : "v_.")
                    << cpp_ident(sd.fields[i].name);
             }
             os << " << \")\";\n";
@@ -906,6 +974,7 @@ private:
     bool type_is_streamable(const TypeRef& t, std::set<std::string>& visiting) const {
         if (t.name == "int" || t.name == "float" || t.name == "str" || t.name == "bool")
             return true;
+        if (width_cpp_type(t.name)) return true;  // an explicit-width scalar streams (numerically — see is_char_width)
         const auto it = struct_fields_.find(t.name);
         if (it == struct_fields_.end()) return false;  // container / unknown -> not streamable
         if (!visiting.insert(t.name).second) return true;  // recursive struct: assume ok
@@ -936,11 +1005,17 @@ private:
         std::string out = name + "{";
         for (std::size_t i = 0; i < si.fields.size(); ++i) {
             std::string ftype;
+            bool ftype_width = false;
             if (it != struct_fields_.end()) {
                 for (const Field& f : it->second)
-                    if (f.name == si.fields[i]) { ftype = map_type(f.type); break; }
+                    if (f.name == si.fields[i]) { ftype = map_type(f.type); ftype_width = type_uses_width(f.type); break; }
             }
-            const std::string val = gen_expr(*si.values[i], ml ? inner : indent);
+            // A width-typed container field (`x: list[u8]`) gets the field type as the literal's
+            // construction type, so `.x = static_cast<vector<uint8_t>>(vector<uint8_t>{…})` is a
+            // valid identity cast rather than a cross-type cast from a CTAD'd vector<long long>.
+            const bool lit = si.values[i]->kind == ExprKind::ListLit || si.values[i]->kind == ExprKind::DictLit;
+            const std::string* hint = (ftype_width && lit) ? &ftype : nullptr;
+            const std::string val = gen_expr(*si.values[i], ml ? inner : indent, hint);
             std::string entry = "." + cpp_ident(si.fields[i]) + " = ";
             if (ftype.empty()) {
                 diags_.push_back("codegen: struct '" + name + "' has no field '" + si.fields[i] +
@@ -1049,7 +1124,9 @@ private:
         }
         os << ") {\n";
         deferred_lets_.clear(); const_vars_.clear();  // no-value lets are scoped to this function body
+        return_type_hint_ = spelling_uses_width(fd.return_type) ? return_type_cpp(fd.return_type) : "";
         gen_block(os, fd.body, "    ");
+        return_type_hint_.clear();
         os << "}\n\n";
 
         // Default parameters lower to FORWARDING OVERLOADS, one per trailing-default suffix —
@@ -1271,8 +1348,13 @@ private:
                     if (empty_list || empty_dict) {
                         os << indent << cx << map_type(l.type) << " " << cpp_ident(l.name) << ";\n";
                     } else {
-                        os << indent << cx << map_type(l.type) << " " << cpp_ident(l.name) << " = "
-                           << gen_expr(*l.value, indent) << ";\n";
+                        // A width-typed container literal (`let v: list[i8] = […]`) is built AS the
+                        // declared type so CTAD can't mis-deduce vector<long long>. A plain int/float
+                        // element deduces correctly, so it is left on the CTAD path (no output churn).
+                        const std::string decl = map_type(l.type);
+                        const std::string* hint = type_uses_width(l.type) ? &decl : nullptr;
+                        os << indent << cx << decl << " " << cpp_ident(l.name) << " = "
+                           << gen_expr(*l.value, indent, hint) << ";\n";
                     }
                 } else {
                     os << indent << cx << "auto " << cpp_ident(l.name) << " = " << gen_expr(*l.value, indent)
@@ -1377,7 +1459,12 @@ private:
             }
             case StmtKind::Return: {
                 const auto& r = static_cast<const Return&>(s);
-                os << indent << "return" << (r.value ? " " + gen_expr(*r.value, indent) : "") << ";\n";
+                // A `return [..]` / `return {..}` whose function returns a width-typed container is
+                // built AS that type (return_type_hint_ is set only then), so CTAD can't mis-deduce.
+                const bool lit = r.value && (r.value->kind == ExprKind::ListLit ||
+                                             r.value->kind == ExprKind::DictLit);
+                const std::string* hint = (lit && !return_type_hint_.empty()) ? &return_type_hint_ : nullptr;
+                os << indent << "return" << (r.value ? " " + gen_expr(*r.value, indent, hint) : "") << ";\n";
                 return;
             }
             case StmtKind::Try: {
@@ -1672,7 +1759,12 @@ private:
     // @p indent is the leading whitespace of the enclosing statement; a multi-line list/
     // dict literal uses it so the generated C++ keeps the source's line structure aligned
     // under the statement (readable .gen.cpp). Scalar expressions ignore it.
-    std::string gen_expr(const Expr& e, const std::string& indent = "") {
+    // @p expected_cpp_type, when non-null, is the C++ type a container LITERAL is being
+    // constructed AS at a known-type site (a width-typed `let`/return/struct field). It is
+    // consulted ONLY by the ListLit/DictLit cases, so the declared narrow element type wins over
+    // CTAD (which would deduce vector<long long> and fail to assign). Everywhere else it is inert.
+    std::string gen_expr(const Expr& e, const std::string& indent = "",
+                         const std::string* expected_cpp_type = nullptr) {
         switch (e.kind) {
             case ExprKind::StringLit:
                 // Strings are first-class std::string: enables `"a" + "b"` and
@@ -1765,17 +1857,23 @@ private:
             }
             case ExprKind::ListLit: {
                 const auto& lst = static_cast<const ListLit&>(e);
+                // A declared width-typed element (`let v: list[i8] = [1,2,3]`) must WIN over CTAD.
+                // Construct the literal AS the declared vector type: constant literals narrow
+                // cleanly ([dcl.init.list]'s constant-expression rule), and an out-of-range literal
+                // (300 into i8) becomes a COMPILE ERROR — a free, zero-cost bounds check.
+                const bool typed = expected_cpp_type && !expected_cpp_type->empty();
+                const std::string ctor = typed ? *expected_cpp_type : "std::vector";
                 if (lst.elements.empty()) {
+                    if (typed) return ctor + "{}";
                     diags_.push_back("codegen: empty list literal needs a type annotation");
                     return "std::vector<long long>{}";
                 }
                 // A source list that spanned multiple lines stays multi-line, with each
                 // element on its own line indented under the literal — so a big nested
-                // array is readable in .gen.cpp instead of one unwieldy line. CTAD picks
-                // the element type either way.
+                // array is readable in .gen.cpp instead of one unwieldy line.
                 if (lst.multiline) {
                     const std::string inner = indent + "    ";
-                    std::string out = "std::vector{\n";
+                    std::string out = ctor + "{\n";
                     for (std::size_t i = 0; i < lst.elements.size(); ++i) {
                         out += inner + gen_expr(*lst.elements[i], inner);
                         if (i + 1 < lst.elements.size()) out += ",";
@@ -1783,29 +1881,38 @@ private:
                     }
                     return out + indent + "}";
                 }
-                return "std::vector{" + gen_args(lst.elements) + "}";  // CTAD -> element type
+                return ctor + "{" + gen_args(lst.elements) + "}";  // typed -> declared vector; else CTAD
             }
             case ExprKind::DictLit: {
                 const auto& d = static_cast<const DictLit&>(e);
+                // As ListLit: a declared width-typed key/value drives the map type. Typed entries are
+                // plain braced pairs `{k, v}` (so a constant value narrows into the declared type);
+                // untyped entries keep `std::pair{…}` + CTAD.
+                const bool typed = expected_cpp_type && !expected_cpp_type->empty();
+                auto entry = [&](std::size_t i, const std::string& ind) {
+                    return typed ? "{" + gen_expr(*d.keys[i], ind) + ", " + gen_expr(*d.values[i], ind) + "}"
+                                 : "std::pair{" + gen_expr(*d.keys[i], ind) + ", " + gen_expr(*d.values[i], ind) + "}";
+                };
+                const std::string ctor = typed ? *expected_cpp_type : "std::unordered_map";
                 if (d.keys.empty()) {
+                    if (typed) return ctor + "{}";
                     diags_.push_back("codegen: empty dict literal needs a type annotation");
                     return "std::unordered_map<long long, long long>{}";
                 }
                 if (d.multiline) {
                     const std::string inner = indent + "    ";
-                    std::string out = "std::unordered_map{\n";
+                    std::string out = ctor + "{\n";
                     for (std::size_t i = 0; i < d.keys.size(); ++i) {
-                        out += inner + "std::pair{" + gen_expr(*d.keys[i], inner) + ", " +
-                               gen_expr(*d.values[i], inner) + "}";
+                        out += inner + entry(i, inner);
                         if (i + 1 < d.keys.size()) out += ",";
                         out += "\n";
                     }
                     return out + indent + "}";
                 }
-                std::string out = "std::unordered_map{";
+                std::string out = ctor + "{";
                 for (std::size_t i = 0; i < d.keys.size(); ++i) {
                     out += (i != 0 ? ", " : "");
-                    out += "std::pair{" + gen_expr(*d.keys[i]) + ", " + gen_expr(*d.values[i]) + "}";
+                    out += entry(i, "");
                 }
                 return out + "}";
             }
@@ -1959,6 +2066,11 @@ private:
     // `let x` declarations with NO initializer, not yet realized: emitted (as `auto x = …`)
     // at the first assignment to x; an entry that is never realized was never given a value.
     std::set<std::string> deferred_lets_;
+    // The C++ type a `return <container literal>` should be constructed AS, but ONLY when the
+    // enclosing function's `-> Type` hint uses an explicit width (`-> list[i8]`); empty otherwise,
+    // so a plain `-> list[int]` return keeps its CTAD spelling (no churn). Set around each function
+    // body with a declared return type (gen_fn / gen_fn_library; methods return `auto`).
+    std::string return_type_hint_;
     // Names bound by `constexpr let` in the body being emitted — i.e. compile-time constants.
     // `if`/`match` whose condition/subject is built only from these (plus literals and the
     // safe constant operators) auto-lower to their `if constexpr` form. Scoped per body
@@ -2060,11 +2172,12 @@ private:
 
 } // namespace
 
-CodegenResult codegen(const Program& program, const std::string& source_file, bool remove_unused) {
+CodegenResult codegen(const Program& program, const std::string& source_file, bool remove_unused,
+                      const std::string& base_hoist, const std::string& base_body) {
     Codegen c;
     c.set_source_file(source_file);
     c.set_remove_unused(remove_unused);
-    return c.run(program);
+    return c.run(program, base_hoist, base_body);
 }
 
 CodegenResult codegen_library(const Program& program, const LibOptions& opts) {

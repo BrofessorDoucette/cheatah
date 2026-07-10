@@ -98,3 +98,8 @@ editors/vscode/*.vsix
 # pure-cheatah docgen build artifacts
 docs/gen-cheatah/*.so
 docs/gen-cheatah/*.gen.cpp
+
+# purrc-generated module outputs (a .purr with a folded sibling .hpp/.cpp; the authored files track)
+*.gen.hpp
+*.gen.cpp
+*.gen.hpp.sha512

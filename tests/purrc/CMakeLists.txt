@@ -61,6 +61,9 @@ add_executable(cheatah_purrc_tests
     # cheatah library modules (suite LibraryModule): purrc --emit-library (transparent /
     # opaque), import-time checksum verification, and fail-closed on a tampered module.
     library_module_test.cpp
+    # folded sibling C++ (suite FoldedBase): a foo.hpp/foo.cpp next to foo.purr is woven into the
+    # module's generated .gen.hpp/.gen.cpp, so the .purr calls hand-written C++ by bare name.
+    folded_base_test.cpp
     # linalg vs NumPy: run checked-in .purr programs and cross-check against python.
     linalg_vs_python_test.cpp
 )

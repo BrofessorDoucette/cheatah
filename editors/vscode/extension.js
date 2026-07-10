@@ -276,7 +276,13 @@ function resolveModuleHeader(modPath, docDir) {
   const last = segs[segs.length - 1];
   const parent = segs.length > 1 ? segs[segs.length - 2] : null;
   const roots = moduleRoots(docDir);
+  // A module with folded hand-written C++ (foo.purr + foo.hpp) resolves to foo.gen.hpp, the merged
+  // header that carries the namespace — prefer it over a plain foo.hpp (which may be the naked base).
   const rel = [
+    segs.join("/") + ".gen.hpp",
+    segs.join("/") + "/" + last + ".gen.hpp",
+    last + ".gen.hpp",
+    last + "/" + last + ".gen.hpp",
     segs.join("/") + ".hpp",
     segs.join("/") + "/" + last + ".hpp",
     last + ".hpp",
@@ -292,14 +298,15 @@ function resolveModuleHeader(modPath, docDir) {
       }
     }
   }
-  // Recursive fallback: a file named <last>.hpp, scored by how well it fits the module.
+  // Recursive fallback: a file named <last>.hpp or <last>.gen.hpp, scored by how well it fits.
   const bridge = new RegExp("namespace\\s+cheatah\\s*\\{[\\s\\S]*?\\bnamespace\\s+" + last + "\\s*=");
   let best = null, bestScore = 0;
   for (const root of roots) {
     for (const abs of indexHeaders(root)) {
-      if (path.basename(abs) !== last + ".hpp") continue;
+      const bn = path.basename(abs);
+      if (bn !== last + ".hpp" && bn !== last + ".gen.hpp") continue;
       const dirBase = path.basename(path.dirname(abs));
-      let score = 1; // name matches
+      let score = bn.endsWith(".gen.hpp") ? 2 : 1; // a .gen module is the merged, importable header
       if (parent && dirBase === parent) score = 3;       // .../parent/last.hpp (a submodule)
       else if (!parent && dirBase === last) score = 3;   // .../last/last.hpp (an umbrella header)
       else {
