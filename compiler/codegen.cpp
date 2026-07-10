@@ -481,9 +481,45 @@ public:
         }
     }
 
+    // Register enums declared in a folded C++ base (see --base-header) so the .purr can name their
+    // members: a base `enum class Source {…}` makes `Source.PRIOR` lower to `Source::PRIOR`, exactly as
+    // a .purr-declared enum does. Without this, a module cannot move its enums into its sibling header
+    // and still reference them from its own .purr. Scanned as text — purrc has no C++ front end.
+    void scan_base_enums(const std::string& base) {
+        auto word = [](char c) { return std::isalnum(static_cast<unsigned char>(c)) || c == '_'; };
+        std::size_t p = 0;
+        while ((p = base.find("enum", p)) != std::string::npos) {
+            const bool left_ok = (p == 0) || !word(base[p - 1]);
+            std::size_t q = p + 4;
+            if (!left_ok || q >= base.size() || !std::isspace(static_cast<unsigned char>(base[q]))) {
+                p += 4;
+                continue;
+            }
+            auto skip_ws = [&] { while (q < base.size() && std::isspace(static_cast<unsigned char>(base[q]))) ++q; };
+            auto skip_kw = [&](const char* kw) {
+                const std::size_t n = std::char_traits<char>::length(kw);
+                if (base.compare(q, n, kw) == 0 && q + n < base.size() &&
+                    std::isspace(static_cast<unsigned char>(base[q + n]))) { q += n; skip_ws(); }
+            };
+            skip_ws();
+            skip_kw("class");
+            skip_kw("struct");
+            const std::size_t s = q;
+            while (q < base.size() && word(base[q])) ++q;
+            const std::size_t name_end = q;
+            skip_ws();
+            // A real declaration is followed by `{` (body), `:` (fixed underlying type) or `;` (forward
+            // decl) — this filters the word "enum" appearing in a comment or a string.
+            if (name_end > s && q < base.size() && (base[q] == '{' || base[q] == ':' || base[q] == ';'))
+                enum_names_.insert(base.substr(s, name_end - s));
+            p = name_end;
+        }
+    }
+
     CodegenResult run(const Program& prog, const std::string& base_hoist = "",
                       const std::string& base_body = "") {
         const bool alias_builtins = analyze(prog);
+        scan_base_enums(base_body);
 
         std::ostringstream os;
         emit_preamble(os, /*pragma_once=*/false);
@@ -555,6 +591,7 @@ public:
     CodegenResult run_library(const Program& prog, const LibOptions& opts) {
         emit_docs_ = true;  // a library header is the module's documented public surface
         const bool alias_builtins = analyze(prog);
+        scan_base_enums(opts.base_body);
 
         // Header: the importable surface. `#pragma once` because consumers #include it.
         std::ostringstream hdr;
