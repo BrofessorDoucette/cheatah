@@ -215,3 +215,83 @@ let t = ndarray.array([[[1.0], [2.0]], [[3.0], [4.0]]])
 io.print(ndarray.to_string(t))
 )PURR", "2 2\n[[1, 2], [3, 4]]\n[[[1], [2]], [[3], [4]]]\n");
 }
+
+TEST(NdarrayCompileRun, Astype) {
+    // `arr.astype(<width>)` converts the element type — numpy's a.astype(dtype). The narrow
+    // element makes a smaller array (sizeof(i16) == 2), and i8/u8 elements print as NUMBERS.
+    e2e::expect_e2e("ndarray_astype", R"PURR(import io
+import ndarray
+let a = ndarray.array([1, 2, 3]).astype(i16)
+io.print(ndarray.to_string(a))
+io.print(sizeof(i16))
+let b = ndarray.array([65, 200, 9]).astype(u8)
+io.print(ndarray.to_string(b))
+let f = ndarray.array([1, 2, 3]).astype(f32)
+io.print(ndarray.to_string(f))
+)PURR", "[1, 2, 3]\n2\n[65, 200, 9]\n[1, 2, 3]\n");
+}
+
+TEST(NdarrayCompileRun, AstypeNarrows) {
+    // Narrowing truncates/wraps at the target width, like a numpy fixed dtype: 300 -> 44 in u8.
+    e2e::expect_e2e("ndarray_astype_narrow", R"PURR(import io
+import ndarray
+io.print(ndarray.to_string(ndarray.array([300, 256, 255]).astype(u8)))
+)PURR", "[44, 0, 255]\n");
+}
+
+TEST(NdarrayCompileRun, AstypeConversionsPrintSensibleNumbers) {
+    // Narrowing/widening from cheatah source must print SENSIBLE NUMERIC values (never characters),
+    // with C / numpy fixed-dtype semantics: signed narrowing wraps two's-complement, unsigned
+    // narrowing is modulo 2^bits, signed->unsigned same width reinterprets the bits, float->int
+    // truncates toward zero, a widen round-trip recovers the value, and shape is preserved in 2-D.
+    e2e::expect_e2e("ndarray_astype_conversions", R"PURR(import io
+import ndarray
+fn main() {
+    io.print(ndarray.to_string(ndarray.array([127, 128, 255, 256, -1, -129]).astype(i8)))
+    io.print(ndarray.to_string(ndarray.array([0, 255, 256, 300, -1]).astype(u8)))
+    io.print(ndarray.to_string(ndarray.array([-1, -2, 5]).astype(u32)))
+    io.print(ndarray.to_string(ndarray.array([3.9, -3.9, 2.99, 255.7]).astype(i32)))
+    io.print(ndarray.to_string(ndarray.array([-128, 0, 127]).astype(i8).astype(i64)))
+    io.print(ndarray.to_string(ndarray.array([[1, 300], [256, -1]]).astype(u8)))
+    io.print(ndarray.to_string(ndarray.array([1, 2, 3]).astype(f64)))
+}
+main()
+)PURR",
+        "[127, -128, -1, 0, -1, 127]\n"
+        "[0, 255, 0, 44, 255]\n"
+        "[4294967295, 4294967294, 5]\n"
+        "[3, -3, 2, 255]\n"
+        "[-128, 0, 127]\n"
+        "[[1, 44], [0, 255]]\n"
+        "[1, 2, 3]\n");
+}
+
+// Both spellings of a width name reach astype identically, and a declared narrow type prints the
+// same sensible numbers as the explicit .astype form.
+TEST(NdarrayCompileRun, AstypeSpellingsAndDeclaredAgree) {
+    e2e::expect_e2e("ndarray_astype_spellings", R"PURR(import io
+import ndarray
+fn main() {
+    io.print(ndarray.to_string(ndarray.array([1, 2, 300]).astype(int16)))
+    io.print(ndarray.to_string(ndarray.array([1, 2, 300]).astype(i16)))
+    let a: ndarray<i16> = ndarray.array([1, 2, 300])
+    io.print(ndarray.to_string(a))
+}
+main()
+)PURR", "[1, 2, 300]\n[1, 2, 300]\n[1, 2, 300]\n");
+}
+
+TEST(NdarrayCompileRun, NarrowElementDeclaredTypeDrives) {
+    // A declared `ndarray<i8>` drives construction: the initializer is converted for you, so you
+    // do not have to spell `.astype(i8)`. The 2-D shape and numeric i8 printing are preserved.
+    e2e::expect_e2e("ndarray_narrow_decl", R"PURR(import io
+import ndarray
+fn main() {
+    let a: ndarray<i8> = ndarray.array([100, 101, 102])
+    io.print(ndarray.to_string(a))
+    let m: ndarray<u16> = ndarray.array([[1, 2], [3, 4]])
+    io.print(ndarray.to_string(m))
+}
+main()
+)PURR", "[100, 101, 102]\n[[1, 2], [3, 4]]\n");
+}

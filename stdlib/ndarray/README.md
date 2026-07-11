@@ -52,6 +52,12 @@ work at every rank — `reshape` is the other way to set a shape.
   the same shape and element type as `a` (numpy's `*_like` family).
 - `arange(start, stop, step)` — 1-D range, like Python `range`.
 - `reshape(a, shape)` — same data, new shape (C-order).
+- `a.astype(dtype)` — convert the element type (numpy's `a.astype`), e.g.
+  `array([1,2,3]).astype(i16)`. This is how you build a **narrow-element** array
+  for a smaller memory footprint (`i8`…`u64`/`f32`/`f64`): the result is a real
+  `basic_ndarray<int16_t>` (2 bytes/element, not 8). Widening is exact; narrowing
+  truncates at the target width (like a numpy fixed dtype). A declared narrow type
+  drives it too — `let a: ndarray<i8> = array([…])` converts for you.
 
 ### Broadcasting
 - `broadcast_shapes(a, b)` — the NumPy result shape of two shapes.

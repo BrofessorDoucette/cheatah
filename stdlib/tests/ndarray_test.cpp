@@ -4,9 +4,11 @@
 
 #include <cmath>
 #include <complex>
+#include <cstdint>
 #include <memory>
 #include <ostream>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -698,4 +700,112 @@ TEST(CheatahNDArray, ArrayMoveIn) {
     EXPECT_EQ(nd::size_of(ma), 2);
     EXPECT_EQ(*ma[0].p, 7);
     EXPECT_EQ(*ma[1].p, 9);
+}
+
+// astype<U> converts the element type: widen (long long -> double), narrow (long long -> uint8_t,
+// which truncates at the width, like a numpy fixed dtype), and preserve shape. The result's
+// value_type is exactly U — this is how a narrow-element (small-footprint) ndarray is built.
+TEST(CheatahNDArray, AstypeNarrowsAndWidens) {
+    const auto src = nd::array<long long>({1, 2, 300});
+
+    auto wide = nd::astype<double>(src);
+    static_assert(std::is_same_v<decltype(wide)::value_type, double>);
+    EXPECT_DOUBLE_EQ(nd::get(wide, {0}), 1.0);
+    EXPECT_DOUBLE_EQ(nd::get(wide, {2}), 300.0);
+
+    auto narrow = nd::astype<std::uint8_t>(src);
+    static_assert(std::is_same_v<decltype(narrow)::value_type, std::uint8_t>);
+    EXPECT_EQ(nd::get(narrow, {0}), std::uint8_t{1});
+    EXPECT_EQ(nd::get(narrow, {2}), std::uint8_t{44});  // 300 wraps to 44 in a byte
+    EXPECT_EQ(nd::shape_of(narrow), nd::shape_of(src));  // shape preserved
+
+    // Shape is preserved through a 2-D narrowing conversion too.
+    auto m = nd::reshape(nd::array<long long>({1, 2, 3, 4}), {2, 2});
+    auto mi = nd::astype<std::int16_t>(m);
+    static_assert(std::is_same_v<decltype(mi)::value_type, std::int16_t>);
+    EXPECT_EQ(nd::shape_of(mi), (std::vector<long long>{2, 2}));
+    EXPECT_EQ(nd::get(mi, {1, 1}), std::int16_t{4});
+}
+
+// WIDENING never changes a value (the destination holds it exactly): across int widths, and from
+// integer to floating point. Values that fit stay identical.
+TEST(CheatahNDArray, AstypeWideningPreservesValues) {
+    const auto s = nd::array<long long>({-128, 0, 42, 127});
+    const auto i8 = nd::astype<std::int8_t>(s);          // all fit i8
+    const auto up16 = nd::astype<std::int16_t>(i8);      // i8  -> i16
+    const auto up64 = nd::astype<std::int64_t>(i8);      // i8  -> i64
+    const auto upf = nd::astype<double>(i8);             // i8  -> double
+    for (std::size_t k = 0; k < 4; ++k) {
+        EXPECT_EQ(nd::get(up16, {(long long)k}), std::int16_t(nd::get(i8, {(long long)k})));
+        EXPECT_EQ(nd::get(up64, {(long long)k}), std::int64_t(nd::get(i8, {(long long)k})));
+        EXPECT_DOUBLE_EQ(nd::get(upf, {(long long)k}), double(nd::get(i8, {(long long)k})));
+    }
+    EXPECT_EQ(nd::get(up64, {0}), -128);
+    EXPECT_EQ(nd::get(up64, {3}), 127);
+    // unsigned widening: u8 -> u32 keeps the magnitude.
+    const auto u8 = nd::astype<std::uint8_t>(nd::array<long long>({0, 200, 255}));
+    const auto u32 = nd::astype<std::uint32_t>(u8);
+    EXPECT_EQ(nd::get(u32, {1}), std::uint32_t{200});
+    EXPECT_EQ(nd::get(u32, {2}), std::uint32_t{255});
+}
+
+// NARROWING SIGNED: values outside [min,max] wrap modulo 2^bits into two's-complement range,
+// exactly as a C cast / numpy fixed dtype. Values that fit are unchanged (including negatives).
+TEST(CheatahNDArray, AstypeNarrowingSignedWraps) {
+    const auto s = nd::array<long long>({127, 128, 255, 256, -128, -129, -1, -100});
+    const auto i8 = nd::astype<std::int8_t>(s);
+    EXPECT_EQ(nd::get(i8, {0}), std::int8_t{127});    // fits
+    EXPECT_EQ(nd::get(i8, {1}), std::int8_t{-128});   // 128  -> -128
+    EXPECT_EQ(nd::get(i8, {2}), std::int8_t{-1});     // 255  -> -1
+    EXPECT_EQ(nd::get(i8, {3}), std::int8_t{0});      // 256  -> 0
+    EXPECT_EQ(nd::get(i8, {4}), std::int8_t{-128});   // fits
+    EXPECT_EQ(nd::get(i8, {5}), std::int8_t{127});    // -129 -> 127
+    EXPECT_EQ(nd::get(i8, {6}), std::int8_t{-1});     // fits
+    EXPECT_EQ(nd::get(i8, {7}), std::int8_t{-100});   // fits
+}
+
+// NARROWING UNSIGNED: modulo 2^bits, so negatives become their two's-complement bit pattern.
+TEST(CheatahNDArray, AstypeNarrowingUnsignedWraps) {
+    const auto s = nd::array<long long>({0, 255, 256, 300, -1, -256, 511});
+    const auto u8 = nd::astype<std::uint8_t>(s);
+    EXPECT_EQ(nd::get(u8, {0}), std::uint8_t{0});
+    EXPECT_EQ(nd::get(u8, {1}), std::uint8_t{255});
+    EXPECT_EQ(nd::get(u8, {2}), std::uint8_t{0});     // 256 -> 0
+    EXPECT_EQ(nd::get(u8, {3}), std::uint8_t{44});    // 300 -> 44
+    EXPECT_EQ(nd::get(u8, {4}), std::uint8_t{255});   // -1  -> 255
+    EXPECT_EQ(nd::get(u8, {5}), std::uint8_t{0});     // -256 -> 0
+    EXPECT_EQ(nd::get(u8, {6}), std::uint8_t{255});   // 511 -> 255
+}
+
+// FLOAT -> INT truncates toward zero (drops the fraction), same-width sign reinterpretation, and
+// INT -> FLOAT is exact for these small magnitudes. Round-trips that stay in range recover the int.
+TEST(CheatahNDArray, AstypeFloatIntAndSignReinterpret) {
+    const auto f = nd::array<double>({3.9, -3.9, 2.99, -0.5, 255.7});
+    const auto i = nd::astype<std::int32_t>(f);
+    EXPECT_EQ(nd::get(i, {0}), 3);
+    EXPECT_EQ(nd::get(i, {1}), -3);
+    EXPECT_EQ(nd::get(i, {2}), 2);
+    EXPECT_EQ(nd::get(i, {3}), 0);
+    EXPECT_EQ(nd::get(i, {4}), 255);
+    // int -> float -> int round trip is exact when the value fits.
+    const auto back = nd::astype<std::int32_t>(nd::astype<double>(nd::array<long long>({7, -3, 100})));
+    EXPECT_EQ(nd::get(back, {0}), 7);
+    EXPECT_EQ(nd::get(back, {1}), -3);
+    EXPECT_EQ(nd::get(back, {2}), 100);
+    // signed -> unsigned SAME width: bit-reinterpretation (-1 -> UINT32_MAX).
+    const auto u = nd::astype<std::uint32_t>(nd::array<long long>({-1, -2, 5}));
+    EXPECT_EQ(nd::get(u, {0}), std::uint32_t{4294967295u});
+    EXPECT_EQ(nd::get(u, {1}), std::uint32_t{4294967294u});
+    EXPECT_EQ(nd::get(u, {2}), std::uint32_t{5});
+}
+
+// The converted array RENDERS its elements as NUMBERS (never characters), with correct signs, for
+// the byte-width types — the property that makes a narrow array actually readable.
+TEST(CheatahNDArray, AstypeCharWidthPrintsNumeric) {
+    EXPECT_EQ(nd::to_string(nd::astype<std::uint8_t>(nd::array<long long>({65, 66, 250}))),
+              "[65, 66, 250]");
+    EXPECT_EQ(nd::to_string(nd::astype<std::int8_t>(nd::array<long long>({-1, 0, 65}))),
+              "[-1, 0, 65]");
+    EXPECT_EQ(nd::to_string(nd::astype<std::int16_t>(nd::array<long long>({-1000, 1000}))),
+              "[-1000, 1000]");
 }

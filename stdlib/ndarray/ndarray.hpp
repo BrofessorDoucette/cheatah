@@ -824,6 +824,40 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
     } while (a.ndim() != 0 && detail::next_index(idx, a.shape()));
     return out;
 }
+/**
+ * Convert @p a to a new array with element type @p U — numpy's `a.astype(dtype)`. Every element
+ * is `static_cast` into @p U, so this is the way to build a NARROW-element array (a smaller memory
+ * footprint): `array([1,2,3]).astype(i16)` is a `basic_ndarray<std::int16_t>` — 2 bytes/element,
+ * not 8. Reads @p a in C-order (a view/broadcast is flattened into a fresh contiguous buffer — a
+ * copy, never an alias), same shape out as in. Widening is exact; narrowing truncates/wraps at the
+ * target width (as in C / a numpy fixed dtype). Constrained to conversions that actually exist
+ * (`convertible_to`), so e.g. complex→real fails with a clear concept error, not template spam.
+ * @tparam U the destination element type (the only type spelled at the call site).
+ * @param a source array (any @ref Field element type convertible to @p U).
+ * @return a fresh contiguous `basic_ndarray<U>` of @p a's shape.
+ * @complexity O(size).
+ * @alloc allocates the result buffer.
+ * @test CheatahNDArray.AstypeNarrowsAndWidens
+ * @crtest NdarrayCompileRun.Astype
+ * @systest StdlibE2E.Ndarray
+ */
+template <Field U, Field T>
+    requires std::convertible_to<T, U>
+basic_ndarray<U> astype(const basic_ndarray<T>& a) {
+    basic_ndarray<U> out = basic_ndarray<U>::uninitialized(a.shape());  // every element is written below
+    auto& buf = *out.buffer();
+    if (is_contiguous(a)) {  // contiguous source: one straight cast pass, no odometer
+        const T* src = a.buffer()->data() + a.offset();
+        for (std::size_t i = 0; i < a.size(); ++i) buf[i] = static_cast<U>(src[i]);
+        return out;
+    }
+    std::vector<std::size_t> idx(a.ndim(), 0);
+    std::size_t flat = 0;
+    do {
+        buf[flat++] = static_cast<U>(a.at(idx));
+    } while (a.ndim() != 0 && detail::next_index(idx, a.shape()));
+    return out;
+}
 
 // ---- element-wise ops (broadcasting, vectorized) ----
 /// @cond INTERNAL — implementation plumbing / compiler-selected reuse overloads (README documents the public forms)
@@ -1815,6 +1849,9 @@ std::string format_scalar(const T& v) {
         } else {
             os << "+" << nz(v.imag()) << "j";
         }
+    } else if constexpr (std::is_same_v<T, signed char> || std::is_same_v<T, unsigned char> ||
+                         std::is_same_v<T, char>) {
+        os << +v;  // i8/u8 are char-sized: promote so an element prints as a NUMBER, not a character
     } else {
         os << v;
     }
