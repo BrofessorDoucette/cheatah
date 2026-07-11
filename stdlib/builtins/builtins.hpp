@@ -308,12 +308,17 @@ inline std::string str(bool b) { return b ? "True" : "False"; }
  * the one seam through which `repr`, `print`, and container `str`/`repr` all inherit the fix.
  * Plain `char` is a distinct type (cheatah has no bare-`char` value type — single chars are
  * 1-char `std::string`), so it is deliberately not matched here.
+ * @param v the `i8` value to render.
  * @return the value's decimal digits.
  * @complexity O(1).
  * @alloc allocates the small result string.
  */
 inline std::string str(signed char v) { return std::to_string(static_cast<int>(v)); }
-/** `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char). */
+/**
+ * `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char).
+ * @param v the `u8` value to render.
+ * @return the value's decimal digits.
+ */
 inline std::string str(unsigned char v) { return std::to_string(static_cast<unsigned>(v)); }
 
 /**

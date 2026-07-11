@@ -110,10 +110,15 @@ std::string str(bool b);
  * integer so `i8`/`u8` render as NUMBERS. Declared before `print`/`repr`/`str(vector)` so those
  * templates see them (a fundamental-type argument gets no ADL). Plain `char` is a distinct type
  * and deliberately unmatched (cheatah has no bare-`char` value — single chars are 1-char strings).
+ * @param v the `i8` value to render.
  * @return the value's decimal digits.
  */
 std::string str(signed char v);
-/** `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char). */
+/**
+ * `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char).
+ * @param v the `u8` value to render.
+ * @return the value's decimal digits.
+ */
 std::string str(unsigned char v);
 
 /**
