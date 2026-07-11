@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 422,
+      "srcline": 443,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 173,
+      "srcline": 174,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 157,
+      "srcline": 158,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 201,
+      "srcline": 202,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 114,
+      "srcline": 115,
       "module": "",
       "qualified": "chr"
     },
@@ -141,7 +141,7 @@
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 498,
+      "srcline": 519,
       "module": "",
       "qualified": "contains"
     },
@@ -168,7 +168,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 452,
+      "srcline": 473,
       "module": "",
       "qualified": "endswith"
     },
@@ -191,7 +191,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 257,
+      "srcline": 258,
       "module": "",
       "qualified": "float"
     },
@@ -218,7 +218,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 361,
+      "srcline": 382,
       "module": "",
       "qualified": "floordiv"
     },
@@ -241,7 +241,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 398,
+      "srcline": 419,
       "module": "",
       "qualified": "hash"
     },
@@ -264,13 +264,13 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 129,
+      "srcline": 130,
       "module": "",
       "qualified": "hex"
     },
     {
       "name": "index",
-      "signature": "index(const ::cheatah::ndarray::basic_ndarray< T > &a, long long first, Ix... rest)",
+      "signature": "index(const ::cheatah::ndarray::basic_ndarray< T > &a, First first, Ix... rest)",
       "brief": "Element read a[i, j, ...] (negative indices count from the dimension end).",
       "params": [
         {
@@ -295,7 +295,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1937,
+      "srcline": 1994,
       "module": "",
       "qualified": "index"
     },
@@ -318,7 +318,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 231,
+      "srcline": 232,
       "module": "",
       "qualified": "int"
     },
@@ -341,7 +341,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 60,
+      "srcline": 61,
       "module": "",
       "qualified": "len"
     },
@@ -367,7 +367,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 540,
+      "srcline": 561,
       "module": "",
       "qualified": "mod"
     },
@@ -390,7 +390,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 143,
+      "srcline": 144,
       "module": "",
       "qualified": "oct"
     },
@@ -412,7 +412,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 99,
+      "srcline": 100,
       "module": "",
       "qualified": "ord"
     },
@@ -461,7 +461,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 676,
+      "srcline": 697,
       "module": "",
       "qualified": "slice"
     },
@@ -488,30 +488,24 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 437,
+      "srcline": 458,
       "module": "",
       "qualified": "startswith"
     },
     {
       "name": "str",
-      "signature": "str(bool b)",
-      "brief": "str() for a bool — Python's capitalized spelling.",
+      "signature": "str(unsigned char v)",
+      "brief": "str() for u8 (std::uint8_t) — numeric, not a character.",
       "params": [
         {
-          "name": "b",
-          "desc": "the boolean."
+          "name": "v",
+          "desc": "the u8 value to render."
         }
       ],
-      "returns": "\"True\" or \"False\".",
-      "tags": {
-        "complexity": "O(1).",
-        "alloc": "allocates the small result string.",
-        "test": "CheatahBuiltins.Str",
-        "crtest": "BuiltinsCompileRun.Str",
-        "systest": "StdlibE2E.Builtins"
-      },
+      "returns": "the value's decimal digits.",
+      "tags": {},
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 301,
+      "srcline": 322,
       "module": "",
       "qualified": "str"
     },
@@ -534,7 +528,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 201,
+      "srcline": 202,
       "module": "",
       "qualified": "to_bool"
     },
@@ -557,7 +551,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 257,
+      "srcline": 258,
       "module": "",
       "qualified": "to_float"
     },
@@ -580,7 +574,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 231,
+      "srcline": 232,
       "module": "",
       "qualified": "to_int"
     },
@@ -607,7 +601,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 318,
+      "srcline": 339,
       "module": "",
       "qualified": "truediv"
     },
@@ -1169,6 +1163,708 @@
       "qualified": "ed25519.verify"
     },
     {
+      "name": "abs",
+      "signature": "abs(const Fixed< T, Dims... > &x)",
+      "brief": "The absolute value of every element.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the array."
+        }
+      ],
+      "returns": "|x| elementwise.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.CommonUnary"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1002,
+      "module": "fixarray",
+      "qualified": "fixarray.abs"
+    },
+    {
+      "name": "clamp",
+      "signature": "clamp(const Fixed< T, Dims... > &x, const Fixed< T, Dims... > &lo, const Fixed< T, Dims... > &hi)",
+      "brief": "Constrain every element between the corresponding bounds — the GLSL clamp with per-element bounds.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the array."
+        },
+        {
+          "name": "lo",
+          "desc": "the lower bounds."
+        },
+        {
+          "name": "hi",
+          "desc": "the upper bounds."
+        }
+      ],
+      "returns": "min(max(xᵢ, loᵢ), hiᵢ) elementwise.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.MinMaxClamp"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1126,
+      "module": "fixarray",
+      "qualified": "fixarray.clamp"
+    },
+    {
+      "name": "column",
+      "signature": "column(const Mat< T, R, C > &m, Ix j)",
+      "brief": "Extract one column of a matrix as a vector — a basis vector of the transform.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix."
+        },
+        {
+          "name": "j",
+          "desc": "the column, 0 <= j < C."
+        }
+      ],
+      "returns": "the R-vector of that column.",
+      "tags": {
+        "complexity": "O(R).",
+        "alloc": "none.",
+        "test": "Fixarray.NamedRowsAndColumns"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1284,
+      "module": "fixarray",
+      "qualified": "fixarray.column"
+    },
+    {
+      "name": "cross",
+      "signature": "cross(const Vec< T, 3 > &a, const Vec< T, 3 > &b)",
+      "brief": "Cross product of two 3-vectors — the vector perpendicular to both, right-handed.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the vectors."
+        },
+        {
+          "name": "b",
+          "desc": "the vectors."
+        }
+      ],
+      "returns": "a × b.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "Fixarray.DotAndCross"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 577,
+      "module": "fixarray",
+      "qualified": "fixarray.cross"
+    },
+    {
+      "name": "determinant",
+      "signature": "determinant(const Mat< T, 4, 4 > &m)",
+      "brief": "The determinant of a 4×4 matrix, by cofactor expansion on 2×2 minors — the form a transform matrix meets, and cheaper than an LU factorization at this size.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix."
+        }
+      ],
+      "returns": "det(m).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "Fixarray.DeterminantAndInverse"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 777,
+      "module": "fixarray",
+      "qualified": "fixarray.determinant"
+    },
+    {
+      "name": "distance",
+      "signature": "distance(const Vec< T, N > &a, const Vec< T, N > &b)",
+      "brief": "The Euclidean distance between two points — norm(a - b).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the points."
+        },
+        {
+          "name": "b",
+          "desc": "the points."
+        }
+      ],
+      "returns": "‖a − b‖.",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.Geometry"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 915,
+      "module": "fixarray",
+      "qualified": "fixarray.distance"
+    },
+    {
+      "name": "distance_squared",
+      "signature": "distance_squared(const Vec< T, N > &a, const Vec< T, N > &b)",
+      "brief": "The squared distance between two points — squared_norm(a - b).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the points."
+        },
+        {
+          "name": "b",
+          "desc": "the points."
+        }
+      ],
+      "returns": "‖a − b‖².",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.Geometry"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 929,
+      "module": "fixarray",
+      "qualified": "fixarray.distance_squared"
+    },
+    {
+      "name": "dot",
+      "signature": "dot(const Vec< T, N > &a, const Vec< T, N > &b)",
+      "brief": "Inner product of two vectors — Σ aᵢbᵢ, the same quantity dot(const NDArray&, const NDArray&) computes, without the allocation.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the vectors."
+        },
+        {
+          "name": "b",
+          "desc": "the vectors."
+        }
+      ],
+      "returns": "the inner product.",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.DotAndCross"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 547,
+      "module": "fixarray",
+      "qualified": "fixarray.dot"
+    },
+    {
+      "name": "faceforward",
+      "signature": "faceforward(const Vec< T, N > &n, const Vec< T, N > &incident, const Vec< T, N > &reference)",
+      "brief": "Orient a normal to face a viewer — the GLSL faceforward: return n when it already points against the incident direction, -n otherwise.",
+      "params": [
+        {
+          "name": "n",
+          "desc": "the normal to orient."
+        },
+        {
+          "name": "incident",
+          "desc": "the incident vector."
+        },
+        {
+          "name": "reference",
+          "desc": "the reference normal the result is oriented against."
+        }
+      ],
+      "returns": "n or -n.",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.Geometry"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 981,
+      "module": "fixarray",
+      "qualified": "fixarray.faceforward"
+    },
+    {
+      "name": "inverse",
+      "signature": "inverse(const Mat< T, 4, 4 > &m)",
+      "brief": "The inverse of a 4×4 matrix, by its adjugate over the 2×2 minors — the transform a camera inverts every frame.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix; must be non-singular."
+        }
+      ],
+      "returns": "m⁻¹.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "Fixarray.DeterminantAndInverse"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 858,
+      "module": "fixarray",
+      "qualified": "fixarray.inverse"
+    },
+    {
+      "name": "inverse_transpose",
+      "signature": "inverse_transpose(const Mat< T, N, N > &m)",
+      "brief": "The inverse transpose of a matrix — transpose(inverse(m)), the GLSL inverseTranspose.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix; must be non-singular."
+        }
+      ],
+      "returns": "(m⁻¹)ᵀ.",
+      "tags": {
+        "complexity": "O(1) at the fixed sizes.",
+        "alloc": "none.",
+        "test": "Fixarray.MatrixExtras"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1246,
+      "module": "fixarray",
+      "qualified": "fixarray.inverse_transpose"
+    },
+    {
+      "name": "matmul",
+      "signature": "matmul(const Mat< T, R, K > &a, const Mat< T, K, C > &b)",
+      "brief": "Matrix product — the same A·B matmul(const NDArray&, const NDArray&) computes, with the shapes checked by the compiler rather than at runtime.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the matrices."
+        },
+        {
+          "name": "b",
+          "desc": "the matrices."
+        }
+      ],
+      "returns": "the R×C product.",
+      "tags": {
+        "complexity": "O(R·K·C).",
+        "alloc": "none.",
+        "test": "Fixarray.Matmul"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 679,
+      "module": "fixarray",
+      "qualified": "fixarray.matmul"
+    },
+    {
+      "name": "matrix_comp_mult",
+      "signature": "matrix_comp_mult(const Mat< T, R, C > &a, const Mat< T, R, C > &b)",
+      "brief": "The elementwise (Hadamard) product — the GLSL matrixCompMult.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the matrices."
+        },
+        {
+          "name": "b",
+          "desc": "the matrices."
+        }
+      ],
+      "returns": "the elementwise product.",
+      "tags": {
+        "complexity": "O(R·C).",
+        "alloc": "none.",
+        "test": "Fixarray.MatrixExtras"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1214,
+      "module": "fixarray",
+      "qualified": "fixarray.matrix_comp_mult"
+    },
+    {
+      "name": "max",
+      "signature": "max(const Fixed< T, Dims... > &x, T s)",
+      "brief": "Each element raised to the scalar s — max(xᵢ, s).",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the array."
+        },
+        {
+          "name": "s",
+          "desc": "the floor applied to every element."
+        }
+      ],
+      "returns": "max(xᵢ, s) elementwise.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.MinMaxClamp"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1089,
+      "module": "fixarray",
+      "qualified": "fixarray.max"
+    },
+    {
+      "name": "min",
+      "signature": "min(const Fixed< T, Dims... > &x, T s)",
+      "brief": "Each element floored at the scalar s — min(xᵢ, s).",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the array."
+        },
+        {
+          "name": "s",
+          "desc": "the ceiling applied to every element."
+        }
+      ],
+      "returns": "min(xᵢ, s) elementwise.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.MinMaxClamp"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1054,
+      "module": "fixarray",
+      "qualified": "fixarray.min"
+    },
+    {
+      "name": "mix",
+      "signature": "mix(const Fixed< T, Dims... > &a, const Fixed< T, Dims... > &b, const Fixed< T, Dims... > &t)",
+      "brief": "Linear interpolation with a per-element blend — the GLSL mix whose factor t is an array.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the endpoints."
+        },
+        {
+          "name": "b",
+          "desc": "the endpoints."
+        },
+        {
+          "name": "t",
+          "desc": "the per-element blend factors."
+        }
+      ],
+      "returns": "the interpolated array.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.MixStep"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1162,
+      "module": "fixarray",
+      "qualified": "fixarray.mix"
+    },
+    {
+      "name": "norm",
+      "signature": "norm(const Vec< T, N > &v)",
+      "brief": "The Euclidean length of a vector.",
+      "params": [
+        {
+          "name": "v",
+          "desc": "the vector."
+        }
+      ],
+      "returns": "sqrt(Σ vᵢ²).",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.NormAndNormalize"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 608,
+      "module": "fixarray",
+      "qualified": "fixarray.norm"
+    },
+    {
+      "name": "normalize",
+      "signature": "normalize(const Vec< T, N > &v)",
+      "brief": "The unit vector pointing the same way as v.",
+      "params": [
+        {
+          "name": "v",
+          "desc": "the vector; must not be the zero vector."
+        }
+      ],
+      "returns": "v / norm(v).",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.NormAndNormalize"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 624,
+      "module": "fixarray",
+      "qualified": "fixarray.normalize"
+    },
+    {
+      "name": "outer_product",
+      "signature": "outer_product(const Vec< T, R > &c, const Vec< T, C > &r)",
+      "brief": "The outer product of a column and a row — the GLSL outerProduct: an R×C matrix whose (i, j) entry is c[i] · r[j].",
+      "params": [
+        {
+          "name": "c",
+          "desc": "the column vector."
+        },
+        {
+          "name": "r",
+          "desc": "the row vector."
+        }
+      ],
+      "returns": "the R×C outer product.",
+      "tags": {
+        "complexity": "O(R·C).",
+        "alloc": "none.",
+        "test": "Fixarray.MatrixExtras"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1229,
+      "module": "fixarray",
+      "qualified": "fixarray.outer_product"
+    },
+    {
+      "name": "reflect",
+      "signature": "reflect(const Vec< T, N > &incident, const Vec< T, N > &normal)",
+      "brief": "Reflect an incident vector about a surface normal — I − 2 (N·I) N, the GLSL reflect.",
+      "params": [
+        {
+          "name": "incident",
+          "desc": "the incoming vector."
+        },
+        {
+          "name": "normal",
+          "desc": "the unit surface normal."
+        }
+      ],
+      "returns": "the reflected vector.",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.Geometry"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 944,
+      "module": "fixarray",
+      "qualified": "fixarray.reflect"
+    },
+    {
+      "name": "refract",
+      "signature": "refract(const Vec< T, N > &incident, const Vec< T, N > &normal, T eta)",
+      "brief": "Refract an incident vector through a surface — the GLSL refract.",
+      "params": [
+        {
+          "name": "incident",
+          "desc": "the unit incoming vector."
+        },
+        {
+          "name": "normal",
+          "desc": "the unit surface normal."
+        },
+        {
+          "name": "eta",
+          "desc": "the ratio of indices of refraction (source over destination)."
+        }
+      ],
+      "returns": "the refracted vector, or the zero vector under total internal reflection.",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.Geometry"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 962,
+      "module": "fixarray",
+      "qualified": "fixarray.refract"
+    },
+    {
+      "name": "row",
+      "signature": "row(const Mat< T, R, C > &m, Ix i)",
+      "brief": "Extract one row of a matrix as a vector.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix."
+        },
+        {
+          "name": "i",
+          "desc": "the row, 0 <= i < R."
+        }
+      ],
+      "returns": "the C-vector of that row.",
+      "tags": {
+        "complexity": "O(C).",
+        "alloc": "none.",
+        "test": "Fixarray.NamedRowsAndColumns"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1266,
+      "module": "fixarray",
+      "qualified": "fixarray.row"
+    },
+    {
+      "name": "sign",
+      "signature": "sign(const Fixed< T, Dims... > &x)",
+      "brief": "The sign of every element: -1, 0, or +1.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the elementwise sign.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.CommonUnary"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1019,
+      "module": "fixarray",
+      "qualified": "fixarray.sign"
+    },
+    {
+      "name": "smoothstep",
+      "signature": "smoothstep(T edge0, T edge1, const Fixed< T, Dims... > &x)",
+      "brief": "A smooth Hermite transition from 0 to 1 across [edge0, edge1] — the GLSL smoothstep, with everything below edge0 giving 0 and everything above edge1 giving 1.",
+      "params": [
+        {
+          "name": "edge0",
+          "desc": "the lower edge."
+        },
+        {
+          "name": "edge1",
+          "desc": "the upper edge."
+        },
+        {
+          "name": "x",
+          "desc": "the array."
+        }
+      ],
+      "returns": "the smoothstepped array.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.MixStep"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1194,
+      "module": "fixarray",
+      "qualified": "fixarray.smoothstep"
+    },
+    {
+      "name": "squared_norm",
+      "signature": "squared_norm(const Vec< T, N > &v)",
+      "brief": "The squared Euclidean length of a vector — dot(v, v).",
+      "params": [
+        {
+          "name": "v",
+          "desc": "the vector."
+        }
+      ],
+      "returns": "Σ vᵢ².",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.NormAndNormalize"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 593,
+      "module": "fixarray",
+      "qualified": "fixarray.squared_norm"
+    },
+    {
+      "name": "step",
+      "signature": "step(T edge, const Fixed< T, Dims... > &x)",
+      "brief": "A step at edge — the GLSL step: 0 where an element is below edge, 1 at or above.",
+      "params": [
+        {
+          "name": "edge",
+          "desc": "the threshold."
+        },
+        {
+          "name": "x",
+          "desc": "the array."
+        }
+      ],
+      "returns": "xᵢ < edge ? 0 : 1 elementwise.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "none.",
+        "test": "Fixarray.MixStep"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1178,
+      "module": "fixarray",
+      "qualified": "fixarray.step"
+    },
+    {
+      "name": "to_string",
+      "signature": "to_string(const Fixed< T, Dims... > &v)",
+      "brief": "Render v the way an NDArray renders — numpy-style nested brackets, each element through the SHARED scalar formatter (so i8/u8 elements print as NUMBERS, f32/f64 plainly, and a complex as a+bj).",
+      "params": [
+        {
+          "name": "v",
+          "desc": "the value to format."
+        }
+      ],
+      "returns": "the bracketed text.",
+      "tags": {
+        "complexity": "O(Fixed::size).",
+        "alloc": "the result string.",
+        "test": "Fixarray.ToString",
+        "crtest": "FixarrayCompileRun.PrintVectorAndMatrix"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 1304,
+      "module": "fixarray",
+      "qualified": "fixarray.to_string"
+    },
+    {
+      "name": "trace",
+      "signature": "trace(const Mat< T, N, N > &m)",
+      "brief": "The trace of a square matrix — the sum of its diagonal.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix."
+        }
+      ],
+      "returns": "Σ mᵢᵢ.",
+      "tags": {
+        "complexity": "O(N).",
+        "alloc": "none.",
+        "test": "Fixarray.TransposeAndTrace"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 661,
+      "module": "fixarray",
+      "qualified": "fixarray.trace"
+    },
+    {
+      "name": "transpose",
+      "signature": "transpose(const Mat< T, R, C > &m)",
+      "brief": "The transpose of a matrix — rows become columns.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the matrix."
+        }
+      ],
+      "returns": "the C×R transpose.",
+      "tags": {
+        "complexity": "O(R·C).",
+        "alloc": "none.",
+        "test": "Fixarray.TransposeAndTrace"
+      },
+      "srcfile": "stdlib/fixarray/fixarray.hpp",
+      "srcline": 643,
+      "module": "fixarray",
+      "qualified": "fixarray.transpose"
+    },
+    {
       "name": "base64_decode",
       "signature": "base64_decode(std::string_view text, bool strict=false)",
       "brief": "Base64 DECODE (RFC 4648 standard alphabet) of ASCII to the raw bytes.",
@@ -1487,7 +2183,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 124,
+      "srcline": 140,
       "module": "io",
       "qualified": "io.fixed"
     },
@@ -1514,7 +2210,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 410,
+      "srcline": 426,
       "module": "io",
       "qualified": "io.format"
     },
@@ -1536,7 +2232,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 430,
+      "srcline": 446,
       "module": "io",
       "qualified": "io.input"
     },
@@ -1563,7 +2259,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 598,
+      "srcline": 614,
       "module": "io",
       "qualified": "io.open"
     },
@@ -1586,7 +2282,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 238,
+      "srcline": 254,
       "module": "io",
       "qualified": "io.print"
     },
@@ -1609,7 +2305,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 614,
+      "srcline": 630,
       "module": "io",
       "qualified": "io.read_file"
     },
@@ -1631,7 +2327,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 143,
+      "srcline": 159,
       "module": "io",
       "qualified": "io.repr"
     },
@@ -1654,7 +2350,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 266,
+      "srcline": 282,
       "module": "io",
       "qualified": "io.rprint"
     },
@@ -1674,7 +2370,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 209,
+      "srcline": 225,
       "module": "io",
       "qualified": "io.str"
     },
@@ -3156,7 +3852,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1677,
+      "srcline": 1732,
       "module": "ndarray",
       "qualified": "ndarray.abs"
     },
@@ -3183,7 +3879,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 943,
+      "srcline": 998,
       "module": "ndarray",
       "qualified": "ndarray.add"
     },
@@ -3214,7 +3910,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 765,
+      "srcline": 786,
       "module": "ndarray",
       "qualified": "ndarray.arange"
     },
@@ -3236,9 +3932,32 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 648,
+      "srcline": 669,
       "module": "ndarray",
       "qualified": "ndarray.array"
+    },
+    {
+      "name": "astype",
+      "signature": "astype(const basic_ndarray< T > &a)",
+      "brief": "Convert a to a new array with element type U — numpy's a.astype(dtype).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "source array (any Field element type convertible to U)."
+        }
+      ],
+      "returns": "a fresh contiguous basic_ndarray<U> of a's shape.",
+      "tags": {
+        "complexity": "O(size).",
+        "alloc": "allocates the result buffer.",
+        "test": "CheatahNDArray.AstypeNarrowsAndWidens",
+        "crtest": "NdarrayCompileRun.Astype",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 846,
+      "module": "ndarray",
+      "qualified": "ndarray.astype"
     },
     {
       "name": "broadcast_shapes",
@@ -3262,7 +3981,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 507,
+      "srcline": 528,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes"
     },
@@ -3286,7 +4005,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 554,
+      "srcline": 575,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to"
     },
@@ -3308,7 +4027,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1603,
+      "srcline": 1658,
       "module": "ndarray",
       "qualified": "ndarray.cbrt"
     },
@@ -3335,7 +4054,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1493,
+      "srcline": 1548,
       "module": "ndarray",
       "qualified": "ndarray.complex"
     },
@@ -3358,7 +4077,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1520,
+      "srcline": 1575,
       "module": "ndarray",
       "qualified": "ndarray.conj"
     },
@@ -3380,7 +4099,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1653,
+      "srcline": 1708,
       "module": "ndarray",
       "qualified": "ndarray.cos"
     },
@@ -3407,7 +4126,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 985,
+      "srcline": 1040,
       "module": "ndarray",
       "qualified": "ndarray.divide"
     },
@@ -3430,7 +4149,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1616,
+      "srcline": 1671,
       "module": "ndarray",
       "qualified": "ndarray.exp"
     },
@@ -3457,7 +4176,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 705,
+      "srcline": 726,
       "module": "ndarray",
       "qualified": "ndarray.full"
     },
@@ -3484,7 +4203,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 721,
+      "srcline": 742,
       "module": "ndarray",
       "qualified": "ndarray.full_like"
     },
@@ -3511,7 +4230,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1746,
+      "srcline": 1801,
       "module": "ndarray",
       "qualified": "ndarray.get"
     },
@@ -3534,7 +4253,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1563,
+      "srcline": 1618,
       "module": "ndarray",
       "qualified": "ndarray.imag"
     },
@@ -3556,7 +4275,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 529,
+      "srcline": 550,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous"
     },
@@ -3578,7 +4297,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1628,
+      "srcline": 1683,
       "module": "ndarray",
       "qualified": "ndarray.log"
     },
@@ -3601,7 +4320,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1729,
+      "srcline": 1784,
       "module": "ndarray",
       "qualified": "ndarray.mean"
     },
@@ -3628,7 +4347,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 971,
+      "srcline": 1026,
       "module": "ndarray",
       "qualified": "ndarray.mul"
     },
@@ -3651,7 +4370,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 690,
+      "srcline": 711,
       "module": "ndarray",
       "qualified": "ndarray.ones"
     },
@@ -3673,7 +4392,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 749,
+      "srcline": 770,
       "module": "ndarray",
       "qualified": "ndarray.ones_like"
     },
@@ -3696,7 +4415,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1541,
+      "srcline": 1596,
       "module": "ndarray",
       "qualified": "ndarray.real"
     },
@@ -3723,7 +4442,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 784,
+      "srcline": 805,
       "module": "ndarray",
       "qualified": "ndarray.reshape"
     },
@@ -3746,7 +4465,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 662,
+      "srcline": 683,
       "module": "ndarray",
       "qualified": "ndarray.scalar"
     },
@@ -3769,7 +4488,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1760,
+      "srcline": 1815,
       "module": "ndarray",
       "qualified": "ndarray.shape_of"
     },
@@ -3792,7 +4511,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1641,
+      "srcline": 1696,
       "module": "ndarray",
       "qualified": "ndarray.sin"
     },
@@ -3815,7 +4534,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1776,
+      "srcline": 1831,
       "module": "ndarray",
       "qualified": "ndarray.size_of"
     },
@@ -3838,7 +4557,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1591,
+      "srcline": 1646,
       "module": "ndarray",
       "qualified": "ndarray.sqrt"
     },
@@ -3865,9 +4584,26 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 957,
+      "srcline": 1012,
       "module": "ndarray",
       "qualified": "ndarray.sub"
+    },
+    {
+      "name": "subscript_index",
+      "signature": "subscript_index(Ix i) noexcept",
+      "brief": "The integer position an Subscript addresses.",
+      "params": [
+        {
+          "name": "i",
+          "desc": "the subscript to resolve."
+        }
+      ],
+      "returns": "the integer position it names (a scoped enum's underlying ordinal).",
+      "tags": {},
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 118,
+      "module": "ndarray",
+      "qualified": "ndarray.subscript_index"
     },
     {
       "name": "sum",
@@ -3888,7 +4624,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1694,
+      "srcline": 1749,
       "module": "ndarray",
       "qualified": "ndarray.sum"
     },
@@ -3910,7 +4646,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1665,
+      "srcline": 1720,
       "module": "ndarray",
       "qualified": "ndarray.tan"
     },
@@ -3933,7 +4669,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1879,
+      "srcline": 1937,
       "module": "ndarray",
       "qualified": "ndarray.to_string"
     },
@@ -3956,7 +4692,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 677,
+      "srcline": 698,
       "module": "ndarray",
       "qualified": "ndarray.zeros"
     },
@@ -3979,7 +4715,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 736,
+      "srcline": 757,
       "module": "ndarray",
       "qualified": "ndarray.zeros_like"
     },
@@ -7331,6 +8067,7 @@
     "aead",
     "datetime",
     "ed25519",
+    "fixarray",
     "hashlib",
     "io",
     "linalg",
