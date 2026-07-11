@@ -809,3 +809,18 @@ TEST(CheatahNDArray, AstypeCharWidthPrintsNumeric) {
     EXPECT_EQ(nd::to_string(nd::astype<std::int16_t>(nd::array<long long>({-1000, 1000}))),
               "[-1000, 1000]");
 }
+
+// NON-CONTIGUOUS source: astype must take the C-order odometer walk (not the contiguous fast
+// path) and still convert every element. A broadcast view (stride 0) is the non-contiguous case.
+TEST(CheatahNDArray, AstypeNonContiguousSource) {
+    const auto row = nd::array<long long>({10, 20, 300});   // shape {3}
+    const auto b = nd::broadcast_to(row, {2, 3});           // stretch to 2x3 — stride 0, non-contiguous
+    const auto u8 = nd::astype<std::uint8_t>(b);
+    static_assert(std::is_same_v<decltype(u8)::value_type, std::uint8_t>);
+    EXPECT_EQ(nd::shape_of(u8), (std::vector<long long>{2, 3}));
+    for (long long r = 0; r < 2; ++r) {
+        EXPECT_EQ(nd::get(u8, {r, 0}), std::uint8_t{10});
+        EXPECT_EQ(nd::get(u8, {r, 1}), std::uint8_t{20});
+        EXPECT_EQ(nd::get(u8, {r, 2}), std::uint8_t{44});   // 300 wraps to 44 in a byte
+    }
+}

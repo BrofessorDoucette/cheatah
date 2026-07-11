@@ -25,6 +25,15 @@ TEST(CheatahIo, StrRendersComplex) {
     EXPECT_EQ(io::str(std::vector<C>{C(0, 1), C(2, 0)}), "[0+1j, 2+0j]");
 }
 
+TEST(CheatahIo, StrByteWidthIntsAreNumbers) {
+    // i8/u8 (signed char / unsigned char) print as NUMBERS, not characters — mirrors
+    // builtins::str, so print/repr of a narrow-width value shows digits. See io.hpp str(signed char).
+    EXPECT_EQ(io::str(static_cast<signed char>(65)), "65");
+    EXPECT_EQ(io::str(static_cast<signed char>(-5)), "-5");
+    EXPECT_EQ(io::str(static_cast<unsigned char>(200)), "200");
+    EXPECT_EQ(io::str(static_cast<unsigned char>(0)), "0");
+}
+
 // The io concept must accept exactly what the templates already take (streamable
 // types) and reject the rest, so a bad call gives a clear diagnostic.
 static_assert(io::Streamable<int>);

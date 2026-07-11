@@ -27,6 +27,16 @@ TEST(CheatahBuiltins, Str) {
     EXPECT_EQ(b::str(false), "False");
 }
 
+TEST(CheatahBuiltins, StrByteWidthIntsAreNumbers) {
+    // i8/u8 (signed char / unsigned char) render as NUMBERS, not characters — the dedicated
+    // overloads promote to a wider integer before to_string. Streamed as a raw char, 65 would
+    // print 'A'; here it must be "65".
+    EXPECT_EQ(b::str(static_cast<signed char>(65)), "65");
+    EXPECT_EQ(b::str(static_cast<signed char>(-5)), "-5");
+    EXPECT_EQ(b::str(static_cast<unsigned char>(200)), "200");
+    EXPECT_EQ(b::str(static_cast<unsigned char>(0)), "0");
+}
+
 TEST(CheatahBuiltins, BaseReprs) {
     EXPECT_EQ(b::hex(255), "0xff");
     EXPECT_EQ(b::oct(8), "0o10");
