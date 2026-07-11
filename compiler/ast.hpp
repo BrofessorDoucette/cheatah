@@ -23,6 +23,9 @@ struct TypeRef {
     std::string array_size;  // only for array[T, N]
     bool is_value = false;   // a NON-TYPE template argument (e.g. `1024`) — `name` is the literal,
                              // emitted verbatim into the C++ template-argument list.
+    std::string qualified;   // for a MODULE-QUALIFIED type (`fixarray.Fixed<f32, 3>`, `state.State`):
+                             // the full dotted+generic spelling, mapped via the module-aware
+                             // map_type_string. Empty for a plain/container/width type (name/args).
 };
 
 // ---- Expressions ----

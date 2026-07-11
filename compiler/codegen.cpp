@@ -834,6 +834,15 @@ private:
         return map_qualified_type(base) + "<" + map_type_args(args) + ">";
     }
 
+    // A DECLARED type (a `let`/field annotation, parse_type output) -> its C++ type. A module-
+    // qualified type (`fixarray.Fixed<f32, 3>`, `state.State`) carries its full spelling in
+    // `qualified` and is mapped by the module-aware map_type_string (which resolves the import
+    // alias); everything else goes through the free map_type. This is the ONE render seam for
+    // parse_type results, so dotted types resolve wherever a declaration is emitted.
+    std::string map_declared_type(const TypeRef& t) const {
+        return t.qualified.empty() ? map_type(t) : map_type_string(t.qualified);
+    }
+
     // The constraint prefix for a parameter declared with type @p type_name: an
     // interface name -> that concept (`Shape auto&&`); otherwise the baseline Value.
     // Both are forwarding references — see kValueConcept.
@@ -972,7 +981,7 @@ private:
         os << "struct " << sd.name << " {\n";
         for (const Field& f : sd.fields) {
             emit_doc(os, f.doc, "    ");  // library mode: the field's `#` doc -> its Javadoc
-            os << "    " << map_type(f.type) << " " << cpp_ident(f.name) << ";\n";
+            os << "    " << map_declared_type(f.type) << " " << cpp_ident(f.name) << ";\n";
         }
         // Methods become member functions. A leading `self` param is implicit (it
         // is `*this`); the struct stays a C++ aggregate (member functions are
@@ -1073,7 +1082,7 @@ private:
             bool ftype_width = false;
             if (it != struct_fields_.end()) {
                 for (const Field& f : it->second)
-                    if (f.name == si.fields[i]) { ftype = map_type(f.type); ftype_width = type_uses_width(f.type); break; }
+                    if (f.name == si.fields[i]) { ftype = map_declared_type(f.type); ftype_width = type_uses_width(f.type); break; }
             }
             // A width-typed container field (`x: list[u8]`) gets the field type as the literal's
             // construction type, so `.x = static_cast<vector<uint8_t>>(vector<uint8_t>{…})` is a
@@ -1401,7 +1410,13 @@ private:
                 // `constexpr` (consteval stays behind a cpp{} escape hatch).
                 const char* cx = l.is_constexpr ? "constexpr " : "";
                 if (l.is_constexpr) const_vars_.insert(l.name);
-                if (l.has_type) {
+                if (l.has_type && !l.type.qualified.empty()) {
+                    // A module-qualified declared type (`let v: fixarray.Fixed<f32, 3> = …`,
+                    // `let s: state.State = …`): render via the module-aware mapper and assign the
+                    // initializer straight through (these are value/handle types, not containers).
+                    os << indent << cx << map_type_string(l.type.qualified) << " " << cpp_ident(l.name)
+                       << " = " << gen_expr(*l.value, indent) << ";\n";
+                } else if (l.has_type) {
                     // An explicit type drives the declaration, so empty `[]` / `{}`
                     // get their element types from the annotation (not deduced).
                     const bool empty_list =
@@ -1412,6 +1427,16 @@ private:
                         static_cast<const DictLit&>(*l.value).keys.empty();
                     if (empty_list || empty_dict) {
                         os << indent << cx << map_type(l.type) << " " << cpp_ident(l.name) << ";\n";
+                    } else if (l.type.name == "ndarray" && l.type.args.size() == 1 &&
+                               type_uses_width(l.type)) {
+                        // A narrow-element ndarray declared type DRIVES construction: wrap the
+                        // initializer in astype<W> so `let a: ndarray<i8> = ndarray.array([…])`
+                        // yields a basic_ndarray<int8_t> directly (the element widths differ, so a
+                        // plain assignment would not convert). astype is identity-cheap when the
+                        // element already matches. This is how the sized-int win reaches ndarray.
+                        os << indent << cx << map_type(l.type) << " " << cpp_ident(l.name)
+                           << " = ::cheatah::ndarray::astype<" << map_type(l.type.args[0]) << ">("
+                           << gen_expr(*l.value, indent) << ");\n";
                     } else {
                         // A width-typed container literal (`let v: list[i8] = […]`) is built AS the
                         // declared type so CTAD can't mis-deduce vector<long long>. A plain int/float
@@ -2047,6 +2072,20 @@ private:
                         std::string out = builtins_ns_ + m.name + "(" + gen_expr(*m.object);
                         for (const ExprPtr& a : c.args) out += ", " + gen_expr(*a);
                         return out + ")";
+                    }
+                    // `arr.astype(i16)` — ndarray element conversion (numpy's a.astype(dtype)). The
+                    // sole argument is a TYPE NAME (a width like `i16`, or `int`/`float`), resolved
+                    // exactly as sizeof's, and lowered to the free `ndarray::astype<U>(arr)` (a free
+                    // function, so no `.template` disambiguation is ever needed). Building a narrow
+                    // ndarray this way is how the sized-int footprint win reaches ndarray.
+                    if (m.name == "astype" && !resolve_module_path(m) && c.args.size() == 1 &&
+                        c.args[0]->kind == ExprKind::Ident) {
+                        const auto& t = static_cast<const Ident&>(*c.args[0]);
+                        std::optional<std::string> u = width_cpp_type(t.name);
+                        if (!u && t.name == "int") u = "long long";
+                        if (!u && t.name == "float") u = "double";
+                        if (u)
+                            return "::cheatah::ndarray::astype<" + *u + ">(" + gen_expr(*m.object) + ")";
                     }
                 }
                 const std::string callee = gen_expr(*c.callee);

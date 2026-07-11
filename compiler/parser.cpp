@@ -444,11 +444,17 @@ private:
         if (check(TokenKind::Less)) {
             t += advance().text;  // '<'
             for (;;) {
-                if (!check(TokenKind::Identifier)) {
-                    error("expected a type argument inside '<...>'");
+                if (check(TokenKind::Number)) {
+                    // A NON-TYPE template argument — a compile-time size, e.g. the extents in
+                    // `fixarray.Fixed<f32, 4, 4>` or `Store<float, 1024>`. Spliced verbatim;
+                    // map_type_string emits a pure-number spelling as-is.
+                    t += advance().text;
+                } else if (check(TokenKind::Identifier)) {
+                    t += parse_type_string();  // recurse: nested generics like ndarray<float>
+                } else {
+                    error("expected a type or size inside '<...>'");
                     break;
                 }
-                t += parse_type_string();  // recurse: nested generics like ndarray<float>
                 if (check(TokenKind::Comma)) { t += advance().text; continue; }
                 break;
             }
@@ -803,6 +809,31 @@ private:
             return t;
         }
         t.name = advance().text;
+        // A MODULE-QUALIFIED type (`fixarray.Fixed<f32, 3>`, `state.State`): capture the full
+        // dotted + generic spelling into `qualified`, mapped later by the module-aware
+        // map_type_string (the free map_type cannot resolve import aliases). Plain/container/width
+        // types (no dot) fall through to the existing name/args parsing below, unchanged.
+        if (check(TokenKind::Dot)) {
+            t.qualified = t.name;
+            while (check(TokenKind::Dot)) {
+                advance();  // .
+                if (!check(TokenKind::Identifier)) { error("expected a type name after '.'"); break; }
+                t.qualified += "." + advance().text;
+            }
+            if (check(TokenKind::Less)) {
+                t.qualified += advance().text;  // '<'
+                for (;;) {
+                    if (check(TokenKind::Number)) t.qualified += advance().text;       // non-type extent
+                    else if (check(TokenKind::Identifier)) t.qualified += parse_type_string();  // (nested) type arg
+                    else { error("expected a type or size inside '<...>'"); break; }
+                    if (check(TokenKind::Comma)) { t.qualified += advance().text; continue; }
+                    break;
+                }
+                if (check(TokenKind::Greater)) t.qualified += advance().text;
+                else error("expected '>' to close the type arguments");
+            }
+            return t;
+        }
         if (check(TokenKind::LBracket)) {
             // The OLD square-bracket type spelling. Give a clear, actionable message (type arguments
             // were unified onto angle brackets), then consume the [...] group so it does not cascade.
