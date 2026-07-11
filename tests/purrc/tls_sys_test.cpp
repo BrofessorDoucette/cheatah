@@ -421,20 +421,20 @@ TEST(TlsSys, ServerHandshakeAgainstOpenssl) {
     const long long listen_fd = sock::tcp_listen("127.0.0.1", port, 4);
     ASSERT_GE(listen_fd, 0) << sock::last_error();
 
-    // Server thread: accept ONE client, run the cheatah TLS server handshake, answer its GET.
+    // Server thread: accept ONE client, run the cheatah TLS server handshake through the owning
+    // `tls::accept` guard (the leak-safe API a cheatah program uses), and answer its GET.
     std::string srv_err;
     std::thread server([&] {
         const long long conn = sock::accept(listen_fd);
         if (conn < 0) { srv_err = "accept failed"; return; }
         sock::set_timeout(conn, 5000);
-        const long long s = tls::server_accept(conn, cert_pem, key_pem);
-        if (s < 0) { srv_err = tls::last_error(); sock::close(conn); return; }
-        tls::recv(s, 4096);  // drain the client's request line
+        tls::Conn tc = tls::accept(conn, cert_pem, key_pem);   // owning guard, closes at scope exit
+        if (!tc.is_open()) { srv_err = tls::last_error(); sock::close(conn); return; }
+        tc.recv(4096);  // drain the client's request line
         const std::string body = "hello from a pure-cheatah TLS server";
-        tls::send(s, "HTTP/1.0 200 ok\r\nContent-Length: " + std::to_string(body.size()) +
-                         "\r\nConnection: close\r\n\r\n" + body);
-        tls::close(s);
-        sock::close(conn);
+        tc.send("HTTP/1.0 200 ok\r\nContent-Length: " + std::to_string(body.size()) +
+                    "\r\nConnection: close\r\n\r\n" + body);
+        sock::close(conn);  // tc closes the TLS session via its destructor here
     });
 
     const std::string out = run_s_client(port, cert, "GET / HTTP/1.0\\r\\n\\r\\n");
