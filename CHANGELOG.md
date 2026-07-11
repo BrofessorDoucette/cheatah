@@ -3,7 +3,14 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
-## Unreleased
+## v1.4.0-alpha (2026-07-10) — smaller memory footprint: opt-in sized integers, plus fixarray + from-import ergonomics
+
+A footprint-and-ergonomics release. Integers gain **opt-in fixed widths** (`i8`…`u64`) so a column,
+struct, or `ndarray` can store 1–4 bytes per element at the same compute speed, with `int` still the
+64-bit default. `ndarray.astype` builds narrow-element arrays, the `fixarray` fixed-extent
+vector/matrix module becomes callable directly from cheatah (including module-qualified type
+declarations), and `from … import …` brings in structs, enums, and functions as prefix-free
+first-class objects.
 
 ### Opt-in sized integer storage types — smaller memory footprint, same speed
 - **Declare a narrow width where footprint matters.** Any type annotation may now be an
