@@ -62,7 +62,9 @@
 #include <cmath>
 #include <concepts>
 #include <cstddef>
+#include <ostream>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 #include "ndarray.hpp"
@@ -1286,4 +1288,72 @@ constexpr Vec<T, R> column(const Mat<T, R, C>& m, Ix j) {
     return result;
 }
 
+// ---- display ----
+/**
+ * Render @p v the way an `NDArray` renders — numpy-style nested brackets, each element through the
+ * SHARED scalar formatter (so `i8`/`u8` elements print as NUMBERS, `f32`/`f64` plainly, and a
+ * `complex` as `a+bj`). A vector is `[a, b, c]`; a matrix is `[[…], […]]` in reading `(row, column)`
+ * order — regardless of the column-major storage. This is what `io.print`/`io.str`/`str()` show.
+ * @param v the value to format.
+ * @return the bracketed text.
+ * @complexity O(@ref Fixed::size). @alloc the result string.
+ * @test Fixarray.ToString
+ * @crtest FixarrayCompileRun.PrintVectorAndMatrix
+ */
+template <ndarray::Field T, std::size_t... Dims>
+std::string to_string(const Fixed<T, Dims...>& v) {
+    using F = Fixed<T, Dims...>;
+    std::string out = "[";
+    if constexpr (F::rank == 1) {
+        for (std::size_t i = 0; i < F::size; ++i) {
+            if (i != 0) out += ", ";
+            out += ::cheatah::ndarray::detail::format_scalar(v[i]);
+        }
+    } else {
+        for (std::size_t r = 0; r < F::rows; ++r) {
+            if (r != 0) out += ", ";
+            out += "[";
+            for (std::size_t c = 0; c < F::cols; ++c) {
+                if (c != 0) out += ", ";
+                out += ::cheatah::ndarray::detail::format_scalar(v(r, c));
+            }
+            out += "]";
+        }
+    }
+    return out + "]";
+}
+
+/**
+ * Stream @p v (the nested-bracket @ref to_string form), so a `Fixed` is directly Streamable — a
+ * cheatah `io.print(v)` / `io.str(v)` finds this by ADL, exactly as it does for an `NDArray` or a
+ * primitive.
+ * @param os the stream. @param v the value. @return @p os.
+ * @complexity O(@ref Fixed::size). @alloc the intermediate string.
+ */
+template <ndarray::Field T, std::size_t... Dims>
+std::ostream& operator<<(std::ostream& os, const Fixed<T, Dims...>& v) {
+    return os << to_string(v);
+}
+
 }  // namespace cheatah::fixarray
+
+// cheatah's value-position subscript `v[i]` / `m[i, j]` lowers to builtins::index(obj, i, ...).
+// These give it the fixarray meaning: a vector element via operator[], a matrix element via
+// operator(row, col). An index may be a scoped-enum column label (ndarray::Subscript), matching the
+// NDArray subscript. (The ndarray overloads live beside these; both are found by the qualified call.)
+namespace cheatah::builtins {
+
+/** Vector element read `v[i]`. @param v the vector. @param i the index (or enum label). @return the element. @complexity O(1). @alloc none. */
+template <::cheatah::ndarray::Field T, std::size_t... Dims, ::cheatah::ndarray::Subscript Ix>
+T index(const ::cheatah::fixarray::Fixed<T, Dims...>& v, Ix i) {
+    return v[i];
+}
+
+/** Matrix element read `m[i, j]`. @param m the matrix. @param i the row. @param j the column (or enum label). @return the element. @complexity O(1). @alloc none. */
+template <::cheatah::ndarray::Field T, std::size_t... Dims,
+          ::cheatah::ndarray::Subscript I, ::cheatah::ndarray::Subscript J>
+T index(const ::cheatah::fixarray::Fixed<T, Dims...>& m, I i, J j) {
+    return m(i, j);
+}
+
+}  // namespace cheatah::builtins

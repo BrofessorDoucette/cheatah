@@ -29,6 +29,34 @@ vec3f n = normalize(cross(up, dir));
 Aliases: `vec2f`…`vec4f`, `vec2d`…`vec4d`, `mat2f`…`mat4f`, `mat2d`…`mat4d`;
 `Vec<T,N>` and `Mat<T,R,C>` for anything else. Rank 1 (vector) and rank 2 (matrix).
 
+### From cheatah
+
+`import fixarray` and use it from a `.purr` program — construct with the call form and operate
+with the free functions:
+
+```
+import io
+import fixarray
+
+fn length2(v: fixarray.Fixed<f32, 3>) -> f32 {   # module-qualified param/return
+    return fixarray.dot(v, v)
+}
+
+fn main() {
+    let a = fixarray.vec3f(1.0, 2.0, 3.0)        # construct (deduced type)
+    let b: fixarray.vec3f = fixarray.vec3f(4.0, 5.0, 6.0)   # or annotate the type
+    io.print(fixarray.dot(a, b))                 # 32
+    let bytes: fixarray.Vec<u8, 3> = fixarray.Vec<u8, 3>(1, 2, 3)  # narrow element (1 byte each)
+    io.print(length2(a))                         # 14
+}
+main()
+```
+
+Aliases (`vec3f`, `mat4f`, …) and the explicit `fixarray.Fixed<T, Dims…>` / `fixarray.Vec<T, N>`
+spellings all work as `let`/field/parameter/return annotations. A parameter of a fixarray type
+binds by reference, so pass a **named** vector (an lvalue) to your own functions. `import fixarray`
+alone pulls in `ndarray` transitively.
+
 **A matrix is stored column-major**, unlike `NDArray`. The indexing you write does not
 change, but `data()` hands back columns. That is deliberate and measured: `m * v`
 becomes a sum of scaled columns — contiguous and vertical — instead of four horizontal

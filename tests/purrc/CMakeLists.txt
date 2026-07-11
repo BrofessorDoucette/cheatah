@@ -4,6 +4,8 @@ add_executable(cheatah_purrc_tests
     compile_run_test.cpp
     cli_test.cpp                # --help / -h / --version usage for purrc + cheatah
     lang_features_test.cpp
+    sized_int_cr_test.cpp      # opt-in sized integer storage types (i8..u64) — memory footprint
+    fixarray_cr_test.cpp       # fixarray Fixed/vec/mat called from cheatah (construct, typed, ops)
     parsers_cr_test.cpp
     kwargs_cr_test.cpp         # default + keyword arguments (language feature)
     callback_sys_test.cpp      # function values: a `fn` binds to a C++ std::function (callbacks)
