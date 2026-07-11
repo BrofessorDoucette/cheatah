@@ -103,3 +103,5 @@ docs/gen-cheatah/*.gen.cpp
 *.gen.hpp
 *.gen.cpp
 *.gen.hpp.sha512
+# ...except the committed VS Code extension test fixture, which the provider tests read directly.
+!editors/vscode/test/fixtures/pkg/text/lexer.gen.hpp
