@@ -55,19 +55,32 @@ function loadDb(context) {
 // the workspace / configured roots — generically, by import name, with NO project-specific
 // paths baked in — so hover, Ctrl-click, and green module coloring work for them too.
 
-// Scan a buffer's `import` statements for the names usable as a `name.` module prefix and the
-// dotted module path each maps to:
-//   import a.b.c       -> local "a.b.c" (and head "a") -> path "a.b.c"
-//   import a.b.c as x  -> local "x" -> path "a.b.c"
-//   import a           -> local "a" -> path "a"
-// `locals` is every name to treat as a module (green coloring); `pathOf` maps a local name to
-// its dotted module path (for header resolution).
+// Scan a buffer's `import` statements. cheatah has TWO forms (note: the from-import puts the SYMBOLS
+// BEFORE `from`, the opposite of Python):
+//   import a.b.c              -> local "a.b.c" (and head "a") -> path "a.b.c"
+//   import a.b.c as x         -> local "x" -> path "a.b.c"
+//   import a                  -> local "a" -> path "a"
+//   import Sym1, Sym2 from m   -> fromSym "Sym1"/"Sym2" -> path "m"  (re-exported symbols)
+// `locals` is every name to treat as a module (green coloring); `pathOf` maps a local name to its
+// dotted module path (for header resolution); `fromSym` maps a bare from-imported symbol to its
+// source module path (resolved to the declaring .purr/header on hover / Ctrl-click).
 function parseImports(text) {
   const pathOf = new Map();
   const locals = new Set();
-  const re = /^\s*(?:from\s+[A-Za-z0-9_.]+\s+)?import\s+([A-Za-z0-9_.]+)(?:\s+as\s+([A-Za-z_][A-Za-z0-9_]*))?/;
+  const fromSym = new Map();
+  // from-import (symbols BEFORE `from`) — matched first; a plain `import a.b.c` never has `from`.
+  const reFrom = /^\s*import\s+([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s+from\s+([A-Za-z_][\w.]*)/;
+  const rePlain = /^\s*import\s+([A-Za-z0-9_.]+)(?:\s+as\s+([A-Za-z_][A-Za-z0-9_]*))?/;
   for (const raw of text.split(/\r?\n/)) {
-    const m = raw.match(re);
+    const mf = raw.match(reFrom);
+    if (mf) {
+      const modPath = mf[2];
+      for (const sym of mf[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+        fromSym.set(sym, modPath);
+      }
+      continue;
+    }
+    const m = raw.match(rePlain);
     if (!m) continue;
     const modPath = m[1];
     const alias = m[2];
@@ -80,7 +93,7 @@ function parseImports(text) {
       locals.add(modPath.split(".")[0]); // the head is also a namespace prefix
     }
   }
-  return { pathOf, locals };
+  return { pathOf, locals, fromSym };
 }
 
 // Infer the module a local variable's TYPE comes from, by spotting its construction from an imported
@@ -353,6 +366,92 @@ function resolvePurrModule(modPath, docDir) {
   return found;
 }
 
+function isDir(p) {
+  try { return fs.statSync(p).isDirectory(); } catch (_e) { return false; }
+}
+
+// The folded base header of a .purr module: a hand-written C++ file in the SAME directory with the
+// SAME stem, whose declarations purrc weaves into the module (`textlex.purr` → `textlex.gen.hpp`, the
+// merged header, else `textlex.hpp`, the raw base). Lets a bare symbol used in the .purr body but
+// DEFINED in the base — a getter, an `enum class`, a `struct`, a character-class helper like
+// `lower_char` — resolve to that header. This is the SECOND hop: from a from-import you land in the
+// .purr; from the .purr implementation you land in its header.
+function foldedBaseHeader(docPath) {
+  if (!docPath || !docPath.endsWith(".purr")) return null;
+  const dir = path.dirname(docPath);
+  const stem = path.basename(docPath, ".purr");
+  for (const cand of [path.join(dir, stem + ".gen.hpp"), path.join(dir, stem + ".hpp")]) {
+    if (fs.existsSync(cand)) return cand;
+  }
+  return null;
+}
+
+// Recursively list *.purr files under `dir` (bounded, skipping build/vendor dirs), briefly cached like
+// the header index — a source file created after activation must appear on the very next lookup.
+const _purrIndex = new Map(); // dir -> { at, out: [absolute .purr paths] }
+function indexPurrFiles(dir) {
+  const hit = _purrIndex.get(dir);
+  if (hit && Date.now() - hit.at < HPP_INDEX_TTL_MS) return hit.out;
+  const out = [];
+  const SKIP = new Set([
+    "node_modules", ".git", "build", "build-release", "build-headless",
+    "dist", "out", ".cache", "cmake-build-debug", "cmake-build-release",
+  ]);
+  const walk = (d, depth) => {
+    if (depth > 9 || out.length > 40000) return;
+    let ents;
+    try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch (_e) { return; }
+    for (const e of ents) {
+      if (e.name.startsWith(".")) continue;
+      const full = path.join(d, e.name);
+      if (e.isDirectory()) { if (!SKIP.has(e.name)) walk(full, depth + 1); }
+      else if (e.isFile() && e.name.endsWith(".purr")) out.push(full);
+    }
+  };
+  try { walk(dir, 0); } catch (_e) { /* ignore */ }
+  _purrIndex.set(dir, { at: Date.now(), out });
+  return out;
+}
+
+// The on-disk directory(ies) backing a package named `head`: a `head/` subdir of any import root
+// (the usual package layout — the workspace folder is always a root). Mirrors how purrc resolves a
+// dotted import by its FIRST segment.
+function packageDirs(head, docDir) {
+  const out = [];
+  for (const root of moduleRoots(docDir)) {
+    const sub = path.join(root, head);
+    if (isDir(sub)) out.push(sub);
+  }
+  return out;
+}
+
+// Resolve a from-imported, re-exported symbol (`import StrText, scan, kind_name from glgan.textlex`)
+// to its DEFINITION — source-first. purrc resolves a dotted import by its FIRST segment (`glgan` →
+// glgan/glgan.hpp) and re-exports the tail's symbols into that package's namespace; the real file can
+// be nested anywhere under the package (here glgan/source/text/textlex.purr), so naive dotted→path
+// resolution misses it. So: (1) scan the package's .purr sources for the symbol's definition, then
+// (2) fall back to the package header — following #includes into the folded base / generated submodule
+// headers — for symbols that live only in C++ (e.g. `kind_name`, `LexKind`). Returns { file, line }.
+function resolveExportedSymbol(modPath, symbol, docDir) {
+  const head = modPath.split(".")[0];
+  // 1) Source-first: the .purr file under the package that DEFINES `symbol` (a fn, struct, interface,
+  //    or enum). Covers StrText / scan / the `interface TextSource`.
+  for (const pkgDir of packageDirs(head, docDir)) {
+    for (const abs of indexPurrFiles(pkgDir)) {
+      const defs = parsePurrFile(abs);
+      const e = defs.functions.get(symbol) || defs.types.get(symbol);
+      if (e) { trace(`export ${modPath}.${symbol} -> ${abs}:${e.line}`); return { file: abs, line: e.line }; }
+    }
+  }
+  // 2) Header fallback: the package header (by first segment), following its #includes to the header
+  //    that actually declares the symbol — the hand-written folded base or the generated .gen.hpp.
+  const hdr = resolveModuleHeader(head, docDir) || resolveModuleHeader(modPath, docDir);
+  const found = hdr && findHeaderEntityDeep(hdr, symbol, {});
+  if (found) { trace(`export ${modPath}.${symbol} -> ${found.hdr}:${found.ent.line} (header)`); return { file: found.hdr, line: found.ent.line }; }
+  trace(`export ${modPath}.${symbol} -> MISS`);
+  return null;
+}
+
 // The file's mtime (ms), or -1 when unreadable — the freshness key for the text/defs caches.
 function mtimeOf(abs) {
   try { return fs.statSync(abs).mtimeMs; } catch (_e) { return -1; }
@@ -425,6 +524,12 @@ function parseHeaderEntity(headerText, name, opts = {}) {
   const lines = headerText.split(/\r?\n/);
   const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const classRe = new RegExp("\\b(class|struct)\\s+" + esc + "\\b");
+  // A cheatah `interface` compiles to a C++20 `concept` — treat it as a type so a from-imported
+  // interface resolves through the generated header (`concept TextSource = …`).
+  const conceptRe = new RegExp("\\bconcept\\s+" + esc + "\\b");
+  // A cheatah `enum` compiles to a C++ `enum class` — treat it as a type so an enum from the module's
+  // folded base header (`enum class SymbolKind { … }`) resolves.
+  const enumRe = new RegExp("\\benum\\s+(?:class\\s+|struct\\s+)?" + esc + "\\b");
   const fnRe = new RegExp("\\b" + esc + "\\s*\\(");
   const gather = (i, kind) => {
     let sig = lines[i].trim();
@@ -439,7 +544,7 @@ function parseHeaderEntity(headerText, name, opts = {}) {
   for (let i = 0; i < lines.length && !(typeMatch && fnMatch); i++) {
     const t = lines[i];
     if (/^\s*(\/\/|\*|#)/.test(t)) continue; // skip comment lines
-    if (!typeMatch && classRe.test(t)) typeMatch = gather(i, "type");
+    if (!typeMatch && (classRe.test(t) || conceptRe.test(t) || enumRe.test(t))) typeMatch = gather(i, "type");
     if (!fnMatch && fnRe.test(t)) {
       const before = t.slice(0, t.search(fnRe)).replace(/\s+$/, "");
       // A CONSTRUCTOR is the class's name with NO return type: `name(...)`, optionally preceded by a
@@ -1047,6 +1152,32 @@ const hoverProvider = {
       return new vscode.Hover(renderFunction(defs.functions.get(word)), range);
     }
 
+    // 3b. A bare from-imported symbol (`import scan, StrText from glgan.textlex`) → its doc,
+    // source-first: the declaring .purr's type/function, else the folded/generated header entity.
+    if (!prefix && imp.fromSym.has(word)) {
+      const modPath = imp.fromSym.get(word);
+      const head = modPath.split(".")[0];
+      for (const pkgDir of packageDirs(head, docDir)) {
+        for (const abs of indexPurrFiles(pkgDir)) {
+          const d = parsePurrFile(abs);
+          if (d.types.has(word)) return new vscode.Hover(renderType(d.types.get(word)), range);
+          if (d.functions.has(word)) return new vscode.Hover(renderFunction(d.functions.get(word)), range);
+        }
+      }
+      const hdr = resolveModuleHeader(head, docDir) || resolveModuleHeader(modPath, docDir);
+      const found = hdr && findHeaderEntityDeep(hdr, word, { call: isCallUsage(document, range) });
+      if (found) return new vscode.Hover(renderHeaderEntity(found.ent, found.hdr), range);
+    }
+
+    // 3c. A bare symbol defined in THIS file's folded base header (`lower_char`, `Symbol`, the
+    // module's own `slice`) → the header entity's doc. Before the stdlib DB so the module's own
+    // symbol wins over a same-named builtin.
+    if (!prefix) {
+      const base = foldedBaseHeader(document.uri.fsPath);
+      const found = base && findHeaderEntityDeep(base, word, { call: isCallUsage(document, range) });
+      if (found) return new vscode.Hover(renderHeaderEntity(found.ent, found.hdr), range);
+    }
+
     // 4. Fall back to the stdlib/builtins database (modules + UFCS builtins).
     const fn =
       (prefix && db.byQualified.get(prefix + "." + word)) || db.byQualified.get(word);
@@ -1158,6 +1289,21 @@ const definitionProvider = {
     // A top-level function defined in this file → its `fn` line (before any stdlib header).
     if (!prefix && defs.functions.has(word)) {
       return new vscode.Location(document.uri, new vscode.Position(defs.functions.get(word).line, 0));
+    }
+    // A bare from-imported symbol (`import scan, StrText from glgan.textlex`) → its definition,
+    // source-first: the declaring .purr, else the folded/generated header.
+    if (!prefix && imp.fromSym.has(word)) {
+      const hit = resolveExportedSymbol(imp.fromSym.get(word), word, docDir);
+      if (hit) return new vscode.Location(vscode.Uri.file(hit.file), new vscode.Position(hit.line, 0));
+    }
+    // A bare symbol defined in THIS file's folded base header (same-stem .hpp/.gen.hpp) — the second
+    // hop: from the .purr implementation, a base-header getter/struct/enum/helper (`lower_char`,
+    // `Symbol`, `SymbolKind`, the module's own `slice`) resolves to the header. Checked before the
+    // stdlib DB so the module's own symbol wins over a same-named builtin.
+    if (!prefix) {
+      const base = foldedBaseHeader(document.uri.fsPath);
+      const found = base && findHeaderEntityDeep(base, word, { call: isCallUsage(document, range) });
+      if (found) return new vscode.Location(vscode.Uri.file(found.hdr), new vscode.Position(found.ent.line, 0));
     }
     // A module name (`import math`, or the `math` of `math.sqrt`) → its C++ header.
     const modKey = moduleKeyAt(word, prefix);
@@ -1439,12 +1585,12 @@ function deactivate() {}
 // Drop every resolver cache — a test hook (the live extension relies on the validation/TTL
 // policies above instead).
 function _resetResolverCaches() {
-  _headerCache.clear(); _hppIndex.clear(); _purrModCache.clear();
+  _headerCache.clear(); _hppIndex.clear(); _purrModCache.clear(); _purrIndex.clear();
   _purrDefsCache.clear(); _headerTextCache.clear(); _symbolsCache.clear();
 }
 
 module.exports = {
   activate, deactivate, parseDefs, loadDb, renderDoc, perfLine,
-  parseImports, parseModuleVars, resolveModuleHeader, parseHeaderEntity, readHeader,
+  parseImports, parseModuleVars, resolveModuleHeader, resolveExportedSymbol, parseHeaderEntity, readHeader,
   definitionProvider, hoverProvider, _resetResolverCaches,
 };

@@ -209,6 +209,101 @@ check("document-ancestor roots resolve without a workspace", () => {
   }
 });
 
+// ---- from-import + interface: cheatah's `import Sym1, Sym2 from module` form --------------------
+// The app imports RE-EXPORTED symbols from `pkg.textlex`. The tail (`textlex`) deliberately does NOT
+// map to the physical file (pkg/text/lexer.purr) — resolution is by symbol UNDER the package, the
+// glGAN scenario. Source-first: StrText/scan resolve to the .purr; a header-only helper (kind_name)
+// and a concept (Drawable, a cheatah interface) fall through to the generated header.
+const fs = require("fs");
+function hoverTextOn(doc, pos) {
+  const h = ext.hoverProvider.provideHover(doc, pos);
+  if (!h) return null;
+  const c = h.contents;
+  return (Array.isArray(c) ? c : [c]).map((x) => (x && x.value) || String(x)).join("\n");
+}
+function expectDefOn(name, doc, needlePos, file, line) {
+  check(`definition ${name}`, () => {
+    const d = ext.definitionProvider.provideDefinition(doc, needlePos);
+    if (!d) throw new Error("no definition");
+    const uri = d.uri || (d[0] && d[0].uri);
+    const got = uri && uri.fsPath;
+    if (got !== file) throw new Error(`lands in ${got}, want ${file}`);
+    if (line != null) {
+      const gotLine = (d.range && d.range.start.line) != null ? d.range.start.line : d.pos.line;
+      if (gotLine !== line) throw new Error(`lands on line ${gotLine}, want ${line}`);
+    }
+  });
+}
+function expectHoverOn(name, doc, needlePos, mustContain) {
+  check(`hover ${name}`, () => {
+    const t = hoverTextOn(doc, needlePos);
+    if (!t) throw new Error("no hover");
+    for (const s of mustContain) if (!t.includes(s)) throw new Error(`hover lacks "${s}" — got:\n${t.slice(0, 400)}`);
+  });
+}
+
+console.log("== from-import + interface tests (pkg.textlex fixture) ==");
+
+const APP = `import StrText, scan, kind_name from pkg.textlex
+import Drawable from pkg.shapes
+
+let x = scan(StrText({ .s = "hi" }))
+`;
+const APPDOC = makeDoc(APP, path.join(FIXTURES, "app.purr"));
+const PKG_PURR = path.join(FIXTURES, "pkg", "text", "lexer.purr");
+const PKG_GEN = path.join(FIXTURES, "pkg", "text", "lexer.gen.hpp");
+const purrText = fs.readFileSync(PKG_PURR, "utf8");
+const genText = fs.readFileSync(PKG_GEN, "utf8");
+const purrLineOf = (needle) => purrText.split(/\r?\n/).findIndex((l) => l.includes(needle));
+const genLineOf = (needle) => genText.split(/\r?\n/).findIndex((l) => l.includes(needle));
+
+// A from-imported struct & function → their .purr definitions (source-first), on their usage sites.
+expectDefOn("from-import struct StrText → .purr", APPDOC, at(APP, "StrText", 2),
+  PKG_PURR, purrLineOf("struct StrText"));
+expectDefOn("from-import fn scan → .purr", APPDOC, at(APP, "scan", 2),
+  PKG_PURR, purrLineOf("fn scan"));
+expectHoverOn("from-import hover scan", APPDOC, at(APP, "scan", 2),
+  ["scan", "Scan a TextSource"]);
+expectHoverOn("from-import hover StrText", APPDOC, at(APP, "StrText", 2), ["StrText"]);
+
+// A header-only helper (no .purr definition) → the generated header (fallback), resolved by FIRST
+// segment through the umbrella's #include — proving the tail need not map to a file.
+expectDefOn("from-import header-only kind_name → .gen.hpp", APPDOC, at(APP, "kind_name", 1),
+  PKG_GEN, genLineOf("kind_name"));
+
+// A cheatah interface (a C++20 `concept`) imported from a different tail → the generated header.
+expectDefOn("from-import concept Drawable → .gen.hpp", APPDOC, at(APP, "Drawable", 1),
+  PKG_GEN, genLineOf("concept Drawable"));
+
+// Interface navigation within a file: the base of `struct StrText: TextSource` and the `TextSource`
+// parameter type both resolve to the `interface` declaration line.
+const LEXDOC = makeDoc(purrText, PKG_PURR);
+expectDefOn("interface base ref → interface decl", LEXDOC, at(purrText, "TextSource", 2),
+  PKG_PURR, purrLineOf("interface TextSource"));
+expectDefOn("interface param type → interface decl", LEXDOC, at(purrText, "TextSource", 3),
+  PKG_PURR, purrLineOf("interface TextSource"));
+
+// SECOND HOP: inside the .purr implementation, a symbol defined in the module's folded base header
+// (same-stem .hpp/.gen.hpp) resolves to that header — an enum, a struct, and a helper function.
+const HOP2 = `fn use() {
+    let k = LexKind.WORD
+    let s = StrText({ .s = "x" })
+    return kind_name(k)
+}`;
+const HOP2DOC = makeDoc(HOP2, PKG_PURR);
+expectDefOn("folded-base enum LexKind → .gen.hpp", HOP2DOC, at(HOP2, "LexKind", 1),
+  PKG_GEN, genLineOf("enum class LexKind"));
+expectDefOn("folded-base fn kind_name → .gen.hpp", HOP2DOC, at(HOP2, "kind_name", 1),
+  PKG_GEN, genLineOf("kind_name"));
+
+// Regression: a from-import must NOT poison the plain/aliased import parsing on other lines.
+check("plain import unaffected by from-import", () => {
+  const imp = ext.parseImports(APP);
+  if (!imp.fromSym.has("StrText") || imp.fromSym.get("kind_name") !== "pkg.textlex")
+    throw new Error("from-import symbols not collected");
+  if (imp.locals.has("StrText")) throw new Error("from-import symbol wrongly treated as a module prefix");
+});
+
 if (failures) {
   console.log(`RESULT: FAIL (${failures} case(s))`);
   process.exit(1);
