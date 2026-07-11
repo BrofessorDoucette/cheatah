@@ -3,6 +3,48 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## Unreleased
+
+### Opt-in sized integer storage types — smaller memory footprint, same speed
+- **Declare a narrow width where footprint matters.** Any type annotation may now be an
+  explicit-width integer — `i8`/`i16`/`i32`/`i64`, `u8`/`u16`/`u32`/`u64` — so a `list<i32>` stores
+  4 bytes per element instead of 8, a `dict<str, u8>` keeps 1-byte values, an `array<i16, N>` and
+  `ndarray<i16>` carry narrow elements, and a `struct` of `u8` fields **packs** (two `u8`s → 2 bytes,
+  not 16). Proven in-language with `sizeof`. Previously every integer was a 64-bit `long long`,
+  everywhere.
+- **`int` is unchanged and still the default.** It stays `long long` (64-bit), so standalone
+  integers — loop counters, `++`/`--`, literals — never change or slow down. Narrowing is **opt-in
+  per declaration**; nothing narrows implicitly.
+- **Three spellings, one type.** Each width is nameable as our short form (`i32`), the long form
+  (`int32`), or the original C library name (`int32_t`) — all the **same** `<cstdint>` exact-width
+  type by construction, so use whichever you prefer.
+- **Zero runtime cost, portable.** A width lowers straight to a `std::int32_t`/`std::uint8_t`/…; the
+  storage is contiguous and SIMD-friendly and arithmetic still promotes to 64-bit for free — only
+  the *stored* form is narrow. Standard C++20, no tagging/boxing/bit-packing.
+- **Semantics.** Narrow storage wraps at its width and a 64-bit result truncates on store (as in C /
+  NumPy fixed-width types); a literal initializer that does not fit is a **compile-time error**, the
+  only check and it costs nothing at runtime.
+
+### `ndarray.astype` — build a narrow-element array
+- **`arr.astype(<width>)`** converts an ndarray's element type — numpy's `a.astype(dtype)` — so
+  `ndarray.array([1, 2, 3]).astype(i16)` is a `basic_ndarray<std::int16_t>` (2 bytes/element, not 8).
+  Widening is exact; narrowing truncates at the target width; complex→real is a clear compile error.
+- **A declared narrow ndarray type drives construction:** `let a: ndarray<i8> = ndarray.array([…])`
+  converts for you (no explicit `.astype` needed). Narrow (`i8`/`u8`) elements print as **numbers**,
+  matching the rest of the language. Narrowing/widening follows C / numpy fixed-dtype semantics —
+  signed narrowing wraps two's-complement, unsigned is modulo 2^bits, float→int truncates toward
+  zero — and every case is covered by tests asserting the exact printed values.
+
+### `fixarray` is now callable from cheatah
+- The fixed-extent vector/matrix module (`import fixarray`) can be used directly from a `.purr`
+  program: **construct** (`fixarray.vec3f(1.0, 2.0, 3.0)`, `fixarray.Fixed<f32, 3>(…)`, narrow
+  `fixarray.Vec<u8, 3>(…)`), and call its operations (`fixarray.dot`, `cross`, `normalize`,
+  `matmul`, `+`/`-`/`*`). Previously the module was reachable only from C++.
+- **Module-qualified types now work in `let` and struct-field annotations** — `let v: fixarray.vec3f`,
+  `let m: fixarray.Fixed<f32, 3>`, `struct Body { pos: fixarray.vec3f }` — closing a gap where a
+  dotted type (`state.State`, `fixarray.Fixed<…>`) could only appear on function parameters/returns.
+  Numeric template extents (`Fixed<f32, 4, 4>`) are also accepted in parameter/return positions.
+
 ## v1.3.0-alpha (2026-07-03) — deterministic resource cleanup, ownership + native threads, first-class crypto/networking
 
 The standard-library release: cheatah gains a `with` statement and owning RAII guards, an

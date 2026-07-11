@@ -11,6 +11,8 @@ namespace cheatah::io {
 
 std::string str(const std::string& value) { return value; }
 std::string str(bool b) { return b ? "True" : "False"; }
+std::string str(signed char v) { return std::to_string(static_cast<int>(v)); }
+std::string str(unsigned char v) { return std::to_string(static_cast<unsigned>(v)); }
 
 std::string fixed(double value, long long places) {
     const int p = static_cast<int>(std::clamp<long long>(places, 0, 17));

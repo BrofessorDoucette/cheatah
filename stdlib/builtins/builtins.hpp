@@ -302,6 +302,21 @@ std::string str(const T& value) {
 inline std::string str(bool b) { return b ? "True" : "False"; }
 
 /**
+ * `str()` for the byte-width integers `i8`/`u8` (`std::int8_t`/`std::uint8_t`, which are
+ * typedefs of `signed char`/`unsigned char`). Streaming a `char`-sized type would print a
+ * CHARACTER; these overloads promote to a wider integer first so `i8`/`u8` render as NUMBERS —
+ * the one seam through which `repr`, `print`, and container `str`/`repr` all inherit the fix.
+ * Plain `char` is a distinct type (cheatah has no bare-`char` value type — single chars are
+ * 1-char `std::string`), so it is deliberately not matched here.
+ * @return the value's decimal digits.
+ * @complexity O(1).
+ * @alloc allocates the small result string.
+ */
+inline std::string str(signed char v) { return std::to_string(static_cast<int>(v)); }
+/** `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char). */
+inline std::string str(unsigned char v) { return std::to_string(static_cast<unsigned>(v)); }
+
+/**
  * True division — the cheatah `/` operator (like Python 3): **always floating-point**,
  * so `6 / 2` is `3.0`, not `3`, and integer operands never silently truncate. Use the
  * `//` operator (@ref floordiv) when you want integer/floor division.

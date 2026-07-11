@@ -104,6 +104,17 @@ std::string str(const std::string& value);
  * @systest StdlibE2E.Io
  */
 std::string str(bool b);
+/**
+ * `str()` for the byte-width integers `i8`/`u8` (`std::int8_t`/`std::uint8_t` == `signed char`/
+ * `unsigned char`). Streaming a `char`-sized type prints a CHARACTER; these promote to a wider
+ * integer so `i8`/`u8` render as NUMBERS. Declared before `print`/`repr`/`str(vector)` so those
+ * templates see them (a fundamental-type argument gets no ADL). Plain `char` is a distinct type
+ * and deliberately unmatched (cheatah has no bare-`char` value — single chars are 1-char strings).
+ * @return the value's decimal digits.
+ */
+std::string str(signed char v);
+/** `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char). */
+std::string str(unsigned char v);
 
 /**
  * Fixed-point float formatting — Python's `f"{x:.2f}"` / `"%.2f" % x` as a function.

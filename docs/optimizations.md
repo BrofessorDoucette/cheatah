@@ -189,6 +189,37 @@ requires.
   what happens on a build with **no SIMD** (answer: identical results, just scalar/slower —
   SIMD is never a correctness dependency).
 
+## Smaller footprint: opt-in sized integers {#sized-integers}
+
+A cheatah `int` is a 64-bit `long long` — the right default for a counter or an index, wrong
+for a million-element column that only ever holds small values. So a **width is opt-in per
+declaration**: annotate a type with an explicit-width integer and the *storage* shrinks with
+no change to speed.
+
+```
+let ages: list<u8> = [31, 44, 27]     # 1 byte / element (std::uint8_t), not 8
+let ids:  list<i32> = load_ids()      # 4 bytes / element
+struct Cell { x: u8, y: u8 }          # sizeof(Cell) == 2, not 16
+io.print(sizeof(i16), sizeof(Cell))   # -> 2 2   (proven in-language)
+```
+
+- **Widths.** `i8`/`i16`/`i32`/`i64` (signed) and `u8`/`u16`/`u32`/`u64` (unsigned), each also
+  spellable in full (`int8`…`uint64`) or with the original C library name (`int8_t`…`uint64_t`)
+  — all the **same** `<cstdint>` exact-width type by construction, so name it however you like.
+  Usable anywhere a type appears: scalars, `list`/`dict`/`array` elements, `ndarray` elements,
+  and struct fields.
+- **Zero runtime cost.** A width lowers straight to `std::int32_t`/`std::uint8_t`/…: contiguous,
+  trivially copyable, SIMD-friendly, no tag and no box. In arithmetic, narrow operands **promote
+  to 64-bit for free** (ordinary C++ integer promotion) and only truncate back on store — so the
+  compute is exactly as fast as `int`, and only the *stored* value is small.
+- **`int` never changes.** It stays 64-bit, so standalone integers — loop counters, `++`/`--`,
+  literals — keep their speed and range. Narrowing is opt-in and never happens implicitly.
+- **Semantics, all at compile time.** Narrow storage wraps at its width and a wide result
+  truncates on store (as in C / NumPy fixed-width types). A literal that does not fit its width
+  is a **compile-time error** (`300` into an `i8` will not build) — the only bounds check, and it
+  costs nothing at runtime. This is `pandas`-style downcasting decided by the *type* up front,
+  not a runtime re-encoding: no bit-packing, no per-value metadata, nothing to decode on read.
+
 ## A shape the backend can fully optimize {#backend-friendly}
 
 - **Internal linkage.** Program functions are emitted `static` (note every `static auto`
