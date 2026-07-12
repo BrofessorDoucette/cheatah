@@ -69,7 +69,30 @@ endif()
 # ---- Third-party (test/benchmark only; the language itself has no deps) -----
 include(FetchContent)
 
+# Reuse an already-fetched dependency source from any sibling build tree, so a fresh build
+# directory (cov / debug / tsan / asan) configures WITHOUT network access — the QA gate's
+# extra build trees otherwise re-clone each pinned dependency and fail on offline/sandboxed
+# hosts even though the sources already sit in build/release/_deps. Reuse is skipped when
+# the caller pins FETCHCONTENT_SOURCE_DIR_<NAME> explicitly. Note: a reused source is taken
+# as-is (FetchContent does not re-check the GIT_TAG against it) — after bumping a pin,
+# delete build/*/_deps/<name>-src so the next configure fetches the new tag.
+function(cheatah_reuse_fetched_source name)
+    string(TOUPPER ${name} up)
+    if(DEFINED FETCHCONTENT_SOURCE_DIR_${up})
+        return()
+    endif()
+    file(GLOB candidates ${CMAKE_CURRENT_SOURCE_DIR}/build/*/_deps/${name}-src)
+    foreach(dir ${candidates})
+        if(EXISTS ${dir}/CMakeLists.txt)
+            set(FETCHCONTENT_SOURCE_DIR_${up} ${dir} PARENT_SCOPE)
+            message(STATUS "cheatah: reusing fetched ${name} source at ${dir}")
+            return()
+        endif()
+    endforeach()
+endfunction()
+
 if(CHEATAH_BUILD_TESTS)
+    cheatah_reuse_fetched_source(googletest)
     FetchContent_Declare(googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
         GIT_TAG        52eb8108c5bdec04579160ae17225d66034bd723) # pinned
@@ -79,6 +102,8 @@ if(CHEATAH_BUILD_TESTS)
 endif()
 
 if(CHEATAH_BUILD_BENCHMARKS)
+    cheatah_reuse_fetched_source(benchmark)
+    cheatah_reuse_fetched_source(eigen)
     set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
     set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
     FetchContent_Declare(benchmark
