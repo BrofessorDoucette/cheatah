@@ -50,6 +50,28 @@ TEST(CheatahHashlib, Sha512KnownVectors) {
               "501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909");
 }
 
+TEST(CheatahHashlib, Sha384KnownVectors) {
+    // Standard NIST/FIPS-180 SHA-384 test vectors.
+    EXPECT_EQ(hl::sha384(""),
+              "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da"
+              "274edebfe76f65fbd51ad2f14898b95b");
+    EXPECT_EQ(hl::sha384("abc"),
+              "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed"
+              "8086072ba1e7cc2358baeca134c825a7");
+    // 112 bytes — crosses a second 128-byte block (length-padding edge case).
+    EXPECT_EQ(hl::sha384("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
+                         "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
+              "09330c33f71147e83d192fc782cd1b4753111b173b3b05d22fa08086e3b0f712"
+              "fcc7c71a557e2db966c3e9fa91746039");
+}
+
+TEST(CheatahHashlib, Sha384DigestShape) {
+    const std::string h = hl::sha384("cheatah");
+    EXPECT_EQ(h.size(), 96u);  // 96 lowercase hex chars
+    for (char c : h)
+        EXPECT_TRUE((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) << "non-hex char: " << c;
+}
+
 TEST(CheatahHashlib, Sha512DigestShape) {
     const std::string h = hl::sha512("cheatah");
     EXPECT_EQ(h.size(), 128u);  // 128 lowercase hex chars
@@ -66,10 +88,13 @@ TEST(CheatahHashlib, RawDigestMatchesHex) {
         return out;
     };
     EXPECT_EQ(hl::sha256_digest("abc").size(), 32u);
+    EXPECT_EQ(hl::sha384_digest("abc").size(), 48u);
     EXPECT_EQ(hl::sha512_digest("abc").size(), 64u);
     EXPECT_EQ(to_hex(hl::sha256_digest("abc")), hl::sha256("abc"));
+    EXPECT_EQ(to_hex(hl::sha384_digest("abc")), hl::sha384("abc"));
     EXPECT_EQ(to_hex(hl::sha512_digest("abc")), hl::sha512("abc"));
     EXPECT_EQ(to_hex(hl::sha256_digest("")), hl::sha256(""));
+    EXPECT_EQ(to_hex(hl::sha384_digest("")), hl::sha384(""));
     EXPECT_EQ(to_hex(hl::sha512_digest("")), hl::sha512(""));
 }
 

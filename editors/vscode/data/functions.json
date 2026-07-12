@@ -1887,7 +1887,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 143,
+      "srcline": 174,
       "module": "hashlib",
       "qualified": "hashlib.base64_decode"
     },
@@ -1910,7 +1910,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 125,
+      "srcline": 156,
       "module": "hashlib",
       "qualified": "hashlib.base64_encode"
     },
@@ -1931,7 +1931,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 180,
+      "srcline": 211,
       "module": "hashlib",
       "qualified": "hashlib.from_hex"
     },
@@ -1962,7 +1962,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 209,
+      "srcline": 240,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_expand"
     },
@@ -1989,7 +1989,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 194,
+      "srcline": 225,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_extract"
     },
@@ -2016,7 +2016,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 97,
+      "srcline": 128,
       "module": "hashlib",
       "qualified": "hashlib.hmac_sha256"
     },
@@ -2043,7 +2043,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 112,
+      "srcline": 143,
       "module": "hashlib",
       "qualified": "hashlib.hmac_sha512"
     },
@@ -2089,9 +2089,55 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 70,
+      "srcline": 87,
       "module": "hashlib",
       "qualified": "hashlib.sha256_digest"
+    },
+    {
+      "name": "sha384",
+      "signature": "sha384(std::string_view data)",
+      "brief": "SHA-384 digest of data, as hex.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the bytes to hash (an embedded NUL is part of the input)."
+        }
+      ],
+      "returns": "a 96-char lowercase hex digest.",
+      "tags": {
+        "complexity": "O(n) in the input length.",
+        "alloc": "allocates the 96-char result string and a padded message buffer internally.",
+        "test": "CheatahHashlib.Sha384KnownVectors, CheatahHashlib.Sha384DigestShape",
+        "crtest": "HashlibCompileRun.Sha384",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 59,
+      "module": "hashlib",
+      "qualified": "hashlib.sha384"
+    },
+    {
+      "name": "sha384_digest",
+      "signature": "sha384_digest(std::string_view data)",
+      "brief": "SHA-384 of data as the raw 48 bytes (Python's .digest()), not hex.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "the bytes to hash."
+        }
+      ],
+      "returns": "a 48-byte string (may contain embedded NULs).",
+      "tags": {
+        "complexity": "O(n) in the input length.",
+        "alloc": "allocates the 48-byte result and a padded message buffer.",
+        "test": "CheatahHashlib.RawDigestMatchesHex",
+        "crtest": "HashlibCompileRun.Sha384Digest",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 101,
+      "module": "hashlib",
+      "qualified": "hashlib.sha384_digest"
     },
     {
       "name": "sha512",
@@ -2112,7 +2158,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 58,
+      "srcline": 75,
       "module": "hashlib",
       "qualified": "hashlib.sha512"
     },
@@ -2135,7 +2181,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 83,
+      "srcline": 114,
       "module": "hashlib",
       "qualified": "hashlib.sha512_digest"
     },
@@ -2156,7 +2202,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 156,
+      "srcline": 187,
       "module": "hashlib",
       "qualified": "hashlib.to_hex"
     },
@@ -5402,6 +5448,85 @@
       "qualified": "p256.verify_raw"
     },
     {
+      "name": "spki_ec_point",
+      "signature": "spki_ec_point(std::string_view spki_or_cert_der)",
+      "brief": "Extract the P-384 public key point from a certificate / SubjectPublicKeyInfo DER: finds the uncompressed EC point of a secp384r1 key and returns its 96 bytes (X||Y).",
+      "params": [
+        {
+          "name": "spki_or_cert_der",
+          "desc": "the certificate or SPKI DER bytes."
+        }
+      ],
+      "returns": "the 96-byte X||Y point, or \"\" if not a P-384 EC key.",
+      "tags": {
+        "complexity": "O(der length).",
+        "alloc": "the returned point.",
+        "test": "CheatahP384.SpkiExtractsPoint"
+      },
+      "srcfile": "stdlib/p384/p384.hpp",
+      "srcline": 72,
+      "module": "p384",
+      "qualified": "p384.spki_ec_point"
+    },
+    {
+      "name": "verify_der",
+      "signature": "verify_der(const std::string &pubkey_xy, const std::string &msg_hash, const std::string &sig_der)",
+      "brief": "Verify an ECDSA/P-384 signature.",
+      "params": [
+        {
+          "name": "pubkey_xy",
+          "desc": "the public key as 96 bytes (X||Y), big-endian."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the message digest (e.g. 48 bytes of SHA-384); longer digests are truncated to the leftmost 384 bits (FIPS 186-4), shorter ones (e.g. SHA-256) are taken whole (X9.62 bits2int)."
+        },
+        {
+          "name": "sig_der",
+          "desc": "the signature, DER-encoded SEQUENCE{INTEGER r, INTEGER s}."
+        }
+      ],
+      "returns": "true iff the signature is valid for pubkey_xy over msg_hash.",
+      "tags": {
+        "complexity": "two scalar multiplications.",
+        "alloc": "small temporaries only.",
+        "test": "CheatahP384.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p384/p384.hpp",
+      "srcline": 45,
+      "module": "p384",
+      "qualified": "p384.verify_der"
+    },
+    {
+      "name": "verify_raw",
+      "signature": "verify_raw(const std::string &pubkey_xy, const std::string &msg_hash, const std::string &sig_raw)",
+      "brief": "Verify an ECDSA/P-384 signature given the raw 96-byte r||s form (the JWT ES384 layout).",
+      "params": [
+        {
+          "name": "pubkey_xy",
+          "desc": "the public key (96 bytes X||Y)."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the digest (truncated to 384 bits if longer, taken whole if shorter)."
+        },
+        {
+          "name": "sig_raw",
+          "desc": "the signature as 96 bytes r||s."
+        }
+      ],
+      "returns": "true iff valid.",
+      "tags": {
+        "complexity": "two scalar multiplications.",
+        "alloc": "small temporaries.",
+        "test": "CheatahP384.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p384/p384.hpp",
+      "srcline": 59,
+      "module": "p384",
+      "qualified": "p384.verify_raw"
+    },
+    {
       "name": "escape",
       "signature": "escape(std::string_view s, bool quote=true)",
       "brief": "Escape the markup-significant characters in s (Python html.escape).",
@@ -7840,7 +7965,7 @@
         "systest": "TlsSys.ServerHandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 195,
+      "srcline": 196,
       "module": "tls",
       "qualified": "tls.accept"
     },
@@ -7861,7 +7986,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/tls/tls.cpp",
-      "srcline": 43,
+      "srcline": 44,
       "module": "tls",
       "qualified": "tls.from_hex"
     },
@@ -7879,7 +8004,7 @@
         "systest": "TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 46,
+      "srcline": 47,
       "module": "tls",
       "qualified": "tls.last_error"
     },
@@ -7913,7 +8038,7 @@
         "systest": "TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 175,
+      "srcline": 176,
       "module": "tls",
       "qualified": "tls.open"
     },
@@ -7938,7 +8063,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/tls/tls.cpp",
-      "srcline": 42,
+      "srcline": 43,
       "module": "tls",
       "qualified": "tls.to_hex"
     },
@@ -8066,6 +8191,7 @@
   "modules": [
     "aead",
     "datetime",
+    "ec",
     "ed25519",
     "fixarray",
     "hashlib",
@@ -8077,6 +8203,7 @@
     "os",
     "os.path",
     "p256",
+    "p384",
     "parsers",
     "parsers.html",
     "parsers.json",

@@ -11,10 +11,11 @@
  * Scope (v1): TLS 1.3 only, cipher suite TLS_CHACHA20_POLY1305_SHA256, X25519 key share,
  * SNI. The handshake transcript is fully verified (server Finished MAC), and the server's
  * CertificateVerify signature is checked for the common leaf-certificate key types: Ed25519
- * (cheatah's `ed25519`), ECDSA P-256 (`p256`), and RSA via rsa_pss_rsae_sha256 (`rsa_verify.hpp`).
- * Servers using any OTHER certificate algorithm are REFUSED with a clear error rather than silently
- * left unauthenticated — no unverified connections. Certificate-chain/X.509 validation beyond the
- * leaf signature is not yet implemented; pin or control the peer.
+ * (cheatah's `ed25519`), ECDSA P-256 (`p256`) and P-384 (`p384`), and RSA via
+ * rsa_pss_rsae_sha256 (`rsa_verify.hpp`). Servers using any OTHER certificate algorithm are
+ * REFUSED with a clear error rather than silently left unauthenticated — no unverified
+ * connections. The presented chain then gets full X.509 path validation (hostname, validity
+ * window, signatures up to a trusted CA — see x509.hpp) unless explicitly opted out.
  *
  * Sessions ride an already-connected TCP fd (cheatah `socket`). The cheatah-facing API is the
  * owning `tls::Conn` guard, created by `tls.open(fd, server_name)`: it sends close_notify and

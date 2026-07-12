@@ -188,6 +188,15 @@ TEST(TlsSys, HandshakeEcdsaP256Certificate) {
     EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }
 
+// ECDSA P-384 leaf certificate: exercises the ecdsa_secp384r1_sha384 CertificateVerify path
+// and, via the self-signed cert's own signature, the x509 P-384 chain-verification arm.
+TEST(TlsSys, HandshakeEcdsaP384Certificate) {
+    OpensslServer server(47946, "ec -pkeyopt ec_paramgen_curve:secp384r1",
+                         "TLS_CHACHA20_POLY1305_SHA256");
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
+}
+
 // No common cipher suite (server offers ONLY AES-256-GCM, which cheatah does not implement): the
 // handshake MUST fail rather than silently proceed, and the error must NAME the alert — exercising the
 // alert-code diagnostic so a "no common cipher" refusal reports a named reason, not a generic error.

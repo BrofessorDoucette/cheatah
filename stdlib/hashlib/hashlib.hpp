@@ -8,10 +8,10 @@
  *        Python's `hashlib`. `import hashlib` to use it.
  *
  * `import hashlib` includes this header AND links `libcheatah_hashlib`. Provides
- * self-contained SHA-256 and SHA-512 (no external crypto dependency), each in a
- * hex form (`sha256`/`sha512`, like Python's `.hexdigest()`) and a raw-bytes form
- * (`sha256_digest`/`sha512_digest`, like Python's `.digest()`). The raw forms back
- * the `ed25519` module and the runtime's module-integrity check. Unit tests:
+ * self-contained SHA-256, SHA-384 and SHA-512 (no external crypto dependency), each in
+ * a hex form (`sha256`/`sha384`/`sha512`, like Python's `.hexdigest()`) and a raw-bytes
+ * form (`sha256_digest`/`sha384_digest`/`sha512_digest`, like Python's `.digest()`). The
+ * raw forms back the `ed25519` module and the runtime's module-integrity check. Unit tests:
  * `stdlib/tests/hashlib_test.cpp`; the suite runs under AddressSanitizer (the `asan`
  * preset) and Valgrind (`security/run-valgrind.sh`) on every QA-gate run.
  */
@@ -42,6 +42,23 @@ namespace cheatah::hashlib {
 std::string sha256(std::string_view data);  // 64-char lowercase hex digest
 
 /**
+ * SHA-384 digest of @p data, as hex.
+ *
+ * SHA-384 is SHA-512 (128-byte blocks, 80 rounds, 128-bit length field) with its own
+ * initial hash values, truncated to the leftmost 48 bytes — the hash of the `ecdsa-with-
+ * SHA384` / `sha384WithRSAEncryption` certificate signatures the TLS client verifies.
+ * The empty string hashes to the canonical `38b060a751ac9638…4898b95b` (96 hex chars).
+ * @param data the bytes to hash (an embedded NUL is part of the input).
+ * @return a 96-char lowercase hex digest.
+ * @complexity O(n) in the input length.
+ * @alloc allocates the 96-char result string and a padded message buffer internally.
+ * @test CheatahHashlib.Sha384KnownVectors, CheatahHashlib.Sha384DigestShape
+ * @crtest HashlibCompileRun.Sha384
+ * @systest StdlibE2E.Hashlib
+ */
+std::string sha384(std::string_view data);  // 96-char lowercase hex digest
+
+/**
  * SHA-512 digest of @p data, as hex.
  *
  * The full SHA-512 (128-byte blocks, 80 rounds, 128-bit length field) of the byte
@@ -68,6 +85,20 @@ std::string sha512(std::string_view data);  // 128-char lowercase hex digest
  * @systest StdlibE2E.Hashlib
  */
 std::string sha256_digest(std::string_view data);  // 32 raw bytes
+
+/**
+ * SHA-384 of @p data as the raw 48 bytes (Python's `.digest()`), not hex. The digest the
+ * x509 chain validator and the TLS CertificateVerify check feed to the SHA-384 signature
+ * algorithms (`ecdsa-with-SHA384`, `sha384WithRSAEncryption`, `ecdsa_secp384r1_sha384`).
+ * @param data the bytes to hash.
+ * @return a 48-byte string (may contain embedded NULs).
+ * @complexity O(n) in the input length.
+ * @alloc allocates the 48-byte result and a padded message buffer.
+ * @test CheatahHashlib.RawDigestMatchesHex
+ * @crtest HashlibCompileRun.Sha384Digest
+ * @systest StdlibE2E.Hashlib
+ */
+std::string sha384_digest(std::string_view data);  // 48 raw bytes
 
 /**
  * SHA-512 of @p data as the raw 64 bytes (Python's `.digest()`), not hex. Backs the

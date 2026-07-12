@@ -298,9 +298,9 @@ single-trust model:
   CA, matches the requested hostname against the certificate's `subjectAltName`, and checks the
   validity dates — so it resists an active **man-in-the-middle**, not just a passive
   eavesdropper. For a pinned/controlled peer you can opt out per-connection (`insecure`) or
-  trust a specific CA bundle (`ca_file`). Chain signatures are verified for RSA-PKCS1-SHA256,
-  ECDSA-P256-SHA256, and Ed25519; algorithms cheatah doesn't implement yet (P-384, SHA-384/512)
-  **fail closed**. Certificate revocation (OCSP/CRL) is not yet checked. The network **parsers**
+  trust a specific CA bundle (`ca_file`). Chain signatures are verified for RSA-PKCS1 (SHA-256/384),
+  ECDSA (SHA-256/384, P-256 or P-384 issuer keys), and Ed25519; algorithms cheatah doesn't
+  implement yet (SHA-512, rsassa-PSS chain signatures) **fail closed**. Certificate revocation (OCSP/CRL) is not yet checked. The network **parsers**
   are likewise hardened against hostile remote data: TLS records, WebSocket frames, HTTP
   responses, and JSON are bounds-checked and size-capped so a malicious peer cannot corrupt
   memory, crash the client, or exhaust its memory.

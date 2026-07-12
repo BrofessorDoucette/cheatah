@@ -769,7 +769,7 @@ std::vector<std::string> all_modules(const std::vector<std::string>& imported) {
     static const std::map<std::string, std::vector<std::string>> kDeps = {
         {"linalg", {"ndarray"}},
         {"ed25519", {"hashlib"}},
-        {"tls", {"x25519", "aead", "hashlib", "ed25519", "socket", "p256"}},
+        {"tls", {"x25519", "aead", "hashlib", "ed25519", "socket", "p256", "p384"}},
         {"websocket", {"tls", "socket", "os"}},
         {"p256", {"hashlib"}},
     };

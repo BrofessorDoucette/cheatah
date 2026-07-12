@@ -107,11 +107,12 @@ std::array<std::uint8_t, 32> sha256_raw(std::string_view data) {
     return out;
 }
 
-// SHA-512 core: returns the raw 64-byte digest.
-std::array<std::uint8_t, 64> sha512_raw(std::string_view data) {
-    std::uint64_t h[8] = {0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL, 0x3c6ef372fe94f82bULL,
-                          0xa54ff53a5f1d36f1ULL, 0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
-                          0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL};
+// SHA-512-family core (FIPS 180-4): the 80-round compression over 128-byte blocks, started
+// from the caller's initial hash values. SHA-512 and SHA-384 share everything but the IV and
+// how much of the final state is kept, so both run through this one engine.
+std::array<std::uint8_t, 64> sha512_core(std::string_view data, const std::uint64_t iv[8]) {
+    std::uint64_t h[8];
+    for (int i = 0; i < 8; ++i) h[i] = iv[i];
 
     // Pad: 0x80, zeros to a 128-byte block leaving 16 bytes, then the 128-bit big-endian
     // bit length (the high 64 bits are always 0 for our inputs).
@@ -157,10 +158,35 @@ std::array<std::uint8_t, 64> sha512_raw(std::string_view data) {
     return out;
 }
 
+// SHA-512: the core with its own initial hash values (square roots of the first 8 primes).
+std::array<std::uint8_t, 64> sha512_raw(std::string_view data) {
+    static constexpr std::uint64_t kIv[8] = {
+        0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL, 0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
+        0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL, 0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL};
+    return sha512_core(data, kIv);
+}
+
+// SHA-384: the same core with the SHA-384 initial hash values (square roots of the 9th..16th
+// primes), keeping the leftmost 48 bytes of the final state.
+std::array<std::uint8_t, 48> sha384_raw(std::string_view data) {
+    static constexpr std::uint64_t kIv[8] = {
+        0xcbbb9d5dc1059ed8ULL, 0x629a292a367cd507ULL, 0x9159015a3070dd17ULL, 0x152fecd8f70e5939ULL,
+        0x67332667ffc00b31ULL, 0x8eb44a8768581511ULL, 0xdb0c2e0d64f98fa7ULL, 0x47b5481dbefa4fa4ULL};
+    const std::array<std::uint8_t, 64> full = sha512_core(data, kIv);
+    std::array<std::uint8_t, 48> out{};
+    for (int i = 0; i < 48; ++i) out[i] = full[i];
+    return out;
+}
+
 } // namespace
 
 std::string sha256(std::string_view data) {
     const auto d = sha256_raw(data);
+    return to_hex(d.data(), d.size());
+}
+
+std::string sha384(std::string_view data) {
+    const auto d = sha384_raw(data);
     return to_hex(d.data(), d.size());
 }
 
@@ -171,6 +197,11 @@ std::string sha512(std::string_view data) {
 
 std::string sha256_digest(std::string_view data) {
     const auto d = sha256_raw(data);
+    return std::string(reinterpret_cast<const char*>(d.data()), d.size());
+}
+
+std::string sha384_digest(std::string_view data) {
+    const auto d = sha384_raw(data);
     return std::string(reinterpret_cast<const char*>(d.data()), d.size());
 }
 

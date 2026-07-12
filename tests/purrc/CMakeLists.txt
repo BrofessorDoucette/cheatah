@@ -71,7 +71,7 @@ add_executable(cheatah_purrc_tests
 )
 target_link_libraries(cheatah_purrc_tests PRIVATE GTest::gmock_main
     cheatah::socket_static   # the loopback server inside requests_sys_test
-    cheatah::tls_static cheatah::p256_static cheatah::aead_static cheatah::x25519_static
+    cheatah::tls_static cheatah::p256_static cheatah::p384_static cheatah::aead_static cheatah::x25519_static
     cheatah::ed25519_static cheatah::hashlib_static  # tls_sys_test (tls verify -> p256)
     cheatah::websocket_static cheatah::os_static)    # websocket_sys_test (RFC 6455 client + os.urandom)
 

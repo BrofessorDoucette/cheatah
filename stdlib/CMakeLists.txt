@@ -21,6 +21,7 @@ add_subdirectory(aead)      # ChaCha20-Poly1305 AEAD (RFC 8439) — TLS record c
 add_subdirectory(tls)       # TLS 1.3 client (RFC 8446) on the cheatah crypto modules
 add_subdirectory(websocket) # RFC 6455 WebSocket client on tls + socket
 add_subdirectory(p256)      # NIST P-256 ECDSA (secp256r1), from scratch
+add_subdirectory(p384)      # NIST P-384 ECDSA verify (secp384r1) — shares p256's ec_core
 add_subdirectory(sys)
 add_subdirectory(regex)    # from-scratch linear-time regular expressions (lazy DFA)
 add_subdirectory(memory)   # header-only ownership/borrow: Owner/Lease/Request (engine = TDD, tests gated)

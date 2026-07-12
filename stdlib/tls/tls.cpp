@@ -17,6 +17,7 @@
 #include "ed25519.hpp"    // verify — CertificateVerify for Ed25519 server certs
 #include "hashlib.hpp"    // sha256_digest, hmac_sha256, hkdf_extract/expand — the key schedule
 #include "p256.hpp"       // verify — CertificateVerify for ECDSA P-256 server certs
+#include "p384.hpp"       // verify — CertificateVerify for ECDSA P-384 server certs
 #include "rsa_verify.hpp" // verify_pss_sha256 — CertificateVerify for RSA (rsa_pss_rsae_sha256) certs
 #include "socket.hpp"   // raw fd I/O underneath the record layer
 #include "x25519.hpp"   // the key exchange
@@ -247,10 +248,11 @@ std::string build_client_hello(const std::string& server_name, std::string_view 
     {  // signature_algorithms (13): ed25519 (verifiable) + the common ones so real servers
        //  complete the handshake far enough for our explicit refusal to be diagnosable
         std::string a;
-        put16(a, 6);
+        put16(a, 8);
         put16(a, 0x0807);  // ed25519
         put16(a, 0x0804);  // rsa_pss_rsae_sha256 (verified — see rsa_verify.hpp)
         put16(a, 0x0403);  // ecdsa_secp256r1_sha256 (verified — see p256)
+        put16(a, 0x0503);  // ecdsa_secp384r1_sha384 (verified — see p384)
         put16(ext, 13);
         put16(ext, static_cast<unsigned>(a.size()));
         ext += a;
@@ -877,6 +879,18 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
                         fail("tls: server CertificateVerify (ECDSA P-256) is INVALID");
                         return -1;
                     }
+                } else if (alg == 0x0503) {  // ecdsa_secp384r1_sha384 (signs SHA-384(content))
+                    // Only the SIGNATURE hash is SHA-384; the transcript hash inside
+                    // signed_content stays the cipher suite's SHA-256 (RFC 8446 §4.4.3).
+                    const std::string point = p384::spki_ec_point(cert_der);
+                    if (point.size() != 96) {
+                        fail("tls: certificate key is not P-384 EC");
+                        return -1;
+                    }
+                    if (!p384::verify_der(point, hashlib::sha384_digest(signed_content), sig)) {
+                        fail("tls: server CertificateVerify (ECDSA P-384) is INVALID");
+                        return -1;
+                    }
                 } else if (alg == 0x0804) {  // rsa_pss_rsae_sha256 (RSA leaf certificate)
                     // RSA-PSS verifies the signed_content directly (it hashes with SHA-256 internally),
                     // using the RSA public key extracted from the leaf cert's SubjectPublicKeyInfo.
@@ -886,7 +900,7 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
                     }
                 } else {  // LCOV_EXCL_LINE: reached only if a server sends a CertificateVerify whose algorithm ignores our advertised signature_algorithms — a non-conformant peer we don't mirror
                     fail("tls: server certificate uses an algorithm cheatah cannot verify yet "  // LCOV_EXCL_LINE
-                         "(Ed25519, ECDSA P-256, and RSA-PSS SHA-256 are supported) — refusing an "
+                         "(Ed25519, ECDSA P-256/P-384, and RSA-PSS SHA-256 are supported) — refusing an "
                          "unauthenticated connection");
                     return -1;
                 }

@@ -11,10 +11,12 @@
 //   3. CHAIN — each cert is signed by the next, up to a certificate in a trusted CA store (the
 //      system trust bundle, or a caller-supplied one), and intermediates carry basicConstraints CA.
 //
-// Signature algorithms supported for chain/leaf signatures: sha256WithRSAEncryption (PKCS#1 v1.5),
-// rsassaPss (SHA-256), ecdsa-with-SHA256 (P-256), and Ed25519. Anything else (e.g. ECDSA P-384,
-// SHA-384/512) FAILS CLOSED — the connection is refused, never accepted unverified. Everything runs
-// on cheatah's own crypto (rsa_verify, p256, ed25519, hashlib) and the from-scratch DER walker below.
+// Signature algorithms supported for chain/leaf signatures: sha256WithRSAEncryption and
+// sha384WithRSAEncryption (PKCS#1 v1.5), ecdsa-with-SHA256 and ecdsa-with-SHA384 (the issuer key on
+// P-256 or P-384 — the hash comes from the signature OID, the curve from the issuer's SPKI, in any
+// pairing), and Ed25519. Anything else (e.g. SHA-512, rsassa-PSS chain signatures, other curves)
+// FAILS CLOSED — the connection is refused, never accepted unverified. Everything runs on cheatah's
+// own crypto (rsa_verify, p256, p384, ed25519, hashlib) and the from-scratch DER walker below.
 
 #include <cstddef>
 #include <cstdint>
@@ -28,6 +30,7 @@
 #include "ed25519.hpp"
 #include "hashlib.hpp"
 #include "p256.hpp"
+#include "p384.hpp"
 #include "rsa_verify.hpp"
 
 namespace cheatah::tls::x509 {
@@ -107,12 +110,32 @@ inline const std::string& oid_rsa_sha256() {
                                 static_cast<char>(0xF7), 0x0D, 0x01, 0x01, 0x0B});
     return s;  // 1.2.840.113549.1.1.11
 }
+inline const std::string& oid_rsa_sha384() {
+    static const std::string s({0x2A, static_cast<char>(0x86), 0x48, static_cast<char>(0x86),
+                                static_cast<char>(0xF7), 0x0D, 0x01, 0x01, 0x0C});
+    return s;  // 1.2.840.113549.1.1.12
+}
 inline const std::string& oid_ecdsa_sha256() {
     static const std::string s({0x2A, static_cast<char>(0x86), 0x48, static_cast<char>(0xCE),
                                 0x3D, 0x04, 0x03, 0x02});
     return s;  // 1.2.840.10045.4.3.2
 }
+inline const std::string& oid_ecdsa_sha384() {
+    static const std::string s({0x2A, static_cast<char>(0x86), 0x48, static_cast<char>(0xCE),
+                                0x3D, 0x04, 0x03, 0x03});
+    return s;  // 1.2.840.10045.4.3.3
+}
 inline const std::string& oid_ed25519() { static const std::string s({0x2B, 0x65, 0x70}); return s; }     // 1.3.101.112
+// EC named curves (the AlgorithmIdentifier's second OID inside an id-ecPublicKey SPKI).
+inline const std::string& oid_prime256v1() {
+    static const std::string s({0x2A, static_cast<char>(0x86), 0x48, static_cast<char>(0xCE),
+                                0x3D, 0x03, 0x01, 0x07});
+    return s;  // 1.2.840.10045.3.1.7
+}
+inline const std::string& oid_secp384r1() {
+    static const std::string s({0x2B, static_cast<char>(0x81), 0x04, 0x00, 0x22});
+    return s;  // 1.3.132.0.34
+}
 
 // Parse an ASN.1 UTCTime (YYMMDDHHMMSSZ) or GeneralizedTime (YYYYMMDDHHMMSSZ) to a Unix timestamp.
 inline bool parse_time(const std::string& s, unsigned char tag, long long& out) {
@@ -275,28 +298,58 @@ inline std::string ed25519_key(const std::string& spki) {
     return spki.substr(cb + 1, 32);
 }
 
+// The named-curve OID (content bytes) of an id-ecPublicKey SubjectPublicKeyInfo — the
+// AlgorithmIdentifier's second OID — or "" when the SPKI is not an EC key with a named curve.
+inline std::string ec_named_curve(const std::string& spki) {
+    std::size_t p = 0;
+    unsigned char tag;
+    std::size_t cb, ce;
+    if (!tlv(spki, p, spki.size(), tag, cb, ce) || tag != 0x30) return "";  // SPKI SEQUENCE
+    std::size_t sp = cb, se = ce;
+    if (!tlv(spki, sp, se, tag, cb, ce) || tag != 0x30) return "";          // AlgorithmIdentifier
+    std::size_t ap = cb, ae = ce;
+    if (!tlv(spki, ap, ae, tag, cb, ce) || tag != 0x06) return "";          // id-ecPublicKey OID
+    if (!tlv(spki, ap, ae, tag, cb, ce) || tag != 0x06) return "";          // namedCurve OID
+    return spki.substr(cb, ce - cb);
+}
+
 // Verify @p child's signature under the public key in @p issuer_spki, dispatching on the algorithm.
 // Unsupported algorithms return false (fail closed).
 inline bool verify_cert_sig(const Cert& child, const std::string& issuer_spki) {
     const std::string& oid = child.sig_oid;
-    if (oid == oid_rsa_sha256()) {
+    if (oid == oid_rsa_sha256() || oid == oid_rsa_sha384()) {
         std::string nb, eb;
         if (!rsa::parse_rsa_pubkey(issuer_spki, nb, eb)) return false;
-        return rsa::verify_pkcs1v15(nb, eb,
-                                    rsa::digestinfo_prefix_sha256() + hashlib::sha256_digest(child.tbs),
-                                    child.sig);
+        const std::string di = oid == oid_rsa_sha384()
+                                   ? rsa::digestinfo_prefix_sha384() + hashlib::sha384_digest(child.tbs)
+                                   : rsa::digestinfo_prefix_sha256() + hashlib::sha256_digest(child.tbs);
+        return rsa::verify_pkcs1v15(nb, eb, di, child.sig);
     }
-    if (oid == oid_ecdsa_sha256()) {
-        const std::string pt = p256::spki_ec_point(issuer_spki);
-        if (pt.size() != 64) return false;
-        return p256::verify_der(pt, hashlib::sha256_digest(child.tbs), child.sig);
+    if (oid == oid_ecdsa_sha256() || oid == oid_ecdsa_sha384()) {
+        // The HASH comes from the signature OID; the CURVE comes from the issuer's key. Real
+        // chains mix them freely (Sectigo: a P-256 intermediate signed ecdsa-with-SHA384 by a
+        // P-384 root), so route on the SPKI's named-curve OID and allow either pairing.
+        const std::string digest = oid == oid_ecdsa_sha384() ? hashlib::sha384_digest(child.tbs)
+                                                             : hashlib::sha256_digest(child.tbs);
+        const std::string curve = ec_named_curve(issuer_spki);
+        if (curve == oid_prime256v1()) {
+            const std::string pt = p256::spki_ec_point(issuer_spki);
+            if (pt.size() != 64) return false;
+            return p256::verify_der(pt, digest, child.sig);
+        }
+        if (curve == oid_secp384r1()) {
+            const std::string pt = p384::spki_ec_point(issuer_spki);
+            if (pt.size() != 96) return false;
+            return p384::verify_der(pt, digest, child.sig);
+        }
+        return false;  // an EC issuer key on any other curve — refused, not accepted unverified
     }
     if (oid == oid_ed25519()) {
         const std::string k = ed25519_key(issuer_spki);
         if (k.size() != 32) return false;
         return ed25519::verify(to_hex(k), child.tbs, to_hex(child.sig));
     }
-    return false;  // ECDSA P-384, SHA-384/512, etc. — refused rather than accepted unverified
+    return false;  // SHA-512, rsassa-PSS chain sigs, etc. — refused rather than accepted unverified
 }
 
 // RFC 6125 hostname match: exact (case-insensitive), or a single leftmost-label wildcard

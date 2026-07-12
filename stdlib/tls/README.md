@@ -21,9 +21,11 @@ MAC), the presented **X.509 chain is validated** (from-scratch, `x509.hpp`):
 3. **Validity** — every certificate's `notBefore … notAfter` window must contain the current
    time. Expired / not-yet-valid certificates are refused.
 
-Chain signatures are verified for **RSA PKCS#1 v1.5 (SHA-256)**, **ECDSA P-256 (SHA-256)**, and
-**Ed25519**. Algorithms cheatah does not implement yet (e.g. ECDSA **P-384**, SHA-384/512)
-**fail closed** — the connection is refused, never accepted unverified.
+Chain signatures are verified for **RSA PKCS#1 v1.5 (SHA-256 and SHA-384)**, **ECDSA with
+SHA-256 or SHA-384 under P-256 or P-384 issuer keys** (the hash comes from the signature OID,
+the curve from the issuer's key — real CA chains mix them), and **Ed25519**. Algorithms cheatah
+does not implement yet (e.g. SHA-512, rsassa-PSS chain signatures) **fail closed** — the
+connection is refused, never accepted unverified.
 
 **Opting out (pinned / controlled peer).** For a server whose identity you establish out of
 band, pass `insecure = true` to skip validation (leaf-key possession only), or `ca_file` to
@@ -77,8 +79,8 @@ from cheatah, so cheatah code cannot leak a session — it uses the `tls.Conn` g
 
 **Scope (v1):** TLS 1.3 only, cipher suites TLS_CHACHA20_POLY1305_SHA256 and
 TLS_AES_128_GCM_SHA256, X25519 key share, SNI, and X.509 chain + hostname + expiry validation
-(RSA-PKCS1-SHA256 / ECDSA-P256-SHA256 / Ed25519 chain signatures). The **server** side presents
-an **Ed25519** leaf certificate (the from-scratch signing path cheatah owns end to end); the
-client picks the record cipher. Not yet: non-Ed25519 **server** certificates, ECDSA P-384 and
-SHA-384/512 chain signatures (refused, not accepted), certificate revocation (OCSP/CRL), and
-client certificates.
+(RSA-PKCS1 SHA-256/384, ECDSA SHA-256/384 under P-256/P-384 keys, and Ed25519 chain
+signatures). The **server** side presents an **Ed25519** leaf certificate (the from-scratch
+signing path cheatah owns end to end); the client picks the record cipher. Not yet:
+non-Ed25519 **server** certificates, SHA-512 chain signatures (refused, not accepted),
+certificate revocation (OCSP/CRL), and client certificates.

@@ -301,11 +301,19 @@ inline bool verify_pss_sha256(const std::string& cert_der, const std::string& me
 
 // The fixed ASN.1 DigestInfo prefix for SHA-256 (RFC 8017 §9.2); the full DigestInfo is this prefix
 // followed by the raw 32-byte digest. Used by PKCS#1 v1.5 verification of certificate-chain
-// signatures (sha256WithRSAEncryption). SHA-384/512 chain signatures are not supported yet — the
-// caller fails those closed rather than accepting them unverified.
+// signatures (sha256WithRSAEncryption). SHA-512 chain signatures are not supported — the caller
+// fails those closed rather than accepting them unverified.
 inline std::string digestinfo_prefix_sha256() {
     static const unsigned char p[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
                                       0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
+    return std::string(reinterpret_cast<const char*>(p), sizeof p);
+}
+
+// The SHA-384 DigestInfo prefix (RFC 8017 §9.2), followed by the raw 48-byte digest — for
+// sha384WithRSAEncryption chain signatures (Sectigo's RSA issuing chains, for one).
+inline std::string digestinfo_prefix_sha384() {
+    static const unsigned char p[] = {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
+                                      0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30};
     return std::string(reinterpret_cast<const char*>(p), sizeof p);
 }
 

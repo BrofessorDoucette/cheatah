@@ -105,6 +105,17 @@ TEST(HashlibVsOpenssl, Sha256) {
     }
 }
 
+TEST(HashlibVsOpenssl, Sha384) {
+    if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
+    for (const auto& in : inputs()) {
+        const std::string f = write_tmp(in);
+        const std::string ref = first_token(capture("openssl dgst -sha384 -r '" + f + "'"));
+        std::remove(f.c_str());
+        ASSERT_EQ(ref.size(), 96u);
+        EXPECT_EQ(hl::sha384(in), ref) << "sha384 mismatch for input of size " << in.size();
+    }
+}
+
 TEST(HashlibVsOpenssl, Sha512) {
     if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
     for (const auto& in : inputs()) {

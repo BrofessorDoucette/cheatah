@@ -33,6 +33,7 @@ add_executable(cheatah_tests
     linalg_smoke_test.cpp
     socket_test.cpp
     p256_test.cpp
+    p384_test.cpp
     websocket_test.cpp
     requests_test.cpp
     parsers_json_test.cpp
@@ -47,6 +48,9 @@ add_executable(cheatah_tests
     # library. The static archive cheatah::p256_static (clean) is therefore NOT linked below; the
     # p256 symbols tls/etc. need are satisfied by this object.
     ${CMAKE_SOURCE_DIR}/stdlib/p256/p256.cpp
+    # p384.cpp is a direct source for the same coverage reason (no white-box seam; its
+    # 6-limb ec_core instantiations are measured here). cheatah::p384_static is NOT linked.
+    ${CMAKE_SOURCE_DIR}/stdlib/p384/p384.cpp
     # websocket.cpp is compiled DIRECTLY too, for the same reason: its CHEATAH_WEBSOCKET_TESTING
     # seam (testonly::session_from_bytes — a frame-parser fuzzing hook) lives ONLY here, never in
     # the shipped libcheatah_websocket. cheatah::websocket_static is therefore NOT linked below.
@@ -87,6 +91,7 @@ target_include_directories(cheatah_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/stdlib/requests
     ${CMAKE_SOURCE_DIR}/stdlib/parsers
     ${CMAKE_SOURCE_DIR}/stdlib/p256    # p256.hpp, now that p256.cpp is a direct test source
+    ${CMAKE_SOURCE_DIR}/stdlib/p384    # p384.hpp, likewise a direct test source
     ${CMAKE_SOURCE_DIR}/stdlib/websocket)  # websocket.hpp, now that websocket.cpp is a direct source
 add_dependencies(cheatah_tests cheatah_requests_module)
 

@@ -9,7 +9,11 @@
 //   openssl req -x509 -new -key rsa_ca.key -sha256 -days 3650 -subj "/CN=cheatah Test RSA CA" \
 //     -addext "basicConstraints=critical,CA:TRUE" -out rsa_ca.pem
 //   ... (RSA/EC/Ed25519 leaves for example.test, a *.wild.test leaf, a root->intermediate->leaf
-//        chain, a non-CA "intermediate", and an RSA+SHA-512 unsupported-algorithm leaf) ...
+//        chain, a non-CA "intermediate", and an RSA+SHA-512 unsupported-algorithm leaf;
+//        SHA-384-era sets: a secp384r1 CA + leaf signed -sha384, a prime256v1 intermediate
+//        signed -sha384 by that P-384 CA with a -sha256 P-256 leaf under it (the Sectigo shape),
+//        an RSA CA + leaf signed -sha384, a prime256v1 CA whose leaf is signed -sha384, and a
+//        multi-SAN leaf with subjectAltName=DNS:first.test,DNS:second.test,DNS:third.test) ...
 //   then `openssl x509 -in X.pem -outform DER | xxd -p` for each.
 
 #include <cstdlib>
@@ -143,6 +147,58 @@ TEST(CheatahX509, ValidatesEd25519Chain) {
     EXPECT_TRUE(x::validate({unhex(x509test::kEdLeaf)}, "example.test",
                             store_of({x509test::kEdCa}), kNow, err))
         << err;
+}
+
+TEST(CheatahX509, ValidatesP384Chain) {
+    // A P-384 leaf signed ecdsa-with-SHA384 by a P-384 CA — the full-P-384 shape.
+    std::string err;
+    EXPECT_TRUE(x::validate({unhex(x509test::kP384Leaf)}, "example.test",
+                            store_of({x509test::kP384Ca}), kNow, err))
+        << err;
+}
+
+TEST(CheatahX509, ValidatesP256IntermediateSignedByP384Root) {
+    // The Sectigo/api.github.com shape: a P-256 leaf signed ecdsa-with-SHA256 by a P-256
+    // intermediate whose own cert is signed ecdsa-with-SHA384 by a P-384 root. One chain
+    // exercises both ECDSA dispatch arms (curve-by-issuer-SPKI, hash-by-signature-OID).
+    std::string err;
+    EXPECT_TRUE(x::validate({unhex(x509test::kMixedLeaf), unhex(x509test::kMixedIntCa)},
+                            "mixed.test", store_of({x509test::kP384Ca}), kNow, err))
+        << err;
+}
+
+TEST(CheatahX509, ValidatesRsaSha384Chain) {
+    // sha384WithRSAEncryption (Sectigo's RSA issuing chains, cdn.jsdelivr.net).
+    std::string err;
+    EXPECT_TRUE(x::validate({unhex(x509test::kRsa384Leaf)}, "example.test",
+                            store_of({x509test::kRsa384Ca}), kNow, err))
+        << err;
+}
+
+TEST(CheatahX509, ValidatesP256KeySigningSha384) {
+    // The other hash/curve pairing: ecdsa-with-SHA384 under a P-256 issuer key (a 48-byte
+    // digest into the 32-byte-scalar curve — the FIPS 186-4 leftmost-bits truncation).
+    std::string err;
+    EXPECT_TRUE(x::validate({unhex(x509test::kP256S384Leaf)}, "example.test",
+                            store_of({x509test::kP256S384Ca}), kNow, err))
+        << err;
+}
+
+TEST(CheatahX509, RejectsUnsupportedEcCurve) {
+    // An ecdsa-with-SHA384 signature under a P-521 issuer key: the signature OID is
+    // supported but the ISSUER curve is neither prime256v1 nor secp384r1 — the curve
+    // dispatch must fail CLOSED rather than guess a curve.
+    std::string err;
+    EXPECT_FALSE(x::validate({unhex(x509test::kP521Leaf)}, "example.test",
+                             store_of({x509test::kP521Ca}), kNow, err));
+    EXPECT_NE(err.find("trusted CA"), std::string::npos) << err;
+}
+
+TEST(CheatahX509, RejectsTamperedP384Signature) {
+    std::string leaf = unhex(x509test::kP384Leaf);
+    leaf[leaf.size() - 1] ^= 0x01;
+    std::string err;
+    EXPECT_FALSE(x::validate({leaf}, "example.test", store_of({x509test::kP384Ca}), kNow, err));
 }
 
 TEST(CheatahX509, ValidatesMultiHopChain) {

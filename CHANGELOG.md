@@ -3,6 +3,33 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## Unreleased
+
+### TLS fix — every subjectAltName is matched, not just the first
+- **X.509 SAN parsing stopped after the first `dNSName`** (a shared loop-bound variable in the
+  DER walk), so any host matched by a *later* SAN entry was refused as "certificate is not valid
+  for host". Multi-SAN certificates are the norm on CDN-shared hosts — `https://fastly.com`,
+  `https://www.fastly.com`, and `https://github.io` all failed while the first-SAN host worked.
+  All SAN entries are now parsed and matched (`CheatahX509.ParsesAllSubjectAltNames`,
+  `.MatchesLaterSan`).
+
+### TLS feature — ECDSA P-384 and SHA-384 certificate chains validate
+- **New `p384` module**: NIST P-384 (secp384r1) ECDSA *verification*, sharing a width-generic,
+  concept-constrained template core (`p256/ec_core.hpp`) with `p256` — the same battle-tested
+  Montgomery arithmetic and Jacobian group law, instantiated at 6 limbs. Verified against the
+  RFC 6979 A.2.6 known-answer vectors (SHA-384 *and* SHA-256, pinning both hash-truncation
+  semantics).
+- **`hashlib.sha384` / `hashlib.sha384_digest`**: SHA-384 via the existing SHA-512 core with its
+  own IV, NIST-vector- and OpenSSL-cross-checked.
+- **Chain validation** now verifies `ecdsa-with-SHA384` and `sha384WithRSAEncryption` signatures,
+  dispatching the ECDSA curve by the **issuer key's** named-curve OID and the hash by the
+  signature OID — real CA chains mix them (Sectigo signs a P-256 intermediate with a P-384 root).
+  api.github.com and cdn.jsdelivr.net now validate; SHA-512 and rsassa-PSS chain signatures still
+  **fail closed** by design.
+- **`ecdsa_secp384r1_sha384` (0x0503)** is offered in `signature_algorithms` and verified in
+  CertificateVerify, so P-384 *leaf* certificates handshake too (live `openssl s_server` system
+  test).
+
 ## v1.4.0-alpha (2026-07-10) — smaller memory footprint: opt-in sized integers, plus fixarray + from-import ergonomics
 
 A footprint-and-ergonomics release. Integers gain **opt-in fixed widths** (`i8`…`u64`) so a column,
