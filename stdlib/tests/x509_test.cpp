@@ -156,6 +156,28 @@ TEST(CheatahX509, ValidatesMultiHopChain) {
 
 // ---- hostname (RFC 6125) ----------------------------------------------------------------------
 
+// Every dNSName in a multi-SAN certificate is parsed — the SAN walk once stopped after the
+// first GeneralName, so a host matched by any later SAN (the norm on CDN-shared certs, e.g.
+// Fastly's) was refused as "not valid for host".
+TEST(CheatahX509, ParsesAllSubjectAltNames) {
+    x::Cert leaf;
+    ASSERT_TRUE(x::parse_cert(unhex(x509test::kMultiSanLeaf), leaf));
+    ASSERT_EQ(leaf.san_dns.size(), 3u);
+    EXPECT_EQ(leaf.san_dns[0], "first.test");
+    EXPECT_EQ(leaf.san_dns[1], "second.test");
+    EXPECT_EQ(leaf.san_dns[2], "third.test");
+}
+
+TEST(CheatahX509, MatchesLaterSan) {
+    const auto store = store_of({x509test::kP256S384Ca});
+    std::string err;
+    EXPECT_TRUE(x::validate({unhex(x509test::kMultiSanLeaf)}, "second.test", store, kNow, err))
+        << err;
+    EXPECT_TRUE(x::validate({unhex(x509test::kMultiSanLeaf)}, "third.test", store, kNow, err))
+        << err;
+    EXPECT_FALSE(x::validate({unhex(x509test::kMultiSanLeaf)}, "fourth.test", store, kNow, err));
+}
+
 TEST(CheatahX509, WildcardHostname) {
     const auto store = store_of({x509test::kRsaCa});
     std::string err;

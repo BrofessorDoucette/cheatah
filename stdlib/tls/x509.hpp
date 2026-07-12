@@ -150,9 +150,12 @@ inline void parse_san(const std::string& d, std::size_t ob, std::size_t oe, Cert
     unsigned char tag;
     std::size_t b, e;
     if (!tlv(d, p, oe, tag, b, e) || tag != 0x30) return;  // SEQUENCE OF GeneralName
-    std::size_t sp = b;
-    while (sp < e) {
-        if (!tlv(d, sp, e, tag, b, e)) return;
+    // The loop bound must be the SEQUENCE's own end, held apart from `e` (each element's
+    // content end) — sharing one variable stopped the walk after the FIRST GeneralName,
+    // so a host matched by any later dNSName was refused (visible on multi-SAN CDN certs).
+    std::size_t sp = b, se = e;
+    while (sp < se) {
+        if (!tlv(d, sp, se, tag, b, e)) return;
         if (tag == 0x82) c.san_dns.push_back(d.substr(b, e - b));  // dNSName [2] IA5String
     }
 }
