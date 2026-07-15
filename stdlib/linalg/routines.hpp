@@ -129,7 +129,9 @@ T inner(const Array<T>& a, const Array<T>& b);
  * @crtest LinalgCompileRun.Outer
  * @systest StdlibE2E.Linalg
  */
-NDArray outer(const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> outer(const Array<T>& a, const Array<T>& b);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Outer product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -142,7 +144,9 @@ NDArray outer(const NDArray& a, const NDArray& b);
  *        non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.OuterIntoReusesBuffer
  */
-void outer(NDArray& out, const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void outer(Array<T>& out, const Array<T>& a, const Array<T>& b);
 /// @endcond
 // Matmul — both the allocating front `matmul(a,b)` and the out-parameter kernel `matmul(out,a,b)`
 // are the two-layer `template <Field T, template<typename> class Array>` overloads in backend.hpp
@@ -165,7 +169,9 @@ void outer(NDArray& out, const NDArray& a, const NDArray& b);
  * @crtest LinalgCompileRun.ConjTranspose
  * @systest StdlibE2E.LinalgComplex
  */
-CNDArray conj_transpose(const CNDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> conj_transpose(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Conjugate transpose into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -178,7 +184,9 @@ CNDArray conj_transpose(const CNDArray& a);
  *        non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.ConjTransposeIntoReusesBuffer
  */
-void conj_transpose(CNDArray& out, const CNDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void conj_transpose(Array<T>& out, const Array<T>& a);
 /// @endcond
 /**
  * Integer matrix power Aⁿ (negative n via @ref inv).
@@ -224,7 +232,9 @@ void matrix_power(NDArray& out, const NDArray& a, long long n);
  * @crtest LinalgCompileRun.Kron
  * @systest StdlibE2E.Linalg
  */
-NDArray kron(const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> kron(const Array<T>& a, const Array<T>& b);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Kronecker product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -237,7 +247,9 @@ NDArray kron(const NDArray& a, const NDArray& b);
  *        non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.KronIntoReusesBuffer
  */
-void kron(NDArray& out, const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void kron(Array<T>& out, const Array<T>& a, const Array<T>& b);
 /// @endcond
 
 // ---- Decompositions ----
@@ -670,7 +682,9 @@ SLogDet slogdet(const NDArray& a);
  * @crtest LinalgCompileRun.Trace
  * @systest StdlibE2E.Linalg
  */
-double trace(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T trace(const Array<T>& a);
 
 // ---- Solving equations and inverting matrices ----
 /**

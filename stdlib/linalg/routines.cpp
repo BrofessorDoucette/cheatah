@@ -938,36 +938,40 @@ template Cplx vdot<Cplx, ndarray::basic_ndarray>(const CNDArray&, const CNDArray
 template double inner<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 
 namespace {
-// outer-product kernel: writes rp[n×m] = x[i]·y[j]. Loop-invariant xi + a clean row pointer keep
-// the inner store contiguous so it vectorizes. The allocating and out-param forms both call it.
-void outer_kernel(double* rp, const double* x, const double* y, std::size_t n, std::size_t m) {
+// outer-product kernel over any Field T: writes rp[n×m] = x[i]·y[j]. Loop-invariant xi + a clean
+// row pointer keep the inner store contiguous so it vectorizes.
+template <ndarray::Field T>
+void outer_kernel(T* rp, const T* x, const T* y, std::size_t n, std::size_t m) {
     for (std::size_t i = 0; i < n; ++i) {
-        const double xi = x[i];          // loop-invariant scalar…
-        double* ri = rp + i * m;         // …and a clean row pointer, so the inner
+        const T xi = x[i];               // loop-invariant scalar…
+        T* ri = rp + i * m;              // …and a clean row pointer, so the inner
         for (std::size_t j = 0; j < m; ++j) ri[j] = xi * y[j];  // store vectorizes
     }
 }
 }  // namespace
 
-NDArray outer(const NDArray& a, const NDArray& b) {
-    const std::size_t n = vector_len(a), m = vector_len(b);
-    std::vector<double> sa, sb;
-    const double* x = contig(a, sa);
-    const double* y = contig(b, sb);
-    ndarray::buffer_t<double> r;  // every element written below -> leave it uninitialized
-    r.resize(n * m);
-    outer_kernel(r.data(), x, y, n, m);
-    return wrap_buffer<double>({n, m}, std::move(r));  // zero-copy: r is already buffer_t
-}
-
-void outer(NDArray& out, const NDArray& a, const NDArray& b) {
+// Outer product a⊗b (rank-1 n×m matrix) into the caller's buffer — the HOST out-parameter form
+// (two-layer over element T and container Array). Writes the kernel straight into @p out.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void outer(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     const std::size_t n = vector_len(a), m = vector_len(b);
     reject_alias(out, a);
     reject_alias(out, b);
-    double* rp = out_buf(out, {n, m});
-    std::vector<double> sa, sb;
-    outer_kernel(rp, contig(a, sa), contig(b, sb), n, m);
+    T* rp = out_buf(out, {n, m});
+    std::vector<T> sa, sb;
+    outer_kernel<T>(rp, contig(a, sa), contig(b, sb), n, m);
 }
+// Allocating front: any pair of vector lengths, result is the n×m rank-1 matrix as Array<T>.
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> outer(const Array<T>& a, const Array<T>& b) {
+    Array<T> out = Array<T>::uninitialized({vector_len(a), vector_len(b)});
+    outer(out, a, b);
+    return out;
+}
+template void outer<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
+template NDArray outer<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 
 namespace {
 // The matmul kernel over ANY Field T (real or complex). The loop is element-generic — the
@@ -1038,32 +1042,42 @@ template NDArray matmul<double, ndarray::basic_ndarray>(const NDArray&, const ND
 template CNDArray matmul<Cplx, ndarray::basic_ndarray>(const CNDArray&, const CNDArray&);
 
 namespace {
-// Conjugate-transpose kernel: T[c×r] = conj(A[r×c]ᵀ). Shared by both overloads.
-void conj_transpose_kernel(Cplx* T, const Cplx* A, std::size_t r, std::size_t c) {
+// (Conjugate-)transpose kernel over any Field T: D[c×r] = A[r×c]ᵀ, conjugated for a complex
+// element (Hermitian adjoint). The conjugation is an `if constexpr` branch — a real element
+// gets a plain transpose, a complex element the adjoint, from ONE kernel.
+template <ndarray::Field T>
+void transpose_kernel(T* D, const T* A, std::size_t r, std::size_t c) {
     for (std::size_t i = 0; i < r; ++i)
-        for (std::size_t j = 0; j < c; ++j) T[j * r + i] = std::conj(A[i * c + j]);
+        for (std::size_t j = 0; j < c; ++j) {
+            if constexpr (ndarray::is_complex_v<T>) D[j * r + i] = std::conj(A[i * c + j]);
+            else D[j * r + i] = A[i * c + j];
+        }
 }
 }  // namespace
 
-// Conjugate transpose (Hermitian adjoint) Aᴴ: transpose, then conjugate every entry.
-CNDArray conj_transpose(const CNDArray& a) {
-    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
-    const std::size_t r = a.shape()[0], c = a.shape()[1];
-    std::vector<Cplx> sa;
-    ndarray::buffer_t<Cplx> T;  // every element written below -> leave it uninitialized
-    T.resize(c * r);
-    conj_transpose_kernel(T.data(), contig(a, sa), r, c);
-    return wrap_buffer<Cplx>({c, r}, std::move(T));  // zero-copy: T is already buffer_t
-}
-
-void conj_transpose(CNDArray& out, const CNDArray& a) {
+// Conjugate transpose (Hermitian adjoint) Aᴴ into the caller's buffer — the HOST out-parameter
+// form (two-layer). For a real element this is a plain transpose (conjugation compiled out).
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void conj_transpose(Array<T>& out, const Array<T>& a) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];
     reject_alias(out, a);  // reads A while writing the transposed out — not in place
-    Cplx* T = out_buf(out, {c, r});
-    std::vector<Cplx> sa;
-    conj_transpose_kernel(T, contig(a, sa), r, c);
+    T* D = out_buf(out, {c, r});
+    std::vector<T> sa;
+    transpose_kernel<T>(D, contig(a, sa), r, c);
 }
+// Allocating front: the c×r adjoint as Array<T>.
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> conj_transpose(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    Array<T> out = Array<T>::uninitialized({a.shape()[1], a.shape()[0]});
+    conj_transpose(out, a);
+    return out;
+}
+template void conj_transpose<Cplx, ndarray::basic_ndarray>(CNDArray&, const CNDArray&);
+template CNDArray conj_transpose<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 
 NDArray matrix_power(const NDArray& a, long long p) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
@@ -1083,9 +1097,10 @@ NDArray matrix_power(const NDArray& a, long long p) {
 }
 
 namespace {
-// Kronecker-product kernel: K[(ar·br)×(ac·bc)] = A⊗B, each A entry scaling the whole of B.
-// Shared by both overloads.
-void kron_kernel(double* K, const double* A, const double* B, std::size_t ar, std::size_t ac,
+// Kronecker-product kernel over any Field T: K[(ar·br)×(ac·bc)] = A⊗B, each A entry scaling the
+// whole of B.
+template <ndarray::Field T>
+void kron_kernel(T* K, const T* A, const T* B, std::size_t ar, std::size_t ac,
                  std::size_t br, std::size_t bc) {
     const std::size_t kc = ac * bc;
     for (std::size_t i = 0; i < ar; ++i)
@@ -1094,41 +1109,54 @@ void kron_kernel(double* K, const double* A, const double* B, std::size_t ar, st
                 for (std::size_t q = 0; q < bc; ++q)
                     K[(i * br + p) * kc + (j * bc + q)] = A[i * ac + j] * B[p * bc + q];
 }
+// Shared 2-D validation → (ar, ac, br, bc); throws on a non-2-D operand.
+template <ndarray::Field T, template <typename> class Array>
+void kron_dims(const Array<T>& a, const Array<T>& b, std::size_t& ar, std::size_t& ac,
+               std::size_t& br, std::size_t& bc) {
+    if (a.ndim() != 2 || b.ndim() != 2)
+        throw std::runtime_error("linalg: kron expects 2-D matrices");
+    ar = a.shape()[0]; ac = a.shape()[1];
+    br = b.shape()[0]; bc = b.shape()[1];
+}
 }  // namespace
 
-NDArray kron(const NDArray& a, const NDArray& b) {
-    if (a.ndim() != 2 || b.ndim() != 2)
-        throw std::runtime_error("linalg: kron expects 2-D matrices");
-    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
-    const std::size_t br = b.shape()[0], bc = b.shape()[1];
-    std::vector<double> sa, sb;
-    ndarray::buffer_t<double> K;  // every element written below -> leave it uninitialized
-    K.resize(ar * br * ac * bc);
-    kron_kernel(K.data(), contig(a, sa), contig(b, sb), ar, ac, br, bc);
-    return wrap_buffer<double>({ar * br, ac * bc}, std::move(K));  // zero-copy: K is already buffer_t
-}
-
-void kron(NDArray& out, const NDArray& a, const NDArray& b) {
-    if (a.ndim() != 2 || b.ndim() != 2)
-        throw std::runtime_error("linalg: kron expects 2-D matrices");
-    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
-    const std::size_t br = b.shape()[0], bc = b.shape()[1];
+// Kronecker product A⊗B into the caller's buffer — the HOST out-parameter form (two-layer).
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void kron(Array<T>& out, const Array<T>& a, const Array<T>& b) {
+    std::size_t ar, ac, br, bc;
+    kron_dims(a, b, ar, ac, br, bc);
     reject_alias(out, a);
     reject_alias(out, b);
-    double* K = out_buf(out, {ar * br, ac * bc});
-    std::vector<double> sa, sb;
-    kron_kernel(K, contig(a, sa), contig(b, sb), ar, ac, br, bc);
+    T* K = out_buf(out, {ar * br, ac * bc});
+    std::vector<T> sa, sb;
+    kron_kernel<T>(K, contig(a, sa), contig(b, sb), ar, ac, br, bc);
 }
+// Allocating front: the (ar·br)×(ac·bc) product as Array<T>.
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> kron(const Array<T>& a, const Array<T>& b) {
+    std::size_t ar, ac, br, bc;
+    kron_dims(a, b, ar, ac, br, bc);
+    Array<T> out = Array<T>::uninitialized({ar * br, ac * bc});
+    kron(out, a, b);
+    return out;
+}
+template void kron<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
+template NDArray kron<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 
-double trace(const NDArray& a) {
+// Trace (sum of the diagonal) — two-layer over element T and (host) container Array; returns the
+// scalar T. Reads the diagonal straight from the buffer, no copy, even for a strided view.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T trace(const Array<T>& a) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];
-    // Read the diagonal straight from the buffer — no copy, even for a strided view.
-    const double* base = a.buffer()->data();
+    const T* base = a.buffer()->data();
     const std::ptrdiff_t off = static_cast<std::ptrdiff_t>(a.offset());
     const std::ptrdiff_t step = a.strides()[0] + a.strides()[1];  // (i,i) advances by s0+s1
     const std::size_t d = std::min(r, c);
-    double s0 = 0, s1 = 0, s2 = 0, s3 = 0;   // independent lanes break the add-latency chain
+    T s0{}, s1{}, s2{}, s3{};                 // independent lanes break the add-latency chain
     std::size_t i = 0;
     for (; i + 4 <= d; i += 4) {
         s0 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
@@ -1136,10 +1164,11 @@ double trace(const NDArray& a) {
         s2 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 2) * step)];
         s3 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 3) * step)];
     }
-    double s = (s0 + s1) + (s2 + s3);
+    T s = (s0 + s1) + (s2 + s3);
     for (; i < d; ++i) s += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
     return s;
 }
+template double trace<double, ndarray::basic_ndarray>(const NDArray&);
 
 double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same flat sum
     // Frobenius/L2 norm is sqrt(x·x); reuse the multi-accumulator dot_kernel so the
