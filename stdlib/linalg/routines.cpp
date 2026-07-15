@@ -1464,12 +1464,22 @@ Eig eigh(const NDArray& a) {
     symmetric_eig(std::move(A), n, vals, vecs);  // solver owns the copy — no second one
     return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
 }
-NDArray eigvalsh(const NDArray& a) {
+// eigvalsh — eigenvalues of a symmetric (real) / Hermitian (complex) matrix; ALWAYS real. One
+// two-layer template collapsing the former real and complex overloads: the Hermitian complex path
+// (2n real embedding) vs the symmetric real path is an `if constexpr` branch on the element.
+// Returns the real spectrum as Array<real_base_t<T>>.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+[[nodiscard]] Array<ndarray::real_base_t<T>> eigvalsh(const Array<T>& a) {
     std::size_t n, c;
-    std::vector<double> A = as_matrix(a, n, c);
+    std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
-    std::vector<double> vals, vecs;
-    symmetric_eig(std::move(A), n, vals, vecs, /*want_vectors=*/false);
+    std::vector<ndarray::real_base_t<T>> vals;
+    std::vector<T> vecs;
+    if constexpr (ndarray::is_complex_v<T>)
+        hermitian_eig(A, n, vals, vecs, /*want_vectors=*/false);
+    else
+        symmetric_eig(std::move(A), n, vals, vecs, /*want_vectors=*/false);
     return make_vector(std::move(vals));
 }
 EighC eigh(const CNDArray& a) {
@@ -1481,15 +1491,9 @@ EighC eigh(const CNDArray& a) {
     hermitian_eig(H, n, vals, vecs, /*want_vectors=*/true);
     return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
 }
-NDArray eigvalsh(const CNDArray& a) {
-    std::size_t n, c;
-    const std::vector<Cplx> H = as_matrix(a, n, c);
-    require_square(n, c);
-    std::vector<double> vals;
-    std::vector<Cplx> vecs;
-    hermitian_eig(H, n, vals, vecs, /*want_vectors=*/false);
-    return make_vector(std::move(vals));
-}
+// (complex eigvalsh is the same two-layer template above at T = std::complex<double>.)
+template NDArray eigvalsh<double, ndarray::basic_ndarray>(const NDArray&);
+template NDArray eigvalsh<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 EigC eig(const NDArray& a) {
     std::size_t n, c;
     std::vector<double> A = as_matrix(a, n, c);

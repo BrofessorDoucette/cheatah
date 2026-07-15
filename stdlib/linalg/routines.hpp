@@ -502,15 +502,24 @@ void eigh(NDArray& values, NDArray& vectors, const NDArray& a);
  * Same tridiagonalization + QL as @ref eigh but **skips the eigenvector accumulation
  * entirely** (the bulk of the work), so it is roughly twice as fast as `eigh`; assumes
  * (does not verify) symmetry and throws on a non-square matrix.
- * @param a square symmetric matrix.
- * @return length-n vector of eigenvalues.
+ * ONE two-layer template collapsing the former real and complex (Hermitian) overloads: a real
+ * element takes the symmetric path, a complex element the Hermitian path (`if constexpr`). The
+ * spectrum is always REAL, returned as `Array<real_base_t<T>>`.
+ * @tparam T the element type (`double` or `std::complex<double>`); @tparam Array the container.
+ * @param a square symmetric (real) / Hermitian (complex) matrix.
+ * @return length-n vector of real eigenvalues.
  * @complexity iterative O(n³).
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new result.
  * @test LinalgRoutines.EigvalshSymmetric
+ * @test LinalgRoutines.ComplexHermitianEigh
  * @crtest LinalgCompileRun.Eigvalsh
+ * @crtest LinalgCompileRun.EigvalshComplex
  * @systest StdlibE2E.Linalg
+ * @systest StdlibE2E.LinalgComplex
  */
-NDArray eigvalsh(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+[[nodiscard]] Array<ndarray::real_base_t<T>> eigvalsh(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Symmetric eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -564,20 +573,8 @@ EighC eigh(const CNDArray& a);
  */
 void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a);
 /// @endcond
-/**
- * Eigenvalues of a **complex Hermitian** matrix, descending and **real**.
- *
- * Same 2n-embedding tridiagonal-QL diagonalization as the complex @ref eigh but discards the
- * eigenvectors; assumes (does not verify) Hermitian and throws on a non-square matrix.
- * @param a square complex Hermitian matrix.
- * @return length-n real vector of eigenvalues.
- * @complexity iterative O(n³).
- * @alloc allocates a new NDArray result.
- * @test LinalgRoutines.ComplexHermitianEigh
- * @crtest LinalgCompileRun.EigvalshComplex
- * @systest StdlibE2E.LinalgComplex
- */
-NDArray eigvalsh(const CNDArray& a);
+// Complex Hermitian eigvalsh (real spectrum) is the SAME two-layer eigvalsh template above,
+// instantiated at T = std::complex<double> (the Hermitian path taken by if constexpr).
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Complex Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
