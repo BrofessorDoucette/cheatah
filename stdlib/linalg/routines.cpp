@@ -1066,7 +1066,9 @@ template <ndarray::Field T, template <typename> class Array>
 template void conj_transpose<Cplx, ndarray::basic_ndarray>(CNDArray&, const CNDArray&);
 template CNDArray conj_transpose<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 
-NDArray matrix_power(const NDArray& a, long long p) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> matrix_power(const Array<T>& a, long long p) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];  // dims only — no copy
     require_square(r, c);
@@ -1255,12 +1257,16 @@ template double det<double, ndarray::basic_ndarray>(const NDArray&);
 template SLogDet slogdet<double, ndarray::basic_ndarray>(const NDArray&);
 template NDArray inv<double, ndarray::basic_ndarray>(const NDArray&);
 
-NDArray lstsq(const NDArray& a, const NDArray& b) {  // min ‖Ax−b‖ via the pseudo-inverse
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> lstsq(const Array<T>& a, const Array<T>& b) {  // min ‖Ax−b‖ via the pseudo-inverse
     return matmul(pinv(a), b);
 }
 
 // ---- Cholesky ----
-NDArray cholesky(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> cholesky(const Array<T>& a) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t n = a.shape()[0], c = a.shape()[1];
     require_square(n, c);
@@ -1357,7 +1363,9 @@ SVD svd(const NDArray& a) {
     return {make_matrix(m, n, s.u), make_vector(s.w), make_matrix(n, n, std::move(vh))};
 }
 
-NDArray svdvals(const NDArray& a) {  // singular values only — skips the U/V work entirely
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> svdvals(const Array<T>& a) {  // singular values only — skips the U/V work entirely
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
@@ -1372,7 +1380,9 @@ NDArray svdvals(const NDArray& a) {  // singular values only — skips the U/V w
     return make_vector(std::move(s.w));
 }
 
-NDArray pinv(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> pinv(const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m >= n) {
@@ -1405,7 +1415,9 @@ NDArray pinv(const NDArray& a) {
     return make_matrix(n, m, std::move(res));
 }
 
-double cond(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T cond(const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
@@ -1421,7 +1433,9 @@ double cond(const NDArray& a) {
     return wmin == 0 ? std::numeric_limits<double>::infinity() : s.w.front() / wmin;
 }
 
-long long matrix_rank(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] long long matrix_rank(const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     const bool tr = m < n;
@@ -1513,6 +1527,15 @@ CNDArray eigvals(const NDArray& a) {
     std::sort(vals.begin(), vals.end(), cgreater);
     return make_vector(std::move(vals));
 }
+
+// Explicit instantiations of the single-return real routines (the host `double` forms shipped).
+template NDArray matrix_power<double, ndarray::basic_ndarray>(const NDArray&, long long);
+template NDArray lstsq<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
+template NDArray cholesky<double, ndarray::basic_ndarray>(const NDArray&);
+template NDArray svdvals<double, ndarray::basic_ndarray>(const NDArray&);
+template NDArray pinv<double, ndarray::basic_ndarray>(const NDArray&);
+template double cond<double, ndarray::basic_ndarray>(const NDArray&);
+template long long matrix_rank<double, ndarray::basic_ndarray>(const NDArray&);
 
 // ---- out-param (buffer-reuse) overloads for the factorizations and multi-output routines ----
 // Each writes its result into the caller's pre-sized array(s) — out FIRST — so a sweep that

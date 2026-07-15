@@ -203,7 +203,9 @@ void conj_transpose(Array<T>& out, const Array<T>& a);
  * @crtest LinalgCompileRun.MatrixPower
  * @systest StdlibE2E.Linalg
  */
-NDArray matrix_power(const NDArray& a, long long n);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> matrix_power(const Array<T>& a, long long n);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Matrix power into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -268,7 +270,9 @@ void kron(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * @crtest LinalgCompileRun.Cholesky
  * @systest StdlibE2E.Linalg
  */
-NDArray cholesky(const NDArray& a);                       // lower-triangular L (A = L Lᵀ)
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> cholesky(const Array<T>& a);       // lower-triangular L (A = L Lᵀ)
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Cholesky factor into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -367,7 +371,9 @@ void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a);
  * @crtest LinalgCompileRun.Svdvals
  * @systest StdlibE2E.Linalg
  */
-NDArray svdvals(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> svdvals(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Singular values into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -616,7 +622,9 @@ double norm(const NDArray& a);                            // default: Frobenius 
  * @crtest LinalgCompileRun.Cond
  * @systest StdlibE2E.Linalg
  */
-double cond(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T cond(const Array<T>& a);
 /**
  * Determinant via LU with partial pivoting.
  *
@@ -648,7 +656,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @crtest LinalgCompileRun.MatrixRank
  * @systest StdlibE2E.Linalg
  */
-long long matrix_rank(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] long long matrix_rank(const Array<T>& a);
 /** Result of slogdet(): det(A) = sign·exp(logabsdet). */
 struct SLogDet {
     double sign;       ///< Sign of the determinant (−1, 0, or +1).
@@ -738,7 +748,9 @@ void solve(NDArray& out, const NDArray& a, const NDArray& b);
  * @crtest LinalgCompileRun.Lstsq
  * @systest StdlibE2E.Linalg
  */
-NDArray lstsq(const NDArray& a, const NDArray& b);        // least-squares solution
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> lstsq(const Array<T>& a, const Array<T>& b);   // least-squares solution
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Least-squares solution into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -796,7 +808,9 @@ void inv(NDArray& out, const NDArray& a);
  * @crtest LinalgCompileRun.Pinv
  * @systest StdlibE2E.Linalg
  */
-NDArray pinv(const NDArray& a);                           // Moore–Penrose pseudo-inverse
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> pinv(const Array<T>& a);           // Moore–Penrose pseudo-inverse
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Pseudo-inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
