@@ -1460,13 +1460,26 @@ template <ndarray::Field T, template <typename> class Array>
 }
 
 // ---- eigenvalues ----
-Eig eigh(const NDArray& a) {
+// eigh — eigen-decomposition of a symmetric (real) / Hermitian (complex) matrix. ONE two-layer
+// template collapsing the former real and complex overloads: the return TYPE differs per element
+// (Eig<Array<T>> real values+vectors vs EighC<Array<real>, Array<complex>> real values + complex
+// vectors), so the body is `auto` with an `if constexpr` branch. The spectrum is always real.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+[[nodiscard]] eigh_result_t<T, Array> eigh(const Array<T>& a) {
     std::size_t n, c;
-    std::vector<double> A = as_matrix(a, n, c);
+    std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
-    std::vector<double> vals, vecs;
-    symmetric_eig(std::move(A), n, vals, vecs);  // solver owns the copy — no second one
-    return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
+    std::vector<ndarray::real_base_t<T>> vals;
+    std::vector<T> vecs;
+    if constexpr (ndarray::is_complex_v<T>) {
+        hermitian_eig(A, n, vals, vecs, /*want_vectors=*/true);
+        return EighC<Array<ndarray::real_base_t<T>>, Array<T>>{
+            make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
+    } else {
+        symmetric_eig(std::move(A), n, vals, vecs);  // solver owns the copy — no second one
+        return Eig<Array<T>>{make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
+    }
 }
 // eigvalsh — eigenvalues of a symmetric (real) / Hermitian (complex) matrix; ALWAYS real. One
 // two-layer template collapsing the former real and complex overloads: the Hermitian complex path
@@ -1486,19 +1499,19 @@ template <ndarray::Field T, template <typename> class Array>
         symmetric_eig(std::move(A), n, vals, vecs, /*want_vectors=*/false);
     return make_vector(std::move(vals));
 }
-EighC eigh(const CNDArray& a) {
-    std::size_t n, c;
-    const std::vector<Cplx> H = as_matrix(a, n, c);
-    require_square(n, c);
-    std::vector<double> vals;
-    std::vector<Cplx> vecs;
-    hermitian_eig(H, n, vals, vecs, /*want_vectors=*/true);
-    return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
-}
-// (complex eigvalsh is the same two-layer template above at T = std::complex<double>.)
+// (complex Hermitian eigh is the SAME two-layer eigh template above at T = std::complex<double>,
+//  returning EighC<NDArray, CNDArray>.)
+// (complex eigvalsh is the same two-layer eigvalsh template above at T = std::complex<double>.)
 template NDArray eigvalsh<double, ndarray::basic_ndarray>(const NDArray&);
 template NDArray eigvalsh<Cplx, ndarray::basic_ndarray>(const CNDArray&);
-EigC eig(const NDArray& a) {
+template Eig<NDArray> eigh<double, ndarray::basic_ndarray>(const NDArray&);
+template EighC<NDArray, CNDArray> eigh<Cplx, ndarray::basic_ndarray>(const CNDArray&);
+
+// eig — general eigen-decomposition; a real matrix can have a COMPLEX conjugate spectrum, so the
+// result is EigC<Array<complex_of_t<T>>> (complex values + vectors) for any real input.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] EigC<Array<ndarray::complex_of_t<T>>> eig(const Array<T>& a) {
     std::size_t n, c;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
@@ -1520,7 +1533,10 @@ EigC eig(const NDArray& a) {
     }
     return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
 }
-CNDArray eigvals(const NDArray& a) {
+// eigvals — the general spectrum (values only); complex for any real input (conjugate pairs).
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<ndarray::complex_of_t<T>> eigvals(const Array<T>& a) {
     std::size_t n, c;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
@@ -1546,6 +1562,8 @@ template double cond<double, ndarray::basic_ndarray>(const NDArray&);
 template long long matrix_rank<double, ndarray::basic_ndarray>(const NDArray&);
 template QR<NDArray> qr<double, ndarray::basic_ndarray>(const NDArray&);
 template SVD<NDArray> svd<double, ndarray::basic_ndarray>(const NDArray&);
+template EigC<CNDArray> eig<double, ndarray::basic_ndarray>(const NDArray&);
+template CNDArray eigvals<double, ndarray::basic_ndarray>(const NDArray&);
 
 // ---- out-param (buffer-reuse) overloads for the factorizations and multi-output routines ----
 // Each writes its result into the caller's pre-sized array(s) — out FIRST — so a sweep that

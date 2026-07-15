@@ -400,18 +400,36 @@ void svdvals(NDArray& out, const NDArray& a);
 
 // ---- Matrix eigenvalues ----
 /** Result of eigh(): a real spectrum — column j of vectors is the eigenvector for values[j]. */
+template <class ArrT = NDArray>
 struct Eig {
-    NDArray values;   ///< Eigenvalues (length n), real.
-    NDArray vectors;  ///< Eigenvectors as columns: column j matches values[j] (empty if not computed).
+    ArrT values;   ///< Eigenvalues (length n), real.
+    ArrT vectors;  ///< Eigenvectors as columns: column j matches values[j] (empty if not computed).
 };
 /**
  * Result of the general eig(): a **complex** spectrum, since a real matrix can have
  * complex conjugate eigenvalue pairs. Column j of vectors is the eigenvector for values[j].
  */
+template <class ArrT = CNDArray>
 struct EigC {
-    CNDArray values;   ///< Eigenvalues (length n), complex.
-    CNDArray vectors;  ///< Eigenvectors as columns: column j matches values[j].
+    ArrT values;   ///< Eigenvalues (length n), complex.
+    ArrT vectors;  ///< Eigenvectors as columns: column j matches values[j].
 };
+/// Result of the complex Hermitian eigh(): **real** eigenvalues with **complex** eigenvectors —
+/// so the two members have DIFFERENT container/element types (`ValsT` real, `VecsT` complex).
+/// Defaults `NDArray`/`CNDArray` are the host result, so plain `EighC` names the common host type.
+template <class ValsT = NDArray, class VecsT = CNDArray>
+struct EighC {
+    ValsT values;   ///< Eigenvalues (length n), real and descending.
+    VecsT vectors;  ///< Eigenvectors as columns: column j matches values[j].
+};
+/// The result type of the unified @ref eigh: for a real element, `Eig<Array<T>>` (real values +
+/// vectors); for a complex element, `EighC<Array<real>, Array<T>>` (real values, complex vectors).
+/// eigh's return type differs per element, so it is expressed here (not `auto`) so the header
+/// declaration knows it without seeing the definition.
+template <ndarray::Field T, template <typename> class Array>
+using eigh_result_t = std::conditional_t<ndarray::is_complex_v<T>,
+                                         EighC<Array<ndarray::real_base_t<T>>, Array<T>>,
+                                         Eig<Array<T>>>;
 /**
  * Eigen-decomposition of a general square matrix (**complex** spectrum and
  * eigenvectors).
@@ -433,7 +451,9 @@ struct EigC {
  * @crtest LinalgCompileRun.Eig
  * @systest StdlibE2E.Linalg
  */
-EigC eig(const NDArray& a);                               // general square matrix
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] EigC<Array<ndarray::complex_of_t<T>>> eig(const Array<T>& a);   // general square matrix
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of
@@ -464,7 +484,9 @@ void eig(CNDArray& values, CNDArray& vectors, const NDArray& a);
  * @crtest LinalgCompileRun.Eigvals
  * @systest StdlibE2E.Linalg
  */
-CNDArray eigvals(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<ndarray::complex_of_t<T>> eigvals(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * General eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -490,10 +512,15 @@ void eigvals(CNDArray& out, const NDArray& a);
  * @complexity iterative O(n³).
  * @alloc allocates both members.
  * @test LinalgRoutines.SvdAndEigh
+ * @test LinalgRoutines.ComplexHermitianEigh
  * @crtest LinalgCompileRun.Eigh
+ * @crtest LinalgCompileRun.EighComplex
  * @systest StdlibE2E.Linalg
+ * @systest StdlibE2E.LinalgComplex
  */
-Eig eigh(const NDArray& a);                               // symmetric / Hermitian
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+[[nodiscard]] eigh_result_t<T, Array> eigh(const Array<T>& a);   // symmetric / Hermitian
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Symmetric eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload
@@ -543,33 +570,9 @@ template <ndarray::Field T, template <typename> class Array>
  */
 void eigvalsh(NDArray& out, const NDArray& a);
 /// @endcond
-/**
- * Result of the complex Hermitian eigh(): **real** eigenvalues (a Hermitian operator
- * has a real spectrum) with **complex** eigenvectors. Column j of vectors is the
- * (unit-norm) eigenvector for values[j].
- */
-struct EighC {
-    NDArray values;    ///< Eigenvalues (length n), real and descending.
-    CNDArray vectors;  ///< Eigenvectors as columns: column j matches values[j].
-};
-/**
- * Eigen-decomposition of a **complex Hermitian** matrix — real eigenvalues, complex
- * eigenvectors.
- *
- * The quantum-mechanics workhorse: a Hermitian operator (`conj_transpose(a) == a`)
- * has a guaranteed-real spectrum and orthonormal complex eigenvectors. Computed by
- * the real symmetric tridiagonal-QL solver on the 2n×2n real embedding
- * `[[Re a, -Im a], [Im a, Re a]]`. Assumes (does not verify) that @p a is Hermitian;
- * throws on a non-square matrix.
- * @param a square complex Hermitian matrix.
- * @return @ref EighC with descending real values and matching complex eigenvectors.
- * @complexity iterative O(n³).
- * @alloc allocates both members.
- * @test LinalgRoutines.ComplexHermitianEigh
- * @crtest LinalgCompileRun.EighComplex
- * @systest StdlibE2E.LinalgComplex
- */
-EighC eigh(const CNDArray& a);
+// EighC (real values + complex vectors) and the unified two-layer `eigh` are declared above with
+// the other eig-family structs; the complex Hermitian eigh is that template at T = complex<double>,
+// returning EighC<NDArray, CNDArray> via the if-constexpr Hermitian branch.
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Complex Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
