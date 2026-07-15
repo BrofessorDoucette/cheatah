@@ -126,3 +126,15 @@ TEST(CheatahOs, Urandom) {
     EXPECT_NE(os::urandom(32), os::urandom(32));
     EXPECT_THROW(os::urandom(-1), std::invalid_argument);
 }
+
+TEST(CheatahOs, ModuleExt) {
+    // Exactly the platform's loadable-module extension, leading dot included.
+    const std::string ext = os::module_ext();
+#if defined(_WIN32)
+    EXPECT_EQ(ext, ".dll");
+#elif defined(__APPLE__)
+    EXPECT_EQ(ext, ".dylib");
+#else
+    EXPECT_EQ(ext, ".so");
+#endif
+}

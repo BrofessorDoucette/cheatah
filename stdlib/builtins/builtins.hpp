@@ -245,17 +245,26 @@ long long to_int(double x);
  * @systest StdlibE2E.Builtins
  */
 double to_float(std::string_view s);
+/// Number: any built-in arithmetic type — every width float() accepts numerically.
+template <typename T>
+concept Number = std::is_arithmetic_v<T>;
 /**
- * Widen an integer to a double.
+ * `float()` of any NUMBER — one widening/identity conversion for every arithmetic type, so
+ * overload resolution can never route a `double` (or an `i32`) through an integer overload
+ * and silently TRUNCATE: `float(0.95)` must be 0.95, never 0.
+ * @tparam T the arithmetic source type (`Number`).
  * @param x the value.
  * @return @p x as a `double`.
  * @complexity O(1).
  * @alloc none.
  * @test CheatahBuiltins.ToFloatFromInt
+ * @test CheatahBuiltins.ToFloatFromFloat
  * @crtest BuiltinsCompileRun.FloatFromInt
+ * @crtest BuiltinsCompileRun.FloatFromFloat
  * @systest StdlibE2E.Builtins
  */
-double to_float(long long x);
+template <Number T>
+constexpr double to_float(T x) { return static_cast<double>(x); }
 
 /// Streamable<T>: T can be written to a `std::ostream` with `operator<<` — the requirement
 /// for str() to render it. (Mirrors io's Printable, so bare `str(x)` and `io.str(x)` agree.)

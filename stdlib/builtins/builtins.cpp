@@ -59,7 +59,6 @@ bool to_bool(std::string_view s) { return !s.empty(); }
 long long to_int(std::string_view s) { return std::stoll(std::string(s)); }
 long long to_int(double x) { return static_cast<long long>(x); }
 double to_float(std::string_view s) { return std::stod(std::string(s)); }
-double to_float(long long x) { return static_cast<double>(x); }
 
 std::size_t hash(std::string_view s) { return std::hash<std::string_view>{}(s); }
 

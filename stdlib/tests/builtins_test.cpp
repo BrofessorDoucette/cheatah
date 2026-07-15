@@ -69,6 +69,11 @@ TEST(CheatahBuiltins, ToFloatFromInt) {
     EXPECT_DOUBLE_EQ(b::to_float(-3LL), -3.0);
 }
 
+TEST(CheatahBuiltins, ToFloatFromFloat) {
+    EXPECT_DOUBLE_EQ(b::to_float(0.95), 0.95);      // identity — must NOT truncate via long long
+    EXPECT_DOUBLE_EQ(b::to_float(-0.0169), -0.0169);
+}
+
 TEST(CheatahBuiltins, AsciiEscapesQuoteChar) {
     EXPECT_EQ(b::ascii("'"), "'\\''");  // a lone single quote -> \'
 }

@@ -36,7 +36,13 @@
 #define CHEATAH_PROGRAM_NAME "program"
 #endif
 #ifndef CHEATAH_MODULE_EXT
-#define CHEATAH_MODULE_EXT ".so"
+#  if defined(_WIN32)
+#    define CHEATAH_MODULE_EXT ".dll"
+#  elif defined(__APPLE__)
+#    define CHEATAH_MODULE_EXT ".dylib"
+#  else
+#    define CHEATAH_MODULE_EXT ".so"
+#  endif
 #endif
 #ifndef CHEATAH_RUNTIME_FALLBACK
 #define CHEATAH_RUNTIME_FALLBACK "cheatah"

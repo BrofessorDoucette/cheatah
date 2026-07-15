@@ -87,6 +87,16 @@ bool is_x86() {
     return false;
 #endif
 }
+// Apple Silicon: every arm64 Mac ships the ARMv8 Cryptography Extension (FEAT_AES/FEAT_PMULL),
+// so the NEON AES + PMULL AES-GCM path MUST be the one that runs — if it isn't, the intrinsics
+// mis-compiled or the self-test rejected the path, and we silently dropped to scalar crypto.
+bool is_apple_silicon() {
+#if defined(__aarch64__) && defined(__APPLE__)
+    return true;
+#else
+    return false;
+#endif
+}
 
 // Every size that straddles a block (16), the 4-wide (64) and 8-wide (128) group boundaries,
 // plus a few larger buffers — where a CTR/GHASH tail bug would hide.
@@ -96,16 +106,24 @@ const std::vector<std::size_t> kSizes = {0,  1,  15,  16,  17,  31,  32,  63,  6
 }  // namespace
 
 TEST(CryptoPlatform, Report) {
+    const char* hw = is_apple_silicon() ? "YES (ARMv8 AES + PMULL)" : "YES (AES-NI + PCLMULQDQ)";
     std::printf("[crypto-platform] arch=%s os=%s | AES-GCM hardware path active: %s\n", arch(),
-                os_name(), ae::crypto_hardware_active() ? "YES (AES-NI + PCLMULQDQ)"
-                                                        : "no (portable scalar reference)");
+                os_name(),
+                ae::crypto_hardware_active() ? hw : "no (portable scalar reference)");
     std::fflush(stdout);
-    // An x86 build MUST take the hardware path (else CPUID/dispatch is broken). On other
-    // architectures the scalar reference runs and this is informational only.
+    // A build on a platform with guaranteed crypto instructions MUST take the hardware path,
+    // else CPU detection / the target-attributed SIMD path / the self-test is broken and we
+    // quietly fell back to scalar crypto. x86 here means AES-NI+PCLMULQDQ; Apple Silicon means
+    // the ARMv8 AES+PMULL NEON path (every arm64 Mac has FEAT_AES/FEAT_PMULL). On other ARM
+    // targets the extension is not guaranteed, so there it stays informational.
     if (is_x86()) {
         EXPECT_TRUE(ae::crypto_hardware_active())
             << "x86 build is not using the AES-NI/PCLMULQDQ path";
     }
+    if (is_apple_silicon()) {  // arm64-macOS-only branch; the body is dead on the Linux/x86 CI.
+        EXPECT_TRUE(ae::crypto_hardware_active())  // LCOV_EXCL_LINE
+            << "Apple Silicon build is not using the ARMv8 AES+PMULL crypto path (fell back to scalar)";  // LCOV_EXCL_LINE
+    }  // LCOV_EXCL_LINE
     SUCCEED();
 }
 

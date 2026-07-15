@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include <unistd.h>  // access/X_OK — probe for a Homebrew openssl on macOS
+
 #include <gtest/gtest.h>
 
 #include "e2e_harness.hpp"
@@ -24,6 +26,26 @@ namespace sock = cheatah::socket;
 namespace tls = cheatah::tls;
 
 namespace {
+
+// Resolve the `openssl` CLI used purely as test infrastructure (the peer). On Linux the
+// system openssl is real OpenSSL; on macOS /usr/bin/openssl is LibreSSL, whose s_server/req
+// flag surface differs (e.g. -newkey ed25519, -ciphersuites), so prefer a Homebrew OpenSSL.
+// Overridable via $CHEATAH_OPENSSL for unusual layouts.
+const std::string& openssl_bin() {
+    static const std::string bin = [] () -> std::string {
+        if (const char* env = std::getenv("CHEATAH_OPENSSL"); env && *env) return env;
+#if defined(__APPLE__)
+        for (const char* cand : {"/opt/homebrew/opt/openssl@3/bin/openssl",
+                                 "/usr/local/opt/openssl@3/bin/openssl",
+                                 "/opt/homebrew/bin/openssl",
+                                 "/usr/local/bin/openssl"}) {
+            if (::access(cand, X_OK) == 0) return cand;
+        }
+#endif
+        return "openssl";  // real OpenSSL on PATH (Linux); on macOS a LibreSSL fallback
+    }();
+    return bin;
+}
 
 // Generate a throwaway self-signed cert (@p newkey selects the key algorithm — "ed25519",
 // "rsa:2048", "ec" …) and start `openssl s_server` on @p port restricted to @p ciphersuites.
@@ -42,13 +64,13 @@ public:
           key_(std::string(PURR_TEST_TMP) + "/tls_test_key_" + std::to_string(port) + ".pem") {
         // Self-signed, with a subjectAltName so it is a valid trust anchor for "localhost": passed
         // to the client as a ca_file (or via $SSL_CERT_FILE) it authenticates itself.
-        const std::string gen = "openssl req -x509 -newkey " + newkey + " -keyout '" + key_ +
+        const std::string gen = openssl_bin() + " req -x509 -newkey " + newkey + " -keyout '" + key_ +
                                 "' -out '" + cert_ +
                                 "' -days 2 -nodes -subj /CN=localhost "
                                 "-addext subjectAltName=DNS:localhost 2>/dev/null";
         ok_ = std::system(gen.c_str()) == 0;
         if (!ok_) return;
-        const std::string serve = "openssl s_server -accept " + std::to_string(port_) +
+        const std::string serve = openssl_bin() + " s_server -accept " + std::to_string(port_) +
                                   " -cert '" + cert_ + "' -key '" + key_ +
                                   "' -tls1_3 -ciphersuites " + ciphersuites + " -www "
                                   ">/dev/null 2>&1 &";

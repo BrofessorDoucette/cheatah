@@ -83,6 +83,16 @@ std::string urandom(int n) {
     return out;
 }
 
+std::string module_ext() {
+#if defined(_WIN32)
+    return ".dll";
+#elif defined(__APPLE__)
+    return ".dylib";
+#else
+    return ".so";
+#endif
+}
+
 namespace path {
 
 bool exists(const std::string& p) { return fs::exists(p); }

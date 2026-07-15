@@ -231,7 +231,10 @@ fn template_main(name) {
 fn template_gitignore() {
     let s = "build/\n"
     s = s + "*.gen.cpp\n"
+    # Ignore compiled loadable modules for every platform (a repo may be shared across them).
     s = s + "*.so\n"
+    s = s + "*.dylib\n"
+    s = s + "*.dll\n"
     return s
 }
 
@@ -307,7 +310,7 @@ fn cmd_init(name) {
     io.print("         biome add cheatah-plot   # optional")
     io.print("         biome configure")
     io.print("         biome build")
-    io.print("         cheatah build/" + name + ".so   # run it with the cheatah runtime")
+    io.print("         cheatah build/" + name + os.module_ext() + "   # run it with the cheatah runtime")
     return 0
 }
 
@@ -417,7 +420,7 @@ fn cmd_build(clean_first) {
     }
     # biome builds; it does NOT run your program. A cheatah program is a loadable module,
     # run by the cheatah runtime — always explicitly, so it is unambiguous what executes.
-    let modpath = os.path.join("build", m.name) + ".so"
+    let modpath = os.path.join("build", m.name) + os.module_ext()
     io.print("biome: built", modpath)
     io.print("       run it with the cheatah runtime:  cheatah " + modpath)
     return 0
@@ -439,7 +442,7 @@ fn cmd_help() {
     io.print("  help            show this message")
     io.print("")
     io.print("biome builds; it never runs your code. run a built program with the cheatah")
-    io.print("runtime:  cheatah build/<name>.so")
+    io.print("runtime:  cheatah build/<name>" + os.module_ext())
     return 0
 }
 

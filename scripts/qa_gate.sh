@@ -197,8 +197,12 @@ else
 fi
 
 # 6. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------
+#    Valgrind is unavailable/broken on macOS (especially Apple Silicon); the memory-safety
+#    coverage there is the ASan+UBSan stage above, so skip Valgrind on Darwin rather than fail.
 if [ "${QA_GATE_SKIP_VALGRIND:-0}" = "1" ]; then
     bold "Skipping Valgrind stage (QA_GATE_SKIP_VALGRIND=1)."
+elif [ "$(uname -s)" = "Darwin" ]; then
+    bold "Skipping Valgrind stage on macOS (unsupported on Apple Silicon; ASan+UBSan covered it above)."
 elif ! command -v valgrind >/dev/null 2>&1; then
     fail "valgrind not installed (install it, or set QA_GATE_SKIP_VALGRIND=1)"
 else

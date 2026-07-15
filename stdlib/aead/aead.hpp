@@ -120,22 +120,24 @@ std::string aes256gcm_decrypt(std::string_view key_hex, std::string_view nonce_h
 
 /// @cond INTERNAL — a test hook (pins the scalar reference path for cross-checking), not user API
 /**
- * Force the portable (non-AES-NI) AES-128-GCM path on/off. AES-128-GCM normally uses the
- * CPU's AES-NI + PCLMULQDQ instructions when present; this hook pins the scalar reference
- * implementation instead — for deterministic cross-checking that both paths agree, and so
- * the reference stays exercised on hardware that would otherwise always take the fast path.
- * @param on true to pin the portable scalar path; false to allow AES-NI again when present.
+ * Force the portable (non-hardware) AES-128-GCM path on/off. AES-128-GCM normally uses the
+ * CPU's crypto instructions when present (x86 AES-NI/PCLMULQDQ or ARMv8 AES/PMULL); this hook
+ * pins the scalar reference implementation instead — for deterministic cross-checking that both
+ * paths agree, and so the reference stays exercised on hardware that would otherwise always take
+ * the fast path.
+ * @param on true to pin the portable scalar path; false to allow the hardware path again when present.
  * @complexity O(1). @alloc none. @test CheatahAead.AesGcmPortableMatchesHardware
  */
 void set_force_portable_crypto(bool on);
 /// @endcond
 
 /**
- * Whether AES-128-GCM is currently using the hardware (AES-NI + PCLMULQDQ) path: true on a
- * capable x86 CPU unless set_force_portable_crypto(true) is in effect, false otherwise (e.g.
- * on ARM, where the portable scalar reference runs). Lets a platform test report and assert
+ * Whether AES-128-GCM is currently using the CPU's crypto instructions: the x86 AES-NI +
+ * PCLMULQDQ path, or the ARMv8 AES + PMULL path on AArch64 (e.g. Apple Silicon). True on a
+ * capable CPU unless set_force_portable_crypto(true) is in effect; false where neither ISA is
+ * present (the portable scalar reference then runs). Lets a platform test report and assert
  * which implementation a given machine actually exercised.
- * @return true iff the hardware (AES-NI + PCLMULQDQ) AES-128-GCM path is currently active.
+ * @return true iff a hardware AES-128-GCM path (x86 AES-NI/PCLMULQDQ or ARMv8 AES/PMULL) is active.
  * @complexity O(1). @alloc none. @test CryptoPlatform.Report
  */
 [[nodiscard]] bool crypto_hardware_active();

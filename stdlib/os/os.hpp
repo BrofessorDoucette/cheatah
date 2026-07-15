@@ -233,6 +233,23 @@ int system(const std::string& command);
  */
 std::string urandom(int n);
 
+/**
+ * The loadable-module file extension for this platform.
+ *
+ * A compiled cheatah program is a native loadable module run by the `cheatah`
+ * host; its file extension is `.so` on Linux/BSD, `.dylib` on macOS, and `.dll`
+ * on Windows. Tools that build or name modules (e.g. the `biome` package manager)
+ * use this instead of hardcoding `.so`, so the paths they print and generate are
+ * correct on every platform. The result includes the leading dot.
+ * @return the platform module extension (e.g. `".so"`, `".dylib"`, `".dll"`).
+ * @complexity O(1).
+ * @alloc allocates the returned string.
+ * @test CheatahOs.ModuleExt
+ * @crtest OsCompileRun.ModuleExt
+ * @systest StdlibE2E.Os
+ */
+std::string module_ext();
+
 /// os.path — the path-manipulation submodule.
 namespace path {
 

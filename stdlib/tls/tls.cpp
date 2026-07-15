@@ -3,6 +3,7 @@
 #include "tls.hpp"
 #include "tls_lowlevel.hpp"  // the C++-only raw handle API this module implements (+ tls::Conn uses)
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <ctime>
@@ -11,7 +12,7 @@
 #include <string_view>
 #include <vector>
 
-#include <sys/random.h>  // getrandom: client random + ephemeral X25519 key
+#include <sys/random.h>  // getentropy: client random + ephemeral X25519 key
 
 #include "aead.hpp"     // chacha20poly1305_{en,de}crypt — the record cipher
 #include "ed25519.hpp"    // verify — CertificateVerify for Ed25519 server certs
@@ -224,11 +225,14 @@ bool open_record(Keys& k, std::string_view payload, unsigned& inner_type, std::s
 
 std::string random_bytes(std::size_t n) {
     std::string out(n, '\0');
+    // getentropy (Linux + macOS/BSD) is the portable CSPRNG read; getrandom is Linux-only.
+    // It is capped at 256 bytes per call, so loop for larger requests. A nonzero return means
+    // the OS could not supply randomness — fatal for key material, so bail with "".
     std::size_t got = 0;
     while (got < n) {
-        const ssize_t r = getrandom(out.data() + got, n - got, 0);
-        if (r <= 0) return "";  // the kernel CSPRNG failing is fatal for key material
-        got += static_cast<std::size_t>(r);
+        const std::size_t chunk = std::min<std::size_t>(n - got, 256);
+        if (::getentropy(out.data() + got, chunk) != 0) return "";
+        got += chunk;
     }
     return out;
 }

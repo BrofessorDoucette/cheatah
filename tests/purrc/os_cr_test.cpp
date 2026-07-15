@@ -247,3 +247,19 @@ io.print(len(os.urandom(32)))
 io.print(os.urandom(16) != os.urandom(16))
 )PURR", "32\nTrue\n");
 }
+
+TEST(OsCompileRun, ModuleExt) {
+    // The loadable-module extension is platform-fixed; assert the exact value for
+    // the platform this test is built on (matches os::module_ext()).
+#if defined(__APPLE__)
+    const char* expected = ".dylib\n";
+#elif defined(_WIN32)
+    const char* expected = ".dll\n";
+#else
+    const char* expected = ".so\n";
+#endif
+    e2e::expect_e2e("os_module_ext", R"PURR(import io
+import os
+io.print(os.module_ext())
+)PURR", expected);
+}

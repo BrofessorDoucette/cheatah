@@ -52,15 +52,31 @@
 #define CHEATAH_AR "ar"
 #endif
 // Platform-computed by cmake/Portability.cmake; '|'-joined flag lists + the loadable
-// module extension. The defaults below are the Linux fallback (e.g. a non-CMake build).
+// module extension. The defaults below are the fallback for a non-CMake build; they are
+// keyed off the host platform macros so a hand-built purrc still emits a working module
+// (Apple Silicon wants -mcpu=native, not -march=native; macOS modules are .dylib).
 #ifndef CHEATAH_CXXFLAGS
-#define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-march=native|-fPIC|-shared|-pthread|-w"
+#  if defined(__APPLE__)
+#    define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-mcpu=native|-fPIC|-shared|-pthread|-w"
+#  else
+#    define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-march=native|-fPIC|-shared|-pthread|-w"
+#  endif
 #endif
 #ifndef CHEATAH_MATHLINK
-#define CHEATAH_MATHLINK "-lm"
+#  if defined(__APPLE__)
+#    define CHEATAH_MATHLINK ""
+#  else
+#    define CHEATAH_MATHLINK "-lm"
+#  endif
 #endif
 #ifndef CHEATAH_MODULE_EXT
-#define CHEATAH_MODULE_EXT ".so"
+#  if defined(_WIN32)
+#    define CHEATAH_MODULE_EXT ".dll"
+#  elif defined(__APPLE__)
+#    define CHEATAH_MODULE_EXT ".dylib"
+#  else
+#    define CHEATAH_MODULE_EXT ".so"
+#  endif
 #endif
 
 using namespace cheatah;

@@ -102,6 +102,12 @@ io.print(float(7))
 )PURR", "7\n");
 }
 
+TEST(BuiltinsCompileRun, FloatFromFloat) {
+    e2e::expect_e2e("builtins_float_float", R"PURR(import io
+io.print(float(0.95))
+)PURR", "0.95\n");
+}
+
 TEST(BuiltinsCompileRun, BoolFromString) {
     e2e::expect_e2e("builtins_bool_str", R"PURR(import io
 io.print(bool("x"))
