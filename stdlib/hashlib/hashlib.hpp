@@ -128,6 +128,21 @@ std::string sha512_digest(std::string_view data);  // 64 raw bytes
 std::string hmac_sha256(std::string_view key, std::string_view data);
 
 /**
+ * HMAC-SHA-384 (RFC 2104) over raw bytes — the PRF under the SHA-384 HKDF / TLS 1.3 key schedule
+ * (the TLS_AES_256_GCM_SHA384 cipher suite). SHA-384 shares SHA-512's 128-byte block; the MAC is 48 bytes.
+ *
+ * @param key raw key bytes (any length; hashed down when longer than the 128-byte block).
+ * @param data raw message bytes.
+ * @return the 48-byte MAC as raw bytes.
+ * @complexity O(|key| + |data|).
+ * @alloc the returned 48-byte digest plus fixed key/inner/outer scratch buffers.
+ * @test CheatahHashlib.HmacSha384
+ * @crtest HashlibCompileRun.Hmac
+ * @systest StdlibE2E.Hashlib
+ */
+std::string hmac_sha384(std::string_view key, std::string_view data);
+
+/**
  * HMAC-SHA-512 (RFC 2104) over raw bytes — the wider PRF (128-byte block, 64-byte MAC), e.g. for
  * authentication schemes that mandate SHA-512.
  *
@@ -238,5 +253,30 @@ std::string hkdf_extract(std::string_view salt, std::string_view ikm);
  * @systest StdlibE2E.Hashlib
  */
 std::string hkdf_expand(std::string_view prk, std::string_view info, long long length);
+
+/**
+ * HKDF-Extract over HMAC-SHA-384 — the SHA-384 variant for the TLS_AES_256_GCM_SHA384 key schedule.
+ *
+ * @param salt the (optional) salt; "" is treated as HashLen zero bytes by the caller as needed.
+ * @param ikm the input keying material.
+ * @return the 48-byte pseudorandom key (PRK) as raw bytes.
+ * @complexity O(|salt| + |ikm|).
+ * @alloc the returned 48-byte PRK plus fixed HMAC scratch buffers.
+ * @test CheatahHashlib.HkdfSha384
+ */
+std::string hkdf_extract_sha384(std::string_view salt, std::string_view ikm);
+
+/**
+ * HKDF-Expand over HMAC-SHA-384 — the SHA-384 variant for the TLS_AES_256_GCM_SHA384 key schedule.
+ *
+ * @param prk a pseudorandom key (e.g. from hkdf_extract_sha384()).
+ * @param info optional context/application-specific info binding the output ("" for none).
+ * @param length the number of output-keying-material bytes to produce.
+ * @return the OKM as raw bytes, or "" when length is 0 or exceeds 255*48 (the RFC bound).
+ * @complexity O(length).
+ * @alloc the returned keystream plus one HMAC scratch buffer per 48-byte output block.
+ * @test CheatahHashlib.HkdfSha384
+ */
+std::string hkdf_expand_sha384(std::string_view prk, std::string_view info, long long length);
 
 } // namespace cheatah::hashlib

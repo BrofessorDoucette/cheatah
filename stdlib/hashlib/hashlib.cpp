@@ -226,6 +226,20 @@ std::string hmac_sha256(std::string_view key, std::string_view data) {
     return sha256_digest(outer + sha256_digest(inner + std::string(data)));
 }
 
+std::string hmac_sha384(std::string_view key, std::string_view data) {
+    constexpr std::size_t kBlock = 128;  // SHA-384 shares SHA-512's 128-byte block
+    std::string k(key);
+    if (k.size() > kBlock) k = sha384_digest(k);  // long keys hash down first
+    k.resize(kBlock, '\0');
+    std::string inner(kBlock, '\0');
+    std::string outer(kBlock, '\0');
+    for (std::size_t i = 0; i < kBlock; ++i) {
+        inner[i] = static_cast<char>(k[i] ^ 0x36);
+        outer[i] = static_cast<char>(k[i] ^ 0x5c);
+    }
+    return sha384_digest(outer + sha384_digest(inner + std::string(data)));
+}
+
 std::string hmac_sha512(std::string_view key, std::string_view data) {
     constexpr std::size_t kBlock = 128;  // SHA-512 block size
     std::string k(key);
@@ -340,20 +354,39 @@ std::string base64_decode(std::string_view text, bool strict) {
     return out;
 }
 
+// HKDF (RFC 5869) generic over its HMAC and hash-output length, so the SHA-256 and SHA-384 key
+// schedules (the latter for the TLS_AES_256_GCM_SHA384 cipher suite) share one implementation.
+namespace {
+using HmacFn = std::string (*)(std::string_view, std::string_view);
+
+std::string hkdf_expand_impl(std::string_view prk, std::string_view info, long long length,
+                             HmacFn hmac, std::size_t hlen) {
+    if (length <= 0 || length > 255 * static_cast<long long>(hlen)) return "";
+    std::string okm;
+    std::string t;  // T(0) = empty
+    for (unsigned char counter = 1; static_cast<long long>(okm.size()) < length; ++counter) {
+        t = hmac(prk, t + std::string(info) + static_cast<char>(counter));
+        okm += t;
+    }
+    okm.resize(static_cast<std::size_t>(length));
+    return okm;
+}
+}  // namespace
+
 std::string hkdf_extract(std::string_view salt, std::string_view ikm) {
     return hmac_sha256(salt, ikm);
 }
 
 std::string hkdf_expand(std::string_view prk, std::string_view info, long long length) {
-    if (length <= 0 || length > 255 * 32) return "";
-    std::string okm;
-    std::string t;  // T(0) = empty
-    for (unsigned char counter = 1; static_cast<long long>(okm.size()) < length; ++counter) {
-        t = hmac_sha256(prk, t + std::string(info) + static_cast<char>(counter));
-        okm += t;
-    }
-    okm.resize(static_cast<std::size_t>(length));
-    return okm;
+    return hkdf_expand_impl(prk, info, length, hmac_sha256, 32);
+}
+
+std::string hkdf_extract_sha384(std::string_view salt, std::string_view ikm) {
+    return hmac_sha384(salt, ikm);
+}
+
+std::string hkdf_expand_sha384(std::string_view prk, std::string_view info, long long length) {
+    return hkdf_expand_impl(prk, info, length, hmac_sha384, 48);
 }
 
 } // namespace cheatah::hashlib

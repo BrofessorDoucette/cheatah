@@ -111,6 +111,47 @@ TEST(CheatahAead, AesGcmNistCase4) {
     EXPECT_EQ(a::aes128gcm_decrypt(key, iv, aad, ct), p);
 }
 
+// AES-256-GCM known-answer: McGrew GCM Test Case 16 (the AES-256 analog of Case 4), the standard
+// vector — AES-256 key, non-empty AAD + plaintext. Validates the FIPS-197 AES-256 key schedule +
+// the shared GCM machinery through the portable path.
+TEST(CheatahAead, Aes256GcmNistKat) {
+    const std::string key =
+        "feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308";
+    const std::string iv = "cafebabefacedbaddecaf888";
+    const std::string aad = unhex("feedfacedeadbeeffeedfacedeadbeefabaddad2");
+    const std::string p = unhex(
+        "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a72"
+        "1c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39");
+    const std::string ct = a::aes256gcm_encrypt(key, iv, aad, p);
+    ASSERT_EQ(ct.size(), p.size() + 16);
+    EXPECT_EQ(hex_of(ct.substr(0, p.size())),
+              "522dc1f099567d07f47f37a32a84427d643a8cdcbfe5c0c97598a2bd"
+              "2555d1aa8cb08e48590dbb3da7b08b1056828838c5f61e6393ba7a0abcc9f662");
+    EXPECT_EQ(hex_of(ct.substr(ct.size() - 16)), "76fc6ece0f4e1768cddf8853bb2d551b");
+    EXPECT_EQ(a::aes256gcm_decrypt(key, iv, aad, ct), p);
+}
+
+// AES-256-GCM round trip + tamper/malformed rejection (mirrors the AES-128 case).
+TEST(CheatahAead, Aes256GcmRejectsTamper) {
+    const std::string key =
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+    const std::string iv = "000102030405060708090a0b";
+    const std::string aad = "header", p = "the quick brown fox jumps over the lazy dog";
+    std::string ct = a::aes256gcm_encrypt(key, iv, aad, p);
+    ASSERT_EQ(ct.size(), p.size() + 16);
+    EXPECT_EQ(a::aes256gcm_decrypt(key, iv, aad, ct), p);  // round trip
+    std::string flip_ct = ct;
+    flip_ct[2] = static_cast<char>(flip_ct[2] ^ 0x01);
+    EXPECT_EQ(a::aes256gcm_decrypt(key, iv, aad, flip_ct), "");
+    std::string flip_tag = ct;
+    flip_tag[flip_tag.size() - 1] = static_cast<char>(flip_tag.back() ^ 0x80);
+    EXPECT_EQ(a::aes256gcm_decrypt(key, iv, aad, flip_tag), "");
+    EXPECT_EQ(a::aes256gcm_decrypt(key, iv, "other aad", ct), "");
+    EXPECT_EQ(a::aes256gcm_decrypt(key, iv, aad, "short"), "");
+    EXPECT_EQ(a::aes256gcm_encrypt("ababab", iv, aad, p), "");                 // key not 32 bytes
+    EXPECT_EQ(a::aes256gcm_encrypt(std::string(64, 'a'), "00", aad, p), "");   // nonce not 12 bytes
+}
+
 // Round trip + tamper rejection (ciphertext, tag, aad) + malformed key/nonce/short input.
 TEST(CheatahAead, AesGcmRejectsTamperAndMalformed) {
     const std::string key = "000102030405060708090a0b0c0d0e0f", iv = "000102030405060708090a0b";
@@ -181,4 +222,43 @@ TEST(CheatahAead, AesGcmPortableMatchesHardware) {
     EXPECT_FALSE(
         a::aes128gcm_encrypt("000102030405060708090A0B0C0D0E0F", nonce, aad, "x").empty());
     EXPECT_EQ(a::aes128gcm_encrypt("zz0102030405060708090a0b0c0d0e0f", nonce, aad, "x"), "");
+}
+
+// AES-256-GCM: the hardware path (x86 AES-NI/PCLMULQDQ or ARMv8 AES/PMULL) must agree byte-for-byte
+// with the portable scalar reference, across sizes that exercise the 8-wide CTR/GHASH loop, its tail,
+// a sub-block, and empty. This is what an ARM/macOS user runs to verify THEIR hardware AES-256 path
+// against the reference — just `ctest`.
+TEST(CheatahAead, Aes256GcmPortableMatchesHardware) {
+    const std::string key =
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+    const std::string nonce = "101112131415161718191a1b";
+    const std::string aad = "associated-data-header";
+    for (std::size_t n : {std::size_t(0), std::size_t(13), std::size_t(16), std::size_t(64),
+                          std::size_t(100), std::size_t(255)}) {
+        std::string pt(n, '\0');
+        for (std::size_t i = 0; i < n; ++i) pt[i] = static_cast<char>(i * 7 + 1);
+
+        a::set_force_portable_crypto(false);
+        const std::string hw = a::aes256gcm_encrypt(key, nonce, aad, pt);
+        a::set_force_portable_crypto(true);
+        const std::string sw = a::aes256gcm_encrypt(key, nonce, aad, pt);
+        a::set_force_portable_crypto(false);
+
+        ASSERT_EQ(hw.size(), n + 16);
+        EXPECT_EQ(hw, sw) << "hardware vs portable AES-256-GCM differ at size " << n;
+        EXPECT_EQ(a::aes256gcm_decrypt(key, nonce, aad, hw), pt);  // hardware decrypt
+        a::set_force_portable_crypto(true);
+        EXPECT_EQ(a::aes256gcm_decrypt(key, nonce, aad, hw), pt);  // portable decrypt
+        a::set_force_portable_crypto(false);
+    }
+    // Large AAD (>= 128 bytes) exercises the 8-wide GHASH aggregation over the AAD.
+    const std::string big_aad(200, 'A');
+    const std::string pt = "payload for the large-aad AES-256 cross-check";
+    a::set_force_portable_crypto(false);
+    const std::string hw = a::aes256gcm_encrypt(key, nonce, big_aad, pt);
+    a::set_force_portable_crypto(true);
+    const std::string sw = a::aes256gcm_encrypt(key, nonce, big_aad, pt);
+    a::set_force_portable_crypto(false);
+    EXPECT_EQ(hw, sw);
+    EXPECT_EQ(a::aes256gcm_decrypt(key, nonce, big_aad, hw), pt);
 }

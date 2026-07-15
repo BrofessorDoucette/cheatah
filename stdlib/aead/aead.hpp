@@ -86,6 +86,38 @@ std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_h
 std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view ciphertext);
 
+/**
+ * Encrypt + authenticate: AES-256-GCM(key, nonce, aad, plaintext) — the record cipher of TLS 1.3's
+ * TLS_AES_256_GCM_SHA384 suite. The nonce is the GCM IV (J0 = nonce || 0x00000001); the 16-byte tag is
+ * appended. Runs the portable scalar reference (AES-128-GCM / ChaCha20 keep the hardware fast path).
+ *
+ * @param key_hex the 64-char hex key (32 bytes, AES-256).
+ * @param nonce_hex the 24-char hex nonce (12 bytes), used as the GCM IV; MUST be unique per key.
+ * @param aad additional authenticated data — authenticated but not encrypted ("" for none).
+ * @param plaintext the raw-byte message to encrypt (binary-safe).
+ * @return ciphertext with the 16-byte tag appended, or "" on malformed key/nonce hex.
+ * @complexity O(|plaintext| + |aad|).
+ * @alloc the returned string.
+ * @test CheatahAead.Aes256GcmNistKat
+ */
+std::string aes256gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex,
+                              std::string_view aad, std::string_view plaintext);
+
+/**
+ * Verify + decrypt the inverse of aes256gcm_encrypt.
+ *
+ * @param key_hex the 64-char hex key (32 bytes, AES-256) used to encrypt.
+ * @param nonce_hex the 24-char hex nonce (12 bytes) used to encrypt.
+ * @param aad the same additional authenticated data supplied at encryption ("" for none).
+ * @param ciphertext the ciphertext with its 16-byte GCM tag appended.
+ * @return the plaintext, or "" when the tag does not verify (constant-time check) or the input is malformed.
+ * @complexity O(|ciphertext| + |aad|).
+ * @alloc the returned string.
+ * @test CheatahAead.Aes256GcmRejectsTamper
+ */
+std::string aes256gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
+                              std::string_view aad, std::string_view ciphertext);
+
 /// @cond INTERNAL — a test hook (pins the scalar reference path for cross-checking), not user API
 /**
  * Force the portable (non-AES-NI) AES-128-GCM path on/off. AES-128-GCM normally uses the

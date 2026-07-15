@@ -197,11 +197,29 @@ TEST(TlsSys, HandshakeEcdsaP384Certificate) {
     EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }
 
-// No common cipher suite (server offers ONLY AES-256-GCM, which cheatah does not implement): the
+// TLS_AES_256_GCM_SHA384: exercises the SHA-384 key schedule + AES-256-GCM record cipher end-to-end
+// against openssl as the reference peer, with an Ed25519 leaf (isolates the suite from the cert path).
+TEST(TlsSys, HandshakeAes256GcmSha384) {
+    OpensslServer server(47947, "ed25519", "TLS_AES_256_GCM_SHA384");
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
+}
+
+// The hardest combination: an ECDSA P-384 leaf UNDER the TLS_AES_256_GCM_SHA384 suite — the P-384
+// CertificateVerify (0x0503) + the P-384 x509 chain arm + the SHA-384 key schedule + AES-256-GCM
+// records all exercised together in one handshake.
+TEST(TlsSys, HandshakeEcdsaP384AndAes256Sha384) {
+    OpensslServer server(47948, "ec -pkeyopt ec_paramgen_curve:secp384r1",
+                         "TLS_AES_256_GCM_SHA384");
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
+}
+
+// No common cipher suite (server offers ONLY AES-128-CCM, which cheatah does not implement): the
 // handshake MUST fail rather than silently proceed, and the error must NAME the alert — exercising the
 // alert-code diagnostic so a "no common cipher" refusal reports a named reason, not a generic error.
 TEST(TlsSys, RefusesUnsupportedCipherWithNamedAlert) {
-    OpensslServer server(47945, "ed25519", "TLS_AES_256_GCM_SHA384");
+    OpensslServer server(47945, "ed25519", "TLS_AES_128_CCM_SHA256");
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
     const long long fd = sock::tcp_connect("127.0.0.1", server.port());
     ASSERT_GE(fd, 0);

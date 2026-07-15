@@ -250,22 +250,45 @@ void aes128_key_expand(const unsigned char key[16], unsigned char rk[176]) {
     }
 }
 
+// Expand a 32-byte AES-256 key into 15 round keys (240 bytes). Nk = 8 words: every 8 words apply
+// RotWord+SubWord+Rcon to the first word, and — the AES-256 extra step — a plain SubWord to the 4th
+// word of each 8-word span (FIPS-197 §5.2).
+void aes256_key_expand(const unsigned char key[32], unsigned char rk[240]) {
+    static const unsigned char rcon[7] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
+    std::memcpy(rk, key, 32);
+    int r = 0;
+    for (int i = 32; i < 240; i += 4) {
+        unsigned char t[4] = {rk[i - 4], rk[i - 3], rk[i - 2], rk[i - 1]};
+        if (i % 32 == 0) {  // RotWord + SubWord + Rcon
+            const unsigned char a0 = t[0];
+            t[0] = static_cast<unsigned char>(kSbox[t[1]] ^ rcon[r++]);
+            t[1] = kSbox[t[2]];
+            t[2] = kSbox[t[3]];
+            t[3] = kSbox[a0];
+        } else if (i % 32 == 16) {  // SubWord only (AES-256-specific)
+            for (int j = 0; j < 4; ++j) t[j] = kSbox[t[j]];
+        }
+        for (int j = 0; j < 4; ++j) rk[i + j] = static_cast<unsigned char>(rk[i - 32 + j] ^ t[j]);
+    }
+}
+
 unsigned char xtime(unsigned char x) {
     return static_cast<unsigned char>((x << 1) ^ ((x >> 7) * 0x1b));  // ·2 in GF(2^8)
 }
 
-// Encrypt one 16-byte block (AES-128, 10 rounds).
-void aes128_encrypt_block(const unsigned char rk[176], const unsigned char in[16],
-                          unsigned char out[16]) {
+// Encrypt one 16-byte block with @p nr rounds (nr = 10 for AES-128, 14 for AES-256). @p rk holds
+// 16*(nr+1) round-key bytes.
+void aes_encrypt_block(const unsigned char* rk, int nr, const unsigned char in[16],
+                       unsigned char out[16]) {
     unsigned char s[16];
     for (int i = 0; i < 16; ++i) s[i] = static_cast<unsigned char>(in[i] ^ rk[i]);  // round 0
-    for (int round = 1; round <= 10; ++round) {
+    for (int round = 1; round <= nr; ++round) {
         for (int i = 0; i < 16; ++i) s[i] = kSbox[s[i]];  // SubBytes
         unsigned char t;                                   // ShiftRows
         t = s[1]; s[1] = s[5]; s[5] = s[9]; s[9] = s[13]; s[13] = t;
         t = s[2]; s[2] = s[10]; s[10] = t; t = s[6]; s[6] = s[14]; s[14] = t;
         t = s[15]; s[15] = s[11]; s[11] = s[7]; s[7] = s[3]; s[3] = t;
-        if (round != 10) {  // MixColumns
+        if (round != nr) {  // MixColumns
             for (int c = 0; c < 4; ++c) {
                 unsigned char* col = s + 4 * c;
                 const unsigned char a0 = col[0], a1 = col[1], a2 = col[2], a3 = col[3];
@@ -311,7 +334,7 @@ void ghash_blocks(unsigned char Y[16], const unsigned char H[16], const unsigned
 }
 
 // The GCM tag: GHASH(AAD || pad || C || pad || [len(AAD)bits]_64 || [len(C)bits]_64) XOR E(J0).
-void gcm_tag(const unsigned char rk[176], const unsigned char H[16], const unsigned char J0[16],
+void gcm_tag(const unsigned char* rk, int nr, const unsigned char H[16], const unsigned char J0[16],
              std::string_view aad, std::string_view ct, unsigned char tag[16]) {
     unsigned char Y[16] = {0};
     ghash_blocks(Y, H, reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
@@ -326,7 +349,7 @@ void gcm_tag(const unsigned char rk[176], const unsigned char H[16], const unsig
     unsigned char t[16];
     gf_mult(Y, H, t);
     unsigned char ej0[16];
-    aes128_encrypt_block(rk, J0, ej0);
+    aes_encrypt_block(rk, nr, J0, ej0);
     for (int i = 0; i < 16; ++i) tag[i] = static_cast<unsigned char>(t[i] ^ ej0[i]);
 }
 
@@ -336,10 +359,10 @@ void inc32(unsigned char ctr[16]) {  // increment the rightmost 32 bits (big-end
 }
 
 // GCTR: XOR `data` in place with the AES-CTR keystream starting at counter `ctr` (advanced).
-void gctr(const unsigned char rk[176], unsigned char ctr[16], std::string& data) {
+void gctr(const unsigned char* rk, int nr, unsigned char ctr[16], std::string& data) {
     unsigned char ks[16];
     for (std::size_t off = 0; off < data.size(); off += 16) {
-        aes128_encrypt_block(rk, ctr, ks);
+        aes_encrypt_block(rk, nr, ctr, ks);
         const std::size_t n = std::min<std::size_t>(16, data.size() - off);
         for (std::size_t i = 0; i < n; ++i)
             data[off + i] = static_cast<char>(static_cast<unsigned char>(data[off + i]) ^ ks[i]);
@@ -388,16 +411,12 @@ std::string chacha20poly1305_decrypt(std::string_view key_hex, std::string_view 
     return chacha_xor(key, nonce, 1, ct);
 }
 
-std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex,
-                              std::string_view aad, std::string_view plaintext) {
-    unsigned char kb[16], nb[12];
-    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12)) return "";
-    if (aes_gcm_use_hw()) return accel::aes128gcm_encrypt(kb, nb, aad, plaintext);
-    // --- portable reference path (identical output; this is how AES-128-GCM works) ---
-    unsigned char rk[176];
-    aes128_key_expand(kb, rk);
+namespace {
+// Portable AES-GCM encrypt over already-expanded round keys (@p nr rounds). Shared by AES-128/256.
+std::string gcm_encrypt_portable(const unsigned char* rk, int nr, const unsigned char nb[12],
+                                 std::string_view aad, std::string_view plaintext) {
     unsigned char H[16], zero[16] = {0};
-    aes128_encrypt_block(rk, zero, H);                 // hash subkey H = E(0)
+    aes_encrypt_block(rk, nr, zero, H);                // hash subkey H = E(0)
     unsigned char J0[16] = {0};
     std::memcpy(J0, nb, 12);
     J0[15] = 1;                                        // J0 = nonce || 0x00000001
@@ -405,31 +424,25 @@ std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_h
     unsigned char ctr[16];
     std::memcpy(ctr, J0, 16);
     inc32(ctr);                                        // CTR starts at inc32(J0)
-    gctr(rk, ctr, ct);
+    gctr(rk, nr, ctr, ct);
     unsigned char tag[16];
-    gcm_tag(rk, H, J0, aad, ct, tag);
+    gcm_tag(rk, nr, H, J0, aad, ct, tag);
     ct.append(reinterpret_cast<const char*>(tag), 16);
     return ct;
 }
 
-std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
-                              std::string_view aad, std::string_view ciphertext) {
-    unsigned char kb[16], nb[12];
-    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16)
-        return "";
-    if (aes_gcm_use_hw()) return accel::aes128gcm_decrypt(kb, nb, aad, ciphertext);
-    // --- portable reference path (identical output; this is how AES-128-GCM works) ---
-    unsigned char rk[176];
-    aes128_key_expand(kb, rk);
+// Portable AES-GCM decrypt (constant-time tag check; "" on mismatch). Shared by AES-128/256.
+std::string gcm_decrypt_portable(const unsigned char* rk, int nr, const unsigned char nb[12],
+                                 std::string_view aad, std::string_view ciphertext) {
     unsigned char H[16], zero[16] = {0};
-    aes128_encrypt_block(rk, zero, H);
+    aes_encrypt_block(rk, nr, zero, H);
     unsigned char J0[16] = {0};
     std::memcpy(J0, nb, 12);
     J0[15] = 1;
     const std::string_view ct = ciphertext.substr(0, ciphertext.size() - 16);
     const std::string_view given = ciphertext.substr(ciphertext.size() - 16);
     unsigned char tag[16];
-    gcm_tag(rk, H, J0, aad, ct, tag);
+    gcm_tag(rk, nr, H, J0, aad, ct, tag);
     unsigned char diff = 0;  // constant-time tag compare
     for (int i = 0; i < 16; ++i) diff |= tag[i] ^ static_cast<unsigned char>(given[i]);
     if (diff != 0) return "";
@@ -437,8 +450,55 @@ std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_h
     unsigned char ctr[16];
     std::memcpy(ctr, J0, 16);
     inc32(ctr);
-    gctr(rk, ctr, pt);
+    gctr(rk, nr, ctr, pt);
     return pt;
+}
+}  // namespace
+
+std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex,
+                              std::string_view aad, std::string_view plaintext) {
+    unsigned char kb[16], nb[12];
+    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12)) return "";
+    if (aes_gcm_use_hw()) return accel::gcm_encrypt(kb, 16, nb, aad, plaintext);
+    unsigned char rk[176];
+    aes128_key_expand(kb, rk);
+    return gcm_encrypt_portable(rk, 10, nb, aad, plaintext);
+}
+
+std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
+                              std::string_view aad, std::string_view ciphertext) {
+    unsigned char kb[16], nb[12];
+    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16)
+        return "";
+    if (aes_gcm_use_hw()) return accel::gcm_decrypt(kb, 16, nb, aad, ciphertext);
+    unsigned char rk[176];
+    aes128_key_expand(kb, rk);
+    return gcm_decrypt_portable(rk, 10, nb, aad, ciphertext);
+}
+
+// AES-256-GCM — the record cipher of TLS_AES_256_GCM_SHA384. Same runtime dispatch as AES-128: the
+// AES-NI/PMULL hardware path when the CPU has it AND the power-on self-test reproduced the known-answer
+// vector (available()), otherwise the portable scalar reference. Both are KAT-tested and cross-checked
+// against each other (CheatahAead.Aes256GcmPortableMatchesHardware).
+std::string aes256gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex,
+                              std::string_view aad, std::string_view plaintext) {
+    unsigned char kb[32], nb[12];
+    if (!hex_bytes(key_hex, kb, 32) || !hex_bytes(nonce_hex, nb, 12)) return "";
+    if (aes_gcm_use_hw()) return accel::gcm_encrypt(kb, 32, nb, aad, plaintext);
+    unsigned char rk[240];
+    aes256_key_expand(kb, rk);
+    return gcm_encrypt_portable(rk, 14, nb, aad, plaintext);
+}
+
+std::string aes256gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
+                              std::string_view aad, std::string_view ciphertext) {
+    unsigned char kb[32], nb[12];
+    if (!hex_bytes(key_hex, kb, 32) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16)
+        return "";
+    if (aes_gcm_use_hw()) return accel::gcm_decrypt(kb, 32, nb, aad, ciphertext);
+    unsigned char rk[240];
+    aes256_key_expand(kb, rk);
+    return gcm_decrypt_portable(rk, 14, nb, aad, ciphertext);
 }
 
 } // namespace cheatah::aead

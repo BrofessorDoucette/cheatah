@@ -65,9 +65,10 @@ unsigned get24(std::string_view s, std::size_t i) {
 
 } // namespace (pause: the key-schedule impls are namespace-level so detail:: can reach them)
 
-// HKDF-Expand-Label(secret, label, context, length) with the "tls13 " prefix.
+// HKDF-Expand-Label(secret, label, context, length) with the "tls13 " prefix. @p sha384 selects the
+// SHA-384 HKDF (for the TLS_AES_256_GCM_SHA384 key schedule); default is the SHA-256 schedule.
 std::string expand_label_impl(std::string_view secret, std::string_view label,
-                              std::string_view context, unsigned length) {
+                              std::string_view context, unsigned length, bool sha384 = false) {
     std::string info;
     put16(info, length);
     info.push_back(static_cast<char>(6 + label.size()));
@@ -75,32 +76,51 @@ std::string expand_label_impl(std::string_view secret, std::string_view label,
     info += label;
     info.push_back(static_cast<char>(context.size()));
     info += context;
-    return hashlib::hkdf_expand(secret, info, length);
+    return sha384 ? hashlib::hkdf_expand_sha384(secret, info, length)
+                  : hashlib::hkdf_expand(secret, info, length);
 }
 
-// Derive-Secret(secret, label, transcript) = Expand-Label(secret, label, SHA-256(transcript), 32).
+// Derive-Secret(secret, label, transcript) = Expand-Label(secret, label, Hash(transcript), HashLen),
+// where Hash is the negotiated suite's hash (SHA-256, or SHA-384 when @p sha384).
 std::string derive_secret_impl(std::string_view secret, std::string_view label,
-                               std::string_view transcript) {
-    return expand_label_impl(secret, label, hashlib::sha256_digest(transcript), 32);
+                               std::string_view transcript, bool sha384 = false) {
+    const std::string th =
+        sha384 ? hashlib::sha384_digest(transcript) : hashlib::sha256_digest(transcript);
+    return expand_label_impl(secret, label, th, sha384 ? 48 : 32, sha384);
 }
 
 namespace {  // resume the file-local helpers
 
+// The negotiated record cipher: ChaCha20-Poly1305 (0x1303), AES-128-GCM (0x1301), or AES-256-GCM (0x1302).
+enum class Aead { Chacha20, Aes128, Aes256 };
+
+// Key-schedule hash dispatch: the SHA-256 schedule by default, the SHA-384 schedule for the
+// TLS_AES_256_GCM_SHA384 suite. (RFC 8446 §7.1: the schedule's Hash is the cipher suite's hash.)
+std::string ks_digest(bool sha384, std::string_view d) {
+    return sha384 ? hashlib::sha384_digest(d) : hashlib::sha256_digest(d);
+}
+std::string ks_extract(bool sha384, std::string_view salt, std::string_view ikm) {
+    return sha384 ? hashlib::hkdf_extract_sha384(salt, ikm) : hashlib::hkdf_extract(salt, ikm);
+}
+std::string ks_hmac(bool sha384, std::string_view key, std::string_view data) {
+    return sha384 ? hashlib::hmac_sha384(key, data) : hashlib::hmac_sha256(key, data);
+}
+
 // One traffic direction: AEAD key + iv + record sequence number.
 struct Keys {
-    std::string key_hex;   // AEAD key (hex): 32 bytes for ChaCha20-Poly1305, 16 for AES-128-GCM
+    std::string key_hex;   // AEAD key (hex): 32 bytes for ChaCha20 / AES-256-GCM, 16 for AES-128-GCM
     std::string iv;        // 12-byte raw iv; per-record nonce = iv XOR seq
     std::uint64_t seq = 0;
-    bool aes_gcm = false;  // record cipher: false = ChaCha20-Poly1305 (0x1303), true = AES-128-GCM (0x1301)
+    Aead aead = Aead::Chacha20;
 };
 
-// Both suites use the SHA-256 key schedule and a 12-byte iv; only the record-key length differs
-// (AES-128 = 16 bytes, ChaCha20 = 32). aes_gcm selects which record cipher seal/open_record use.
-Keys traffic_keys(std::string_view secret, bool aes_gcm) {
+// Derive a direction's record keys from its traffic secret. Key length follows the AEAD (16 for AES-128,
+// 32 for AES-256 / ChaCha20); @p sha384 selects the SHA-384 key schedule (the 256 suite).
+Keys traffic_keys(std::string_view secret, Aead aead, bool sha384) {
     Keys k;
-    k.aes_gcm = aes_gcm;
-    k.key_hex = to_hex(expand_label_impl(secret, "key", "", aes_gcm ? 16 : 32));
-    k.iv = expand_label_impl(secret, "iv", "", 12);
+    k.aead = aead;
+    k.key_hex = to_hex(expand_label_impl(secret, "key", "", aead == Aead::Aes128 ? 16 : 32, sha384));
+    k.iv = expand_label_impl(secret, "iv", "", 12, sha384);
     return k;
 }
 
@@ -172,9 +192,10 @@ bool seal_record(long long fd, Keys& k, unsigned inner_type, std::string_view co
     aad.push_back(23);
     put16(aad, 0x0303);
     put16(aad, static_cast<unsigned>(inner.size() + 16));
-    const std::string ct = k.aes_gcm
-                               ? aead::aes128gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner)
-                               : aead::chacha20poly1305_encrypt(k.key_hex, nonce_hex(k), aad, inner);
+    const std::string ct =
+        k.aead == Aead::Aes256 ? aead::aes256gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner)
+        : k.aead == Aead::Aes128 ? aead::aes128gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner)
+                                 : aead::chacha20poly1305_encrypt(k.key_hex, nonce_hex(k), aad, inner);
     ++k.seq;
     if (ct.empty()) return false;
     return sock::sendall(fd, aad + ct) == 0;
@@ -186,9 +207,10 @@ bool open_record(Keys& k, std::string_view payload, unsigned& inner_type, std::s
     aad.push_back(23);
     put16(aad, 0x0303);
     put16(aad, static_cast<unsigned>(payload.size()));
-    std::string inner = k.aes_gcm
-                            ? aead::aes128gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload)
-                            : aead::chacha20poly1305_decrypt(k.key_hex, nonce_hex(k), aad, payload);
+    std::string inner =
+        k.aead == Aead::Aes256 ? aead::aes256gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload)
+        : k.aead == Aead::Aes128 ? aead::aes128gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload)
+                                 : aead::chacha20poly1305_decrypt(k.key_hex, nonce_hex(k), aad, payload);
     ++k.seq;
     if (inner.empty() && payload.size() > 16) return false;  // tag mismatch (or empty record)
     while (!inner.empty() && inner.back() == '\0') inner.pop_back();  // strip padding
@@ -218,9 +240,10 @@ std::string build_client_hello(const std::string& server_name, std::string_view 
     body += random_bytes(32);        // random
     body.push_back(32);              // legacy_session_id (32 bytes, middlebox compatibility)
     body += random_bytes(32);
-    put16(body, 4);                  // cipher_suites: two suites (4 bytes)
+    put16(body, 6);                  // cipher_suites: three suites (6 bytes)
     put16(body, 0x1303);             // TLS_CHACHA20_POLY1305_SHA256 (preferred)
     put16(body, 0x1301);             // TLS_AES_128_GCM_SHA256 (some hosts only do AES-GCM)
+    put16(body, 0x1302);             // TLS_AES_256_GCM_SHA384 (hosts that prefer the 256-bit suite)
     body.push_back(1);               // legacy_compression_methods
     body.push_back(0);               // null
 
@@ -331,7 +354,8 @@ bool parse_server_hello(std::string_view msg, std::string& server_pub_raw, unsig
     i += 1 + sid_len;
     if (b.size() < i + 4) return false;
     const unsigned suite = get16(b, i);
-    if (suite != 0x1303 && suite != 0x1301) return false;  // must be one of the suites we offered
+    if (suite != 0x1303 && suite != 0x1301 && suite != 0x1302)
+        return false;  // must be one of the suites we offered
     chosen_suite = suite;
     i += 2 + 1;                                   // suite + legacy_compression
     if (b.size() < i + 2) return false;
@@ -539,7 +563,8 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
         fail("tls: malformed ClientHello (or no TLS 1.3 / X25519 / shared cipher suite)");
         return -1;
     }
-    const bool aes_gcm = (suite == 0x1301);
+    // The server offers only the SHA-256 suites (ChaCha20 / AES-128-GCM), so the key schedule is SHA-256.
+    const Aead aead = (suite == 0x1301) ? Aead::Aes128 : Aead::Chacha20;
     std::string transcript = payload;  // ClientHello
 
     // Our ephemeral X25519 key pair, and ServerHello.
@@ -570,8 +595,8 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
     const std::string hs_secret = hashlib::hkdf_extract(derived, from_hex(shared_hex));
     const std::string c_hs = derive_secret_impl(hs_secret, "c hs traffic", transcript);
     const std::string s_hs = derive_secret_impl(hs_secret, "s hs traffic", transcript);
-    Keys server_keys = traffic_keys(s_hs, aes_gcm);  // we SEND under the server secret
-    Keys client_keys = traffic_keys(c_hs, aes_gcm);  // we RECEIVE under the client secret
+    Keys server_keys = traffic_keys(s_hs, aead, false);  // we SEND under the server secret
+    Keys client_keys = traffic_keys(c_hs, aead, false);  // we RECEIVE under the client secret
 
     // Encrypted flight: EncryptedExtensions (empty), Certificate, CertificateVerify, Finished —
     // each sealed as its own handshake record (inner type 22).
@@ -695,8 +720,8 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
 
     Session s;
     s.fd = fd;
-    s.client_keys = traffic_keys(s_ap, aes_gcm);  // our sending direction (server app secret)
-    s.server_keys = traffic_keys(c_ap, aes_gcm);  // the peer's direction (client app secret)
+    s.client_keys = traffic_keys(s_ap, aead, false);  // our sending direction (server app secret)
+    s.server_keys = traffic_keys(c_ap, aead, false);  // the peer's direction (client app secret)
     s.read_buffer = std::move(buffer);
     const std::lock_guard<std::mutex> lock(g_mutex);
     const long long handle = g_next_handle++;
@@ -760,7 +785,11 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
         fail("tls: malformed ServerHello (or the server refused TLS 1.3 + our cipher suites)");
         return -1;
     }
-    const bool aes_gcm = (chosen_suite == 0x1301);  // else 0x1303 ChaCha20-Poly1305
+    // The negotiated suite fixes both the record AEAD and the key-schedule hash.
+    const bool sha384 = (chosen_suite == 0x1302);  // TLS_AES_256_GCM_SHA384 → SHA-384 schedule
+    const Aead aead = chosen_suite == 0x1302   ? Aead::Aes256
+                      : chosen_suite == 0x1301 ? Aead::Aes128
+                                               : Aead::Chacha20;
     transcript += payload;
 
     // Key schedule through the handshake secrets.
@@ -769,14 +798,14 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
         fail("tls: invalid server key share");
         return -1;
     }
-    const std::string zeros(32, '\0');
-    const std::string early = hashlib::hkdf_extract(std::string(), zeros);
-    const std::string derived = derive_secret_impl(early, "derived", "");
-    const std::string hs_secret = hashlib::hkdf_extract(derived, from_hex(shared_hex));
-    const std::string c_hs = derive_secret_impl(hs_secret, "c hs traffic", transcript);
-    const std::string s_hs = derive_secret_impl(hs_secret, "s hs traffic", transcript);
-    Keys client_keys = traffic_keys(c_hs, aes_gcm);
-    Keys server_keys = traffic_keys(s_hs, aes_gcm);
+    const std::string zeros(sha384 ? 48 : 32, '\0');  // HashLen zero bytes for Extract
+    const std::string early = ks_extract(sha384, std::string(), zeros);
+    const std::string derived = derive_secret_impl(early, "derived", "", sha384);
+    const std::string hs_secret = ks_extract(sha384, derived, from_hex(shared_hex));
+    const std::string c_hs = derive_secret_impl(hs_secret, "c hs traffic", transcript, sha384);
+    const std::string s_hs = derive_secret_impl(hs_secret, "s hs traffic", transcript, sha384);
+    Keys client_keys = traffic_keys(c_hs, aead, sha384);
+    Keys server_keys = traffic_keys(s_hs, aead, sha384);
 
     // Encrypted handshake flight: EncryptedExtensions, Certificate, CertificateVerify, Finished.
     std::string handshake_bytes;  // decrypted, possibly spanning records
@@ -857,7 +886,7 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
                 std::string signed_content(64, ' ');
                 signed_content += "TLS 1.3, server CertificateVerify";
                 signed_content.push_back('\0');
-                signed_content += hashlib::sha256_digest(transcript_at_cv);
+                signed_content += ks_digest(sha384, transcript_at_cv);  // transcript hash = suite hash
                 const std::string sig(body.substr(4, sig_len));
                 if (alg == 0x0807) {  // ed25519 (signs the message directly)
                     const std::string spki = ed25519_spki_key(cert_der);
@@ -880,8 +909,8 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
                         return -1;
                     }
                 } else if (alg == 0x0503) {  // ecdsa_secp384r1_sha384 (signs SHA-384(content))
-                    // Only the SIGNATURE hash is SHA-384; the transcript hash inside
-                    // signed_content stays the cipher suite's SHA-256 (RFC 8446 §4.4.3).
+                    // The signature scheme's hash (SHA-384) is independent of the transcript hash
+                    // inside signed_content (which is the negotiated suite's hash) — RFC 8446 §4.4.3.
                     const std::string point = p384::spki_ec_point(cert_der);
                     if (point.size() != 96) {
                         fail("tls: certificate key is not P-384 EC");
@@ -907,14 +936,15 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
                 verified_cert = true;
             }
             if (mtype == 20) {  // Finished
-                const std::string finished_key = expand_label_impl(s_hs, "finished", "", 32);
+                const std::string finished_key =
+                    expand_label_impl(s_hs, "finished", "", sha384 ? 48 : 32, sha384);
                 const std::string expect =
-                    hashlib::hmac_sha256(finished_key, hashlib::sha256_digest(transcript));
+                    ks_hmac(sha384, finished_key, ks_digest(sha384, transcript));
                 // cppcheck-suppress stlcstrConstructor  // (ptr,len) subview of msg — not a c_str() copy
                 const std::string_view got(msg.data() + 4, msg.size() - 4);
                 // Constant-time MAC compare (parity with the AEAD tag check): always scan all
-                // 32 bytes of the secret `expect`, never early-exiting on a mismatching byte, so
-                // timing cannot reveal a partial match of the handshake MAC.
+                // HashLen bytes of the secret `expect` (32 for SHA-256, 48 for SHA-384), never
+                // early-exiting on a mismatching byte, so timing cannot reveal a partial match.
                 unsigned char diff = (got.size() == expect.size()) ? 0 : 1;
                 for (std::size_t i = 0; i < expect.size(); ++i) {
                     const unsigned char g =
@@ -957,14 +987,14 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
 
     // Application traffic secrets (transcript through server Finished), then OUR Finished
     // (sent under the handshake keys, with the transcript through the server's Finished).
-    const std::string derived2 = derive_secret_impl(hs_secret, "derived", "");
-    const std::string master = hashlib::hkdf_extract(derived2, zeros);
-    const std::string c_ap = derive_secret_impl(master, "c ap traffic", transcript_at_finished);
-    const std::string s_ap = derive_secret_impl(master, "s ap traffic", transcript_at_finished);
+    const std::string derived2 = derive_secret_impl(hs_secret, "derived", "", sha384);
+    const std::string master = ks_extract(sha384, derived2, zeros);
+    const std::string c_ap = derive_secret_impl(master, "c ap traffic", transcript_at_finished, sha384);
+    const std::string s_ap = derive_secret_impl(master, "s ap traffic", transcript_at_finished, sha384);
 
-    const std::string c_finished_key = expand_label_impl(c_hs, "finished", "", 32);
-    const std::string verify =
-        hashlib::hmac_sha256(c_finished_key, hashlib::sha256_digest(transcript));
+    const std::string c_finished_key =
+        expand_label_impl(c_hs, "finished", "", sha384 ? 48 : 32, sha384);
+    const std::string verify = ks_hmac(sha384, c_finished_key, ks_digest(sha384, transcript));
     std::string fin_msg;
     fin_msg.push_back(20);
     put24(fin_msg, static_cast<unsigned>(verify.size()));
@@ -976,8 +1006,8 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
 
     Session s;
     s.fd = fd;
-    s.client_keys = traffic_keys(c_ap, aes_gcm);
-    s.server_keys = traffic_keys(s_ap, aes_gcm);
+    s.client_keys = traffic_keys(c_ap, aead, sha384);
+    s.server_keys = traffic_keys(s_ap, aead, sha384);
     s.read_buffer = std::move(buffer);  // bytes already pulled off the socket stay with us
 
     const std::lock_guard<std::mutex> lock(g_mutex);

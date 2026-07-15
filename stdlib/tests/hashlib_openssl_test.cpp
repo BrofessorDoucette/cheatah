@@ -143,6 +143,22 @@ TEST(HashlibVsOpenssl, HmacSha256) {
     }
 }
 
+TEST(HashlibVsOpenssl, HmacSha384) {
+    if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
+    for (const std::string key : {std::string("k"), std::string("secretkey"),
+                                  std::string(40, 'K')}) {
+        for (const auto& in : inputs()) {
+            const std::string f = write_tmp(in);
+            const std::string ref = first_token(
+                capture("openssl dgst -sha384 -hmac '" + key + "' -r '" + f + "'"));
+            std::remove(f.c_str());
+            ASSERT_EQ(ref.size(), 96u);
+            EXPECT_EQ(to_hex(hl::hmac_sha384(key, in)), ref)
+                << "hmac-sha384 mismatch (key '" << key << "', input size " << in.size() << ")";
+        }
+    }
+}
+
 TEST(HashlibVsOpenssl, HmacSha512) {
     if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
     for (const std::string key : {std::string("k"), std::string("secretkey")}) {

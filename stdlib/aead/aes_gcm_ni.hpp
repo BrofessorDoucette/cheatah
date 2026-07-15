@@ -95,10 +95,37 @@ CHEATAH_TARGET("aes,sse2") inline void expand(const unsigned char key[16], __m12
     rk[9] = key_assist(rk[8], _mm_aeskeygenassist_si128(rk[8], 0x1b));
     rk[10] = key_assist(rk[9], _mm_aeskeygenassist_si128(rk[9], 0x36));
 }
-CHEATAH_TARGET("aes,sse2") inline __m128i enc_block(const __m128i rk[11], __m128i b) {
+// The second AES-256 key-assist (uses the 0xaa lane instead of 0xff; FIPS-197 §5.2 via AES-NI).
+CHEATAH_TARGET("aes,sse2") inline __m128i key_assist2(__m128i k, __m128i gen) {
+    gen = _mm_shuffle_epi32(gen, _MM_SHUFFLE(2, 2, 2, 2));
+    k = _mm_xor_si128(k, _mm_slli_si128(k, 4));
+    k = _mm_xor_si128(k, _mm_slli_si128(k, 4));
+    k = _mm_xor_si128(k, _mm_slli_si128(k, 4));
+    return _mm_xor_si128(k, gen);
+}
+// AES-256 key schedule via AES-NI: 15 round keys from the 32-byte key (Intel AES-NI whitepaper).
+CHEATAH_TARGET("aes,sse2") inline void expand256(const unsigned char key[32], __m128i rk[15]) {
+    rk[0] = _mm_loadu_si128(reinterpret_cast<const __m128i*>(key));
+    rk[1] = _mm_loadu_si128(reinterpret_cast<const __m128i*>(key + 16));
+    rk[2]  = key_assist (rk[0],  _mm_aeskeygenassist_si128(rk[1],  0x01));
+    rk[3]  = key_assist2(rk[1],  _mm_aeskeygenassist_si128(rk[2],  0x00));
+    rk[4]  = key_assist (rk[2],  _mm_aeskeygenassist_si128(rk[3],  0x02));
+    rk[5]  = key_assist2(rk[3],  _mm_aeskeygenassist_si128(rk[4],  0x00));
+    rk[6]  = key_assist (rk[4],  _mm_aeskeygenassist_si128(rk[5],  0x04));
+    rk[7]  = key_assist2(rk[5],  _mm_aeskeygenassist_si128(rk[6],  0x00));
+    rk[8]  = key_assist (rk[6],  _mm_aeskeygenassist_si128(rk[7],  0x08));
+    rk[9]  = key_assist2(rk[7],  _mm_aeskeygenassist_si128(rk[8],  0x00));
+    rk[10] = key_assist (rk[8],  _mm_aeskeygenassist_si128(rk[9],  0x10));
+    rk[11] = key_assist2(rk[9],  _mm_aeskeygenassist_si128(rk[10], 0x00));
+    rk[12] = key_assist (rk[10], _mm_aeskeygenassist_si128(rk[11], 0x20));
+    rk[13] = key_assist2(rk[11], _mm_aeskeygenassist_si128(rk[12], 0x00));
+    rk[14] = key_assist (rk[12], _mm_aeskeygenassist_si128(rk[13], 0x40));
+}
+// Encrypt one block with @p nr rounds (10 for AES-128, 14 for AES-256).
+CHEATAH_TARGET("aes,sse2") inline __m128i enc_block(const __m128i* rk, int nr, __m128i b) {
     b = _mm_xor_si128(b, rk[0]);
-    for (int i = 1; i < 10; ++i) b = _mm_aesenc_si128(b, rk[i]);
-    return _mm_aesenclast_si128(b, rk[10]);
+    for (int i = 1; i < nr; ++i) b = _mm_aesenc_si128(b, rk[i]);
+    return _mm_aesenclast_si128(b, rk[nr]);
 }
 
 // --- GHASH via PCLMULQDQ. Operands are byte-reversed (GCM is big-endian) so the carry-less
@@ -205,7 +232,7 @@ CHEATAH_TARGET("ssse3,sse2") inline __m128i ctr_inc(__m128i c) {
 // GHASHes it, and writes plaintext. GHASH is always over the CIPHERTEXT. Returns the updated
 // accumulator Y (over the data only; the caller folds in AAD beforehand and the lengths after).
 CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline __m128i
-ctr_ghash_stitch(const __m128i rk[11], const __m128i Hp[8], __m128i ctr, __m128i Y,
+ctr_ghash_stitch(const __m128i* rk, int nr, const __m128i Hp[8], __m128i ctr, __m128i Y,
                  unsigned char* buf, std::size_t len, bool encrypt) {
     std::size_t off = 0;
     for (; off + 128 <= len; off += 128) {  // 8 blocks: AES-CTR + 8-way aggregated GHASH
@@ -216,7 +243,7 @@ ctr_ghash_stitch(const __m128i rk[11], const __m128i Hp[8], __m128i ctr, __m128i
         __m128i g[8];
         for (int i = 0; i < 8; ++i) {
             const __m128i in = _mm_loadu_si128(d + i);
-            const __m128i out = _mm_xor_si128(in, enc_block(rk, c[i]));
+            const __m128i out = _mm_xor_si128(in, enc_block(rk, nr, c[i]));
             _mm_storeu_si128(d + i, out);
             g[i] = bswap(encrypt ? out : in);
         }
@@ -229,7 +256,7 @@ ctr_ghash_stitch(const __m128i rk[11], const __m128i Hp[8], __m128i ctr, __m128i
     for (; off + 16 <= len; off += 16) {  // full 16-byte tail blocks
         auto* d = reinterpret_cast<__m128i*>(buf + off);
         const __m128i in = _mm_loadu_si128(d);
-        const __m128i out = _mm_xor_si128(in, enc_block(rk, ctr));
+        const __m128i out = _mm_xor_si128(in, enc_block(rk, nr, ctr));
         _mm_storeu_si128(d, out);
         Y = gfmul(_mm_xor_si128(Y, bswap(encrypt ? out : in)), Hp[0]);
         ctr = ctr_inc(ctr);
@@ -237,7 +264,7 @@ ctr_ghash_stitch(const __m128i rk[11], const __m128i Hp[8], __m128i ctr, __m128i
     if (off < len) {  // final partial block (< 16 bytes); GHASH the zero-padded ciphertext
         const std::size_t m = len - off;
         alignas(16) unsigned char ksb[16];
-        _mm_storeu_si128(reinterpret_cast<__m128i*>(ksb), enc_block(rk, ctr));
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(ksb), enc_block(rk, nr, ctr));
         alignas(16) unsigned char gb[16] = {0};
         for (std::size_t i = 0; i < m; ++i) {
             const unsigned char cin = buf[off + i];
@@ -254,7 +281,7 @@ ctr_ghash_stitch(const __m128i rk[11], const __m128i Hp[8], __m128i ctr, __m128i
 // Finalize the tag from the data accumulator Y: fold the length block
 // (len(AAD)_64 || len(C)_64), do the last GHASH multiply, and XOR E(J0).
 CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline void
-finalize_tag(const __m128i rk[11], const __m128i Hp[4], __m128i J0, __m128i Y, std::size_t aadlen,
+finalize_tag(const __m128i* rk, int nr, const __m128i Hp[4], __m128i J0, __m128i Y, std::size_t aadlen,
              std::size_t ctlen, unsigned char tag[16]) {
     alignas(16) unsigned char lb[16] = {0};
     const std::uint64_t abits = static_cast<std::uint64_t>(aadlen) * 8;
@@ -265,65 +292,71 @@ finalize_tag(const __m128i rk[11], const __m128i Hp[4], __m128i J0, __m128i Y, s
     }
     Y = _mm_xor_si128(Y, bswap(_mm_loadu_si128(reinterpret_cast<const __m128i*>(lb))));
     Y = gfmul(Y, Hp[0]);
-    const __m128i t = _mm_xor_si128(bswap(Y), enc_block(rk, J0));
+    const __m128i t = _mm_xor_si128(bswap(Y), enc_block(rk, nr, J0));
     _mm_storeu_si128(reinterpret_cast<__m128i*>(tag), t);
 }
 
-// Shared setup: round keys, the GHASH-domain subkey powers Hp = {H, H^2, …, H^8} (H = E(0)),
-// and J0. Precomputing the powers once is what lets GHASH aggregate 8 blocks per reduction.
-CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline void
-setup(const unsigned char key[16], const unsigned char nonce[12], __m128i rk[11], __m128i Hp[8],
-      __m128i& J0) {
-    expand(key, rk);
-    const __m128i H = bswap(enc_block(rk, _mm_setzero_si128()));
+// Shared setup: round keys (10 rounds for a 16-byte key, 14 for 32), the GHASH-domain subkey powers
+// Hp = {H, H^2, …, H^8} (H = E(0)), and J0. @p rk must hold up to 15 round keys. Returns the round count.
+CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline int
+setup(const unsigned char* key, std::size_t keylen, const unsigned char nonce[12], __m128i* rk,
+      __m128i Hp[8], __m128i& J0) {
+    int nr;
+    if (keylen == 32) { expand256(key, rk); nr = 14; }
+    else { expand(key, rk); nr = 10; }
+    const __m128i H = bswap(enc_block(rk, nr, _mm_setzero_si128()));
     Hp[0] = H;
     for (int i = 1; i < 8; ++i) Hp[i] = gfmul(Hp[i - 1], H);  // H^2 … H^8
     alignas(16) unsigned char j0[16] = {0};
     std::memcpy(j0, nonce, 12);
     j0[15] = 1;
     J0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(j0));
+    return nr;
 }
 
-/// AES-128-GCM encrypt: returns ciphertext with the 16-byte tag appended.
+// AES-GCM encrypt for a 16- or 32-byte key (@p keylen); returns ciphertext with the 16-byte tag appended.
 CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline std::string
-aes128gcm_encrypt(const unsigned char key[16], const unsigned char nonce[12], std::string_view aad,
-                  std::string_view plaintext) {
-    __m128i rk[11], Hp[8], J0;
-    setup(key, nonce, rk, Hp, J0);
+gcm_encrypt(const unsigned char* key, std::size_t keylen, const unsigned char nonce[12],
+            std::string_view aad, std::string_view plaintext) {
+    __m128i rk[15], Hp[8], J0;
+    const int nr = setup(key, keylen, nonce, rk, Hp, J0);
     std::string ct(plaintext);
     // GHASH the AAD, then stitch CTR-encryption with GHASH over the ciphertext in one pass.
     __m128i Y = ghash_buf(_mm_setzero_si128(), Hp,
                           reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
-    Y = ctr_ghash_stitch(rk, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&ct[0]),
+    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&ct[0]),
                          ct.size(), /*encrypt=*/true);
     unsigned char tag[16];
-    finalize_tag(rk, Hp, J0, Y, aad.size(), ct.size(), tag);
+    finalize_tag(rk, nr, Hp, J0, Y, aad.size(), ct.size(), tag);
     ct.append(reinterpret_cast<char*>(tag), 16);
     return ct;
 }
 
-/// AES-128-GCM decrypt: verifies the appended tag in constant time; "" on failure.
+// AES-GCM decrypt for a 16- or 32-byte key; verifies the appended tag in constant time; "" on failure.
 CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline std::string
-aes128gcm_decrypt(const unsigned char key[16], const unsigned char nonce[12], std::string_view aad,
-                  std::string_view ciphertext) {
+gcm_decrypt(const unsigned char* key, std::size_t keylen, const unsigned char nonce[12],
+            std::string_view aad, std::string_view ciphertext) {
     if (ciphertext.size() < 16) return "";
     const std::string_view ct = ciphertext.substr(0, ciphertext.size() - 16);
     const std::string_view want = ciphertext.substr(ciphertext.size() - 16);
-    __m128i rk[11], Hp[8], J0;
-    setup(key, nonce, rk, Hp, J0);
+    __m128i rk[15], Hp[8], J0;
+    const int nr = setup(key, keylen, nonce, rk, Hp, J0);
     // GHASH the AAD, then stitch GHASH-over-ciphertext with CTR-decryption in one pass.
     std::string pt(ct);
     __m128i Y = ghash_buf(_mm_setzero_si128(), Hp,
                           reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
-    Y = ctr_ghash_stitch(rk, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&pt[0]),
+    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&pt[0]),
                          pt.size(), /*encrypt=*/false);
     unsigned char tag[16];
-    finalize_tag(rk, Hp, J0, Y, aad.size(), ct.size(), tag);
+    finalize_tag(rk, nr, Hp, J0, Y, aad.size(), ct.size(), tag);
     unsigned char diff = 0;  // constant-time tag compare; plaintext discarded on mismatch
     for (int i = 0; i < 16; ++i) diff |= tag[i] ^ static_cast<unsigned char>(want[i]);
     if (diff != 0) return "";
     return pt;
 }
+
+// The public accel entry points are `gcm_encrypt`/`gcm_decrypt(key, keylen, …)` above — callers pass
+// keylen 16 (AES-128, TLS_AES_128_GCM_SHA256) or 32 (AES-256, TLS_AES_256_GCM_SHA384).
 
 #ifndef CHEATAH_NO_CRYPTO_SELFTEST
 // Power-on self-test: run a known-answer vector (NIST GCM AES-128 test case 4) through the
@@ -351,13 +384,29 @@ inline bool self_test() {
         0x84, 0xaa, 0x05, 0x1b, 0xa3, 0x0b, 0x39, 0x6a, 0x0a, 0xac, 0x97, 0x3d, 0x58, 0xe0, 0x91,
         0x5b, 0xc9, 0x4f, 0xbc, 0x32, 0x21, 0xa5, 0xdb, 0x94, 0xfa, 0xe9, 0x5a, 0xe7, 0x12, 0x1a,
         0x47};
+    // AES-256 known-answer (McGrew GCM Test Case 16): same nonce/pt/aad, 32-byte key. Gates the
+    // AES-256 hardware path too — if its key schedule / 14-round enc is wrong on this CPU, available()
+    // returns false and BOTH AES-128 and AES-256 fall back to the portable scalar reference.
+    static const unsigned char key256[32] = {
+        0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c, 0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08,
+        0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c, 0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08};
+    static const unsigned char want256[76] = {
+        0x52, 0x2d, 0xc1, 0xf0, 0x99, 0x56, 0x7d, 0x07, 0xf4, 0x7f, 0x37, 0xa3, 0x2a, 0x84, 0x42, 0x7d,
+        0x64, 0x3a, 0x8c, 0xdc, 0xbf, 0xe5, 0xc0, 0xc9, 0x75, 0x98, 0xa2, 0xbd, 0x25, 0x55, 0xd1, 0xaa,
+        0x8c, 0xb0, 0x8e, 0x48, 0x59, 0x0d, 0xbb, 0x3d, 0xa7, 0xb0, 0x8b, 0x10, 0x56, 0x82, 0x88, 0x38,
+        0xc5, 0xf6, 0x1e, 0x63, 0x93, 0xba, 0x7a, 0x0a, 0xbc, 0xc9, 0xf6, 0x62, 0x76, 0xfc, 0x6e, 0xce,
+        0x0f, 0x4e, 0x17, 0x68, 0xcd, 0xdf, 0x88, 0x53, 0xbb, 0x2d, 0x55, 0x1b};
     const std::string_view aadv{reinterpret_cast<const char*>(aad), sizeof aad};
-    const std::string ct = aes128gcm_encrypt(
-        key, nonce, aadv, std::string_view{reinterpret_cast<const char*>(pt), sizeof pt});
-    const std::string back = aes128gcm_decrypt(key, nonce, aadv, ct);
+    const std::string_view ptv{reinterpret_cast<const char*>(pt), sizeof pt};
+    const std::string ct = gcm_encrypt(key, 16, nonce, aadv, ptv);
+    const std::string back = gcm_decrypt(key, 16, nonce, aadv, ct);
+    const std::string ct256 = gcm_encrypt(key256, 32, nonce, aadv, ptv);
+    const std::string back256 = gcm_decrypt(key256, 32, nonce, aadv, ct256);
     // Branchless so both arms aren't a failure-only (uncovered) path on a working machine.
     return ct.size() == sizeof want && std::memcmp(ct.data(), want, sizeof want) == 0 &&
-           back.size() == sizeof pt && std::memcmp(back.data(), pt, sizeof pt) == 0;
+           back.size() == sizeof pt && std::memcmp(back.data(), pt, sizeof pt) == 0 &&
+           ct256.size() == sizeof want256 && std::memcmp(ct256.data(), want256, sizeof want256) == 0 &&
+           back256.size() == sizeof pt && std::memcmp(back256.data(), pt, sizeof pt) == 0;
 }
 #endif  // CHEATAH_NO_CRYPTO_SELFTEST
 
@@ -390,26 +439,28 @@ inline bool cpu_has_crypto() {
 
 // AES-128 key schedule (FIPS-197, scalar — ARM has no key-assist instruction); identical
 // round-key bytes to the portable reference, loaded into NEON registers.
-CHEATAH_TARGET("+crypto") inline void expand(const unsigned char key[16], uint8x16_t rk[11]) {
-    static const unsigned char S[256] = {
-        0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
-        0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
-        0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
-        0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,
-        0x09,0x83,0x2c,0x1a,0x1b,0x6e,0x5a,0xa0,0x52,0x3b,0xd6,0xb3,0x29,0xe3,0x2f,0x84,
-        0x53,0xd1,0x00,0xed,0x20,0xfc,0xb1,0x5b,0x6a,0xcb,0xbe,0x39,0x4a,0x4c,0x58,0xcf,
-        0xd0,0xef,0xaa,0xfb,0x43,0x4d,0x33,0x85,0x45,0xf9,0x02,0x7f,0x50,0x3c,0x9f,0xa8,
-        0x51,0xa3,0x40,0x8f,0x92,0x9d,0x38,0xf5,0xbc,0xb6,0xda,0x21,0x10,0xff,0xf3,0xd2,
-        0xcd,0x0c,0x13,0xec,0x5f,0x97,0x44,0x17,0xc4,0xa7,0x7e,0x3d,0x64,0x5d,0x19,0x73,
-        0x60,0x81,0x4f,0xdc,0x22,0x2a,0x90,0x88,0x46,0xee,0xb8,0x14,0xde,0x5e,0x0b,0xdb,
-        0xe0,0x32,0x3a,0x0a,0x49,0x06,0x24,0x5c,0xc2,0xd3,0xac,0x62,0x91,0x95,0xe4,0x79,
-        0xe7,0xc8,0x37,0x6d,0x8d,0xd5,0x4e,0xa9,0x6c,0x56,0xf4,0xea,0x65,0x7a,0xae,0x08,
-        0xba,0x78,0x25,0x2e,0x1c,0xa6,0xb4,0xc6,0xe8,0xdd,0x74,0x1f,0x4b,0xbd,0x8b,0x8a,
-        0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,
-        0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
-        0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16};
-    static const unsigned char rcon[10] = {0x01, 0x02, 0x04, 0x08, 0x10,
+// Shared AES S-box + round constants for the scalar key schedules (ARM has no key-assist instruction).
+static const unsigned char kArmSbox[256] = {
+    0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
+    0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
+    0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
+    0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,
+    0x09,0x83,0x2c,0x1a,0x1b,0x6e,0x5a,0xa0,0x52,0x3b,0xd6,0xb3,0x29,0xe3,0x2f,0x84,
+    0x53,0xd1,0x00,0xed,0x20,0xfc,0xb1,0x5b,0x6a,0xcb,0xbe,0x39,0x4a,0x4c,0x58,0xcf,
+    0xd0,0xef,0xaa,0xfb,0x43,0x4d,0x33,0x85,0x45,0xf9,0x02,0x7f,0x50,0x3c,0x9f,0xa8,
+    0x51,0xa3,0x40,0x8f,0x92,0x9d,0x38,0xf5,0xbc,0xb6,0xda,0x21,0x10,0xff,0xf3,0xd2,
+    0xcd,0x0c,0x13,0xec,0x5f,0x97,0x44,0x17,0xc4,0xa7,0x7e,0x3d,0x64,0x5d,0x19,0x73,
+    0x60,0x81,0x4f,0xdc,0x22,0x2a,0x90,0x88,0x46,0xee,0xb8,0x14,0xde,0x5e,0x0b,0xdb,
+    0xe0,0x32,0x3a,0x0a,0x49,0x06,0x24,0x5c,0xc2,0xd3,0xac,0x62,0x91,0x95,0xe4,0x79,
+    0xe7,0xc8,0x37,0x6d,0x8d,0xd5,0x4e,0xa9,0x6c,0x56,0xf4,0xea,0x65,0x7a,0xae,0x08,
+    0xba,0x78,0x25,0x2e,0x1c,0xa6,0xb4,0xc6,0xe8,0xdd,0x74,0x1f,0x4b,0xbd,0x8b,0x8a,
+    0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,
+    0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
+    0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16};
+static const unsigned char kArmRcon[10] = {0x01, 0x02, 0x04, 0x08, 0x10,
                                            0x20, 0x40, 0x80, 0x1b, 0x36};
+
+CHEATAH_TARGET("+crypto") inline void expand(const unsigned char key[16], uint8x16_t rk[11]) {
     unsigned char w[176];
     std::memcpy(w, key, 16);
     int r = 0;
@@ -417,20 +468,42 @@ CHEATAH_TARGET("+crypto") inline void expand(const unsigned char key[16], uint8x
         unsigned char t[4] = {w[i - 4], w[i - 3], w[i - 2], w[i - 1]};
         if (i % 16 == 0) {
             const unsigned char a0 = t[0];
-            t[0] = static_cast<unsigned char>(S[t[1]] ^ rcon[r++]);
-            t[1] = S[t[2]];
-            t[2] = S[t[3]];
-            t[3] = S[a0];
+            t[0] = static_cast<unsigned char>(kArmSbox[t[1]] ^ kArmRcon[r++]);
+            t[1] = kArmSbox[t[2]];
+            t[2] = kArmSbox[t[3]];
+            t[3] = kArmSbox[a0];
         }
         for (int j = 0; j < 4; ++j) w[i + j] = static_cast<unsigned char>(w[i - 16 + j] ^ t[j]);
     }
     for (int i = 0; i < 11; ++i) rk[i] = vld1q_u8(w + 16 * i);
 }
 
-// AES-128 block encrypt (10 rounds). ARM's AESE adds the round key at the START of the round.
-CHEATAH_TARGET("+crypto") inline uint8x16_t enc_block(const uint8x16_t rk[11], uint8x16_t s) {
-    for (int i = 0; i < 9; ++i) s = vaesmcq_u8(vaeseq_u8(s, rk[i]));
-    return veorq_u8(vaeseq_u8(s, rk[9]), rk[10]);
+// AES-256 key schedule (scalar, FIPS-197 §5.2) → 15 NEON round keys.
+CHEATAH_TARGET("+crypto") inline void expand256(const unsigned char key[32], uint8x16_t rk[15]) {
+    unsigned char w[240];
+    std::memcpy(w, key, 32);
+    int r = 0;
+    for (int i = 32; i < 240; i += 4) {
+        unsigned char t[4] = {w[i - 4], w[i - 3], w[i - 2], w[i - 1]};
+        if (i % 32 == 0) {
+            const unsigned char a0 = t[0];
+            t[0] = static_cast<unsigned char>(kArmSbox[t[1]] ^ kArmRcon[r++]);
+            t[1] = kArmSbox[t[2]];
+            t[2] = kArmSbox[t[3]];
+            t[3] = kArmSbox[a0];
+        } else if (i % 32 == 16) {  // AES-256 extra SubWord
+            for (int j = 0; j < 4; ++j) t[j] = kArmSbox[t[j]];
+        }
+        for (int j = 0; j < 4; ++j) w[i + j] = static_cast<unsigned char>(w[i - 32 + j] ^ t[j]);
+    }
+    for (int i = 0; i < 15; ++i) rk[i] = vld1q_u8(w + 16 * i);
+}
+
+// AES block encrypt with @p nr rounds (10 for AES-128, 14 for AES-256). ARM's AESE adds the round key
+// at the START of the round.
+CHEATAH_TARGET("+crypto") inline uint8x16_t enc_block(const uint8x16_t* rk, int nr, uint8x16_t s) {
+    for (int i = 0; i < nr - 1; ++i) s = vaesmcq_u8(vaeseq_u8(s, rk[i]));
+    return veorq_u8(vaeseq_u8(s, rk[nr - 1]), rk[nr]);
 }
 
 // Full 16-byte reversal (GCM is big-endian; mirrors the x86 bswap).
@@ -522,7 +595,7 @@ CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_inc(uint8x16_t c) {
 }
 
 // Stitched CTR + GHASH, 8 blocks at a time (see the x86 path for the rationale).
-CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_ghash_stitch(const uint8x16_t rk[11],
+CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_ghash_stitch(const uint8x16_t* rk, int nr,
                                                              const uint8x16_t Hp[8], uint8x16_t ctr,
                                                              uint8x16_t Y, unsigned char* buf,
                                                              std::size_t len, bool encrypt) {
@@ -534,7 +607,7 @@ CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_ghash_stitch(const uint8x16_t rk
         uint8x16_t g[8];
         for (int i = 0; i < 8; ++i) {
             const uint8x16_t in = vld1q_u8(buf + off + 16 * i);
-            const uint8x16_t out = veorq_u8(in, enc_block(rk, c[i]));
+            const uint8x16_t out = veorq_u8(in, enc_block(rk, nr, c[i]));
             vst1q_u8(buf + off + 16 * i, out);
             g[i] = bswap(encrypt ? out : in);
         }
@@ -546,7 +619,7 @@ CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_ghash_stitch(const uint8x16_t rk
     }
     for (; off + 16 <= len; off += 16) {
         const uint8x16_t in = vld1q_u8(buf + off);
-        const uint8x16_t out = veorq_u8(in, enc_block(rk, ctr));
+        const uint8x16_t out = veorq_u8(in, enc_block(rk, nr, ctr));
         vst1q_u8(buf + off, out);
         Y = gfmul(veorq_u8(Y, bswap(encrypt ? out : in)), Hp[0]);
         ctr = ctr_inc(ctr);
@@ -554,7 +627,7 @@ CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_ghash_stitch(const uint8x16_t rk
     if (off < len) {
         const std::size_t m = len - off;
         alignas(16) unsigned char ksb[16];
-        vst1q_u8(ksb, enc_block(rk, ctr));
+        vst1q_u8(ksb, enc_block(rk, nr, ctr));
         alignas(16) unsigned char gb[16] = {0};
         for (std::size_t i = 0; i < m; ++i) {
             const unsigned char cin = buf[off + i];
@@ -567,7 +640,7 @@ CHEATAH_TARGET("+crypto") inline uint8x16_t ctr_ghash_stitch(const uint8x16_t rk
     return Y;
 }
 
-CHEATAH_TARGET("+crypto") inline void finalize_tag(const uint8x16_t rk[11], const uint8x16_t Hp[8],
+CHEATAH_TARGET("+crypto") inline void finalize_tag(const uint8x16_t* rk, int nr, const uint8x16_t Hp[8],
                                                    uint8x16_t J0, uint8x16_t Y, std::size_t aadlen,
                                                    std::size_t ctlen, unsigned char tag[16]) {
     alignas(16) unsigned char lb[16] = {0};
@@ -579,55 +652,61 @@ CHEATAH_TARGET("+crypto") inline void finalize_tag(const uint8x16_t rk[11], cons
     }
     Y = veorq_u8(Y, bswap(vld1q_u8(lb)));
     Y = gfmul(Y, Hp[0]);
-    vst1q_u8(tag, veorq_u8(bswap(Y), enc_block(rk, J0)));
+    vst1q_u8(tag, veorq_u8(bswap(Y), enc_block(rk, nr, J0)));
 }
 
-CHEATAH_TARGET("+crypto") inline void setup(const unsigned char key[16],
-                                            const unsigned char nonce[12], uint8x16_t rk[11],
-                                            uint8x16_t Hp[8], uint8x16_t& J0) {
-    expand(key, rk);
-    const uint8x16_t H = bswap(enc_block(rk, vdupq_n_u8(0)));
+// Round keys (10 rounds for a 16-byte key, 14 for 32), Hp = {H … H^8}, and J0. Returns the round count.
+CHEATAH_TARGET("+crypto") inline int setup(const unsigned char* key, std::size_t keylen,
+                                           const unsigned char nonce[12], uint8x16_t* rk,
+                                           uint8x16_t Hp[8], uint8x16_t& J0) {
+    int nr;
+    if (keylen == 32) { expand256(key, rk); nr = 14; }
+    else { expand(key, rk); nr = 10; }
+    const uint8x16_t H = bswap(enc_block(rk, nr, vdupq_n_u8(0)));
     Hp[0] = H;
     for (int i = 1; i < 8; ++i) Hp[i] = gfmul(Hp[i - 1], H);
     alignas(16) unsigned char j0[16] = {0};
     std::memcpy(j0, nonce, 12);
     j0[15] = 1;
     J0 = vld1q_u8(j0);
+    return nr;
 }
 
-CHEATAH_TARGET("+crypto") inline std::string aes128gcm_encrypt(const unsigned char key[16],
-                                                               const unsigned char nonce[12],
-                                                               std::string_view aad,
-                                                               std::string_view plaintext) {
-    uint8x16_t rk[11], Hp[8], J0;
-    setup(key, nonce, rk, Hp, J0);
+// AES-GCM encrypt for a 16- or 32-byte key (@p keylen); ciphertext with the 16-byte tag appended.
+CHEATAH_TARGET("+crypto") inline std::string gcm_encrypt(const unsigned char* key, std::size_t keylen,
+                                                         const unsigned char nonce[12],
+                                                         std::string_view aad,
+                                                         std::string_view plaintext) {
+    uint8x16_t rk[15], Hp[8], J0;
+    const int nr = setup(key, keylen, nonce, rk, Hp, J0);
     std::string ct(plaintext);
     uint8x16_t Y = ghash_buf(vdupq_n_u8(0), Hp,
                              reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
-    Y = ctr_ghash_stitch(rk, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&ct[0]),
+    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&ct[0]),
                          ct.size(), /*encrypt=*/true);
     unsigned char tag[16];
-    finalize_tag(rk, Hp, J0, Y, aad.size(), ct.size(), tag);
+    finalize_tag(rk, nr, Hp, J0, Y, aad.size(), ct.size(), tag);
     ct.append(reinterpret_cast<char*>(tag), 16);
     return ct;
 }
 
-CHEATAH_TARGET("+crypto") inline std::string aes128gcm_decrypt(const unsigned char key[16],
-                                                               const unsigned char nonce[12],
-                                                               std::string_view aad,
-                                                               std::string_view ciphertext) {
+// AES-GCM decrypt for a 16- or 32-byte key; constant-time tag check; "" on failure.
+CHEATAH_TARGET("+crypto") inline std::string gcm_decrypt(const unsigned char* key, std::size_t keylen,
+                                                         const unsigned char nonce[12],
+                                                         std::string_view aad,
+                                                         std::string_view ciphertext) {
     if (ciphertext.size() < 16) return "";
     const std::string_view ct = ciphertext.substr(0, ciphertext.size() - 16);
     const std::string_view want = ciphertext.substr(ciphertext.size() - 16);
-    uint8x16_t rk[11], Hp[8], J0;
-    setup(key, nonce, rk, Hp, J0);
+    uint8x16_t rk[15], Hp[8], J0;
+    const int nr = setup(key, keylen, nonce, rk, Hp, J0);
     std::string pt(ct);
     uint8x16_t Y = ghash_buf(vdupq_n_u8(0), Hp,
                              reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
-    Y = ctr_ghash_stitch(rk, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&pt[0]),
+    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&pt[0]),
                          pt.size(), /*encrypt=*/false);
     unsigned char tag[16];
-    finalize_tag(rk, Hp, J0, Y, aad.size(), ct.size(), tag);
+    finalize_tag(rk, nr, Hp, J0, Y, aad.size(), ct.size(), tag);
     unsigned char diff = 0;
     for (int i = 0; i < 16; ++i) diff |= tag[i] ^ static_cast<unsigned char>(want[i]);
     if (diff != 0) return "";
@@ -654,12 +733,27 @@ CHEATAH_TARGET("+crypto") inline bool self_test() {
         0x84, 0xaa, 0x05, 0x1b, 0xa3, 0x0b, 0x39, 0x6a, 0x0a, 0xac, 0x97, 0x3d, 0x58, 0xe0, 0x91,
         0x5b, 0xc9, 0x4f, 0xbc, 0x32, 0x21, 0xa5, 0xdb, 0x94, 0xfa, 0xe9, 0x5a, 0xe7, 0x12, 0x1a,
         0x47};
+    // AES-256 known-answer (McGrew GCM Test Case 16): gates the AES-256 hardware path too — a wrong
+    // key schedule / 14-round enc on this CPU disables BOTH sizes and falls back to portable scalar.
+    static const unsigned char key256[32] = {
+        0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c, 0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08,
+        0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c, 0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08};
+    static const unsigned char want256[76] = {
+        0x52, 0x2d, 0xc1, 0xf0, 0x99, 0x56, 0x7d, 0x07, 0xf4, 0x7f, 0x37, 0xa3, 0x2a, 0x84, 0x42, 0x7d,
+        0x64, 0x3a, 0x8c, 0xdc, 0xbf, 0xe5, 0xc0, 0xc9, 0x75, 0x98, 0xa2, 0xbd, 0x25, 0x55, 0xd1, 0xaa,
+        0x8c, 0xb0, 0x8e, 0x48, 0x59, 0x0d, 0xbb, 0x3d, 0xa7, 0xb0, 0x8b, 0x10, 0x56, 0x82, 0x88, 0x38,
+        0xc5, 0xf6, 0x1e, 0x63, 0x93, 0xba, 0x7a, 0x0a, 0xbc, 0xc9, 0xf6, 0x62, 0x76, 0xfc, 0x6e, 0xce,
+        0x0f, 0x4e, 0x17, 0x68, 0xcd, 0xdf, 0x88, 0x53, 0xbb, 0x2d, 0x55, 0x1b};
     const std::string_view aadv{reinterpret_cast<const char*>(aad), sizeof aad};
-    const std::string ct = aes128gcm_encrypt(
-        key, nonce, aadv, std::string_view{reinterpret_cast<const char*>(pt), sizeof pt});
-    const std::string back = aes128gcm_decrypt(key, nonce, aadv, ct);
+    const std::string_view ptv{reinterpret_cast<const char*>(pt), sizeof pt};
+    const std::string ct = gcm_encrypt(key, 16, nonce, aadv, ptv);
+    const std::string back = gcm_decrypt(key, 16, nonce, aadv, ct);
+    const std::string ct256 = gcm_encrypt(key256, 32, nonce, aadv, ptv);
+    const std::string back256 = gcm_decrypt(key256, 32, nonce, aadv, ct256);
     return ct.size() == sizeof want && std::memcmp(ct.data(), want, sizeof want) == 0 &&
-           back.size() == sizeof pt && std::memcmp(back.data(), pt, sizeof pt) == 0;
+           back.size() == sizeof pt && std::memcmp(back.data(), pt, sizeof pt) == 0 &&
+           ct256.size() == sizeof want256 && std::memcmp(ct256.data(), want256, sizeof want256) == 0 &&
+           back256.size() == sizeof pt && std::memcmp(back256.data(), pt, sizeof pt) == 0;
 }
 #endif  // CHEATAH_NO_CRYPTO_SELFTEST
 
@@ -674,31 +768,29 @@ inline bool available() {
 
 #else   // neither x86 nor ARMv8-crypto: no hardware path — the portable scalar reference runs.
 /// Always false on this architecture: there is no AES hardware path, so callers fall back to the
-/// portable scalar AES-128-GCM reference.
+/// portable scalar AES-128/256-GCM reference.
 /// @return false (no hardware acceleration available here).
 inline bool available() { return false; }
 /// Unreachable stub so the accel namespace type-checks on non-accelerated targets; never called
-/// because available() is false. Signature matches the accelerated aes128gcm_encrypt.
-/// @param key the 16-byte AES-128 key (ignored).
-/// @param nonce the 12-byte GCM nonce/IV (ignored).
-/// @param aad additional authenticated data (ignored).
-/// @param plaintext the message to encrypt (ignored).
+/// because available() is false. Signature matches the accelerated gcm_encrypt.
+/// @param key the AES key (ignored). @param keylen 16 or 32 (ignored). @param nonce the 12-byte IV
+/// (ignored). @param aad additional authenticated data (ignored). @param plaintext the message (ignored).
 /// @return the empty string (this path is never taken).
-inline std::string aes128gcm_encrypt(const unsigned char key[16], const unsigned char nonce[12],
-                                     std::string_view aad, std::string_view plaintext) {
-    (void)key; (void)nonce; (void)aad; (void)plaintext;
+inline std::string gcm_encrypt(const unsigned char* key, std::size_t keylen,
+                               const unsigned char nonce[12], std::string_view aad,
+                               std::string_view plaintext) {
+    (void)key; (void)keylen; (void)nonce; (void)aad; (void)plaintext;
     return {};
 }
 /// Unreachable stub so the accel namespace type-checks on non-accelerated targets; never called
-/// because available() is false. Signature matches the accelerated aes128gcm_decrypt.
-/// @param key the 16-byte AES-128 key (ignored).
-/// @param nonce the 12-byte GCM nonce/IV (ignored).
-/// @param aad additional authenticated data (ignored).
-/// @param ciphertext the ciphertext with appended tag (ignored).
+/// because available() is false. Signature matches the accelerated gcm_decrypt.
+/// @param key the AES key (ignored). @param keylen 16 or 32 (ignored). @param nonce the 12-byte IV
+/// (ignored). @param aad additional authenticated data (ignored). @param ciphertext the ct+tag (ignored).
 /// @return the empty string (this path is never taken).
-inline std::string aes128gcm_decrypt(const unsigned char key[16], const unsigned char nonce[12],
-                                     std::string_view aad, std::string_view ciphertext) {
-    (void)key; (void)nonce; (void)aad; (void)ciphertext;
+inline std::string gcm_decrypt(const unsigned char* key, std::size_t keylen,
+                               const unsigned char nonce[12], std::string_view aad,
+                               std::string_view ciphertext) {
+    (void)key; (void)keylen; (void)nonce; (void)aad; (void)ciphertext;
     return {};
 }
 #endif  // arch dispatch
