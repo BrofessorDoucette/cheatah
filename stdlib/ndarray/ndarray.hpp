@@ -1734,6 +1734,28 @@ basic_ndarray<T> abs(const basic_ndarray<T>& a) {
 }
 
 // ---- reductions / access / display ----
+namespace detail {
+/// The shared multi-accumulator reduction: sums `get(0)..get(n-1)` with EIGHT independent
+/// accumulators, tree-combined, plus a scalar tail. The independent lanes break the FP-add
+/// dependency chain so -O3 -march=native emits SIMD+FMA and reaches memory bandwidth instead of
+/// add latency (a single running sum — or a plain `std::reduce`, which libstdc++ left-folds for FP
+/// without -ffast-math — serializes: the dot/norm mistake). `get(i)` returns the i-th TERM — an
+/// element for `sum`, a (possibly conjugated) product for `dot`, a strided read for `trace`. One
+/// primitive replaces the copies formerly hand-rolled in ndarray/linalg. `constexpr`, so a
+/// fixed-extent caller gets a compile-time reduction too.
+template <class T, class Get>
+constexpr T reduce_lanes(std::size_t n, Get get) {
+    T s0{}, s1{}, s2{}, s3{}, s4{}, s5{}, s6{}, s7{};
+    std::size_t i = 0;
+    for (; i + 8 <= n; i += 8) {
+        s0 += get(i + 0); s1 += get(i + 1); s2 += get(i + 2); s3 += get(i + 3);
+        s4 += get(i + 4); s5 += get(i + 5); s6 += get(i + 6); s7 += get(i + 7);
+    }
+    T s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
+    for (; i < n; ++i) s += get(i);
+    return s;
+}
+}  // namespace detail
 /**
  * Sum of all elements — a full reduction across every axis (vectorized via
  * `std::reduce(unseq)` when contiguous, else a C-order walk); empty sums to 0.
@@ -1748,20 +1770,9 @@ basic_ndarray<T> abs(const basic_ndarray<T>& a) {
 template <Field T>
 T sum(const basic_ndarray<T>& a) {
     if (is_contiguous(a)) {
-        // Eight independent accumulators so the reduction vectorizes (a single running
-        // sum — or a plain std::reduce, which libstdc++ left-folds for FP without
-        // -ffast-math — serializes on FP-add latency, the dot/norm mistake).
+        // Contiguous fast path via the shared multi-accumulator reduction (each term is one element).
         const T* p = a.buffer()->data() + a.offset();
-        const std::size_t n = a.size();
-        T s0{}, s1{}, s2{}, s3{}, s4{}, s5{}, s6{}, s7{};
-        std::size_t i = 0;
-        for (; i + 8 <= n; i += 8) {
-            s0 += p[i + 0]; s1 += p[i + 1]; s2 += p[i + 2]; s3 += p[i + 3];
-            s4 += p[i + 4]; s5 += p[i + 5]; s6 += p[i + 6]; s7 += p[i + 7];
-        }
-        T s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
-        for (; i < n; ++i) s += p[i];
-        return s;
+        return detail::reduce_lanes<T>(a.size(), [p](std::size_t i) { return p[i]; });
     }
     T s{};
     std::vector<std::size_t> idx(a.ndim(), 0);

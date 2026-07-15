@@ -870,28 +870,16 @@ void copy_into(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& 
 // -march=native issue SIMD + FMA and hit memory bandwidth instead of add latency.
 namespace {
 // The reduction kernel over any Field T with a compile-time conjugation choice (@ref Conj) —
-// ONE kernel replacing the former real `ddot` and complex `cdot`. EIGHT independent accumulators
-// break the FP-add dependency chain so -O3 -march=native emits SIMD+FMA and hits memory bandwidth
-// instead of add latency. `term` conjugates the first operand only for a complex element under
-// Conj::Conjugate (Hermitian inner product); for real T, or Conj::None, the conjugation branch is
-// compiled OUT by `if constexpr` — zero cost, no dead loads.
+// ONE kernel replacing the former real `ddot` and complex `cdot`, now routed through the shared
+// multi-accumulator reduction @ref cheatah::ndarray::detail::reduce_lanes. The per-element term
+// conjugates the first operand only for a complex element under Conj::Conjugate (Hermitian inner
+// product); for real T or Conj::None the conjugation branch is compiled OUT by `if constexpr`.
 template <ndarray::Field T, Conj C>
 T dot_kernel(const T* x, const T* y, std::size_t n) {
-    auto term = [](const T& xi, const T& yi) -> T {
-        if constexpr (ndarray::is_complex_v<T> && C == Conj::Conjugate) return std::conj(xi) * yi;
-        else return xi * yi;
-    };
-    T s0{}, s1{}, s2{}, s3{}, s4{}, s5{}, s6{}, s7{};
-    std::size_t i = 0;
-    for (; i + 8 <= n; i += 8) {
-        s0 += term(x[i + 0], y[i + 0]); s1 += term(x[i + 1], y[i + 1]);
-        s2 += term(x[i + 2], y[i + 2]); s3 += term(x[i + 3], y[i + 3]);
-        s4 += term(x[i + 4], y[i + 4]); s5 += term(x[i + 5], y[i + 5]);
-        s6 += term(x[i + 6], y[i + 6]); s7 += term(x[i + 7], y[i + 7]);
-    }
-    T s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
-    for (; i < n; ++i) s += term(x[i], y[i]);
-    return s;
+    return ndarray::detail::reduce_lanes<T>(n, [x, y](std::size_t i) -> T {
+        if constexpr (ndarray::is_complex_v<T> && C == Conj::Conjugate) return std::conj(x[i]) * y[i];
+        else return x[i] * y[i];
+    });
 }
 // Read two operands as contiguous pointers (zero-copy when contiguous, else pack once) and reduce.
 template <ndarray::Field T, Conj C, template <typename> class Array>
@@ -1144,18 +1132,10 @@ T trace(const Array<T>& a) {
     const T* base = a.buffer()->data();
     const std::ptrdiff_t off = static_cast<std::ptrdiff_t>(a.offset());
     const std::ptrdiff_t step = a.strides()[0] + a.strides()[1];  // (i,i) advances by s0+s1
-    const std::size_t d = std::min(r, c);
-    T s0{}, s1{}, s2{}, s3{};                 // independent lanes break the add-latency chain
-    std::size_t i = 0;
-    for (; i + 4 <= d; i += 4) {
-        s0 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
-        s1 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 1) * step)];
-        s2 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 2) * step)];
-        s3 += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i + 3) * step)];
-    }
-    T s = (s0 + s1) + (s2 + s3);
-    for (; i < d; ++i) s += base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
-    return s;
+    // Diagonal sum through the shared multi-accumulator reduction — the term is a strided read.
+    return ndarray::detail::reduce_lanes<T>(std::min(r, c), [base, off, step](std::size_t i) {
+        return base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
+    });
 }
 template double trace<double, ndarray::basic_ndarray>(const NDArray&);
 
@@ -1315,18 +1295,13 @@ template <ndarray::Field T, template <typename> class Array>
     std::vector<double> Q(m * m, 0.0);
     for (std::size_t i = 0; i < m; ++i) Q[i * m + i] = 1.0;
     std::vector<double> u(m);  // Householder vector, reused per column (entries < k unused)
-    // Reflect: s = u · row (4 accumulators), then row -= (2 s / ‖u‖²) u — contiguous.
+    // Reflect: s = u · row over [k, m) via the shared multi-accumulator reduction, then
+    // row -= (2 s / ‖u‖²) u — contiguous.
     auto reflect = [&u](double* row, std::size_t k, std::size_t m, double inv) {
-        double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
-        std::size_t i = k;
-        for (; i + 4 <= m; i += 4) {
-            s0 += u[i] * row[i];         s1 += u[i + 1] * row[i + 1];
-            s2 += u[i + 2] * row[i + 2]; s3 += u[i + 3] * row[i + 3];
-        }
-        double s = (s0 + s1) + (s2 + s3);
-        for (; i < m; ++i) s += u[i] * row[i];
+        double s = ndarray::detail::reduce_lanes<double>(
+            m - k, [&u, row, k](std::size_t i) { return u[k + i] * row[k + i]; });
         s *= inv;
-        for (i = k; i < m; ++i) row[i] -= s * u[i];
+        for (std::size_t i = k; i < m; ++i) row[i] -= s * u[i];
     };
     for (std::size_t k = 0; k < n; ++k) {
         double* Atk = &At[k * m];                 // column k of A == row k of At
