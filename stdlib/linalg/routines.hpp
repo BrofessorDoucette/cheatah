@@ -138,7 +138,10 @@ void outer(NDArray& out, const NDArray& a, const NDArray& b);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Matmul into the CALLER'S buffer @p out (out FIRST, like assignment) — the user-provided-output
- * overload, NO result allocation (a hot loop, e.g. an MLP layer, hands the same scratch every call).
+ * form, NO result allocation (a hot loop, e.g. an MLP layer, hands the same scratch every call).
+ * ONE template over `Field T` serving both real and complex (the former separate `NDArray` and
+ * `CNDArray` overloads); the allocating `matmul(a,b)` front routes here via the matmul_into CPO.
+ * @tparam T the element type (`double` or `std::complex<double>`).
  * @param out the destination; a contiguous [a.rows, b.cols] matrix, overwritten. Must NOT alias @p a or
  *        @p b — matmul reads all of both while writing out, so it is not an in-place op.
  * @param a left matrix.
@@ -147,8 +150,11 @@ void outer(NDArray& out, const NDArray& a, const NDArray& b);
  * @alloc none for contiguous operands (product written straight into @p out); a
  *        non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.MatmulIntoReusesBuffer
+ * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
  */
-void matmul(NDArray& out, const NDArray& a, const NDArray& b);
+template <ndarray::Field T>
+void matmul(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& a,
+            const ndarray::basic_ndarray<T>& b);
 /// @endcond
 
 // ---- complex products (complex inner-product spaces) ----
@@ -180,24 +186,9 @@ Cplx dot(const CNDArray& a, const CNDArray& b);
  * @systest StdlibE2E.LinalgComplex
  */
 Cplx vdot(const CNDArray& a, const CNDArray& b);
-// Complex matmul (the complex analogue) is served by the SAME generic `matmul` front in
-// backend.hpp: for CNDArray operands it instantiates the complex path (a compile-time branch
-// on the element type), routing to the complex out-parameter kernel declared just below.
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Complex matmul into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of the
- * complex @ref matmul, writing the product straight into @p out with no allocation.
- * @param out destination; a contiguous [a.rows, b.cols] complex matrix, overwritten. Must NOT
- *        alias @p a or @p b (it reads all of both while writing out — not an in-place op).
- * @param a m×k complex matrix.
- * @param b k×p complex matrix.
- * @complexity O(n³).
- * @alloc none for contiguous operands (product written straight into @p out); a
- *        non-contiguous operand is packed once into scratch.
- * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
- */
-void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b);
-/// @endcond
+// Complex matmul (real and complex out-param are now the ONE `matmul<T>` template above; the
+// allocating complex path is the same generic `matmul` front in backend.hpp, instantiating the
+// complex element type — no separate complex matmul symbol).
 /**
  * Conjugate transpose (Hermitian adjoint) Aᴴ of a **complex** matrix: transpose,
  * then conjugate every entry. A matrix is Hermitian iff `conj_transpose(A) == A`.

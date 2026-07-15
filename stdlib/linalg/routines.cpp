@@ -988,96 +988,41 @@ void outer(NDArray& out, const NDArray& a, const NDArray& b) {
 }
 
 namespace {
-// The matmul kernel (overloaded on the element pointer — `double*` here is the REAL case): writes
-// C[ar×bc] = A[ar×ac]·B[ac×bc] into the caller's @p C (ZEROED here, then accumulated). The allocating
-// and out-param matmul overloads both call it, so there is ONE kernel. ikj keeps the inner (j) loop
-// contiguous so it vectorizes; blocking FOUR rows of A reuses each B[k][j] load across four C rows, so
-// the O(n^3) hot loop does 4 FMAs per B load instead of 1. (Plain row blocking, not a packed kernel.)
-void matmul(double* C, const double* A, const double* B, std::size_t ar, std::size_t ac,
-            std::size_t bc) {
-    std::fill(C, C + ar * bc, 0.0);
+// The matmul kernel over ANY Field T (real or complex). The loop is element-generic — the
+// only element-specific step is the `T{}` zero-fill — so ONE kernel now serves what used to be
+// a `double*` and a `Cplx*` overload. Writes C[ar×bc] = A[ar×ac]·B[ac×bc] into the caller's @p C
+// (zeroed, then accumulated). ikj keeps the inner (j) loop contiguous so it vectorizes; blocking
+// FOUR rows of A reuses each B[k][j] load across four C rows (4 FMAs per B load instead of 1).
+template <ndarray::Field T>
+void matmul_kernel(T* C, const T* A, const T* B, std::size_t ar, std::size_t ac, std::size_t bc) {
+    std::fill(C, C + ar * bc, T{});
     std::size_t i = 0;
     for (; i + 4 <= ar; i += 4) {
-        double* c0 = &C[(i + 0) * bc];
-        double* c1 = &C[(i + 1) * bc];
-        double* c2 = &C[(i + 2) * bc];
-        double* c3 = &C[(i + 3) * bc];
+        T* c0 = &C[(i + 0) * bc]; T* c1 = &C[(i + 1) * bc];
+        T* c2 = &C[(i + 2) * bc]; T* c3 = &C[(i + 3) * bc];
         for (std::size_t k = 0; k < ac; ++k) {
-            const double a0 = A[(i + 0) * ac + k], a1 = A[(i + 1) * ac + k];
-            const double a2 = A[(i + 2) * ac + k], a3 = A[(i + 3) * ac + k];
-            const double* bk = &B[k * bc];
+            const T a0 = A[(i + 0) * ac + k], a1 = A[(i + 1) * ac + k];
+            const T a2 = A[(i + 2) * ac + k], a3 = A[(i + 3) * ac + k];
+            const T* bk = &B[k * bc];
             for (std::size_t j = 0; j < bc; ++j) {
-                const double bkj = bk[j];
-                c0[j] += a0 * bkj;
-                c1[j] += a1 * bkj;
-                c2[j] += a2 * bkj;
-                c3[j] += a3 * bkj;
-            }
-        }
-    }
-    for (; i < ar; ++i) {  // remainder rows (ar not a multiple of 4)
-        double* ci = &C[i * bc];
-        for (std::size_t k = 0; k < ac; ++k) {
-            const double aik = A[i * ac + k];
-            const double* bk = &B[k * bc];
-            for (std::size_t j = 0; j < bc; ++j) ci[j] += aik * bk[j];
-        }
-    }
-}
-}  // namespace
-
-// NOTE: the allocating `matmul(a, b)` is now the concept-templated generic front in
-// backend.hpp; for host operands it allocates the result and delegates to this out-param
-// kernel via the matmul_into CPO (host default in host_backend.hpp). Only the out-param
-// kernel — the actual work — lives here.
-void matmul(NDArray& out, const NDArray& a, const NDArray& b) {
-    if (a.ndim() != 2 || b.ndim() != 2)
-        throw std::runtime_error("linalg: matmul expects 2-D matrices");
-    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
-    const std::size_t br = b.shape()[0], bc = b.shape()[1];
-    if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
-    if (out.ndim() != 2 || out.shape()[0] != ar || out.shape()[1] != bc || !ndarray::is_contiguous(out))
-        throw std::runtime_error("linalg: matmul out must be a contiguous [ar, bc] matrix");
-    // out reads every element of A and B while writing C, so it must NOT alias an operand.
-    if (out.buffer() == a.buffer() || out.buffer() == b.buffer())
-        throw std::runtime_error("linalg: matmul out must not alias an input (it is not in-place)");
-    std::vector<double> sa, sb;
-    matmul(out.buffer()->data() + out.offset(), contig(a, sa), contig(b, sb), ar, ac, bc);
-}
-
-namespace {
-// Complex matmul kernel (overloaded on the element pointer — `Cplx*` is the COMPLEX case): writes
-// C[ar×bc] = A·B into the caller's @p C (zeroed, then accumulated). Same 4-row register blocking as
-// the real kernel — reuse each B[k][j] load across four C rows (4 complex FMAs per load). Shared by
-// the allocating and out-param overloads.
-void matmul(Cplx* C, const Cplx* A, const Cplx* B, std::size_t ar, std::size_t ac, std::size_t bc) {
-    std::fill(C, C + ar * bc, Cplx{});
-    std::size_t i = 0;
-    for (; i + 4 <= ar; i += 4) {
-        Cplx* c0 = &C[(i + 0) * bc]; Cplx* c1 = &C[(i + 1) * bc];
-        Cplx* c2 = &C[(i + 2) * bc]; Cplx* c3 = &C[(i + 3) * bc];
-        for (std::size_t k = 0; k < ac; ++k) {
-            const Cplx a0 = A[(i + 0) * ac + k], a1 = A[(i + 1) * ac + k];
-            const Cplx a2 = A[(i + 2) * ac + k], a3 = A[(i + 3) * ac + k];
-            const Cplx* bk = &B[k * bc];
-            for (std::size_t j = 0; j < bc; ++j) {
-                const Cplx bkj = bk[j];
+                const T bkj = bk[j];
                 c0[j] += a0 * bkj; c1[j] += a1 * bkj; c2[j] += a2 * bkj; c3[j] += a3 * bkj;
             }
         }
     }
-    for (; i < ar; ++i) {
-        Cplx* ci = &C[i * bc];
+    for (; i < ar; ++i) {  // remainder rows (ar not a multiple of 4)
+        T* ci = &C[i * bc];
         for (std::size_t k = 0; k < ac; ++k) {
-            const Cplx aik = A[i * ac + k];
-            const Cplx* bk = &B[k * bc];
+            const T aik = A[i * ac + k];
+            const T* bk = &B[k * bc];
             for (std::size_t j = 0; j < bc; ++j) ci[j] += aik * bk[j];
         }
     }
 }
-// Shared shape validation for both complex-matmul overloads.
-void check_cmatmul(const CNDArray& a, const CNDArray& b, std::size_t& ar, std::size_t& ac,
-                   std::size_t& bc) {
+// Shared 2-D shape validation → (ar, ac, bc); throws on a non-2-D input or inner-dim mismatch.
+template <ndarray::Field T>
+void check_matmul(const ndarray::basic_ndarray<T>& a, const ndarray::basic_ndarray<T>& b,
+                  std::size_t& ar, std::size_t& ac, std::size_t& bc) {
     if (a.ndim() != 2 || b.ndim() != 2)
         throw std::runtime_error("linalg: matmul expects 2-D matrices");
     ar = a.shape()[0]; ac = a.shape()[1];
@@ -1086,18 +1031,26 @@ void check_cmatmul(const CNDArray& a, const CNDArray& b, std::size_t& ar, std::s
 }
 }  // namespace
 
-// The allocating complex matmul is likewise the generic front in backend.hpp; the complex
-// host path lands in this out-param kernel via the matmul_into CPO.
-void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b) {
+// Matmul into the caller's buffer @p out (out FIRST) — ONE template over Field T that unifies
+// the former real and complex out-param overloads. Validates shapes, rejects aliasing (out reads
+// all of A and B while writing, so it is not in-place), packs a strided operand once, and runs the
+// single matmul_kernel. The allocating matmul(a,b) front in backend.hpp reaches this through the
+// matmul_into CPO (host default in host_backend.hpp).
+template <ndarray::Field T>
+void matmul(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& a,
+            const ndarray::basic_ndarray<T>& b) {
     std::size_t ar, ac, bc;
-    check_cmatmul(a, b, ar, ac, bc);
-    // out reads every element of A and B while writing C, so it must NOT alias an operand.
+    check_matmul(a, b, ar, ac, bc);
     reject_alias(out, a);
     reject_alias(out, b);
-    Cplx* C = out_buf(out, {ar, bc});
-    std::vector<Cplx> sa, sb;
-    matmul(C, contig(a, sa), contig(b, sb), ar, ac, bc);
+    T* C = out_buf(out, {ar, bc});
+    std::vector<T> sa, sb;
+    matmul_kernel<T>(C, contig(a, sa), contig(b, sb), ar, ac, bc);
 }
+// Explicit instantiations for the two host element types the library ships, so the header-declared
+// template links from other TUs (the host tag_invoke seam) and llvm coverage attributes it here.
+template void matmul<double>(NDArray&, const NDArray&, const NDArray&);
+template void matmul<Cplx>(CNDArray&, const CNDArray&, const CNDArray&);
 
 namespace {
 // Conjugate-transpose kernel: T[c×r] = conj(A[r×c]ᵀ). Shared by both overloads.
