@@ -1031,14 +1031,14 @@ void check_matmul(const ndarray::basic_ndarray<T>& a, const ndarray::basic_ndarr
 }
 }  // namespace
 
-// Matmul into the caller's buffer @p out (out FIRST) — ONE template over Field T that unifies
-// the former real and complex out-param overloads. Validates shapes, rejects aliasing (out reads
-// all of A and B while writing, so it is not in-place), packs a strided operand once, and runs the
-// single matmul_kernel. The allocating matmul(a,b) front in backend.hpp reaches this through the
-// matmul_into CPO (host default in host_backend.hpp).
-template <ndarray::Field T>
-void matmul(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& a,
-            const ndarray::basic_ndarray<T>& b) {
+// Matmul into the caller's buffer @p out (out FIRST) — the HOST out-parameter kernel (the two-layer
+// `template <Field T, template<typename> class Array> requires HostArray<Array<T>>` overload declared
+// in backend.hpp). ONE definition unifying the former real and complex out-param functions. Validates
+// shapes, rejects aliasing (out reads all of A and B while writing, so it is not in-place), packs a
+// strided operand once, and runs the single matmul_kernel. The allocating matmul(a,b) front calls it.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     std::size_t ar, ac, bc;
     check_matmul(a, b, ar, ac, bc);
     reject_alias(out, a);
@@ -1047,10 +1047,13 @@ void matmul(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& a,
     std::vector<T> sa, sb;
     matmul_kernel<T>(C, contig(a, sa), contig(b, sb), ar, ac, bc);
 }
-// Explicit instantiations for the two host element types the library ships, so the header-declared
-// template links from other TUs (the host tag_invoke seam) and llvm coverage attributes it here.
-template void matmul<double>(NDArray&, const NDArray&, const NDArray&);
-template void matmul<Cplx>(CNDArray&, const CNDArray&, const CNDArray&);
+// Explicit instantiations for the two host element types the library ships — both the out-param
+// kernel and the allocating front — so the header templates link from other TUs and llvm coverage
+// attributes their bodies to this TU.
+template void matmul<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
+template void matmul<Cplx, ndarray::basic_ndarray>(CNDArray&, const CNDArray&, const CNDArray&);
+template NDArray matmul<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
+template CNDArray matmul<Cplx, ndarray::basic_ndarray>(const CNDArray&, const CNDArray&);
 
 namespace {
 // Conjugate-transpose kernel: T[c×r] = conj(A[r×c]ᵀ). Shared by both overloads.

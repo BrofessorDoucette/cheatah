@@ -132,30 +132,9 @@ NDArray outer(const NDArray& a, const NDArray& b);
  */
 void outer(NDArray& out, const NDArray& a, const NDArray& b);
 /// @endcond
-// The allocating matmul (m×k · k×p → m×p) is the concept-templated generic front
-// `matmul(const A&, const B&)` in backend.hpp — one template serving host and device
-// operands; the host path routes through the out-parameter kernel declared just below.
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Matmul into the CALLER'S buffer @p out (out FIRST, like assignment) — the user-provided-output
- * form, NO result allocation (a hot loop, e.g. an MLP layer, hands the same scratch every call).
- * ONE template over `Field T` serving both real and complex (the former separate `NDArray` and
- * `CNDArray` overloads); the allocating `matmul(a,b)` front routes here via the matmul_into CPO.
- * @tparam T the element type (`double` or `std::complex<double>`).
- * @param out the destination; a contiguous [a.rows, b.cols] matrix, overwritten. Must NOT alias @p a or
- *        @p b — matmul reads all of both while writing out, so it is not an in-place op.
- * @param a left matrix.
- * @param b right matrix.
- * @complexity O(ar·ac·bc).
- * @alloc none for contiguous operands (product written straight into @p out); a
- *        non-contiguous operand is packed once into scratch.
- * @test LinalgRoutines.MatmulIntoReusesBuffer
- * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
- */
-template <ndarray::Field T>
-void matmul(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& a,
-            const ndarray::basic_ndarray<T>& b);
-/// @endcond
+// Matmul — both the allocating front `matmul(a,b)` and the out-parameter kernel `matmul(out,a,b)`
+// are the two-layer `template <Field T, template<typename> class Array>` overloads in backend.hpp
+// (one pair serving real, complex, host, and — via a device extension — device operands).
 
 // ---- complex products (complex inner-product spaces) ----
 /**
@@ -824,7 +803,3 @@ void pinv(NDArray& out, const NDArray& a);
 /// @endcond
 
 } // namespace cheatah::linalg
-
-// Host (CPU) defaults for the backend-dispatch CPOs — included last, so the concrete
-// out-parameter kernels declared above are visible to the delegating tag_invoke overloads.
-#include "host_backend.hpp"

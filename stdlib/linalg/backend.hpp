@@ -4,95 +4,73 @@
 
 /**
  * @file backend.hpp
- * @brief cheatah `linalg` — the backend-dispatch seam the generic algorithms are built on.
+ * @brief cheatah `linalg` — the two-layer (element T + container Array) generic fronts.
  *
- * Each algorithm splits into a **generic front** (a concept-constrained template that
- * validates shapes and owns the allocation policy) and a **customization point** — a
- * `tag_invoke`-style CPO whose overload for a given operand LOCATION supplies the actual
- * kernel. cheatah defines the CPO tag and (in host_backend.hpp) the HOST default; a device
- * extension supplies its own `tag_invoke` in its namespace, found by ADL. The public header
- * therefore names the seam without ever naming the (private) device extension.
+ * Every routine takes TWO template layers: the element `T` and the container template
+ * `Array`, with a `requires` concept enforcing the container. Both operands are spelled
+ * `Array<T>`, so a host⊗device or f64⊗f32 mix cannot deduce a single `Array`/`T` and is a
+ * compile error — the location/element firewall is FREE, via deduction, with no runtime
+ * check and no `SameLocation` clause on the common binary ops.
  *
- * Two CPOs support the matmul front below:
- *   - @ref cpo::matmul_into — the allocation-free primitive: `out ← a·b`, out first;
- *   - @ref cpo::make_like — an uninitialized result shaped like a requested output,
- *     sharing the prototype operand's container family and element type (the host default
- *     mirrors `basic_ndarray::uninitialized`; a device default returns a pooled buffer).
- *
- * The allocating front composes the two (make an uninitialized result, then fill it), so
- * the out-parameter no-allocation discipline is the primitive and the convenience form is
- * a thin generic on top — identical for host and device.
+ * Each op is a pair of same-named overloads:
+ *   - a 2-arg **allocating front** `Array<T> op(const Array<T>&, const Array<T>&)` that
+ *     allocates the result with `Array<T>::uninitialized(...)` and calls the out-param form;
+ *   - a 3-arg **out-parameter kernel** `void op(Array<T>& out, …)`, split by concept: the
+ *     HOST overload (declared here, defined in routines.cpp) runs the raw-pointer SIMD kernel;
+ *     a device extension supplies a `requires DeviceArray<Array<T>>` overload in ITS namespace,
+ *     found by ADL. Mutually exclusive concepts → no ambiguity, and cheatah never names the
+ *     extension. (No CPO objects, no tag_invoke — plain concept-constrained overloads.)
  */
 #include <stdexcept>
-#include <type_traits>
-#include <utility>
 #include <vector>
 
 #include "concepts.hpp"
 
 namespace cheatah::linalg {
 
-/// @cond INTERNAL
-namespace cpo {
-
-/// The matmul customization point (out-parameter primitive). A location supplies the kernel
-/// by overloading `tag_invoke(matmul_into_t, out, a, b)` in its own namespace; the host
-/// default lives in host_backend.hpp. Operands must share a location (the compile-time
-/// firewall) and an exact element type (the kernels do not mix real·complex or f64·f32).
-struct matmul_into_t {
-    template <NumericArray Out, NumericArray A, NumericArray B>
-        requires SameLocation<Out, A> && SameLocation<A, B> &&
-                 std::same_as<element_t<A>, element_t<B>> &&
-                 std::same_as<element_t<Out>, element_t<A>>
-    void operator()(Out& out, const A& a, const B& b) const {
-        tag_invoke(*this, out, a, b);
-    }
-};
-inline constexpr matmul_into_t matmul_into{};
-
-/// The result-allocation customization point: build an uninitialized array of @p shape whose
-/// container family and element type match @p proto. The host default returns
-/// `basic_ndarray<element>::uninitialized(shape)` (no throwaway zero-fill); a device default
-/// returns a pool-allocated device buffer. Lets the generic front allocate results without
-/// knowing whether it is on the host or a device.
-struct make_like_t {
-    template <NumericArray Proto>
-    [[nodiscard]] auto operator()(const Proto& proto, std::vector<std::size_t> shape) const {
-        return tag_invoke(*this, proto, std::move(shape));
-    }
-};
-inline constexpr make_like_t make_like{};
-
-}  // namespace cpo
+/// @cond INTERNAL — the allocation-free out-parameter kernel (HOST overload; a device
+/// extension adds its own `requires DeviceArray<Array<T>>` overload). Declared here so the
+/// allocating front below can call it; defined + explicitly instantiated in routines.cpp.
+/**
+ * Matmul into the CALLER'S buffer @p out (out FIRST) — no result allocation (a hot loop hands
+ * the same scratch every call). ONE two-layer overload over `Array<T>` unifying the former real
+ * and complex, host `NDArray`/`CNDArray` out-param functions.
+ * @tparam T the element type; @tparam Array the (host) container template.
+ * @param out contiguous [a.rows, b.cols] destination, overwritten; must NOT alias @p a or @p b.
+ * @param a,b the operands.
+ * @test LinalgRoutines.MatmulIntoReusesBuffer
+ * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
+ */
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b);
 /// @endcond
 
 /**
- * Matrix multiply — the generic front. Requires both operands to be 2-D with matching inner
- * dimensions (a's cols == b's rows), throwing on a mismatch or a non-2-D input, then routes
- * to the location-appropriate kernel through @ref cpo::matmul_into. On the host this runs the
- * SIMD-friendly ikj kernel (contiguous inner loop, four-row blocking so each `b` load is
- * reused across four output rows); on a device it runs the device kernel — selected at compile
- * time by the operands' location, with a host⊗device mix rejected as an unsatisfied constraint.
- * @tparam A,B @ref NumericArray operands sharing a location and an exact element type.
+ * Matrix multiply — the allocating front. Both operands are `Array<T>` (so host⊗device / element
+ * mixes fail to deduce and are compile errors); requires both to be 2-D with matching inner
+ * dimensions. Allocates the m×p result via `Array<T>::uninitialized` (no throwaway zero-fill) and
+ * fills it through the out-parameter kernel — the host SIMD path, or a device shader when `Array`
+ * is a device container (selected by concept at compile time).
+ * @tparam T the element type (`double` / `std::complex<double>`), @tparam Array the container template.
  * @param a m×k matrix.
  * @param b k×p matrix.
- * @return m×p product, an array of the same container family and element type as the operands.
+ * @return m×p product, an `Array<T>` of the same container and element as the operands.
  * @complexity O(n³).
- * @alloc allocates only the m×p result (via @ref cpo::make_like); the operands are read in
- *        place from their own buffers (a non-contiguous host view is packed once into scratch).
+ * @alloc allocates only the m×p result; operands read in place (a strided host view packs once).
  * @test LinalgRoutines.ProductsAndTrace
  * @crtest LinalgCompileRun.Matmul
  * @systest StdlibE2E.Linalg
  */
-template <NumericArray A, NumericArray B>
-    requires SameLocation<A, B> && std::same_as<element_t<A>, element_t<B>>
-[[nodiscard]] auto matmul(const A& a, const B& b) {
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>>
+[[nodiscard]] Array<T> matmul(const Array<T>& a, const Array<T>& b) {
     if (a.ndim() != 2 || b.ndim() != 2)
         throw std::runtime_error("linalg: matmul expects 2-D matrices");
     if (a.shape()[1] != b.shape()[0])
         throw std::runtime_error("linalg: matmul inner dimension mismatch");
-    auto out = cpo::make_like(a, std::vector<std::size_t>{a.shape()[0], b.shape()[1]});
-    cpo::matmul_into(out, a, b);
+    Array<T> out = Array<T>::uninitialized({a.shape()[0], b.shape()[1]});
+    matmul(out, a, b);
     return out;
 }
 
