@@ -212,7 +212,7 @@ check("document-ancestor roots resolve without a workspace", () => {
 // ---- from-import + interface: cheatah's `import Sym1, Sym2 from module` form --------------------
 // The app imports RE-EXPORTED symbols from `pkg.textlex`. The tail (`textlex`) deliberately does NOT
 // map to the physical file (pkg/text/lexer.purr) — resolution is by symbol UNDER the package, the
-// glGAN scenario. Source-first: StrText/scan resolve to the .purr; a header-only helper (kind_name)
+// re-exported-submodule scenario. Source-first: StrText/scan resolve to the .purr; a header-only helper (kind_name)
 // and a concept (Drawable, a cheatah interface) fall through to the generated header.
 const fs = require("fs");
 function hoverTextOn(doc, pos) {

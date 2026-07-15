@@ -425,10 +425,10 @@ function packageDirs(head, docDir) {
   return out;
 }
 
-// Resolve a from-imported, re-exported symbol (`import StrText, scan, kind_name from glgan.textlex`)
-// to its DEFINITION — source-first. purrc resolves a dotted import by its FIRST segment (`glgan` →
-// glgan/glgan.hpp) and re-exports the tail's symbols into that package's namespace; the real file can
-// be nested anywhere under the package (here glgan/source/text/textlex.purr), so naive dotted→path
+// Resolve a from-imported, re-exported symbol (`import StrText, scan, kind_name from pkg.textlex`)
+// to its DEFINITION — source-first. purrc resolves a dotted import by its FIRST segment (`pkg` →
+// pkg/pkg.hpp) and re-exports the tail's symbols into that package's namespace; the real file can
+// be nested anywhere under the package (here pkg/text/lexer.purr), so naive dotted→path
 // resolution misses it. So: (1) scan the package's .purr sources for the symbol's definition, then
 // (2) fall back to the package header — following #includes into the folded base / generated submodule
 // headers — for symbols that live only in C++ (e.g. `kind_name`, `LexKind`). Returns { file, line }.
@@ -1152,7 +1152,7 @@ const hoverProvider = {
       return new vscode.Hover(renderFunction(defs.functions.get(word)), range);
     }
 
-    // 3b. A bare from-imported symbol (`import scan, StrText from glgan.textlex`) → its doc,
+    // 3b. A bare from-imported symbol (`import scan, StrText from pkg.textlex`) → its doc,
     // source-first: the declaring .purr's type/function, else the folded/generated header entity.
     if (!prefix && imp.fromSym.has(word)) {
       const modPath = imp.fromSym.get(word);
@@ -1290,7 +1290,7 @@ const definitionProvider = {
     if (!prefix && defs.functions.has(word)) {
       return new vscode.Location(document.uri, new vscode.Position(defs.functions.get(word).line, 0));
     }
-    // A bare from-imported symbol (`import scan, StrText from glgan.textlex`) → its definition,
+    // A bare from-imported symbol (`import scan, StrText from pkg.textlex`) → its definition,
     // source-first: the declaring .purr, else the folded/generated header.
     if (!prefix && imp.fromSym.has(word)) {
       const hit = resolveExportedSymbol(imp.fromSym.get(word), word, docDir);

@@ -1,5 +1,5 @@
 # pkg.textlex — a tiny lexer fixture. Its physical path (pkg/text/lexer.purr) deliberately does NOT
-# match the module tail (`pkg.textlex`), mirroring glGAN's re-exported submodules: resolution is by
+# match the module tail (`pkg.textlex`), mirroring a package's re-exported submodules: resolution is by
 # symbol under the package, not by dotted-path-to-file.
 
 # The one thing a stage needs from a text container.
