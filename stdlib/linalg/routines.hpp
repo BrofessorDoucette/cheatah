@@ -286,9 +286,13 @@ template <ndarray::Field T, template <typename> class Array>
 void cholesky(NDArray& out, const NDArray& a);
 /// @endcond
 /** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */
+/// The factors of a QR decomposition. Templated over the container type so a host `qr` yields
+/// `QR<NDArray>` and a device `qr` yields `QR<device_array<T>>`; `ArrT` defaults to `NDArray`
+/// (the host double result), so plain `QR` still names the common host type.
+template <class ArrT = NDArray>
 struct QR {
-    NDArray q;  ///< Orthonormal columns, m×n (the Q in A = Q·R).
-    NDArray r;  ///< Upper-triangular factor, n×n (the R in A = Q·R).
+    ArrT q;  ///< Orthonormal columns, m×n (the Q in A = Q·R).
+    ArrT r;  ///< Upper-triangular factor, n×n (the R in A = Q·R).
 };
 /**
  * Reduced QR via Householder reflections (requires rows ≥ cols).
@@ -305,7 +309,9 @@ struct QR {
  * @crtest LinalgCompileRun.Qr
  * @systest StdlibE2E.Linalg
  */
-QR qr(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] QR<Array<T>> qr(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref qr,
@@ -320,10 +326,13 @@ QR qr(const NDArray& a);
 void qr(NDArray& q, NDArray& r, const NDArray& a);
 /// @endcond
 /** Result of svd(): A = u·diag(s)·vh. */
+/// The factors of a singular value decomposition, templated over the container type (`ArrT`
+/// defaults to `NDArray`, the host double result, so plain `SVD` names the common host type).
+template <class ArrT = NDArray>
 struct SVD {
-    NDArray u;   ///< Left singular vectors, m×n.
-    NDArray s;   ///< Singular values in descending order (length n).
-    NDArray vh;  ///< Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).
+    ArrT u;   ///< Left singular vectors, m×n.
+    ArrT s;   ///< Singular values in descending order (length n).
+    ArrT vh;  ///< Right singular vectors transposed, n×n (the Vᵀ in A = u·diag(s)·Vᵀ).
 };
 /**
  * Singular value decomposition (Golub–Reinsch; requires rows ≥ cols).
@@ -341,7 +350,9 @@ struct SVD {
  * @crtest LinalgCompileRun.Svd
  * @systest StdlibE2E.Linalg
  */
-SVD svd(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] SVD<Array<T>> svd(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref svd,

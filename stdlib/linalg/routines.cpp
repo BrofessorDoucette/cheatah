@@ -1299,7 +1299,9 @@ template <ndarray::Field T, template <typename> class Array>
 }
 
 // ---- Householder QR (reduced: Q is m×n, R is n×n) ----
-QR qr(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] QR<Array<T>> qr(const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: qr requires rows >= cols");
@@ -1351,7 +1353,9 @@ QR qr(const NDArray& a) {
 }
 
 // ---- SVD and its derived quantities ----
-SVD svd(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] SVD<Array<T>> svd(const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: svd requires rows >= cols (transpose otherwise)");
@@ -1540,6 +1544,8 @@ template NDArray svdvals<double, ndarray::basic_ndarray>(const NDArray&);
 template NDArray pinv<double, ndarray::basic_ndarray>(const NDArray&);
 template double cond<double, ndarray::basic_ndarray>(const NDArray&);
 template long long matrix_rank<double, ndarray::basic_ndarray>(const NDArray&);
+template QR<NDArray> qr<double, ndarray::basic_ndarray>(const NDArray&);
+template SVD<NDArray> svd<double, ndarray::basic_ndarray>(const NDArray&);
 
 // ---- out-param (buffer-reuse) overloads for the factorizations and multi-output routines ----
 // Each writes its result into the caller's pre-sized array(s) — out FIRST — so a sweep that
