@@ -203,6 +203,15 @@ void lu_solve(const LU& lu, std::vector<double>& b) {
         b[i] = s / lu.a[i * n + i];
     }
 }
+// Shared preamble for the LU-based routines (solve/det/slogdet/inv): unpack the operand to a
+// square real workspace and factor it. `LU::n` carries the dimension, so callers need only the tail.
+template <ndarray::Field T, template <typename> class Array>
+LU lu_prepare(const Array<T>& a) {
+    std::size_t n, c;
+    std::vector<double> A = as_matrix(a, n, c);
+    require_square(n, c);
+    return lu_decompose(std::move(A), n);
+}
 
 // ---- Golub–Reinsch SVD: A(m×n) = U(m×n) diag(w) V(n×n)ᵀ, requires m ≥ n ----
 struct SVDc {
@@ -1159,10 +1168,8 @@ double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 [[nodiscard]] Array<T> solve(const Array<T>& a, const Array<T>& b) {
-    std::size_t n, c;
-    std::vector<T> A = as_matrix(a, n, c);
-    require_square(n, c);
-    const LU lu = lu_decompose(std::move(A), n);
+    const LU lu = lu_prepare(a);
+    const std::size_t n = lu.n;
     std::size_t bn;
     std::vector<T> x = as_vector(b, bn);
     if (bn != n) throw std::runtime_error("linalg: solve dimension mismatch");
@@ -1173,10 +1180,8 @@ template <ndarray::Field T, template <typename> class Array>
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 [[nodiscard]] T det(const Array<T>& a) {
-    std::size_t n, c;
-    std::vector<T> A = as_matrix(a, n, c);
-    require_square(n, c);
-    const LU lu = lu_decompose(std::move(A), n);
+    const LU lu = lu_prepare(a);
+    const std::size_t n = lu.n;
     T d = lu.sign;
     for (std::size_t i = 0; i < n; ++i) d *= lu.a[i * n + i];
     return d;
@@ -1185,10 +1190,8 @@ template <ndarray::Field T, template <typename> class Array>
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 [[nodiscard]] SLogDet slogdet(const Array<T>& a) {
-    std::size_t n, c;
-    std::vector<T> A = as_matrix(a, n, c);
-    require_square(n, c);
-    const LU lu = lu_decompose(std::move(A), n);
+    const LU lu = lu_prepare(a);
+    const std::size_t n = lu.n;
     double sign = lu.sign, logabs = 0.0;
     for (std::size_t i = 0; i < n; ++i) {
         const double d = lu.a[i * n + i];
@@ -1201,10 +1204,8 @@ template <ndarray::Field T, template <typename> class Array>
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 [[nodiscard]] Array<T> inv(const Array<T>& a) {
-    std::size_t n, c;
-    std::vector<double> A = as_matrix(a, n, c);
-    require_square(n, c);
-    const LU lu = lu_decompose(std::move(A), n);
+    const LU lu = lu_prepare(a);
+    const std::size_t n = lu.n;
     const std::vector<double>& M = lu.a;  // L (unit, below diag) + U (on/above), row-major
     // Invert by solving L·U·X = P·I for the WHOLE identity at once. Doing the forward
     // and back substitution across all n columns turns each inner loop into a SAXPY
