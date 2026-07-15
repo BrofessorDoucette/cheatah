@@ -37,6 +37,7 @@
 
 #include "backend.hpp"
 #include "concepts.hpp"
+#include "enums.hpp"
 #include "ndarray.hpp"
 
 namespace cheatah::linalg {
@@ -59,50 +60,61 @@ using CNDArray = ndarray::basic_ndarray<Cplx>;
 
 // ---- Matrix and vector products ----
 /**
- * Dot product: 1-D inner product (vectors flattened).
- *
- * Flattens each operand to a vector (1-D, or 2-D with a size-1 row/column) and
- * sums the elementwise products; throws if either is not vector-shaped or the
- * lengths differ.
+ * Dot product: 1-D inner product (vectors flattened) — the bilinear Σ aᵢbᵢ. ONE two-layer
+ * template over the element `T` and (host) container `Array` serving both real and complex
+ * (the former separate `NDArray` and `CNDArray` overloads). Flattens each operand to a vector
+ * (1-D, or 2-D with a size-1 row/column) and throws if either is not vector-shaped or the
+ * lengths differ. Both operands are `Array<T>` (the deduction firewall).
+ * @tparam T the element type; @tparam Array the (host) container template.
  * @param a,b same-length vectors.
- * @return Σ aᵢbᵢ.
+ * @return Σ aᵢbᵢ as the scalar `T`.
  * @complexity O(n).
- * @alloc none for contiguous operands (read in place); a non-contiguous view is
- *        packed once into scratch O(n). Returns a double.
+ * @alloc none for contiguous operands (read in place); a non-contiguous view packs once O(n).
  * @test LinalgRoutines.ProductsAndTrace
+ * @test LinalgRoutines.ComplexProducts
  * @crtest LinalgCompileRun.Dot
+ * @crtest LinalgCompileRun.ComplexDot
  * @systest StdlibE2E.Linalg
+ * @systest StdlibE2E.LinalgComplex
  */
-double dot(const NDArray& a, const NDArray& b);          // flattened 1-D inner product
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T dot(const Array<T>& a, const Array<T>& b);
 /**
- * Vector dot product (alias of @ref dot; flattens N×1/1×N).
- *
- * Delegates directly to @ref dot; for real vectors there is no conjugation, so this
- * is identical to @ref dot and @ref inner. The **complex** overload differs — it is
- * conjugate-linear (see the `CNDArray` `vdot` below).
+ * Vector dot product. For a REAL element this is the bilinear Σ aᵢbᵢ (identical to @ref dot and
+ * @ref inner); for a **complex** element it is the conjugate-linear Hermitian inner product
+ * ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ (numpy's `vdot`, conjugating the first argument) — one two-layer template,
+ * the conjugation chosen at compile time by `if constexpr`. `vdot(a, a)` is the real ‖a‖².
+ * @tparam T the element type; @tparam Array the (host) container template.
  * @param a,b same-length vectors.
- * @return Σ aᵢbᵢ.
+ * @return Σ aᵢbᵢ (real) or Σ conj(aᵢ)·bᵢ (complex), as the scalar `T`.
  * @complexity O(n).
- * @alloc none for contiguous operands; non-contiguous packs once O(n). Returns a double.
+ * @alloc none for contiguous operands; a non-contiguous view packs once O(n).
  * @test LinalgRoutines.VdotInnerOuterKron
+ * @test LinalgRoutines.ComplexProducts
  * @crtest LinalgCompileRun.Vdot
+ * @crtest LinalgCompileRun.ComplexVdot
  * @systest StdlibE2E.Linalg
+ * @systest StdlibE2E.LinalgComplex
  */
-double vdot(const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T vdot(const Array<T>& a, const Array<T>& b);
 /**
- * Inner product of two vectors (alias of @ref dot).
- *
- * Delegates directly to @ref dot, so the same vector-shape and equal-length
- * requirements apply.
+ * Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's `inner`; same as @ref dot for
+ * flattened vectors). One two-layer template over the element and container.
+ * @tparam T the element type; @tparam Array the (host) container template.
  * @param a,b same-length vectors.
- * @return Σ aᵢbᵢ.
+ * @return Σ aᵢbᵢ as the scalar `T`.
  * @complexity O(n).
- * @alloc none for contiguous operands; non-contiguous packs once O(n). Returns a double.
+ * @alloc none for contiguous operands; a non-contiguous view packs once O(n).
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Inner
  * @systest StdlibE2E.Linalg
  */
-double inner(const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T inner(const Array<T>& a, const Array<T>& b);
 /**
  * Outer product of two vectors.
  *
@@ -137,34 +149,8 @@ void outer(NDArray& out, const NDArray& a, const NDArray& b);
 // (one pair serving real, complex, host, and — via a device extension — device operands).
 
 // ---- complex products (complex inner-product spaces) ----
-/**
- * Bilinear dot product of two **complex** vectors: Σ aᵢbᵢ (no conjugation, matching
- * numpy's `dot`). For the Hermitian inner product ⟨a, b⟩ use @ref vdot.
- * @param a,b same-length complex vectors.
- * @return Σ aᵢbᵢ as a `std::complex<double>`; throws on a length mismatch.
- * @complexity O(n).
- * @alloc none for contiguous operands (read in place); a non-contiguous view packs
- *        once O(n). Returns a complex scalar.
- * @test LinalgRoutines.ComplexProducts
- * @crtest LinalgCompileRun.ComplexDot
- * @systest StdlibE2E.LinalgComplex
- */
-Cplx dot(const CNDArray& a, const CNDArray& b);
-/**
- * Conjugate-linear (Hermitian) inner product of two **complex** vectors:
- * ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ — the inner product of a complex vector space, conjugating
- * the FIRST argument (numpy's `vdot` convention). `vdot(a, a)` is the real squared
- * norm ‖a‖². For the non-conjugating product use @ref dot.
- * @param a,b same-length complex vectors.
- * @return Σ conj(aᵢ)·bᵢ as a `std::complex<double>`; throws on a length mismatch.
- * @complexity O(n).
- * @alloc none for contiguous operands (read in place); a non-contiguous view packs
- *        once O(n). Returns a complex scalar.
- * @test LinalgRoutines.ComplexProducts
- * @crtest LinalgCompileRun.ComplexVdot
- * @systest StdlibE2E.LinalgComplex
- */
-Cplx vdot(const CNDArray& a, const CNDArray& b);
+// dot / vdot / inner for complex operands are the SAME two-layer templates above, instantiated at
+// T = std::complex<double>; vdot's conjugation is an `if constexpr` branch. No separate symbols.
 // Complex matmul (real and complex out-param are now the ONE `matmul<T>` template above; the
 // allocating complex path is the same generic `matmul` front in backend.hpp, instantiating the
 // complex element type — no separate complex matmul symbol).

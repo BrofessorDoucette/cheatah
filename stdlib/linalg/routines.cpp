@@ -881,79 +881,61 @@ void copy_into(ndarray::basic_ndarray<T>& out, const ndarray::basic_ndarray<T>& 
 // FP adds without -ffast-math), so a plain `s += x[i]*y[i]` runs at ~one element per
 // FADD latency. Independent lanes break that dependency chain, letting -O3
 // -march=native issue SIMD + FMA and hit memory bandwidth instead of add latency.
-double ddot(const double* x, const double* y, std::size_t n) {
-    // EIGHT independent accumulators (vs four) so -O3 -march=native emits TWO
-    // SIMD FMA chains instead of one. Without -ffast-math the compiler may not
-    // reassociate FP adds, so the parallelism has to be written explicitly: a single
-    // chain serializes on FMA latency (~4 cycles) and stalls well short of memory
-    // bandwidth; two in-flight chains overlap loads with arithmetic and reach it.
-    double s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0;
+namespace {
+// The reduction kernel over any Field T with a compile-time conjugation choice (@ref Conj) —
+// ONE kernel replacing the former real `ddot` and complex `cdot`. EIGHT independent accumulators
+// break the FP-add dependency chain so -O3 -march=native emits SIMD+FMA and hits memory bandwidth
+// instead of add latency. `term` conjugates the first operand only for a complex element under
+// Conj::Conjugate (Hermitian inner product); for real T, or Conj::None, the conjugation branch is
+// compiled OUT by `if constexpr` — zero cost, no dead loads.
+template <ndarray::Field T, Conj C>
+T dot_kernel(const T* x, const T* y, std::size_t n) {
+    auto term = [](const T& xi, const T& yi) -> T {
+        if constexpr (ndarray::is_complex_v<T> && C == Conj::Conjugate) return std::conj(xi) * yi;
+        else return xi * yi;
+    };
+    T s0{}, s1{}, s2{}, s3{}, s4{}, s5{}, s6{}, s7{};
     std::size_t i = 0;
     for (; i + 8 <= n; i += 8) {
-        s0 += x[i + 0] * y[i + 0];
-        s1 += x[i + 1] * y[i + 1];
-        s2 += x[i + 2] * y[i + 2];
-        s3 += x[i + 3] * y[i + 3];
-        s4 += x[i + 4] * y[i + 4];
-        s5 += x[i + 5] * y[i + 5];
-        s6 += x[i + 6] * y[i + 6];
-        s7 += x[i + 7] * y[i + 7];
+        s0 += term(x[i + 0], y[i + 0]); s1 += term(x[i + 1], y[i + 1]);
+        s2 += term(x[i + 2], y[i + 2]); s3 += term(x[i + 3], y[i + 3]);
+        s4 += term(x[i + 4], y[i + 4]); s5 += term(x[i + 5], y[i + 5]);
+        s6 += term(x[i + 6], y[i + 6]); s7 += term(x[i + 7], y[i + 7]);
     }
-    double s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
-    for (; i < n; ++i) s += x[i] * y[i];
+    T s = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
+    for (; i < n; ++i) s += term(x[i], y[i]);
     return s;
 }
-
-double dot(const NDArray& a, const NDArray& b) {
-    const std::size_t n = vector_len(a), m = vector_len(b);
-    if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
-    // Contiguous fast path: read straight from the buffers, no scratch vectors at all
-    // (their construction/destruction is pure overhead on a small dot). The general
-    // path only materializes scratch for a strided/broadcast view.
-    if (ndarray::is_contiguous(a) && ndarray::is_contiguous(b))
-        return ddot(a.buffer()->data() + a.offset(), b.buffer()->data() + b.offset(), n);
-    std::vector<double> sa, sb;
-    return ddot(contig(a, sa), contig(b, sb), n);
-}
-double vdot(const NDArray& a, const NDArray& b) { return dot(a, b); }
-double inner(const NDArray& a, const NDArray& b) { return dot(a, b); }
-
-// Complex products. `dot`/`inner` are bilinear (Σ aᵢbᵢ, no conjugation, like numpy);
-// `vdot` is the conjugate-linear Hermitian inner product Σ conj(aᵢ)·bᵢ = ⟨a, b⟩.
-// Zero-copy reads (no `as_cvector`) with the same multi-accumulator reduction.
-Cplx cdot(const Cplx* x, const Cplx* y, std::size_t n, bool conjugate) {
-    Cplx s0{}, s1{}, s2{}, s3{};
-    std::size_t i = 0;
-    for (; i + 4 <= n; i += 4) {
-        if (conjugate) {
-            s0 += std::conj(x[i]) * y[i];
-            s1 += std::conj(x[i + 1]) * y[i + 1];
-            s2 += std::conj(x[i + 2]) * y[i + 2];
-            s3 += std::conj(x[i + 3]) * y[i + 3];
-        } else {
-            s0 += x[i] * y[i];
-            s1 += x[i + 1] * y[i + 1];
-            s2 += x[i + 2] * y[i + 2];
-            s3 += x[i + 3] * y[i + 3];
-        }
-    }
-    Cplx s = (s0 + s1) + (s2 + s3);
-    for (; i < n; ++i) s += (conjugate ? std::conj(x[i]) : x[i]) * y[i];
-    return s;
-}
-// Contiguous fast path (the common case) reads straight from the buffers — no scratch
-// vectors. Only a strided/broadcast view falls through to a packed copy.
-Cplx cdot_dispatch(const CNDArray& a, const CNDArray& b, bool conjugate) {
+// Read two operands as contiguous pointers (zero-copy when contiguous, else pack once) and reduce.
+template <ndarray::Field T, Conj C, template <typename> class Array>
+T dot_reduce(const Array<T>& a, const Array<T>& b) {
     const std::size_t n = vector_len(a), m = vector_len(b);
     if (n != m) throw std::runtime_error("linalg: dot dimension mismatch");
     if (ndarray::is_contiguous(a) && ndarray::is_contiguous(b))
-        return cdot(a.buffer()->data() + a.offset(), b.buffer()->data() + b.offset(), n,
-                    conjugate);
-    std::vector<Cplx> sa, sb;
-    return cdot(contig(a, sa), contig(b, sb), n, conjugate);
+        return dot_kernel<T, C>(a.buffer()->data() + a.offset(), b.buffer()->data() + b.offset(), n);
+    std::vector<T> sa, sb;
+    return dot_kernel<T, C>(contig(a, sa), contig(b, sb), n);
 }
-Cplx dot(const CNDArray& a, const CNDArray& b) { return cdot_dispatch(a, b, /*conjugate=*/false); }
-Cplx vdot(const CNDArray& a, const CNDArray& b) { return cdot_dispatch(a, b, /*conjugate=*/true); }
+}  // namespace
+
+// dot / vdot / inner over any Field T and (host) container Array. `dot`/`inner` are bilinear
+// (Σ aᵢbᵢ); `vdot` is the conjugate-linear Hermitian inner product Σ conj(aᵢ)·bᵢ (identical to dot
+// for a real element). Both operands are Array<T> (the deduction firewall). Returns the scalar T.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T dot(const Array<T>& a, const Array<T>& b) { return dot_reduce<T, Conj::None>(a, b); }
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T vdot(const Array<T>& a, const Array<T>& b) { return dot_reduce<T, Conj::Conjugate>(a, b); }
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>>
+T inner(const Array<T>& a, const Array<T>& b) { return dot_reduce<T, Conj::None>(a, b); }
+// Explicit instantiations: the host real + complex forms the library ships.
+template double dot<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
+template Cplx dot<Cplx, ndarray::basic_ndarray>(const CNDArray&, const CNDArray&);
+template double vdot<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
+template Cplx vdot<Cplx, ndarray::basic_ndarray>(const CNDArray&, const CNDArray&);
+template double inner<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 
 namespace {
 // outer-product kernel: writes rp[n×m] = x[i]·y[j]. Loop-invariant xi + a clean row pointer keep
@@ -1160,16 +1142,16 @@ double trace(const NDArray& a) {
 }
 
 double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same flat sum
-    // Frobenius/L2 norm is sqrt(x·x); reuse the multi-accumulator ddot kernel so the
+    // Frobenius/L2 norm is sqrt(x·x); reuse the multi-accumulator dot_kernel so the
     // squared-sum reaches memory bandwidth instead of serializing on FP-add latency.
     // Contiguous fast path reads straight from the buffer (no scratch allocation).
     if (ndarray::is_contiguous(a)) {
         const double* p = a.buffer()->data() + a.offset();
-        return std::sqrt(ddot(p, p, a.size()));
+        return std::sqrt(dot_kernel<double, Conj::None>(p, p, a.size()));
     }
     std::vector<double> scratch;
     const double* p = contig(a, scratch);
-    return std::sqrt(ddot(p, p, a.size()));
+    return std::sqrt(dot_kernel<double, Conj::None>(p, p, a.size()));
 }
 
 // ---- LU-based: solve / det / slogdet / inv / lstsq ----
