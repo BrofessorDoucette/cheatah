@@ -1026,18 +1026,10 @@ void matmul(double* C, const double* A, const double* B, std::size_t ar, std::si
 }
 }  // namespace
 
-NDArray matmul(const NDArray& a, const NDArray& b) {
-    if (a.ndim() != 2 || b.ndim() != 2)
-        throw std::runtime_error("linalg: matmul expects 2-D matrices");
-    const std::size_t ar = a.shape()[0], ac = a.shape()[1];
-    const std::size_t br = b.shape()[0], bc = b.shape()[1];
-    if (ac != br) throw std::runtime_error("linalg: matmul inner dimension mismatch");
-    std::vector<double> sa, sb;
-    std::vector<double> C(ar * bc);
-    matmul(C.data(), contig(a, sa), contig(b, sb), ar, ac, bc);
-    return make_matrix(ar, bc, std::move(C));
-}
-
+// NOTE: the allocating `matmul(a, b)` is now the concept-templated generic front in
+// backend.hpp; for host operands it allocates the result and delegates to this out-param
+// kernel via the matmul_into CPO (host default in host_backend.hpp). Only the out-param
+// kernel — the actual work — lives here.
 void matmul(NDArray& out, const NDArray& a, const NDArray& b) {
     if (a.ndim() != 2 || b.ndim() != 2)
         throw std::runtime_error("linalg: matmul expects 2-D matrices");
@@ -1094,15 +1086,8 @@ void check_cmatmul(const CNDArray& a, const CNDArray& b, std::size_t& ar, std::s
 }
 }  // namespace
 
-CNDArray matmul(const CNDArray& a, const CNDArray& b) {
-    std::size_t ar, ac, bc;
-    check_cmatmul(a, b, ar, ac, bc);
-    std::vector<Cplx> sa, sb;
-    std::vector<Cplx> C(ar * bc);
-    matmul(C.data(), contig(a, sa), contig(b, sb), ar, ac, bc);
-    return make_cmatrix(ar, bc, std::move(C));
-}
-
+// The allocating complex matmul is likewise the generic front in backend.hpp; the complex
+// host path lands in this out-param kernel via the matmul_into CPO.
 void matmul(CNDArray& out, const CNDArray& a, const CNDArray& b) {
     std::size_t ar, ac, bc;
     check_cmatmul(a, b, ar, ac, bc);

@@ -35,6 +35,8 @@
 #include <complex>
 #include <vector>
 
+#include "backend.hpp"
+#include "concepts.hpp"
 #include "ndarray.hpp"
 
 namespace cheatah::linalg {
@@ -130,24 +132,9 @@ NDArray outer(const NDArray& a, const NDArray& b);
  */
 void outer(NDArray& out, const NDArray& a, const NDArray& b);
 /// @endcond
-/**
- * Matrix multiply.
- *
- * Requires both operands to be 2-D with matching inner dimensions (a's cols ==
- * b's rows), throwing on a mismatch or a non-2-D input. The kernel runs in ikj
- * order (contiguous inner loop → auto-vectorizes) and blocks four rows of `a` at a
- * time so each `b` element loaded is reused across four output rows.
- * @param a m×k matrix.
- * @param b k×p matrix.
- * @return m×p product.
- * @complexity O(n³).
- * @alloc allocates only the m×p result; the operands are read in place from their
- *        own buffers (a non-contiguous view is packed once into scratch).
- * @test LinalgRoutines.ProductsAndTrace
- * @crtest LinalgCompileRun.Matmul
- * @systest StdlibE2E.Linalg
- */
-NDArray matmul(const NDArray& a, const NDArray& b);
+// The allocating matmul (m×k · k×p → m×p) is the concept-templated generic front
+// `matmul(const A&, const B&)` in backend.hpp — one template serving host and device
+// operands; the host path routes through the out-parameter kernel declared just below.
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Matmul into the CALLER'S buffer @p out (out FIRST, like assignment) — the user-provided-output
@@ -193,18 +180,9 @@ Cplx dot(const CNDArray& a, const CNDArray& b);
  * @systest StdlibE2E.LinalgComplex
  */
 Cplx vdot(const CNDArray& a, const CNDArray& b);
-/**
- * Matrix multiply of two **complex** matrices (the complex analogue of @ref matmul).
- * @param a m×k complex matrix.
- * @param b k×p complex matrix.
- * @return m×p complex product; throws on an inner-dimension mismatch or non-2-D input.
- * @complexity O(n³).
- * @alloc allocates only the m×p result; operands read in place when contiguous.
- * @test LinalgRoutines.ComplexProducts
- * @crtest LinalgCompileRun.ComplexMatmul
- * @systest StdlibE2E.LinalgComplex
- */
-CNDArray matmul(const CNDArray& a, const CNDArray& b);
+// Complex matmul (the complex analogue) is served by the SAME generic `matmul` front in
+// backend.hpp: for CNDArray operands it instantiates the complex path (a compile-time branch
+// on the element type), routing to the complex out-parameter kernel declared just below.
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Complex matmul into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of the
@@ -855,3 +833,7 @@ void pinv(NDArray& out, const NDArray& a);
 /// @endcond
 
 } // namespace cheatah::linalg
+
+// Host (CPU) defaults for the backend-dispatch CPOs — included last, so the concrete
+// out-parameter kernels declared above are visible to the delegating tag_invoke overloads.
+#include "host_backend.hpp"
