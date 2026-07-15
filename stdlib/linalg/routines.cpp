@@ -1171,31 +1171,40 @@ double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same
 }
 
 // ---- LU-based: solve / det / slogdet / inv / lstsq ----
-NDArray solve(const NDArray& a, const NDArray& b) {
+// LU-based solve / det / slogdet / inv — two-layer over element T and (host) container Array,
+// constrained to a real floating element (the LU core is real double). Only `double` is shipped;
+// the internal helpers (as_matrix/as_vector/make_vector, all templated over T) deduce the element.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> solve(const Array<T>& a, const Array<T>& b) {
     std::size_t n, c;
-    std::vector<double> A = as_matrix(a, n, c);
+    std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
     const LU lu = lu_decompose(std::move(A), n);
     std::size_t bn;
-    std::vector<double> x = as_vector(b, bn);
+    std::vector<T> x = as_vector(b, bn);
     if (bn != n) throw std::runtime_error("linalg: solve dimension mismatch");
     lu_solve(lu, x);
     return make_vector(std::move(x));
 }
 
-double det(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T det(const Array<T>& a) {
     std::size_t n, c;
-    std::vector<double> A = as_matrix(a, n, c);
+    std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
     const LU lu = lu_decompose(std::move(A), n);
-    double d = lu.sign;
+    T d = lu.sign;
     for (std::size_t i = 0; i < n; ++i) d *= lu.a[i * n + i];
     return d;
 }
 
-SLogDet slogdet(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] SLogDet slogdet(const Array<T>& a) {
     std::size_t n, c;
-    std::vector<double> A = as_matrix(a, n, c);
+    std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
     const LU lu = lu_decompose(std::move(A), n);
     double sign = lu.sign, logabs = 0.0;
@@ -1207,7 +1216,9 @@ SLogDet slogdet(const NDArray& a) {
     return {sign, logabs};
 }
 
-NDArray inv(const NDArray& a) {
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> inv(const Array<T>& a) {
     std::size_t n, c;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
@@ -1238,6 +1249,11 @@ NDArray inv(const NDArray& a) {
     }
     return make_matrix(n, n, std::move(X));
 }
+// Explicit instantiations of the LU family (the host `double` forms the library ships).
+template NDArray solve<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
+template double det<double, ndarray::basic_ndarray>(const NDArray&);
+template SLogDet slogdet<double, ndarray::basic_ndarray>(const NDArray&);
+template NDArray inv<double, ndarray::basic_ndarray>(const NDArray&);
 
 NDArray lstsq(const NDArray& a, const NDArray& b) {  // min ‖Ax−b‖ via the pseudo-inverse
     return matmul(pinv(a), b);

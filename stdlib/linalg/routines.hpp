@@ -631,7 +631,9 @@ double cond(const NDArray& a);
  * @crtest LinalgCompileRun.Det
  * @systest StdlibE2E.Linalg
  */
-double det(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T det(const Array<T>& a);
 /**
  * Numerical rank from SVD singular-value thresholding.
  *
@@ -668,7 +670,9 @@ struct SLogDet {
  * @crtest LinalgCompileRun.Slogdet
  * @systest StdlibE2E.Linalg
  */
-SLogDet slogdet(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] SLogDet slogdet(const Array<T>& a);
 /**
  * Trace: sum of the main diagonal.
  *
@@ -703,7 +707,9 @@ T trace(const Array<T>& a);
  * @crtest LinalgCompileRun.Solve
  * @systest StdlibE2E.Linalg
  */
-NDArray solve(const NDArray& a, const NDArray& b);        // A x = b
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> solve(const Array<T>& a, const Array<T>& b);   // A x = b
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Solve into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref solve.
@@ -761,7 +767,9 @@ void lstsq(NDArray& out, const NDArray& a, const NDArray& b);
  * @crtest LinalgCompileRun.Inv
  * @systest StdlibE2E.Linalg
  */
-NDArray inv(const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> inv(const Array<T>& a);
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref inv.
