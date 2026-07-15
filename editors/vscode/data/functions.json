@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 443,
+      "srcline": 452,
       "module": "",
       "qualified": "append"
     },
@@ -141,7 +141,7 @@
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 519,
+      "srcline": 528,
       "module": "",
       "qualified": "contains"
     },
@@ -168,14 +168,14 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 473,
+      "srcline": 482,
       "module": "",
       "qualified": "endswith"
     },
     {
       "name": "float",
-      "signature": "float(long long x)",
-      "brief": "Widen an integer to a double.",
+      "signature": "float(T x)",
+      "brief": "float() of any NUMBER — one widening/identity conversion for every arithmetic type, so overload resolution can never route a double (or an i32) through an integer overload and silently TRUNCATE: float(0.95) must be 0.95, never 0.",
       "params": [
         {
           "name": "x",
@@ -186,12 +186,12 @@
       "tags": {
         "complexity": "O(1).",
         "alloc": "none.",
-        "test": "CheatahBuiltins.ToFloatFromInt",
-        "crtest": "BuiltinsCompileRun.FloatFromInt",
+        "test": "CheatahBuiltins.ToFloatFromInt CheatahBuiltins.ToFloatFromFloat",
+        "crtest": "BuiltinsCompileRun.FloatFromInt BuiltinsCompileRun.FloatFromFloat",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 258,
+      "srcline": 267,
       "module": "",
       "qualified": "float"
     },
@@ -218,7 +218,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 382,
+      "srcline": 391,
       "module": "",
       "qualified": "floordiv"
     },
@@ -241,7 +241,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 419,
+      "srcline": 428,
       "module": "",
       "qualified": "hash"
     },
@@ -295,7 +295,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1994,
+      "srcline": 2005,
       "module": "",
       "qualified": "index"
     },
@@ -367,7 +367,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 561,
+      "srcline": 570,
       "module": "",
       "qualified": "mod"
     },
@@ -461,7 +461,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 697,
+      "srcline": 706,
       "module": "",
       "qualified": "slice"
     },
@@ -488,7 +488,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 458,
+      "srcline": 467,
       "module": "",
       "qualified": "startswith"
     },
@@ -505,7 +505,7 @@
       "returns": "the value's decimal digits.",
       "tags": {},
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 322,
+      "srcline": 331,
       "module": "",
       "qualified": "str"
     },
@@ -534,8 +534,8 @@
     },
     {
       "name": "to_float",
-      "signature": "to_float(long long x)",
-      "brief": "Widen an integer to a double.",
+      "signature": "to_float(T x)",
+      "brief": "float() of any NUMBER — one widening/identity conversion for every arithmetic type, so overload resolution can never route a double (or an i32) through an integer overload and silently TRUNCATE: float(0.95) must be 0.95, never 0.",
       "params": [
         {
           "name": "x",
@@ -546,12 +546,12 @@
       "tags": {
         "complexity": "O(1).",
         "alloc": "none.",
-        "test": "CheatahBuiltins.ToFloatFromInt",
-        "crtest": "BuiltinsCompileRun.FloatFromInt",
+        "test": "CheatahBuiltins.ToFloatFromInt CheatahBuiltins.ToFloatFromFloat",
+        "crtest": "BuiltinsCompileRun.FloatFromInt BuiltinsCompileRun.FloatFromFloat",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 258,
+      "srcline": 267,
       "module": "",
       "qualified": "to_float"
     },
@@ -601,7 +601,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 339,
+      "srcline": 348,
       "module": "",
       "qualified": "truediv"
     },
@@ -670,6 +670,72 @@
       "srcline": 70,
       "module": "aead",
       "qualified": "aead.aes128gcm_encrypt"
+    },
+    {
+      "name": "aes256gcm_decrypt",
+      "signature": "aes256gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex, std::string_view aad, std::string_view ciphertext)",
+      "brief": "Verify + decrypt the inverse of aes256gcm_encrypt.",
+      "params": [
+        {
+          "name": "key_hex",
+          "desc": "the 64-char hex key (32 bytes, AES-256) used to encrypt."
+        },
+        {
+          "name": "nonce_hex",
+          "desc": "the 24-char hex nonce (12 bytes) used to encrypt."
+        },
+        {
+          "name": "aad",
+          "desc": "the same additional authenticated data supplied at encryption (\"\" for none)."
+        },
+        {
+          "name": "ciphertext",
+          "desc": "the ciphertext with its 16-byte GCM tag appended."
+        }
+      ],
+      "returns": "the plaintext, or \"\" when the tag does not verify (constant-time check) or the input is malformed.",
+      "tags": {
+        "complexity": "O(|ciphertext| + |aad|).",
+        "alloc": "the returned string.",
+        "test": "CheatahAead.Aes256GcmRejectsTamper"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 118,
+      "module": "aead",
+      "qualified": "aead.aes256gcm_decrypt"
+    },
+    {
+      "name": "aes256gcm_encrypt",
+      "signature": "aes256gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex, std::string_view aad, std::string_view plaintext)",
+      "brief": "Encrypt + authenticate: AES-256-GCM(key, nonce, aad, plaintext) — the record cipher of TLS 1.3's TLS_AES_256_GCM_SHA384 suite.",
+      "params": [
+        {
+          "name": "key_hex",
+          "desc": "the 64-char hex key (32 bytes, AES-256)."
+        },
+        {
+          "name": "nonce_hex",
+          "desc": "the 24-char hex nonce (12 bytes), used as the GCM IV; MUST be unique per key."
+        },
+        {
+          "name": "aad",
+          "desc": "additional authenticated data — authenticated but not encrypted (\"\" for none)."
+        },
+        {
+          "name": "plaintext",
+          "desc": "the raw-byte message to encrypt (binary-safe)."
+        }
+      ],
+      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex.",
+      "tags": {
+        "complexity": "O(|plaintext| + |aad|).",
+        "alloc": "the returned string.",
+        "test": "CheatahAead.Aes256GcmNistKat"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 103,
+      "module": "aead",
+      "qualified": "aead.aes256gcm_encrypt"
     },
     {
       "name": "chacha20poly1305_decrypt",
@@ -744,16 +810,16 @@
     {
       "name": "crypto_hardware_active",
       "signature": "crypto_hardware_active()",
-      "brief": "Whether AES-128-GCM is currently using the hardware (AES-NI + PCLMULQDQ) path: true on a capable x86 CPU unless set_force_portable_crypto(true) is in effect, false otherwise (e.g.",
+      "brief": "Whether AES-128-GCM is currently using the CPU's crypto instructions: the x86 AES-NI + PCLMULQDQ path, or the ARMv8 AES + PMULL path on AArch64 (e.g.",
       "params": [],
-      "returns": "true iff the hardware (AES-NI + PCLMULQDQ) AES-128-GCM path is currently active.",
+      "returns": "true iff a hardware AES-128-GCM path (x86 AES-NI/PCLMULQDQ or ARMv8 AES/PMULL) is active.",
       "tags": {
         "complexity": "O(1).",
         "alloc": "none.",
         "test": "CryptoPlatform.Report"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 109,
+      "srcline": 143,
       "module": "aead",
       "qualified": "aead.crypto_hardware_active"
     },
@@ -1887,7 +1953,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 174,
+      "srcline": 189,
       "module": "hashlib",
       "qualified": "hashlib.base64_decode"
     },
@@ -1910,7 +1976,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 156,
+      "srcline": 171,
       "module": "hashlib",
       "qualified": "hashlib.base64_encode"
     },
@@ -1931,7 +1997,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 211,
+      "srcline": 226,
       "module": "hashlib",
       "qualified": "hashlib.from_hex"
     },
@@ -1962,9 +2028,38 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 240,
+      "srcline": 255,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_expand"
+    },
+    {
+      "name": "hkdf_expand_sha384",
+      "signature": "hkdf_expand_sha384(std::string_view prk, std::string_view info, long long length)",
+      "brief": "HKDF-Expand over HMAC-SHA-384 — the SHA-384 variant for the TLS_AES_256_GCM_SHA384 key schedule.",
+      "params": [
+        {
+          "name": "prk",
+          "desc": "a pseudorandom key (e.g. from hkdf_extract_sha384())."
+        },
+        {
+          "name": "info",
+          "desc": "optional context/application-specific info binding the output (\"\" for none)."
+        },
+        {
+          "name": "length",
+          "desc": "the number of output-keying-material bytes to produce."
+        }
+      ],
+      "returns": "the OKM as raw bytes, or \"\" when length is 0 or exceeds 255*48 (the RFC bound).",
+      "tags": {
+        "complexity": "O(length).",
+        "alloc": "the returned keystream plus one HMAC scratch buffer per 48-byte output block.",
+        "test": "CheatahHashlib.HkdfSha384"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 280,
+      "module": "hashlib",
+      "qualified": "hashlib.hkdf_expand_sha384"
     },
     {
       "name": "hkdf_extract",
@@ -1989,9 +2084,34 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 225,
+      "srcline": 240,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_extract"
+    },
+    {
+      "name": "hkdf_extract_sha384",
+      "signature": "hkdf_extract_sha384(std::string_view salt, std::string_view ikm)",
+      "brief": "HKDF-Extract over HMAC-SHA-384 — the SHA-384 variant for the TLS_AES_256_GCM_SHA384 key schedule.",
+      "params": [
+        {
+          "name": "salt",
+          "desc": "the (optional) salt; \"\" is treated as HashLen zero bytes by the caller as needed."
+        },
+        {
+          "name": "ikm",
+          "desc": "the input keying material."
+        }
+      ],
+      "returns": "the 48-byte pseudorandom key (PRK) as raw bytes.",
+      "tags": {
+        "complexity": "O(|salt| + |ikm|).",
+        "alloc": "the returned 48-byte PRK plus fixed HMAC scratch buffers.",
+        "test": "CheatahHashlib.HkdfSha384"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 267,
+      "module": "hashlib",
+      "qualified": "hashlib.hkdf_extract_sha384"
     },
     {
       "name": "hmac_sha256",
@@ -2021,6 +2141,33 @@
       "qualified": "hashlib.hmac_sha256"
     },
     {
+      "name": "hmac_sha384",
+      "signature": "hmac_sha384(std::string_view key, std::string_view data)",
+      "brief": "HMAC-SHA-384 (RFC 2104) over raw bytes — the PRF under the SHA-384 HKDF / TLS 1.3 key schedule (the TLS_AES_256_GCM_SHA384 cipher suite).",
+      "params": [
+        {
+          "name": "key",
+          "desc": "raw key bytes (any length; hashed down when longer than the 128-byte block)."
+        },
+        {
+          "name": "data",
+          "desc": "raw message bytes."
+        }
+      ],
+      "returns": "the 48-byte MAC as raw bytes.",
+      "tags": {
+        "complexity": "O(|key| + |data|).",
+        "alloc": "the returned 48-byte digest plus fixed key/inner/outer scratch buffers.",
+        "test": "CheatahHashlib.HmacSha384",
+        "crtest": "HashlibCompileRun.Hmac",
+        "systest": "StdlibE2E.Hashlib"
+      },
+      "srcfile": "stdlib/hashlib/hashlib.hpp",
+      "srcline": 143,
+      "module": "hashlib",
+      "qualified": "hashlib.hmac_sha384"
+    },
+    {
       "name": "hmac_sha512",
       "signature": "hmac_sha512(std::string_view key, std::string_view data)",
       "brief": "HMAC-SHA-512 (RFC 2104) over raw bytes — the wider PRF (128-byte block, 64-byte MAC), e.g.",
@@ -2043,7 +2190,7 @@
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 143,
+      "srcline": 158,
       "module": "hashlib",
       "qualified": "hashlib.hmac_sha512"
     },
@@ -2202,7 +2349,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 187,
+      "srcline": 202,
       "module": "hashlib",
       "qualified": "hashlib.to_hex"
     },
@@ -2422,7 +2569,7 @@
     },
     {
       "name": "cholesky",
-      "signature": "cholesky(const NDArray &a)",
+      "signature": "cholesky(const Array< T > &a)",
       "brief": "Cholesky factor of a symmetric positive-definite matrix (throws otherwise).",
       "params": [
         {
@@ -2439,13 +2586,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 325,
+      "srcline": 275,
       "module": "linalg",
       "qualified": "linalg.cholesky"
     },
     {
       "name": "cond",
-      "signature": "cond(const NDArray &a)",
+      "signature": "cond(const Array< T > &a)",
       "brief": "2-norm condition number σ_max/σ_min (∞ if singular).",
       "params": [
         {
@@ -2462,13 +2609,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 673,
+      "srcline": 638,
       "module": "linalg",
       "qualified": "linalg.cond"
     },
     {
       "name": "conj_transpose",
-      "signature": "conj_transpose(const CNDArray &a)",
+      "signature": "conj_transpose(const Array< T > &a)",
       "brief": "Conjugate transpose (Hermitian adjoint) Aᴴ of a complex matrix: transpose, then conjugate every entry.",
       "params": [
         {
@@ -2485,13 +2632,13 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 234,
+      "srcline": 174,
       "module": "linalg",
       "qualified": "linalg.conj_transpose"
     },
     {
       "name": "det",
-      "signature": "det(const NDArray &a)",
+      "signature": "det(const Array< T > &a)",
       "brief": "Determinant via LU with partial pivoting.",
       "params": [
         {
@@ -2508,40 +2655,40 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 688,
+      "srcline": 655,
       "module": "linalg",
       "qualified": "linalg.det"
     },
     {
       "name": "dot",
-      "signature": "dot(const CNDArray &a, const CNDArray &b)",
-      "brief": "Bilinear dot product of two complex vectors: Σ aᵢbᵢ (no conjugation, matching numpy's dot).",
+      "signature": "dot(const Array< T > &a, const Array< T > &b)",
+      "brief": "Dot product: 1-D inner product (vectors flattened) — the bilinear Σ aᵢbᵢ.",
       "params": [
         {
           "name": "a",
-          "desc": "same-length complex vectors."
+          "desc": "same-length vectors."
         },
         {
           "name": "b",
-          "desc": "same-length complex vectors."
+          "desc": "same-length vectors."
         }
       ],
-      "returns": "Σ aᵢbᵢ as a std::complex<double>; throws on a length mismatch.",
+      "returns": "Σ aᵢbᵢ as the scalar T.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "none for contiguous operands (read in place); a non-contiguous view packs once O(n). Returns a complex scalar.",
-        "test": "LinalgRoutines.ComplexProducts",
-        "crtest": "LinalgCompileRun.ComplexDot",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "none for contiguous operands (read in place); a non-contiguous view packs once O(n).",
+        "test": "LinalgRoutines.ProductsAndTrace LinalgRoutines.ComplexProducts",
+        "crtest": "LinalgCompileRun.Dot LinalgCompileRun.ComplexDot",
+        "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 180,
+      "srcline": 82,
       "module": "linalg",
       "qualified": "linalg.dot"
     },
     {
       "name": "eig",
-      "signature": "eig(const NDArray &a)",
+      "signature": "eig(const Array< T > &a)",
       "brief": "Eigen-decomposition of a general square matrix (complex spectrum and eigenvectors).",
       "params": [
         {
@@ -2558,36 +2705,36 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 473,
+      "srcline": 456,
       "module": "linalg",
       "qualified": "linalg.eig"
     },
     {
       "name": "eigh",
-      "signature": "eigh(const CNDArray &a)",
-      "brief": "Eigen-decomposition of a complex Hermitian matrix — real eigenvalues, complex eigenvectors.",
+      "signature": "eigh(const Array< T > &a)",
+      "brief": "Eigen-decomposition of a symmetric matrix (Householder tridiagonalization + QL).",
       "params": [
         {
           "name": "a",
-          "desc": "square complex Hermitian matrix."
+          "desc": "square symmetric matrix."
         }
       ],
-      "returns": "EighC with descending real values and matching complex eigenvectors.",
+      "returns": "Eig with descending values and matching eigenvectors.",
       "tags": {
         "complexity": "iterative O(n³).",
         "alloc": "allocates both members.",
-        "test": "LinalgRoutines.ComplexHermitianEigh",
-        "crtest": "LinalgCompileRun.EighComplex",
-        "systest": "StdlibE2E.LinalgComplex"
+        "test": "LinalgRoutines.SvdAndEigh LinalgRoutines.ComplexHermitianEigh",
+        "crtest": "LinalgCompileRun.Eigh LinalgCompileRun.EighComplex",
+        "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 600,
+      "srcline": 523,
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
     {
       "name": "eigvals",
-      "signature": "eigvals(const NDArray &a)",
+      "signature": "eigvals(const Array< T > &a)",
       "brief": "Eigenvalues of a general square matrix (complex), descending.",
       "params": [
         {
@@ -2604,37 +2751,37 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 504,
+      "srcline": 489,
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
     {
       "name": "eigvalsh",
-      "signature": "eigvalsh(const CNDArray &a)",
-      "brief": "Eigenvalues of a complex Hermitian matrix, descending and real.",
+      "signature": "eigvalsh(const Array< T > &a)",
+      "brief": "Eigenvalues of a symmetric matrix, descending (tridiagonal QL).",
       "params": [
         {
           "name": "a",
-          "desc": "square complex Hermitian matrix."
+          "desc": "square symmetric (real) / Hermitian (complex) matrix."
         }
       ],
-      "returns": "length-n real vector of eigenvalues.",
+      "returns": "length-n vector of real eigenvalues.",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates a new NDArray result.",
-        "test": "LinalgRoutines.ComplexHermitianEigh",
-        "crtest": "LinalgCompileRun.EigvalshComplex",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "allocates a new result.",
+        "test": "LinalgRoutines.EigvalshSymmetric LinalgRoutines.ComplexHermitianEigh",
+        "crtest": "LinalgCompileRun.Eigvalsh LinalgCompileRun.EigvalshComplex",
+        "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 628,
+      "srcline": 560,
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
     {
       "name": "inner",
-      "signature": "inner(const NDArray &a, const NDArray &b)",
-      "brief": "Inner product of two vectors (alias of dot).",
+      "signature": "inner(const Array< T > &a, const Array< T > &b)",
+      "brief": "Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's inner; same as dot for flattened vectors).",
       "params": [
         {
           "name": "a",
@@ -2645,22 +2792,22 @@
           "desc": "same-length vectors."
         }
       ],
-      "returns": "Σ aᵢbᵢ.",
+      "returns": "Σ aᵢbᵢ as the scalar T.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "none for contiguous operands; non-contiguous packs once O(n). Returns a double.",
+        "alloc": "none for contiguous operands; a non-contiguous view packs once O(n).",
         "test": "LinalgRoutines.VdotInnerOuterKron",
         "crtest": "LinalgCompileRun.Inner",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 103,
+      "srcline": 117,
       "module": "linalg",
       "qualified": "linalg.inner"
     },
     {
       "name": "inv",
-      "signature": "inv(const NDArray &a)",
+      "signature": "inv(const Array< T > &a)",
       "brief": "Matrix inverse via LU with partial pivoting.",
       "params": [
         {
@@ -2677,13 +2824,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 816,
+      "srcline": 795,
       "module": "linalg",
       "qualified": "linalg.inv"
     },
     {
       "name": "kron",
-      "signature": "kron(const NDArray &a, const NDArray &b)",
+      "signature": "kron(const Array< T > &a, const Array< T > &b)",
       "brief": "Kronecker product.",
       "params": [
         {
@@ -2704,13 +2851,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 293,
+      "srcline": 239,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
     {
       "name": "lstsq",
-      "signature": "lstsq(const NDArray &a, const NDArray &b)",
+      "signature": "lstsq(const Array< T > &a, const Array< T > &b)",
       "brief": "Least-squares solution min‖A·x − b‖ (computed as pinv (a)·b).",
       "params": [
         {
@@ -2731,40 +2878,40 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 787,
+      "srcline": 764,
       "module": "linalg",
       "qualified": "linalg.lstsq"
     },
     {
       "name": "matmul",
-      "signature": "matmul(const CNDArray &a, const CNDArray &b)",
-      "brief": "Matrix multiply of two complex matrices (the complex analogue of matmul).",
+      "signature": "matmul(const Array< T > &a, const Array< T > &b)",
+      "brief": "Matrix multiply — the allocating front.",
       "params": [
         {
           "name": "a",
-          "desc": "m×k complex matrix."
+          "desc": "m×k matrix."
         },
         {
           "name": "b",
-          "desc": "k×p complex matrix."
+          "desc": "k×p matrix."
         }
       ],
-      "returns": "m×p complex product; throws on an inner-dimension mismatch or non-2-D input.",
+      "returns": "m×p product, an Array<T> of the same container and element as the operands.",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates only the m×p result; operands read in place when contiguous.",
-        "test": "LinalgRoutines.ComplexProducts",
-        "crtest": "LinalgCompileRun.ComplexMatmul",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "allocates only the m×p result; operands read in place (a strided host view packs once).",
+        "test": "LinalgRoutines.ProductsAndTrace",
+        "crtest": "LinalgCompileRun.Matmul",
+        "systest": "StdlibE2E.Linalg"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 207,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 67,
       "module": "linalg",
       "qualified": "linalg.matmul"
     },
     {
       "name": "matrix_power",
-      "signature": "matrix_power(const NDArray &a, long long n)",
+      "signature": "matrix_power(const Array< T > &a, long long n)",
       "brief": "Integer matrix power Aⁿ (negative n via inv).",
       "params": [
         {
@@ -2785,13 +2932,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 264,
+      "srcline": 208,
       "module": "linalg",
       "qualified": "linalg.matrix_power"
     },
     {
       "name": "matrix_rank",
-      "signature": "matrix_rank(const NDArray &a)",
+      "signature": "matrix_rank(const Array< T > &a)",
       "brief": "Numerical rank from SVD singular-value thresholding.",
       "params": [
         {
@@ -2808,7 +2955,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 703,
+      "srcline": 672,
       "module": "linalg",
       "qualified": "linalg.matrix_rank"
     },
@@ -2831,13 +2978,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 658,
+      "srcline": 621,
       "module": "linalg",
       "qualified": "linalg.norm"
     },
     {
       "name": "outer",
-      "signature": "outer(const NDArray &a, const NDArray &b)",
+      "signature": "outer(const Array< T > &a, const Array< T > &b)",
       "brief": "Outer product of two vectors.",
       "params": [
         {
@@ -2858,13 +3005,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 118,
+      "srcline": 134,
       "module": "linalg",
       "qualified": "linalg.outer"
     },
     {
       "name": "pinv",
-      "signature": "pinv(const NDArray &a)",
+      "signature": "pinv(const Array< T > &a)",
       "brief": "Moore–Penrose pseudo-inverse via SVD (any shape).",
       "params": [
         {
@@ -2881,13 +3028,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 843,
+      "srcline": 824,
       "module": "linalg",
       "qualified": "linalg.pinv"
     },
     {
       "name": "qr",
-      "signature": "qr(const NDArray &a)",
+      "signature": "qr(const Array< T > &a)",
       "brief": "Reduced QR via Householder reflections (requires rows ≥ cols).",
       "params": [
         {
@@ -2904,7 +3051,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 358,
+      "srcline": 314,
       "module": "linalg",
       "qualified": "linalg.qr"
     },
@@ -2940,7 +3087,7 @@
     },
     {
       "name": "slogdet",
-      "signature": "slogdet(const NDArray &a)",
+      "signature": "slogdet(const Array< T > &a)",
       "brief": "Sign and log|det| via LU (overflow-safe determinant).",
       "params": [
         {
@@ -2957,13 +3104,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 725,
+      "srcline": 696,
       "module": "linalg",
       "qualified": "linalg.slogdet"
     },
     {
       "name": "solve",
-      "signature": "solve(const NDArray &a, const NDArray &b)",
+      "signature": "solve(const Array< T > &a, const Array< T > &b)",
       "brief": "Solve A·x = b via LU with partial pivoting.",
       "params": [
         {
@@ -2984,13 +3131,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 758,
+      "srcline": 733,
       "module": "linalg",
       "qualified": "linalg.solve"
     },
     {
       "name": "svd",
-      "signature": "svd(const NDArray &a)",
+      "signature": "svd(const Array< T > &a)",
       "brief": "Singular value decomposition (Golub–Reinsch; requires rows ≥ cols).",
       "params": [
         {
@@ -3007,13 +3154,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 394,
+      "srcline": 355,
       "module": "linalg",
       "qualified": "linalg.svd"
     },
     {
       "name": "svdvals",
-      "signature": "svdvals(const NDArray &a)",
+      "signature": "svdvals(const Array< T > &a)",
       "brief": "Singular values only (≈ numpy.linalg.svd(a, compute_uv=False) / svdvals).",
       "params": [
         {
@@ -3030,13 +3177,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 424,
+      "srcline": 387,
       "module": "linalg",
       "qualified": "linalg.svdvals"
     },
     {
       "name": "trace",
-      "signature": "trace(const NDArray &a)",
+      "signature": "trace(const Array< T > &a)",
       "brief": "Trace: sum of the main diagonal.",
       "params": [
         {
@@ -3053,34 +3200,34 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 739,
+      "srcline": 712,
       "module": "linalg",
       "qualified": "linalg.trace"
     },
     {
       "name": "vdot",
-      "signature": "vdot(const CNDArray &a, const CNDArray &b)",
-      "brief": "Conjugate-linear (Hermitian) inner product of two complex vectors: ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ — the inner product of a complex vector space, conjugating the FIRST argument (numpy's vdot convention).",
+      "signature": "vdot(const Array< T > &a, const Array< T > &b)",
+      "brief": "Vector dot product.",
       "params": [
         {
           "name": "a",
-          "desc": "same-length complex vectors."
+          "desc": "same-length vectors."
         },
         {
           "name": "b",
-          "desc": "same-length complex vectors."
+          "desc": "same-length vectors."
         }
       ],
-      "returns": "Σ conj(aᵢ)·bᵢ as a std::complex<double>; throws on a length mismatch.",
+      "returns": "Σ aᵢbᵢ (real) or Σ conj(aᵢ)·bᵢ (complex), as the scalar T.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "none for contiguous operands (read in place); a non-contiguous view packs once O(n). Returns a complex scalar.",
-        "test": "LinalgRoutines.ComplexProducts",
-        "crtest": "LinalgCompileRun.ComplexVdot",
-        "systest": "StdlibE2E.LinalgComplex"
+        "alloc": "none for contiguous operands; a non-contiguous view packs once O(n).",
+        "test": "LinalgRoutines.VdotInnerOuterKron LinalgRoutines.ComplexProducts",
+        "crtest": "LinalgCompileRun.Vdot LinalgCompileRun.ComplexVdot",
+        "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 195,
+      "srcline": 102,
       "module": "linalg",
       "qualified": "linalg.vdot"
     },
@@ -4276,7 +4423,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1801,
+      "srcline": 1812,
       "module": "ndarray",
       "qualified": "ndarray.get"
     },
@@ -4366,7 +4513,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1784,
+      "srcline": 1795,
       "module": "ndarray",
       "qualified": "ndarray.mean"
     },
@@ -4534,7 +4681,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1815,
+      "srcline": 1826,
       "module": "ndarray",
       "qualified": "ndarray.shape_of"
     },
@@ -4580,7 +4727,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1831,
+      "srcline": 1842,
       "module": "ndarray",
       "qualified": "ndarray.size_of"
     },
@@ -4670,7 +4817,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1749,
+      "srcline": 1771,
       "module": "ndarray",
       "qualified": "ndarray.sum"
     },
@@ -4715,7 +4862,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1937,
+      "srcline": 1948,
       "module": "ndarray",
       "qualified": "ndarray.to_string"
     },
@@ -4939,6 +5086,24 @@
       "qualified": "os.mkdir"
     },
     {
+      "name": "module_ext",
+      "signature": "module_ext()",
+      "brief": "The loadable-module file extension for this platform.",
+      "params": [],
+      "returns": "the platform module extension (e.g. \".so\", \".dylib\", \".dll\").",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "allocates the returned string.",
+        "test": "CheatahOs.ModuleExt",
+        "crtest": "OsCompileRun.ModuleExt",
+        "systest": "StdlibE2E.Os"
+      },
+      "srcfile": "stdlib/os/os.hpp",
+      "srcline": 251,
+      "module": "os",
+      "qualified": "os.module_ext"
+    },
+    {
       "name": "remove",
       "signature": "remove(const std::string &path)",
       "brief": "Remove a file or empty directory.",
@@ -5107,7 +5272,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 347,
+      "srcline": 364,
       "module": "os.path",
       "qualified": "os.path.abspath"
     },
@@ -5130,7 +5295,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 317,
+      "srcline": 334,
       "module": "os.path",
       "qualified": "os.path.basename"
     },
@@ -5153,7 +5318,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 332,
+      "srcline": 349,
       "module": "os.path",
       "qualified": "os.path.dirname"
     },
@@ -5176,7 +5341,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 274,
+      "srcline": 291,
       "module": "os.path",
       "qualified": "os.path.exists"
     },
@@ -5199,7 +5364,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 372,
+      "srcline": 389,
       "module": "os.path",
       "qualified": "os.path.getsize"
     },
@@ -5222,7 +5387,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 302,
+      "srcline": 319,
       "module": "os.path",
       "qualified": "os.path.isdir"
     },
@@ -5245,7 +5410,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 288,
+      "srcline": 305,
       "module": "os.path",
       "qualified": "os.path.isfile"
     },
@@ -5272,7 +5437,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 255,
+      "srcline": 272,
       "module": "os.path",
       "qualified": "os.path.join"
     },
@@ -5295,7 +5460,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 358,
+      "srcline": 375,
       "module": "os.path",
       "qualified": "os.path.normpath"
     },
@@ -5318,7 +5483,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 390,
+      "srcline": 407,
       "module": "os.path",
       "qualified": "os.path.splitext"
     },
@@ -7986,7 +8151,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/tls/tls.cpp",
-      "srcline": 44,
+      "srcline": 45,
       "module": "tls",
       "qualified": "tls.from_hex"
     },
@@ -8063,7 +8228,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/tls/tls.cpp",
-      "srcline": 43,
+      "srcline": 44,
       "module": "tls",
       "qualified": "tls.to_hex"
     },

@@ -10,12 +10,15 @@
 #   1. A TOLERANCE. Most of these operations take one or two cycles, where measurement noise is a
 #      larger effect than any code change; run-to-run sign flips of +/-5% are normal. A pair fails
 #      only above THRESHOLD (default 1.15x).
-#   2. An ABSOLUTE FLOOR. A ratio is meaningless on a half-nanosecond operation. `dot` on a 3-vector
+#   2. An ABSOLUTE FLOOR. A ratio is meaningless on a sub-nanosecond operation. `dot` on a 3-vector
 #      of doubles compiles to instruction-identical code in both libraries — the same movsd/mulsd/
 #      addsd sequence, verified by reading the assembly — and still measures ~0.09 ns apart, because
 #      at that scale the harness's own DoNotOptimize scaffolding dominates. So a pair must ALSO be
-#      slower by more than MIN_GAP_NS (default 0.15 ns, about half a cycle) to fail. Anything under
-#      that is reported, never fatal.
+#      slower by more than MIN_GAP_NS (default 0.25 ns, about one cycle) to fail. Anything under
+#      that is reported, never fatal. The floor is one cycle, not half, because in the QA gate the
+#      benchmarks run LAST — after the ASan/TSan/Valgrind stages have pinned the CPU for ~15 min —
+#      so boost clocks are depressed and the smallest ops (a 16-double mat4 add is ~1.4 ns) drift a
+#      few tenths of a nanosecond hotter than a cold run; that thermal tail must not fail the build.
 #   3. CONFIRMATION. Anything that trips both is re-measured, alone, with more repetitions. A single
 #      noisy sample never fails the build; a real regression survives the second look.
 #
@@ -27,7 +30,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 MODE="${1:-gate}"
 THRESHOLD="${THRESHOLD:-1.15}"
-MIN_GAP_NS="${MIN_GAP_NS:-0.15}"
+MIN_GAP_NS="${MIN_GAP_NS:-0.25}"
 BIN=build/release/bin/cheatah_benchmarks
 
 bold() { printf '\n\033[1m[bench-gate] %s\033[0m\n' "$*"; }

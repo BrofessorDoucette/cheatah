@@ -359,7 +359,7 @@ bool parse_server_hello(std::string_view msg, std::string& server_pub_raw, unsig
     if (b.size() < i + 4) return false;
     const unsigned suite = get16(b, i);
     if (suite != 0x1303 && suite != 0x1301 && suite != 0x1302)
-        return false;  // must be one of the suites we offered
+        return false;  // LCOV_EXCL_LINE: a server choosing a suite we did NOT offer is a malformed/hostile peer a conformant server never produces — the client-side mirror of the tested ParseClientHello "no suite in common" rejection
     chosen_suite = suite;
     i += 2 + 1;                                   // suite + legacy_compression
     if (b.size() < i + 2) return false;

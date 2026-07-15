@@ -3,7 +3,40 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
-## Unreleased
+## v1.5.0-alpha (2026-07-15) — cross-platform macOS/Apple Silicon, a concept-templated linear-algebra library, and TLS chain hardening
+
+cheatah now builds and runs on **macOS (Apple Silicon)** as well as Linux; the **linalg** library
+is rewritten as a single concept-templated form — one definition per operation over both the
+element and the container (real/complex/host unified) — with no loss of performance; and TLS gains
+multi-SAN matching plus ECDSA P-384 / SHA-384 certificate-chain validation.
+
+### Cross-platform — macOS / Apple Silicon
+- **The toolchain and standard library build and run on macOS arm64.** `os.module_ext()` returns
+  the platform module suffix (`.dylib` / `.dll` / `.so`), used by the launcher, the `biome`
+  package manager, and purrc's non-CMake fallback (which also uses `-mcpu=native` and drops `-lm`
+  on Apple).
+- **Hardware crypto on Apple Silicon**: the AES-GCM path documents and asserts the ARMv8 AES +
+  PMULL NEON route (every arm64 Mac ships FEAT_AES/FEAT_PMULL) alongside x86 AES-NI/PCLMULQDQ.
+- **`getentropy`** replaces `getrandom` for the CSPRNG — portable across Linux (glibc ≥ 2.25),
+  macOS, and BSD.
+- **`float()` correctness**: `to_float` is now `template <Number T>`, so `float(0.95)` can never
+  route through an integer overload and truncate to `0`.
+- The QA gate skips Valgrind on Darwin (broken on Apple Silicon; ASan/UBSan cover it); the TLS
+  system test prefers a Homebrew OpenSSL peer over macOS LibreSSL.
+
+### Linalg — one concept-templated definition per operation
+- **The whole `linalg` library is rewritten in a two-layer template form** — every routine is
+  `template <Field T, template <typename> class Array>` over `Array<T>`, so real and complex (and
+  host vs a future device container) are ONE definition instead of hand-duplicated overloads:
+  `matmul`, `dot`/`vdot`/`inner` (a `Conj` enum), `solve`/`det`/`inv`, `qr`/`svd`, the eig family,
+  and the rest. Public names and results are unchanged; mixing element types or containers is now a
+  compile-time error via the concept constraints.
+- **Shared numeric primitives**: the multi-accumulator reduction (`reduce_lanes`) is factored once
+  in `ndarray` and reused by `sum`, `dot`, `trace`, and Householder QR; the LU preamble folds into
+  one `lu_prepare`.
+- **No performance regression** — the templates monomorphize to the same machine code; several ops
+  are marginally faster (a dropped throwaway zero-fill). `linalg` still matches/beats Eigen on
+  dense routines and `fixarray` still beats GLM on the fixed-extent types (the QA perf gate).
 
 ### TLS fix — every subjectAltName is matched, not just the first
 - **X.509 SAN parsing stopped after the first `dNSName`** (a shared loop-bound variable in the

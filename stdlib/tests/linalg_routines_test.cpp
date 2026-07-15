@@ -603,6 +603,8 @@ TEST(LinalgRoutines, ComplexDotFourPlusElements) {
 TEST(LinalgRoutines, ShapeAndConvergenceGuards) {
     const nd::NDArray v = nd::array({1.0, 2.0});
     EXPECT_THROW(la::matmul(v, v), std::runtime_error);                    // real matmul non-2D
+    EXPECT_THROW(la::matmul(mat(2, 3, {1, 2, 3, 4, 5, 6}), mat(2, 2, {1, 2, 3, 4})),
+                 std::runtime_error);                                      // matmul front inner-dim mismatch (3 != 2)
     EXPECT_THROW(la::kron(v, v), std::runtime_error);                      // kron non-2D
     const la::CNDArray cv = cvec({C(1, 0), C(2, 0)});
     EXPECT_THROW(la::matmul(cv, cv), std::runtime_error);                  // complex matmul non-2D

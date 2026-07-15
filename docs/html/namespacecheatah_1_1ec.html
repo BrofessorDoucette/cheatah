@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>ec · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=615cc411">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="extensions.html" data-ref="extensions">Standard library extensions</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li><li><a href="ownership.html" data-ref="ownership">Ownership</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ec.html" data-ref="namespacecheatah_1_1ec">ec</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1fixarray.html" data-ref="namespacecheatah_1_1fixarray">fixarray</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1memory.html" data-ref="namespacecheatah_1_1memory">memory</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><a href="namespacecheatah_1_1p384.html" data-ref="namespacecheatah_1_1p384">p384</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1html.html" data-ref="namespacecheatah_1_1parsers_1_1html">html</a></li><li><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li><li><a href="namespacecheatah_1_1parsers_1_1xml.html" data-ref="namespacecheatah_1_1parsers_1_1xml">xml</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1regex.html" data-ref="namespacecheatah_1_1regex">regex</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1thread.html" data-ref="namespacecheatah_1_1thread">thread</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>ec</code></h1>
+  
+</div>
+<div class="overview"></div>
+
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1ec_1afd02daa502e1f04b0d6a7d04af61dc96">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">is_zero</span>(const fe&lt; C &gt; &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L56" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1afd02daa502e1f04b0d6a7d04af61dc96" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a9bc69d73ae8abd8e65d0731f10a9c60d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">geq</span>(const fe&lt; C &gt; &amp;a, const fe&lt; C &gt; &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L62" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a9bc69d73ae8abd8e65d0731f10a9c60d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a2d2e546752b4cee1511f9cc86b94300d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864">u64</a></span> <span class="mname">sub_borrow</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const fe&lt; C &gt; &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L69" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a2d2e546752b4cee1511f9cc86b94300d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a97179ca28e2592371756a0021ca2529c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864">u64</a></span> <span class="mname">add_carry</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const fe&lt; C &gt; &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L80" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a97179ca28e2592371756a0021ca2529c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a0e2ef50c075ee81eda5ef5e968bb5eea">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">mont_mul</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const fe&lt; C &gt; &amp;b, const Mont&lt; C &gt; &amp;M)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L102" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a0e2ef50c075ee81eda5ef5e968bb5eea" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1ae961d6ae1e523c5c76ad0844164d6520">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">mont_add</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const fe&lt; C &gt; &amp;b, const Mont&lt; C &gt; &amp;M)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L143" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1ae961d6ae1e523c5c76ad0844164d6520" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1acd4f66e662f1a38943b269ee23909c86">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">mont_sub</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const fe&lt; C &gt; &amp;b, const Mont&lt; C &gt; &amp;M)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L154" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1acd4f66e662f1a38943b269ee23909c86" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a12a3665834dfb241e2c7056ca3d7e54d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">to_mont</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const Mont&lt; C &gt; &amp;M)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L165" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a12a3665834dfb241e2c7056ca3d7e54d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1abcae5a35360ec5b68ff66d38d77ad7cf">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">from_mont</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const Mont&lt; C &gt; &amp;M)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L169" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1abcae5a35360ec5b68ff66d38d77ad7cf" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a5fa4756da7318caf2eb093a1a6fb729c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">mont_inv</span>(fe&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;a, const Mont&lt; C &gt; &amp;M)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L176" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a5fa4756da7318caf2eb093a1a6fb729c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a3ef485dcae90ac071f096c75ccd2bb26">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864">u64</a></span> <span class="mname">inv64</span>(u64 a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L190" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a3ef485dcae90ac071f096c75ccd2bb26" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a750e7dbdc3406397b6ce935ddba68215">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">Mont&lt; C &gt;</span> <span class="mname">make_mont</span>(const fe&lt; C &gt; &amp;m)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L196" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a750e7dbdc3406397b6ce935ddba68215" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a8e48d05621b83d50a1fae6af05383095">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const Mont&lt; C &gt; &amp;</span> <span class="mname">Fp</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L223" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a8e48d05621b83d50a1fae6af05383095" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a5257b0f2486c629cf77b087006a09e90">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const Mont&lt; C &gt; &amp;</span> <span class="mname">Fn</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L228" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a5257b0f2486c629cf77b087006a09e90" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a76d4feb33b7f8d593f7876c89f350a7a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca">fe</a>&lt; C &gt;</span> <span class="mname">be_to_fe</span>(const unsigned char *b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L235" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a76d4feb33b7f8d593f7876c89f350a7a" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1aeb5e5b0ecc9167a5aade882eafd855e7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">fe_to_be</span>(unsigned char *out, const fe&lt; C &gt; &amp;a)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L246" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1aeb5e5b0ecc9167a5aade882eafd855e7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1aff007698cf7d3524942aaff6ce424714">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">Jac&lt; C &gt;</span> <span class="mname">jac_infinity</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L267" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1aff007698cf7d3524942aaff6ce424714" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a8c176d753bcd9eb25febfd29eedcff14">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">jac_double</span>(Jac&lt; C &gt; &amp;r, const Jac&lt; C &gt; &amp;q)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L272" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a8c176d753bcd9eb25febfd29eedcff14" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1ab63727af2fc92d323fbf77b8c75c2658">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">jac_add</span>(Jac&lt; C &gt; &amp;r, const Jac&lt; C &gt; &amp;a, const Jac&lt; C &gt; &amp;b)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L318" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1ab63727af2fc92d323fbf77b8c75c2658" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a28df514099ecdcb2e2730306206bd0fd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">jac_double_mul</span>(Jac&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;u1, const Jac&lt; C &gt; &amp;A, const fe&lt; C &gt; &amp;u2, const Jac&lt; C &gt; &amp;B)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L374" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a28df514099ecdcb2e2730306206bd0fd" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a7691a0cead533640d9d3f5f75b164f54">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca">fe</a>&lt; C &gt;</span> <span class="mname">jac_affine_x</span>(const Jac&lt; C &gt; &amp;q)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L405" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a7691a0cead533640d9d3f5f75b164f54" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1ad369f2575e4a60b54dd3ab2a0543875d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">Jac&lt; C &gt;</span> <span class="mname">affine_to_jac</span>(const fe&lt; C &gt; &amp;x, const fe&lt; C &gt; &amp;y)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L417" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1ad369f2575e4a60b54dd3ab2a0543875d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1ad5d2bcfd916af14a3c11c6e7d01f75ab">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const Jac&lt; C &gt; &amp;</span> <span class="mname">base_point</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L427" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1ad5d2bcfd916af14a3c11c6e7d01f75ab" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a170064c98fafbfadfac0d273f7e909af">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const std::array&lt; Jac&lt; C &gt;,(1u&lt;&lt; C::kLimbs)&gt; &amp;</span> <span class="mname">g_comb</span>()</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L437" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a170064c98fafbfadfac0d273f7e909af" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a421e5a6b1e2fbc5441749cce41adf66b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">jac_mul_base</span>(Jac&lt; C &gt; &amp;r, const fe&lt; C &gt; &amp;k)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L469" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a421e5a6b1e2fbc5441749cce41adf66b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a30cd838368eb216167194364b81b3fce">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca">fe</a>&lt; C &gt;</span> <span class="mname">reduce_mod_n</span>(const fe&lt; C &gt; &amp;v)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L490" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a30cd838368eb216167194364b81b3fce" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a8547ee95829ef02854df5a7ef5ea6c5b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca">fe</a>&lt; C &gt;</span> <span class="mname">hash_to_scalar</span>(const std::string &amp;h)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L503" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a8547ee95829ef02854df5a7ef5ea6c5b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1acad93be8321ab7df665195e2a323ba8d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">der_to_rs</span>(const std::string &amp;der, unsigned char *r, unsigned char *s)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L516" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1acad93be8321ab7df665195e2a323ba8d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1aa0f479c2c1578848a8f5249f855c3c0b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">on_curve</span>(const fe&lt; C &gt; &amp;x, const fe&lt; C &gt; &amp;y)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L549" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1aa0f479c2c1578848a8f5249f855c3c0b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1ac5f4edb370a578e7f44f6cabd57d2add">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">verify_raw</span>(const std::string &amp;pubkey_xy, const std::string &amp;msg_hash, const std::string &amp;sig_raw)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L567" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1ac5f4edb370a578e7f44f6cabd57d2add" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1aa8c5729442161571253581df12b207b6">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">verify_der</span>(const std::string &amp;pubkey_xy, const std::string &amp;msg_hash, const std::string &amp;sig_der)</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L602" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1aa8c5729442161571253581df12b207b6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1ec_1ac0bd0fc52cdc542fd7c97dff322f6226">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">kBits</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L50" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1ac0bd0fc52cdc542fd7c97dff322f6226" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a96dd8e6529ad247392ea14bd21ae8af3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">kBytes</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L52" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a96dd8e6529ad247392ea14bd21ae8af3" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">u64</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L28" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a3195d2ac82f27ec84eb3dcc219199083">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">unsigned __int128</span> <span class="mname">u128</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a3195d2ac82f27ec84eb3dcc219199083" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">std::array&lt; <a href="namespacecheatah_1_1ec.html#namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864">u64</a>, C::kLimbs &gt;</span> <span class="mname">fe</span></code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_p256_ec_core_hpp.html#L47" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1ec_1afd02daa502e1f04b0d6a7d04af61dc96">is_zero</a></li><li><a href="#namespacecheatah_1_1ec_1a9bc69d73ae8abd8e65d0731f10a9c60d">geq</a></li><li><a href="#namespacecheatah_1_1ec_1a2d2e546752b4cee1511f9cc86b94300d">sub_borrow</a></li><li><a href="#namespacecheatah_1_1ec_1a97179ca28e2592371756a0021ca2529c">add_carry</a></li><li><a href="#namespacecheatah_1_1ec_1a0e2ef50c075ee81eda5ef5e968bb5eea">mont_mul</a></li><li><a href="#namespacecheatah_1_1ec_1ae961d6ae1e523c5c76ad0844164d6520">mont_add</a></li><li><a href="#namespacecheatah_1_1ec_1acd4f66e662f1a38943b269ee23909c86">mont_sub</a></li><li><a href="#namespacecheatah_1_1ec_1a12a3665834dfb241e2c7056ca3d7e54d">to_mont</a></li><li><a href="#namespacecheatah_1_1ec_1abcae5a35360ec5b68ff66d38d77ad7cf">from_mont</a></li><li><a href="#namespacecheatah_1_1ec_1a5fa4756da7318caf2eb093a1a6fb729c">mont_inv</a></li><li><a href="#namespacecheatah_1_1ec_1a3ef485dcae90ac071f096c75ccd2bb26">inv64</a></li><li><a href="#namespacecheatah_1_1ec_1a750e7dbdc3406397b6ce935ddba68215">make_mont</a></li><li><a href="#namespacecheatah_1_1ec_1a8e48d05621b83d50a1fae6af05383095">Fp</a></li><li><a href="#namespacecheatah_1_1ec_1a5257b0f2486c629cf77b087006a09e90">Fn</a></li><li><a href="#namespacecheatah_1_1ec_1a76d4feb33b7f8d593f7876c89f350a7a">be_to_fe</a></li><li><a href="#namespacecheatah_1_1ec_1aeb5e5b0ecc9167a5aade882eafd855e7">fe_to_be</a></li><li><a href="#namespacecheatah_1_1ec_1aff007698cf7d3524942aaff6ce424714">jac_infinity</a></li><li><a href="#namespacecheatah_1_1ec_1a8c176d753bcd9eb25febfd29eedcff14">jac_double</a></li><li><a href="#namespacecheatah_1_1ec_1ab63727af2fc92d323fbf77b8c75c2658">jac_add</a></li><li><a href="#namespacecheatah_1_1ec_1a28df514099ecdcb2e2730306206bd0fd">jac_double_mul</a></li><li><a href="#namespacecheatah_1_1ec_1a7691a0cead533640d9d3f5f75b164f54">jac_affine_x</a></li><li><a href="#namespacecheatah_1_1ec_1ad369f2575e4a60b54dd3ab2a0543875d">affine_to_jac</a></li><li><a href="#namespacecheatah_1_1ec_1ad5d2bcfd916af14a3c11c6e7d01f75ab">base_point</a></li><li><a href="#namespacecheatah_1_1ec_1a170064c98fafbfadfac0d273f7e909af">g_comb</a></li><li><a href="#namespacecheatah_1_1ec_1a421e5a6b1e2fbc5441749cce41adf66b">jac_mul_base</a></li><li><a href="#namespacecheatah_1_1ec_1a30cd838368eb216167194364b81b3fce">reduce_mod_n</a></li><li><a href="#namespacecheatah_1_1ec_1a8547ee95829ef02854df5a7ef5ea6c5b">hash_to_scalar</a></li><li><a href="#namespacecheatah_1_1ec_1acad93be8321ab7df665195e2a323ba8d">der_to_rs</a></li><li><a href="#namespacecheatah_1_1ec_1aa0f479c2c1578848a8f5249f855c3c0b">on_curve</a></li><li><a href="#namespacecheatah_1_1ec_1ac5f4edb370a578e7f44f6cabd57d2add">verify_raw</a></li><li><a href="#namespacecheatah_1_1ec_1aa8c5729442161571253581df12b207b6">verify_der</a></li><li><a href="#namespacecheatah_1_1ec_1aa65b605e546df7aff1bd50dd60c9d864">u64</a></li><li><a href="#namespacecheatah_1_1ec_1a3195d2ac82f27ec84eb3dcc219199083">u128</a></li><li><a href="#namespacecheatah_1_1ec_1a2be9921781c9e84b8a35dd9171b652ca">fe</a></li><li><a href="#namespacecheatah_1_1ec_1ac0bd0fc52cdc542fd7c97dff322f6226">kBits</a></li><li><a href="#namespacecheatah_1_1ec_1a96dd8e6529ad247392ea14bd21ae8af3">kBytes</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=06e64ea2"></script>
+<script src="cheatah-docs.js?v=be832e47"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>
