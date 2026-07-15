@@ -67,11 +67,12 @@ const T* contig(const ndarray::basic_ndarray<T>& a, std::vector<T>& scratch) {
     return scratch.data();
 }
 
-std::vector<double> as_matrix(const NDArray& a, std::size_t& rows, std::size_t& cols) {
+template <ndarray::Field T>
+std::vector<T> as_matrix(const ndarray::basic_ndarray<T>& a, std::size_t& rows, std::size_t& cols) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     rows = a.shape()[0];
     cols = a.shape()[1];
-    std::vector<double> m(rows * cols);
+    std::vector<T> m(rows * cols);
     if (ndarray::is_contiguous(a))
         std::copy_n(a.buffer()->data() + a.offset(), rows * cols, m.data());
     else
@@ -85,9 +86,10 @@ std::size_t vector_len(const ndarray::basic_ndarray<T>& a) {
     if (a.ndim() == 2 && (a.shape()[0] == 1 || a.shape()[1] == 1)) return a.size();
     throw std::runtime_error("linalg: expected a 1-D vector");
 }
-std::vector<double> as_vector(const NDArray& a, std::size_t& n) {
+template <ndarray::Field T>
+std::vector<T> as_vector(const ndarray::basic_ndarray<T>& a, std::size_t& n) {
     n = vector_len(a);
-    std::vector<double> v(n);
+    std::vector<T> v(n);
     if (ndarray::is_contiguous(a))
         std::copy_n(a.buffer()->data() + a.offset(), n, v.data());
     else
@@ -121,19 +123,14 @@ ndarray::basic_ndarray<T> wrap_buffer(std::vector<std::size_t> shape, std::vecto
     std::copy(data.begin(), data.end(), buf.begin());
     return wrap_buffer<T>(std::move(shape), std::move(buf));
 }
-NDArray make_matrix(std::size_t rows, std::size_t cols, std::vector<double> data) {
-    return wrap_buffer<double>({rows, cols}, std::move(data));
+template <ndarray::Field T>
+ndarray::basic_ndarray<T> make_matrix(std::size_t rows, std::size_t cols, std::vector<T> data) {
+    return wrap_buffer<T>({rows, cols}, std::move(data));
 }
-NDArray make_vector(std::vector<double> data) {
+template <ndarray::Field T>
+ndarray::basic_ndarray<T> make_vector(std::vector<T> data) {
     const std::size_t n = data.size();
-    return wrap_buffer<double>({n}, std::move(data));
-}
-CNDArray make_cvector(std::vector<Cplx> data) {
-    const std::size_t n = data.size();
-    return wrap_buffer<Cplx>({n}, std::move(data));
-}
-CNDArray make_cmatrix(std::size_t rows, std::size_t cols, std::vector<Cplx> data) {
-    return wrap_buffer<Cplx>({rows, cols}, std::move(data));
+    return wrap_buffer<T>({n}, std::move(data));
 }
 // Promote a freshly-built (contiguous, offset-0) real result to complex (imag 0).
 CNDArray to_complex(const NDArray& a) {
@@ -145,18 +142,8 @@ bool cgreater(const Cplx& x, const Cplx& y) {
     if (x.real() != y.real()) return x.real() > y.real();
     return x.imag() > y.imag();
 }
-// ---- extract complex matrices & vectors (mirror as_matrix / as_vector) ----
-std::vector<Cplx> as_cmatrix(const CNDArray& a, std::size_t& rows, std::size_t& cols) {
-    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
-    rows = a.shape()[0];
-    cols = a.shape()[1];
-    std::vector<Cplx> m(rows * cols);
-    if (ndarray::is_contiguous(a))
-        std::copy_n(a.buffer()->data() + a.offset(), rows * cols, m.data());
-    else
-        pack_corder(a, m.data());
-    return m;
-}
+// (as_matrix / as_vector / make_matrix / make_vector above are templated over Field T, so they
+// serve both real and complex — the former as_cmatrix / make_cmatrix / make_cvector are gone.)
 void require_square(std::size_t r, std::size_t c) {
     if (r != c) throw std::runtime_error("linalg: expected a square matrix");
 }
@@ -1457,16 +1444,16 @@ NDArray eigvalsh(const NDArray& a) {
 }
 EighC eigh(const CNDArray& a) {
     std::size_t n, c;
-    const std::vector<Cplx> H = as_cmatrix(a, n, c);
+    const std::vector<Cplx> H = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<double> vals;
     std::vector<Cplx> vecs;
     hermitian_eig(H, n, vals, vecs, /*want_vectors=*/true);
-    return {make_vector(std::move(vals)), make_cmatrix(n, n, std::move(vecs))};
+    return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
 }
 NDArray eigvalsh(const CNDArray& a) {
     std::size_t n, c;
-    const std::vector<Cplx> H = as_cmatrix(a, n, c);
+    const std::vector<Cplx> H = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<double> vals;
     std::vector<Cplx> vecs;
@@ -1493,7 +1480,7 @@ EigC eig(const NDArray& a) {
         const std::vector<Cplx> vk = eigvector_inverse_iteration(A, n, vals[k]);
         for (std::size_t i = 0; i < n; ++i) vecs[i * n + k] = vk[i];
     }
-    return {make_cvector(std::move(vals)), make_cmatrix(n, n, std::move(vecs))};
+    return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
 }
 CNDArray eigvals(const NDArray& a) {
     std::size_t n, c;
@@ -1508,7 +1495,7 @@ CNDArray eigvals(const NDArray& a) {
         vals = eigvals_general(std::move(A), n);
     }
     std::sort(vals.begin(), vals.end(), cgreater);
-    return make_cvector(std::move(vals));
+    return make_vector(std::move(vals));
 }
 
 // ---- out-param (buffer-reuse) overloads for the factorizations and multi-output routines ----
