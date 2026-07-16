@@ -4,7 +4,6 @@
 
 #include <array>
 #include <algorithm>
-#include <cctype>
 
 namespace cheatah {
 
@@ -23,15 +22,18 @@ bool is_keyword(std::string_view word) {
 
 namespace {
 
+// cheatah identifiers/numbers are ASCII by definition, so classify with direct range
+// checks rather than <cctype>. These are bit-identical to isalpha/isalnum/isdigit under
+// the C locale (the only locale the lexer ever runs in) for every char, but are branch-
+// predictable, inlinable, and free of the per-call locale-table indirection some libcs
+// add — and they close a latent bug where a non-C global locale could change tokenizing.
 bool is_ident_start(char c) {
-    return std::isalpha(static_cast<unsigned char>(c)) || c == '_';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 bool is_ident_continue(char c) {
-    return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
 }
-bool is_digit(char c) {
-    return std::isdigit(static_cast<unsigned char>(c)) != 0;
-}
+bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
 // Single-pass scanner over the source buffer, tracking 1-based line/column.
 class Scanner {
