@@ -50,6 +50,13 @@ fail() { printf '\n\033[31m[qa-gate] FAILED: %s\033[0m\n' "$*"; exit 1; }
 
 MIN_TIME="${QA_BENCH_MIN_TIME:-0.05s}"
 
+# Run ctest in parallel. The unit/e2e tests are independent processes (temp files are
+# per-test-name; sockets bind to OS-assigned ports), so they parallelize with zero
+# rigor change — SAME tests, SAME -O3 -march=native compiles, SAME binaries, just
+# concurrent. On this project's suite (~750 tests) this is ~9x wall-clock. Override
+# with QA_GATE_JOBS (e.g. =1 to serialize when debugging a flaky interaction).
+JOBS="${QA_GATE_JOBS:-$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)}"
+
 # The per-function compile-run battery (~200 tests, each forks the compiler+runtime)
 # is OPT-IN: set QA_GATE_FULL_CR=1 to include it. By default the gate runs everything
 # else — unit tests, the pipeline tests, and the multi-module system apps — and
@@ -162,17 +169,17 @@ fi
 #     here immediately, before the slow suites. Re-capture (reviewed) with
 #     CHEATAH_GOLDEN_UPDATE=1 ctest --preset debug -R golden-master.
 bold "Checking frontend golden-master (emitted C++ is byte-identical)…"
-ctest --preset debug --output-on-failure -R 'golden-master' || fail "frontend golden-master drifted — the transpiler changed its emitted C++"
+ctest --preset debug --output-on-failure --parallel "$JOBS" -R 'golden-master' || fail "frontend golden-master drifted — the transpiler changed its emitted C++"
 
 # 4. Unit tests (hard gate) --------------------------------------------------
 # The "previously_broken" regression suite (bugs that ONCE broke the toolchain) runs
 # FIRST and on its own, so a reintroduced regression fails the gate fast — before the
 # full suite. The main run then EXCLUDES that label so they aren't run twice.
 bold "Running previously-broken regression suite FIRST…"
-ctest --preset debug --output-on-failure -L previously_broken || fail "previously-broken regression suite"
+ctest --preset debug --output-on-failure --parallel "$JOBS" -L previously_broken || fail "previously-broken regression suite"
 
 bold "Running unit test suite…"
-ctest --preset debug --output-on-failure -LE previously_broken "${CR_EXCLUDE[@]}" || fail "unit tests"
+ctest --preset debug --output-on-failure --parallel "$JOBS" -LE previously_broken "${CR_EXCLUDE[@]}" || fail "unit tests"
 
 # 5. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
 if [ "${QA_GATE_SKIP_ASAN:-0}" = "1" ]; then
@@ -184,7 +191,7 @@ else
     bold "Running unit test suite under ASan + UBSan…"
     UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1" \
     ASAN_OPTIONS="detect_leaks=1:abort_on_error=1" \
-        ctest --preset asan --output-on-failure "${CR_EXCLUDE[@]}" || fail "sanitizer (ASan/UBSan) tests"
+        ctest --preset asan --output-on-failure --parallel "$JOBS" "${CR_EXCLUDE[@]}" || fail "sanitizer (ASan/UBSan) tests"
 fi
 
 # 5b. ThreadSanitizer: build + run the concurrency-relevant suites (hard gate) -
@@ -200,7 +207,7 @@ else
     cmake --build --preset tsan --target cheatah_tests >/tmp/cheatah_build_tsan.log 2>&1 || { tail -30 /tmp/cheatah_build_tsan.log; fail "tsan build"; }
     bold "Running concurrency-relevant suites under ThreadSanitizer…"
     TSAN_OPTIONS="halt_on_error=1 second_deadlock_stack=1" \
-        ctest --preset tsan --output-on-failure -R 'CheatahThread|CheatahRandom|Memory' \
+        ctest --preset tsan --output-on-failure --parallel "$JOBS" -R 'CheatahThread|CheatahRandom|Memory' \
         || fail "ThreadSanitizer tests"
 fi
 
