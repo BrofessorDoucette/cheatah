@@ -18,10 +18,12 @@ add_executable(cheatah_benchmarks
     integrity_bench.cpp
     p256_bench.cpp
     crypto_openssl_bench.cpp  # cheatah digests/HMAC/AEAD vs OpenSSL (libcrypto, if present)
+    compiler_bench.cpp        # the cheatah frontend: lexer/parser/codegen transpilation speed
     ${PROJECT_SOURCE_DIR}/runtime/integrity.cpp
 )
 
 target_link_libraries(cheatah_benchmarks PRIVATE
+    cheatah::compiler         # frontend under test (compiler_bench.cpp)
     cheatah::linalg_static
     cheatah::fixarray         # header-only: the fixed-extent types (fixed_glm_bench.cpp)
     cheatah::ndarray_static
@@ -38,6 +40,9 @@ target_include_directories(cheatah_benchmarks PRIVATE
     ${PROJECT_SOURCE_DIR}/stdlib/ed25519
     ${PROJECT_SOURCE_DIR}/stdlib/aead
     ${PROJECT_SOURCE_DIR}/stdlib/p256)
+
+# compiler_bench.cpp reads real .purr from the source tree at run time.
+target_compile_definitions(cheatah_benchmarks PRIVATE CHEATAH_SRC_ROOT="${PROJECT_SOURCE_DIR}")
 
 # OpenSSL (libcrypto) — the reference for the crypto comparison benchmark. Optional: when
 # absent, crypto_openssl_bench.cpp builds its cheatah-only rows (the OpenSSL rows are gated

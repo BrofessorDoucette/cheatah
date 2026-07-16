@@ -110,6 +110,19 @@ add_dependencies(cheatah_purrc_tests
 
 gtest_discover_tests(cheatah_purrc_tests TEST_PREFIX "purrc:")
 
+# ── golden-master: byte-identical frontend output lock (fork-free, fast) ─────────────────────
+# Drives lexer->parser->codegen IN-PROCESS (links cheatah::compiler, no purrc fork, no C++
+# backend) and asserts the full CodegenResult is byte-identical to committed goldens for a
+# corpus of real .purr. This is the correctness backstop for the v1.6 compiler-speed refactor:
+# a PURE performance change must never alter the emitted C++. Zero tolerance. Runs in ms.
+#   Capture/refresh goldens: CHEATAH_GOLDEN_UPDATE=1 ctest -R golden-master
+add_executable(cheatah_golden_master golden_master_test.cpp)
+target_link_libraries(cheatah_golden_master PRIVATE cheatah::compiler GTest::gtest_main)
+target_compile_definitions(cheatah_golden_master PRIVATE
+    CHEATAH_SRC_ROOT="${CMAKE_SOURCE_DIR}"
+    GOLDEN_DIR="${CMAKE_CURRENT_SOURCE_DIR}/golden")
+gtest_discover_tests(cheatah_golden_master TEST_PREFIX "golden-master:")
+
 # ── memory: cheatah-surface suite (real cheatah .purr programs, compiled + run — GREEN) ──────
 # Real cheatah programs (stdlib/memory/tests/cheatah_*.purr) exercising the memory surface end-to-end
 # (own / rread / rwrite / acquire / read / write(value|index,value)). The Owner engine is implemented,

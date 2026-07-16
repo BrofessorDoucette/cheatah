@@ -156,6 +156,14 @@ if [ -n "$_cmod_drift" ]; then
     fail "stdlib/requests/requests.hpp drifted from requests.purr — rebuild, commit the regenerated header (+ .sha512), then push again"
 fi
 
+# 3c. Frontend golden-master (hard gate) — runs FIRST and fork-free (~20 ms). The
+#     lexer->parser->codegen output must stay byte-identical for a fixed .purr corpus;
+#     a compiler-speed refactor that alters emitted C++ is a behavior change and fails
+#     here immediately, before the slow suites. Re-capture (reviewed) with
+#     CHEATAH_GOLDEN_UPDATE=1 ctest --preset debug -R golden-master.
+bold "Checking frontend golden-master (emitted C++ is byte-identical)…"
+ctest --preset debug --output-on-failure -R 'golden-master' || fail "frontend golden-master drifted — the transpiler changed its emitted C++"
+
 # 4. Unit tests (hard gate) --------------------------------------------------
 # The "previously_broken" regression suite (bugs that ONCE broke the toolchain) runs
 # FIRST and on its own, so a reintroduced regression fails the gate fast — before the

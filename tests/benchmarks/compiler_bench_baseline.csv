@@ -1,0 +1,14 @@
+# cheatah frontend speed baseline — regenerate with: scripts/compiler_bench_gate.sh update
+# name,median_ns
+BM_codegen/large/2,219241
+BM_codegen/medium/1,18139.4
+BM_codegen/small/0,3217.93
+BM_frontend/large/2,650975
+BM_frontend/medium/1,51794.4
+BM_frontend/small/0,8428.86
+BM_parse/large/2,114269
+BM_parse/medium/1,6937.16
+BM_parse/small/0,1460.57
+BM_tokenize/large/2,184229
+BM_tokenize/medium/1,11223.2
+BM_tokenize/small/0,2416.63
