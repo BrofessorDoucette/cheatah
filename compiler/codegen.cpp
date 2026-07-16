@@ -7,6 +7,8 @@
 #include <map>
 #include <optional>
 #include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -2166,10 +2168,10 @@ private:
     // Every identifier the PROGRAM introduces (let/assign targets, loop & catch vars,
     // function/struct/enum/interface names, parameters). A module is given a `namespace`
     // alias only when its name is NOT in here, so the alias can never shadow user code.
-    std::set<std::string> defined_names_;
+    std::unordered_set<std::string> defined_names_;
     // `let x` declarations with NO initializer, not yet realized: emitted (as `auto x = …`)
     // at the first assignment to x; an entry that is never realized was never given a value.
-    std::set<std::string> deferred_lets_;
+    std::unordered_set<std::string> deferred_lets_;
     // The C++ type a `return <container literal>` should be constructed AS, but ONLY when the
     // enclosing function's `-> Type` hint uses an explicit width (`-> list[i8]`); empty otherwise,
     // so a plain `-> list[int]` return keeps its CTAD spelling (no churn). Set around each function
@@ -2180,9 +2182,9 @@ private:
     // safe constant operators) auto-lower to their `if constexpr` form. Scoped per body
     // (cleared wherever deferred_lets_ is), so a constant in one function never leaks names
     // into another where the same identifier is a runtime value.
-    std::set<std::string> const_vars_;
+    std::unordered_set<std::string> const_vars_;
     // Imported-module roots that are safe to alias (root ∉ defined_names_).
-    std::set<std::string> aliased_roots_;
+    std::unordered_set<std::string> aliased_roots_;
     // From-imported symbols: (bare name, full module path incl. the symbol). Drives the `using`
     // declarations in emit_aliases; the parallel aliases_ entries drive `Sym.MEMBER` resolution.
     std::vector<std::pair<std::string, std::vector<std::string>>> from_imports_;
@@ -2260,13 +2262,13 @@ private:
         }
     }
 
-    std::map<std::string, std::vector<std::string>> aliases_;
-    std::map<std::string, const FnDef*> fn_defs_;  // program functions, for kwargs/defaults
+    std::unordered_map<std::string, std::vector<std::string>> aliases_;
+    std::unordered_map<std::string, const FnDef*> fn_defs_;  // program functions, for kwargs/defaults
     std::set<std::string> roots_;
-    std::set<std::string> struct_names_;
-    std::map<std::string, std::vector<Field>> struct_fields_;  // struct name -> its fields
-    std::set<std::string> interface_names_;
-    std::set<std::string> enum_names_;
+    std::unordered_set<std::string> struct_names_;
+    std::unordered_map<std::string, std::vector<Field>> struct_fields_;  // struct name -> its fields
+    std::unordered_set<std::string> interface_names_;
+    std::unordered_set<std::string> enum_names_;
     std::vector<std::string> diags_;
     int match_id_ = 0;     // unique suffix for the temp in each lowered `match`
     int with_id_ = 0;      // unique suffix for the hidden local of an `as`-less `with`
