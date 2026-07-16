@@ -19,6 +19,22 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Compile cache: if ccache is on PATH, route this project's C++ compiles through it.
+# The QA gate reconfigures + rebuilds the whole tree four times (debug/asan/tsan/release)
+# plus an instrumented coverage build; ccache makes the unchanged majority of those a
+# cache hit instead of a recompile. Purely a build-speed launcher — it never changes the
+# object bytes, so rigor is untouched. No-op when ccache is absent; disable with
+# -DCHEATAH_CCACHE=OFF. (Accelerating purrc's OWN emitted-TU backend compiles via the
+# same cache is a tracked follow-up — that needs plumbing a launcher through purrc.)
+option(CHEATAH_CCACHE "Route C++ compiles through ccache when available" ON)
+if(CHEATAH_CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
+    find_program(CCACHE_PROGRAM ccache)
+    if(CCACHE_PROGRAM)
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}" CACHE STRING "ccache launcher")
+        message(STATUS "cheatah: using ccache at ${CCACHE_PROGRAM}")
+    endif()
+endif()
+
 # Cross-platform knobs (arch flag, module extension, the flags purrc passes to the C++
 # compiler, the math/veclib link). Centralized so Linux/macOS/Windows differ in one file.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Portability.cmake)
