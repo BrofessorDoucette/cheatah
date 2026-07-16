@@ -39,6 +39,11 @@ public:
     explicit Scanner(std::string_view src) : src_(src) {}
 
     LexResult run() {
+        // Pre-size the token vector to avoid repeated reallocation as it grows. Real
+        // cheatah averages a few source bytes per token; source.size()/4 slightly
+        // over-reserves for dense code and is a small fixed cost for tiny inputs. This
+        // is a capacity hint only — the tokens pushed, and their order, are unchanged.
+        result_.tokens.reserve(src_.size() / 4 + 16);
         while (!at_end()) {
             scan_token();
         }

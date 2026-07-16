@@ -14,6 +14,12 @@
 #   - missingInclude / missingIncludeSystem  — we don't feed it the full include graph
 #   - unusedFunction                         — library APIs look "unused" from here
 #   - checkersReport / information noise
+#   - syntaxError                            — cppcheck's C++ front end is not the compiler and
+#     chokes on constructs it can't fully preprocess (GoogleTest's TEST_P / TestWithParam<> is the
+#     usual culprit). Every file here is compiled by clang -std=c++20 in the QA gate's build stage
+#     BEFORE this runs, so a genuine syntax error fails the build first — a cppcheck syntaxError on
+#     code that compiles is always a false positive. It is also reported nondeterministically under
+#     -j (cppcheck 2.13), which would flake the gate; suppressing it keeps the gate deterministic.
 # A real finding exits non-zero (so the gate fails); `// cppcheck-suppress <id>` inline
 # can annotate an intentional exception.
 set -uo pipefail
@@ -33,6 +39,7 @@ cppcheck \
     --suppress=unusedFunction \
     --suppress=checkersReport \
     --suppress=unmatchedSuppression \
+    --suppress=syntaxError \
     --error-exitcode=1 \
     -q \
     -j "$(nproc)" \
