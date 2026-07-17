@@ -79,13 +79,9 @@ std::vector<T> as_matrix(const ndarray::basic_ndarray<T>& a, std::size_t& rows, 
         pack_corder(a, m.data());
     return m;
 }
-// Validate that `a` is vector-shaped (1-D, or a 2-D row/column) and return its length.
-template <ndarray::Field T>
-std::size_t vector_len(const ndarray::basic_ndarray<T>& a) {
-    if (a.ndim() == 1) return a.shape()[0];
-    if (a.ndim() == 2 && (a.shape()[0] == 1 || a.shape()[1] == 1)) return a.size();
-    throw std::runtime_error("linalg: expected a 1-D vector");
-}
+// (vector_len — validate a vector shape and return its flattened length — moved to backend.hpp:
+// the generic fronts there share it, and it reads only shape metadata so it serves device
+// containers too.)
 template <ndarray::Field T>
 std::vector<T> as_vector(const ndarray::basic_ndarray<T>& a, std::size_t& n) {
     n = vector_len(a);
@@ -902,19 +898,27 @@ T dot_reduce(const Array<T>& a, const Array<T>& b) {
 }
 }  // namespace
 
-// dot / vdot / inner over any Field T and (host) container Array. `dot`/`inner` are bilinear
+// dot / vdot / inner over any Field T and (host) container Array — the HOST scalar-out kernels
+// of the backend.hpp reduction pattern (the length validation lives in the generic fronts there;
+// dot_reduce's own check is a harmless second line of defense). `dot`/`inner` are bilinear
 // (Σ aᵢbᵢ); `vdot` is the conjugate-linear Hermitian inner product Σ conj(aᵢ)·bᵢ (identical to dot
-// for a real element). Both operands are Array<T> (the deduction firewall). Returns the scalar T.
+// for a real element). Both operands are Array<T> (the deduction firewall).
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
-T dot(const Array<T>& a, const Array<T>& b) { return dot_reduce<T, Conj::None>(a, b); }
+void dot(T& out, const Array<T>& a, const Array<T>& b) { out = dot_reduce<T, Conj::None>(a, b); }
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
-T vdot(const Array<T>& a, const Array<T>& b) { return dot_reduce<T, Conj::Conjugate>(a, b); }
+void vdot(T& out, const Array<T>& a, const Array<T>& b) { out = dot_reduce<T, Conj::Conjugate>(a, b); }
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
-T inner(const Array<T>& a, const Array<T>& b) { return dot_reduce<T, Conj::None>(a, b); }
-// Explicit instantiations: the host real + complex forms the library ships.
+void inner(T& out, const Array<T>& a, const Array<T>& b) { out = dot_reduce<T, Conj::None>(a, b); }
+// Explicit instantiations: the host real + complex kernels, AND the (now header-inline) allocating
+// fronts — instantiating the fronts here keeps the exported symbols the library always shipped.
+template void dot<double, ndarray::basic_ndarray>(double&, const NDArray&, const NDArray&);
+template void dot<Cplx, ndarray::basic_ndarray>(Cplx&, const CNDArray&, const CNDArray&);
+template void vdot<double, ndarray::basic_ndarray>(double&, const NDArray&, const NDArray&);
+template void vdot<Cplx, ndarray::basic_ndarray>(Cplx&, const CNDArray&, const CNDArray&);
+template void inner<double, ndarray::basic_ndarray>(double&, const NDArray&, const NDArray&);
 template double dot<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 template Cplx dot<Cplx, ndarray::basic_ndarray>(const CNDArray&, const CNDArray&);
 template double vdot<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
@@ -946,14 +950,8 @@ void outer(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     std::vector<T> sa, sb;
     outer_kernel<T>(rp, contig(a, sa), contig(b, sb), n, m);
 }
-// Allocating front: any pair of vector lengths, result is the n×m rank-1 matrix as Array<T>.
-template <ndarray::Field T, template <typename> class Array>
-    requires NumericArray<Array<T>>
-[[nodiscard]] Array<T> outer(const Array<T>& a, const Array<T>& b) {
-    Array<T> out = Array<T>::uninitialized({vector_len(a), vector_len(b)});
-    outer(out, a, b);
-    return out;
-}
+// (The allocating front is inline in backend.hpp — the matmul pattern; instantiating it here
+// keeps the exported symbol the library always shipped.)
 template void outer<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
 template NDArray outer<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 
@@ -1051,15 +1049,8 @@ void conj_transpose(Array<T>& out, const Array<T>& a) {
     std::vector<T> sa;
     transpose_kernel<T>(D, contig(a, sa), r, c);
 }
-// Allocating front: the c×r adjoint as Array<T>.
-template <ndarray::Field T, template <typename> class Array>
-    requires NumericArray<Array<T>>
-[[nodiscard]] Array<T> conj_transpose(const Array<T>& a) {
-    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
-    Array<T> out = Array<T>::uninitialized({a.shape()[1], a.shape()[0]});
-    conj_transpose(out, a);
-    return out;
-}
+// (The allocating front is inline in backend.hpp — the matmul pattern; instantiating it here
+// keeps the exported symbol the library always shipped.)
 template void conj_transpose<Cplx, ndarray::basic_ndarray>(CNDArray&, const CNDArray&);
 template CNDArray conj_transpose<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 
@@ -1118,34 +1109,27 @@ void kron(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     std::vector<T> sa, sb;
     kron_kernel<T>(K, contig(a, sa), contig(b, sb), ar, ac, br, bc);
 }
-// Allocating front: the (ar·br)×(ac·bc) product as Array<T>.
-template <ndarray::Field T, template <typename> class Array>
-    requires NumericArray<Array<T>>
-[[nodiscard]] Array<T> kron(const Array<T>& a, const Array<T>& b) {
-    std::size_t ar, ac, br, bc;
-    kron_dims(a, b, ar, ac, br, bc);
-    Array<T> out = Array<T>::uninitialized({ar * br, ac * bc});
-    kron(out, a, b);
-    return out;
-}
+// (The allocating front is inline in backend.hpp — the matmul pattern; instantiating it here
+// keeps the exported symbol the library always shipped.)
 template void kron<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
 template NDArray kron<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 
-// Trace (sum of the diagonal) — two-layer over element T and (host) container Array; returns the
-// scalar T. Reads the diagonal straight from the buffer, no copy, even for a strided view.
+// Trace (sum of the diagonal) — the HOST scalar-out kernel of the backend.hpp reduction pattern
+// (the 2-D validation lives in the generic front there). Reads the diagonal straight from the
+// buffer, no copy, even for a strided view.
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
-T trace(const Array<T>& a) {
-    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+void trace(T& out, const Array<T>& a) {
     const std::size_t r = a.shape()[0], c = a.shape()[1];
     const T* base = a.buffer()->data();
     const std::ptrdiff_t off = static_cast<std::ptrdiff_t>(a.offset());
     const std::ptrdiff_t step = a.strides()[0] + a.strides()[1];  // (i,i) advances by s0+s1
     // Diagonal sum through the shared multi-accumulator reduction — the term is a strided read.
-    return ndarray::detail::reduce_lanes<T>(std::min(r, c), [base, off, step](std::size_t i) {
+    out = ndarray::detail::reduce_lanes<T>(std::min(r, c), [base, off, step](std::size_t i) {
         return base[static_cast<std::size_t>(off + static_cast<std::ptrdiff_t>(i) * step)];
     });
 }
+template void trace<double, ndarray::basic_ndarray>(double&, const NDArray&);
 template double trace<double, ndarray::basic_ndarray>(const NDArray&);
 
 double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same flat sum

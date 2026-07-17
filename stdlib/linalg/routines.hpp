@@ -59,135 +59,21 @@ using Cplx = std::complex<double>;
 using CNDArray = ndarray::basic_ndarray<Cplx>;
 
 // ---- Matrix and vector products ----
-/**
- * Dot product: 1-D inner product (vectors flattened) — the bilinear Σ aᵢbᵢ. ONE two-layer
- * template over the element `T` and (host) container `Array` serving both real and complex
- * (the former separate `NDArray` and `CNDArray` overloads). Flattens each operand to a vector
- * (1-D, or 2-D with a size-1 row/column) and throws if either is not vector-shaped or the
- * lengths differ. Both operands are `Array<T>` (the deduction firewall).
- * @tparam T the element type; @tparam Array the (host) container template.
- * @param a,b same-length vectors.
- * @return Σ aᵢbᵢ as the scalar `T`.
- * @complexity O(n).
- * @alloc none for contiguous operands (read in place); a non-contiguous view packs once O(n).
- * @test LinalgRoutines.ProductsAndTrace
- * @test LinalgRoutines.ComplexProducts
- * @crtest LinalgCompileRun.Dot
- * @crtest LinalgCompileRun.ComplexDot
- * @systest StdlibE2E.Linalg
- * @systest StdlibE2E.LinalgComplex
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-T dot(const Array<T>& a, const Array<T>& b);
-/**
- * Vector dot product. For a REAL element this is the bilinear Σ aᵢbᵢ (identical to @ref dot and
- * @ref inner); for a **complex** element it is the conjugate-linear Hermitian inner product
- * ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ (numpy's `vdot`, conjugating the first argument) — one two-layer template,
- * the conjugation chosen at compile time by `if constexpr`. `vdot(a, a)` is the real ‖a‖².
- * @tparam T the element type; @tparam Array the (host) container template.
- * @param a,b same-length vectors.
- * @return Σ aᵢbᵢ (real) or Σ conj(aᵢ)·bᵢ (complex), as the scalar `T`.
- * @complexity O(n).
- * @alloc none for contiguous operands; a non-contiguous view packs once O(n).
- * @test LinalgRoutines.VdotInnerOuterKron
- * @test LinalgRoutines.ComplexProducts
- * @crtest LinalgCompileRun.Vdot
- * @crtest LinalgCompileRun.ComplexVdot
- * @systest StdlibE2E.Linalg
- * @systest StdlibE2E.LinalgComplex
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-T vdot(const Array<T>& a, const Array<T>& b);
-/**
- * Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's `inner`; same as @ref dot for
- * flattened vectors). One two-layer template over the element and container.
- * @tparam T the element type; @tparam Array the (host) container template.
- * @param a,b same-length vectors.
- * @return Σ aᵢbᵢ as the scalar `T`.
- * @complexity O(n).
- * @alloc none for contiguous operands; a non-contiguous view packs once O(n).
- * @test LinalgRoutines.VdotInnerOuterKron
- * @crtest LinalgCompileRun.Inner
- * @systest StdlibE2E.Linalg
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-T inner(const Array<T>& a, const Array<T>& b);
-/**
- * Outer product of two vectors.
- *
- * Flattens both operands to vectors and forms the full rank-1 matrix; any pair
- * of vector lengths is accepted (no matching constraint).
- * @param a length-n vector.
- * @param b length-m vector.
- * @return n×m matrix aᵢbⱼ.
- * @complexity O(n·m).
- * @alloc allocates only the n×m result; operands read in place when contiguous.
- * @test LinalgRoutines.VdotInnerOuterKron
- * @crtest LinalgCompileRun.Outer
- * @systest StdlibE2E.Linalg
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires NumericArray<Array<T>>
-[[nodiscard]] Array<T> outer(const Array<T>& a, const Array<T>& b);
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Outer product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref outer, writing the rank-1 result straight into @p out with no allocation.
- * @param out destination; a contiguous n×m matrix, overwritten. Must NOT alias @p a or @p b.
- * @param a length-n vector.
- * @param b length-m vector.
- * @complexity O(n·m).
- * @alloc none for contiguous operands (result written straight into @p out); a
- *        non-contiguous operand is packed once into scratch.
- * @test LinalgRoutines.OuterIntoReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-void outer(Array<T>& out, const Array<T>& a, const Array<T>& b);
-/// @endcond
+// Dot / vdot / inner — the scalar reductions — live in backend.hpp as the scalar-out kernel
+// pattern: an allocating front `T dot(a, b)` plus a `void dot(out, a, b)` kernel split by the
+// HostArray/DeviceArray concepts (one pair serving real, complex, host, and — via a device
+// extension — device operands). Same for `trace`.
+// Outer — both the allocating front `outer(a,b)` and the out-parameter kernel `outer(out,a,b)`
+// are the two-layer overload pair in backend.hpp (the matmul pattern).
 // Matmul — both the allocating front `matmul(a,b)` and the out-parameter kernel `matmul(out,a,b)`
 // are the two-layer `template <Field T, template<typename> class Array>` overloads in backend.hpp
 // (one pair serving real, complex, host, and — via a device extension — device operands).
 
 // ---- complex products (complex inner-product spaces) ----
-// dot / vdot / inner for complex operands are the SAME two-layer templates above, instantiated at
-// T = std::complex<double>; vdot's conjugation is an `if constexpr` branch. No separate symbols.
-// Complex matmul (real and complex out-param are now the ONE `matmul<T>` template above; the
-// allocating complex path is the same generic `matmul` front in backend.hpp, instantiating the
-// complex element type — no separate complex matmul symbol).
-/**
- * Conjugate transpose (Hermitian adjoint) Aᴴ of a **complex** matrix: transpose,
- * then conjugate every entry. A matrix is Hermitian iff `conj_transpose(A) == A`.
- * @param a a 2-D complex matrix.
- * @return the c×r adjoint of an r×c input; throws on non-2-D input.
- * @complexity O(r·c).
- * @alloc allocates a new CNDArray result.
- * @test LinalgRoutines.ComplexProducts
- * @crtest LinalgCompileRun.ConjTranspose
- * @systest StdlibE2E.LinalgComplex
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires NumericArray<Array<T>>
-[[nodiscard]] Array<T> conj_transpose(const Array<T>& a);
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Conjugate transpose into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref conj_transpose, writing the c×r adjoint straight into @p out with no allocation.
- * @param out destination; a contiguous c×r complex matrix (for an r×c input), overwritten. Must
- *        NOT alias @p a (it reads A while writing the transpose — not an in-place op).
- * @param a a 2-D complex matrix.
- * @complexity O(r·c).
- * @alloc none for a contiguous operand (adjoint written straight into @p out); a
- *        non-contiguous operand is packed once into scratch.
- * @test LinalgRoutines.ConjTransposeIntoReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-void conj_transpose(Array<T>& out, const Array<T>& a);
-/// @endcond
+// dot / vdot / inner for complex operands are the SAME two-layer templates in backend.hpp,
+// instantiated at T = std::complex<double>; vdot's conjugation is an `if constexpr` branch. No
+// separate symbols. Complex matmul and conj_transpose are likewise the one generic template each
+// in backend.hpp, instantiating the complex element type — no separate complex symbols.
 /**
  * Integer matrix power Aⁿ (negative n via @ref inv).
  *
@@ -694,22 +580,9 @@ struct SLogDet {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 [[nodiscard]] SLogDet slogdet(const Array<T>& a);
-/**
- * Trace: sum of the main diagonal.
- *
- * Sums the diagonal entries up to min(rows, cols), so it also works on
- * non-square matrices; requires a 2-D input (throws otherwise).
- * @param a matrix.
- * @return Σ aᵢᵢ.
- * @complexity O(n) summation.
- * @alloc none — reads the diagonal straight from the buffer. Returns a double.
- * @test LinalgRoutines.ProductsAndTrace
- * @crtest LinalgCompileRun.Trace
- * @systest StdlibE2E.Linalg
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-T trace(const Array<T>& a);
+// Trace — the allocating front `trace(a)` and the scalar-out kernel `trace(out, a)` are the
+// backend.hpp reduction pattern (host kernel here in routines.cpp; a device extension adds its
+// own DeviceArray overload, found by ADL).
 
 // ---- Solving equations and inverting matrices ----
 /**
