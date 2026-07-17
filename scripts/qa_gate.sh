@@ -91,8 +91,9 @@ fi
 # immediately, so its failure surfaces within seconds instead of at the barrier.
 # The EXIT trap kills still-running lanes when the gate dies early, so a failed run
 # never leaves a stray coverage.sh mid-rewrite of README.md (or an orphan doxygen).
-PID_COV=""; PID_DOCS=""; PID_EXT=""; PID_CPPCHECK=""; PID_BENCHBUILD=""; PID_TSANBUILD=""; PID_EDITOR=""
+PID_COV=""; PID_COVFIN=""; PID_DOCS=""; PID_EXT=""; PID_CPPCHECK=""; PID_BENCHBUILD=""; PID_TSANBUILD=""; PID_EDITOR=""
 LOG_COV=/tmp/cheatah_coverage.log
+LOG_COVFIN=/tmp/cheatah_coverage_finish.log
 LOG_DOCS=/tmp/cheatah_docs.log
 LOG_EXT=/tmp/cheatah_ext_check.log
 LOG_CPPCHECK=/tmp/cheatah_cppcheck.log
@@ -127,7 +128,7 @@ bg_poll() {  # reap any lane that has already exited (fail fast); running lanes 
 
 cleanup() {
     local _pid
-    for _pid in "$PID_COV" "$PID_DOCS" "$PID_EXT" "$PID_CPPCHECK" "$PID_BENCHBUILD" "$PID_TSANBUILD" "$PID_EDITOR"; do
+    for _pid in "$PID_COV" "$PID_COVFIN" "$PID_DOCS" "$PID_EXT" "$PID_CPPCHECK" "$PID_BENCHBUILD" "$PID_TSANBUILD" "$PID_EDITOR"; do
         [ -n "$_pid" ] || continue
         kill -- "-$_pid" 2>/dev/null || kill "$_pid" 2>/dev/null
     done
@@ -194,12 +195,17 @@ lane_extension_check() {
 }
 
 # ---- launch the no-build-dependency lanes (t = 0) ---------------------------------
-# 1. Coverage: its OWN tree (build/cov) + the only README.md writer in the gate.
+# 1. Coverage PREPARE: its OWN tree (build/cov), instrumented build + the sharded UNIT
+#    run — no fixed network ports, safe to overlap anything. The TlsSys/WebSocketSys
+#    system loop (fixed ports 479xx + global pkill teardown) is the FINISH phase,
+#    launched only after Valgrind — the foreground's last TlsSys consumer — so two
+#    processes never fight over the same s_server port (that exact collision failed
+#    a TlsSys handshake when the whole stage ran as one overlapped lane).
 if [ "${QA_GATE_SKIP_COVERAGE:-0}" = "1" ]; then
     bold "Skipping coverage stage (QA_GATE_SKIP_COVERAGE=1)."
 else
-    bold "Measuring coverage + refreshing the README table (background lane)…"
-    bg_launch PID_COV "$LOG_COV" bash scripts/coverage.sh update-readme
+    bold "Coverage: instrumented build + sharded unit run (background lane)…"
+    bg_launch PID_COV "$LOG_COV" bash scripts/coverage.sh --phase=prepare
 fi
 # 1b. Documentation coverage (single strict doxygen parse; writes nothing).
 if [ "${QA_GATE_SKIP_DOCS:-0}" = "1" ]; then
@@ -323,23 +329,15 @@ fi
 bg_poll
 
 # ---- join barrier: every background lane must be green ----------------------------
-# 1. Coverage verdict (verbatim checks from the sequential gate, now at the join).
+# 1. Coverage: join the PREPARE lane, then start the FINISH phase (the fixed-port
+#    TlsSys/WebSocketSys loop + profile merge + README rewrite). Valgrind — the last
+#    foreground TlsSys consumer — is done, and everything still running from here on
+#    (barrier joins, editor refresh, the sharded smoke) uses no TLS fixture ports.
+#    Its verdict is checked right before the measured perf gate below.
 if [ "${QA_GATE_SKIP_COVERAGE:-0}" != "1" ]; then
-    bg_join PID_COV "$LOG_COV" "coverage report"
-    if ! git diff --quiet -- README.md; then
-        printf '\n[qa-gate] The README coverage table is out of date. Updated it to:\n\n'
-        git --no-pager diff -- README.md | sed -n '/coverage:start/,/coverage:end/p'
-        fail "README coverage table changed — 'git add README.md && git commit', then push again"
-    fi
-    cat "$LOG_COV"
-    # Hard gate: line + function coverage must be exactly 100%.
-    covnums=$(sed -n 's/.*lines [0-9.]*% (\([0-9]*\)\/\([0-9]*\)), functions [0-9.]*% (\([0-9]*\)\/\([0-9]*\)).*/\1 \2 \3 \4/p' "$LOG_COV")
-    [ -n "$covnums" ] || fail "could not parse the coverage summary (coverage.sh output changed?)"
-    read -r lcov_n lcov_d fcov_n fcov_d <<<"$covnums"
-    if [ "$lcov_n" != "$lcov_d" ] || [ "$fcov_n" != "$fcov_d" ]; then
-        fail "unit-test coverage below 100% — lines $lcov_n/$lcov_d, functions $fcov_n/$fcov_d (find gaps with: scripts/coverage.sh show <file>)"
-    fi
-    bold "Unit-test coverage: 100% lines ($lcov_n/$lcov_d) + functions ($fcov_n/$fcov_d)."
+    bg_join PID_COV "$LOG_COV" "coverage report (instrumented build + unit run)"
+    bold "Coverage: system-test loop + report (background lane)…"
+    bg_launch PID_COVFIN "$LOG_COVFIN" bash scripts/coverage.sh --phase=finish update-readme
 fi
 # 1b/1c/8b/7-prep joins (each prints its lane log tail + fails the gate on nonzero).
 bg_join PID_DOCS "$LOG_DOCS" "documentation coverage below 100% — document the entities listed above"
@@ -369,6 +367,25 @@ bash scripts/bench_smoke.sh || fail "benchmark run"
 if [ -n "$PID_EDITOR" ]; then
     _pid_editor="$PID_EDITOR"; PID_EDITOR=""
     wait "$_pid_editor" || printf '[qa-gate] editor refresh skipped/failed (non-fatal).\n'
+fi
+
+# 1 (verdict). Coverage finish + the verbatim checks from the sequential gate.
+if [ "${QA_GATE_SKIP_COVERAGE:-0}" != "1" ]; then
+    bg_join PID_COVFIN "$LOG_COVFIN" "coverage report"
+    if ! git diff --quiet -- README.md; then
+        printf '\n[qa-gate] The README coverage table is out of date. Updated it to:\n\n'
+        git --no-pager diff -- README.md | sed -n '/coverage:start/,/coverage:end/p'
+        fail "README coverage table changed — 'git add README.md && git commit', then push again"
+    fi
+    cat "$LOG_COVFIN"
+    # Hard gate: line + function coverage must be exactly 100%.
+    covnums=$(sed -n 's/.*lines [0-9.]*% (\([0-9]*\)\/\([0-9]*\)), functions [0-9.]*% (\([0-9]*\)\/\([0-9]*\)).*/\1 \2 \3 \4/p' "$LOG_COVFIN")
+    [ -n "$covnums" ] || fail "could not parse the coverage summary (coverage.sh output changed?)"
+    read -r lcov_n lcov_d fcov_n fcov_d <<<"$covnums"
+    if [ "$lcov_n" != "$lcov_d" ] || [ "$fcov_n" != "$fcov_d" ]; then
+        fail "unit-test coverage below 100% — lines $lcov_n/$lcov_d, functions $fcov_n/$fcov_d (find gaps with: scripts/coverage.sh show <file>)"
+    fi
+    bold "Unit-test coverage: 100% lines ($lcov_n/$lcov_d) + functions ($fcov_n/$fcov_d)."
 fi
 
 # 7b. Fixed-vs-GLM performance gate (hard gate) ------------------------------
