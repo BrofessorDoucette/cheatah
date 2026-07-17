@@ -111,21 +111,32 @@ private:
 
     StmtPtr parse_stmt_inner() {
         if (check(TokenKind::CppBlock)) return std::make_unique<RawCpp>(advance().text);
-        if (check_kw("import")) return parse_import();
-        if (check_kw("interface")) return parse_interface();
-        if (check_kw("enum")) return parse_enum();
-        if (check_kw("struct")) return parse_struct();
-        if (check_kw("fn")) return parse_fn();
-        if (check_kw("let")) return parse_let();
-        if (check_kw("if")) return parse_if();
-        if (check_kw("while")) return parse_while();
-        if (check_kw("for")) return parse_for();
-        if (check_kw("with")) return parse_with();
-        if (check_kw("return")) return parse_return();
-        if (check_kw("try")) return parse_try();
-        if (check_kw("raise")) return parse_raise();
-        if (check_kw("break")) { advance(); return std::make_unique<Break>(); }
-        if (check_kw("continue")) { advance(); return std::make_unique<Continue>(); }
+        // All keyword-led statements share one `kind == Keyword` guard, so a non-keyword
+        // statement (the common case — assignments/expressions) pays a single kind check
+        // instead of re-reading the token and re-testing the kind once per candidate. The
+        // dispatch order and the branch each keyword takes are unchanged. `match` lives here
+        // too; the contextual `constexpr <stmt>` forms below start with an IDENTIFIER, so they
+        // are never reached from inside this block (kind != Keyword) — behaviour is identical.
+        if (check(TokenKind::Keyword)) {
+            const std::string_view kw = peek().text;
+            if (kw == "import") return parse_import();
+            if (kw == "interface") return parse_interface();
+            if (kw == "enum") return parse_enum();
+            if (kw == "struct") return parse_struct();
+            if (kw == "fn") return parse_fn();
+            if (kw == "let") return parse_let();
+            if (kw == "if") return parse_if();
+            if (kw == "while") return parse_while();
+            if (kw == "for") return parse_for();
+            if (kw == "with") return parse_with();
+            if (kw == "return") return parse_return();
+            if (kw == "try") return parse_try();
+            if (kw == "raise") return parse_raise();
+            if (kw == "break") { advance(); return std::make_unique<Break>(); }
+            if (kw == "continue") { advance(); return std::make_unique<Continue>(); }
+            if (kw == "match") return parse_match(false);
+            // Any other keyword (and/or/not/in/…) is not a statement head — fall through.
+        }
         // `constexpr let …` / `constexpr match …` — the contextual `constexpr` modifier
         // (an identifier, not a keyword) only when immediately followed by the statement it
         // qualifies, so the word stays free for ordinary use elsewhere.
