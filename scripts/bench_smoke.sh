@@ -28,7 +28,9 @@ JOBS="${BENCH_SMOKE_JOBS:-$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)
 
 # The full expanded case list — computed live, never hard-coded, so new benchmarks
 # are automatically covered and a registration regression (fewer cases) is visible.
-mapfile -t ALL < <("$BIN" --benchmark_list_tests)
+# (read-loop, not mapfile: macOS stock bash is 3.2 and the gate runs there too.)
+ALL=()
+while IFS= read -r _name; do ALL+=("$_name"); done < <("$BIN" --benchmark_list_tests)
 total=${#ALL[@]}
 [ "$total" -gt 0 ] || { echo "[bench-smoke] no benchmark cases listed"; exit 1; }
 shards=$(( JOBS < total ? JOBS : total ))

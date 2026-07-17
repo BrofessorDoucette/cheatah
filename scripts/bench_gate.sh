@@ -65,22 +65,34 @@ BENCH_GATE_JOBS="${BENCH_GATE_JOBS:-8}"
 esc() { printf '%s' "$1" | sed 's/[][\.|$(){}?+*^\\]/\\&/g'; }
 
 bold "measuring the fixed/glm pairs (pass 1 across ${BENCH_GATE_JOBS} shards)…"
-mapfile -t PAIR_NAMES < <("$BIN" --benchmark_list_tests | grep -E '_(fixed|glm)$')
+# Names in this subset never contain whitespace (PAIR-macro generated, BM_<op>_<type>_<side>);
+# if a future one did, the read below would mis-split and the completeness check fails loudly.
+PAIR_NAMES=()
+while IFS= read -r _n; do PAIR_NAMES+=("$_n"); done < <("$BIN" --benchmark_list_tests | grep -E '_(fixed|glm)$')
 [ "${#PAIR_NAMES[@]}" -gt 0 ] || fail "no fixed/glm benchmark cases listed"
 
-# Group names into pair units (strip the side suffix -> unit key), preserving list order.
-declare -A UNIT_FILTER; declare -a UNIT_KEYS=()
-for n in "${PAIR_NAMES[@]}"; do
-    k="${n%_fixed}"; k="${k%_glm}"
-    [ -n "${UNIT_FILTER[$k]:-}" ] || UNIT_KEYS+=("$k")
-    UNIT_FILTER[$k]+="${UNIT_FILTER[$k]:+|}$(esc "$n")"
-done
-shards=$(( BENCH_GATE_JOBS < ${#UNIT_KEYS[@]} ? BENCH_GATE_JOBS : ${#UNIT_KEYS[@]} ))
-declare -a SHARD_FILTER
+# Group names into pair units: key = name minus its _fixed/_glm suffix. A stable sort by key
+# makes a pair's two sides ADJACENT (fixed before glm, registration order preserved within a
+# key), so one walk builds each unit's alternation. Plain indexed arrays only — macOS stock
+# bash is 3.2 (no associative arrays) and the gate runs there too.
+UNIT_FILTERS=(); _prev_key=""
+while read -r _k _n; do
+    _e=$(esc "$_n")
+    if [ "$_k" = "$_prev_key" ]; then
+        _last=$(( ${#UNIT_FILTERS[@]} - 1 ))
+        UNIT_FILTERS[_last]="${UNIT_FILTERS[_last]}|$_e"
+    else
+        UNIT_FILTERS+=("$_e"); _prev_key="$_k"
+    fi
+done < <(for _n in "${PAIR_NAMES[@]}"; do
+             _k="${_n%_fixed}"; _k="${_k%_glm}"; printf '%s %s\n' "$_k" "$_n"
+         done | sort -s -k1,1)
+shards=$(( BENCH_GATE_JOBS < ${#UNIT_FILTERS[@]} ? BENCH_GATE_JOBS : ${#UNIT_FILTERS[@]} ))
+SHARD_FILTER=()
 for ((i = 0; i < shards; i++)); do SHARD_FILTER[i]=""; done
-for i in "${!UNIT_KEYS[@]}"; do
+for ((i = 0; i < ${#UNIT_FILTERS[@]}; i++)); do
     s=$((i % shards))
-    SHARD_FILTER[s]+="${SHARD_FILTER[s]:+|}${UNIT_FILTER[${UNIT_KEYS[$i]}]}"
+    SHARD_FILTER[s]="${SHARD_FILTER[s]}${SHARD_FILTER[s]:+|}${UNIT_FILTERS[i]}"
 done
 
 pass1_pids=()
