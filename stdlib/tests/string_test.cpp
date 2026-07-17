@@ -30,6 +30,11 @@ TEST(CheatahString, SearchAndTest) {
     EXPECT_EQ(str::find("meow meow", "meow"), 0);
     EXPECT_EQ(str::rfind("meow meow", "meow"), 5);
     EXPECT_EQ(str::find("meow", "z"), -1);
+    // 3-arg find(s, sub, start): search from an offset without slicing (O(n) repeated scans).
+    EXPECT_EQ(str::find("meow meow", "meow", 1), 5);   // skips the match at 0
+    EXPECT_EQ(str::find("meow meow", "meow", 6), -1);  // no match at/after 6
+    EXPECT_EQ(str::find("meow", "m", -3), 0);          // negative start clamps to 0
+    EXPECT_EQ(str::find("meow", "m", 99), -1);         // start past end -> not found
     EXPECT_EQ(str::count("meow meow meow", "meow"), 3);
 }
 

@@ -353,11 +353,16 @@ fn dechunk(raw, r: Response) {
     let body = ""
     let pos = 0
     while true {
-        let line_end = string.find(raw[pos:], "\r\n")
-        if line_end < 0 {
+        # Search from `pos` WITHOUT slicing raw[pos:] each iteration — the slice copies the
+        # entire remaining body, making a many-tiny-chunks response O(n²) CPU (a remote DoS).
+        # find(raw, "\r\n", pos) returns an absolute index; line_end stays relative to pos so
+        # the rest of the loop is unchanged.
+        let crlf = string.find(raw, "\r\n", pos)
+        if crlf < 0 {
             r.error = "connection closed inside chunked body"
             return ""
         }
+        let line_end = crlf - pos
         let size_token = raw[pos:pos + line_end]
         let semi = string.find(size_token, ";")
         if semi >= 0 {
@@ -469,14 +474,19 @@ fn parse_response(raw, r: Response, method, limit) {
         r.reason = string.strip(head_block[space + 5:line_end])
     }
 
-    # header lines -> r.headers (lowercased names, stripped values); Set-Cookie -> r.cookies
-    let rest = head_block[line_end + 2:]
-    while len(rest) > 0 {
-        let eol = string.find(rest, "\r\n")
+    # header lines -> r.headers (lowercased names, stripped values); Set-Cookie -> r.cookies.
+    # Walk an absolute offset into head_block instead of re-slicing the tail each line — the old
+    # `rest = rest[eol+2:]` copied the whole remaining header block per line, so a response with
+    # many tiny header lines was O(n²) CPU (a remote DoS). Per-line slices stay (bounded by one
+    # line's length); only the quadratic tail-copy is removed.
+    let hend = len(head_block)
+    let hpos = line_end + 2
+    while hpos < hend {
+        let eol = string.find(head_block, "\r\n", hpos)
         if eol < 0 {
-            eol = len(rest)
+            eol = hend
         }
-        let line = rest[:eol]
+        let line = head_block[hpos:eol]
         let colon = string.find(line, ":")
         if colon > 0 {
             let name = string.lower(string.strip(line[:colon]))
@@ -494,10 +504,10 @@ fn parse_response(raw, r: Response, method, limit) {
                 }
             }
         }
-        if eol == len(rest) {
+        if eol == hend {
             break
         }
-        rest = rest[eol + 2:]
+        hpos = eol + 2
     }
 
     if method == "HEAD" {

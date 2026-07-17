@@ -468,11 +468,12 @@ auto dechunk(builtins::Value auto&& raw, builtins::Value auto&& r) {
     auto body = std::string("");
     auto pos = 0LL;
     while (true) {
-        auto line_end = string::find(builtins::slice(raw, pos, builtins::slice_end), std::string("\r\n"));
-        if ((line_end < 0LL)) {
+        auto crlf = string::find(raw, std::string("\r\n"), pos);
+        if ((crlf < 0LL)) {
             r.error = std::string("connection closed inside chunked body");
             return std::string("");
         }
+        auto line_end = (crlf - pos);
         auto size_token = builtins::slice(raw, pos, (pos + line_end));
         auto semi = string::find(size_token, std::string(";"));
         if ((semi >= 0LL)) {
@@ -586,13 +587,14 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builti
     if (((space + 5LL) <= line_end)) {
         r.reason = string::strip(builtins::slice(head_block, (space + 5LL), line_end));
     }
-    auto rest = builtins::slice(head_block, (line_end + 2LL), builtins::slice_end);
-    while ((builtins::len(rest) > 0LL)) {
-        auto eol = string::find(rest, std::string("\r\n"));
+    auto hend = builtins::len(head_block);
+    auto hpos = (line_end + 2LL);
+    while ((hpos < hend)) {
+        auto eol = string::find(head_block, std::string("\r\n"), hpos);
         if ((eol < 0LL)) {
-            eol = builtins::len(rest);
+            eol = hend;
         }
-        auto line = builtins::slice(rest, 0LL, eol);
+        auto line = builtins::slice(head_block, hpos, eol);
         auto colon = string::find(line, std::string(":"));
         if ((colon > 0LL)) {
             auto name = string::lower(string::strip(builtins::slice(line, 0LL, colon)));
@@ -610,10 +612,10 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builti
                 }
             }
         }
-        if ((eol == builtins::len(rest))) {
+        if ((eol == hend)) {
             break;
         }
-        rest = builtins::slice(rest, (eol + 2LL), builtins::slice_end);
+        hpos = (eol + 2LL);
     }
     if ((method == std::string("HEAD"))) {
         r.body = std::string("");

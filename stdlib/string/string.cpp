@@ -75,6 +75,13 @@ long find(std::string_view s, std::string_view sub) {
     const auto p = s.find(sub);
     return p == std::string_view::npos ? -1 : static_cast<long>(p);
 }
+
+long find(std::string_view s, std::string_view sub, long start) {
+    if (start < 0) start = 0;
+    if (static_cast<std::size_t>(start) > s.size()) return -1;
+    const auto p = s.find(sub, static_cast<std::size_t>(start));
+    return p == std::string_view::npos ? -1 : static_cast<long>(p);
+}
 long rfind(std::string_view s, std::string_view sub) {
     const auto p = s.rfind(sub);
     return p == std::string_view::npos ? -1 : static_cast<long>(p);

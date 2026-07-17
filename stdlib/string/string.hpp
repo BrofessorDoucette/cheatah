@@ -224,6 +224,24 @@ inline bool contains(std::string_view s, char c) { return s.find(c) != std::stri
  */
 long find(std::string_view s, std::string_view sub);
 /**
+ * First index of @p sub at or after @p start.
+ *
+ * Like @ref find but begins the search at byte offset @p start (matching Python's
+ * `str.find(sub, start)`): a negative @p start is treated as 0, and a @p start past the
+ * end returns -1. Lets a caller scan a large buffer for successive matches WITHOUT slicing
+ * the tail each step — turning an otherwise O(n²) repeated-search loop into O(n).
+ * @param s input.
+ * @param sub needle.
+ * @param start byte offset to begin searching from.
+ * @return index (absolute, into @p s), or -1.
+ * @complexity O(n·m).
+ * @alloc none.
+ * @test CheatahString.SearchAndTest
+ * @crtest StringCompileRun.Find
+ * @systest StdlibE2E.String
+ */
+long find(std::string_view s, std::string_view sub, long start);
+/**
  * Last index of @p sub.
  *
  * Returns the 0-based byte index of the last (rightmost) case-sensitive match,
