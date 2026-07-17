@@ -18,35 +18,77 @@
 #   scripts/coverage.sh show <file>   # uncovered lines of one file, e.g. stdlib/linalg/routines.cpp
 #   scripts/coverage.sh funcs <file>  # per-function coverage of one file
 #   scripts/coverage.sh update-readme # rewrite the coverage table in README.md
+#
+# Phases (for the QA gate's background lane; default is both, so the CLI is unchanged):
+#   --phase=prepare   configure + build the instrumented tree and run the UNIT tests
+#                     (sharded across COV_JOBS cores, one profraw per shard). Uses no
+#                     fixed network ports, so it may overlap anything.
+#   --phase=finish    run the TlsSys/WebSocketSys system loop (fixed ports 479xx +
+#                     a global pkill teardown — must NEVER overlap another process
+#                     running those same suites), merge all profraw, then dispatch
+#                     the mode argument. The gate sequences this after Valgrind,
+#                     the foreground's last TLS consumer.
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
+
+PHASE="all"
+case "${1:-}" in
+    --phase=prepare) PHASE="prepare"; shift ;;
+    --phase=finish)  PHASE="finish";  shift ;;
+esac
 
 # The subset of cheatah_purrc_tests that runs a module's C++ API in this process (so its
 # lines land in the coverage profile). Add future in-process system suites here.
 SYS_COVERAGE_FILTER="${SYS_COVERAGE_FILTER:-TlsSys.*:WebSocketSys.*}"
 
 B=build/cov
-cmake -S . -B "$B" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCHEATAH_BUILD_TESTS=ON \
-  -DCMAKE_CXX_FLAGS="-fprofile-instr-generate -fcoverage-mapping" \
-  -DCMAKE_EXE_LINKER_FLAGS="-fprofile-instr-generate -fcoverage-mapping" >/tmp/cheatah_cov_cfg.log 2>&1 \
-  || { tail -15 /tmp/cheatah_cov_cfg.log; exit 1; }
-cmake --build "$B" --target cheatah_tests cheatah_purrc_tests >/tmp/cheatah_cov_build.log 2>&1 \
-  || { tail -25 /tmp/cheatah_cov_build.log; exit 1; }
 
-# The WebSocketSys.* system tests (part of $SYS_COVERAGE_FILTER) need a real Node `ws` echo
-# server as their peer — install it (lockfile-pinned) if it isn't present yet.
-if [ ! -d tests/fixtures/node_modules/ws ] && command -v npm >/dev/null 2>&1; then
-  ( cd tests/fixtures && (npm ci >/dev/null 2>&1 || npm install >/dev/null 2>&1) ) || true
+if [ "$PHASE" != "finish" ]; then
+  cmake -S . -B "$B" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCHEATAH_BUILD_TESTS=ON \
+    -DCMAKE_CXX_FLAGS="-fprofile-instr-generate -fcoverage-mapping" \
+    -DCMAKE_EXE_LINKER_FLAGS="-fprofile-instr-generate -fcoverage-mapping" >/tmp/cheatah_cov_cfg.log 2>&1 \
+    || { tail -15 /tmp/cheatah_cov_cfg.log; exit 1; }
+  cmake --build "$B" --target cheatah_tests cheatah_purrc_tests >/tmp/cheatah_cov_build.log 2>&1 \
+    || { tail -25 /tmp/cheatah_cov_build.log; exit 1; }
+
+  # The WebSocketSys.* system tests (part of $SYS_COVERAGE_FILTER) need a real Node `ws` echo
+  # server as their peer — install it (lockfile-pinned) if it isn't present yet.
+  if [ ! -d tests/fixtures/node_modules/ws ] && command -v npm >/dev/null 2>&1; then
+    ( cd tests/fixtures && (npm ci >/dev/null 2>&1 || npm install >/dev/null 2>&1) ) || true
+  fi
+
+  ( cd "$B"
+    rm -f ./*.profraw
+    # Shard the unit run across cores; coverage is a UNION of executions, so merging one
+    # profraw per shard yields the identical report to one serial run (gtest shards form a
+    # disjoint, complete partition of the suite — the same mechanism run-valgrind.sh uses).
+    CJOBS="${COV_JOBS:-$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)}"
+    _ctotal=$(./bin/cheatah_tests --gtest_list_tests 2>/dev/null | grep -E '^  [^ ]' | grep -cv 'DISABLED_')
+    _cshards=$(( CJOBS < _ctotal ? CJOBS : _ctotal )); [ "$_cshards" -ge 1 ] || _cshards=1
+    _cpids=()
+    for ((_ci = 0; _ci < _cshards; _ci++)); do
+      GTEST_TOTAL_SHARDS="$_cshards" GTEST_SHARD_INDEX="$_ci" LLVM_PROFILE_FILE="unit-$_ci.profraw" \
+        ./bin/cheatah_tests >/dev/null 2>&1 &
+      _cpids+=($!)
+    done
+    for _p in "${_cpids[@]}"; do wait "$_p" || true; done   # pass/fail is gated elsewhere, as before
+  )
+fi
+
+if [ "$PHASE" = "prepare" ]; then
+  exit 0
 fi
 
 ( cd "$B"
-  rm -f ./*.profraw
-  LLVM_PROFILE_FILE=unit.profraw ./bin/cheatah_tests >/dev/null 2>&1
   # The in-process system tests each spawn helper server processes (openssl s_server, a Node
-  # `ws` server). Run EACH such test in its OWN cheatah_purrc_tests process (one server at a
-  # time) — spawning many back-to-back in a single process is fragile on constrained hosts.
+  # `ws` server) on FIXED ports with a global pkill teardown. Run EACH such test in its OWN
+  # cheatah_purrc_tests process (one server at a time) — spawning many back-to-back in a single
+  # process is fragile on constrained hosts, and this loop must never overlap another process
+  # running the same suites (the QA gate sequences it after its last TlsSys consumer).
   # Each run writes its own profraw; test PASS/FAIL is gated elsewhere, so ignore exit status.
-  mapfile -t _systests < <(./bin/cheatah_purrc_tests --gtest_filter="$SYS_COVERAGE_FILTER" \
+  _systests=()
+  while IFS= read -r _line; do _systests+=("$_line"); done < <(
+      ./bin/cheatah_purrc_tests --gtest_filter="$SYS_COVERAGE_FILTER" \
       --gtest_list_tests 2>/dev/null | awk '/\.$/{s=$1} /^  /{gsub(/ /,"");print s $0}')
   _i=0
   for _t in "${_systests[@]}"; do
@@ -54,7 +96,7 @@ fi
       >/dev/null 2>&1 || true
     _i=$((_i + 1))
   done
-  llvm-profdata merge -sparse unit.profraw sys-*.profraw -o merged.profdata )
+  llvm-profdata merge -sparse unit-*.profraw sys-*.profraw -o merged.profdata )
 
 OBJS=(./"$B"/bin/cheatah_tests -object ./"$B"/bin/cheatah_purrc_tests)
 PROF="-instr-profile=$B/merged.profdata"
