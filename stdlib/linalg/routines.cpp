@@ -1069,6 +1069,8 @@ void conj_transpose(Array<T>& out, const Array<T>& a) {
 // keeps the exported symbol the library always shipped.)
 template void conj_transpose<Cplx, ndarray::basic_ndarray>(CNDArray&, const CNDArray&);
 template CNDArray conj_transpose<Cplx, ndarray::basic_ndarray>(const CNDArray&);
+template void conj_transpose<double, ndarray::basic_ndarray>(NDArray&, const NDArray&);
+template NDArray conj_transpose<double, ndarray::basic_ndarray>(const NDArray&);
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
