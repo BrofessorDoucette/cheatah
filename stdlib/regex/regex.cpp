@@ -1,5 +1,6 @@
 // Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+#include <stdexcept>
 #include "regex.hpp"
 
 #include <algorithm>
@@ -36,11 +37,19 @@ void negate(std::uint64_t cls[4]) { for (int i = 0; i < 4; ++i) cls[i] = ~cls[i]
 struct Hole { int inst; int field; };          // a dangling exit: (instruction, 0=x|1=y)
 struct Frag { int start; std::vector<Hole> holes; };
 
+// Maximum group-nesting depth accepted by the recursive-descent parser. `(((…` recurses one
+// parse_atom→parse_alt cycle per '(', so an unbounded pattern would overflow the C++ stack before
+// it could even report "unbalanced '('". 1000 is far beyond any real pattern. Patterns are
+// developer-supplied today, but a program that compiles a regex from untrusted text (e.g. a
+// user-supplied filter) would otherwise crash on a crafted pattern.
+inline constexpr int kMaxParseDepth = 1000;
+
 struct Compiler {
     std::string_view src;
     std::size_t i = 0;
     std::vector<Inst> prog;
     std::string err;
+    int depth = 0;  // current group-nesting recursion depth (see kMaxParseDepth)
 
     bool eof() const { return i >= src.size(); }
     char peek() const { return i < src.size() ? src[i] : '\0'; }
@@ -131,7 +140,9 @@ struct Compiler {
         char c = peek();
         if (c == '(') {
             get();
+            if (++depth > kMaxParseDepth) { err = "pattern nested too deeply"; return {}; }
             Frag inner = parse_alt();
+            --depth;
             if (peek() != ')') { err = "unbalanced '('"; return inner; }
             get();
             return inner;
@@ -213,22 +224,43 @@ struct Dfa {
     /// Add the epsilon-closure of @p pc to @p out. @param pc start program counter.
     /// @param out accumulates the reachable Byte/Match pcs. @param seen per-pc visited flags.
     void add_closure(int pc, std::vector<int>& out, std::vector<char>& seen) const {
-        if (pc < 0 || seen[pc]) return;
-        seen[pc] = 1;
-        const Inst& in = prog[pc];
-        if (in.op == Inst::Jmp) add_closure(in.x, out, seen);
-        else if (in.op == Inst::Split) { add_closure(in.x, out, seen); add_closure(in.y, out, seen); }
-        else out.push_back(pc);  // Byte or Match — a real state
+        // Iterative worklist rather than recursion: a long epsilon chain (`a?`×N, nested
+        // alternations) makes the closure O(pattern length) deep, which as recursion overflowed the
+        // C++ stack on a valid pattern. The membership set `out` is sorted+de-duplicated by the
+        // caller (intern_state) and only its CONTENTS matter (state identity, accept flag, first-byte
+        // OR), so the visitation order here is irrelevant — an explicit stack is equivalent.
+        std::vector<int> work;
+        work.push_back(pc);
+        while (!work.empty()) {
+            const int p = work.back();
+            work.pop_back();
+            if (p < 0 || seen[p]) continue;
+            seen[p] = 1;
+            const Inst& in = prog[p];
+            if (in.op == Inst::Jmp) work.push_back(in.x);
+            else if (in.op == Inst::Split) { work.push_back(in.x); work.push_back(in.y); }
+            else out.push_back(p);  // Byte or Match — a real state
+        }
     }
 
     /// Intern a pc @p set into a canonical DFA state (creating it if new).
     /// @param set the pc set for the state. @return the state id.
+    /// Hard ceiling on distinct lazy-DFA states. Subset construction can in theory create up to
+    /// 2^(NFA states) DFA states — a ~30-`.` pattern is enough — each costing a 256-int transition
+    /// row (~1 KiB), so an uncapped cache is a memory-exhaustion DoS on a crafted pattern (RE2, the
+    /// model, bounds its cache and falls back). Matching TIME stays linear; this bounds only MEMORY.
+    /// 100k states (~100 MiB ceiling) is orders of magnitude beyond any real pattern; exceeding it
+    /// throws rather than OOMs, so a caller can catch a pathological pattern.
+    static constexpr std::size_t kMaxStates = 100000;
+
     int intern_state(std::vector<int> set) {
         std::sort(set.begin(), set.end());
         set.erase(std::unique(set.begin(), set.end()), set.end());
         std::string key(reinterpret_cast<const char*>(set.data()), set.size() * sizeof(int));
         auto it = intern.find(key);
         if (it != intern.end()) return it->second;
+        if (pcs.size() >= kMaxStates)
+            throw std::runtime_error("regex: DFA state budget exceeded (pathological pattern)");
         int id = static_cast<int>(pcs.size());
         bool acc = false;
         for (int pc : set) if (prog[pc].op == Inst::Match) acc = true;
