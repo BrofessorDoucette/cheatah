@@ -570,13 +570,29 @@ bool all_modules_resolved(const std::vector<std::string>& modules, const std::st
     return ok;
 }
 
+// A `// cheatah-link:` token is spliced into the consumer's C++ compile+link command (see the
+// callers), which the driver runs — so it must be a genuine LINKER INPUT, never a general compiler
+// flag. Allowing anything through would be arbitrary code execution on the consumer's BUILD HOST:
+// `-fplugin=/tmp/evil.so`, `-specs=/tmp/evil`, `@/tmp/response`, `-B/attacker/dir`, or `-Wl,…` each
+// run or load attacker code at build time. Harmless under today's single-trust import path, but a
+// supply-chain hole the moment biome feeds purrc third-party module headers — and signing
+// authenticates the author, it does not constrain the flags a compromised-but-trusted dep injects.
+// So allow ONLY: `-l<lib>` (link a library), `-L<dir>` (library search path), and the well-known
+// `-pthread` driver flag (used by the memory/thread modules). Everything else is dropped.
+bool is_safe_link_flag(const std::string& t) {
+    if (t == "-pthread") return true;
+    if (t.rfind("-l", 0) == 0 && t.size() > 2) return true;  // -lcurl, -lvulkan, -lpthread
+    if (t.rfind("-L", 0) == 0 && t.size() > 2) return true;  // -L<dir>
+    return false;
+}
+
 // External link flags a module's header declares via a `// cheatah-link:` marker (scanned
 // from the first few lines, like `// cheatah-deps:`). A module whose hidden definitions
 // call into a native library it STATICALLY BUNDLES into its own archive still needs the
 // final link to pull in that library's own system dependencies (e.g. a module bundling an
-// HTTP client adds `-lcurl`; one spawning threads adds `-lpthread`). Each whitespace-
-// separated token is appended verbatim to the consumer's link command. Returns the tokens
-// in header order ("" never produced). Empty for the vast majority of modules.
+// HTTP client adds `-lcurl`; one spawning threads adds `-lpthread`). Each whitespace-separated
+// token is validated against is_safe_link_flag and appended in header order; an unsafe token is
+// DROPPED with a warning (so it can never reach the backend). Empty for the vast majority of modules.
 std::vector<std::string> module_link_flags(const std::string& header_path) {
     std::vector<std::string> flags;
     std::ifstream hdr(header_path);
@@ -586,7 +602,14 @@ std::vector<std::string> module_link_flags(const std::string& header_path) {
         if (line.compare(0, tag.size(), tag) != 0) continue;
         std::istringstream toks(line.substr(tag.size()));
         std::string t;
-        while (toks >> t) flags.push_back(t);
+        while (toks >> t) {
+            if (is_safe_link_flag(t)) {
+                flags.push_back(t);
+            } else {
+                std::cerr << "purrc: ignoring unsafe cheatah-link flag '" << t << "' in " << header_path
+                          << " (only -l/-L/-pthread are honored)\n";
+            }
+        }
         break;
     }
     return flags;

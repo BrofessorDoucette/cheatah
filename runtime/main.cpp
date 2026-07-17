@@ -162,9 +162,24 @@ int main(int argc, char** argv) {
     using cheatah::integrity::Policy;
 
     // Integrity policy defaults from the environment; leading flags override it.
-    Policy policy = truthy(env_or_empty("CHEATAH_VERIFY")) ? Policy::Strict : Policy::Off;
+    // env_strict = strict verification was enforced by the ENVIRONMENT (not argv). Under it, an
+    // argv-prepending wrapper must not be able to substitute the trust anchor with `--trust
+    // /tmp/evil.pub` (sign malware with the matching key, and it verifies as trusted): that is the
+    // same class of downgrade the no-`--verify=off` design already forbids. So argv trust overrides
+    // are rejected when strict came from the environment — configure trust via CHEATAH_TRUST instead.
+    const bool env_strict = truthy(env_or_empty("CHEATAH_VERIFY"));
+    Policy policy = env_strict ? Policy::Strict : Policy::Off;
     std::string trust_path = default_trust_path("CHEATAH_TRUST", "trusted.pub");
     std::string rt_trust_path = default_trust_path("CHEATAH_RT_TRUST", "trusted-runtime.pub");
+    auto reject_argv_trust = [&](const char* flag) -> bool {
+        if (env_strict) {
+            std::cerr << "cheatah: refusing " << flag << " under environment-enforced CHEATAH_VERIFY "
+                         "(the trust anchor is fixed by the environment; an argv override could "
+                         "substitute it). Set CHEATAH_TRUST in the environment instead.\n";
+            return true;
+        }
+        return false;
+    };
 
     // Parse leading options (before the program), so [args...] after the program still
     // forward verbatim to sys.argv.
@@ -184,13 +199,17 @@ int main(int argc, char** argv) {
                                       // verification OFF, so a strict deployment (env or
                                       // wrapper) cannot be silently downgraded by argv.
         } else if (a.rfind("--trust=", 0) == 0) {
+            if (reject_argv_trust("--trust")) return 2;
             trust_path = a.substr(8);
         } else if (a == "--trust") {
+            if (reject_argv_trust("--trust")) return 2;
             if (i + 1 >= argc) { std::cerr << "cheatah: --trust needs a file path\n"; return 2; }
             trust_path = argv[++i];
         } else if (a.rfind("--trust-runtime=", 0) == 0) {
+            if (reject_argv_trust("--trust-runtime")) return 2;
             rt_trust_path = a.substr(16);
         } else if (a == "--trust-runtime") {
+            if (reject_argv_trust("--trust-runtime")) return 2;
             if (i + 1 >= argc) { std::cerr << "cheatah: --trust-runtime needs a file path\n"; return 2; }
             rt_trust_path = argv[++i];
         } else if (!a.empty() && a[0] == '-' && a != "-") {
