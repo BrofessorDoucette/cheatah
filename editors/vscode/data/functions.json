@@ -2586,7 +2586,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 275,
+      "srcline": 161,
       "module": "linalg",
       "qualified": "linalg.cholesky"
     },
@@ -2609,30 +2609,30 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 638,
+      "srcline": 524,
       "module": "linalg",
       "qualified": "linalg.cond"
     },
     {
       "name": "conj_transpose",
       "signature": "conj_transpose(const Array< T > &a)",
-      "brief": "Conjugate transpose (Hermitian adjoint) Aᴴ of a complex matrix: transpose, then conjugate every entry.",
+      "brief": "Conjugate transpose (Hermitian adjoint) Aᴴ: transpose, then conjugate every entry (a plain transpose for a real element — the conjugation is compiled out).",
       "params": [
         {
           "name": "a",
-          "desc": "a 2-D complex matrix."
+          "desc": "a 2-D matrix."
         }
       ],
       "returns": "the c×r adjoint of an r×c input; throws on non-2-D input.",
       "tags": {
         "complexity": "O(r·c).",
-        "alloc": "allocates a new CNDArray result.",
+        "alloc": "allocates only the c×r result.",
         "test": "LinalgRoutines.ComplexProducts",
         "crtest": "LinalgCompileRun.ConjTranspose",
         "systest": "StdlibE2E.LinalgComplex"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 174,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 329,
       "module": "linalg",
       "qualified": "linalg.conj_transpose"
     },
@@ -2655,7 +2655,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 655,
+      "srcline": 541,
       "module": "linalg",
       "qualified": "linalg.det"
     },
@@ -2681,8 +2681,8 @@
         "crtest": "LinalgCompileRun.Dot LinalgCompileRun.ComplexDot",
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 82,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 164,
       "module": "linalg",
       "qualified": "linalg.dot"
     },
@@ -2705,7 +2705,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 456,
+      "srcline": 342,
       "module": "linalg",
       "qualified": "linalg.eig"
     },
@@ -2728,7 +2728,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 523,
+      "srcline": 409,
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
@@ -2751,7 +2751,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 489,
+      "srcline": 375,
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
@@ -2774,7 +2774,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 560,
+      "srcline": 446,
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
@@ -2800,8 +2800,8 @@
         "crtest": "LinalgCompileRun.Inner",
         "systest": "StdlibE2E.Linalg"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 117,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 213,
       "module": "linalg",
       "qualified": "linalg.inner"
     },
@@ -2824,7 +2824,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 795,
+      "srcline": 668,
       "module": "linalg",
       "qualified": "linalg.inv"
     },
@@ -2840,18 +2840,26 @@
         {
           "name": "b",
           "desc": "p×q matrix."
+        },
+        {
+          "name": "a",
+          "desc": "m×k matrix."
+        },
+        {
+          "name": "b",
+          "desc": "p×q matrix."
         }
       ],
       "returns": "(m·p)×(k·q) block product.",
       "tags": {
         "complexity": "O(n⁴) in the output area.",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates only the (m·p)×(k·q) result.",
         "test": "LinalgRoutines.VdotInnerOuterKron",
         "crtest": "LinalgCompileRun.Kron",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 239,
+      "srcline": 125,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
@@ -2878,7 +2886,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 764,
+      "srcline": 637,
       "module": "linalg",
       "qualified": "linalg.lstsq"
     },
@@ -2932,7 +2940,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 208,
+      "srcline": 94,
       "module": "linalg",
       "qualified": "linalg.matrix_power"
     },
@@ -2955,7 +2963,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 672,
+      "srcline": 558,
       "module": "linalg",
       "qualified": "linalg.matrix_rank"
     },
@@ -2978,7 +2986,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 621,
+      "srcline": 507,
       "module": "linalg",
       "qualified": "linalg.norm"
     },
@@ -3004,8 +3012,8 @@
         "crtest": "LinalgCompileRun.Outer",
         "systest": "StdlibE2E.Linalg"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 134,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 309,
       "module": "linalg",
       "qualified": "linalg.outer"
     },
@@ -3028,7 +3036,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 824,
+      "srcline": 697,
       "module": "linalg",
       "qualified": "linalg.pinv"
     },
@@ -3051,7 +3059,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 314,
+      "srcline": 200,
       "module": "linalg",
       "qualified": "linalg.qr"
     },
@@ -3104,7 +3112,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 696,
+      "srcline": 582,
       "module": "linalg",
       "qualified": "linalg.slogdet"
     },
@@ -3131,7 +3139,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 733,
+      "srcline": 606,
       "module": "linalg",
       "qualified": "linalg.solve"
     },
@@ -3154,7 +3162,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 355,
+      "srcline": 241,
       "module": "linalg",
       "qualified": "linalg.svd"
     },
@@ -3177,30 +3185,30 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 387,
+      "srcline": 273,
       "module": "linalg",
       "qualified": "linalg.svdvals"
     },
     {
       "name": "trace",
       "signature": "trace(const Array< T > &a)",
-      "brief": "Trace: sum of the main diagonal.",
+      "brief": "Trace: the sum of the matrix diagonal, as the scalar T.",
       "params": [
         {
           "name": "a",
-          "desc": "matrix."
+          "desc": "a 2-D matrix."
         }
       ],
-      "returns": "Σ aᵢᵢ.",
+      "returns": "Σ aᵢᵢ as the scalar T.",
       "tags": {
-        "complexity": "O(n) summation.",
-        "alloc": "none — reads the diagonal straight from the buffer. Returns a double.",
+        "complexity": "O(min(r, c)).",
+        "alloc": "none (strided diagonal read straight from the buffer).",
         "test": "LinalgRoutines.ProductsAndTrace",
         "crtest": "LinalgCompileRun.Trace",
         "systest": "StdlibE2E.Linalg"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 712,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 235,
       "module": "linalg",
       "qualified": "linalg.trace"
     },
@@ -3226,10 +3234,31 @@
         "crtest": "LinalgCompileRun.Vdot LinalgCompileRun.ComplexVdot",
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 102,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 191,
       "module": "linalg",
       "qualified": "linalg.vdot"
+    },
+    {
+      "name": "vector_len",
+      "signature": "vector_len(const A &a)",
+      "brief": "The flattened length of a vector-shaped operand — 1-D, or 2-D with a size-1 row/column (throws otherwise).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the operand whose vector length is wanted."
+        }
+      ],
+      "returns": "the element count of the flattened vector.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "LinalgRoutines.ProductsAndTrace"
+      },
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 89,
+      "module": "linalg",
+      "qualified": "linalg.vector_len"
     },
     {
       "name": "abs",
