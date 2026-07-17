@@ -63,7 +63,7 @@ hello/
 name = "hello"
 
 [cheatah]
-version = "0.9.0"           # the cheatah toolchain version, pinned as a git tag
+version = "1.6.0-alpha"     # the cheatah toolchain version, pinned as a git tag
 
 [extensions]
 cheatah-plot = "0.1.0"      # one line per opted-in extension
@@ -143,6 +143,6 @@ Pending next increments:
   headers/archive into `purrc`'s link line is not done yet (purrc currently
   resolves modules from a single baked toolchain root). The four extension repos
   above are not published yet either.
-- A pinned `v0.9.0` (and per-extension) **release tag** so CPM fetches a real tag
+- A pinned `v1.6.0-alpha` (and per-extension) **release tag** so CPM fetches a real tag
   rather than needing the local-source override.
 - A proper TOML reader (the current parser handles the subset biome writes).

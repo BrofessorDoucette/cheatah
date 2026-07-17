@@ -2586,7 +2586,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 161,
+      "srcline": 231,
       "module": "linalg",
       "qualified": "linalg.cholesky"
     },
@@ -2609,7 +2609,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 524,
+      "srcline": 659,
       "module": "linalg",
       "qualified": "linalg.cond"
     },
@@ -2632,7 +2632,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 329,
+      "srcline": 342,
       "module": "linalg",
       "qualified": "linalg.conj_transpose"
     },
@@ -2655,7 +2655,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 541,
+      "srcline": 681,
       "module": "linalg",
       "qualified": "linalg.det"
     },
@@ -2682,7 +2682,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 164,
+      "srcline": 177,
       "module": "linalg",
       "qualified": "linalg.dot"
     },
@@ -2705,7 +2705,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 342,
+      "srcline": 451,
       "module": "linalg",
       "qualified": "linalg.eig"
     },
@@ -2728,7 +2728,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 409,
+      "srcline": 540,
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
@@ -2751,7 +2751,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 375,
+      "srcline": 496,
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
@@ -2774,7 +2774,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 446,
+      "srcline": 590,
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
@@ -2801,7 +2801,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 213,
+      "srcline": 226,
       "module": "linalg",
       "qualified": "linalg.inner"
     },
@@ -2824,7 +2824,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 668,
+      "srcline": 850,
       "module": "linalg",
       "qualified": "linalg.inv"
     },
@@ -2859,7 +2859,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 125,
+      "srcline": 195,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
@@ -2886,7 +2886,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 637,
+      "srcline": 809,
       "module": "linalg",
       "qualified": "linalg.lstsq"
     },
@@ -2897,23 +2897,23 @@
       "params": [
         {
           "name": "a",
-          "desc": "m×k matrix."
+          "desc": "m×k matrix, or a B×m×k batch of matrices."
         },
         {
           "name": "b",
-          "desc": "k×p matrix."
+          "desc": "k×p matrix, or a B×k×p batch."
         }
       ],
-      "returns": "m×p product, an Array<T> of the same container and element as the operands.",
+      "returns": "m×p product (or the B×m×p batch), an Array<T> of the same container and element.",
       "tags": {
-        "complexity": "O(n³).",
-        "alloc": "allocates only the m×p result; operands read in place (a strided host view packs once).",
-        "test": "LinalgRoutines.ProductsAndTrace",
+        "complexity": "O(n³) (× B for a batch).",
+        "alloc": "allocates only the result; operands read in place (a strided host view packs once).",
+        "test": "LinalgRoutines.ProductsAndTrace LinalgRoutines.BatchedMatmul",
         "crtest": "LinalgCompileRun.Matmul",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 67,
+      "srcline": 69,
       "module": "linalg",
       "qualified": "linalg.matmul"
     },
@@ -2940,7 +2940,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 94,
+      "srcline": 155,
       "module": "linalg",
       "qualified": "linalg.matrix_power"
     },
@@ -2963,13 +2963,13 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 558,
+      "srcline": 704,
       "module": "linalg",
       "qualified": "linalg.matrix_rank"
     },
     {
       "name": "norm",
-      "signature": "norm(const NDArray &a)",
+      "signature": "norm(const Array< T > &a)",
       "brief": "Norm: L2 for vectors, Frobenius for matrices.",
       "params": [
         {
@@ -2986,7 +2986,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 507,
+      "srcline": 638,
       "module": "linalg",
       "qualified": "linalg.norm"
     },
@@ -3013,7 +3013,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 309,
+      "srcline": 322,
       "module": "linalg",
       "qualified": "linalg.outer"
     },
@@ -3036,7 +3036,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 697,
+      "srcline": 887,
       "module": "linalg",
       "qualified": "linalg.pinv"
     },
@@ -3059,7 +3059,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 200,
+      "srcline": 279,
       "module": "linalg",
       "qualified": "linalg.qr"
     },
@@ -3112,7 +3112,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 582,
+      "srcline": 739,
       "module": "linalg",
       "qualified": "linalg.slogdet"
     },
@@ -3139,7 +3139,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 606,
+      "srcline": 769,
       "module": "linalg",
       "qualified": "linalg.solve"
     },
@@ -3162,7 +3162,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 241,
+      "srcline": 330,
       "module": "linalg",
       "qualified": "linalg.svd"
     },
@@ -3185,7 +3185,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 273,
+      "srcline": 373,
       "module": "linalg",
       "qualified": "linalg.svdvals"
     },
@@ -3208,7 +3208,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 235,
+      "srcline": 248,
       "module": "linalg",
       "qualified": "linalg.trace"
     },
@@ -3235,7 +3235,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 191,
+      "srcline": 204,
       "module": "linalg",
       "qualified": "linalg.vdot"
     },
@@ -3256,7 +3256,7 @@
         "test": "LinalgRoutines.ProductsAndTrace"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 89,
+      "srcline": 102,
       "module": "linalg",
       "qualified": "linalg.vector_len"
     },
@@ -6422,7 +6422,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 975,
+      "srcline": 977,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -6439,7 +6439,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 911,
+      "srcline": 913,
       "module": "requests",
       "qualified": "requests.get"
     },
@@ -6456,7 +6456,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 991,
+      "srcline": 993,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -6473,7 +6473,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1007,
+      "srcline": 1009,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -6490,7 +6490,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 959,
+      "srcline": 961,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -6507,7 +6507,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 927,
+      "srcline": 929,
       "module": "requests",
       "qualified": "requests.post"
     },
@@ -6524,7 +6524,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 943,
+      "srcline": 945,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -6545,7 +6545,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 895,
+      "srcline": 897,
       "module": "requests",
       "qualified": "requests.request"
     },
@@ -7257,7 +7257,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 333,
+      "srcline": 351,
       "module": "string",
       "qualified": "string.capwords"
     },
@@ -7288,7 +7288,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 419,
+      "srcline": 437,
       "module": "string",
       "qualified": "string.center"
     },
@@ -7342,7 +7342,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 255,
+      "srcline": 273,
       "module": "string",
       "qualified": "string.count"
     },
@@ -7375,8 +7375,8 @@
     },
     {
       "name": "find",
-      "signature": "find(std::string_view s, std::string_view sub)",
-      "brief": "First index of sub.",
+      "signature": "find(std::string_view s, std::string_view sub, long start)",
+      "brief": "First index of sub at or after start.",
       "params": [
         {
           "name": "s",
@@ -7385,9 +7385,13 @@
         {
           "name": "sub",
           "desc": "needle."
+        },
+        {
+          "name": "start",
+          "desc": "byte offset to begin searching from."
         }
       ],
-      "returns": "index, or -1.",
+      "returns": "index (absolute, into s), or -1.",
       "tags": {
         "complexity": "O(n·m).",
         "alloc": "none.",
@@ -7396,7 +7400,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 225,
+      "srcline": 243,
       "module": "string",
       "qualified": "string.find"
     },
@@ -7419,7 +7423,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 479,
+      "srcline": 497,
       "module": "string",
       "qualified": "string.isalnum"
     },
@@ -7442,7 +7446,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 465,
+      "srcline": 483,
       "module": "string",
       "qualified": "string.isalpha"
     },
@@ -7465,7 +7469,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 451,
+      "srcline": 469,
       "module": "string",
       "qualified": "string.isdigit"
     },
@@ -7488,7 +7492,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 524,
+      "srcline": 542,
       "module": "string",
       "qualified": "string.islower"
     },
@@ -7511,7 +7515,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 494,
+      "srcline": 512,
       "module": "string",
       "qualified": "string.isspace"
     },
@@ -7534,7 +7538,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 509,
+      "srcline": 527,
       "module": "string",
       "qualified": "string.isupper"
     },
@@ -7561,7 +7565,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 355,
+      "srcline": 373,
       "module": "string",
       "qualified": "string.join"
     },
@@ -7592,7 +7596,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 385,
+      "srcline": 403,
       "module": "string",
       "qualified": "string.ljust"
     },
@@ -7673,7 +7677,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 272,
+      "srcline": 290,
       "module": "string",
       "qualified": "string.replace"
     },
@@ -7700,7 +7704,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 240,
+      "srcline": 258,
       "module": "string",
       "qualified": "string.rfind"
     },
@@ -7731,7 +7735,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 402,
+      "srcline": 420,
       "module": "string",
       "qualified": "string.rjust"
     },
@@ -7781,7 +7785,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 303,
+      "srcline": 321,
       "module": "string",
       "qualified": "string.split"
     },
@@ -7804,7 +7808,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 318,
+      "srcline": 336,
       "module": "string",
       "qualified": "string.splitlines"
     },
@@ -7954,7 +7958,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 435,
+      "srcline": 453,
       "module": "string",
       "qualified": "string.zfill"
     },
@@ -8417,9 +8421,9 @@
     "x25519"
   ],
   "perf_meta": {
-    "cheatah_commit": "dffe895",
+    "cheatah_commit": "6fa07ac",
     "cpython": "3.12.3",
-    "generated": "2026-06-10",
+    "generated": "2026-07-17",
     "machine": "x86_64",
     "numpy": "1.26.4"
   }

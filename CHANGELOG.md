@@ -3,6 +3,50 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.6.0-alpha (2026-07-17) — a faster transpiler, a parallelized QA gate, and a full security audit
+
+The `purrc` transpiler is faster and the QA gate is dramatically faster — both without changing a
+single byte the compiler emits or a single test it runs. And a full-surface security audit hardened
+the whole standard library: twelve findings fixed, headlined by making ECDSA **signing**
+constant-time and closing two integer-overflow heap writes in `linalg`.
+
+### Compiler — a faster transpiler, byte-for-byte identical output
+- **The lexer is ~1.6× faster and codegen ~1.2× faster**, cutting the full frontend transpile of the
+  largest shipped module (`requests`) by ~19%: the token stream is pre-reserved, character
+  classification is a branch-free ASCII test instead of locale-aware `<cctype>`, the codegen symbol
+  tables are hash maps instead of red-black trees, and the parser dispatches keywords through one
+  guarded switch. A **golden-master** harness asserts the emitted C++ is byte-identical across a
+  corpus of real programs, so every optimization is provably behavior-preserving.
+
+### QA gate — same checks, a fraction of the wall-clock
+- **The gate runs its test, sanitizer, and benchmark stages in parallel** (`ctest --parallel`, a
+  gtest-sharded Valgrind, a sharded benchmark smoke pass and a pair-sharded perf gate) and pipelines
+  the build-independent stages (coverage/docs/cppcheck) behind the build — the same tests, the same
+  `-O3 -march=native` binaries, just concurrent. On a 20-core box the unit suite dropped ~139 s → ~15 s
+  and Valgrind minutes → ~31 s. A `ccache` launcher absorbs the repeated builds when present.
+
+### Security — full audit, twelve fixes (see SECURITY-AUDIT-v1.6.0.md)
+- **ECDSA signing (P-256 / P-384) is now constant-time.** The secret-scalar comb no longer branches
+  on, or indexes the table by, the secret nonce/key bits, and its point arithmetic is branch-free —
+  closing a local timing side-channel that could leak nonce bits. Verify paths (public data) are
+  unchanged; a differential self-check confirms the constant-time ops match the reference on every case.
+- **Two `linalg` integer-overflow heap writes are fixed.** `matrix_power` and `kron` formed a product
+  of two dimensions before the overflow check, so a wrap under-allocated and the kernel wrote out of
+  bounds (ASan-confirmed for `matrix_power` via a broadcast view); both now route through the checked
+  multiply and throw on overflow.
+- **The JSON and XML parsers no longer overflow the stack on valid deep input** — JSON caps container
+  nesting during the validated parse (its owning tree's destructor was the sink); XML's `text()` is
+  iterative. **`requests` chunked/header decoding is O(n) instead of O(n²)**, closing a remote
+  CPU-exhaustion DoS. **`regex` bounds its parser recursion, epsilon-closure, and lazy-DFA cache**
+  against crafted patterns (match time was already linear).
+- **Supply-chain hardening for the coming package manager:** `purrc` now allowlists a module header's
+  `cheatah-link:` flags to genuine linker inputs (a malicious dependency could otherwise run code on
+  the consumer's build host), and env-enforced strict mode refuses an argv trust-anchor substitution.
+  Plus bounds on the RSA verify exponent, the AEAD single-message length, and the TLS handshake flight.
+- All prior hardening (TLS X.509 validation, WebSocket frame bounds, `requests` caps, P-256 on-curve,
+  RSA `e=1`) was re-verified intact, and every fix ships under the 100%-coverage + ASan/UBSan/TSan/
+  Valgrind gate.
+
 ## v1.5.0-alpha (2026-07-15) — cross-platform macOS/Apple Silicon, a concept-templated linear-algebra library, and TLS chain hardening
 
 cheatah now builds and runs on **macOS (Apple Silicon)** as well as Linux; the **linalg** library
