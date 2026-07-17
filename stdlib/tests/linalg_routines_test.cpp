@@ -72,6 +72,26 @@ TEST(LinalgRoutines, MatmulIntoReusesBuffer) {
     EXPECT_THROW(la::matmul(out2, vec, b), std::runtime_error);
 }
 
+// Every product/least-squares front validates its operand dimensions and throws on a mismatch —
+// the error paths that a happy-path test never reaches. dot/vdot/inner reject unequal vector
+// lengths; batched matmul (two 3-D operands) rejects a mismatched contracted dimension; lstsq
+// rejects a row-count mismatch.
+TEST(LinalgRoutines, DimensionMismatchThrows) {
+    const nd::NDArray v2 = nd::array({1.0, 2.0});
+    const nd::NDArray v3 = nd::array({1.0, 2.0, 3.0});
+    EXPECT_THROW(la::dot(v2, v3), std::runtime_error);
+    EXPECT_THROW(la::vdot(v2, v3), std::runtime_error);
+    EXPECT_THROW(la::inner(v2, v3), std::runtime_error);
+    // Batched [B,M,K] @ [B,K,N]: equal batch counts but a mismatched inner dim (K vs K').
+    const nd::NDArray a3 = nd::reshape(nd::array(std::vector<double>(2 * 3 * 4, 1.0)), {2, 3, 4});
+    const nd::NDArray b3 = nd::reshape(nd::array(std::vector<double>(2 * 5 * 6, 1.0)), {2, 5, 6});
+    EXPECT_THROW(la::matmul(a3, b3), std::runtime_error);  // K=4 != K'=5
+    // lstsq: A (m×n) and b (m×k) must share the row count m.
+    const nd::NDArray A = mat(3, 2, {1, 2, 3, 4, 5, 6});
+    const nd::NDArray rhs = mat(2, 1, {1, 2});  // 2 rows != A's 3
+    EXPECT_THROW(la::lstsq(A, rhs), std::runtime_error);
+}
+
 // The memory-bound products / transposes have GENUINELY zero-allocation out-param overloads: they
 // write their kernel straight into the caller's buffer (data pointer identical before/after), match
 // the allocating overload, and reject a wrong shape or an out that aliases an input.
