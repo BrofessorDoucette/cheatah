@@ -353,8 +353,14 @@ template <ndarray::Field T, template <typename> class Array>
 [[nodiscard]] Array<T> kron(const Array<T>& a, const Array<T>& b) {
     if (a.ndim() != 2 || b.ndim() != 2)
         throw std::runtime_error("linalg: kron expects 2-D matrices");
-    Array<T> out = Array<T>::uninitialized(
-        {a.shape()[0] * b.shape()[0], a.shape()[1] * b.shape()[1]});
+    // Each output dimension is a PRODUCT of two input dims, so it must be overflow-checked
+    // BEFORE it collapses into the shape vector: `product({m*p, k*q})` would only catch a wrap
+    // of the final area, not a wrap of m*p (or k*q) alone, which under-allocates and lets the
+    // kernel write out of bounds. `product({x, y})` is the shared checked multiply — it throws
+    // on wrap instead. (See ndarray::detail::product; same class as the ndarray shape-overflow fix.)
+    const std::size_t orows = ndarray::detail::product({a.shape()[0], b.shape()[0]});
+    const std::size_t ocols = ndarray::detail::product({a.shape()[1], b.shape()[1]});
+    Array<T> out = Array<T>::uninitialized({orows, ocols});
     kron(out, a, b);
     return out;
 }

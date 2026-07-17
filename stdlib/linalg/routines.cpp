@@ -1060,7 +1060,10 @@ template <ndarray::Field T, template <typename> class Array>
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];  // dims only — no copy
     require_square(r, c);
-    std::vector<double> result(r * r, 0.0);
+    // r*r is a product of two dims sized BEFORE any overflow-checked path (a.size()/as_matrix)
+    // runs, so guard it here: product({r, r}) throws on a size_t wrap instead of silently
+    // under-allocating `result` and letting the identity-fill write out of bounds.
+    std::vector<double> result(ndarray::detail::product({r, r}), 0.0);
     for (std::size_t i = 0; i < r; ++i) result[i * r + i] = 1.0;  // identity
     NDArray acc = make_matrix(r, r, std::move(result));
     NDArray base = (p < 0) ? inv(a) : a;
@@ -1105,7 +1108,9 @@ void kron(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     kron_dims(a, b, ar, ac, br, bc);
     reject_alias(out, a);
     reject_alias(out, b);
-    T* K = out_buf(out, {ar * br, ac * bc});
+    // Overflow-check each output dim (a product of two input dims) before it collapses into the
+    // shape — mirrors the allocating front in backend.hpp so the direct out-param path is guarded too.
+    T* K = out_buf(out, {ndarray::detail::product({ar, br}), ndarray::detail::product({ac, bc})});
     std::vector<T> sa, sb;
     kron_kernel<T>(K, contig(a, sa), contig(b, sb), ar, ac, br, bc);
 }
