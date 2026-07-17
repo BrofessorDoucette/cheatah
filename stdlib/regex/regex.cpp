@@ -243,8 +243,6 @@ struct Dfa {
         }
     }
 
-    /// Intern a pc @p set into a canonical DFA state (creating it if new).
-    /// @param set the pc set for the state. @return the state id.
     /// Hard ceiling on distinct lazy-DFA states. Subset construction can in theory create up to
     /// 2^(NFA states) DFA states — a ~30-`.` pattern is enough — each costing a 256-int transition
     /// row (~1 KiB), so an uncapped cache is a memory-exhaustion DoS on a crafted pattern (RE2, the
@@ -253,6 +251,8 @@ struct Dfa {
     /// throws rather than OOMs, so a caller can catch a pathological pattern.
     static constexpr std::size_t kMaxStates = 100000;
 
+    /// Intern a pc @p set into a canonical DFA state (creating it if new).
+    /// @param set the pc set for the state. @return the state id.
     int intern_state(std::vector<int> set) {
         std::sort(set.begin(), set.end());
         set.erase(std::unique(set.begin(), set.end()), set.end());
