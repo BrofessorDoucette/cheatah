@@ -74,6 +74,67 @@ using CNDArray = ndarray::basic_ndarray<Cplx>;
 // instantiated at T = std::complex<double>; vdot's conjugation is an `if constexpr` branch. No
 // separate symbols. Complex matmul and conj_transpose are likewise the one generic template each
 // in backend.hpp, instantiating the complex element type — no separate complex symbols.
+
+/// @cond INTERNAL — the HOST kernels of the factorization/solver seam. Every routine below is the
+/// backend.hpp pattern: an allocating front (inline in this header, `requires NumericArray`) that
+/// validates metadata, allocates via `Array<T>::uninitialized`, and calls the same-named out-param
+/// (or scalar-out) kernel UNQUALIFIED — so these HostArray kernels (defined + instantiated in
+/// routines.cpp) serve host arrays, and a device extension's `requires DeviceArray` overloads are
+/// found by ADL. Declared here, before the fronts, so the fronts' unqualified calls see them.
+/// Each kernel's full documentation sits with its declaration further down this header.
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void matrix_power(Array<T>& out, const Array<T>& a, long long n);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void cholesky(Array<T>& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void qr(Array<T>& q, Array<T>& r, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void svd(Array<T>& u, Array<T>& s, Array<T>& vh, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void svdvals(Array<T>& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>>& vectors,
+         const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+void eigvalsh(Array<ndarray::real_base_t<T>>& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void solve(Array<T>& out, const Array<T>& a, const Array<T>& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void lstsq(Array<T>& out, const Array<T>& a, const Array<T>& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void inv(Array<T>& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void pinv(Array<T>& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void det(T& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void cond(T& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void matrix_rank(long long& out, const Array<T>& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void norm(T& out, const Array<T>& a);
+/// @endcond
 /**
  * Integer matrix power Aⁿ (negative n via @ref inv).
  *
@@ -90,12 +151,19 @@ using CNDArray = ndarray::basic_ndarray<Cplx>;
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> matrix_power(const Array<T>& a, long long n);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> matrix_power(const Array<T>& a, long long n) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    Array<T> out = Array<T>::uninitialized({a.shape()[0], a.shape()[0]});
+    matrix_power(out, a, n);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Matrix power into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref matrix_power.
+ * @ref matrix_power (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
  * @param out destination; a contiguous n×n matrix, overwritten with Aⁿ.
  * @param a square matrix.
  * @param n exponent.
@@ -103,7 +171,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p out; the binary-exponentiation products allocate their own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void matrix_power(NDArray& out, const NDArray& a, long long n);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void matrix_power(Array<T>& out, const Array<T>& a, long long n);
 /// @endcond
 /**
  * Kronecker product.
@@ -157,19 +227,28 @@ void kron(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> cholesky(const Array<T>& a);       // lower-triangular L (A = L Lᵀ)
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> cholesky(const Array<T>& a) {      // lower-triangular L (A = L Lᵀ)
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    Array<T> out = Array<T>::uninitialized({a.shape()[0], a.shape()[0]});
+    cholesky(out, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Cholesky factor into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref cholesky.
+ * @ref cholesky (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
  * @param out destination; a contiguous n×n matrix, overwritten with the lower-triangular L.
  * @param a square SPD matrix.
  * @complexity O(n³).
  * @alloc reuses @p out (the factor is computed into private scratch, then copied in).
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void cholesky(NDArray& out, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void cholesky(Array<T>& out, const Array<T>& a);
 /// @endcond
 /** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */
 /// The factors of a QR decomposition. Templated over the container type so a host `qr` yields
@@ -196,12 +275,20 @@ struct QR {
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] QR<Array<T>> qr(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] QR<Array<T>> qr(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t m = a.shape()[0], n = a.shape()[1];
+    if (m < n) throw std::runtime_error("linalg: qr requires rows >= cols");
+    QR<Array<T>> out{Array<T>::uninitialized({m, n}), Array<T>::uninitialized({n, n})};
+    qr(out.q, out.r, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref qr,
- * filling @p q and @p r instead of allocating a @ref QR.
+ * filling @p q and @p r instead of allocating a @ref QR (the HOST kernel of the seam pattern; a
+ * device extension supplies its own `requires DeviceArray` overload, found by ADL).
  * @param q destination for the orthonormal factor; a contiguous m×n matrix, overwritten.
  * @param r destination for the upper-triangular factor; a contiguous n×n matrix, overwritten.
  * @param a m×n matrix.
@@ -209,7 +296,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p q and @p r (the factors are computed into private scratch, then copied in).
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
-void qr(NDArray& q, NDArray& r, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void qr(Array<T>& q, Array<T>& r, const Array<T>& a);
 /// @endcond
 /** Result of svd(): A = u·diag(s)·vh. */
 /// The factors of a singular value decomposition, templated over the container type (`ArrT`
@@ -237,12 +326,21 @@ struct SVD {
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] SVD<Array<T>> svd(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] SVD<Array<T>> svd(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t m = a.shape()[0], n = a.shape()[1];
+    if (m < n) throw std::runtime_error("linalg: svd requires rows >= cols (transpose otherwise)");
+    SVD<Array<T>> out{Array<T>::uninitialized({m, n}), Array<T>::uninitialized({n}),
+                      Array<T>::uninitialized({n, n})};
+    svd(out.u, out.s, out.vh, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref svd,
- * filling @p u, @p s and @p vh instead of allocating an @ref SVD.
+ * filling @p u, @p s and @p vh instead of allocating an @ref SVD (the HOST kernel of the seam
+ * pattern; a device extension supplies its own `requires DeviceArray` overload, found by ADL).
  * @param u destination for the left singular vectors; a contiguous m×n matrix, overwritten.
  * @param s destination for the singular values; a contiguous length-n vector, overwritten.
  * @param vh destination for Vᵀ; a contiguous n×n matrix, overwritten.
@@ -251,7 +349,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p u, @p s, @p vh (the factors are computed into private scratch, then copied in).
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
-void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void svd(Array<T>& u, Array<T>& s, Array<T>& vh, const Array<T>& a);
 /// @endcond
 /**
  * Singular values only (≈ `numpy.linalg.svd(a, compute_uv=False)` / `svdvals`).
@@ -269,19 +369,28 @@ void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> svdvals(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> svdvals(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    const std::size_t m = a.shape()[0], n = a.shape()[1];
+    Array<T> out = Array<T>::uninitialized({m < n ? m : n});
+    svdvals(out, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Singular values into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref svdvals.
+ * @ref svdvals (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
  * @param out destination; a contiguous length-min(m,n) vector, overwritten with the descending values.
  * @param a m×n matrix.
  * @complexity iterative O(n³).
  * @alloc reuses @p out; the Golub–Reinsch reduction allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void svdvals(NDArray& out, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void svdvals(Array<T>& out, const Array<T>& a);
 /// @endcond
 
 // ---- Matrix eigenvalues ----
@@ -338,12 +447,21 @@ using eigh_result_t = std::conditional_t<ndarray::is_complex_v<T>,
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] EigC<Array<ndarray::complex_of_t<T>>> eig(const Array<T>& a);   // general square matrix
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] EigC<Array<ndarray::complex_of_t<T>>> eig(const Array<T>& a) {  // general square matrix
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    const std::size_t n = a.shape()[0];
+    using C = Array<ndarray::complex_of_t<T>>;
+    EigC<C> out{C::uninitialized({n}), C::uninitialized({n, n})};
+    eig(out.values, out.vectors, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of
- * @ref eig, filling @p values and @p vectors instead of allocating an @ref EigC.
+ * @ref eig, filling @p values and @p vectors instead of allocating an @ref EigC (the HOST kernel
+ * of the seam pattern; a device extension supplies its own `requires DeviceArray` overload).
  * @param values destination for the complex eigenvalues; a contiguous length-n vector, overwritten.
  * @param vectors destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten.
  * @param a square matrix.
@@ -352,7 +470,10 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
-void eig(CNDArray& values, CNDArray& vectors, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>>& vectors,
+         const Array<T>& a);
 /// @endcond
 /**
  * Eigenvalues of a general square matrix (**complex**), descending.
@@ -371,19 +492,29 @@ void eig(CNDArray& values, CNDArray& vectors, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<ndarray::complex_of_t<T>> eigvals(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<ndarray::complex_of_t<T>> eigvals(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    Array<ndarray::complex_of_t<T>> out =
+        Array<ndarray::complex_of_t<T>>::uninitialized({a.shape()[0]});
+    eigvals(out, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * General eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref eigvals.
+ * @ref eigvals (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
  * @param out destination; a contiguous length-n complex vector, overwritten with the descending spectrum.
  * @param a square matrix.
  * @complexity iterative O(n³).
  * @alloc reuses @p out; the Hessenberg + shifted-QR iteration allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void eigvals(CNDArray& out, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a);
 /// @endcond
 /**
  * Eigen-decomposition of a symmetric matrix (Householder tridiagonalization + QL).
@@ -405,20 +536,33 @@ void eigvals(CNDArray& out, const NDArray& a);
  * @systest StdlibE2E.LinalgComplex
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
-[[nodiscard]] eigh_result_t<T, Array> eigh(const Array<T>& a);   // symmetric / Hermitian
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+[[nodiscard]] eigh_result_t<T, Array> eigh(const Array<T>& a) {  // symmetric / Hermitian
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    const std::size_t n = a.shape()[0];
+    eigh_result_t<T, Array> out{Array<ndarray::real_base_t<T>>::uninitialized({n}),
+                                Array<T>::uninitialized({n, n})};
+    eigh(out.values, out.vectors, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
- * Symmetric eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload
- * of @ref eigh, filling @p values and @p vectors instead of allocating an @ref Eig.
+ * Symmetric/Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
+ * overload of @ref eigh, filling @p values and @p vectors instead of allocating a result struct
+ * (the HOST kernel of the seam pattern; a device extension supplies its own `requires DeviceArray`
+ * overload). ONE two-layer kernel serving the real symmetric AND complex Hermitian paths: values
+ * are always the real spectrum, vectors match the input element.
  * @param values destination for the real eigenvalues; a contiguous length-n vector, overwritten.
  * @param vectors destination for the eigenvectors (columns); a contiguous n×n matrix, overwritten.
- * @param a square symmetric matrix.
+ * @param a square symmetric (real) / Hermitian (complex) matrix.
  * @complexity iterative O(n³).
  * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
-void eigh(NDArray& values, NDArray& vectors, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array<T>& a);
 /// @endcond
 /**
  * Eigenvalues of a symmetric matrix, descending (tridiagonal QL).
@@ -442,59 +586,44 @@ void eigh(NDArray& values, NDArray& vectors, const NDArray& a);
  * @systest StdlibE2E.LinalgComplex
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
-[[nodiscard]] Array<ndarray::real_base_t<T>> eigvalsh(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+[[nodiscard]] Array<ndarray::real_base_t<T>> eigvalsh(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    Array<ndarray::real_base_t<T>> out =
+        Array<ndarray::real_base_t<T>>::uninitialized({a.shape()[0]});
+    eigvalsh(out, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
- * Symmetric eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref eigvalsh.
+ * Symmetric/Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
+ * overload of @ref eigvalsh (the HOST kernel of the seam pattern; a device extension supplies its
+ * own `requires DeviceArray` overload). One two-layer kernel: the complex Hermitian path is the
+ * same template at T = std::complex<double>, still writing the REAL spectrum.
  * @param out destination; a contiguous length-n vector, overwritten with the descending eigenvalues.
- * @param a square symmetric matrix.
+ * @param a square symmetric (real) / Hermitian (complex) matrix.
  * @complexity iterative O(n³).
  * @alloc reuses @p out; the tridiagonal-QL solver allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void eigvalsh(NDArray& out, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
+void eigvalsh(Array<ndarray::real_base_t<T>>& out, const Array<T>& a);
 /// @endcond
 // EighC (real values + complex vectors) and the unified two-layer `eigh` are declared above with
 // the other eig-family structs; the complex Hermitian eigh is that template at T = complex<double>,
-// returning EighC<NDArray, CNDArray> via the if-constexpr Hermitian branch.
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Complex Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
- * overload of the complex @ref eigh, filling @p values and @p vectors instead of allocating an
- * @ref EighC.
- * @param values destination for the real eigenvalues; a contiguous length-n vector, overwritten.
- * @param vectors destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten.
- * @param a square complex Hermitian matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
- * @test LinalgRoutines.DecompositionOutReusesBuffer
- */
-void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a);
-/// @endcond
-// Complex Hermitian eigvalsh (real spectrum) is the SAME two-layer eigvalsh template above,
-// instantiated at T = std::complex<double> (the Hermitian path taken by if constexpr).
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Complex Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
- * overload of the complex @ref eigvalsh.
- * @param out destination; a contiguous length-n real vector, overwritten with the descending eigenvalues.
- * @param a square complex Hermitian matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p out; the 2n-embedding tridiagonal-QL solver allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-void eigvalsh(NDArray& out, const CNDArray& a);
-/// @endcond
-
+// returning EighC<NDArray, CNDArray> via the if-constexpr Hermitian branch — and its buffer-reuse
+// form is the SAME two-layer eigh kernel above at T = complex<double> (values NDArray&, vectors
+// CNDArray&). Likewise complex eigvalsh is the eigvalsh kernel at T = complex<double>.
 // ---- Norms and other numbers ----
 /**
  * Norm: L2 for vectors, Frobenius for matrices.
  *
  * Dispatches on rank: 1-D (or lower) inputs get the Euclidean L2 norm, 2-D
  * inputs the Frobenius norm; either way it is the square root of the sum of
- * squared entries.
+ * squared entries. Two-layer over the element and container like every routine (the scalar-out
+ * kernel `norm(out, a)` is the host/device seam; host `double` is the shipped instantiation).
  * @param a vector or matrix.
  * @return √Σ xᵢ².
  * @complexity O(n) for vectors / O(n²) for matrices.
@@ -504,7 +633,13 @@ void eigvalsh(NDArray& out, const CNDArray& a);
  * @crtest LinalgCompileRun.Norm
  * @systest StdlibE2E.Linalg
  */
-double norm(const NDArray& a);                            // default: Frobenius / L2
+template <ndarray::Field T, template <typename> class Array>
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T norm(const Array<T>& a) {                 // default: Frobenius / L2
+    T out;
+    norm(out, a);
+    return out;
+}
 /**
  * 2-norm condition number σ_max/σ_min (∞ if singular).
  *
@@ -520,8 +655,13 @@ double norm(const NDArray& a);                            // default: Frobenius 
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] T cond(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T cond(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    T out;
+    cond(out, a);
+    return out;
+}
 /**
  * Determinant via LU with partial pivoting.
  *
@@ -537,8 +677,14 @@ template <ndarray::Field T, template <typename> class Array>
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] T det(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] T det(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    T out;
+    det(out, a);
+    return out;
+}
 /**
  * Numerical rank from SVD singular-value thresholding.
  *
@@ -554,13 +700,24 @@ template <ndarray::Field T, template <typename> class Array>
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] long long matrix_rank(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] long long matrix_rank(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    long long out;
+    matrix_rank(out, a);
+    return out;
+}
 /** Result of slogdet(): det(A) = sign·exp(logabsdet). */
 struct SLogDet {
     double sign;       ///< Sign of the determinant (−1, 0, or +1).
     double logabsdet;  ///< Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).
 };
+/// @cond INTERNAL — the scalar-out HOST kernel of the seam pattern (declared after @ref SLogDet,
+/// which its out-parameter needs; a device extension supplies its own DeviceArray overload).
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void slogdet(SLogDet& out, const Array<T>& a);
+/// @endcond
 /**
  * Sign and log|det| via LU (overflow-safe determinant).
  *
@@ -578,8 +735,14 @@ struct SLogDet {
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] SLogDet slogdet(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] SLogDet slogdet(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    SLogDet out{};
+    slogdet(out, a);
+    return out;
+}
 // Trace — the allocating front `trace(a)` and the scalar-out kernel `trace(out, a)` are the
 // backend.hpp reduction pattern (host kernel here in routines.cpp; a device extension adds its
 // own DeviceArray overload, found by ADL).
@@ -602,8 +765,15 @@ template <ndarray::Field T, template <typename> class Array>
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> solve(const Array<T>& a, const Array<T>& b);   // A x = b
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> solve(const Array<T>& a, const Array<T>& b) {  // A x = b
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    if (vector_len(b) != a.shape()[0]) throw std::runtime_error("linalg: solve dimension mismatch");
+    Array<T> out = Array<T>::uninitialized({a.shape()[0]});
+    solve(out, a, b);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Solve into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref solve.
@@ -614,7 +784,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p out; the LU factorization allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void solve(NDArray& out, const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void solve(Array<T>& out, const Array<T>& a, const Array<T>& b);
 /// @endcond
 /**
  * Least-squares solution min‖A·x − b‖ (computed as @ref pinv (a)·b).
@@ -633,8 +805,16 @@ void solve(NDArray& out, const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> lstsq(const Array<T>& a, const Array<T>& b);   // least-squares solution
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> lstsq(const Array<T>& a, const Array<T>& b) {  // least-squares solution
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (b.ndim() != 2) throw std::runtime_error("linalg: matmul expects 2-D matrices");
+    if (a.shape()[0] != b.shape()[0])
+        throw std::runtime_error("linalg: matmul inner dimension mismatch");
+    Array<T> out = Array<T>::uninitialized({a.shape()[1], b.shape()[1]});
+    lstsq(out, a, b);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Least-squares solution into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -647,7 +827,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p out; the pseudo-inverse SVD allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void lstsq(NDArray& out, const NDArray& a, const NDArray& b);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void lstsq(Array<T>& out, const Array<T>& a, const Array<T>& b);
 /// @endcond
 /**
  * Matrix inverse via LU with partial pivoting.
@@ -664,8 +846,14 @@ void lstsq(NDArray& out, const NDArray& a, const NDArray& b);
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> inv(const Array<T>& a);
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> inv(const Array<T>& a) {
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    if (a.shape()[0] != a.shape()[1]) throw std::runtime_error("linalg: expected a square matrix");
+    Array<T> out = Array<T>::uninitialized({a.shape()[0], a.shape()[0]});
+    inv(out, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref inv.
@@ -675,7 +863,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p out; the LU factorization allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void inv(NDArray& out, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void inv(Array<T>& out, const Array<T>& a);
 /// @endcond
 /**
  * Moore–Penrose pseudo-inverse via SVD (any shape).
@@ -693,8 +883,13 @@ void inv(NDArray& out, const NDArray& a);
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> pinv(const Array<T>& a);           // Moore–Penrose pseudo-inverse
+    requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
+[[nodiscard]] Array<T> pinv(const Array<T>& a) {          // Moore–Penrose pseudo-inverse
+    if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
+    Array<T> out = Array<T>::uninitialized({a.shape()[1], a.shape()[0]});
+    pinv(out, a);
+    return out;
+}
 /// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
 /**
  * Pseudo-inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
@@ -705,7 +900,9 @@ template <ndarray::Field T, template <typename> class Array>
  * @alloc reuses @p out; the Golub–Reinsch SVD allocates its own scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
-void pinv(NDArray& out, const NDArray& a);
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void pinv(Array<T>& out, const Array<T>& a);
 /// @endcond
 
 } // namespace cheatah::linalg

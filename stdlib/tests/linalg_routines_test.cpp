@@ -698,3 +698,34 @@ TEST(LinalgRoutines, StridedOperandFallback) {
     EXPECT_TRUE(cclose(la::dot(cs, cs), C{24, 0}));   // 6·(2·2)
     EXPECT_TRUE(cclose(la::vdot(cs, cs), C{24, 0}));  // conj path, strided
 }
+
+// Batched matmul: [B,M,K] @ [B,K,N] -> [B,M,N], each slice the same product the 2-D kernel
+// gives; strict batching (mismatched batch counts / mixed ranks throw).
+TEST(LinalgRoutines, BatchedMatmul) {
+    // Two batches of 2x3 @ 3x2, second batch = 2x the first: slices must match the 2-D results.
+    std::vector<double> av{1, 2, 3, 4, 5, 6}, bv{7, 8, 9, 10, 11, 12};
+    std::vector<double> abatch(av), bbatch(bv);
+    for (double x : av) abatch.push_back(2 * x);   // batch 1 doubles A
+    for (double x : bv) bbatch.push_back(x);       // batch 1 reuses B
+    const nd::NDArray A = nd::reshape(nd::array(std::move(abatch)), {2, 2, 3});
+    const nd::NDArray B = nd::reshape(nd::array(std::move(bbatch)), {2, 3, 2});
+    const nd::NDArray C3 = la::matmul(A, B);
+    ASSERT_EQ(C3.ndim(), 3u);
+    EXPECT_EQ(C3.shape()[0], 2u);
+    EXPECT_EQ(C3.shape()[1], 2u);
+    EXPECT_EQ(C3.shape()[2], 2u);
+    // slice 0: the classic {58 64; 139 154}; slice 1 doubles it.
+    EXPECT_DOUBLE_EQ(nd::get(C3, {0, 0, 0}), 58.0);
+    EXPECT_DOUBLE_EQ(nd::get(C3, {0, 1, 1}), 154.0);
+    EXPECT_DOUBLE_EQ(nd::get(C3, {1, 0, 0}), 116.0);
+    EXPECT_DOUBLE_EQ(nd::get(C3, {1, 1, 1}), 308.0);
+
+    // The out-param kernel form reuses the caller's 3-D buffer.
+    nd::NDArray out = nd::zeros({2, 2, 2});
+    la::matmul(out, A, B);
+    EXPECT_DOUBLE_EQ(nd::get(out, {1, 0, 1}), 2 * 64.0);
+
+    // Strictness: mixed rank and batch-count mismatch throw.
+    EXPECT_THROW(la::matmul(A, nd::zeros({3, 2})), std::runtime_error);
+    EXPECT_THROW(la::matmul(A, nd::zeros({3, 3, 2})), std::runtime_error);
+}

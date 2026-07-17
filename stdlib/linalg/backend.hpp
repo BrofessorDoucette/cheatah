@@ -49,22 +49,35 @@ void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b);
 /**
  * Matrix multiply — the allocating front. Both operands are `Array<T>` (so host⊗device / element
  * mixes fail to deduce and are compile errors); requires both to be 2-D with matching inner
- * dimensions. Allocates the m×p result via `Array<T>::uninitialized` (no throwaway zero-fill) and
- * fills it through the out-parameter kernel — the host SIMD path, or a device shader when `Array`
- * is a device container (selected by concept at compile time).
+ * dimensions — or both 3-D for the BATCHED product `[B,M,K] @ [B,K,N] → [B,M,N]` (equal batch
+ * counts, strict: no broadcast batching). Allocates the result via `Array<T>::uninitialized` (no
+ * throwaway zero-fill) and fills it through the out-parameter kernel — the host SIMD path, or a
+ * device shader when `Array` is a device container (selected by concept at compile time).
  * @tparam T the element type (`double` / `std::complex<double>`), @tparam Array the container template.
- * @param a m×k matrix.
- * @param b k×p matrix.
- * @return m×p product, an `Array<T>` of the same container and element as the operands.
- * @complexity O(n³).
- * @alloc allocates only the m×p result; operands read in place (a strided host view packs once).
+ * @param a m×k matrix, or a B×m×k batch of matrices.
+ * @param b k×p matrix, or a B×k×p batch.
+ * @return m×p product (or the B×m×p batch), an `Array<T>` of the same container and element.
+ * @complexity O(n³) (× B for a batch).
+ * @alloc allocates only the result; operands read in place (a strided host view packs once).
  * @test LinalgRoutines.ProductsAndTrace
+ * @test LinalgRoutines.BatchedMatmul
  * @crtest LinalgCompileRun.Matmul
  * @systest StdlibE2E.Linalg
  */
 template <ndarray::Field T, template <typename> class Array>
     requires NumericArray<Array<T>>
 [[nodiscard]] Array<T> matmul(const Array<T>& a, const Array<T>& b) {
+    if (a.ndim() == 3 || b.ndim() == 3) {
+        if (a.ndim() != 3 || b.ndim() != 3)
+            throw std::runtime_error("linalg: batched matmul expects two 3-D operands");
+        if (a.shape()[0] != b.shape()[0])
+            throw std::runtime_error("linalg: batched matmul batch-count mismatch");
+        if (a.shape()[2] != b.shape()[1])
+            throw std::runtime_error("linalg: matmul inner dimension mismatch");
+        Array<T> out = Array<T>::uninitialized({a.shape()[0], a.shape()[1], b.shape()[2]});
+        matmul(out, a, b);
+        return out;
+    }
     if (a.ndim() != 2 || b.ndim() != 2)
         throw std::runtime_error("linalg: matmul expects 2-D matrices");
     if (a.shape()[1] != b.shape()[0])

@@ -1007,6 +1007,22 @@ void check_matmul(const ndarray::basic_ndarray<T>& a, const ndarray::basic_ndarr
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
 void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b) {
+    if (a.ndim() == 3) {
+        // Batched [B,M,K] @ [B,K,N]: the same single-matrix kernel per contiguous batch slice
+        // (validated by the front — equal batch counts, matching inner dims). The 2-D control
+        // flow below is untouched.
+        const std::size_t B = a.shape()[0], M = a.shape()[1], K = a.shape()[2];
+        const std::size_t N = b.shape()[2];
+        reject_alias(out, a);
+        reject_alias(out, b);
+        T* C = out_buf(out, {B, M, N});
+        std::vector<T> sa, sb;
+        const T* A = contig(a, sa);
+        const T* Bp = contig(b, sb);
+        for (std::size_t z = 0; z < B; ++z)
+            matmul_kernel<T>(C + z * M * N, A + z * M * K, Bp + z * K * N, M, K, N);
+        return;
+    }
     std::size_t ar, ac, bc;
     check_matmul(a, b, ar, ac, bc);
     reject_alias(out, a);
@@ -1056,7 +1072,7 @@ template CNDArray conj_transpose<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> matrix_power(const Array<T>& a, long long p) {
+void matrix_power(Array<T>& out, const Array<T>& a, long long p) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];  // dims only — no copy
     require_square(r, c);
@@ -1073,7 +1089,7 @@ template <ndarray::Field T, template <typename> class Array>
         base = matmul(base, base);
         e >>= 1;
     }
-    return acc;
+    copy_into(out, acc);
 }
 
 namespace {
@@ -1137,48 +1153,56 @@ void trace(T& out, const Array<T>& a) {
 template void trace<double, ndarray::basic_ndarray>(double&, const NDArray&);
 template double trace<double, ndarray::basic_ndarray>(const NDArray&);
 
-double norm(const NDArray& a) {  // Frobenius (matrices) / L2 (vectors) — same flat sum
+// norm — the HOST scalar-out kernel (Frobenius for matrices / L2 for vectors — same flat sum).
+template <ndarray::Field T, template <typename> class Array>
+    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
+void norm(T& out, const Array<T>& a) {
     // Frobenius/L2 norm is sqrt(x·x); reuse the multi-accumulator dot_kernel so the
     // squared-sum reaches memory bandwidth instead of serializing on FP-add latency.
     // Contiguous fast path reads straight from the buffer (no scratch allocation).
     if (ndarray::is_contiguous(a)) {
-        const double* p = a.buffer()->data() + a.offset();
-        return std::sqrt(dot_kernel<double, Conj::None>(p, p, a.size()));
+        const T* p = a.buffer()->data() + a.offset();
+        out = std::sqrt(dot_kernel<T, Conj::None>(p, p, a.size()));
+        return;
     }
-    std::vector<double> scratch;
-    const double* p = contig(a, scratch);
-    return std::sqrt(dot_kernel<double, Conj::None>(p, p, a.size()));
+    std::vector<T> scratch;
+    const T* p = contig(a, scratch);
+    out = std::sqrt(dot_kernel<T, Conj::None>(p, p, a.size()));
 }
+template void norm<double, ndarray::basic_ndarray>(double&, const NDArray&);
+template double norm<double, ndarray::basic_ndarray>(const NDArray&);
 
 // ---- LU-based: solve / det / slogdet / inv / lstsq ----
-// LU-based solve / det / slogdet / inv — two-layer over element T and (host) container Array,
-// constrained to a real floating element (the LU core is real double). Only `double` is shipped;
-// the internal helpers (as_matrix/as_vector/make_vector, all templated over T) deduce the element.
+// LU-based solve / det / slogdet / inv — the HOST out-param/scalar-out kernels of the routines.hpp
+// seam pattern (the allocating fronts are inline in routines.hpp; they validate metadata and call
+// these unqualified, so a device extension's DeviceArray overloads are found by ADL). Constrained
+// to a real floating element (the LU core is real double). Only `double` is shipped; the internal
+// helpers (as_matrix/as_vector/make_vector, all templated over T) deduce the element.
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> solve(const Array<T>& a, const Array<T>& b) {
+void solve(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     const LU lu = lu_prepare(a);
     const std::size_t n = lu.n;
     std::size_t bn;
     std::vector<T> x = as_vector(b, bn);
     if (bn != n) throw std::runtime_error("linalg: solve dimension mismatch");
     lu_solve(lu, x);
-    return make_vector(std::move(x));
+    copy_into(out, make_vector(std::move(x)));
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] T det(const Array<T>& a) {
+void det(T& out, const Array<T>& a) {
     const LU lu = lu_prepare(a);
     const std::size_t n = lu.n;
     T d = lu.sign;
     for (std::size_t i = 0; i < n; ++i) d *= lu.a[i * n + i];
-    return d;
+    out = d;
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] SLogDet slogdet(const Array<T>& a) {
+void slogdet(SLogDet& out, const Array<T>& a) {
     const LU lu = lu_prepare(a);
     const std::size_t n = lu.n;
     double sign = lu.sign, logabs = 0.0;
@@ -1187,12 +1211,12 @@ template <ndarray::Field T, template <typename> class Array>
         if (d < 0) sign = -sign;
         logabs += std::log(std::fabs(d));
     }
-    return {sign, logabs};
+    out = {sign, logabs};
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> inv(const Array<T>& a) {
+void inv(Array<T>& out, const Array<T>& a) {
     const LU lu = lu_prepare(a);
     const std::size_t n = lu.n;
     const std::vector<double>& M = lu.a;  // L (unit, below diag) + U (on/above), row-major
@@ -1219,9 +1243,14 @@ template <ndarray::Field T, template <typename> class Array>
         const double d = M[i * n + i];
         for (std::size_t col = 0; col < n; ++col) X[i * n + col] /= d;
     }
-    return make_matrix(n, n, std::move(X));
+    copy_into(out, make_matrix(n, n, std::move(X)));
 }
-// Explicit instantiations of the LU family (the host `double` forms the library ships).
+// Explicit instantiations of the LU family: the host kernels AND the (now header-inline)
+// allocating fronts — instantiating the fronts here keeps the exported symbols the library ships.
+template void solve<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
+template void det<double, ndarray::basic_ndarray>(double&, const NDArray&);
+template void slogdet<double, ndarray::basic_ndarray>(SLogDet&, const NDArray&);
+template void inv<double, ndarray::basic_ndarray>(NDArray&, const NDArray&);
 template NDArray solve<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 template double det<double, ndarray::basic_ndarray>(const NDArray&);
 template SLogDet slogdet<double, ndarray::basic_ndarray>(const NDArray&);
@@ -1229,14 +1258,16 @@ template NDArray inv<double, ndarray::basic_ndarray>(const NDArray&);
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> lstsq(const Array<T>& a, const Array<T>& b) {  // min ‖Ax−b‖ via the pseudo-inverse
-    return matmul(pinv(a), b);
+void lstsq(Array<T>& out, const Array<T>& a, const Array<T>& b) {  // min ‖Ax−b‖ via the pseudo-inverse
+    Array<T> p = Array<T>::uninitialized({a.shape()[1], a.shape()[0]});
+    pinv(p, a);
+    matmul(out, p, b);
 }
 
 // ---- Cholesky ----
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> cholesky(const Array<T>& a) {
+void cholesky(Array<T>& out, const Array<T>& a) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t n = a.shape()[0], c = a.shape()[1];
     require_square(n, c);
@@ -1265,13 +1296,13 @@ template <ndarray::Field T, template <typename> class Array>
             }
         }
     }
-    return make_matrix(n, n, std::move(L));
+    copy_into(out, make_matrix(n, n, std::move(L)));
 }
 
 // ---- Householder QR (reduced: Q is m×n, R is n×n) ----
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] QR<Array<T>> qr(const Array<T>& a) {
+void qr(Array<T>& q, Array<T>& r, const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: qr requires rows >= cols");
@@ -1314,13 +1345,14 @@ template <ndarray::Field T, template <typename> class Array>
         for (std::size_t j = 0; j < n; ++j) Qr[i * n + j] = Q[i * m + j];
     for (std::size_t i = 0; i < n; ++i)
         for (std::size_t j = i; j < n; ++j) Rr[i * n + j] = At[j * m + i];  // R[i][j]=A[i][j]=At[j][i]
-    return {make_matrix(m, n, std::move(Qr)), make_matrix(n, n, std::move(Rr))};
+    copy_into(q, make_matrix(m, n, std::move(Qr)));
+    copy_into(r, make_matrix(n, n, std::move(Rr)));
 }
 
 // ---- SVD and its derived quantities ----
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] SVD<Array<T>> svd(const Array<T>& a) {
+void svd(Array<T>& u, Array<T>& sv, Array<T>& vhh, const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: svd requires rows >= cols (transpose otherwise)");
@@ -1329,12 +1361,14 @@ template <ndarray::Field T, template <typename> class Array>
     std::vector<double> vh(n * n);
     for (std::size_t i = 0; i < n; ++i)
         for (std::size_t j = 0; j < n; ++j) vh[i * n + j] = s.v[j * n + i];
-    return {make_matrix(m, n, s.u), make_vector(s.w), make_matrix(n, n, std::move(vh))};
+    copy_into(u, make_matrix(m, n, s.u));
+    copy_into(sv, make_vector(s.w));
+    copy_into(vhh, make_matrix(n, n, std::move(vh)));
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> svdvals(const Array<T>& a) {  // singular values only — skips the U/V work entirely
+void svdvals(Array<T>& out, const Array<T>& a) {  // singular values only — skips the U/V work entirely
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
@@ -1346,12 +1380,12 @@ template <ndarray::Field T, template <typename> class Array>
             for (std::size_t j = 0; j < n; ++j) At[j * m + i] = A[i * n + j];
         s = svd_golub_reinsch(std::move(At), n, m, /*want_uv=*/false);
     }
-    return make_vector(std::move(s.w));
+    copy_into(out, make_vector(std::move(s.w)));
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<T> pinv(const Array<T>& a) {
+void pinv(Array<T>& out, const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     if (m >= n) {
@@ -1365,7 +1399,8 @@ template <ndarray::Field T, template <typename> class Array>
                     if (s.w[k] > tsh) acc += s.v[i * n + k] * (s.u[j * n + k] / s.w[k]);
                 p[i * m + j] = acc;
             }
-        return make_matrix(n, m, std::move(p));
+        copy_into(out, make_matrix(n, m, std::move(p)));
+        return;
     }
     // m < n: compute on Aᵀ (n×m, rows>=cols) then transpose the result.
     std::vector<double> At(n * m);
@@ -1381,12 +1416,12 @@ template <ndarray::Field T, template <typename> class Array>
                 if (s.w[k] > tsh) acc += s.v[i * m + k] * (s.u[j * m + k] / s.w[k]);
             res[j * m + i] = acc;  // transpose into the n×m result
         }
-    return make_matrix(n, m, std::move(res));
+    copy_into(out, make_matrix(n, m, std::move(res)));
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] T cond(const Array<T>& a) {
+void cond(T& out, const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
@@ -1399,12 +1434,12 @@ template <ndarray::Field T, template <typename> class Array>
         s = svd_golub_reinsch(std::move(At), n, m, /*want_uv=*/false);
     }
     const double wmin = s.w.empty() ? 0 : s.w.back();
-    return wmin == 0 ? std::numeric_limits<double>::infinity() : s.w.front() / wmin;
+    out = wmin == 0 ? std::numeric_limits<double>::infinity() : s.w.front() / wmin;
 }
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] long long matrix_rank(const Array<T>& a) {
+void matrix_rank(long long& out, const Array<T>& a) {
     std::size_t m, n;
     std::vector<double> A = as_matrix(a, m, n);
     const bool tr = m < n;
@@ -1421,38 +1456,34 @@ template <ndarray::Field T, template <typename> class Array>
     long long r = 0;
     for (double w : s.w)
         if (w > tsh) ++r;
-    return r;
+    out = r;
 }
 
 // ---- eigenvalues ----
 // eigh — eigen-decomposition of a symmetric (real) / Hermitian (complex) matrix. ONE two-layer
-// template collapsing the former real and complex overloads: the return TYPE differs per element
-// (Eig<Array<T>> real values+vectors vs EighC<Array<real>, Array<complex>> real values + complex
-// vectors), so the body is `auto` with an `if constexpr` branch. The spectrum is always real.
+// KERNEL collapsing the former real and complex overloads: values are always the real spectrum
+// (Array<real_base_t<T>>), vectors match the input element, and the Hermitian complex path (2n
+// real embedding) vs the symmetric real path is an `if constexpr` branch on the element.
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
-[[nodiscard]] eigh_result_t<T, Array> eigh(const Array<T>& a) {
+void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array<T>& a) {
     std::size_t n, c;
     std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<ndarray::real_base_t<T>> vals;
     std::vector<T> vecs;
-    if constexpr (ndarray::is_complex_v<T>) {
+    if constexpr (ndarray::is_complex_v<T>)
         hermitian_eig(A, n, vals, vecs, /*want_vectors=*/true);
-        return EighC<Array<ndarray::real_base_t<T>>, Array<T>>{
-            make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
-    } else {
+    else
         symmetric_eig(std::move(A), n, vals, vecs);  // solver owns the copy — no second one
-        return Eig<Array<T>>{make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
-    }
+    copy_into(values, make_vector(std::move(vals)));
+    copy_into(vectors, make_matrix(n, n, std::move(vecs)));
 }
-// eigvalsh — eigenvalues of a symmetric (real) / Hermitian (complex) matrix; ALWAYS real. One
-// two-layer template collapsing the former real and complex overloads: the Hermitian complex path
-// (2n real embedding) vs the symmetric real path is an `if constexpr` branch on the element.
-// Returns the real spectrum as Array<real_base_t<T>>.
+// eigvalsh — eigenvalues of a symmetric (real) / Hermitian (complex) matrix; ALWAYS real. Same
+// unified two-layer kernel shape as eigh, values only.
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
-[[nodiscard]] Array<ndarray::real_base_t<T>> eigvalsh(const Array<T>& a) {
+void eigvalsh(Array<ndarray::real_base_t<T>>& out, const Array<T>& a) {
     std::size_t n, c;
     std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
@@ -1462,21 +1493,24 @@ template <ndarray::Field T, template <typename> class Array>
         hermitian_eig(A, n, vals, vecs, /*want_vectors=*/false);
     else
         symmetric_eig(std::move(A), n, vals, vecs, /*want_vectors=*/false);
-    return make_vector(std::move(vals));
+    copy_into(out, make_vector(std::move(vals)));
 }
-// (complex Hermitian eigh is the SAME two-layer eigh template above at T = std::complex<double>,
-//  returning EighC<NDArray, CNDArray>.)
-// (complex eigvalsh is the same two-layer eigvalsh template above at T = std::complex<double>.)
+// (complex Hermitian eigh/eigvalsh are the SAME two-layer kernels above at T = std::complex<double>.)
+template void eigvalsh<double, ndarray::basic_ndarray>(NDArray&, const NDArray&);
+template void eigvalsh<Cplx, ndarray::basic_ndarray>(NDArray&, const CNDArray&);
+template void eigh<double, ndarray::basic_ndarray>(NDArray&, NDArray&, const NDArray&);
+template void eigh<Cplx, ndarray::basic_ndarray>(NDArray&, CNDArray&, const CNDArray&);
 template NDArray eigvalsh<double, ndarray::basic_ndarray>(const NDArray&);
 template NDArray eigvalsh<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 template Eig<NDArray> eigh<double, ndarray::basic_ndarray>(const NDArray&);
 template EighC<NDArray, CNDArray> eigh<Cplx, ndarray::basic_ndarray>(const CNDArray&);
 
 // eig — general eigen-decomposition; a real matrix can have a COMPLEX conjugate spectrum, so the
-// result is EigC<Array<complex_of_t<T>>> (complex values + vectors) for any real input.
+// outputs are complex (Array<complex_of_t<T>>) for any real input.
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] EigC<Array<ndarray::complex_of_t<T>>> eig(const Array<T>& a) {
+void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>>& vectors,
+         const Array<T>& a) {
     std::size_t n, c;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
@@ -1485,8 +1519,9 @@ template <ndarray::Field T, template <typename> class Array>
         // wasted O(n²) copy); the symmetric branch returns here, so moving A is safe.
         std::vector<double> rvals, rvecs;
         symmetric_eig(std::move(A), n, rvals, rvecs, /*want_vectors=*/true);
-        return {to_complex(make_vector(std::move(rvals))),
-                to_complex(make_matrix(n, n, std::move(rvecs)))};
+        copy_into(values, to_complex(make_vector(std::move(rvals))));
+        copy_into(vectors, to_complex(make_matrix(n, n, std::move(rvecs))));
+        return;
     }
     std::vector<Cplx> vals = eigvals_general(A, n);
     std::sort(vals.begin(), vals.end(), cgreater);
@@ -1496,12 +1531,13 @@ template <ndarray::Field T, template <typename> class Array>
         const std::vector<Cplx> vk = eigvector_inverse_iteration(A, n, vals[k]);
         for (std::size_t i = 0; i < n; ++i) vecs[i * n + k] = vk[i];
     }
-    return {make_vector(std::move(vals)), make_matrix(n, n, std::move(vecs))};
+    copy_into(values, make_vector(std::move(vals)));
+    copy_into(vectors, make_matrix(n, n, std::move(vecs)));
 }
 // eigvals — the general spectrum (values only); complex for any real input (conjugate pairs).
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-[[nodiscard]] Array<ndarray::complex_of_t<T>> eigvals(const Array<T>& a) {
+void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a) {
     std::size_t n, c;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
@@ -1514,10 +1550,23 @@ template <ndarray::Field T, template <typename> class Array>
         vals = eigvals_general(std::move(A), n);
     }
     std::sort(vals.begin(), vals.end(), cgreater);
-    return make_vector(std::move(vals));
+    copy_into(out, make_vector(std::move(vals)));
 }
 
-// Explicit instantiations of the single-return real routines (the host `double` forms shipped).
+// Explicit instantiations of the remaining kernels AND their (header-inline) allocating fronts —
+// instantiating the fronts here keeps the exported symbols the library always shipped; the kernel
+// instantiations provide the exact out-param signatures the buffer-reuse tests call.
+template void matrix_power<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, long long);
+template void lstsq<double, ndarray::basic_ndarray>(NDArray&, const NDArray&, const NDArray&);
+template void cholesky<double, ndarray::basic_ndarray>(NDArray&, const NDArray&);
+template void svdvals<double, ndarray::basic_ndarray>(NDArray&, const NDArray&);
+template void pinv<double, ndarray::basic_ndarray>(NDArray&, const NDArray&);
+template void cond<double, ndarray::basic_ndarray>(double&, const NDArray&);
+template void matrix_rank<double, ndarray::basic_ndarray>(long long&, const NDArray&);
+template void qr<double, ndarray::basic_ndarray>(NDArray&, NDArray&, const NDArray&);
+template void svd<double, ndarray::basic_ndarray>(NDArray&, NDArray&, NDArray&, const NDArray&);
+template void eig<double, ndarray::basic_ndarray>(CNDArray&, CNDArray&, const NDArray&);
+template void eigvals<double, ndarray::basic_ndarray>(CNDArray&, const NDArray&);
 template NDArray matrix_power<double, ndarray::basic_ndarray>(const NDArray&, long long);
 template NDArray lstsq<double, ndarray::basic_ndarray>(const NDArray&, const NDArray&);
 template NDArray cholesky<double, ndarray::basic_ndarray>(const NDArray&);
@@ -1529,50 +1578,5 @@ template QR<NDArray> qr<double, ndarray::basic_ndarray>(const NDArray&);
 template SVD<NDArray> svd<double, ndarray::basic_ndarray>(const NDArray&);
 template EigC<CNDArray> eig<double, ndarray::basic_ndarray>(const NDArray&);
 template CNDArray eigvals<double, ndarray::basic_ndarray>(const NDArray&);
-
-// ---- out-param (buffer-reuse) overloads for the factorizations and multi-output routines ----
-// Each writes its result into the caller's pre-sized array(s) — out FIRST — so a sweep that
-// repeats the same decomposition (e.g. cross-validating many models) can reuse one set of output
-// buffers instead of allocating fresh arrays every call. These O(n³) routines allocate their
-// factorization workspace internally regardless; the result is placed into @p out in one O(n²)
-// pass (negligible next to the decomposition), reusing the caller's storage in place.
-void matrix_power(NDArray& out, const NDArray& a, long long n) { copy_into(out, matrix_power(a, n)); }
-void solve(NDArray& out, const NDArray& a, const NDArray& b) { copy_into(out, solve(a, b)); }
-void inv(NDArray& out, const NDArray& a) { copy_into(out, inv(a)); }
-void lstsq(NDArray& out, const NDArray& a, const NDArray& b) { matmul(out, pinv(a), b); }
-void cholesky(NDArray& out, const NDArray& a) { copy_into(out, cholesky(a)); }
-void pinv(NDArray& out, const NDArray& a) { copy_into(out, pinv(a)); }
-void svdvals(NDArray& out, const NDArray& a) { copy_into(out, svdvals(a)); }
-void eigvals(CNDArray& out, const NDArray& a) { copy_into(out, eigvals(a)); }
-void eigvalsh(NDArray& out, const NDArray& a) { copy_into(out, eigvalsh(a)); }
-void eigvalsh(NDArray& out, const CNDArray& a) { copy_into(out, eigvalsh(a)); }
-
-// Multi-output decompositions: one out array per returned factor (struct field order, all outs first).
-void qr(NDArray& q, NDArray& r, const NDArray& a) {
-    const QR res = qr(a);
-    copy_into(q, res.q);
-    copy_into(r, res.r);
-}
-void svd(NDArray& u, NDArray& s, NDArray& vh, const NDArray& a) {
-    const SVD res = svd(a);
-    copy_into(u, res.u);
-    copy_into(s, res.s);
-    copy_into(vh, res.vh);
-}
-void eigh(NDArray& values, NDArray& vectors, const NDArray& a) {
-    const Eig res = eigh(a);
-    copy_into(values, res.values);
-    copy_into(vectors, res.vectors);
-}
-void eigh(NDArray& values, CNDArray& vectors, const CNDArray& a) {
-    const EighC res = eigh(a);
-    copy_into(values, res.values);
-    copy_into(vectors, res.vectors);
-}
-void eig(CNDArray& values, CNDArray& vectors, const NDArray& a) {
-    const EigC res = eig(a);
-    copy_into(values, res.values);
-    copy_into(vectors, res.vectors);
-}
 
 } // namespace cheatah::linalg
