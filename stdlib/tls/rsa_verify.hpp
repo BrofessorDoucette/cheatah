@@ -286,8 +286,10 @@ inline bool verify_pss_sha256(const std::string& cert_der, const std::string& me
     if (n.empty() || e.empty()) return false;
     // Reject dangerous/invalid public exponents: e must be odd and >= 3. With e = 1 (or a small
     // even e) an attacker can forge a PSS-encoded "signature" (s = EM), since m = s^e reveals the
-    // encoding directly — a real RSA verifier never accepts such keys.
-    if ((e[0] & 1u) == 0 || cmp(e, Big{3u}) < 0) return false;
+    // encoding directly — a real RSA verifier never accepts such keys. Also cap e at 64 bits: modexp
+    // cost is proportional to e's bit length, so an absurdly large e in a malicious cert would be a
+    // CPU-DoS. Real exponents are tiny (3, 17, 65537 — all <=17 bits), so 64 is generous.
+    if ((e[0] & 1u) == 0 || cmp(e, Big{3u}) < 0 || bitlen(e) > 64) return false;
     if (sig.size() != nb.size()) return false;  // signature length must equal the modulus length
     const Big s = from_be(sig);
     if (cmp(s, n) >= 0) return false;  // signature representative out of range
@@ -326,7 +328,7 @@ inline bool verify_pkcs1v15(const std::string& nb, const std::string& eb,
                             const std::string& digest_info, const std::string& sig) {
     const Big n = from_be(nb), e = from_be(eb);
     if (n.empty() || e.empty()) return false;
-    if ((e[0] & 1u) == 0 || cmp(e, Big{3u}) < 0) return false;  // exponent sanity (reject e<3/even)
+    if ((e[0] & 1u) == 0 || cmp(e, Big{3u}) < 0 || bitlen(e) > 64) return false;  // odd, >=3, <=64-bit (anti-DoS)
     const std::size_t k = (bitlen(n) + 7) / 8;                  // modulus length in bytes
     if (sig.size() != k) return false;
     const Big s = from_be(sig);

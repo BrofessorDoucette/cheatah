@@ -384,10 +384,21 @@ bool aes_gcm_use_hw() { return accel::available() && !g_force_portable; }
 
 bool crypto_hardware_active() { return aes_gcm_use_hw(); }
 
+// A single message this large would wrap the 32-bit block counter — ChaCha20's block index or
+// GCM's CTR — reusing keystream (and, for GCM, the E(J0) tag mask) WITHIN the one message, which
+// breaks confidentiality/integrity. The binding limit is GCM's 2^32 16-byte blocks (~64 GiB); cap
+// both constructions there. It is unreachable in practice (no TLS record is remotely this large,
+// and the message must fit in memory), but bounds the primitive against misuse. Cross-message nonce
+// uniqueness remains the caller's responsibility, as documented.
+constexpr std::uint64_t kMaxAeadMessage = std::uint64_t{1} << 36;  // 64 GiB
+inline bool aead_len_ok(std::string_view msg) {
+    return static_cast<std::uint64_t>(msg.size()) <= kMaxAeadMessage;
+}
+
 std::string chacha20poly1305_encrypt(std::string_view key_hex, std::string_view nonce_hex,
                                      std::string_view aad, std::string_view plaintext) {
     u32 key[8], nonce[3];
-    if (!load_key_nonce(key_hex, nonce_hex, key, nonce)) return "";
+    if (!load_key_nonce(key_hex, nonce_hex, key, nonce) || !aead_len_ok(plaintext)) return "";
     std::string ct = chacha_xor(key, nonce, 1, plaintext);  // counter starts at 1 (0 keys the MAC)
     unsigned char tag[16];
     aead_tag(key, nonce, aad, ct, tag);
@@ -398,7 +409,8 @@ std::string chacha20poly1305_encrypt(std::string_view key_hex, std::string_view 
 std::string chacha20poly1305_decrypt(std::string_view key_hex, std::string_view nonce_hex,
                                      std::string_view aad, std::string_view ciphertext) {
     u32 key[8], nonce[3];
-    if (!load_key_nonce(key_hex, nonce_hex, key, nonce) || ciphertext.size() < 16) return "";
+    if (!load_key_nonce(key_hex, nonce_hex, key, nonce) || ciphertext.size() < 16 ||
+        !aead_len_ok(ciphertext)) return "";
     const std::string_view ct = ciphertext.substr(0, ciphertext.size() - 16);
     const std::string_view given = ciphertext.substr(ciphertext.size() - 16);
     unsigned char tag[16];
@@ -458,7 +470,7 @@ std::string gcm_decrypt_portable(const unsigned char* rk, int nr, const unsigned
 std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view plaintext) {
     unsigned char kb[16], nb[12];
-    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12)) return "";
+    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12) || !aead_len_ok(plaintext)) return "";
     if (aes_gcm_use_hw()) return accel::gcm_encrypt(kb, 16, nb, aad, plaintext);
     unsigned char rk[176];
     aes128_key_expand(kb, rk);
@@ -468,8 +480,8 @@ std::string aes128gcm_encrypt(std::string_view key_hex, std::string_view nonce_h
 std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view ciphertext) {
     unsigned char kb[16], nb[12];
-    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16)
-        return "";
+    if (!hex_bytes(key_hex, kb, 16) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16 ||
+        !aead_len_ok(ciphertext)) return "";
     if (aes_gcm_use_hw()) return accel::gcm_decrypt(kb, 16, nb, aad, ciphertext);
     unsigned char rk[176];
     aes128_key_expand(kb, rk);
@@ -483,7 +495,7 @@ std::string aes128gcm_decrypt(std::string_view key_hex, std::string_view nonce_h
 std::string aes256gcm_encrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view plaintext) {
     unsigned char kb[32], nb[12];
-    if (!hex_bytes(key_hex, kb, 32) || !hex_bytes(nonce_hex, nb, 12)) return "";
+    if (!hex_bytes(key_hex, kb, 32) || !hex_bytes(nonce_hex, nb, 12) || !aead_len_ok(plaintext)) return "";
     if (aes_gcm_use_hw()) return accel::gcm_encrypt(kb, 32, nb, aad, plaintext);
     unsigned char rk[240];
     aes256_key_expand(kb, rk);
@@ -493,8 +505,8 @@ std::string aes256gcm_encrypt(std::string_view key_hex, std::string_view nonce_h
 std::string aes256gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view ciphertext) {
     unsigned char kb[32], nb[12];
-    if (!hex_bytes(key_hex, kb, 32) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16)
-        return "";
+    if (!hex_bytes(key_hex, kb, 32) || !hex_bytes(nonce_hex, nb, 12) || ciphertext.size() < 16 ||
+        !aead_len_ok(ciphertext)) return "";
     if (aes_gcm_use_hw()) return accel::gcm_decrypt(kb, 32, nb, aad, ciphertext);
     unsigned char rk[240];
     aes256_key_expand(kb, rk);
