@@ -817,6 +817,12 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
     std::vector<std::string> cert_chain;  // the full certificate chain (leaf first) for validation
     bool verified_cert = false, server_finished = false;
     std::string transcript_at_cv, transcript_at_finished;
+    // Total-flight cap: the server's handshake messages accumulate into transcript / handshake_bytes /
+    // cert_chain BEFORE the certificate is validated, so a hostile (or MITM) server could otherwise
+    // stream unbounded records and exhaust memory pre-auth. A real TLS 1.3 flight — even a long cert
+    // chain of RSA-4096 leaves — is well under 256 KiB; cap there and fail closed beyond it.
+    constexpr std::size_t kMaxHandshakeFlight = 256 * 1024;
+    std::size_t flight_bytes = 0;
     while (!server_finished) {
         if (!read_record(fd, buffer, rtype, payload)) {
             fail("tls: connection closed during the handshake");
@@ -843,6 +849,11 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
         }
         if (inner_type != 22) {
             fail("tls: unexpected inner record type during the handshake");
+            return -1;
+        }
+        flight_bytes += content.size();
+        if (flight_bytes > kMaxHandshakeFlight) {
+            fail("tls: server handshake flight too large");
             return -1;
         }
         handshake_bytes += content;
