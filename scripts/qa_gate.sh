@@ -4,27 +4,36 @@
 # Invoked by the git pre-push hook (.githooks/pre-push) for every push to any
 # remote/branch, and runnable by hand. Exits non-zero to BLOCK the push.
 #
+# WHAT is checked is unchanged from the original sequential gate; only the SCHEDULE
+# changed. Stages with no dependency on the C++ build tree run as BACKGROUND LANES
+# from the start, overlapping the build/test chain; every lane is joined (exit code
+# checked, log tailed on failure) before the gate can declare PASSED. Measured
+# benchmarks still run LAST, alone (their tolerance floors assume a quiet machine).
+#
+#   lanes @ t=0:   coverage (own build/cov tree) · doc-coverage · cppcheck ·
+#                  extension hover-DB drift check (1c)
+#   foreground:    configure (then bench build in bg) → debug build → module-header
+#                  drift → golden-master → previously-broken → unit ctest →
+#                  ASan build+tests (TSan build in bg) → TSan tests → Valgrind
+#   join barrier:  coverage verdict · docs · extension · cppcheck · bench build
+#   tail:          editor refresh (bg, non-fatal) → benchmark smoke (sharded) →
+#                  join editor → Fixed-vs-GLM perf gate → release staging → PASS
+#
+# Stage inventory (numbering preserved from the sequential gate):
 #   1. Coverage: regenerate the README coverage table from clang source-based
 #      coverage; FAIL if it changed, and HARD-FAIL unless line + function coverage
 #      are both 100% (so pushed code is always fully unit-tested).
-#   2. Documentation coverage: 100% Javadoc on the public stdlib API (hard gate) —
-#      every type/function/parameter/return documented (scripts/doc_coverage.sh).
-#   2b. VS Code extension (hard gate): regenerate its hover database from the stdlib
-#      API (Doxygen XML -> gen-hover-docs.py) and FAIL if it drifted, so the editor
-#      extension never ships stale relative to the library.
-#   3. Configure (debug for tests, release for benchmarks).
-#   4. Build (debug).
-#   5. Unit test suite (hard gate) — ctest.
-#   6. AddressSanitizer + UBSan: build + run the whole suite under sanitizers
-#      (hard gate) — catches memory errors and undefined behavior.
-#   7. Valgrind memcheck: run EVERY unit test under Valgrind (hard gate) — asserts
-#      100% unit-test coverage with no errors/leaks; a second memory checker
-#      (security/run-valgrind.sh).
-#   8. Benchmarks: build optimized + run a smoke pass (hard gate that they
-#      build & run; perf-regression gating comes once we archive history).
-#
-# This is intentionally lean for the scaffolding stage. As the language grows we
-# layer on more rigor (benchmark regression vs archived history, etc.).
+#   1b. Documentation coverage: 100% Javadoc on the public stdlib API (hard gate).
+#   1c. VS Code extension (hard gate): regenerate its hover database from the stdlib
+#       API (Doxygen XML -> gen-hover-docs.py) and FAIL if it drifted.
+#   2. Configure (debug for tests, release for benchmarks).
+#   3. Build (debug); 3b module-header drift; 3c frontend golden-master.
+#   4. Unit test suite (hard gate) — ctest, parallel.
+#   5. ASan+UBSan build + suite; 5b TSan build + concurrency suites.
+#   6. Valgrind memcheck (sharded) — 100% unit-test coverage, no errors/leaks.
+#   7. Benchmarks: smoke pass (sharded; timings discarded) then the Fixed-vs-GLM
+#      performance gate (scripts/bench_gate.sh — the measured authority).
+#   8. Editor refresh (best-effort) · 8b cppcheck · 9 release staging.
 #
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
 #       QA_GATE_SKIP_COVERAGE=1   skip only the coverage/README-table/100% stage
@@ -33,9 +42,14 @@
 #       QA_GATE_SKIP_ASAN=1       skip only the sanitizer stage (faster local runs)
 #       QA_GATE_SKIP_TSAN=1       skip only the ThreadSanitizer stage (faster local runs)
 #       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
+#       QA_GATE_SKIP_EDITOR=1     skip only the (non-fatal) editor refresh
 #       QA_GATE_FULL_CR=1         ALSO run the full per-function compile-run battery
 #                                 (~200 tests; off by default — opt in when needed)
+#       QA_GATE_JOBS              ctest parallelism (default nproc; =1 to serialize)
 #       QA_BENCH_MIN_TIME         benchmark min time per case (default 0.05s)
+#       BENCH_SMOKE_JOBS          smoke-pass shards (default nproc; =1 = serial)
+#       BENCH_GATE_JOBS           bench_gate pass-1 shards (default 8; =1 = serial)
+#       COV_JOBS                  coverage unit-run shards (default nproc; =1 = serial)
 set -uo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
@@ -68,43 +82,93 @@ else
     CR_EXCLUDE=(--exclude-regex 'CompileRun')
 fi
 
-# 1. Coverage: regenerate the README table; fail if it changed (commit it first) --
-if [ "${QA_GATE_SKIP_COVERAGE:-0}" = "1" ]; then
-    bold "Skipping coverage stage (QA_GATE_SKIP_COVERAGE=1)."
-else
-    bold "Measuring coverage + refreshing the README table…"
-    bash scripts/coverage.sh update-readme >/tmp/cheatah_coverage.log 2>&1 || { tail -30 /tmp/cheatah_coverage.log; fail "coverage report"; }
-    if ! git diff --quiet -- README.md; then
-        printf '\n[qa-gate] The README coverage table is out of date. Updated it to:\n\n'
-        git --no-pager diff -- README.md | sed -n '/coverage:start/,/coverage:end/p'
-        fail "README coverage table changed — 'git add README.md && git commit', then push again"
+# ---- background-lane harness -----------------------------------------------------
+# One fixed variable pair per lane (PID_x/LOG_x) — plain variables, not associative
+# arrays, because macOS stock bash is 3.2. A lane's stdout/stderr goes to its log;
+# bg_join checks its exit code and, on failure, tails that log and fails the gate —
+# the same failure surface each stage had when it ran inline. bg_poll gives near-
+# fail-fast: between foreground stages, any lane that has already EXITED is joined
+# immediately, so its failure surfaces within seconds instead of at the barrier.
+# The EXIT trap kills still-running lanes when the gate dies early, so a failed run
+# never leaves a stray coverage.sh mid-rewrite of README.md (or an orphan doxygen).
+PID_COV=""; PID_DOCS=""; PID_EXT=""; PID_CPPCHECK=""; PID_BENCHBUILD=""; PID_TSANBUILD=""; PID_EDITOR=""
+LOG_COV=/tmp/cheatah_coverage.log
+LOG_DOCS=/tmp/cheatah_docs.log
+LOG_EXT=/tmp/cheatah_ext_check.log
+LOG_CPPCHECK=/tmp/cheatah_cppcheck.log
+LOG_BENCHBUILD=/tmp/cheatah_build_bench.log
+LOG_TSANBUILD=/tmp/cheatah_build_tsan.log
+LOG_EDITOR=/tmp/cheatah_editor.log
+
+bg_join() {  # bg_join <pid-var-name> <log> <label>  — blocking; fail (with log tail) on nonzero
+    local _var="$1" _log="$2" _label="$3" _pid
+    eval "_pid=\"\$$_var\""
+    [ -n "$_pid" ] || return 0
+    eval "$_var=''"
+    wait "$_pid" || { tail -40 "$_log"; fail "$_label"; }
+}
+
+bg_poll() {  # reap any lane that has already exited (fail fast); running lanes are left alone
+    local _v _l _t _pid
+    for _spec in \
+        "PID_COV:$LOG_COV:coverage report" \
+        "PID_DOCS:$LOG_DOCS:documentation coverage below 100% — document the entities listed above" \
+        "PID_EXT:$LOG_EXT:VS Code extension hover-DB check" \
+        "PID_CPPCHECK:$LOG_CPPCHECK:cppcheck (performance/security findings)" \
+        "PID_BENCHBUILD:$LOG_BENCHBUILD:release benchmark build" \
+        "PID_TSANBUILD:$LOG_TSANBUILD:tsan build"; do
+        _v="${_spec%%:*}"; _t="${_spec##*:}"; _l="${_spec#*:}"; _l="${_l%:*}"
+        eval "_pid=\"\$$_v\""
+        [ -n "$_pid" ] || continue
+        kill -0 "$_pid" 2>/dev/null && continue   # still running — not our concern yet
+        bg_join "$_v" "$_l" "$_t"
+    done
+}
+
+cleanup() {
+    local _pid
+    for _pid in "$PID_COV" "$PID_DOCS" "$PID_EXT" "$PID_CPPCHECK" "$PID_BENCHBUILD" "$PID_TSANBUILD" "$PID_EDITOR"; do
+        [ -n "$_pid" ] || continue
+        kill -- "-$_pid" 2>/dev/null || kill "$_pid" 2>/dev/null
+    done
+    wait 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# Launch a lane in its own process group (so cleanup can kill the whole tree; setsid
+# is Linux — macOS falls back to a plain background job whose direct child we can kill).
+bg_launch() {  # bg_launch <pid-var-name> <log> <cmd…>
+    local _var="$1" _log="$2"; shift 2
+    : >"$_log"
+    if command -v setsid >/dev/null 2>&1; then
+        setsid "$@" >"$_log" 2>&1 &
+    else
+        "$@" >"$_log" 2>&1 &
     fi
-    cat /tmp/cheatah_coverage.log
-    # Hard gate: line + function coverage must be exactly 100%.
-    covnums=$(sed -n 's/.*lines [0-9.]*% (\([0-9]*\)\/\([0-9]*\)), functions [0-9.]*% (\([0-9]*\)\/\([0-9]*\)).*/\1 \2 \3 \4/p' /tmp/cheatah_coverage.log)
-    [ -n "$covnums" ] || fail "could not parse the coverage summary (coverage.sh output changed?)"
-    read -r lcov_n lcov_d fcov_n fcov_d <<<"$covnums"
-    if [ "$lcov_n" != "$lcov_d" ] || [ "$fcov_n" != "$fcov_d" ]; then
-        fail "unit-test coverage below 100% — lines $lcov_n/$lcov_d, functions $fcov_n/$fcov_d (find gaps with: scripts/coverage.sh show <file>)"
+    eval "$_var=$!"
+}
+
+# ---- hoisted prerequisite: the Node 'ws' websocket test peer ----------------------
+# Both this gate's ctest suites AND coverage.sh (a background lane below) install it
+# when missing; install it ONCE, up front, so two installers never race the same
+# tests/fixtures/node_modules directory.
+if [ ! -d tests/fixtures/node_modules/ws ]; then
+    if command -v npm >/dev/null 2>&1; then
+        bold "Installing the Node 'ws' test peer (tests/fixtures)…"
+        ( cd tests/fixtures && (npm ci >/dev/null 2>&1 || npm install >/dev/null 2>&1) ) \
+            || fail "npm install of the 'ws' websocket test peer failed (needed for WebSocketSys.*)"
+    else
+        fail "npm not found — the websocket system tests need the Node 'ws' peer (npm ci in tests/fixtures)"
     fi
-    bold "Unit-test coverage: 100% lines ($lcov_n/$lcov_d) + functions ($fcov_n/$fcov_d)."
 fi
 
-# 1b. Documentation coverage: 100% Javadoc on the public stdlib API (hard gate) --
-if [ "${QA_GATE_SKIP_DOCS:-0}" = "1" ]; then
-    bold "Skipping documentation-coverage stage (QA_GATE_SKIP_DOCS=1)."
-else
-    bold "Checking documentation coverage (100% Javadoc)…"
-    bash scripts/doc_coverage.sh || fail "documentation coverage below 100% — document the entities listed above"
-fi
+# Lane git calls must never contend with the foreground's for the index lock.
+export GIT_OPTIONAL_LOCKS=0
 
-# 1c. VS Code extension: its hover database (editors/vscode/data/functions.json) is
-#     GENERATED from the stdlib API (Doxygen XML -> gen-hover-docs.py), so it must be
-#     regenerated and committed whenever the library changes. Regenerate it and FAIL
-#     if it drifted, so the editor extension is never shipped stale vs. the library.
-if [ "${QA_GATE_SKIP_EXTENSION:-0}" = "1" ]; then
-    bold "Skipping VS Code extension check (QA_GATE_SKIP_EXTENSION=1)."
-else
+# ---- stage 1c body (as a function, for the extension lane) ------------------------
+# Verbatim behavior: regenerate docs/xml + the hover DB, fail on drift, then run the
+# extension's headless provider tests. Its bold/fail output lands in the lane log.
+lane_extension_check() {
     bold "Checking the VS Code extension hover DB is in sync with the stdlib API…"
     DOXYGEN="${DOXYGEN:-doxygen}"
     command -v "$DOXYGEN" >/dev/null 2>&1 || DOXYGEN="$HOME/Tools/doxygen-1.16.1/bin/doxygen"
@@ -127,29 +191,51 @@ else
     else
         bold "node not found — skipping the extension provider tests."
     fi
+}
+
+# ---- launch the no-build-dependency lanes (t = 0) ---------------------------------
+# 1. Coverage: its OWN tree (build/cov) + the only README.md writer in the gate.
+if [ "${QA_GATE_SKIP_COVERAGE:-0}" = "1" ]; then
+    bold "Skipping coverage stage (QA_GATE_SKIP_COVERAGE=1)."
+else
+    bold "Measuring coverage + refreshing the README table (background lane)…"
+    bg_launch PID_COV "$LOG_COV" bash scripts/coverage.sh update-readme
 fi
+# 1b. Documentation coverage (single strict doxygen parse; writes nothing).
+if [ "${QA_GATE_SKIP_DOCS:-0}" = "1" ]; then
+    bold "Skipping documentation-coverage stage (QA_GATE_SKIP_DOCS=1)."
+else
+    bold "Checking documentation coverage (100% Javadoc, background lane)…"
+    bg_launch PID_DOCS "$LOG_DOCS" bash scripts/doc_coverage.sh
+fi
+# 1c. Extension hover-DB drift check (its own doxygen run + node tests).
+if [ "${QA_GATE_SKIP_EXTENSION:-0}" = "1" ]; then
+    bold "Skipping VS Code extension check (QA_GATE_SKIP_EXTENSION=1)."
+else
+    bold "Checking the VS Code extension hover DB (background lane)…"
+    bg_launch PID_EXT "$LOG_EXT" bash -c '
+        set -uo pipefail
+        cd "$(git rev-parse --show-toplevel)"
+        bold() { printf "\n\033[1m[qa-gate] %s\033[0m\n" "$*"; }
+        fail() { printf "\n\033[31m[qa-gate] FAILED: %s\033[0m\n" "$*"; exit 1; }
+        '"$(declare -f lane_extension_check)"'
+        lane_extension_check'
+fi
+# 8b. cppcheck (pure source analysis, already -j nproc internally).
+bold "Running cppcheck (performance + security, background lane)…"
+bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash scripts/cppcheck.sh
 
 # 2. Configure ---------------------------------------------------------------
 bold "Configuring (debug + release)…"
 cmake --preset debug   >/tmp/cheatah_cfg_debug.log   2>&1 || { tail -20 /tmp/cheatah_cfg_debug.log;   fail "configure (debug)"; }
 cmake --preset release >/tmp/cheatah_cfg_release.log 2>&1 || { tail -20 /tmp/cheatah_cfg_release.log; fail "configure (release)"; }
 
+# 7-prep. Benchmark build overlaps the whole debug/test chain (needed only at stage 7).
+bg_launch PID_BENCHBUILD "$LOG_BENCHBUILD" cmake --build --preset release-benchmarks
+
 # 3. Build (debug) -----------------------------------------------------------
 bold "Building (debug)…"
 cmake --build --preset debug >/tmp/cheatah_build_debug.log 2>&1 || { tail -30 /tmp/cheatah_build_debug.log; fail "debug build"; }
-
-# The websocket system tests (WebSocketSys.*) run cheatah's client against a real Node `ws` echo
-# server — the same "real external peer" model as openssl s_server for tls. Install the pinned
-# `ws` package (git-ignored) if it isn't already present, so those tests can run.
-if [ ! -d tests/fixtures/node_modules/ws ]; then
-    if command -v npm >/dev/null 2>&1; then
-        bold "Installing the Node 'ws' test peer (tests/fixtures)…"
-        ( cd tests/fixtures && (npm ci >/dev/null 2>&1 || npm install >/dev/null 2>&1) ) \
-            || fail "npm install of the 'ws' websocket test peer failed (needed for WebSocketSys.*)"
-    else
-        fail "npm not found — the websocket system tests need the Node 'ws' peer (npm ci in tests/fixtures)"
-    fi
-fi
 
 # 3b. Pure-cheatah stdlib modules: the build regenerated each one's committed header from its
 #     `.purr` via `purrc --emit-library`. The header (and its signed checksum) are committed so
@@ -170,6 +256,7 @@ fi
 #     CHEATAH_GOLDEN_UPDATE=1 ctest --preset debug -R golden-master.
 bold "Checking frontend golden-master (emitted C++ is byte-identical)…"
 ctest --preset debug --output-on-failure --parallel "$JOBS" -R 'golden-master' || fail "frontend golden-master drifted — the transpiler changed its emitted C++"
+bg_poll
 
 # 4. Unit tests (hard gate) --------------------------------------------------
 # The "previously_broken" regression suite (bugs that ONCE broke the toolchain) runs
@@ -177,9 +264,17 @@ ctest --preset debug --output-on-failure --parallel "$JOBS" -R 'golden-master' |
 # full suite. The main run then EXCLUDES that label so they aren't run twice.
 bold "Running previously-broken regression suite FIRST…"
 ctest --preset debug --output-on-failure --parallel "$JOBS" -L previously_broken || fail "previously-broken regression suite"
+bg_poll
 
 bold "Running unit test suite…"
 ctest --preset debug --output-on-failure --parallel "$JOBS" -LE previously_broken "${CR_EXCLUDE[@]}" || fail "unit tests"
+bg_poll
+
+# 5b-prep. TSan configure+build overlaps the ASan stage (it is needed only at 5b).
+if [ "${QA_GATE_SKIP_TSAN:-0}" != "1" ]; then
+    bg_launch PID_TSANBUILD "$LOG_TSANBUILD" bash -c \
+        'cmake --preset tsan 2>&1 && cmake --build --preset tsan --target cheatah_tests'
+fi
 
 # 5. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
 if [ "${QA_GATE_SKIP_ASAN:-0}" = "1" ]; then
@@ -193,23 +288,24 @@ else
     ASAN_OPTIONS="detect_leaks=1:abort_on_error=1" \
         ctest --preset asan --output-on-failure --parallel "$JOBS" "${CR_EXCLUDE[@]}" || fail "sanitizer (ASan/UBSan) tests"
 fi
+bg_poll
 
-# 5b. ThreadSanitizer: build + run the concurrency-relevant suites (hard gate) -
-# TSan cannot combine with ASan, so it is its own preset/build. Scoped to the suites that
-# actually run threads (thread module, per-thread random, memory once its engine lands) —
-# single-threaded suites add no TSan signal, and the purrc subprocess tests spawn
-# uninstrumented child binaries TSan cannot see into.
+# 5b. ThreadSanitizer: run the concurrency-relevant suites (hard gate) --------
+# TSan cannot combine with ASan, so it is its own preset/build (prepared in the
+# background above). Scoped to the suites that actually run threads — single-threaded
+# suites add no TSan signal, and the purrc subprocess tests spawn uninstrumented
+# child binaries TSan cannot see into. The TSan TEST RUN never overlaps the ASan or
+# Valgrind runs (only builds overlap): concurrency suites are timing-sensitive.
 if [ "${QA_GATE_SKIP_TSAN:-0}" = "1" ]; then
     bold "Skipping ThreadSanitizer stage (QA_GATE_SKIP_TSAN=1)."
 else
-    bold "Configuring + building (TSan)…"
-    cmake --preset tsan        >/tmp/cheatah_cfg_tsan.log   2>&1 || { tail -20 /tmp/cheatah_cfg_tsan.log;   fail "configure (tsan)"; }
-    cmake --build --preset tsan --target cheatah_tests >/tmp/cheatah_build_tsan.log 2>&1 || { tail -30 /tmp/cheatah_build_tsan.log; fail "tsan build"; }
+    bg_join PID_TSANBUILD "$LOG_TSANBUILD" "tsan build"
     bold "Running concurrency-relevant suites under ThreadSanitizer…"
     TSAN_OPTIONS="halt_on_error=1 second_deadlock_stack=1" \
         ctest --preset tsan --output-on-failure --parallel "$JOBS" -R 'CheatahThread|CheatahRandom|Memory' \
         || fail "ThreadSanitizer tests"
 fi
+bg_poll
 
 # 6. Valgrind memcheck: run the unit tests under Valgrind (hard gate) ---------
 #    Valgrind is unavailable/broken on macOS (especially Apple Silicon); the memory-safety
@@ -224,37 +320,64 @@ else
     bold "Running unit tests under Valgrind memcheck…"
     bash security/run-valgrind.sh >/tmp/cheatah_valgrind.log 2>&1 || { tail -50 /tmp/cheatah_valgrind.log; fail "valgrind memcheck"; }
 fi
+bg_poll
 
-# 7. Benchmarks: build optimized + smoke run (hard gate) ---------------------
-bold "Building benchmarks (release)…"
-cmake --build --preset release-benchmarks >/tmp/cheatah_build_bench.log 2>&1 || { tail -30 /tmp/cheatah_build_bench.log; fail "release benchmark build"; }
+# ---- join barrier: every background lane must be green ----------------------------
+# 1. Coverage verdict (verbatim checks from the sequential gate, now at the join).
+if [ "${QA_GATE_SKIP_COVERAGE:-0}" != "1" ]; then
+    bg_join PID_COV "$LOG_COV" "coverage report"
+    if ! git diff --quiet -- README.md; then
+        printf '\n[qa-gate] The README coverage table is out of date. Updated it to:\n\n'
+        git --no-pager diff -- README.md | sed -n '/coverage:start/,/coverage:end/p'
+        fail "README coverage table changed — 'git add README.md && git commit', then push again"
+    fi
+    cat "$LOG_COV"
+    # Hard gate: line + function coverage must be exactly 100%.
+    covnums=$(sed -n 's/.*lines [0-9.]*% (\([0-9]*\)\/\([0-9]*\)), functions [0-9.]*% (\([0-9]*\)\/\([0-9]*\)).*/\1 \2 \3 \4/p' "$LOG_COV")
+    [ -n "$covnums" ] || fail "could not parse the coverage summary (coverage.sh output changed?)"
+    read -r lcov_n lcov_d fcov_n fcov_d <<<"$covnums"
+    if [ "$lcov_n" != "$lcov_d" ] || [ "$fcov_n" != "$fcov_d" ]; then
+        fail "unit-test coverage below 100% — lines $lcov_n/$lcov_d, functions $fcov_n/$fcov_d (find gaps with: scripts/coverage.sh show <file>)"
+    fi
+    bold "Unit-test coverage: 100% lines ($lcov_n/$lcov_d) + functions ($fcov_n/$fcov_d)."
+fi
+# 1b/1c/8b/7-prep joins (each prints its lane log tail + fails the gate on nonzero).
+bg_join PID_DOCS "$LOG_DOCS" "documentation coverage below 100% — document the entities listed above"
+[ -z "$PID_DOCS" ] && [ "${QA_GATE_SKIP_DOCS:-0}" != "1" ] && bold "Documentation coverage lane: OK."
+bg_join PID_EXT "$LOG_EXT" "VS Code extension hover-DB check"
+[ "${QA_GATE_SKIP_EXTENSION:-0}" != "1" ] && bold "VS Code extension lane: OK (details in $LOG_EXT)."
+bg_join PID_CPPCHECK "$LOG_CPPCHECK" "cppcheck (performance/security findings)"
+bold "cppcheck lane: OK."
+bg_join PID_BENCHBUILD "$LOG_BENCHBUILD" "release benchmark build"
 
-bold "Running benchmarks (smoke pass, min-time ${MIN_TIME})…"
-./build/release/bin/cheatah_benchmarks --benchmark_min_time="${MIN_TIME}" || fail "benchmark run"
+# 8. Refresh the editor (best-effort, NOT a gate) ----------------------------
+#    Launched AFTER the extension-check join (they share docs/xml + the hover DB) and
+#    joined before the measured perf gate below. Never fails the gate: it no-ops if
+#    `code`/vsce are unavailable (headless CI), and errors are swallowed.
+if [ "${QA_GATE_SKIP_EDITOR:-0}" = "1" ]; then
+    bold "Skipping editor refresh (QA_GATE_SKIP_EDITOR=1)."
+else
+    bold "Refreshing the VS Code extension from the freshly-built runtime (background)…"
+    bg_launch PID_EDITOR "$LOG_EDITOR" bash editors/vscode/scripts/install-extension.sh
+fi
+
+# 7. Benchmarks: smoke run, sharded (hard gate that every case builds & runs) -
+bold "Running benchmarks (smoke pass, sharded, min-time ${MIN_TIME})…"
+bash scripts/bench_smoke.sh || fail "benchmark run"
+
+# Editor refresh must finish before the MEASURED gate below gets the machine to itself.
+if [ -n "$PID_EDITOR" ]; then
+    _pid_editor="$PID_EDITOR"; PID_EDITOR=""
+    wait "$_pid_editor" || printf '[qa-gate] editor refresh skipped/failed (non-fatal).\n'
+fi
 
 # 7b. Fixed-vs-GLM performance gate (hard gate) ------------------------------
 #     linalg::Fixed exists to match GLM at GLM's own game; assert it still does, so a change that
 #     quietly de-vectorizes a hot path fails here rather than in a consumer's frame budget. Tolerant
 #     by ratio AND absolute gap, with a confirmation re-run, so sub-nanosecond noise never flakes it.
+#     Runs LAST, with every lane joined — the measured passes get a quiet machine.
 bold "Performance gate: linalg::Fixed vs GLM…"
 ./scripts/bench_gate.sh || fail "linalg::Fixed regressed against GLM"
-
-# 8. Refresh the editor (best-effort, NOT a gate) ----------------------------
-#    The runtime was just rebuilt above; package the VS Code extension with the
-#    current hover DB + a copy of THIS runtime's stdlib headers, and (re)install it,
-#    so the editor never drifts from the built runtime. Never fails the gate: it
-#    no-ops if `code`/vsce are unavailable (headless CI), and errors are swallowed.
-if [ "${QA_GATE_SKIP_EDITOR:-0}" = "1" ]; then
-    bold "Skipping editor refresh (QA_GATE_SKIP_EDITOR=1)."
-else
-    bold "Refreshing the VS Code extension from the freshly-built runtime…"
-    bash editors/vscode/scripts/install-extension.sh || \
-        printf '[qa-gate] editor refresh skipped/failed (non-fatal).\n'
-fi
-
-# 8b. Static analysis: cppcheck for performance + security problems ----------
-bold "Running cppcheck (performance + security)…"
-bash scripts/cppcheck.sh || fail "cppcheck (performance/security findings)"
 
 # 9. Stage the release for review (only on a release commit) -----------------
 #    review/ then holds a copy of the latest release to inspect before pushing; it is
