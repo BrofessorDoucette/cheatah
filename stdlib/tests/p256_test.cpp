@@ -227,6 +227,14 @@ TEST(CheatahP256, ReduceModNBoundary) {
     EXPECT_EQ(p256::testonly::reduce_mod_n_be(small), small);
 }
 
+// The signing/keygen scalar multiply is constant-time (no secret-dependent branch or table index).
+// Its branch-free point ops must agree with the branchy reference ops on EVERY case — including
+// a==b, a==-b and infinity operands that real nonces almost never produce — or a subtle CT bug
+// would silently corrupt signatures. The seam drives all of those directly.
+TEST(CheatahP256, ConstantTimePointOpsMatchReference) {
+    EXPECT_TRUE(p256::testonly::ct_point_selfcheck());
+}
+
 // The RFC 6979 retry loop and its "no candidate" exhaustion return are effectively
 // unreachable with real inputs (each rejection is a ~2^-128 event). The seam forces
 // rejections so the retry tail runs on the real signing code.

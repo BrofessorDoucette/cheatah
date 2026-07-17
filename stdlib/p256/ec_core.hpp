@@ -465,22 +465,200 @@ const std::array<Jac<C>, (1u << C::kLimbs)>& g_comb() {
     return tbl;
 }
 
+// ---- constant-time point ops for the SECRET-scalar path (signing k*G, keygen d*G) --------------
+// jac_double_mul (verify) operates on PUBLIC data and stays branchy; the fixed-base comb below,
+// which multiplies the secret nonce/key, must not branch or index on secret bits. These helpers
+// give it branch-free doubling, addition, and table selection. They are differentially tested
+// against the branchy jac_double/jac_add over random + edge inputs (CheatahP256.ConstantTimeAddMatches).
+
+inline u64 ct_mask(bool c) { return u64(0) - static_cast<u64>(c); }  // false->0, true->all-ones
+
+template <WeierstrassCurve C>
+inline void fe_cmov(fe<C>& r, const fe<C>& a, u64 m) {  // r = m ? a : r  (per-limb, constant-time)
+    for (std::size_t i = 0; i < C::kLimbs; ++i) r[i] = (r[i] & ~m) | (a[i] & m);
+}
+template <WeierstrassCurve C>
+inline void jac_cmov(Jac<C>& r, const Jac<C>& a, u64 m) {
+    fe_cmov<C>(r.X, a.X, m);
+    fe_cmov<C>(r.Y, a.Y, m);
+    fe_cmov<C>(r.Z, a.Z, m);
+    r.inf = is_zero<C>(r.Z);  // infinity is encoded by Z==0 throughout the CT path
+}
+
+// Point doubling WITHOUT the is-infinity early return: the formula's Z3 = 2*Y*Z is already 0 when
+// the input is infinity (Z==0), so it self-encodes infinity, and a prime-order curve has no
+// finite 2-torsion point that could double TO infinity — so no branch is needed.
+template <WeierstrassCurve C>
+void jac_double_ct(Jac<C>& r, const Jac<C>& q) {
+    const Mont<C>& F = Fp<C>();
+    fe<C> A, B, Cc, D, t1, t2;
+    mont_mul<C>(A, q.X, q.X, F);
+    mont_mul<C>(B, q.Y, q.Y, F);
+    mont_mul<C>(Cc, B, B, F);
+    mont_add<C>(t1, q.X, B, F);
+    mont_mul<C>(t1, t1, t1, F);
+    mont_sub<C>(t1, t1, A, F);
+    mont_sub<C>(t1, t1, Cc, F);
+    mont_add<C>(D, t1, t1, F);
+    fe<C> ZZ;
+    mont_mul<C>(ZZ, q.Z, q.Z, F);
+    mont_sub<C>(t1, q.X, ZZ, F);
+    mont_add<C>(t2, q.X, ZZ, F);
+    mont_mul<C>(t1, t1, t2, F);
+    fe<C> E;
+    mont_add<C>(E, t1, t1, F);
+    mont_add<C>(E, E, t1, F);
+    fe<C> X3;
+    mont_mul<C>(X3, E, E, F);
+    mont_sub<C>(X3, X3, D, F);
+    mont_sub<C>(X3, X3, D, F);
+    fe<C> Y3, eight;
+    mont_sub<C>(t1, D, X3, F);
+    mont_mul<C>(Y3, E, t1, F);
+    mont_add<C>(eight, Cc, Cc, F);
+    mont_add<C>(eight, eight, eight, F);
+    mont_add<C>(eight, eight, eight, F);
+    mont_sub<C>(Y3, Y3, eight, F);
+    fe<C> Z3;
+    mont_mul<C>(Z3, q.Y, q.Z, F);
+    mont_add<C>(Z3, Z3, Z3, F);
+    r = Jac<C>{X3, Y3, Z3, is_zero<C>(Z3)};
+}
+
+// Point addition, branch-free. It always computes the general add formula, then constant-time-
+// selects the correct result over the special cases via masks: a==inf -> b, b==inf -> a,
+// a==b -> double(a), a==-b -> infinity. Precedence is enforced by cmov ORDER (a==inf last / highest).
+template <WeierstrassCurve C>
+void jac_add_ct(Jac<C>& r, const Jac<C>& a, const Jac<C>& b) {
+    const Mont<C>& F = Fp<C>();
+    fe<C> Z1Z1, Z2Z2, U1, U2, S1, S2;
+    mont_mul<C>(Z1Z1, a.Z, a.Z, F);
+    mont_mul<C>(Z2Z2, b.Z, b.Z, F);
+    mont_mul<C>(U1, a.X, Z2Z2, F);
+    mont_mul<C>(U2, b.X, Z1Z1, F);
+    fe<C> t;
+    mont_mul<C>(t, b.Z, Z2Z2, F);
+    mont_mul<C>(S1, a.Y, t, F);
+    mont_mul<C>(t, a.Z, Z1Z1, F);
+    mont_mul<C>(S2, b.Y, t, F);
+    fe<C> H, Rr;
+    mont_sub<C>(H, U2, U1, F);
+    mont_sub<C>(Rr, S2, S1, F);
+    fe<C> HH, HHH, V;
+    mont_mul<C>(HH, H, H, F);
+    mont_mul<C>(HHH, HH, H, F);
+    mont_mul<C>(V, U1, HH, F);
+    fe<C> X3;
+    mont_mul<C>(X3, Rr, Rr, F);
+    mont_sub<C>(X3, X3, HHH, F);
+    mont_sub<C>(X3, X3, V, F);
+    mont_sub<C>(X3, X3, V, F);
+    fe<C> Y3;
+    mont_sub<C>(t, V, X3, F);
+    mont_mul<C>(Y3, Rr, t, F);
+    fe<C> s1hhh;
+    mont_mul<C>(s1hhh, S1, HHH, F);
+    mont_sub<C>(Y3, Y3, s1hhh, F);
+    fe<C> Z3;
+    mont_mul<C>(Z3, a.Z, b.Z, F);
+    mont_mul<C>(Z3, Z3, H, F);
+    r = Jac<C>{X3, Y3, Z3, false};  // start = the general-case result
+
+    const u64 ma = ct_mask(is_zero<C>(a.Z));   // a is infinity
+    const u64 mb = ct_mask(is_zero<C>(b.Z));   // b is infinity
+    const u64 hz = ct_mask(is_zero<C>(H));
+    const u64 rz = ct_mask(is_zero<C>(Rr));
+    Jac<C> dbl;
+    jac_double_ct<C>(dbl, a);
+    const Jac<C> infp = jac_infinity<C>();
+    jac_cmov<C>(r, dbl, hz & rz);    // a == b        -> 2a
+    jac_cmov<C>(r, infp, hz & ~rz);  // a == -b       -> infinity
+    jac_cmov<C>(r, a, mb);           // b == infinity -> a
+    jac_cmov<C>(r, b, ma);           // a == infinity -> b   (highest precedence, applied last)
+    r.inf = is_zero<C>(r.Z);
+}
+
+// Constant-time table lookup: scan every entry, copying the one whose index == sel via a mask, so
+// the memory-access pattern (and timing) is independent of the secret selector.
+template <WeierstrassCurve C, std::size_t N>
+void ct_select(Jac<C>& out, const std::array<Jac<C>, N>& tbl, unsigned sel) {
+    out = jac_infinity<C>();
+    for (unsigned i = 0; i < N; ++i) jac_cmov<C>(out, tbl[i], ct_mask(i == sel));
+}
+
+// k*G for a SECRET scalar k, in constant time: 64 doublings + 64 unconditional adds over the
+// fixed-base comb table. The old form skipped the add when the window was zero and indexed the
+// table by the secret selector — both leaked bits of k. Here every step does the same work
+// (branch-free double, masked table select, unconditional branch-free add — add of the T[0]=infinity
+// entry when the window is zero is a no-op via the CT add's masks).
 template <WeierstrassCurve C>
 void jac_mul_base(Jac<C>& r, const fe<C>& k) {
     const auto& T = g_comb<C>();
     Jac<C> acc = jac_infinity<C>();
     for (int j = 63; j >= 0; --j) {
         Jac<C> t;
-        jac_double<C>(t, acc);
+        jac_double_ct<C>(t, acc);
         acc = t;
         unsigned sel = 0;
-        for (std::size_t i = 0; i < C::kLimbs; ++i) sel |= ((k[i] >> j) & 1u) << i;
-        if (sel) {
-            jac_add<C>(t, acc, T[sel]);
-            acc = t;
-        }
+        for (std::size_t i = 0; i < C::kLimbs; ++i) sel |= static_cast<unsigned>((k[i] >> j) & 1u) << i;
+        Jac<C> add;
+        ct_select<C>(add, T, sel);
+        jac_add_ct<C>(t, acc, add);
+        acc = t;
     }
     r = acc;
+}
+
+// Differential self-check for the constant-time point ops. A TEMPLATE, instantiated ONLY by the
+// p256/p384 test seam (so there is no such code in a production build), it confirms jac_add_ct /
+// jac_double_ct agree with the branchy reference jac_add / jac_double on the general case AND every
+// special case — a==b, a==-b, and infinity operands — which the signing path exercises rarely or
+// never, so this both proves correctness and drives those branches for coverage. Returns true iff
+// all match.
+template <WeierstrassCurve C>
+bool ct_add_selfcheck() {
+    const Mont<C>& F = Fp<C>();
+    auto affine_eq = [&](const Jac<C>& u, const Jac<C>& v) -> bool {
+        const bool ui = is_zero<C>(u.Z), vi = is_zero<C>(v.Z);
+        if (ui || vi) return ui == vi;  // both infinity, or neither
+        auto affine = [&](const Jac<C>& p, fe<C>& x, fe<C>& y) {
+            fe<C> zi, zi2, zi3, xm, ym;
+            mont_inv<C>(zi, p.Z, F);
+            mont_mul<C>(zi2, zi, zi, F);
+            mont_mul<C>(zi3, zi2, zi, F);
+            mont_mul<C>(xm, p.X, zi2, F);
+            mont_mul<C>(ym, p.Y, zi3, F);
+            from_mont<C>(x, xm, F);
+            from_mont<C>(y, ym, F);
+        };
+        fe<C> ux, uy, vx, vy;
+        affine(u, ux, uy);
+        affine(v, vx, vy);
+        return ux == vx && uy == vy;
+    };
+    // Reference points via the branchy ops: P = 3G, Q = 5G, and -P.
+    const Jac<C>& G = base_point<C>();
+    Jac<C> P, Q, tmp;
+    jac_double<C>(tmp, G);      // 2G
+    jac_add<C>(P, tmp, G);      // 3G
+    jac_double<C>(tmp, tmp);    // 4G
+    jac_add<C>(Q, tmp, G);      // 5G
+    fe<C> zero{};
+    Jac<C> negP = P;
+    mont_sub<C>(negP.Y, zero, P.Y, F);  // -P = (X, -Y, Z)
+    const Jac<C> inf = jac_infinity<C>();
+
+    Jac<C> ct, ref;
+    bool ok = true;
+    jac_add_ct<C>(ct, P, Q);   jac_add<C>(ref, P, Q);   ok &= affine_eq(ct, ref);   // general
+    jac_add_ct<C>(ct, P, P);   jac_double<C>(ref, P);   ok &= affine_eq(ct, ref);   // a == b
+    jac_add_ct<C>(ct, P, negP);                          ok &= is_zero<C>(ct.Z);     // a == -b -> infinity
+    jac_add_ct<C>(ct, inf, P);                           ok &= affine_eq(ct, P);     // a == infinity
+    jac_add_ct<C>(ct, P, inf);                           ok &= affine_eq(ct, P);     // b == infinity
+    jac_add_ct<C>(ct, inf, inf);                         ok &= is_zero<C>(ct.Z);     // inf + inf
+    jac_double_ct<C>(ct, P);   jac_double<C>(ref, P);   ok &= affine_eq(ct, ref);   // double general
+    jac_double_ct<C>(ct, inf);                           ok &= is_zero<C>(ct.Z);     // double infinity
+    return ok;
 }
 
 // Reduce a scalar already known to be < 2n into [0, n): a single conditional

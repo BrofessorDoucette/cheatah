@@ -59,6 +59,11 @@ std::string reduce_mod_n_be(const std::string& be32) {
     ec::fe_to_be<P256Curve>((unsigned char*)out.data(), r);
     return out;
 }
+// Test seam: run the constant-time point-op differential self-check (jac_add_ct/jac_double_ct vs the
+// branchy reference across general + a==b + a==-b + infinity cases). True iff the CT signing path's
+// arithmetic matches the reference on every case. Drives the special-case branches the signing path
+// doesn't reach with real nonces.
+bool ct_point_selfcheck() { return ec::ct_add_selfcheck<P256Curve>(); }
 }  // namespace testonly
 #endif
 

@@ -112,6 +112,14 @@ namespace testonly {
  */
 [[nodiscard]] std::string sign_raw_skip(const std::string& privkey,
                                         const std::string& msg_hash, int force_retries);
+
+/**
+ * TEST-ONLY seam. Differentially validate the constant-time point arithmetic used by the secret-
+ * scalar signing/keygen path (jac_add_ct / jac_double_ct) against the branchy reference ops across
+ * the general case and every special case (a==b, a==-b, infinity operands). Returns true iff they
+ * agree everywhere. Not part of the public P-256 API.
+ */
+[[nodiscard]] bool ct_point_selfcheck();
 }  // namespace testonly
 #endif  // CHEATAH_P256_TESTING
 
