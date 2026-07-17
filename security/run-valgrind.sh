@@ -29,12 +29,20 @@ VG=(valgrind --tool=memcheck --leak-check=full
 # Valgrind, all pass, none skipped (asserted below).
 UNIT_BINS=(cheatah_tests cheatah_purrc_tests)
 
+# Valgrind serializes a process onto ONE core, so the way to use a 20-core box is to
+# run many Valgrind PROCESSES at once. gtest's built-in sharding (GTEST_TOTAL_SHARDS /
+# GTEST_SHARD_INDEX) partitions a binary's tests into disjoint subsets; we run the
+# shards concurrently, each in its own Valgrind, and reassemble the counts. This is a
+# pure wall-clock win — every test still runs under Valgrind exactly once, at the same
+# debug -O0 build. Coverage stays provable: we assert the shards' executed-test counts
+# SUM to the binary's full active-test total (so a lost/crashed shard can't hide).
+JOBS="${VG_JOBS:-$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)}"
+
 status=0
 total_ran=0
 for t in "${UNIT_BINS[@]}"; do
     bin="./build/debug/bin/$t"
     [ -x "$bin" ] || { echo "[valgrind] missing $bin — cannot cover all unit tests"; status=1; continue; }
-    log="/tmp/cheatah_vg_$t.log"
     # The per-function compile-run battery is opt-in (QA_GATE_FULL_CR=1); skip it
     # here by default so Valgrind stays fast (the unit tests already memcheck the
     # functions directly; the system apps still run).
@@ -42,23 +50,46 @@ for t in "${UNIT_BINS[@]}"; do
     if [ "$t" = "cheatah_purrc_tests" ] && [ "${QA_GATE_FULL_CR:-0}" != "1" ]; then
         filter=(--gtest_filter=-*CompileRun*)
     fi
-    echo "[valgrind] memcheck: $t"
-    if ! "${VG[@]}" "$bin" "${filter[@]}" >"$log" 2>&1; then
-        echo "[valgrind] ERRORS/LEAKS in $t:"; tail -50 "$log"; status=1
+
+    # Full active-test total for THIS filter (the coverage denominator). gtest lists one
+    # indented line per test; DISABLED_ tests are listed but never run, so exclude them.
+    total=$("$bin" "${filter[@]}" --gtest_list_tests 2>/dev/null | grep -E '^  [^ ]' | grep -cv 'DISABLED_')
+    if [ "${total:-0}" -eq 0 ]; then
+        echo "[valgrind] $t: no active tests for this filter — skipping"; continue
     fi
-    # Coverage assertion: confirm every test in the binary actually executed under
-    # Valgrind (a crash/abort would run fewer than registered, silently shrinking coverage).
-    ran=$(grep -oE '\[=+\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
-    passed=$(grep -oE '\[ *PASSED *\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
-    failed=$(grep -cE '\[ *FAILED *\]' "$log" || true)
-    : "${ran:=0}"; : "${passed:=0}"; : "${failed:=0}"
-    if [ "$ran" -eq 0 ]; then
-        echo "[valgrind] $t executed 0 tests under Valgrind — coverage incomplete"; status=1
-    elif [ "$passed" -ne "$ran" ] || [ "$failed" -ne 0 ]; then
-        echo "[valgrind] $t: only $passed/$ran tests passed under Valgrind (failures: $failed)"; status=1
+    shards=$(( JOBS < total ? JOBS : total ))  # never more shards than tests
+    echo "[valgrind] memcheck: $t ($total tests across $shards parallel shards)…"
+
+    pids=(); logs=()
+    for ((i = 0; i < shards; i++)); do
+        log="/tmp/cheatah_vg_${t}_shard${i}.log"; logs+=("$log")
+        GTEST_TOTAL_SHARDS="$shards" GTEST_SHARD_INDEX="$i" \
+            "${VG[@]}" "$bin" "${filter[@]}" >"$log" 2>&1 &
+        pids+=($!)
+    done
+
+    bin_ran=0
+    for ((i = 0; i < shards; i++)); do
+        log="${logs[$i]}"
+        if ! wait "${pids[$i]}"; then
+            echo "[valgrind] ERRORS/LEAKS (or crash) in $t shard $i/$shards:"; tail -50 "$log"; status=1
+        fi
+        ran=$(grep -oE '\[=+\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
+        passed=$(grep -oE '\[ *PASSED *\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
+        failed=$(grep -cE '\[ *FAILED *\]' "$log" || true)
+        : "${ran:=0}"; : "${passed:=0}"; : "${failed:=0}"
+        if [ "$passed" -ne "$ran" ] || [ "$failed" -ne 0 ]; then
+            echo "[valgrind] $t shard $i/$shards: only $passed/$ran passed under Valgrind (failures: $failed)"; status=1
+        fi
+        bin_ran=$((bin_ran + ran))
+    done
+
+    # Coverage assertion: the shards must have executed EVERY active test exactly once.
+    if [ "$bin_ran" -ne "$total" ]; then
+        echo "[valgrind] $t: shards executed $bin_ran/$total tests under Valgrind — coverage incomplete (a shard was lost?)"; status=1
     else
-        echo "[valgrind] $t: $ran/$ran unit tests executed clean under Valgrind"
-        total_ran=$((total_ran + ran))
+        echo "[valgrind] $t: $bin_ran/$total unit tests executed clean under Valgrind"
+        total_ran=$((total_ran + bin_ran))
     fi
 done
 
