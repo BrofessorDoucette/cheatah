@@ -232,10 +232,21 @@ const Node* node_at(const Document& doc, int id) {
 }
 
 void collect_text(const Document& doc, int id, std::string& out) {
-    const Node* n = node_at(doc, id);
-    if (!n) return;
-    if (!n->is_element) { out += n->text; return; }
-    for (const int c : n->children) collect_text(doc, c, out);
+    // Iterative pre-order walk with an explicit stack. The parser is iterative and imposes no
+    // nesting cap, so a deeply-nested element chain (`<a><a>…` to any depth) yields a depth-N tree;
+    // the old recursion here would then overflow the C++ call stack on a valid document. An explicit
+    // stack costs O(depth) heap instead. Children are pushed in REVERSE so they pop left-to-right,
+    // preserving the exact concatenation order of the recursive version.
+    std::vector<int> stack;
+    stack.push_back(id);
+    while (!stack.empty()) {
+        const int cur = stack.back();
+        stack.pop_back();
+        const Node* n = node_at(doc, cur);
+        if (!n) continue;
+        if (!n->is_element) { out += n->text; continue; }
+        for (std::size_t k = n->children.size(); k-- > 0;) stack.push_back(n->children[k]);
+    }
 }
 
 }  // namespace

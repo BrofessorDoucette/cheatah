@@ -236,6 +236,15 @@ std::string dump(const Document& value) {
 // assumed well-formed, so the elided checks never fire and the result is identical (malformed input
 // under Validate=false is UB). Instantiated for both modes and both builders below.
 
+// Maximum container-nesting depth accepted under validation. The PARSE is iterative (frame_stack_),
+// but the OWNING result is a recursively-nested vector<Node> tree whose compiler-generated destructor
+// recurses one C++ frame per level — so genuinely-deep (but syntactically valid) input like
+// `[[[…]]]` would overflow the stack on scope-exit. Capping nesting during the parse transitively
+// bounds the tree depth, and thus that destructor (and any recursive accessor). 1000 is far deeper
+// than any real document and far below where the destructor overflows. Trusted-input (Validate=false)
+// callers skip the check, matching the module's "no validation on the trusted fast path" contract.
+inline constexpr std::size_t kMaxParseDepth = 1000;
+
 template <bool Validate, class Builder>
 bool Parser::parse_value(Cursor& c, Node& out, Builder& b) {
     frame_stack_.clear();
@@ -286,6 +295,9 @@ bool Parser::parse_value(Cursor& c, Node& out, Builder& b) {
                     ++c.it;
                     value = b.finish_array();  // empty array
                 } else {
+                    if constexpr (Validate) {
+                        if (frame_stack_.size() >= kMaxParseDepth) return false;  // nesting too deep
+                    }
                     frame_stack_.push_back(Frame{false, Node{}});
                     opened = true;
                 }
@@ -303,6 +315,9 @@ bool Parser::parse_value(Cursor& c, Node& out, Builder& b) {
                     ++c.it;
                     value = b.finish_object();  // empty object
                 } else {
+                    if constexpr (Validate) {
+                        if (frame_stack_.size() >= kMaxParseDepth) return false;  // nesting too deep
+                    }
                     frame_stack_.push_back(Frame{true, Node{}});
                     opened = true;
                 }
