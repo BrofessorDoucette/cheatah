@@ -29,7 +29,16 @@ if(CHEATAH_BUILD_MEMORY_TESTS AND TARGET GTest::gmock_main)
     target_link_libraries(cheatah_memory_tests PRIVATE
         GTest::gmock_main cheatah::memory cheatah::ndarray_static Threads::Threads)
     add_dependencies(cheatah_memory_tests cheatah_ndarray_static)
-    gtest_discover_tests(cheatah_memory_tests TEST_PREFIX "memory:")
+    # RUN_SERIAL: the adversarial concurrency suite asserts that read leases actually
+    # COEXIST in time (e.g. ManyReadersCoexistThenAWriteDrains: EXPECT_GT(peak, 1)). That
+    # only holds when its threads run simultaneously — under a parallel ctest sweep (-j
+    # nproc) the box is oversubscribed and the scheduler serializes the readers, so `peak`
+    # stays 1 and the test flakes. RUN_SERIAL makes ctest run these alone (no other test
+    # concurrent), giving them the cores their timing assumption needs. The suite is small,
+    # so the parallelism lost is negligible. (Thread/random tests are result-deterministic,
+    # not timing-based, so they need no such guard.)
+    gtest_discover_tests(cheatah_memory_tests TEST_PREFIX "memory:"
+        PROPERTIES RUN_SERIAL TRUE)
 endif()
 
 # NOTE: the cheatah .purr SURFACE tests (stdlib/memory/tests/cheatah_*.purr) also run in the gate, via
