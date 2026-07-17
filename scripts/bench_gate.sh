@@ -52,8 +52,50 @@ run_pairs() {  # run_pairs <filter> <reps> <min_time> -> csv on stdout
         --benchmark_report_aggregates_only=true --benchmark_format=csv 2>/dev/null
 }
 
-bold "measuring the fixed/glm pairs…"
-run_pairs '_(fixed|glm)$' 5 0.2s > /tmp/cheatah_bench_pass1.csv || fail "benchmark run"
+# ---- pass 1: the SCREEN, pair-sharded across cores --------------------------------------------
+# Pass 1 only nominates suspects; pass 2 below re-measures them serially, alone, with more
+# repetitions, and is the ONLY place a failure is declared. That authority split is what makes
+# sharding the screen safe: concurrency noise can at worst nominate extra suspects, each of which
+# pass 2 then measures under the same quiet conditions as always. A pair's _fixed and _glm case
+# are kept in the SAME shard (the comparison is intra-pair, so shared-core noise hits both sides
+# alike); glm-only orphans become one-name units, measured exactly as before. BENCH_GATE_JOBS=1
+# reproduces the old single-process pass 1 verbatim. Default 8 (not nproc): a lightly-loaded box
+# keeps the suspect rate near zero, and pass 1 is already ~6x faster at 8.
+BENCH_GATE_JOBS="${BENCH_GATE_JOBS:-8}"
+esc() { printf '%s' "$1" | sed 's/[][\.|$(){}?+*^\\]/\\&/g'; }
+
+bold "measuring the fixed/glm pairs (pass 1 across ${BENCH_GATE_JOBS} shards)…"
+mapfile -t PAIR_NAMES < <("$BIN" --benchmark_list_tests | grep -E '_(fixed|glm)$')
+[ "${#PAIR_NAMES[@]}" -gt 0 ] || fail "no fixed/glm benchmark cases listed"
+
+# Group names into pair units (strip the side suffix -> unit key), preserving list order.
+declare -A UNIT_FILTER; declare -a UNIT_KEYS=()
+for n in "${PAIR_NAMES[@]}"; do
+    k="${n%_fixed}"; k="${k%_glm}"
+    [ -n "${UNIT_FILTER[$k]:-}" ] || UNIT_KEYS+=("$k")
+    UNIT_FILTER[$k]+="${UNIT_FILTER[$k]:+|}$(esc "$n")"
+done
+shards=$(( BENCH_GATE_JOBS < ${#UNIT_KEYS[@]} ? BENCH_GATE_JOBS : ${#UNIT_KEYS[@]} ))
+declare -a SHARD_FILTER
+for ((i = 0; i < shards; i++)); do SHARD_FILTER[i]=""; done
+for i in "${!UNIT_KEYS[@]}"; do
+    s=$((i % shards))
+    SHARD_FILTER[s]+="${SHARD_FILTER[s]:+|}${UNIT_FILTER[${UNIT_KEYS[$i]}]}"
+done
+
+pass1_pids=()
+for ((i = 0; i < shards; i++)); do
+    : > "/tmp/cheatah_bench_pass1_shard$i.csv"   # truncate: a lost shard must yield 0 rows
+    run_pairs "^(${SHARD_FILTER[i]})"'$' 5 0.2s > "/tmp/cheatah_bench_pass1_shard$i.csv" &
+    pass1_pids+=($!)
+done
+for p in "${pass1_pids[@]}"; do wait "$p" || fail "benchmark run"; done
+: > /tmp/cheatah_bench_pass1.csv
+for ((i = 0; i < shards; i++)); do cat "/tmp/cheatah_bench_pass1_shard$i.csv" >> /tmp/cheatah_bench_pass1.csv; done
+# Completeness: one _median aggregate row per case; the union must equal the listed set.
+measured=$(grep -cE '^"?BM_[^,]*_median"?,' /tmp/cheatah_bench_pass1.csv || true)
+[ "${measured:-0}" -eq "${#PAIR_NAMES[@]}" ] || \
+    fail "pass 1 incomplete: measured ${measured:-0}/${#PAIR_NAMES[@]} fixed/glm cases (a shard was lost?)"
 
 SUSPECTS="$(python3 - "$THRESHOLD" "$MIN_GAP_NS" <<'PY'
 import csv, sys
