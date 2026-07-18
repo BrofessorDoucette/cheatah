@@ -838,6 +838,17 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
 // that pointer (genuinely zero result allocation). `copy_into` places an already-built result into
 // it — used by the O(n³) factorizations, whose internal workspace is allocated regardless and for
 // which the single O(n²) copy is negligible next to the decomposition.
+// The hot-loop overload takes the expected shape as an initializer_list: a braced `{r, c}` at a
+// call site would otherwise materialize a temporary std::vector — ONE HEAP ALLOCATION PER CALL —
+// which is exactly what the out-param forms exist to avoid.
+template <ndarray::Field T>
+T* out_buf(ndarray::basic_ndarray<T>& out, std::initializer_list<std::size_t> shape) {
+    const std::vector<std::size_t>& os = out.shape();
+    if (os.size() != shape.size() || !std::equal(os.begin(), os.end(), shape.begin()) ||
+        !ndarray::is_contiguous(out))
+        throw std::runtime_error("linalg: out must be a contiguous array of the result's shape");
+    return out.buffer()->data() + out.offset();
+}
 template <ndarray::Field T>
 T* out_buf(ndarray::basic_ndarray<T>& out, const std::vector<std::size_t>& shape) {
     if (out.shape() != shape || !ndarray::is_contiguous(out))
