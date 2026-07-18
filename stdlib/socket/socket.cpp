@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #if defined(_WIN32)
 // Windows: the BSD socket API lives in Winsock2 (closesocket, WSAStartup, SOCKET type).
@@ -14,6 +15,7 @@
 #else
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>   // TCP_NODELAY, TCP_QUICKACK — the throughput-tuning options
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -64,6 +66,45 @@ bool resolve(const std::string& host, long long port, sockaddr_storage& out, soc
     return true;
 }
 
+// The receive-buffer / send-buffer size we request on every connected stream socket. Bumping the
+// window off the kernel default is what lets a bulk download stay in flight instead of crawling one
+// TLS record per round-trip. 4 MiB is clamped down by the kernel to net.core.rmem_max, and is far
+// larger than any realistic bandwidth-delay product for the downloads this serves. See NOTES —
+// "TLS download throughput".
+constexpr int kStreamBufBytes = 4 * 1024 * 1024;
+
+// Apply the high-throughput options to a CONNECTED stream socket (best-effort — tuning never
+// changes correctness, so a failed setsockopt is silently ignored). Called from connect() and
+// accept() so every connected socket is tuned no matter the entry point:
+//   TCP_NODELAY  — disable Nagle; small control writes (the HTTP request, TLS records) go at once.
+//   TCP_QUICKACK — send ACKs immediately instead of delaying them ~40 ms; without this a pure
+//                  download stalls in delayed-ACK slow start (the server's cwnd never ramps). It is
+//                  one-shot on Linux, so recv() re-arms it after every read.
+//   SO_RCVBUF/SNDBUF — open the window so the peer can keep the pipe full.
+void tune_stream_socket(long long fd) {
+#if !defined(_WIN32)
+    int one = 1;
+#ifdef TCP_NODELAY
+    ::setsockopt(as_fd(fd), IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+#endif
+#ifdef TCP_QUICKACK
+    ::setsockopt(as_fd(fd), IPPROTO_TCP, TCP_QUICKACK, &one, sizeof(one));
+#endif
+    int buf = kStreamBufBytes;
+    ::setsockopt(as_fd(fd), SOL_SOCKET, SO_RCVBUF, &buf, sizeof(buf));
+    ::setsockopt(as_fd(fd), SOL_SOCKET, SO_SNDBUF, &buf, sizeof(buf));
+#else
+    BOOL one = TRUE;
+    ::setsockopt(as_fd(fd), IPPROTO_TCP, TCP_NODELAY,
+                 reinterpret_cast<const char*>(&one), sizeof(one));
+    int buf = kStreamBufBytes;
+    ::setsockopt(as_fd(fd), SOL_SOCKET, SO_RCVBUF,
+                 reinterpret_cast<const char*>(&buf), sizeof(buf));
+    ::setsockopt(as_fd(fd), SOL_SOCKET, SO_SNDBUF,
+                 reinterpret_cast<const char*>(&buf), sizeof(buf));
+#endif
+}
+
 } // namespace
 
 long long socket() {
@@ -106,7 +147,11 @@ long long connect(long long fd, const std::string& host, long long port) {
     sockaddr_storage addr{};
     socklen_t len = 0;
     if (!resolve(host, port, addr, len)) return -1;
-    return ::connect(as_fd(fd), reinterpret_cast<sockaddr*>(&addr), len);
+    const int rc = ::connect(as_fd(fd), reinterpret_cast<sockaddr*>(&addr), len);
+    if (rc == 0) {
+        tune_stream_socket(fd);  // every connected client socket gets the throughput options
+    }
+    return rc;
 }
 
 long long accept(long long fd) {
@@ -114,6 +159,9 @@ long long accept(long long fd) {
 #if defined(_WIN32)
     if (c == INVALID_SOCKET) return -1;
 #endif
+    if (static_cast<long long>(c) >= 0) {
+        tune_stream_socket(static_cast<long long>(c));  // and every accepted server socket
+    }
     return static_cast<long long>(c);
 }
 
@@ -146,10 +194,22 @@ long long sendall(long long fd, const std::string& data) {
 
 std::string recv(long long fd, long long bufsize) {
     if (bufsize <= 0) return std::string();
-    std::string buf(static_cast<std::size_t>(bufsize), '\0');
-    const long long n = ::recv(as_fd(fd), buf.data(), static_cast<int>(buf.size()), 0);
+    // Read into a REUSED per-thread scratch buffer so we don't allocate + zero-fill a fresh
+    // `bufsize` string on every call (a 64 KiB memset per recv on the download hot path). Only the
+    // n bytes actually received are copied into the returned string.
+    static thread_local std::vector<char> scratch;
+    if (scratch.size() < static_cast<std::size_t>(bufsize)) {
+        scratch.resize(static_cast<std::size_t>(bufsize));
+    }
+    const long long n = ::recv(as_fd(fd), scratch.data(), static_cast<int>(bufsize), 0);
     if (n <= 0) return std::string();
-    buf.resize(static_cast<std::size_t>(n));
+    std::string buf(scratch.data(), static_cast<std::size_t>(n));
+#if !defined(_WIN32) && defined(TCP_QUICKACK)
+    // Re-arm quick-ACK: Linux clears it after each read, so without this the delayed-ACK stall
+    // creeps back mid-transfer and the server's window stops growing.
+    int one = 1;
+    ::setsockopt(as_fd(fd), IPPROTO_TCP, TCP_QUICKACK, &one, sizeof(one));
+#endif
     return buf;
 }
 

@@ -1,0 +1,54 @@
+# net_get — a minimal cheatah HTTPS GET, timed, for the net_bench_compare harness. Downloads a URL
+# with the stdlib `requests` client (the same TLS/socket path alice uses) and prints ONE line:
+#   NET_GET bytes=<n> secs=<t> mbps=<r>
+# so scripts/net_bench_compare.sh can put cheatah head-to-head with curl/wget on the identical URL
+# under the identical (possibly throttled) network — the throttle cancels in the ratio.
+#
+#   cheatah net_get.so <url> [max_mib] [out_file]
+# When out_file is given the body is written there (so a harness can sha256-verify the download
+# came through the real TLS drain path byte-for-byte).
+
+import io
+import requests
+import sys
+import time
+
+fn main() {
+    if len(sys.argv) < 2 {
+        io.print("usage: cheatah net_get.so <url> [max_mib]")
+        return
+    }
+    let url = sys.argv[1]
+    let max_mib = 256
+    if len(sys.argv) > 2 {
+        let m = int(sys.argv[2])
+        if m > 0 {
+            max_mib = m
+        }
+    }
+    let o = requests.Options({.timeout_ms = 120000})
+    o.headers["User-Agent"] = "cheatah-net-get/1.0"
+    o.max_bytes = max_mib * 1048576
+
+    let t0 = time.monotonic()
+    let r = requests.get(url, o)
+    let secs = time.monotonic() - t0
+
+    if len(r.error) > 0 {
+        io.print("NET_GET error=" + r.error + " status=" + io.str(r.status_code))
+        return
+    }
+    let n = len(r.body)
+    let mbps = 0.0
+    if secs > 0.0 {
+        mbps = (float(n) / 1048576.0) / secs
+    }
+    if len(sys.argv) > 3 {
+        let f = io.open(sys.argv[3], "w")
+        f.write(r.body)
+        f.close()
+    }
+    io.print("NET_GET bytes=" + io.str(n) + " secs=" + io.str(secs) + " mbps=" + io.str(mbps) + " status=" + io.str(r.status_code))
+}
+
+main()

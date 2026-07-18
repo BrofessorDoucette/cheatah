@@ -2,9 +2,16 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "socket.hpp"
 
+#include <chrono>
 #include <string>
 #include <thread>
 #include <utility>
+
+#if !defined(_WIN32)
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#endif
 
 #include <gtest/gtest.h>
 
@@ -71,6 +78,92 @@ TEST(CheatahSocket, Sendall) {
     client.join();
     sk::close(lfd);
 }
+
+#if !defined(_WIN32)
+// THE "it's the default for every user" guarantee: every connected stream socket — client AND
+// accepted server side — comes tuned for throughput (TCP_NODELAY on, an enlarged SO_RCVBUF)
+// WITHOUT any caller opt-in. This is the regression guard that a future refactor can't silently
+// drop the tuning that turns a 0.2 MB/s crawl into a full-speed download.
+TEST(CheatahSocket, ConnectedSocketsAreTunedByDefault) {
+    const long long lfd = sk::tcp_listen("127.0.0.1", 0, 1);
+    ASSERT_GE(lfd, 0) << sk::last_error();
+    const long long port = sk::local_port(lfd);
+
+    long long cfd = -1;
+    std::thread client([&] { cfd = sk::tcp_connect("127.0.0.1", port); });
+    const long long conn = sk::accept(lfd);
+    client.join();
+    ASSERT_GE(cfd, 0) << sk::last_error();
+    ASSERT_GE(conn, 0) << sk::last_error();
+
+    const auto nodelay = [](long long fd) {
+        int v = 0;
+        socklen_t len = sizeof(v);
+        EXPECT_EQ(::getsockopt(static_cast<int>(fd), IPPROTO_TCP, TCP_NODELAY, &v, &len), 0);
+        return v;
+    };
+    const auto rcvbuf = [](long long fd) {
+        int v = 0;
+        socklen_t len = sizeof(v);
+        EXPECT_EQ(::getsockopt(static_cast<int>(fd), SOL_SOCKET, SO_RCVBUF, &v, &len), 0);
+        return v;  // Linux reports 2× the requested value
+    };
+    // Nagle is OFF on both ends.
+    EXPECT_NE(nodelay(cfd), 0) << "client socket left Nagle on";
+    EXPECT_NE(nodelay(conn), 0) << "accepted socket left Nagle on";
+    // The receive buffer is well above the kernel's stock default (131072 here) — proof the
+    // window was opened. Floor chosen below the requested 4 MiB to tolerate rmem_max clamping.
+    EXPECT_GE(rcvbuf(cfd), 512 * 1024) << "client SO_RCVBUF not enlarged";
+    EXPECT_GE(rcvbuf(conn), 512 * 1024) << "accepted SO_RCVBUF not enlarged";
+
+    sk::close(cfd);
+    sk::close(conn);
+    sk::close(lfd);
+}
+
+// A multi-megabyte loopback transfer read back byte-for-byte, and fast — the socket-layer
+// throughput regression guard. If a change reverted the tuning or crippled recv, a several-MB
+// loopback transfer would still be correct but this asserts it also stays quick.
+TEST(CheatahSocket, BulkTransferIsCorrectAndPrompt) {
+    const long long lfd = sk::tcp_listen("127.0.0.1", 0, 1);
+    ASSERT_GE(lfd, 0);
+    const long long port = sk::local_port(lfd);
+
+    // 8 MiB with a position-dependent pattern so any misorder/truncation is caught.
+    std::string payload(8 * 1024 * 1024, '\0');
+    for (std::size_t i = 0; i < payload.size(); ++i) {
+        payload[i] = static_cast<char>((i * 1103515245u + 12345u) >> 16);
+    }
+
+    std::thread server([&] {
+        const long long conn = sk::accept(lfd);
+        ASSERT_GE(conn, 0);
+        EXPECT_EQ(sk::sendall(conn, payload), 0);
+        sk::close(conn);
+    });
+
+    const auto t0 = std::chrono::steady_clock::now();
+    const long long cfd = sk::tcp_connect("127.0.0.1", port);
+    ASSERT_GE(cfd, 0);
+    std::string got;
+    got.reserve(payload.size());
+    while (got.size() < payload.size()) {
+        const std::string chunk = sk::recv(cfd, 65536);
+        if (chunk.empty()) break;
+        got += chunk;
+    }
+    const double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+    sk::close(cfd);
+    server.join();
+    sk::close(lfd);
+
+    ASSERT_EQ(got.size(), payload.size());
+    EXPECT_EQ(got, payload);
+    // Loopback moves GB/s; 8 MiB in >5 s would mean the recv path regressed hard. Generous so CI
+    // load never flakes it.
+    EXPECT_LT(secs, 5.0) << "8 MiB loopback took " << secs << "s — recv path regressed";
+}
+#endif  // !_WIN32
 
 // The low-level BSD path: socket -> set_reuseaddr -> bind -> listen -> local_port.
 TEST(CheatahSocket, ListenLowLevel) {

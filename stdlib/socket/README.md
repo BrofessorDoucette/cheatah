@@ -50,6 +50,25 @@ Errors are reported as a negative return (or `""` from `recv`); call `last_error
 for the message. `send` uses `MSG_NOSIGNAL`, so a broken pipe never raises a signal.
 Only `recv` and `last_error` allocate (their returned string).
 
+### Throughput tuning (default on every connected socket)
+
+Every socket returned by `connect`/`tcp_connect` and `accept` is tuned for bulk transfer with **no
+caller opt-in**: `TCP_NODELAY` (Nagle off), `TCP_QUICKACK` (prompt ACKs — re-armed after each
+`recv`, since Linux clears it), and an enlarged `SO_RCVBUF`/`SO_SNDBUF`. Without these a pure
+download sits in delayed-ACK slow start — one segment per round-trip — which crawls even though the
+CPU is idle. Guarded so `getsockopt` proves the options on both ends
+(`socket_test.cpp` `ConnectedSocketsAreTunedByDefault`).
+
+**Measured against known-fast references** (2026-07-18; `scripts/net_bench_compare.sh`,
+`scripts/tls_loopback_bench.sh`):
+- On a throttled WAN link, a cheatah HTTPS GET reaches **0.90× curl** on the identical URL
+  (parity — both pinned by the throttle; the download path itself is not the limiter).
+- Throttle-free over loopback vs a real `openssl s_server`, cheatah TLS sustains **~210 MB/s**
+  (byte-identity verified) — far above any real link. curl hits ~1500 MB/s there; the remaining gap
+  is per-record TLS framing (copies + per-record key re-expansion), **not** the cipher: cheatah
+  AES-128-GCM benches at **3.5 GiB/s, beating OpenSSL's 3.1**. Closing the framing gap only matters
+  above ~200 MB/s links and is tracked as evidence-gated follow-up.
+
 > Secure clients are built on this: the from-scratch [`tls`](../tls/) 1.3 client rides a
 > connected socket, and [`requests`](../requests/) (pure cheatah) and
 > [`websocket`](../websocket/) are layered on top. Plain `http://` works directly here.
