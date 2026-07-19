@@ -160,6 +160,18 @@ TEST(CheatahBuiltins, Division) {
     EXPECT_DOUBLE_EQ(b::floordiv(7.0, 2), 3.0);     // mixed -> floored double
 }
 
+// Integer `%` takes the sign of the DIVISOR (Python floor-mod), not of the dividend the way C++ does:
+// -7 % 2 is 1 here, not -1. Only the by-zero throw was covered before, so the sign-correction itself
+// went untested; these pin the branch both ways plus the exact-division and same-sign no-adjust paths.
+TEST(CheatahBuiltins, Mod) {
+    EXPECT_EQ(b::mod(7, 2), 1);    // same sign -> no adjust
+    EXPECT_EQ(b::mod(-7, 2), 1);   // dividend negative, divisor positive -> +b correction
+    EXPECT_EQ(b::mod(7, -2), -1);  // dividend positive, divisor negative -> +b correction
+    EXPECT_EQ(b::mod(-7, -2), -1); // both negative -> signs already agree, no adjust
+    EXPECT_EQ(b::mod(6, 3), 0);    // exact -> r == 0, no adjust
+    EXPECT_EQ(b::mod(-6, 3), 0);   // exact and negative -> still 0, must NOT become +3
+}
+
 // Integer `//` and `%` by zero raise a CONTROLLED error (std::domain_error) instead of undefined
 // behavior — C++ integer divide/modulo by zero is UB (SIGFPE). Float `/`,`//`,`%` are IEEE-safe.
 TEST(CheatahBuiltins, IntegerDivideAndModuloByZeroThrow) {
