@@ -80,6 +80,30 @@ check_cxx_compiler_flag("-fno-semantic-interposition" CHEATAH_HAS_NO_SEMINTERP)
 if(CHEATAH_HAS_NO_SEMINTERP AND NOT APPLE AND NOT WIN32)
     list(APPEND CHEATAH_PURRC_CXXFLAGS "-fno-semantic-interposition")
 endif()
+# NO -flto here, and the reason is not "we forgot" — it is an ABI hazard, so leave it off.
+#
+# The win is real and measured (12th Gen i7-12700H, `purrc --cxxflag -flto`): a per-character string
+# walk went 1.77 -> 1.02 ns/char (1.74x), for a roughly FIXED ~0.08s of extra compile time. Cheatah is
+# happy to buy runtime with build time, so cost is NOT the objection.
+#
+# The objection is that -flto makes the compiler emit LLVM BITCODE objects instead of ELF. Those link
+# only when -flto is on the LINK line too. purrc's program path is a single compile+link invocation and
+# would be fine — but these same flags feed `--emit-library`, whose libcheatah_<m>.a archives are
+# linked by OUTSIDE builds that know nothing about LTO (godspeed's scripts/build_editor.sh is exactly
+# this). Bitcode in a published archive fails there with "file format not recognized" — the very error
+# CMake's own check_cxx_compiler_flag("-flto") hits, because it compiles with the flag and links
+# without it.
+#
+# To land LTO properly: apply it ONLY to the one-shot program path (never to --emit-library output), or
+# ship fat objects (-ffat-lto-objects) so archives stay linkable by non-LTO consumers. Either needs the
+# flag list split by output kind, which it is not today.
+#
+# The stdlib object libraries already get -funroll-loops (CHEATAH_MODULE_OPTFLAGS below); user programs
+# did not, which is an inconsistency, not a decision. Unlike -flto this changes no object format.
+check_cxx_compiler_flag("-funroll-loops" CHEATAH_HAS_UNROLL)
+if(CHEATAH_HAS_UNROLL)
+    list(APPEND CHEATAH_PURRC_CXXFLAGS "-funroll-loops")
+endif()
 if(WIN32)
     # clang on Windows produces a DLL with -shared; symbols are exported via the
     # __declspec(dllexport) the codegen emits, so no -fPIC/-pthread (implicit/ignored).

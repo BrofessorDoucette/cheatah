@@ -722,8 +722,11 @@ auto slice(const C& c, long long lo, long long hi) -> std::vector<std::decay_t<d
     hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
     if (lo < 0) lo = 0;
     if (hi > n) hi = n;
+    // assign() from the source range sizes the buffer ONCE — a push_back loop re-tests capacity every
+    // iteration and reallocates O(log n) times, which also keeps the loop from ever vectorizing. For
+    // trivially-copyable elements libstdc++ lowers this to a single memmove.
     std::vector<std::decay_t<decltype(c[0])>> out;
-    for (long long k = lo; k < hi; ++k) out.push_back(c[static_cast<std::size_t>(k)]);
+    if (lo < hi) out.assign(c.begin() + static_cast<std::size_t>(lo), c.begin() + static_cast<std::size_t>(hi));
     return out;
 }
 
