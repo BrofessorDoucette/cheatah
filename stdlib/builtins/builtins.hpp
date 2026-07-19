@@ -607,20 +607,31 @@ inline std::string index(const std::string& s, long long i) {
 }
 
 /**
- * Element at @p i of a list/array (Python `xs[i]`), by value.
+ * Element at @p i of a list/array (Python `xs[i]`), by CONST REFERENCE.
  * Negative @p i counts from the end; out-of-range throws `std::out_of_range`.
+ *
+ * Returning a reference — not a copy — is what makes `xs[i].field` free: reading one field of a
+ * heap-owning element (a struct with strings/lists) no longer deep-copies the whole element. Value
+ * semantics are UNCHANGED at the `.purr` level, because codegen binds a subscript with plain `auto`
+ * (`let e = xs[i]` still copies), and the const-ness preserves cheatah's "list elements are
+ * read-only" rule — whole-element `xs[i] = v` assignment goes through a different path.
+ *
+ * Lifetime: the reference is into @p c, so it is valid as long as @p c is and is not mutated.
+ * Subscripting a temporary container is safe in the expression that does it (the temporary outlives
+ * the full-expression); binding that reference to a name that outlives the statement is not, and
+ * codegen never emits such a binding.
  * @param c the sequence.
  * @param i the index (may be negative).
- * @return a copy of the element at @p i.
+ * @return a const reference to the element at @p i.
  * @complexity O(1).
- * @alloc none beyond copying the element.
+ * @alloc none.
  * @test CheatahBuiltins.IndexList
  * @crtest BuiltinsCompileRun.IndexList
  * @systest StdlibE2E.Builtins
  */
 template <typename C>
     requires requires(const C& c) { c.data(); c.size(); }  // contiguous seq (vector/array), not a map
-auto index(const C& c, long long i) -> std::decay_t<decltype(c[0])> {
+auto index(const C& c, long long i) -> const std::decay_t<decltype(c[0])>& {
     const long long n = static_cast<long long>(c.size());
     i = detail::norm_index(i, n);
     if (i < 0 || i >= n) throw std::out_of_range("index out of range");
@@ -649,19 +660,21 @@ inline bool index(const std::vector<bool>& c, long long i) {
 }
 
 /**
- * Value for @p key in a dict (Python `d[key]`), by value.
+ * Value for @p key in a dict (Python `d[key]`), by CONST REFERENCE.
+ * Same rationale and lifetime rules as the sequence overload above: `d[key].field` stops
+ * deep-copying the mapped value, while `let v = d[key]` still copies.
  * @param m the dict.
  * @param key the key to look up.
- * @return a copy of the mapped value (throws `std::out_of_range` if absent).
+ * @return a const reference to the mapped value (throws `std::out_of_range` if absent).
  * @complexity O(1) average.
- * @alloc none beyond copying the value.
+ * @alloc none.
  * @test CheatahBuiltins.IndexDict
  * @crtest BuiltinsCompileRun.IndexDict
  * @systest StdlibE2E.Builtins
  */
 template <typename K, typename V, typename H, typename E, typename A, typename Key>
     requires requires(const std::unordered_map<K, V, H, E, A>& m, const Key& key) { m.find(key); }
-V index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
+const V& index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
     const auto it = m.find(key);
     if (it == m.end()) throw std::out_of_range("key not found");
     return it->second;
