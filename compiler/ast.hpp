@@ -234,16 +234,27 @@ struct With : Stmt {
     With() : Stmt(StmtKind::With) {}
 };
 
-// try { … } except [name] { … }   — `name` (if present) binds the error message.
+// One `except [name] [of <kind>] { … }` clause. `name` binds the error (usable as its message, and
+// carrying .kind / .message); `kind` selects which errors this clause handles — absent means all of them.
+struct Handler {
+    std::string var;
+    ExprPtr kind;   // null = catch-all
+    Block body;
+};
+
+// try { … } except … { … } [except …] [finally { … }]
+// Handlers are tried in order, so a catch-all belongs last; anything no handler claims keeps travelling.
 struct Try : Stmt {
     Block body;
-    std::string catch_var;
-    Block catch_body;
+    std::vector<Handler> handlers;
+    Block finally_body;
+    bool has_finally = false;
     Try() : Stmt(StmtKind::Try) {}
 };
 
-struct Raise : Stmt {  // raise <message>
-    ExprPtr value;
+// raise <error>  —  or a bare `raise` inside a handler, which re-raises what is being handled.
+struct Raise : Stmt {
+    ExprPtr value;   // null = re-raise
     Raise() : Stmt(StmtKind::Raise) {}
 };
 

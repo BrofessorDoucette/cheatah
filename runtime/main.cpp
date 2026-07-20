@@ -272,7 +272,15 @@ int main(int argc, char** argv) {
     try {
         purr_main();  // run the program
     } catch (const std::exception& e) {
+        // A raised Error arrives here as a std::exception, so its message still reads. The runtime
+        // deliberately does NOT link the stdlib to recover the error's kind: it is a dependency-free
+        // host by design, and one word in a diagnostic is not worth giving that up.
         std::cerr << "cheatah: program error: " << e.what() << "\n";
+        rc = 1;
+    } catch (...) {
+        // Without this the process would terminate on a throw of a type we cannot inspect — an abort
+        // with no message at all, which is the least useful way for a program to end.
+        std::cerr << "cheatah: program error: unknown error\n";
         rc = 1;
     }
 

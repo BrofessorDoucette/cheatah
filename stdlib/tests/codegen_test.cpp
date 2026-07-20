@@ -370,9 +370,46 @@ TEST(CheatahCodegen, EmitsTryExceptAndRaise) {
     ASSERT_TRUE(pr.ok()) << (pr.diagnostics.empty() ? "" : pr.diagnostics.front().message);
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "throw std::runtime_error(std::string(\"boom\"));"));
-    EXPECT_TRUE(contains(cg.source, "} catch (const std::exception& e_exc) {"));
-    EXPECT_TRUE(contains(cg.source, "auto e = std::string(e_exc.what());"));
+    EXPECT_TRUE(contains(cg.source, "throw ::cheatah::builtins::Error(std::string(\"boom\"));"));
+    // ONE `catch (...)` normalized through current_error(), not a catch per exception type: that is
+    // what lets a raised Error, any std::exception, and a throw of an unknown type reach the same
+    // handler instead of the last one escaping to std::terminate.
+    EXPECT_TRUE(contains(cg.source, "} catch (...) {"));
+    EXPECT_TRUE(contains(cg.source, "= ::cheatah::builtins::current_error();"));
+    EXPECT_TRUE(contains(cg.source, "const auto& e = _purr_err;"));
+}
+
+TEST(CheatahCodegen, EmitsKindMatchingHandlersAndRethrowsWhatNoneClaim) {
+    const ParseResult pr = parse_source(
+        "import io\ntry {\nraise Error(\"oom\", \"no room\")\n} except e of \"oom\" {\nio.print(e)\n}\n");
+    ASSERT_TRUE(pr.ok()) << (pr.diagnostics.empty() ? "" : pr.diagnostics.front().message);
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    EXPECT_TRUE(contains(cg.source, "_purr_err.kind() == std::string(\"oom\")"));
+    // No catch-all clause, so anything else keeps travelling. Swallowing it would turn a handler that
+    // names ONE kind into a blanket suppressor of every other failure.
+    EXPECT_TRUE(contains(cg.source, "throw;"));
+}
+
+TEST(CheatahCodegen, EmitsFinallyAsAScopeGuard) {
+    const ParseResult pr = parse_source(
+        "import io\ntry {\nio.print(\"a\")\n} except e {\nio.print(e)\n} finally {\nio.print(\"z\")\n}\n");
+    ASSERT_TRUE(pr.ok()) << (pr.diagnostics.empty() ? "" : pr.diagnostics.front().message);
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    // A guard, not a duplicated block — duplicating would skip the body on return/break/continue,
+    // which is exactly when cleanup matters.
+    EXPECT_TRUE(contains(cg.source, "::cheatah::builtins::make_finally("));
+}
+
+TEST(CheatahCodegen, EmitsBareRaiseAsRethrow) {
+    const ParseResult pr = parse_source(
+        "try {\nraise \"x\"\n} except e {\nraise\n}\n");
+    ASSERT_TRUE(pr.ok()) << (pr.diagnostics.empty() ? "" : pr.diagnostics.front().message);
+    const CodegenResult cg = codegen(pr.program);
+    ASSERT_TRUE(cg.ok());
+    // `throw;` preserves the original error rather than reconstructing an approximation of it.
+    EXPECT_TRUE(contains(cg.source, "throw;"));
 }
 
 TEST(CheatahCodegen, EscapesStringLiterals) {

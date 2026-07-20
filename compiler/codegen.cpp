@@ -39,6 +39,8 @@ std::optional<std::string> builtin_cpp_name(const std::string& name) {
         {"str", "str"},
         {"append", "append"}, {"startswith", "startswith"},
         {"endswith", "endswith"}, {"contains", "contains"},
+        // `Error(kind, message)` builds a raisable error; `raise "msg"` builds one implicitly.
+        {"Error", "Error"},
     };
     const auto it = kBuiltins.find(name);
     if (it == kBuiltins.end()) return std::nullopt;
@@ -151,7 +153,11 @@ bool stmt_mutates_self(const Stmt& s) {
             return block_mutates_self(static_cast<const With&>(s).body);
         case StmtKind::Try: {
             const auto& t = static_cast<const Try&>(s);
-            return block_mutates_self(t.body) || block_mutates_self(t.catch_body);
+            if (block_mutates_self(t.body)) return true;
+            for (const Handler& h : t.handlers) {
+                if (block_mutates_self(h.body)) return true;
+            }
+            return t.has_finally && block_mutates_self(t.finally_body);
         }
         case StmtKind::Match: {
             const auto& m = static_cast<const Match&>(s);
@@ -1320,7 +1326,12 @@ private:
             }
             case StmtKind::Try: {
                 const auto& t = static_cast<const Try&>(s);
-                return block_reads_var(t.body, name) || block_reads_var(t.catch_body, name);
+                if (block_reads_var(t.body, name)) return true;
+                for (const Handler& h : t.handlers) {
+                    if (h.kind && refers_to(*h.kind, name)) return true;
+                    if (block_reads_var(h.body, name)) return true;
+                }
+                return t.has_finally && block_reads_var(t.finally_body, name);
             }
             case StmtKind::Match: {
                 const auto& m = static_cast<const Match&>(s);
@@ -1332,8 +1343,10 @@ private:
                 }
                 return false;
             }
-            case StmtKind::Raise:
-                return refers_to(*static_cast<const Raise&>(s).value, name);
+            case StmtKind::Raise: {
+                const auto& r = static_cast<const Raise&>(s);
+                return r.value && refers_to(*r.value, name);   // a bare re-raise reads nothing
+            }
             default:
                 return false;  // Import/StructDef/FnDef/EnumDef/InterfaceDef/RawCpp/Break/Continue
         }
@@ -1561,22 +1574,66 @@ private:
             }
             case StmtKind::Try: {
                 const auto& t = static_cast<const Try&>(s);
-                const std::string exc = (t.catch_var.empty() ? "_purr" : t.catch_var) + "_exc";
-                os << indent << "try {\n";
-                gen_block(os, t.body, indent + "    ");
-                os << indent << "} catch (const std::exception& " << exc << ") {\n";
-                if (!t.catch_var.empty()) {
-                    os << indent << "    auto " << cpp_ident(t.catch_var) << " = std::string(" << exc
-                       << ".what());\n";
+                std::string body_indent = indent;
+                // `finally` is a scope guard, not a duplicated block: emitting the body twice (once on
+                // the normal path, once on the throwing one) would silently skip it on `return`, `break`
+                // and `continue`, which is exactly when cleanup matters most.
+                if (t.has_finally) {
+                    os << indent << "{\n";
+                    os << indent << "    auto _purr_finally = ::cheatah::builtins::make_finally([&] {\n";
+                    gen_block(os, t.finally_body, indent + "        ");
+                    os << indent << "    });\n";
+                    body_indent = indent + "    ";
                 }
-                gen_block(os, t.catch_body, indent + "    ");
-                os << indent << "}\n";
+                os << body_indent << "try {\n";
+                gen_block(os, t.body, body_indent + "    ");
+                // ONE `catch (...)` rather than a catch per handler. Normalizing through current_error()
+                // means a raised Error, any std::exception, and a throw of a type we have never heard of
+                // all reach the same dispatch — that last case used to sail past every handler and take
+                // the process with it.
+                os << body_indent << "} catch (...) {\n";
+                const std::string ei = body_indent + "    ";
+                os << ei << "const ::cheatah::builtins::Error _purr_err = ::cheatah::builtins::current_error();\n";
+                bool has_catch_all = false;
+                for (std::size_t i = 0; i < t.handlers.size(); ++i) {
+                    const Handler& h = t.handlers[i];
+                    const bool is_catch_all = (h.kind == nullptr);
+                    std::string open = ei;
+                    if (is_catch_all) {
+                        has_catch_all = true;
+                        open += (i == 0 ? "{\n" : "else {\n");
+                    } else {
+                        open += (i == 0 ? "if (" : "else if (");
+                        open += "_purr_err.kind() == " + gen_expr(*h.kind) + ") {\n";
+                    }
+                    os << open;
+                    if (!h.var.empty()) {
+                        os << ei << "    const auto& " << cpp_ident(h.var) << " = _purr_err;\n";
+                    }
+                    gen_block(os, h.body, ei + "    ");
+                    os << ei << "}\n";
+                    if (is_catch_all) break;   // nothing after a catch-all can ever run
+                }
+                // An error no handler claimed keeps travelling. Swallowing it here would turn a
+                // `try/except` that names one kind into a blanket suppressor of every other failure.
+                if (!has_catch_all) {
+                    os << ei << (t.handlers.empty() ? "" : "else ") << "throw;\n";
+                }
+                os << body_indent << "}\n";
+                if (t.has_finally) os << indent << "}\n";
                 return;
             }
-            case StmtKind::Raise:
-                os << indent << "throw std::runtime_error("
-                   << gen_expr(*static_cast<const Raise&>(s).value) << ");\n";
+            case StmtKind::Raise: {
+                const auto& r = static_cast<const Raise&>(s);
+                // A bare `raise` re-raises what is being handled; C++ `throw;` does exactly that, and
+                // preserves the original type rather than reconstructing an approximation of it.
+                if (!r.value) {
+                    os << indent << "throw;\n";
+                    return;
+                }
+                os << indent << "throw ::cheatah::builtins::Error(" << gen_expr(*r.value) << ");\n";
                 return;
+            }
             case StmtKind::ExprStmt:
                 os << indent << gen_expr(*static_cast<const ExprStmt&>(s).expr, indent) << ";\n";
                 return;
@@ -2215,9 +2272,12 @@ private:
             }
             case StmtKind::Try: {
                 const auto& t = static_cast<const Try&>(s);
-                if (!t.catch_var.empty()) defined_names_.insert(t.catch_var);
                 collect_defined(t.body);
-                collect_defined(t.catch_body);
+                for (const Handler& h : t.handlers) {
+                    if (!h.var.empty()) defined_names_.insert(h.var);
+                    collect_defined(h.body);
+                }
+                if (t.has_finally) collect_defined(t.finally_body);
                 break;
             }
             case StmtKind::If: {

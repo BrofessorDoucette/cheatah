@@ -127,7 +127,17 @@ TEST(CheatahBuiltins, IndexBoolList) {
 TEST(CheatahBuiltins, IndexDict) {
     const std::unordered_map<std::string, long long> m{{"a", 1}, {"b", 2}};
     EXPECT_EQ(b::index(m, std::string("a")), 1);
-    EXPECT_THROW(b::index(m, std::string("z")), std::out_of_range);
+    // A missing key raises kind "key", NOT the "index" a sequence subscript raises: walking off the end
+    // of a list and asking for an entry that was never there are different mistakes, and `except e of
+    // "key"` should be able to take one without silently swallowing the other.
+    EXPECT_THROW(b::index(m, std::string("z")), b::Error);
+    try {
+        b::index(m, std::string("z"));
+        FAIL() << "expected a raise";
+    } catch (const b::Error& e) {
+        EXPECT_EQ(e.kind(), b::kErrorKindKey);
+        EXPECT_EQ(e.message(), "key not found");
+    }
 }
 
 TEST(CheatahBuiltins, SliceString) {

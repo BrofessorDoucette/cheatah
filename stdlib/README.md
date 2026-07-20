@@ -251,8 +251,10 @@ you `import`, so a lot of raw C++ needs no extra `#include` at all.
 
 ## Lexical structure
 - **Comments:** `# …` or `// …` to end of line.
-- **Keywords:** `and as else false fn for from if import in let not or return
-  struct true while`.
+- **Keywords:** `and as break case continue elif else enum except false fn for from
+  if import in interface let match not or raise return struct true try while with`.
+  `of` and `finally` are **contextual** — recognised after `except` / a try block, but
+  still usable as ordinary names anywhere else.
 - **Operators/punctuation:** `+ - * / ^ = == != < <= > >= ( ) { } [ ] , : ; .`
 - **Newlines** separate statements; brace `{ }` blocks group them. A **`;`** is an
   *optional* statement separator/terminator — `let a = 1; let b = 2` or a trailing

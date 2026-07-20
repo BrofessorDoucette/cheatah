@@ -918,7 +918,8 @@ private:
             case StmtKind::Try: {
                 const auto& t = static_cast<const Try&>(s);
                 check_scope(t.body);
-                check_scope(t.catch_body);
+                for (const Handler& h : t.handlers) check_scope(h.body);
+                if (t.has_finally) check_scope(t.finally_body);
                 break;
             }
             case StmtKind::Match: {

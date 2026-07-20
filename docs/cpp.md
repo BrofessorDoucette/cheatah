@@ -35,8 +35,12 @@ memory-safe** — the compiler emits no raw `new`/`delete` for any of it (see
   `websocket.Client`) replace hand-managed handles; `with` gives deterministic cleanup.
 - **No inheritance.** "is-a" is expressed with **interfaces** (concepts), not base classes —
   records only *implement* contracts; they never derive.
-- **Exceptions are message-based** (`try { … } except e { … }`, `raise "msg"`), not typed
-  `catch (const T&)`.
+- **Exceptions carry a KIND, not a type** — `except e of "index" { … }` selects on a string kind rather
+  than `catch (const T&)`, because there is no inheritance to build an exception hierarchy from. `e` is
+  an `Error` with `.kind()` and `.message()`, and prints and compares as its message. `raise "msg"`
+  raises kind `"error"`; `raise Error("kind", "msg")` names one; a bare `raise` in a handler re-raises.
+  Handlers run in order, `finally` runs on every exit path, and **anything no handler claims keeps
+  travelling** rather than being swallowed.
 - **`//` is floor division and `**` is power** (not C++'s comment / no-power); `^` is
   bitwise-xor as in C.
 

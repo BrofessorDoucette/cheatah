@@ -763,21 +763,48 @@ private:
         advance();  // try
         auto t = std::make_unique<Try>();
         t->body = parse_block();
-        if (!check_kw("except")) {
-            error("expected 'except' after a try block");
-            return t;
+        // One or more handlers, then an optional finally. A try with neither handles nothing and is
+        // almost certainly a typo, so it is a diagnostic rather than a silently useless block.
+        while (check_kw("except")) {
+            advance();  // except
+            Handler h;
+            if (check(TokenKind::Identifier)) {
+                h.var = advance().text;
+            }
+            // `of` and `finally` are CONTEXTUAL, matched as bare identifiers rather than added to the
+            // keyword table — reserving them would take two ordinary words out of circulation, and `of`
+            // in particular is a name programs use.
+            if (check_ident("of")) {
+                advance();  // of
+                h.kind = parse_expr();
+                if (!h.kind) {
+                    error("expected a kind expression after 'of'");
+                    synchronize();
+                    return t;
+                }
+            }
+            h.body = parse_block();
+            t->handlers.push_back(std::move(h));
         }
-        advance();  // except
-        if (check(TokenKind::Identifier)) {
-            t->catch_var = advance().text;  // bind the error message
+        if (check_ident("finally")) {
+            advance();
+            t->finally_body = parse_block();
+            t->has_finally = true;
         }
-        t->catch_body = parse_block();
+        if (t->handlers.empty() && !t->has_finally) {
+            error("expected 'except' or 'finally' after a try block");
+        }
         return t;
     }
 
     StmtPtr parse_raise() {
         advance();  // raise
         auto r = std::make_unique<Raise>();
+        // A bare `raise` re-raises the error being handled. Same end-of-statement test `return` uses.
+        if (check(TokenKind::Newline) || check(TokenKind::Semicolon) || check(TokenKind::RBrace) ||
+            at_end()) {
+            return r;
+        }
         r->value = parse_expr();
         if (!r->value) {
             synchronize();

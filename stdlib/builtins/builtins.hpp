@@ -44,6 +44,107 @@ concept Sized = requires(const C& c) {
 template <typename T>
 concept Value = std::movable<std::remove_cvref_t<T>>;
 
+// ---- errors -------------------------------------------------------------------------------------
+//
+// `raise` throws an Error and `except` catches one. An Error carries a KIND alongside its message, so a
+// handler can select what it knows how to deal with (`except e of "index"`) and let everything else keep
+// travelling — which is the whole difference between recovering from a failure and swallowing one.
+//
+// The kind is a plain string, not a class hierarchy, because cheatah has no inheritance: "is-a" is a
+// concept, and a runtime taxonomy of errors is a discriminated value, not a base class. Kinds are open —
+// any string works — so a library can name its own failures without every caller having to know them.
+//
+// An Error is still a `str` wherever one is expected: it converts and compares as its MESSAGE, so
+// `io.print(e)` and `e == "boom"` read exactly as they did when a handler bound a bare string.
+
+/// Conventional kinds raised from the language core. Libraries are free to define their own.
+inline constexpr const char* kErrorKindError = "error";        ///< `raise "msg"` — unclassified
+inline constexpr const char* kErrorKindIndex = "index";        ///< subscript out of range
+inline constexpr const char* kErrorKindKey = "key";            ///< dict key absent
+inline constexpr const char* kErrorKindArithmetic = "arithmetic";   ///< divide / modulo by zero
+inline constexpr const char* kErrorKindUnknown = "unknown";    ///< a throw of a type we cannot inspect
+
+/**
+ * A raised error: a `kind` naming what went wrong and a human `message`.
+ *
+ * Derives from `std::runtime_error` so it interoperates with C++ code that catches `std::exception` —
+ * that inheritance is a C++ implementation detail and is not visible from cheatah, where an Error is an
+ * ordinary value with two string fields.
+ */
+class Error : public std::runtime_error {
+public:
+    explicit Error(std::string message)
+        : std::runtime_error(message), kind_(kErrorKindError), message_(std::move(message)) {}
+    Error(std::string kind, std::string message)
+        : std::runtime_error(message), kind_(std::move(kind)), message_(std::move(message)) {}
+
+    const std::string& kind() const noexcept { return kind_; }
+    const std::string& message() const noexcept { return message_; }
+
+    // Deliberately NOT implicitly convertible to std::string. It would read nicely, but `str()` is a
+    // heavily overloaded set and an implicit conversion makes half of it ambiguous the moment an Error
+    // is printed. The `str` overload and the comparisons below give the same ergonomics explicitly.
+
+private:
+    std::string kind_;
+    std::string message_;
+};
+
+inline bool operator==(const Error& e, const std::string& s) { return e.message() == s; }
+inline bool operator==(const std::string& s, const Error& e) { return e.message() == s; }
+inline bool operator==(const Error& e, const char* s) { return e.message() == s; }
+inline bool operator==(const char* s, const Error& e) { return e.message() == s; }
+inline std::ostream& operator<<(std::ostream& os, const Error& e) { return os << e.message(); }
+
+/**
+ * The error currently being handled, normalized to an @ref Error.
+ *
+ * Called from inside a `catch (...)`, where `throw;` re-raises the in-flight exception so it can be
+ * inspected by type. This is what lets ONE handler shape cover a raised Error, a `std::exception` from
+ * any C++ library, and a throw of some type we have never heard of — the last of which used to travel
+ * straight past every handler and abort the process.
+ */
+inline Error current_error() {
+    try {
+        throw;
+    } catch (const Error& e) {
+        return e;
+    } catch (const std::out_of_range& e) {
+        return Error(kErrorKindIndex, e.what());
+    } catch (const std::domain_error& e) {
+        return Error(kErrorKindArithmetic, e.what());
+    } catch (const std::exception& e) {
+        return Error(kErrorKindError, e.what());
+    } catch (...) {
+        return Error(kErrorKindUnknown, "unknown error");
+    }
+}
+
+/// Runs its action when the scope ends, however it ends — the body of a `finally`.
+template <std::invocable F>
+class Finally {
+public:
+    explicit Finally(F f) : f_(std::move(f)) {}
+    Finally(const Finally&) = delete;
+    Finally& operator=(const Finally&) = delete;
+    ~Finally() {
+        // A `finally` that throws while an exception is already unwinding would terminate the process,
+        // which is a worse outcome than losing the second error — so it is swallowed here.
+        try {
+            f_();
+        } catch (...) {
+        }
+    }
+
+private:
+    F f_;
+};
+
+template <std::invocable F>
+Finally<F> make_finally(F f) {
+    return Finally<F>(std::move(f));
+}
+
 /**
  * Length / element count.
  *
@@ -309,6 +410,14 @@ std::string str(const T& value) {
  * @systest StdlibE2E.Builtins
  */
 inline std::string str(bool b) { return b ? "True" : "False"; }
+
+/**
+ * `str()` of an error is its MESSAGE — printing a caught error says what went wrong, without the kind
+ * turning up uninvited in output that only wanted the sentence. Reach for `.kind()` when you want it.
+ * @complexity O(message).
+ * @alloc copies the message.
+ */
+inline std::string str(const Error& e) { return e.message(); }
 
 /**
  * `str()` for the byte-width integers `i8`/`u8` (`std::int8_t`/`std::uint8_t`, which are
@@ -665,7 +774,9 @@ inline bool index(const std::vector<bool>& c, long long i) {
  * deep-copying the mapped value, while `let v = d[key]` still copies.
  * @param m the dict.
  * @param key the key to look up.
- * @return a const reference to the mapped value (throws `std::out_of_range` if absent).
+ * @return a const reference to the mapped value; an absent key raises kind `"key"`, which is distinct
+ *         from the `"index"` a sequence subscript raises — a missing dict entry and a walked-off-the-end
+ *         list are different mistakes and a handler should be able to take one without the other.
  * @complexity O(1) average.
  * @alloc none.
  * @test CheatahBuiltins.IndexDict
@@ -676,7 +787,7 @@ template <typename K, typename V, typename H, typename E, typename A, typename K
     requires requires(const std::unordered_map<K, V, H, E, A>& m, const Key& key) { m.find(key); }
 const V& index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
     const auto it = m.find(key);
-    if (it == m.end()) throw std::out_of_range("key not found");
+    if (it == m.end()) throw Error(kErrorKindKey, "key not found");
     return it->second;
 }
 

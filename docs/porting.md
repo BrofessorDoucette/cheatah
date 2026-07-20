@@ -41,7 +41,7 @@ No rethinking needed — just the syntax shell above:
 | Control flow | `if/elif/else`, `break`, `continue`, `match` | same |
 | Resources | `with io.open(p) as f { … }` | `with open(p) as f:` |
 | Built-ins | `len(x)`, `hex(n)`, `ord(c)` (no import) | `len`, `hex`, `ord` |
-| Errors | `try { … } except e { … }`, `raise "msg"` | message-based, catch-all |
+| Errors | `try { … } except e of "kind" { … } finally { … }`, `raise "msg"` | kind-based, not typed |
 
 Standard-library modules mirror Python names: `import math` (`math.sqrt`),
 `import string`, `import random`, `import statistics`, `import hashlib`,
@@ -128,8 +128,12 @@ print(c.area())
 6. **Containers are STL types.** `list[T]` → `std::vector<T>`, `dict[K,V]` →
    `std::unordered_map<K,V>`. Literals use type inference, so an **empty** `[]`/`{}`
    needs a type annotation. Iterating a `dict` yields **key/value pairs**.
-7. **Exceptions are message-based & catch-all.** `except e` binds `e` to the message
-   string; `raise "msg"` throws. No typed `except`, `as`, or `finally` yet.
+7. **Exceptions select on a KIND, not a type.** `except e of "index" { … }` matches an
+   error's kind string; a bare `except e { … }` catches the rest and belongs last.
+   `raise "msg"` raises kind `"error"`, `raise Error("kind", "msg")` names one, and a
+   bare `raise` inside a handler re-raises. `finally { … }` runs on every exit path.
+   There is no exception *hierarchy* — cheatah has no inheritance, so kinds are open
+   strings rather than classes. An error no handler claims keeps travelling.
 8. **`with` is RAII, not a context-manager protocol.** `with expr [as name] { … }`
    binds a resource for the block and its destructor releases it on **every** exit path
    (`return`/`break`/exception) — the direct analog of Python's `with open(…) as f:`.
@@ -210,8 +214,9 @@ print(zscores([1, 2, 3, 4]))
 (cheatah infers a list's element type from its elements, so an empty `[]` has nothing to
 infer from — hence the annotation.)
 
-**Error handling** — `try` / `except` work as you'd expect; the exception name binds a
-variable (typed exceptions aren't in yet, so you catch them all):
+**Error handling** — `try` / `except` work as you'd expect; the name binds the error,
+which prints and compares as its message and also carries `.kind()`. Add `of "kind"` to
+handle one class of failure and let the rest travel:
 
 SIDEBYSIDE: cheatah | Python
 
@@ -281,7 +286,7 @@ print(ages["ada"])
 
 ## Not yet supported (roadmap)
 
-Comprehensions; typed exceptions & `finally`; **interface refinement** (one
+Comprehensions; **interface refinement** (one
 interface inheriting another) and **custom constructors**; f-strings (use
 `io.format`); slice **assignment** and **step** slices; tuples/unpacking;
 generators/`yield`; `lambda`. All tracked toward frictionless Python → cheatah

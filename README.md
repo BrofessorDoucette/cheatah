@@ -102,11 +102,15 @@ enum Color { RED, GREEN, BLUE }
 let c = Color.GREEN
 io.print(c)                              # -> Color.GREEN
 
-# Exceptions (message-based).
+# Exceptions: errors carry a KIND, and a handler can take just the ones it knows.
 try {
-    raise "boom"
+    raise Error("io", "disk full")
+} except e of "io" {
+    io.print("caught:", e, "kind:", e.kind())   # an Error prints as its message
 } except e {
-    io.print("caught:", e)
+    io.print("something else:", e)              # last clause catches the rest
+} finally {
+    io.print("runs on every path")
 }
 
 io.print(2 ** 10, math.sqrt(2.0))        # ** is power; math.* for sqrt/sin/…
@@ -123,7 +127,7 @@ annotations), arithmetic + `**` power, comparisons, `and`/`or`/`not`,
 (scoped `enum class`, printable), `list`/`dict`/`array` collections with indexing,
 **slicing** (`a[i:j]`), negative
 indices, growable lists (`xs.append(v)`), and index assignment, method-call syntax
-(`s.startswith("…")`), string concatenation, `try`/`except` + `raise`, `import`
+(`s.startswith("…")`), string concatenation, `try`/`except of`/`finally` + `raise`, `import`
 (with `as` aliases and dotted modules like `os.path`), and always-available
 built-ins (`len`, `ord`, `chr`, `hex`/`oct`/`bin`, …).
 

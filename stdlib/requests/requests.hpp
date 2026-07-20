@@ -237,7 +237,7 @@ struct Response {
      */
     auto raise_for_status() const {
         if ((((*this).status_code >= 400LL) && ((*this).status_code < 600LL))) {
-            throw std::runtime_error(((((builtins::str((*this).status_code) + std::string(" ")) + builtins::str((*this).reason)) + std::string(" for url: ")) + builtins::str((*this).url)));
+            throw ::cheatah::builtins::Error(((((builtins::str((*this).status_code) + std::string(" ")) + builtins::str((*this).reason)) + std::string(" for url: ")) + builtins::str((*this).url)));
         }
     }
     /**
