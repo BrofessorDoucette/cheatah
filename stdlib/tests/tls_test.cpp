@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <string>
+#include <algorithm>
 #include <vector>
 
 #include "hashlib.hpp"
@@ -152,4 +153,35 @@ TEST(CheatahTls, PemBlockExtractsAndRejects) {
     der.append(32, static_cast<char>(0xAB));
     EXPECT_EQ(d::ed25519_seed_from_pkcs8(der), std::string(32, static_cast<char>(0xAB)));
     EXPECT_EQ(d::ed25519_seed_from_pkcs8("not a key"), "");   // pattern absent
+}
+
+// The ClientHello's cipher ORDER is a wire-format decision that depends on the host CPU: with AES-NI
+// we lead with AES-GCM, without it ChaCha20 leads. Read inline, whichever branch does not match the
+// build machine was dead code no test could reach — so the ordering went unpinned on every machine
+// except the one nobody was testing on. Taking the decision as a parameter makes both orders
+// checkable anywhere.
+TEST(CheatahTls, CipherPreferenceFollowsHardware) {
+    const auto suites = [](bool hw) {
+        std::string body;
+        cheatah::tls::detail::append_cipher_preference(body, hw);
+        EXPECT_EQ(body.size(), 6u) << "exactly three suites, two bytes each";
+        std::vector<unsigned> out;
+        for (std::size_t i = 0; i + 1 < body.size(); i += 2) {
+            out.push_back((static_cast<unsigned char>(body[i]) << 8) |
+                          static_cast<unsigned char>(body[i + 1]));
+        }
+        return out;
+    };
+
+    // With hardware AES, AES-GCM runs multi-GB/s and must be offered first.
+    EXPECT_EQ(suites(true), (std::vector<unsigned>{0x1302, 0x1301, 0x1303}));
+    // Without it, scalar ChaCha20 is our faster path, so it leads.
+    EXPECT_EQ(suites(false), (std::vector<unsigned>{0x1303, 0x1301, 0x1302}));
+
+    // Both orders offer the SAME three suites — the preference changes, never the capability, so a
+    // server that honours client order can always still pick something we can actually speak.
+    auto a = suites(true), b = suites(false);
+    std::sort(a.begin(), a.end());
+    std::sort(b.begin(), b.end());
+    EXPECT_EQ(a, b);
 }

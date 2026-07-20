@@ -210,6 +210,23 @@ std::string expand_label(std::string_view secret, std::string_view label,
 std::string derive_secret(std::string_view secret, std::string_view label,
                           std::string_view transcript);
 
+/**
+ * Append our three TLS 1.3 cipher suites to a ClientHello body, in preference order.
+ *
+ * Takes the hardware decision as a parameter rather than reading the CPU, so BOTH orders are
+ * reachable from a test on any machine: read inline, whichever branch does not match the build
+ * host's CPU is dead code no test can execute, and the suite ordering is a wire-format decision that
+ * deserves pinning everywhere rather than only on ARM.
+ *
+ * @param body the ClientHello body to append the 6 bytes to.
+ * @param hardware_aes true when AES-NI + PCLMULQDQ are present, so AES-GCM leads; false to lead with
+ *        ChaCha20, which is the faster path when AES has no hardware backing.
+ * @complexity O(1).
+ * @alloc appends 6 bytes to @p body.
+ * @test CheatahTls.CipherPreferenceFollowsHardware
+ */
+void append_cipher_preference(std::string& body, bool hardware_aes);
+
 // Server-handshake parsers, exposed as test seams so crafted-input unit tests can drive every
 // refusal branch deterministically (no network peer needed). Not part of the cheatah surface.
 /**

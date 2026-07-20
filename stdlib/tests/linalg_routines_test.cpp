@@ -749,3 +749,38 @@ TEST(LinalgRoutines, BatchedMatmul) {
     EXPECT_THROW(la::matmul(A, nd::zeros({3, 2})), std::runtime_error);
     EXPECT_THROW(la::matmul(A, nd::zeros({3, 3, 2})), std::runtime_error);
 }
+
+// The REAL instantiation of the (conjugate-)transpose kernel. The complex path is covered by
+// ComplexProducts, but a real element takes the other side of the kernel's `if constexpr` — a plain
+// transpose with the conjugation compiled out — and nothing exercised it, so the branch that most
+// users actually hit was the untested one.
+TEST(LinalgRoutines, ConjTransposeOnRealMatrix) {
+    const nd::NDArray M = mat(2, 3, {1, 2, 3, 4, 5, 6});
+    const nd::NDArray T = la::conj_transpose(M);
+    ASSERT_EQ(T.ndim(), 2);
+    EXPECT_EQ(T.shape()[0], 3u);
+    EXPECT_EQ(T.shape()[1], 2u);
+    EXPECT_TRUE(close(nd::get(T, {0, 0}), 1));
+    EXPECT_TRUE(close(nd::get(T, {0, 1}), 4));
+    EXPECT_TRUE(close(nd::get(T, {2, 0}), 3));
+    EXPECT_TRUE(close(nd::get(T, {2, 1}), 6));
+
+    // Same answer through the allocation-free out-param form.
+    nd::NDArray out = nd::NDArray::uninitialized({3, 2});
+    la::conj_transpose(out, M);
+    EXPECT_TRUE(close(nd::get(out, {0, 1}), 4));
+    EXPECT_TRUE(close(nd::get(out, {2, 0}), 3));
+}
+
+// The out-param shape guard on the COPY path. `outer` validates its out against an initializer-list
+// shape; the routines that build a result and then copy it in (cholesky, inv, solve, lstsq) validate
+// against a runtime shape vector instead — a separate overload, and one no test reached. A wrong-shaped
+// out must be refused rather than write past the caller's buffer.
+TEST(LinalgRoutines, OutParamRejectsWrongShapeOnTheCopyPath) {
+    const nd::NDArray spd = mat(2, 2, {4, 2, 2, 3});   // symmetric positive-definite
+    nd::NDArray good = nd::NDArray::uninitialized({2, 2});
+    EXPECT_NO_THROW(la::cholesky(good, spd));
+
+    nd::NDArray wrong = nd::NDArray::uninitialized({3, 3});
+    EXPECT_THROW(la::cholesky(wrong, spd), std::runtime_error);
+}

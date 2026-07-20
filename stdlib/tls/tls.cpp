@@ -266,15 +266,7 @@ std::string build_client_hello(const std::string& server_name, std::string_view 
     // path, so lead with it. The server picks from our order when it honors client preference —
     // which is what turns a ChaCha-negotiated ~200 MB/s link into a ~320 MB/s AES-GCM one.
     put16(body, 6);                  // cipher_suites: three suites (6 bytes)
-    if (aead::crypto_hardware_active()) {
-        put16(body, 0x1302);         // TLS_AES_256_GCM_SHA384 (hardware AES-NI — preferred)
-        put16(body, 0x1301);         // TLS_AES_128_GCM_SHA256 (hardware AES-NI)
-        put16(body, 0x1303);         // TLS_CHACHA20_POLY1305_SHA256 (fallback)
-    } else {
-        put16(body, 0x1303);         // TLS_CHACHA20_POLY1305_SHA256 (no AES-NI — scalar ChaCha wins)
-        put16(body, 0x1301);         // TLS_AES_128_GCM_SHA256
-        put16(body, 0x1302);         // TLS_AES_256_GCM_SHA384
-    }
+    detail::append_cipher_preference(body, aead::crypto_hardware_active());
     body.push_back(1);               // legacy_compression_methods
     body.push_back(0);               // null
 
@@ -1235,6 +1227,29 @@ Conn accept(long long fd, const std::string& cert_pem, const std::string& key_pe
 }
 
 namespace detail {
+// Cipher preference follows OUR fastest cipher, exactly as OpenSSL/curl do: with AES-NI +
+// PCLMULQDQ present, AES-GCM runs at multi-GB/s hardware speed and beats our scalar ChaCha20, so
+// offer AES-GCM FIRST; without hardware AES (some VMs/ARM), scalar ChaCha20 is the faster path, so
+// lead with it. The server picks from our order when it honors client preference — which is what
+// turns a ChaCha-negotiated ~200 MB/s link into a ~320 MB/s AES-GCM one.
+//
+// Split out and taking the decision as a PARAMETER rather than calling crypto_hardware_active()
+// inline, so both orders are reachable from a test on any host. Inline, the branch not matching the
+// build machine's CPU was dead code no test could ever execute — the ordering is a wire-format
+// decision and deserves to be pinned on every machine, not only on ARM.
+void append_cipher_preference(std::string& body, bool hardware_aes) {
+    if (hardware_aes) {
+        put16(body, 0x1302);         // TLS_AES_256_GCM_SHA384 (hardware AES-NI — preferred)
+        put16(body, 0x1301);         // TLS_AES_128_GCM_SHA256 (hardware AES-NI)
+        put16(body, 0x1303);         // TLS_CHACHA20_POLY1305_SHA256 (fallback)
+    } else {
+        put16(body, 0x1303);         // TLS_CHACHA20_POLY1305_SHA256 (no AES-NI — scalar ChaCha wins)
+        put16(body, 0x1301);         // TLS_AES_128_GCM_SHA256
+        put16(body, 0x1302);         // TLS_AES_256_GCM_SHA384
+    }
+}
+
+
 std::string expand_label(std::string_view secret, std::string_view label,
                          std::string_view context, unsigned length) {
     return cheatah::tls::expand_label_impl(secret, label, context, length);
