@@ -73,12 +73,40 @@ inline constexpr const char* kErrorKindUnknown = "unknown";    ///< a throw of a
  */
 class Error : public std::runtime_error {
 public:
+    /**
+     * An unclassified error — what `raise "msg"` builds. Kind is @ref kErrorKindError.
+     * @param message the human-readable description.
+     * @complexity O(message).
+     * @alloc copies the message (twice: the base class keeps its own).
+     */
     explicit Error(std::string message)
         : std::runtime_error(message), kind_(kErrorKindError), message_(std::move(message)) {}
+
+    /**
+     * A classified error — what `raise Error("kind", "msg")` builds.
+     * @param kind the open-ended kind string a handler selects on (`except e of "kind"`).
+     * @param message the human-readable description.
+     * @complexity O(kind + message).
+     * @alloc copies both strings.
+     */
     Error(std::string kind, std::string message)
         : std::runtime_error(message), kind_(std::move(kind)), message_(std::move(message)) {}
 
+    /**
+     * @brief What CLASS of failure this is — the string `except … of` matches against.
+     * @return the kind, by const reference; never empty for an Error built through these constructors.
+     * @complexity O(1).
+     * @alloc none.
+     */
     const std::string& kind() const noexcept { return kind_; }
+
+    /**
+     * @brief The human-readable description. This is also what @ref str and `operator<<` yield, so a
+     *        caught error prints as its message rather than as a struct.
+     * @return the message, by const reference.
+     * @complexity O(1).
+     * @alloc none.
+     */
     const std::string& message() const noexcept { return message_; }
 
     // Deliberately NOT implicitly convertible to std::string. It would read nicely, but `str()` is a
@@ -90,10 +118,43 @@ private:
     std::string message_;
 };
 
+/**
+ * @brief Compare an error against a string — by MESSAGE, so `e == "boom"` reads the way it did when a
+ *        handler bound a bare string. Compare `e.kind()` when you mean the kind.
+ * @param e the error.
+ * @param s the message to compare against.
+ * @return true when the error's message is exactly @p s.
+ * @complexity O(min(len)).
+ * @alloc none.
+ */
 inline bool operator==(const Error& e, const std::string& s) { return e.message() == s; }
+
+/** @brief Message comparison, arguments reversed.
+ *  @param s the message to compare against.
+ *  @param e the error.
+ *  @return true when the error's message is exactly @p s.
+ *  @complexity O(min(len)). @alloc none. */
 inline bool operator==(const std::string& s, const Error& e) { return e.message() == s; }
+
+/** @brief Message comparison against a string literal.
+ *  @param e the error.
+ *  @param s the NUL-terminated message to compare against.
+ *  @return true when the error's message is exactly @p s.
+ *  @complexity O(min(len)). @alloc none. */
 inline bool operator==(const Error& e, const char* s) { return e.message() == s; }
+
+/** @brief Message comparison against a string literal, arguments reversed.
+ *  @param s the NUL-terminated message to compare against.
+ *  @param e the error.
+ *  @return true when the error's message is exactly @p s.
+ *  @complexity O(min(len)). @alloc none. */
 inline bool operator==(const char* s, const Error& e) { return e.message() == s; }
+
+/** @brief Stream an error as its MESSAGE — the kind would be noise in output that wanted the sentence.
+ *  @param os the destination stream.
+ *  @param e the error.
+ *  @return @p os, for chaining.
+ *  @complexity O(message). @alloc none beyond the stream's own. */
 inline std::ostream& operator<<(std::ostream& os, const Error& e) { return os << e.message(); }
 
 /**
@@ -103,6 +164,12 @@ inline std::ostream& operator<<(std::ostream& os, const Error& e) { return os <<
  * inspected by type. This is what lets ONE handler shape cover a raised Error, a `std::exception` from
  * any C++ library, and a throw of some type we have never heard of — the last of which used to travel
  * straight past every handler and abort the process.
+ *
+ * @return the in-flight exception as an Error: a raised Error verbatim, a `std::out_of_range` as kind
+ *         "index", a `std::domain_error` as "arithmetic", any other `std::exception` as "error", and
+ *         anything else as "unknown".
+ * @complexity O(1) plus the message copy.
+ * @alloc copies the kind and message.
  */
 inline Error current_error() {
     try {
@@ -124,9 +191,23 @@ inline Error current_error() {
 template <std::invocable F>
 class Finally {
 public:
+    /**
+     * @brief Take ownership of the action to run at scope exit.
+     * @param f the callable to invoke from the destructor.
+     * @complexity O(1).
+     * @alloc moves @p f into the guard.
+     */
     explicit Finally(F f) : f_(std::move(f)) {}
     Finally(const Finally&) = delete;
     Finally& operator=(const Finally&) = delete;
+
+    /**
+     * @brief Run the action. Reached on every exit path — normal fall-through, `return`, `break`, or an
+     *        exception unwinding through the scope, which is the whole point of a guard over a
+     *        duplicated block.
+     * @complexity that of the action.
+     * @alloc that of the action.
+     */
     ~Finally() {
         // A `finally` that throws while an exception is already unwinding would terminate the process,
         // which is a worse outcome than losing the second error — so it is swallowed here.
@@ -140,6 +221,13 @@ private:
     F f_;
 };
 
+/**
+ * @brief Build a scope guard around @p f — how `finally { … }` lowers.
+ * @param f the callable to run when the enclosing scope ends.
+ * @return the guard; keep it alive for the scope you want covered.
+ * @complexity O(1).
+ * @alloc moves @p f into the returned guard.
+ */
 template <std::invocable F>
 Finally<F> make_finally(F f) {
     return Finally<F>(std::move(f));
@@ -414,6 +502,8 @@ inline std::string str(bool b) { return b ? "True" : "False"; }
 /**
  * `str()` of an error is its MESSAGE — printing a caught error says what went wrong, without the kind
  * turning up uninvited in output that only wanted the sentence. Reach for `.kind()` when you want it.
+ * @param e the error to render.
+ * @return the error's message.
  * @complexity O(message).
  * @alloc copies the message.
  */
