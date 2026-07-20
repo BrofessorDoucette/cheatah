@@ -211,10 +211,12 @@ public:
     ~Finally() {
         // A `finally` that throws while an exception is already unwinding would terminate the process,
         // which is a worse outcome than losing the second error — so it is swallowed here.
+        // (The handler is one line deliberately: Finally is a template, so an instantiation whose
+        // action cannot throw leaves a standalone `}` that no test can ever reach. The swallow itself
+        // IS covered — see CheatahBuiltins.FinallySwallowsItsOwnThrowDuringUnwinding.)
         try {
             f_();
-        } catch (...) {
-        }
+        } catch (...) {}   // NOLINT(bugprone-empty-catch) — swallowing is the documented contract
     }
 
 private:
