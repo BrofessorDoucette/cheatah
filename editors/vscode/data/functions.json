@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 651,
+      "srcline": 653,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 363,
+      "srcline": 365,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 347,
+      "srcline": 349,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 391,
+      "srcline": 393,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 304,
+      "srcline": 306,
       "module": "",
       "qualified": "chr"
     },
@@ -141,7 +141,7 @@
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 727,
+      "srcline": 729,
       "module": "",
       "qualified": "contains"
     },
@@ -183,7 +183,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 681,
+      "srcline": 683,
       "module": "",
       "qualified": "endswith"
     },
@@ -206,7 +206,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 456,
+      "srcline": 458,
       "module": "",
       "qualified": "float"
     },
@@ -233,7 +233,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 590,
+      "srcline": 592,
       "module": "",
       "qualified": "floordiv"
     },
@@ -256,7 +256,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 627,
+      "srcline": 629,
       "module": "",
       "qualified": "hash"
     },
@@ -279,7 +279,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 319,
+      "srcline": 321,
       "module": "",
       "qualified": "hex"
     },
@@ -333,7 +333,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 421,
+      "srcline": 423,
       "module": "",
       "qualified": "int"
     },
@@ -356,7 +356,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 250,
+      "srcline": 252,
       "module": "",
       "qualified": "len"
     },
@@ -376,7 +376,7 @@
         "alloc": "moves f into the returned guard."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 232,
+      "srcline": 234,
       "module": "",
       "qualified": "make_finally"
     },
@@ -402,7 +402,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 769,
+      "srcline": 771,
       "module": "",
       "qualified": "mod"
     },
@@ -425,7 +425,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 333,
+      "srcline": 335,
       "module": "",
       "qualified": "oct"
     },
@@ -447,7 +447,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 289,
+      "srcline": 291,
       "module": "",
       "qualified": "ord"
     },
@@ -496,7 +496,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 920,
+      "srcline": 922,
       "module": "",
       "qualified": "slice"
     },
@@ -523,7 +523,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 666,
+      "srcline": 668,
       "module": "",
       "qualified": "startswith"
     },
@@ -540,7 +540,7 @@
       "returns": "the value's decimal digits.",
       "tags": {},
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 530,
+      "srcline": 532,
       "module": "",
       "qualified": "str"
     },
@@ -563,7 +563,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 391,
+      "srcline": 393,
       "module": "",
       "qualified": "to_bool"
     },
@@ -586,7 +586,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 456,
+      "srcline": 458,
       "module": "",
       "qualified": "to_float"
     },
@@ -609,7 +609,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 421,
+      "srcline": 423,
       "module": "",
       "qualified": "to_int"
     },
@@ -636,7 +636,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 547,
+      "srcline": 549,
       "module": "",
       "qualified": "truediv"
     },
