@@ -2,6 +2,8 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "builtins.hpp"
 
+#include <stdexcept>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -196,4 +198,92 @@ TEST(CheatahBuiltins, Ord) {
     EXPECT_EQ(b::ord('A'), 65);
     EXPECT_EQ(b::ord('0'), 48);
     EXPECT_EQ(b::ord('\xff'), 255);   // 0xFF -> 255, not -1
+}
+
+// ---- errors: the kind/message value type behind `raise` and `except` -----------------------------
+
+TEST(CheatahBuiltins, ErrorCarriesKindAndMessage) {
+    const b::Error plain("boom");
+    EXPECT_EQ(plain.kind(), b::kErrorKindError) << "an unclassified raise gets the generic kind";
+    EXPECT_EQ(plain.message(), "boom");
+    EXPECT_STREQ(plain.what(), "boom") << "and it is still a std::exception carrying the message";
+
+    const b::Error classified("io", "disk full");
+    EXPECT_EQ(classified.kind(), "io");
+    EXPECT_EQ(classified.message(), "disk full");
+}
+
+TEST(CheatahBuiltins, ErrorComparesAndPrintsAsItsMessage) {
+    const b::Error e("io", "disk full");
+    // All four orderings, both string and literal — this is what keeps `except e { if e == "..." }`
+    // reading the way it did when a handler bound a bare string.
+    EXPECT_TRUE(e == std::string("disk full"));
+    EXPECT_TRUE(std::string("disk full") == e);
+    EXPECT_TRUE(e == "disk full");
+    EXPECT_TRUE("disk full" == e);
+    EXPECT_FALSE(e == "io") << "comparison is against the MESSAGE, never the kind";
+
+    std::ostringstream os;
+    os << e;
+    EXPECT_EQ(os.str(), "disk full") << "streaming yields the sentence, not the kind";
+    EXPECT_EQ(b::str(e), "disk full");
+}
+
+TEST(CheatahBuiltins, CurrentErrorNormalizesEveryThrownType) {
+    // The point of current_error: ONE handler shape covers everything that can arrive, including a
+    // type nothing knows about — which previously travelled past every handler and killed the process.
+    const auto caught = [](auto&& thrower) {
+        try {
+            thrower();
+        } catch (...) {
+            return b::current_error();
+        }
+        return b::Error("never", "never");
+    };
+
+    EXPECT_EQ(caught([] { throw b::Error("io", "passed through"); }).kind(), "io");
+    EXPECT_EQ(caught([] { throw std::out_of_range("oops"); }).kind(), b::kErrorKindIndex);
+    EXPECT_EQ(caught([] { throw std::domain_error("oops"); }).kind(), b::kErrorKindArithmetic);
+    EXPECT_EQ(caught([] { throw std::runtime_error("oops"); }).kind(), b::kErrorKindError);
+    EXPECT_EQ(caught([] { throw 42; }).kind(), b::kErrorKindUnknown) << "an int throw is still catchable";
+    EXPECT_EQ(caught([] { throw std::out_of_range("keep me"); }).message(), "keep me");
+}
+
+TEST(CheatahBuiltins, FinallyRunsOnEveryExitPath) {
+    // A guard, not a duplicated block — so it survives the paths a duplicated block would skip.
+    int ran = 0;
+
+    {
+        auto g = b::make_finally([&] { ++ran; });
+    }
+    EXPECT_EQ(ran, 1) << "normal fall-through";
+
+    ran = 0;
+    const auto with_return = [&]() -> int {
+        auto g = b::make_finally([&] { ++ran; });
+        return 7;   // the case a duplicated finally body would miss
+    };
+    EXPECT_EQ(with_return(), 7);
+    EXPECT_EQ(ran, 1) << "early return";
+
+    ran = 0;
+    try {
+        auto g = b::make_finally([&] { ++ran; });
+        throw b::Error("x", "unwind");
+    } catch (const b::Error&) {
+    }
+    EXPECT_EQ(ran, 1) << "an exception unwinding through the scope";
+}
+
+TEST(CheatahBuiltins, FinallySwallowsItsOwnThrowDuringUnwinding) {
+    // A finally that throws WHILE an exception is unwinding would terminate the process. Losing the
+    // second error is the lesser harm, and this pins that choice so nobody "fixes" it into a crash.
+    EXPECT_NO_THROW({
+        try {
+            auto g = b::make_finally([] { throw std::runtime_error("from the guard"); });
+            throw b::Error("first", "the original");
+        } catch (const b::Error& e) {
+            EXPECT_EQ(e.message(), "the original") << "the original error is what survives";
+        }
+    });
 }
