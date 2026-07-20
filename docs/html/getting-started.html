@@ -26,10 +26,10 @@
   <h1>Getting Started</h1>
   
 </div>
-<div class="overview"><p>🐱 <em>Write Python-shaped code; ship a native module.</em> 🐆</p><p>cheatah is a <strong>compiled, Python-shaped language</strong>. You write a <code>.purr</code> file, compile it with <code>purrc</code> into a native shared module (<code>.so</code>), and the <code>cheatah</code> runtime loads and runs that module. This page walks the whole path: hello-world, then what happens when you compile — and what &quot;statically linked&quot; and &quot;dynamically loaded&quot; mean here.</p><h2 id="getting-started_1autotoc_md120">Hello, cheatah</h2><pre class="code"><code><span class="tok-kw">import</span> io
+<div class="overview"><p>🐱 <em>Write Python-shaped code; ship a native module.</em> 🐆</p><p>cheatah is a <strong>compiled, Python-shaped language</strong>. You write a <code>.purr</code> file, compile it with <code>purrc</code> into a native shared module (<code>.so</code>), and the <code>cheatah</code> runtime loads and runs that module. This page walks the whole path: hello-world, then what happens when you compile — and what &quot;statically linked&quot; and &quot;dynamically loaded&quot; mean here.</p><h2 id="getting-started_1autotoc_md121">Hello, cheatah</h2><pre class="code"><code><span class="tok-kw">import</span> io
 
 io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;meow&quot;</span>)</code></pre><p>Save it as <code>hello.purr</code>, then:</p><pre class="code"><code>purrc hello.purr -o hello.so     <span class="tok-com"># compile to a native module</span>
-cheatah hello.so                 <span class="tok-com"># the runtime loads &amp; runs it</span></code></pre><pre class="code"><code>meow</code></pre><p><code>purrc</code> is the compiler; <code>cheatah</code> is the runtime host that loads a compiled module. (Build both from source with the <code>release</code> preset: <code>cmake --preset release &amp;&amp; cmake --build --preset release</code>.)</p><h2 id="getting-started_1autotoc_md121">What </h2><p><code>purrc</code> is a transpiler in front of your system C++ compiler. It lexes and parses the <code>.purr</code>, generates modern C++, and invokes the C++ backend <strong>directly</strong> (<code>fork</code> + <code>execvp</code>, never a shell — no command injection):</p><pre class="code"><code>hello.purr
+cheatah hello.so                 <span class="tok-com"># the runtime loads &amp; runs it</span></code></pre><pre class="code"><code>meow</code></pre><p><code>purrc</code> is the compiler; <code>cheatah</code> is the runtime host that loads a compiled module. (Build both from source with the <code>release</code> preset: <code>cmake --preset release &amp;&amp; cmake --build --preset release</code>.)</p><h2 id="getting-started_1autotoc_md122">What </h2><p><code>purrc</code> is a transpiler in front of your system C++ compiler. It lexes and parses the <code>.purr</code>, generates modern C++, and invokes the C++ backend <strong>directly</strong> (<code>fork</code> + <code>execvp</code>, never a shell — no command injection):</p><pre class="code"><code>hello.purr
     │
     │  lex → parse → AST
     ▼
@@ -47,7 +47,7 @@ cheatah hello.so                 <span class="tok-com"># the runtime loads &amp;
     ▼
 hello.so      ── a native shared object exporting:  extern <span class="tok-str">&quot;C&quot;</span> void <span class="tok-fn">purr_main</span>()</code></pre><p>Two things worth noticing:</p><ul><li><p><strong>It compiles at <code>-O3 -march=native</code>.</strong> The module is optimized native code for <em>your</em> CPU — that&#x27;s the whole performance bargain (see <a href="performance.html">Performance</a>).</p>
 </li><li><p><strong>It links only what you <code><span class="tok-kw">import</span></code>.</strong> Each imported stdlib module (<code>io</code>, <code>ndarray</code>, <code>linalg</code>, …) contributes one static archive; import nothing, pull in nothing.</p>
-</li></ul><h2 id="getting-started_1autotoc_md122">Static </h2><p>cheatah&#x27;s module model uses <strong>both</strong> linking styles, each where it pays off:</p><pre class="code"><code>                ┌───────────────────────── hello.so ─────────────────────────┐
+</li></ul><h2 id="getting-started_1autotoc_md123">Static </h2><p>cheatah&#x27;s module model uses <strong>both</strong> linking styles, each where it pays off:</p><pre class="code"><code>                ┌───────────────────────── hello.so ─────────────────────────┐
 STATIC LINK     │   your compiled code   +   libcheatah_io.a                  │
 (at compile)    │                            libcheatah_ndarray.a   (etc.)    │
                 │   the stdlib you imported <span class="tok-kw">is</span> baked IN — the module <span class="tok-kw">is</span>        │
@@ -61,7 +61,7 @@ DYNAMIC LOAD     ┌────────────────────
                  │   validates the file, loads the module, calls <span class="tok-fn">purr_main</span>() │
                  └──────────────────────────────────────────────────────────┘</code></pre><ul><li><p><strong>Statically linked stdlib (compile time).</strong> The modules you imported are compiled into the <code>.so</code> as static archives (<code>libcheatah_*.a</code>). The module is self-contained: no separate &quot;cheatah runtime library&quot; to ship or find on the load path.</p>
 </li><li><p><strong>Dynamically loaded module (run time).</strong> The <code>.so</code> is <strong>not</strong> a standalone executable — it exports <code>extern <span class="tok-str">&quot;C&quot;</span> void <span class="tok-fn">purr_main</span>()</code>. The <code>cheatah</code> host <code>dlopen</code>s the module, resolves <code>purr_main</code>, and calls it. Before loading, the runtime <strong>validates</strong> the file (canonical path, regular file, refuses world-writable, checks the ELF magic — see <a href="security.html">Security</a>).</p>
-</li></ul><p>That <code>dlopen</code> step <em>is</em> the dynamic-loading mechanism interpreted languages use for plugins and hot-reload — except here the loaded code is compiled native, so it runs at full speed. (<a href="performance.html">Performance</a> covers how that gives you interpreter-style dynamism without an interpreter.)</p><h2 id="getting-started_1autotoc_md123">Where to go next</h2><ul><li><p><a href="porting.html">Coming from Python</a> — bring an existing Python script over with light edits.</p>
+</li></ul><p>That <code>dlopen</code> step <em>is</em> the dynamic-loading mechanism interpreted languages use for plugins and hot-reload — except here the loaded code is compiled native, so it runs at full speed. (<a href="performance.html">Performance</a> covers how that gives you interpreter-style dynamism without an interpreter.)</p><h2 id="getting-started_1autotoc_md124">Where to go next</h2><ul><li><p><a href="porting.html">Coming from Python</a> — bring an existing Python script over with light edits.</p>
 </li><li><p><a href="performance.html">Performance</a> — why the compile-time cost buys run-time speed, and how the <code><span class="tok-doc">@perf</span></code> numbers are measured.</p>
 </li><li><p><a href="security.html">Security</a> — what the language protects you from, and what you still own today.</p>
 </li><li><p>Browse the <strong>Modules</strong> in the sidebar (<code>io</code>, <code>ndarray</code>, <code>linalg</code>, <code>string</code>, …) for the full standard-library reference.</p>
@@ -70,7 +70,7 @@ DYNAMIC LOAD     ┌────────────────────
 </main>
   <aside class="toc" aria-label="On this page"></aside>
 </div>
-<script src="search-index.js?v=6a22583b"></script>
+<script src="search-index.js?v=7cb674ea"></script>
 <script src="cheatah-docs.js?v=be832e47"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
