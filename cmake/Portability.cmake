@@ -48,6 +48,12 @@ endif()
 set(CHEATAH_VECLIB_FLAG "")
 set(_cheatah_math_link "")
 if(APPLE)
+    # std::jthread and <stop_token> live in libc++'s EXPERIMENTAL library on Apple toolchains (Xcode's
+    # libc++ gates them behind this macro), unlike libstdc++ where they are in <thread> since GCC 10.
+    # cheatah's thread module uses jthread for its join-on-destruction guard, so enable the flag for
+    # every cheatah target on Apple. A purrc-compiled user program that imports `thread` gets the same
+    # flag from compiler/purrc.cpp's Apple CXXFLAGS, so the requirement never leaks to a consumer.
+    add_compile_definitions(_LIBCPP_ENABLE_EXPERIMENTAL)
     check_cxx_compiler_flag("-fveclib=Accelerate" CHEATAH_HAS_ACCELERATE)
     if(CHEATAH_HAS_ACCELERATE)
         set(CHEATAH_VECLIB_FLAG "-fveclib=Accelerate")
