@@ -57,10 +57,7 @@
 // (Apple Silicon wants -mcpu=native, not -march=native; macOS modules are .dylib).
 #ifndef CHEATAH_CXXFLAGS
 #  if defined(__APPLE__)
-// _LIBCPP_ENABLE_EXPERIMENTAL: std::jthread / <stop_token> are in libc++'s experimental library on Apple
-// (Xcode's libc++). A user program that imports `thread` includes jthread through thread.hpp, so it needs
-// the same flag cheatah's own build uses (cmake/Portability.cmake) — kept in lockstep here.
-#    define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-mcpu=native|-fPIC|-shared|-pthread|-D_LIBCPP_ENABLE_EXPERIMENTAL|-w"
+#    define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-mcpu=native|-fPIC|-shared|-pthread|-w"
 #  else
 #    define CHEATAH_CXXFLAGS "-std=c++20|-O3|-DNDEBUG|-fno-math-errno|-march=native|-fPIC|-shared|-pthread|-w"
 #  endif
