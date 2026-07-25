@@ -223,6 +223,9 @@ struct Dfa {
 
     /// Add the epsilon-closure of @p pc to @p out. @param pc start program counter.
     /// @param out accumulates the reachable Byte/Match pcs. @param seen per-pc visited flags.
+    /// @complexity O(program size) — the worklist visits each pc at most once (@p seen).
+    /// @alloc the local worklist vector (the caller owns @p out / @p seen).
+    /// @test RegexE2E.SearchPresentAbsent
     void add_closure(int pc, std::vector<int>& out, std::vector<char>& seen) const {
         // Iterative worklist rather than recursion: a long epsilon chain (`a?`×N, nested
         // alternations) makes the closure O(pattern length) deep, which as recursion overflowed the
@@ -253,6 +256,11 @@ struct Dfa {
 
     /// Intern a pc @p set into a canonical DFA state (creating it if new).
     /// @param set the pc set for the state. @return the state id.
+    /// @complexity O(|set| log |set|) for the canonical sort, then an amortized-O(|set|)
+    ///   hash lookup; throws past @ref kMaxStates instead of exhausting memory.
+    /// @alloc the canonical key string; a NEW state also stores its pc set and grows the
+    ///   flat transition table by one 256-entry row. An existing state allocates the key only.
+    /// @test RegexE2E.ReDoSNestedQuantifierReturnsFalseFast
     int intern_state(std::vector<int> set) {
         std::sort(set.begin(), set.end());
         set.erase(std::unique(set.begin(), set.end()), set.end());
@@ -273,6 +281,10 @@ struct Dfa {
 
     /// The start DFA state for program entry @p entry. @param entry the program entry pc.
     /// @return the interned start state id.
+    /// @complexity O(program size) — one closure walk plus the intern.
+    /// @alloc closure scratch (the pc vector + per-pc visited flags), then whatever
+    ///   @ref intern_state keeps for the state.
+    /// @test RegexE2E.Anchors
     int start_state(int entry) {
         std::vector<int> out;
         std::vector<char> seen(prog.size(), 0);
@@ -282,6 +294,12 @@ struct Dfa {
 
     /// Transition from @p state on input byte @p b, lazily filling the cache. @param state the current
     /// DFA state id. @param b the input byte. @return the next state id.
+    /// @complexity O(1) on a cached transition; a cache miss pays one O(program size)
+    ///   closure walk and interns the successor (this is the "lazy" in lazy-DFA — each
+    ///   (state, byte) pair is computed at most once, keeping match time linear).
+    /// @alloc none on a cache hit; a miss allocates closure scratch plus whatever
+    ///   @ref intern_state keeps.
+    /// @test RegexE2E.SearchPresentAbsent
     int step(int state, unsigned char b) {
         int cached = tflat[static_cast<std::size_t>(state) * 256 + b];
         if (cached != -1) return cached;

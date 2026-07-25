@@ -11,6 +11,8 @@
 // printed stdout text, never on the exit code.
 #include "e2e_harness.hpp"
 
+#include <unistd.h>
+
 #include <filesystem>
 
 #ifndef BIOME_PURR_PATH
@@ -26,7 +28,12 @@ namespace fs = std::filesystem;
 
 class BiomeCli : public ::testing::Test {
  protected:
-  static std::string module_path() { return std::string(PURR_TEST_TMP) + "/biome_cli.so"; }
+  // Per-process path: under `ctest -j` each test runs as its own process of this binary,
+  // and every process recompiles biome.purr in SetUpTestSuite — a shared path makes those
+  // compilations race (one process loads another's half-written .so).
+  static std::string module_path() {
+    return std::string(PURR_TEST_TMP) + "/biome_cli_" + std::to_string(getpid()) + ".so";
+  }
 
   // Compile pkg-manager/biome.purr once for the whole suite.
   static void SetUpTestSuite() {

@@ -91,7 +91,7 @@ EXCLUDE                = stdlib/README.md \
                          stdlib/parsers/json/pool_builder.hpp \
                          stdlib/parsers/json/owning_builder.hpp \
                          stdlib/parsers/json/cursor.hpp
-EXCLUDE_PATTERNS       = */tests/* */scripts/*
+EXCLUDE_PATTERNS       = */tests/* */scripts/* */bench/*
 # Internal implementation helpers (any `detail` namespace) are NOT public API: the
 # site generator and the hover index already hide them, so they are excluded here
 # too (and from the 100%-Javadoc gate). Also hidden:
