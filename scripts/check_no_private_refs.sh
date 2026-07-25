@@ -64,6 +64,9 @@ case "${1:-}" in
     ;;
 esac
 
-hits="$(git grep -nIwiE "$PATTERN" -- . 2>/dev/null | grep -viE "$ALLOW" || true)"
+# This file is excluded from its own scan: PATTERN necessarily spells out every name,
+# so including it would be a guaranteed self-hit. (Standard for a linter's own rule
+# definitions. It does mean this one file is a blind spot — keep it to the pattern.)
+hits="$(git grep -nIwiE "$PATTERN" -- . ':!scripts/check_no_private_refs.sh' 2>/dev/null | grep -viE "$ALLOW" || true)"
 [ -z "$hits" ] || { report "the public tree" "$hits"; exit 1; }
 echo "private-refs: clean — no sibling-project names in the public tree."
