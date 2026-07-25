@@ -66,7 +66,7 @@ public:
      * @param session a session handle to take ownership of (0 for a closed client).
      * @complexity O(1).
      * @alloc none.
-     * @test CheatahWebSocket.ClientMoveTransfersOwnership
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     explicit Client(long long session) : session_(session) {}
     Client(const Client&) = delete;
@@ -76,7 +76,7 @@ public:
      * @param other the client to move from.
      * @complexity O(1).
      * @alloc none.
-     * @test CheatahWebSocket.ClientMoveTransfersOwnership
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     Client(Client&& other) noexcept : session_(other.session_) { other.session_ = 0; }
     /**
@@ -85,7 +85,8 @@ public:
      * @return reference to this client.
      * @complexity O(1).
      * @alloc none.
-     * @test CheatahWebSocket.ClientMoveTransfersOwnership
+     * @systest WebSocketSys.ClientGuardRoundTrip
+     * @systest WebSocketSys.ClientOpenAndMoveAssignClosesOpen
      */
     Client& operator=(Client&& other) noexcept;
     /**
@@ -93,6 +94,7 @@ public:
      * @complexity one TLS write + teardown.
      * @alloc a small close frame (when still open).
      * @test CheatahWebSocket.ClientDefaultIsClosed
+     * @systest WebSocketSys.ClientOpenAndMoveAssignClosesOpen
      */
     ~Client();
 
@@ -109,7 +111,7 @@ public:
      * @return the owned handle, or 0 when closed.
      * @complexity O(1).
      * @alloc none.
-     * @test CheatahWebSocket.ClientMoveTransfersOwnership
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     long long id() const { return session_; }
     /**
@@ -119,7 +121,9 @@ public:
      * @throws std::runtime_error on a transport error.
      * @complexity O(message length).
      * @alloc one frame buffer sized to the message.
-     * @systest WebSocketSys.EchoRoundTrip
+     * @concurrency a session is single-owner — do not send and recv on one session from
+     *              two threads at once (see the file-level threading note).
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     long long send_text(const std::string& message);
     /**
@@ -128,7 +132,9 @@ public:
      * @throws std::runtime_error on a transport/protocol error.
      * @complexity O(message length).
      * @alloc the returned payload.
-     * @systest WebSocketSys.EchoRoundTrip
+     * @concurrency blocks until a full message arrives; a session has ONE reader —
+     *              shutdown() is the cross-thread wake-up.
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     std::string recv();
     /**
@@ -136,7 +142,9 @@ public:
      * @return 0 on success, -1 on error.
      * @complexity O(1) + one syscall.
      * @alloc none.
-     * @systest WebSocketSys.EchoRoundTrip
+     * @concurrency safe to call from another thread while the owner's recv() blocks —
+     *              that wake-up is its purpose; then join the reader before close().
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     long long shutdown();
     /**
@@ -145,6 +153,7 @@ public:
      * @complexity one TLS write + teardown.
      * @alloc a small close frame (when still open).
      * @test CheatahWebSocket.ClientDefaultIsClosed
+     * @systest WebSocketSys.ClientGuardRoundTrip
      */
     long long close();
 
@@ -163,9 +172,12 @@ private:
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return an owning Client.
  * @throws std::runtime_error on connect/TLS/validation/upgrade failure.
+ * @warning @p insecure = true drops the MITM protection: ANY peer that holds its own
+ *          certificate's key is accepted. Pinned/controlled peers only.
  * @complexity one TCP + one TLS handshake + one HTTP round trip.
  * @alloc the session.
- * @systest WebSocketSys.EchoRoundTrip
+ * @concurrency blocks for the TCP/TLS/upgrade round trips.
+ * @systest WebSocketSys.ClientOpenAndMoveAssignClosesOpen
  */
 Client open(const std::string& host, long long port, const std::string& path,
             const std::string& server_name, bool insecure = false, const std::string& ca_file = "");
@@ -178,9 +190,12 @@ Client open(const std::string& host, long long port, const std::string& path,
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return an owning Client.
  * @throws std::runtime_error on a non-wss scheme or a connect/validation failure.
+ * @warning @p insecure = true drops the MITM protection (see open()).
  * @complexity as open().
  * @alloc the session.
- * @test CheatahWebSocket.ClientDefaultIsClosed
+ * @concurrency blocks for the TCP/TLS/upgrade round trips.
+ * @test CheatahWebSocket.ConnectUrlRejectsNonWss
+ * @systest WebSocketSys.ClientGuardRoundTrip
  */
 Client open_url(const std::string& url, bool insecure = false, const std::string& ca_file = "");
 

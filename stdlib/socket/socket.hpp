@@ -20,8 +20,9 @@
  * `asan` preset) and Valgrind (`security/run-valgrind.sh`) on every QA-gate run.
  *
  * @note Every call is a thin wrapper over one or two syscalls. Only `recv` and
- *       `last_error` allocate (their returned `std::string`); the fd/status calls
- *       return a `long long` and do not allocate.
+ *       `last_error` allocate (their returned `std::string`, plus `recv`'s reused
+ *       per-thread scratch buffer); the fd/status calls return a `long long` and do
+ *       not allocate (the resolver's transient `getaddrinfo` list is freed in-call).
  */
 #include <string>
 
@@ -41,7 +42,7 @@ namespace cheatah::socket {
  * @param backlog pending-connection queue length.
  * @return the listening fd, or -1 on error.
  * @complexity O(1) (a few syscalls).
- * @alloc none.
+ * @alloc none (the resolver's transient `getaddrinfo` list is freed before returning).
  * @test CheatahSocket.Loopback
  * @crtest SocketCompileRun.TcpListen
  * @systest StdlibE2E.Socket
@@ -58,7 +59,8 @@ long long tcp_listen(const std::string& host, long long port, long long backlog)
  * @param port destination port.
  * @return the connected fd, or -1 on error.
  * @complexity O(1) + DNS resolution.
- * @alloc none.
+ * @alloc none (the resolver's transient `getaddrinfo` list is freed before returning).
+ * @concurrency blocks until the TCP handshake completes or fails.
  * @test CheatahSocket.Loopback
  * @crtest SocketCompileRun.TcpConnect
  * @systest StdlibE2E.Socket
@@ -77,6 +79,7 @@ long long tcp_connect(const std::string& host, long long port);
  * @return the connected client fd, or -1 on error.
  * @complexity O(1) syscall (blocks until a client arrives).
  * @alloc none.
+ * @concurrency blocks the calling thread until a client connects.
  * @test CheatahSocket.Loopback
  * @crtest SocketCompileRun.Accept
  * @systest StdlibE2E.Socket
@@ -94,7 +97,10 @@ long long accept(long long fd);
  * @param bufsize maximum bytes to read.
  * @return the bytes read (binary-safe), or "" on EOF/error.
  * @complexity O(@p bufsize).
- * @alloc allocates the returned string.
+ * @alloc allocates the returned string (and grows a reused per-thread scratch buffer
+ *        up to @p bufsize on first use).
+ * @concurrency blocks until data, EOF, or the set_timeout() deadline; a shutdown() from
+ *              another thread wakes it with EOF.
  * @test CheatahSocket.Loopback
  * @crtest SocketCompileRun.Recv
  * @systest StdlibE2E.Socket
@@ -128,6 +134,8 @@ long long send(long long fd, const std::string& data);
  * @return 0 on success, -1 on error.
  * @complexity O(n).
  * @alloc none.
+ * @concurrency may block while the peer's receive window is full; bounded per `send`
+ *              by the set_timeout() send deadline.
  * @test CheatahSocket.Sendall
  * @crtest SocketCompileRun.Sendall
  * @systest StdlibE2E.Socket
@@ -159,6 +167,9 @@ long long close(long long fd);
  * @return 0 on success, -1 on error.
  * @complexity O(1) syscall.
  * @alloc none.
+ * @concurrency safe to call from another thread while a recv() on @p fd blocks — waking
+ *              that reader is exactly what it is for.
+ * @test CheatahSocket.TimeoutThenShutdown
  */
 long long shutdown(long long fd);
 
@@ -183,6 +194,9 @@ long long socket();
  *
  * Lets a subsequent bind() reuse a local address still lingering in TIME_WAIT, so a restarted
  *   server can re-listen on the same port immediately; call it before bind().
+ * @warning `SO_REUSEADDR` trades TIME_WAIT protection for restartability: by skipping the
+ *          kernel's cooldown, delayed segments from a previous connection on the same
+ *          address can in principle reach the new socket.
  * @param fd the socket.
  * @return 0 on success, -1 on error.
  * @complexity O(1).
@@ -203,7 +217,7 @@ long long set_reuseaddr(long long fd);
  * @param port TCP port (0 = OS-assigned).
  * @return 0 on success, -1 on error.
  * @complexity O(1) + resolution.
- * @alloc none.
+ * @alloc none (the resolver's transient `getaddrinfo` list is freed before returning).
  * @test CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure
  * @crtest SocketCompileRun.Bind
  * @systest StdlibE2E.Socket
@@ -237,7 +251,8 @@ long long listen(long long fd, long long backlog);
  * @param port destination port.
  * @return 0 on success, -1 on error.
  * @complexity O(1) + DNS.
- * @alloc none.
+ * @alloc none (the resolver's transient `getaddrinfo` list is freed before returning).
+ * @concurrency blocks until the TCP handshake completes or fails.
  * @test CheatahSocket.ConnectRefused
  * @crtest SocketCompileRun.Connect
  * @systest StdlibE2E.Socket
@@ -269,9 +284,7 @@ long long local_port(long long fd);
  * @return 0 on success, -1 on error.
  * @complexity O(1) (two setsockopt calls).
  * @alloc none.
- * @test CheatahSocket.SetTimeout
- * @crtest SocketCompileRun.SetTimeout
- * @systest StdlibE2E.Socket
+ * @test CheatahSocket.TimeoutThenShutdown
  */
 long long set_timeout(long long fd, long long timeout_ms);
 
@@ -385,7 +398,9 @@ public:
      * @param bufsize maximum bytes to read.
      * @return the bytes read (binary-safe), or "" on EOF/error.
      * @complexity O(@p bufsize).
-     * @alloc allocates the returned string.
+     * @alloc allocates the returned string (plus the free recv()'s reused per-thread
+     *        scratch buffer on growth).
+     * @concurrency blocks until data, EOF, or the set_timeout() deadline.
      * @test CheatahSocket.ConnLoopback
      */
     std::string recv(long long bufsize);
@@ -500,6 +515,7 @@ public:
      * @return an owning Conn for the client (its is_open() is false on error).
      * @complexity O(1) syscall (blocks until a client arrives).
      * @alloc none.
+     * @concurrency blocks the calling thread until a client connects.
      * @test CheatahSocket.ListenerLoopback
      */
     Conn accept();
@@ -532,9 +548,8 @@ private:
  * @return an owning Conn; on failure its is_open() is false (see last_error()).
  * @complexity O(1) + DNS resolution.
  * @alloc none beyond the Conn itself.
+ * @concurrency blocks until the TCP handshake completes or fails.
  * @test CheatahSocket.ConnLoopback
- * @crtest SocketCompileRun.OpenWith
- * @systest StdlibE2E.Socket
  */
 Conn open(const std::string& host, long long port);
 
@@ -548,8 +563,6 @@ Conn open(const std::string& host, long long port);
  * @complexity O(1) (a few syscalls).
  * @alloc none beyond the Listener itself.
  * @test CheatahSocket.ListenerLoopback
- * @crtest SocketCompileRun.ServeWith
- * @systest StdlibE2E.Socket
  */
 Listener serve(const std::string& host, long long port, long long backlog);
 

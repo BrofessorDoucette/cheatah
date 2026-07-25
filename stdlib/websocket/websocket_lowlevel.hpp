@@ -36,9 +36,13 @@ namespace cheatah::websocket {
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return a session id (>= 0).
  * @throws std::runtime_error on connect/TLS/validation/upgrade failure (message names the cause).
+ * @warning @p insecure = true drops the MITM protection: ANY peer that holds its own
+ *          certificate's key is accepted. Pinned/controlled peers only.
  * @complexity one TCP + one TLS handshake + one HTTP round trip.
- * @alloc the session (its reused read buffer is reserved here).
- * @test CheatahWebSocket.ConnectRejectsNon101
+ * @alloc the session and its underlying TLS session (the reused read buffer starts out
+ *        holding any frame bytes that followed the upgrade response).
+ * @concurrency blocks for the TCP/TLS/upgrade round trips.
+ * @systest WebSocketSys.RefusesNon101
  * @systest WebSocketSys.EchoRoundTrip
  */
 long long connect(const std::string& host, long long port, const std::string& path,
@@ -53,9 +57,11 @@ long long connect(const std::string& host, long long port, const std::string& pa
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return a session id (>= 0).
  * @throws std::runtime_error on a non-wss scheme or a connect/validation failure.
+ * @warning @p insecure = true drops the MITM protection (see connect()).
  * @complexity as connect().
  * @alloc the session.
- * @test CheatahWebSocket.ParsesWssUrl
+ * @test CheatahWebSocket.ConnectUrlRejectsNonWss
+ * @systest WebSocketSys.ConnectUrlParsingBranches
  */
 long long connect_url(const std::string& url, bool insecure = false, const std::string& ca_file = "");
 
@@ -69,8 +75,10 @@ long long connect_url(const std::string& url, bool insecure = false, const std::
  * @throws std::runtime_error on a transport error.
  * @complexity O(message length) (a 64-bit-word XOR mask + one TLS write).
  * @alloc one frame buffer sized to the message.
- * @test CheatahWebSocket.SendMasksClientFrame
+ * @concurrency a session is single-owner — do not send on one session from two threads
+ *              at once (see the threading note in websocket.hpp).
  * @systest WebSocketSys.EchoRoundTrip
+ * @systest WebSocketSys.ExtendedLength64
  */
 long long send_text(long long session, const std::string& message);
 
@@ -85,20 +93,27 @@ long long send_text(long long session, const std::string& message);
  *         (over the per-frame / reassembly caps), or an RFC 6455 framing violation.
  * @complexity O(message length), BOUNDED by the frame + message caps — a hostile oversized
  *             frame is refused, not processed; server frames are unmasked so no XOR is done.
- * @alloc the returned payload (one copy out of the reused read buffer), bounded by the caps.
- * @test CheatahWebSocket.RecvReassemblesAndHandlesPing
+ * @alloc the returned payload (one copy out of the reused read buffer, which itself grows
+ *        as the TLS stream is drained), bounded by the caps.
+ * @concurrency blocks until a full message arrives; a session has ONE reader —
+ *              shutdown() is the cross-thread wake-up.
+ * @test CheatahWebSocket.AcceptsFragmentedMessage
+ * @test CheatahWebSocket.SkipsPongThenReturnsData
  * @systest WebSocketSys.EchoRoundTrip
  */
 std::string recv(long long session);
 
 /**
- * Close the connection: send a close frame, then tear down TLS and the socket.
- * Idempotent; the session id is invalid afterward.
+ * Close the connection: send a close frame, then tear down TLS and the socket, and FREE the
+ * heap Session. The session id is invalid afterward — never pass it to any call (including a
+ * second close) again: the handle is the freed Session's address, so reuse is use-after-free.
+ * The idempotent form is the owning guard's Client::close().
  * @param session the session id.
  * @return 0 on success.
  * @complexity one TLS write + teardown.
  * @alloc a small close frame (when still open).
- * @test CheatahWebSocket.CloseIsIdempotent
+ * @systest WebSocketSys.EchoRoundTrip
+ * @systest WebSocketSys.ServerCloseYieldsEmptyRecv
  */
 long long close(long long session);
 
@@ -110,6 +125,9 @@ long long close(long long session);
  * @param session the session whose blocked reader should be woken.
  * @return 0 on success, -1 for an unknown session or a syscall error.
  * @complexity O(1) + one syscall. @alloc none.
+ * @concurrency safe to call from another thread while the owner's recv() blocks —
+ *              that wake-up is its purpose.
+ * @systest WebSocketSys.ClientGuardRoundTrip
  */
 long long shutdown(long long session);
 

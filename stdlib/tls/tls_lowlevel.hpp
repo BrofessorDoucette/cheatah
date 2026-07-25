@@ -32,10 +32,13 @@ namespace cheatah::tls {
  *        peer). Default false: full validation, MITM-resistant.
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return a session handle (>= 1), or -1 on failure (see last_error()).
- * @complexity one network round trip + O(handshake bytes) crypto (+ a one-time CA-store parse).
- * @alloc the session state.
- * @test CheatahTls.KeySchedule
- * @crtest TlsSys.HandshakeAgainstOpenssl
+ * @warning @p insecure = true drops the MITM protection: ANY peer that holds its own
+ *          certificate's key is accepted, whoever it is. Pinned/controlled peers only.
+ * @complexity one network round trip + O(handshake bytes) crypto (+ a one-time parse of the
+ *             system CA store; a custom @p ca_file is parsed on every call).
+ * @alloc the session state (plus transient handshake buffers).
+ * @concurrency blocks for the handshake round trip — bound it with socket.set_timeout() on @p fd.
+ * @systest TlsSys.HandshakeAgainstOpenssl
  * @systest TlsSys.HttpsGet
  */
 long long client_connect(long long fd, const std::string& server_name, bool insecure = false,
@@ -50,7 +53,9 @@ long long client_connect(long long fd, const std::string& server_name, bool inse
  * @param key_pem the matching PKCS#8 Ed25519 private key, PEM.
  * @return a session handle (>= 1), or -1 on failure (see last_error()).
  * @complexity one network round trip + O(handshake bytes) crypto.
- * @alloc the session state.
+ * @alloc the session state (plus transient handshake buffers).
+ * @concurrency blocks awaiting the client's handshake flights — bound it with
+ *              socket.set_timeout() on @p fd.
  * @systest TlsSys.ServerHandshakeAgainstOpenssl
  */
 long long server_accept(long long fd, const std::string& cert_pem, const std::string& key_pem);
@@ -63,24 +68,27 @@ long long server_accept(long long fd, const std::string& cert_pem, const std::st
  * @return 0 on success, -1 on error.
  * @complexity O(|data|).
  * @alloc the ciphertext record(s).
- * @test TlsSys.HandshakeAgainstOpenssl
- * @crtest TlsSys.HttpsGet
+ * @concurrency a session is single-owner — never send on one session from two threads at
+ *              once (the record sequence would race). Separate sessions are independent.
+ * @systest TlsSys.HandshakeAgainstOpenssl
  * @systest TlsSys.HttpsGet
  */
 long long send(long long session, const std::string& data);
 
 /**
- * Receive and decrypt application data (one record's worth, up to @p bufsize bytes are
- * returned per call; the remainder is buffered). "" means clean close_notify, peer EOF,
- * or an error — check last_error().
+ * Receive and decrypt application data: it blocks only until SOMETHING is decryptable, then
+ * keeps draining records already buffered (never blocking again) and returns up to @p bufsize
+ * plaintext bytes — possibly spanning several records; the remainder is buffered for the next
+ * call. "" means clean close_notify, peer EOF, or an error — check last_error().
  *
  * @param session a session handle from client_connect().
  * @param bufsize the maximum number of plaintext bytes to return this call.
  * @return the decrypted plaintext (up to @p bufsize bytes), or "" on clean close/EOF/error.
- * @complexity O(record size).
- * @alloc the returned plaintext.
- * @test TlsSys.HandshakeAgainstOpenssl
- * @crtest TlsSys.HttpsGet
+ * @complexity O(bytes drained).
+ * @alloc the returned plaintext (plus per-record decryption buffers while draining).
+ * @concurrency blocks (bounded by the fd's socket.set_timeout()) only while nothing is
+ *              ready; a session has ONE reader — shutdown() is the cross-thread wake-up.
+ * @systest TlsSys.HandshakeAgainstOpenssl
  * @systest TlsSys.HttpsGet
  */
 std::string recv(long long session, long long bufsize);
@@ -92,8 +100,9 @@ std::string recv(long long session, long long bufsize);
  * @return 0 on success, -1 for an unknown session.
  * @complexity O(log n) session-table lookup + a close_notify write.
  * @alloc a small close_notify record (when the session is still open).
- * @test TlsSys.HandshakeAgainstOpenssl
- * @crtest TlsSys.HttpsGet
+ * @concurrency only the session's owner may close() it, and only after any reader thread
+ *              has been woken (shutdown()) and joined — the erase invalidates the session.
+ * @systest TlsSys.HandshakeAgainstOpenssl
  * @systest TlsSys.HttpsGet
  */
 long long close(long long session);
@@ -105,6 +114,9 @@ long long close(long long session);
  * @param session the session whose blocked reader should be woken.
  * @return 0 on success, -1 for an unknown session or a syscall error.
  * @complexity O(log n) lookup + one syscall. @alloc none.
+ * @concurrency safe to call from another thread while the owner's recv() blocks —
+ *              that wake-up is its purpose.
+ * @systest TlsSys.ConnGuardRoundTrip
  */
 long long shutdown(long long session);
 

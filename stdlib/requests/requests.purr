@@ -118,7 +118,7 @@ struct Response {
     #
     # @param name header name, any capitalization (`"Content-Type"` == `"content-type"`).
     # @return the header's value, or "" when the response did not carry it.
-    # @complexity O(1) average (one hash lookup).
+    # @complexity O(|name|) to lowercase the key + O(1) average for the hash lookup.
     # @alloc allocates the lowercased key.
     # @systest RequestsSys.HeaderLookup
     fn header(self, name) {
@@ -265,7 +265,7 @@ fn to_json(fields) {
 # @param headers the request headers (name -> value).
 # @param name the header name to look for, any capitalization.
 # @return true iff a header with that name (case-insensitive) is present.
-# @complexity O(k) over the number of headers.
+# @complexity O(total header-name bytes) — every name is lowercased for the compare.
 # @alloc allocates lowercased keys.
 # @systest RequestsSys.CustomHeaders
 fn has_header(headers, name) {
@@ -323,7 +323,8 @@ fn parse_hex(text) {
 # @return the parsed value, or -1 when @p text is not a plain in-range unsigned integer.
 # @complexity O(n) over the digit count.
 # @alloc none.
-# @systest RequestsSys.MalformedContentLength
+# @test CheatahRequests.MalformedContentLengthIsError
+# @test CheatahRequests.MalformedStatusCodeIsError
 fn parse_uint(text) {
     let n = 0
     for ch in text {
@@ -552,7 +553,10 @@ fn parse_response(raw, r: Response, method, limit) {
 # @param o per-request options (timeout, params, headers, body, auth).
 # @param r the Response under construction.
 # @return the completed Response (a non-2xx status is a completed exchange, not an error).
-# @alloc allocates the request and response buffers.
+# @complexity O(request + response bytes) (+ one TLS handshake for https).
+# @alloc allocates the request and response buffers (+ a `tls` session for https).
+# @concurrency blocking — connect/handshake/read are all bounded by the socket timeout
+#              (`o.timeout_ms`, default 30 s).
 # @systest RequestsSys.PostJson
 fn request_once(method, u: Url, o: Options, r: Response) {
     let fd = socket.tcp_connect(u.host, u.port)
@@ -664,7 +668,8 @@ fn request_once(method, u: Url, o: Options, r: Response) {
 # @return nothing — @p o is modified in place (auth cleared, sensitive headers dropped).
 # @complexity O(k) over the number of headers.
 # @alloc allocates the rebuilt header map.
-# @systest RequestsSys.RedirectStripsAuth
+# @test CheatahRequests.CrossHostRedirectStripsCredentials
+# @test CheatahRequests.SameHostRedirectKeepsCredentials
 fn strip_sensitive(o: Options) {
     o.auth_user = ""
     o.auth_pass = ""
@@ -691,6 +696,11 @@ fn strip_sensitive(o: Options) {
 # @param url the absolute `http(s)://host[:port]/path[?query]` URL.
 # @param o per-request options; defaults to a 30 s timeout and 5 redirect hops (redirects followed unless no_redirect).
 # @return the final Response — check `ok()`, then `status_code`/`headers`/`body`.
+# @complexity one full exchange (request_once) per hop, at most 1 + max_redirects hops.
+# @alloc allocates each hop's request/response buffers, the recorded `history`, and a
+#        private copy of @p o (so redirect-time credential stripping never mutates the caller's).
+# @concurrency blocking, with every hop's socket I/O bounded by `timeout_ms`; no shared
+#              state — concurrent requests from separate threads are independent.
 # @systest RequestsSys.BasicGet
 # @systest RequestsSys.Redirect
 # @systest RequestsSys.RedirectLoop
@@ -807,7 +817,7 @@ fn head(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
 
 # HTTP OPTIONS. @param url the URL. @param o per-request options.
 # @return the final Response. @complexity one request plus any redirects.
-# @alloc request/response buffers. @systest RequestsSys.Options
+# @alloc request/response buffers. @test CheatahRequests.VerbMethods
 fn options(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
     return request("OPTIONS", url, o)
 }

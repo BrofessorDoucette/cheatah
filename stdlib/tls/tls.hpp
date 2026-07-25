@@ -6,9 +6,10 @@
  * @file tls.hpp
  * @brief cheatah `tls` — a from-scratch TLS 1.3 CLIENT (RFC 8446). `import tls` to use it.
  *        Built ENTIRELY on the cheatah crypto modules: `x25519` key exchange, the `aead`
- *        ChaCha20-Poly1305 record cipher, and hashlib's HKDF key schedule. No OpenSSL.
+ *        record ciphers (ChaCha20-Poly1305 + AES-GCM), and hashlib's HKDF key schedule. No OpenSSL.
  *
- * Scope (v1): TLS 1.3 only, cipher suite TLS_CHACHA20_POLY1305_SHA256, X25519 key share,
+ * Scope (v1): TLS 1.3 only; cipher suites TLS_CHACHA20_POLY1305_SHA256, TLS_AES_128_GCM_SHA256,
+ * and TLS_AES_256_GCM_SHA384 (offered in hardware-preference order); X25519 key share;
  * SNI. The handshake transcript is fully verified (server Finished MAC), and the server's
  * CertificateVerify signature is checked for the common leaf-certificate key types: Ed25519
  * (cheatah's `ed25519`), ECDSA P-256 (`p256`) and P-384 (`p384`), and RSA via
@@ -40,8 +41,8 @@ namespace cheatah::tls {
  * @return the last error text set on the calling thread, or "" if none.
  * @complexity O(1).
  * @alloc the returned string.
- * @test TlsSys.RefusesBadPeer
- * @crtest TlsSys.HandshakeAgainstOpenssl
+ * @concurrency the error slot is thread-local — read it on the thread whose call failed.
+ * @systest TlsSys.RefusesBadPeer
  * @systest TlsSys.HttpsGet
  */
 std::string last_error();
@@ -64,7 +65,7 @@ public:
      * Construct a closed session (owns nothing).
      * @complexity O(1).
      * @alloc none.
-     * @test CheatahTls.ConnDefaultIsClosed
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     Conn() = default;
     /**
@@ -72,7 +73,7 @@ public:
      * @param session a session handle to take ownership of (<= 0 for a closed session).
      * @complexity O(1).
      * @alloc none.
-     * @test TlsSys.ConnGuardRoundTrip
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     explicit Conn(long long session) : session_(session) {}
     Conn(const Conn&) = delete;
@@ -82,7 +83,7 @@ public:
      * @param other the session to move from.
      * @complexity O(1).
      * @alloc none.
-     * @test TlsSys.ConnGuardRoundTrip
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     Conn(Conn&& other) noexcept : session_(other.session_) { other.session_ = 0; }
     /**
@@ -91,14 +92,14 @@ public:
      * @return reference to this session.
      * @complexity O(1).
      * @alloc none.
-     * @test TlsSys.ConnGuardRoundTrip
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     Conn& operator=(Conn&& other) noexcept;
     /**
      * Send close_notify and forget the session if still open.
      * @complexity O(log n) lookup + a close_notify write.
      * @alloc a small close_notify record (when still open).
-     * @test TlsSys.ConnGuardRoundTrip
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     ~Conn();
 
@@ -107,7 +108,7 @@ public:
      * @return true iff this owns an open session.
      * @complexity O(1).
      * @alloc none.
-     * @test CheatahTls.ConnDefaultIsClosed
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     bool is_open() const { return session_ > 0; }
     /**
@@ -115,7 +116,7 @@ public:
      * @return the owned handle, or 0 when closed.
      * @complexity O(1).
      * @alloc none.
-     * @test TlsSys.ConnGuardRoundTrip
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     long long id() const { return session_; }
     /**
@@ -124,16 +125,21 @@ public:
      * @return 0 on success, -1 on error.
      * @complexity O(|data|).
      * @alloc the ciphertext record(s).
-     * @test TlsSys.ConnGuardRoundTrip
+     * @concurrency a session is single-owner — never send on one session from two
+     *              threads at once (the record sequence would race). Separate sessions
+     *              are independent.
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     long long send(const std::string& data);
     /**
      * Receive and decrypt up to @p bufsize bytes of application data (see the free recv()).
      * @param bufsize maximum plaintext bytes to return.
      * @return the plaintext, or "" on clean close/EOF/error.
-     * @complexity O(record size).
-     * @alloc the returned plaintext.
-     * @test TlsSys.ConnGuardRoundTrip
+     * @complexity O(bytes drained) — it decrypts every record already buffered, up to @p bufsize.
+     * @alloc the returned plaintext (plus per-record decryption buffers while draining).
+     * @concurrency blocks (bounded by the fd's socket.set_timeout()) only while nothing is
+     *              ready; a session has ONE reader — shutdown() is the cross-thread wake-up.
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     std::string recv(long long bufsize);
     /**
@@ -141,7 +147,9 @@ public:
      * @return 0 on success, -1 on error.
      * @complexity O(log n) lookup + one syscall.
      * @alloc none.
-     * @test TlsSys.ConnGuardRoundTrip
+     * @concurrency safe to call from another thread while the owner's recv() blocks —
+     *              that wake-up is its purpose; then join the reader before close().
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     long long shutdown();
     /**
@@ -149,7 +157,7 @@ public:
      * @return 0 on success, -1 if already closed / unknown.
      * @complexity O(log n) lookup + a close_notify write.
      * @alloc a small close_notify record (when still open).
-     * @test TlsSys.ConnGuardRoundTrip
+     * @systest TlsSys.ConnGuardRoundTrip
      */
     long long close();
 
@@ -168,9 +176,14 @@ private:
  *        for a pinned/controlled peer where identity is established out of band. Default false.
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
  * @return an owning Conn; on handshake or validation failure its is_open() is false (see last_error()).
- * @complexity one network round trip + O(handshake bytes) crypto (+ a one-time CA-store parse).
- * @alloc the session state.
- * @test TlsSys.ConnGuardRoundTrip
+ * @warning @p insecure = true drops the MITM protection: ANY peer that holds its own
+ *          certificate's key is accepted, whoever it is. Use it only when the peer's
+ *          identity is pinned/established out of band.
+ * @complexity one network round trip + O(handshake bytes) crypto (+ a one-time parse of the
+ *             system CA store; a custom @p ca_file is parsed on every call).
+ * @alloc the session state (plus transient handshake buffers).
+ * @concurrency blocks for the handshake round trip — bound it with socket.set_timeout() on @p fd.
+ * @systest TlsSys.ConnGuardRoundTrip
  * @systest TlsSys.HttpsGet
  */
 Conn open(long long fd, const std::string& server_name, bool insecure = false,
@@ -190,7 +203,9 @@ Conn open(long long fd, const std::string& server_name, bool insecure = false,
  * @param key_pem the matching PKCS#8 Ed25519 private key, PEM (`-----BEGIN PRIVATE KEY-----`).
  * @return an owning Conn; on handshake failure its is_open() is false (see last_error()).
  * @complexity one network round trip + O(handshake bytes) crypto.
- * @alloc the session state.
+ * @alloc the session state (plus transient handshake buffers).
+ * @concurrency blocks awaiting the client's handshake flights — bound it with
+ *              socket.set_timeout() on @p fd so a silent client cannot hang the server.
  * @systest TlsSys.ServerHandshakeAgainstOpenssl
  */
 Conn accept(long long fd, const std::string& cert_pem, const std::string& key_pem);
@@ -204,7 +219,8 @@ namespace detail {
 std::string expand_label(std::string_view secret, std::string_view label,
                          std::string_view context, unsigned length);
 /**
- * Derive-Secret (RFC 8446 §7.1). @complexity O(1) @alloc the returned string
+ * Derive-Secret (RFC 8446 §7.1). @complexity O(|transcript|) (hashes the transcript, then
+ * HKDF-expands). @alloc the returned string
  * @test CheatahTls.KeySchedule
  */
 std::string derive_secret(std::string_view secret, std::string_view label,

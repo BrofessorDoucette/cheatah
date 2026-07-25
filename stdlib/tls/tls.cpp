@@ -24,7 +24,8 @@
 #include "x25519.hpp"   // the key exchange
 #include "x509.hpp"     // certificate chain / hostname / expiry validation (server AUTHENTICATION)
 
-// A from-scratch TLS 1.3 client (RFC 8446), cipher suite TLS_CHACHA20_POLY1305_SHA256 only.
+// A from-scratch TLS 1.3 client (RFC 8446); cipher suites ChaCha20-Poly1305, AES-128-GCM,
+// and AES-256-GCM-SHA384, offered in hardware-preference order (see append_cipher_preference).
 // The implementation walks the RFC top to bottom: record layer, transcript hash, the HKDF
 // key schedule, then the handshake state machine. Every secret derives through hashlib's
 // HKDF; every record seals/opens through the aead module; the ephemeral key is x25519.

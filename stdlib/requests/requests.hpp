@@ -179,7 +179,7 @@ struct Response {
      *
      * @param name header name, any capitalization (`"Content-Type"` == `"content-type"`).
      * @return the header's value, or "" when the response did not carry it.
-     * @complexity O(1) average (one hash lookup).
+     * @complexity O(|name|) to lowercase the key + O(1) average for the hash lookup.
      * @alloc allocates the lowercased key.
      * @systest RequestsSys.HeaderLookup
      */
@@ -373,7 +373,7 @@ auto to_json(builtins::Value auto&& fields) {
  * @param headers the request headers (name -> value).
  * @param name the header name to look for, any capitalization.
  * @return true iff a header with that name (case-insensitive) is present.
- * @complexity O(k) over the number of headers.
+ * @complexity O(total header-name bytes) — every name is lowercased for the compare.
  * @alloc allocates lowercased keys.
  * @systest RequestsSys.CustomHeaders
  */
@@ -434,7 +434,8 @@ auto parse_hex(builtins::Value auto&& text) {
  * @return the parsed value, or -1 when @p text is not a plain in-range unsigned integer.
  * @complexity O(n) over the digit count.
  * @alloc none.
- * @systest RequestsSys.MalformedContentLength
+ * @test CheatahRequests.MalformedContentLengthIsError
+ * @test CheatahRequests.MalformedStatusCodeIsError
  */
 auto parse_uint(builtins::Value auto&& text) {
     auto n = 0LL;
@@ -661,7 +662,10 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builti
  * @param o per-request options (timeout, params, headers, body, auth).
  * @param r the Response under construction.
  * @return the completed Response (a non-2xx status is a completed exchange, not an error).
- * @alloc allocates the request and response buffers.
+ * @complexity O(request + response bytes) (+ one TLS handshake for https).
+ * @alloc allocates the request and response buffers (+ a `tls` session for https).
+ * @concurrency blocking — connect/handshake/read are all bounded by the socket timeout
+ *              (`o.timeout_ms`, default 30 s).
  * @systest RequestsSys.PostJson
  */
 auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, builtins::Value auto&& o, builtins::Value auto&& r) {
@@ -769,7 +773,8 @@ auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, built
  * @return nothing — @p o is modified in place (auth cleared, sensitive headers dropped).
  * @complexity O(k) over the number of headers.
  * @alloc allocates the rebuilt header map.
- * @systest RequestsSys.RedirectStripsAuth
+ * @test CheatahRequests.CrossHostRedirectStripsCredentials
+ * @test CheatahRequests.SameHostRedirectKeepsCredentials
  */
 auto strip_sensitive(builtins::Value auto&& o) {
     o.auth_user = std::string("");
@@ -799,6 +804,11 @@ auto strip_sensitive(builtins::Value auto&& o) {
  * @param url the absolute `http(s)://host[:port]/path[?query]` URL.
  * @param o per-request options; defaults to a 30 s timeout and 5 redirect hops (redirects followed unless no_redirect).
  * @return the final Response — check `ok()`, then `status_code`/`headers`/`body`.
+ * @complexity one full exchange (request_once) per hop, at most 1 + max_redirects hops.
+ * @alloc allocates each hop's request/response buffers, the recorded `history`, and a
+ *        private copy of @p o (so redirect-time credential stripping never mutates the caller's).
+ * @concurrency blocking, with every hop's socket I/O bounded by `timeout_ms`; no shared
+ *              state — concurrent requests from separate threads are independent.
  * @systest RequestsSys.BasicGet
  * @systest RequestsSys.Redirect
  * @systest RequestsSys.RedirectLoop
@@ -995,7 +1005,7 @@ static auto head(builtins::Value auto&& url) { return head(url, Options{.timeout
 /**
  * HTTP OPTIONS. @param url the URL. @param o per-request options.
  * @return the final Response. @complexity one request plus any redirects.
- * @alloc request/response buffers. @systest RequestsSys.Options
+ * @alloc request/response buffers. @test CheatahRequests.VerbMethods
  */
 auto options(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("OPTIONS"), url, o);
