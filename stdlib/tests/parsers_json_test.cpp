@@ -1,13 +1,12 @@
 // Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
-// In-process unit tests for the HEADER-ONLY parts of the `parsers` module that cheatah_tests can
-// instantiate WITHOUT linking the compiled DOM parser (parsers/json/json.cpp): the URL parser
+// In-process unit tests for the HEADER-ONLY parts of the `parsers` module: the URL parser
 // (parsers::url::Parser), the JSON schema factories (field/object), the typed struct reader
 // (read<T>() — read.hpp, which drives the shared scan.hpp scanners), the pooled construction policy
 // (PoolBuilder), the SIMD scan primitives (simd.hpp), and the JSON token classes (Boolean/Null/
-// Number/Node). Every symbol here is header-only, so json.cpp stays OUT of this in-process
-// denominator (parsers_static is deliberately NOT linked — see CMakeLists); we cover the header
-// surface directly rather than by running the separate SIMD DOM parser.
+// Number/Node). The compiled DOM parser/serializer (parsers/json/json.cpp) is a direct test source
+// of this binary (see CMakeLists) and is covered separately by parsers_json_dom_test.cpp; this file
+// keeps covering the header surface directly.
 
 #include <cstdint>
 #include <optional>

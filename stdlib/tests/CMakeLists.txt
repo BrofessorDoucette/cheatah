@@ -37,12 +37,25 @@ add_executable(cheatah_tests
     websocket_test.cpp
     requests_test.cpp
     parsers_json_test.cpp
+    parsers_json_dom_test.cpp
     parsers_xml_test.cpp
+    parsers_html_test.cpp
     thread_test.cpp
+    sys_test.cpp
     # parsers/xml/xml.cpp is compiled DIRECTLY into the test binary (like p256.cpp below) so the
     # slab-DOM XML reader's coverage is measured by parsers_xml_test.cpp here, rather than only
     # through the compiled libcheatah_parsers archive. (It is header-clean — no white-box seam.)
     ${CMAKE_SOURCE_DIR}/stdlib/parsers/xml/xml.cpp
+    # parsers/html/html.cpp and parsers/json/json.cpp are direct sources for the same coverage
+    # reason (both header-clean — no white-box seams): the HTML escaper/tokenizer is measured by
+    # parsers_html_test.cpp and the compiled JSON DOM parser/serializer by parsers_json_dom_test.cpp.
+    ${CMAKE_SOURCE_DIR}/stdlib/parsers/html/html.cpp
+    ${CMAKE_SOURCE_DIR}/stdlib/parsers/json/json.cpp
+    # sys.cpp is compiled DIRECTLY into the test binary for the same coverage reason as xml.cpp:
+    # sys_test.cpp exercises sys.argv/set_argv AND the exported cheatah_set_argv runtime hook, and
+    # compiling the TU here (rather than linking cheatah::sys_static) guarantees llvm-cov mappings
+    # for stdlib/sys/sys.cpp land in this in-process denominator. (Header-clean — no white-box seam.)
+    ${CMAKE_SOURCE_DIR}/stdlib/sys/sys.cpp
     # p256.cpp is compiled DIRECTLY into the test binary (not linked from libcheatah_p256) so the
     # CHEATAH_P256_TESTING white-box seam lives ONLY in this executable, never in any shipped
     # library. The static archive cheatah::p256_static (clean) is therefore NOT linked below; the
@@ -83,15 +96,17 @@ target_link_libraries(cheatah_tests PRIVATE
 
 # requests is a pure-cheatah (header-only, TRANSPARENT) module: requests.hpp is generated next to
 # requests.purr and #included directly by requests_test.cpp. It USES only the header-only surface of
-# parsers (parsers::url::Parser + the json schema/read templates), never the compiled JSON DOM parser
-# (json.cpp), so we add the parsers include path but do NOT link parsers_static — keeping json.cpp out
-# of this in-process denominator. parsers_json_test.cpp covers the header-only JSON surface directly
-# (the scan/pool_builder/simd/token headers + the read<T> struct reader), all header-only.
+# parsers (parsers::url::Parser + the json schema/read templates), so we add the parsers include path
+# but do NOT link parsers_static (the compiled sources it would duplicate — xml.cpp, html.cpp,
+# json.cpp — are direct test sources above, in the coverage denominator). parsers_json_test.cpp
+# covers the header-only JSON surface (the scan/pool_builder/simd/token headers + the read<T> struct
+# reader); parsers_json_dom_test.cpp covers the compiled DOM parser/serializer (json.cpp) itself.
 target_include_directories(cheatah_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/stdlib/requests
     ${CMAKE_SOURCE_DIR}/stdlib/parsers
     ${CMAKE_SOURCE_DIR}/stdlib/p256    # p256.hpp, now that p256.cpp is a direct test source
     ${CMAKE_SOURCE_DIR}/stdlib/p384    # p384.hpp, likewise a direct test source
+    ${CMAKE_SOURCE_DIR}/stdlib/sys     # sys.hpp, now that sys.cpp is a direct test source
     ${CMAKE_SOURCE_DIR}/stdlib/websocket)  # websocket.hpp, now that websocket.cpp is a direct source
 add_dependencies(cheatah_tests cheatah_requests_module)
 

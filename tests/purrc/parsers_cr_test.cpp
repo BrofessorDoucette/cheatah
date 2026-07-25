@@ -1,6 +1,7 @@
 // Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
-// Compile-run system tests for the `parsers` module (C++-authored: parsers.url + parsers.json)
+// Compile-run system tests for the `parsers` module (C++-authored: parsers.url + parsers.json
+// + parsers.html)
 // and the LANGUAGE features it exercises:
 //   * dotted TYPE imports — `import parsers.url.Parser as Parser` aliases a class, and the
 //     alias constructs (`Parser()`) and method-calls (`p.parse(...)`) like a local struct;
@@ -96,6 +97,55 @@ if parsers.json.read("{\"name\":\"av\",\"rows\":[{\"v\":1.5},{\"v\":2.5}]}", s) 
     io.print(s.rows[1].v)
 }
 )PURR", "av\n2\n2.5\n");
+}
+
+// parsers.html escaping from .purr: escape (with and without quote), then unescape decoding
+// named + decimal + hex references back (the &copy; expectation is the two UTF-8 bytes of ©).
+TEST(ParsersCompileRun, HtmlEscapeUnescape) {
+    e2e::expect_e2e("parsers_html_escape", R"PURR(import parsers.html
+import io
+
+io.print(parsers.html.escape("<a href=\"x\">&'</a>"))
+io.print(parsers.html.escape("q: \"hi\"", false))
+io.print(parsers.html.unescape("&lt;p&gt; &amp; &#65;&#x42; &copy;"))
+)PURR", "&lt;a href=&quot;x&quot;&gt;&amp;&#x27;&lt;/a&gt;\nq: \"hi\"\n<p> & AB \xC2\xA9\n");
+}
+
+// The tokenizing parser as DATA: a for-loop over parsers.html.parse walks every event kind
+// (decl/starttag/comment/data/endtag/startendtag) in document order — the .purr shape that
+// replaces Python's HTMLParser callback subclassing.
+TEST(ParsersCompileRun, HtmlParseWalk) {
+    e2e::expect_e2e("parsers_html_walk", R"PURR(import parsers.html
+import io
+
+let doc = "<!DOCTYPE html><ul id=\"m\"><!--nav--><li class=\"a\">One &amp; Two</li><br/></ul>"
+for t in parsers.html.parse(doc) {
+    io.print(t.kind + "|" + t.tag + "|" + t.data)
+}
+)PURR", "decl||DOCTYPE html\n"
+        "starttag|ul|\n"
+        "comment||nav\n"
+        "starttag|li|\n"
+        "data||One & Two\n"
+        "endtag|li|\n"
+        "startendtag|br|\n"
+        "endtag|ul|\n");
+}
+
+// The attribute helpers on a start-tag token: get_attr decodes references and matches
+// case-insensitively; has_attr sees valueless attributes and misses absent ones.
+TEST(ParsersCompileRun, HtmlAttrHelpers) {
+    e2e::expect_e2e("parsers_html_attrs", R"PURR(import parsers.html
+import io
+
+for t in parsers.html.parse("<a HREF=\"x&amp;y\" data-k>link</a>") {
+    if t.kind == "starttag" {
+        io.print(parsers.html.get_attr(t, "href"))
+        io.print(parsers.html.has_attr(t, "data-k"))
+        io.print(parsers.html.has_attr(t, "nope"))
+    }
+}
+)PURR", "x&y\nTrue\nFalse\n");
 }
 
 // The validating reader REJECTS malformed input (and unknown keys are skipped, not errors).

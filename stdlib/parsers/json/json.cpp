@@ -39,7 +39,7 @@ using detail::skip_ws;
 // text; when true (owning path) it is COPIED into an owned String<std::string> so the Document is
 // self-contained and may outlive the source (e.g. the cache parses a temporary buffer). An ESCAPED
 // string is always decoded into owned storage regardless, since the decoded bytes have no source.
-// @complexity O(|string|)  @alloc only for owned/escaped strings  @test Json.Strings
+// @complexity O(|string|)  @alloc only for owned/escaped strings  @test ParsersJsonDom.PooledParserYieldsViewsIntoSource
 template <bool OwnsStrings>
 bool parse_string(Cursor& c, Node& out) {
     std::string_view raw;
@@ -64,7 +64,7 @@ bool parse_string(Cursor& c, Node& out) {
 }
 
 // Parse a JSON number into `out` (emplaced in place).
-// @complexity O(digits)  @alloc none  @test Json.Numbers
+// @complexity O(digits)  @alloc none  @test ParsersJsonDom.ParsesEveryScalarKind
 bool parse_number(Cursor& c, Node& out) {
     double d = 0.0;
     if (!detail::parse_arithmetic(c, d)) {
@@ -77,7 +77,7 @@ bool parse_number(Cursor& c, Node& out) {
 // ---- serialization (re-escapes string contents) -----------------------------
 
 // Append `s` to `out` as a quoted JSON string, re-escaping specials and control bytes (\u00XX).
-// @complexity O(|s|)  @alloc amortized `out` growth  @test Json.DumpRoundTrip
+// @complexity O(|s|)  @alloc amortized `out` growth  @test ParsersJsonDom.DumpReescapesStringsAndFormatsNumbers
 void dump_string(std::string_view s, std::string& out) {
     static constexpr char kHex[] = "0123456789abcdef";
     out.push_back('"');
@@ -106,7 +106,7 @@ void dump_string(std::string_view s, std::string& out) {
 // Serialize ITERATIVELY with an explicit stack of open containers — symmetric with the iterative
 // parser, so a document of any nesting depth dumps without exhausting the C++ call stack (the
 // parser accepts adversarially deep input; the serializer must survive it too).
-// @complexity O(nodes)  @alloc the frame stack, O(depth)  @test Json.DeepDumpRoundTrip
+// @complexity O(nodes)  @alloc the frame stack, O(depth)  @test ParsersJsonDom.DepthCapAndDeepDumpRoundTrip
 void dump_to(const Node& root, std::string& out) {
     // One open container being emitted: which kind, how many children are already written, and a
     // span of its remaining children (exactly one of the spans is used, chosen by is_object).

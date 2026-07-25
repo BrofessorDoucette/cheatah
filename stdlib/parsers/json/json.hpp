@@ -31,7 +31,7 @@ namespace cheatah::parsers::json {
  *
  * @complexity O(1)
  * @alloc none
- * @test Json.ParseObject
+ * @test ParsersJsonDom.ToViewReadsBothBackingsAndRejectsNonStrings
  */
 [[nodiscard]] std::string_view to_view(const Node& value) noexcept;
 
@@ -48,7 +48,7 @@ namespace cheatah::parsers::json {
  *
  * @complexity O(n) in the input length
  * @alloc allocates the owned document tree (arrays, objects, and copied strings)
- * @test Json.ParseObject
+ * @test ParsersJsonDom.ParsesEveryScalarKind
  */
 template <bool Validate = true>
 [[nodiscard]] Document parse(std::string_view text, bool* ok = nullptr);
@@ -58,7 +58,7 @@ template <bool Validate = true>
  *
  * @complexity O(nodes)
  * @alloc the returned string
- * @test Json.DumpRoundTrip
+ * @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
  */
 [[nodiscard]] std::string dump(const Document& value);
 
@@ -70,7 +70,7 @@ template <bool Validate = true>
  *
  * @complexity O(nodes)
  * @alloc none of its own (grows `out` only if its capacity is exceeded)
- * @test Json.DumpRoundTrip
+ * @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
  */
 void dump(const Document& value, std::string& out);
 
@@ -95,7 +95,7 @@ void dump(const Document& value, std::string& out);
  * @complexity O(n) in the input length
  * @alloc the pools, reused across parses (amortized ~0 after warm-up); owned only for escaped
  *   strings
- * @test Json.ParseObject
+ * @test ParsersJsonDom.PooledParserYieldsViewsIntoSource
  */
 class Parser {
 public:
@@ -111,7 +111,7 @@ public:
      * @return the parsed Document (JSON null on error when validating).
      * @complexity O(|text|)
      * @alloc none after warm-up (reused pools); owned only for escaped strings
-     * @test Json.ParseObject
+     * @test ParsersJsonDom.PooledParserYieldsViewsIntoSource
      */
     template <bool Validate = true>
     [[nodiscard]] Document parse(std::string_view text, bool* ok = nullptr);
@@ -126,7 +126,8 @@ public:
      * @return a self-contained parsed Document (JSON null on error when validating).
      * @complexity O(|text|)
      * @alloc allocates the owned document tree (arrays, objects, and copied strings)
-     * @test Json.ParseObject
+     * @test ParsersJsonDom.OwningParseOutlivesItsSource
+     * @crtest ParsersCompileRun.JsonDomParse
      */
     template <bool Validate = true>
     [[nodiscard]] Document parse_owning(std::string_view text, bool* ok = nullptr);
@@ -138,7 +139,7 @@ public:
      * @return a std::string_view of the serialized JSON (valid until the next dump()).
      * @complexity O(output size)
      * @alloc none after warm-up (the buffer is reused)
-     * @test Json.ParseObject
+     * @test ParsersJsonDom.PooledParserYieldsViewsIntoSource
      */
     [[nodiscard]] std::string_view dump(const Document& value);
 

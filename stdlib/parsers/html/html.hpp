@@ -40,6 +40,8 @@ namespace cheatah::parsers::html {
  * @return a newly allocated escaped copy.
  * @complexity O(n) time in the length of @p s.
  * @alloc one result string on the heap.
+ * @test ParsersHtml.EscapeAllSpecialsWithAndWithoutQuote
+ * @crtest ParsersCompileRun.HtmlEscapeUnescape
  */
 std::string escape(std::string_view s, bool quote = true);
 
@@ -54,6 +56,8 @@ std::string escape(std::string_view s, bool quote = true);
  * @return a newly allocated decoded copy.
  * @complexity O(n) time in the length of @p s.
  * @alloc one result string on the heap.
+ * @test ParsersHtml.UnescapeNamedAndNumericForms
+ * @crtest ParsersCompileRun.HtmlEscapeUnescape
  */
 std::string unescape(std::string_view s);
 
@@ -94,6 +98,8 @@ struct Token {
  * @return the token list (empty for empty input).
  * @complexity O(n) time in the length of @p html.
  * @alloc the token vector and its strings on the heap.
+ * @test ParsersHtml.ParsesStartDataEndInDocumentOrder
+ * @crtest ParsersCompileRun.HtmlParseWalk
  */
 std::vector<Token> parse(std::string_view html);
 
@@ -104,6 +110,8 @@ std::vector<Token> parse(std::string_view html);
  * @return the attribute value, or "".
  * @complexity O(k) in the attribute count of @p t.
  * @alloc one result string on the heap.
+ * @test ParsersHtml.GetAttrHasAttrLookup
+ * @crtest ParsersCompileRun.HtmlAttrHelpers
  */
 std::string get_attr(const Token& t, std::string_view name);
 
@@ -114,6 +122,8 @@ std::string get_attr(const Token& t, std::string_view name);
  * @return true if present (even if valueless).
  * @complexity O(k) in the attribute count of @p t.
  * @alloc none.
+ * @test ParsersHtml.GetAttrHasAttrLookup
+ * @crtest ParsersCompileRun.HtmlAttrHelpers
  */
 bool has_attr(const Token& t, std::string_view name);
 
