@@ -252,7 +252,13 @@ TEST(RequestsSys, Timeout) {
     e2e::expect_e2e("requests_timeout", full, "False\nFalse\n");
     const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - start);
-    EXPECT_LT(elapsed.count(), 5000) << "timeout did not bound the request";
+    // NOT a latency assertion: `elapsed` spans expect_e2e's whole purrc compile + link +
+    // run, which dwarfs the 150 ms request and scales with machine load (this tripped at
+    // 5 s during a parallel sanitizer run). It is a backstop against an UNBOUNDED hang —
+    // a request that ignored the timeout would block on the server's 800 ms sleep and,
+    // if the timeout were broken outright, never return. The timeout's real proof is the
+    // expected "False\nFalse" above: the request failed instead of completing.
+    EXPECT_LT(elapsed.count(), 120000) << "the request never returned — timeout did not bound it";
     server.join();
     sock::close(fd);
 }
