@@ -394,6 +394,29 @@ TEST(PreviouslyBroken, EmptyAngleTypeIsRejected) {
     EXPECT_NE(rc, 0) << "purrc must REJECT an empty `list<>` type\n" << out;
 }
 
+// Bug: `regex.search(regex.compile("a*$"), "bbb")` returned False — an empty match at
+// end-of-input was never tried. The `matches_empty` shortcut in the unanchored search path was
+// gated on "no end anchor", so an empty-matchable `$`-anchored pattern fell through to the
+// first-byte candidate scan, which only proposes positions holding a possible first byte ('a'
+// here; "bbb" has none) and can never propose end-of-input. Fixed: a pattern that can match
+// empty always matches an unanchored search — at position 0, or at end-of-input under `$`.
+// `find` already got this right (its start loop runs to i == len), so offsets are pinned too.
+TEST(PreviouslyBroken, RegexEmptyMatchAtEndOfInput) {
+    e2e::expect_e2e("prevbroken_regex_empty_end", R"PURR(import io
+import regex
+let star = regex.compile("a*$")
+io.print(regex.search(star, "bbb"))
+let m = regex.find(star, "bbb")
+io.print(m.matched, m.begin, m.end)
+io.print(regex.search(star, "baab"))
+io.print(regex.search(regex.compile("a+$"), "bbb"))
+)PURR",
+                    "True\n"          // a*$ matches empty at end of "bbb"
+                    "True 3 3\n"      // ... and find pins it at [3,3)
+                    "True\n"          // candidates exist mid-text but die; end still matches
+                    "False\n");       // a+ can NOT match empty — must stay a miss
+}
+
 // The optional `const` param modifier: `const x : ndarray<float>` lowers to a `const&` (read-only) —
 // opt-in const-correctness (default params stay mutable refs). This lets a cheatah type satisfy a C++
 // `const Array&` concept (e.g. a model type's predict). Asserts the const reference is emitted

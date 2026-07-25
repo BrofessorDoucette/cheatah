@@ -371,7 +371,12 @@ bool run(const Pattern& re, std::string_view text, bool whole) {
 
     if (whole || d.anchored_start)                       // pinned to the start
         return run_anchored(d, text, 0, need_end, astart);
-    if (d.matches_empty && !need_end) return true;       // an empty match sits at position 0
+    // A pattern that can match the empty string ALWAYS matches an unanchored search: at position 0
+    // when there is no end anchor, and at end-of-input when there is one (`a*$` over "bbb" — an
+    // empty match at n satisfies `$`). This must short-circuit BEFORE the first-byte candidate
+    // scan below, which only proposes positions holding a possible first byte and would skip the
+    // empty match entirely (an empty match needs no first byte).
+    if (d.matches_empty) return true;
     if (d.first_count == 0)                              // no first-byte info -> full DFA pass
         return run_anchored(d, text, 0, need_end, d.start_state(d.start_unanchored));
 

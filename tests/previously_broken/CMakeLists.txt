@@ -20,6 +20,7 @@ add_dependencies(cheatah_previously_broken_tests
     cheatah_io_static
     cheatah_ndarray_static
     cheatah_random_static
+    cheatah_regex_static
     cheatah_time_static)
 
 # LABELS lets the QA gate select this suite with `ctest -L previously_broken` and run it

@@ -116,6 +116,29 @@ io.print(regex.search(regex.compile("bar$"), "bar foo"))
     "True\nFalse\nTrue\nFalse\n");
 }
 
+// ── empty matches: a pattern that can match "" matches EVERYWHERE the anchors allow ───────
+// (Pins the a*$ hole: the first-byte candidate scan must not skip the empty match at
+// end-of-input — see PreviouslyBroken.RegexEmptyMatchAtEndOfInput for the full story.)
+
+TEST(RegexE2E, EmptyMatchAtEveryAnchoring) {
+    expect_e2e("regex_empty", R"PURR(import io
+import regex
+io.print(regex.search(regex.compile("a*$"), "bbb"))
+io.print(regex.search(regex.compile("x*"), "yyy"))
+io.print(regex.search(regex.compile("^$"), ""))
+io.print(regex.search(regex.compile("^$"), "a"))
+io.print(regex.search(regex.compile("$"), "abc"))
+let m = regex.find(regex.compile("x*"), "yyy")
+io.print(m.matched, m.begin, m.end)
+)PURR",
+    "True\n"          // a*$ — empty match at end-of-input
+    "True\n"          // x* unanchored — empty match at position 0
+    "True\n"          // ^$ on "" — the empty input matches
+    "False\n"         // ^$ on "a" — both anchors can NOT hold around a byte
+    "True\n"          // bare $ — empty match at end of any input
+    "True 0 0\n");    // find pins the leftmost empty match at [0,0)
+}
+
 // ── quantifiers: * + ? ─────────────────────────────────────────────────────────────────────
 
 TEST(RegexE2E, Quantifiers) {
