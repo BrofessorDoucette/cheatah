@@ -17,11 +17,17 @@
 # biome BUILDS; it never RUNS your program. A cheatah program is a loadable module,
 # and it is run by the `cheatah` runtime (`cheatah build/<name>.so`) — never by biome.
 #
+# Versions are governed by the Biome Standard: one user-facing semantic version that
+# names a SET of component releases (toolchain + extensions) tested to work together.
+# A project's cheatah.toml pins `standard = "<ver>"`; biome resolves every git tag it
+# writes into the generated CMake from that standard, so users track ONE number.
+#
 # Commands:
 #   biome init <name>       scaffold a new project
 #   biome add <ext>         add an optional stdlib extension to the manifest
 #   biome remove <ext>      remove an extension
 #   biome list [dir]        list the extensions used by the project at <dir> (default: .)
+#   biome standards         list the Biome Standards this biome knows
 #   biome configure         regenerate CMakeLists.txt and run the CMake configure
 #   biome build             build the configured project (add --clean-first to rebuild)
 #   biome help              usage
@@ -32,17 +38,10 @@ import os
 import string
 import sys
 
-# The default cheatah toolchain version a new project pins. Kept in step with the
-# language release; `biome build` writes it into the generated CMake as the git tag.
-fn cheatah_version() { return "1.6.0-alpha" }
-
-# Default version a freshly added extension is pinned at.
-fn extension_version() { return "0.1.0" }
-
 # The GitHub owner that hosts the cheatah toolchain and the official extensions.
 fn github_owner() { return "BrofessorDoucette" }
 
-fn biome_version() { return "0.1.0-alpha" }
+fn biome_version() { return "0.2.0-alpha" }
 
 fn manifest_path() { return "cheatah.toml" }
 
@@ -76,6 +75,85 @@ fn is_known_extension(name) {
     return false
 }
 
+# ---- the Biome Standard ----------------------------------------------------
+# A Biome Standard is ONE user-facing semantic version naming a set of component
+# releases (the cheatah toolchain + extensions) that were tested to work together.
+# The table below is append-only and mirrors the canonical files in standards/
+# (scripts/check_standards.sh fails the QA gate if the two ever drift). Its major
+# version only ever increments when user programs cannot carry forward — a forced
+# security change or a fundamental language change — never because one member broke
+# compatibility with another inside the set.
+#
+# status is "current" (the newest), "supported" (older, still patched), or
+# "deprecated: <advisory>" (security-only retirement; the sources stay archived).
+
+struct StandardComponent {
+    name: str
+    tag: str
+}
+
+struct Standard {
+    version: str
+    released: str
+    status: str
+    components: list<StandardComponent>
+}
+
+fn known_standards() {
+    let xs: list<Standard> = []
+
+    # Biome Standard 0.1.0-alpha — the first tested-together set.
+    let c0: list<StandardComponent> = []
+    c0.append(StandardComponent("cheatah", "v1.7.0-alpha"))
+    c0.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
+    xs.append(Standard("0.1.0-alpha", "2026-07-25", "current", c0))
+
+    return xs
+}
+
+# The standard a fresh `biome init` pins: the newest (last) entry in the table.
+fn default_standard() {
+    let all = known_standards()
+    return all[len(all) - 1].version
+}
+
+# Index of a standard in known_standards(), or -1 if this biome does not know it
+# (e.g. the manifest names a standard newer than this biome release).
+fn standard_index(ver) {
+    let all = known_standards()
+    let i = 0
+    for s in all {
+        if s.version == ver { return i }
+        i = i + 1
+    }
+    return -1
+}
+
+# The git tag a standard pins for a component, or "" when the component is not a
+# member of that standard (i.e. it was not tested with this set).
+fn component_tag(s, name) {
+    for c in s.components {
+        if c.name == name { return c.tag }
+    }
+    return ""
+}
+
+# Canonical TOML rendering of a standard — byte-identical to standards/
+# biome-standard-<ver>.toml, which is what scripts/check_standards.sh diffs.
+fn emit_standard_toml(s) {
+    let t = "# Biome Standard " + s.version + " — the set of component releases tested to work together.\n"
+    t = t + "# Append-only: once released, only the status line may change (security advisories).\n\n"
+    t = t + "[standard]\n"
+    t = t + "version = \"" + s.version + "\"\n"
+    t = t + "released = \"" + s.released + "\"\n"
+    t = t + "status = \"" + s.status + "\"\n\n"
+    t = t + "[components]\n"
+    for c in s.components {
+        t = t + c.name + " = \"" + c.tag + "\"\n"
+    }
+    return t
+}
+
 fn list_contains(xs, v) {
     for x in xs {
         if x == v { return true }
@@ -91,12 +169,15 @@ struct Dep {
     path: str
 }
 
-# A cheatah.toml carries the project name, the cheatah toolchain version, the chosen
+# A cheatah.toml carries the project name, the pinned Biome Standard, the chosen
 # stdlib extensions, and any path dependencies. biome parses it into this record, edits the
 # record, and re-serializes — deterministically (comments are not preserved).
+# `cheatah` is a legacy/manual override of the toolchain tag alone: empty means "resolve
+# the toolchain from the standard like every other component" (the normal case).
 struct Manifest {
     name: str
     cheatah: str
+    standard: str
     extensions: list<str>
     dependencies: list<Dep>
 }
@@ -127,7 +208,8 @@ fn dep_path(raw) {
 
 fn read_manifest_at(path) {
     let name = ""
-    let cver = cheatah_version()
+    let cver = ""
+    let sver = default_standard()
     let exts: list<str> = []
     let deps: list<Dep> = []
     let section = ""
@@ -149,6 +231,8 @@ fn read_manifest_at(path) {
             name = val
         } elif section == "cheatah" and key == "version" {
             cver = val
+        } elif section == "cheatah" and key == "standard" {
+            sver = val
         } elif section == "extensions" {
             exts.append(key)
         } elif section == "dependencies" {
@@ -157,7 +241,7 @@ fn read_manifest_at(path) {
             deps.append(Dep(key, dep_path(line[eq + 1:])))
         }
     }
-    return Manifest(name, cver, exts, deps)
+    return Manifest(name, cver, sver, exts, deps)
 }
 
 # Load the manifest in the current project (cwd). Callers that need a project must guard
@@ -166,35 +250,48 @@ fn load_manifest() {
     return read_manifest_at(manifest_path())
 }
 
-# The cheatah.toml a fresh `biome init` writes (no extensions yet).
-fn default_manifest(name) {
-    let s = "# cheatah project manifest — managed by biome.\n\n"
-    s = s + "[project]\n"
-    s = s + "name = \"" + name + "\"\n\n"
-    s = s + "[cheatah]\n"
-    s = s + "version = \"" + cheatah_version() + "\"\n\n"
-    s = s + "[extensions]\n\n"
-    s = s + "# Path dependencies — `import <name>` resolves under <path>.\n"
-    s = s + "[dependencies]\n"
-    return s
-}
-
-# Re-serialize a Manifest to cheatah.toml.
-fn save_manifest(m) {
+# Render a Manifest as cheatah.toml text — the single serializer, so `init` and every
+# later edit produce the identical shape.
+fn manifest_text(m) {
     let s = "# cheatah project manifest — managed by biome.\n\n"
     s = s + "[project]\n"
     s = s + "name = \"" + m.name + "\"\n\n"
     s = s + "[cheatah]\n"
-    s = s + "version = \"" + m.cheatah + "\"\n\n"
-    s = s + "[extensions]\n"
-    for e in m.extensions {
-        s = s + e + " = \"" + extension_version() + "\"\n"
+    s = s + "# The Biome Standard: one version naming the toolchain + extension releases\n"
+    s = s + "# tested to work together. `biome standards` lists the known sets.\n"
+    s = s + "standard = \"" + m.standard + "\"\n"
+    if len(m.cheatah) > 0 {
+        # A manual toolchain override — kept verbatim; the standard covers everything else.
+        s = s + "version = \"" + m.cheatah + "\"\n"
     }
-    s = s + "\n[dependencies]\n"
+    s = s + "\n[extensions]\n"
+    if len(m.extensions) > 0 {
+        s = s + "# Managed by the Biome Standard above — values are the resolved release tags.\n"
+    }
+    let si = standard_index(m.standard)
+    for e in m.extensions {
+        let tag = ""
+        if si >= 0 { tag = component_tag(known_standards()[si], e) }
+        s = s + e + " = \"" + tag + "\"\n"
+    }
+    s = s + "\n# Path dependencies — `import <name>` resolves under <path>.\n"
+    s = s + "[dependencies]\n"
     for d in m.dependencies {
         s = s + d.name + " = { path = \"" + d.path + "\" }\n"
     }
-    write_file(manifest_path(), s)
+    return s
+}
+
+# The cheatah.toml a fresh `biome init` writes (no extensions yet).
+fn default_manifest(name) {
+    let exts: list<str> = []
+    let deps: list<Dep> = []
+    return manifest_text(Manifest(name, "", default_standard(), exts, deps))
+}
+
+# Re-serialize a Manifest to cheatah.toml.
+fn save_manifest(m) {
+    write_file(manifest_path(), manifest_text(m))
 }
 
 # ---- generated files -------------------------------------------------------
@@ -238,22 +335,54 @@ fn template_gitignore() {
     return s
 }
 
+# Validate a manifest against the Biome Standard table before anything is generated:
+# the standard must be one this biome knows, and every chosen extension must be a member
+# of that standard (i.e. actually tested with the set). Prints the reason on failure.
+fn validate_manifest(m) {
+    let si = standard_index(m.standard)
+    if si < 0 {
+        io.print("biome: unknown Biome Standard:", m.standard)
+        io.print("       this biome (" + biome_version() + ") knows up to", default_standard(), "— run `biome standards`,")
+        io.print("       or update the cheatah toolchain to get a newer biome")
+        return false
+    }
+    let s = known_standards()[si]
+    for e in m.extensions {
+        if len(component_tag(s, e)) == 0 {
+            io.print("biome:", e, "is not a member of Biome Standard", m.standard)
+            io.print("       (it has not been tested with this set; `biome standards` shows members)")
+            return false
+        }
+    }
+    return true
+}
+
+# The toolchain git tag a manifest resolves to: the manual [cheatah] version override
+# when present, otherwise the standard's cheatah tag. Callers validate first.
+fn toolchain_tag(m) {
+    if len(m.cheatah) > 0 { return "v" + m.cheatah }
+    return component_tag(known_standards()[standard_index(m.standard)], "cheatah")
+}
+
 # Generate the project CMakeLists.txt from the manifest. It pulls in the cheatah
-# toolchain via CPM, then each chosen extension, then uses cheatah's own
-# CheatahProgram helper to compile src/main.purr into a native executable.
+# toolchain via CPM, then each chosen extension — every GIT_TAG resolved from the
+# project's Biome Standard — then uses cheatah's own CheatahProgram helper to compile
+# src/main.purr into a native executable. Callers run validate_manifest(m) first.
 fn generate_cmake(m) {
+    let std = known_standards()[standard_index(m.standard)]
     let s = "# Generated by biome from cheatah.toml — do not edit by hand.\n"
     s = s + "# Re-run `biome build` (or `biome add`/`biome remove`) to regenerate.\n"
+    s = s + "# Component tags resolved from Biome Standard " + std.version + ".\n"
     s = s + "cmake_minimum_required(VERSION 3.24)\n"
     s = s + "project(" + m.name + " LANGUAGES CXX)\n"
     s = s + "set(CMAKE_CXX_STANDARD 20)\n\n"
     s = s + "include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)\n\n"
     s = s + "# The cheatah language toolchain (purrc + runtime + stdlib).\n"
-    s = s + "CPMAddPackage(NAME cheatah GITHUB_REPOSITORY " + github_owner() + "/cheatah GIT_TAG v" + m.cheatah + ")\n\n"
+    s = s + "CPMAddPackage(NAME cheatah GITHUB_REPOSITORY " + github_owner() + "/cheatah GIT_TAG " + toolchain_tag(m) + ")\n\n"
     if len(m.extensions) > 0 {
         s = s + "# Optional standard-library extensions chosen in cheatah.toml.\n"
         for e in m.extensions {
-            s = s + "CPMAddPackage(NAME " + e + " GITHUB_REPOSITORY " + extension_repo(e) + " GIT_TAG v" + extension_version() + ")\n"
+            s = s + "CPMAddPackage(NAME " + e + " GITHUB_REPOSITORY " + extension_repo(e) + " GIT_TAG " + component_tag(std, e) + ")\n"
         }
         s = s + "\n"
     }
@@ -297,7 +426,7 @@ fn cmd_init(name) {
 
     let exts: list<str> = []
     let deps: list<Dep> = []
-    let m = Manifest(name, cheatah_version(), exts, deps)
+    let m = Manifest(name, "", default_standard(), exts, deps)
 
     write_file(os.path.join(name, "cheatah.toml"), default_manifest(name))
     write_file(os.path.join(name, os.path.join("src", "main.purr")), template_main(name))
@@ -307,7 +436,7 @@ fn cmd_init(name) {
 
     io.print("biome: created project", name)
     io.print("  next:  cd", name)
-    io.print("         biome add cheatah-plot   # optional")
+    io.print("         biome add cheatah-gpu    # optional")
     io.print("         biome configure")
     io.print("         biome build")
     io.print("         cheatah build/" + name + os.module_ext() + "   # run it with the cheatah runtime")
@@ -327,9 +456,13 @@ fn cmd_add(name) {
         return 0
     }
     m.extensions.append(name)
+    if not validate_manifest(m) { return 1 }
     save_manifest(m)
     write_file("CMakeLists.txt", generate_cmake(m))
-    io.print("biome: added", name, "—", extension_desc(name))
+    let si = standard_index(m.standard)
+    let tag = component_tag(known_standards()[si], name)
+    io.print("biome: added", name, tag, "—", extension_desc(name))
+    io.print("       (from Biome Standard " + m.standard + ")")
     io.print("       run `biome configure` then `biome build` to fetch and build it")
     return 0
 }
@@ -347,7 +480,8 @@ fn cmd_remove(name) {
             kept.append(e)
         }
     }
-    let updated = Manifest(m.name, m.cheatah, kept, m.dependencies)
+    let updated = Manifest(m.name, m.cheatah, m.standard, kept, m.dependencies)
+    if not validate_manifest(updated) { return 1 }
     save_manifest(updated)
     write_file("CMakeLists.txt", generate_cmake(updated))
     io.print("biome: removed", name)
@@ -367,16 +501,53 @@ fn cmd_list(dir) {
         return 1
     }
     let m = read_manifest_at(path)
-    io.print("extensions for project '" + m.name + "' (" + dir + "):")
+    io.print("extensions for project '" + m.name + "' (" + dir + ", Biome Standard " + m.standard + "):")
+    let si = standard_index(m.standard)
     for e in known_extensions() {
         let mark = "  "
         if list_contains(m.extensions, e) {
             mark = "* "
         }
-        io.print(mark + string.ljust(e, 16) + extension_desc(e))
+        let tag = ""
+        if si >= 0 { tag = component_tag(known_standards()[si], e) }
+        if len(tag) == 0 { tag = "(not in this standard)" }
+        io.print(mark + string.ljust(e, 16) + string.ljust(tag, 24) + extension_desc(e))
     }
     io.print("")
     io.print("(* = used by this project; `biome add <name>` to add one)")
+    return 0
+}
+
+# `biome standards [--emit-toml <ver>]` — list every Biome Standard this biome knows,
+# newest last, with members and status. `--emit-toml` prints one standard in the
+# canonical standards/*.toml form (used by scripts/check_standards.sh to detect drift
+# between this table and the committed files).
+fn cmd_standards() {
+    if len(sys.argv) >= 4 and sys.argv[2] == "--emit-toml" {
+        let i = standard_index(sys.argv[3])
+        if i < 0 {
+            io.print("biome: unknown Biome Standard:", sys.argv[3])
+            return 1
+        }
+        # io.print terminates with exactly one newline, so stripping the trailing one
+        # from the rendered text reproduces the standards/*.toml bytes on stdout.
+        io.print(string.rstrip(emit_standard_toml(known_standards()[i]), "\n"))
+        return 0
+    }
+    io.print("Biome Standards known to this biome (" + biome_version() + "):")
+    io.print("")
+    for s in known_standards() {
+        let mark = "  "
+        if s.version == default_standard() { mark = "* " }
+        io.print(mark + s.version + "  (" + s.status + ", released " + s.released + ")")
+        for c in s.components {
+            io.print("    " + string.ljust(c.name, 16) + c.tag)
+        }
+    }
+    io.print("")
+    io.print("(* = newest; a project pins one via `standard = \"<ver>\"` in cheatah.toml)")
+    io.print("Older standards stay selectable and their sources stay archived; one is only")
+    io.print("ever deprecated for a security flaw we could not patch.")
     return 0
 }
 
@@ -387,6 +558,7 @@ fn cmd_list(dir) {
 fn cmd_configure() {
     if not require_project() { return 1 }
     let m = load_manifest()
+    if not validate_manifest(m) { return 1 }
     write_file("CMakeLists.txt", generate_cmake(m))
     io.print("biome: configuring (cmake -S . -B build)")
     let rc = os.system("cmake -S . -B build")
@@ -436,6 +608,7 @@ fn cmd_help() {
     io.print("  add <ext>       add an optional standard-library extension")
     io.print("  remove <ext>    remove an extension")
     io.print("  list [dir]      list the extensions used by the project at <dir> (default: .)")
+    io.print("  standards       list the Biome Standards (tested-together component sets)")
     io.print("  configure       regenerate CMakeLists.txt and run the CMake configure")
     io.print("  build           build the configured project (add --clean-first to rebuild)")
     io.print("  version         print the biome version")
@@ -474,6 +647,8 @@ fn run() {
         let dir = "."
         if len(sys.argv) >= 3 { dir = sys.argv[2] }
         return cmd_list(dir)
+    } elif cmd == "standards" {
+        return cmd_standards()
     } elif cmd == "configure" {
         return cmd_configure()
     } elif cmd == "build" {

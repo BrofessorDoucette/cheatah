@@ -7,6 +7,12 @@ that live in their own repositories and are pulled in on demand with the
 [biome](biome.html) package manager (`biome add <name>`, then `import`). You build only what
 you opt into — nothing here is compiled unless a project asks for it.
 
+Versions are governed by the **[Biome Standard](biome.html#biome-standard)**: your project
+pins one standard version, and biome resolves every extension to the exact release tag that
+was tested with your toolchain. `biome add` only accepts extensions that are members of
+your project's standard — an extension that has not yet passed the cross-member gate is
+listed here but declined at `add` time, truthfully.
+
 Three extensions are public today. **Read the "Depends on" column carefully:** two of them
 rest on the standard library alone, but one — `cheatah-plot` — is built on *another
 extension*, so adding it pulls in more than itself.
@@ -46,21 +52,24 @@ Dead-simple cross-platform plotting: hand it some numbers, get a plot in a windo
 Vulkan or Metal without learning either. `biome add cheatah-plot`, then `import plot`.
 
 **Depends on another extension — note this one.** Unlike the other two, cheatah-plot does
-**not** stand on the standard library alone: it renders through **`cheatah-gpu`**'s easy
-`gpu` layer (it requires `cheatah-gpu >= 0.4.0`), so `biome add cheatah-plot`
-**transitively fetches `cheatah-gpu` too**. On top of that it needs the standard library
-and a first-class **GLFW** windowing dependency (plotting owns a window). The full chain is:
+**not** stand on the standard library alone: it renders through **`cheatah-gpu`**'s `gpu`
+surfaces (the same deliberately thin, 1:1 Vulkan/Metal interfaces — cheatah-gpu has no
+separate "easy" layer, by design). On top of that it needs the standard library and a
+first-class **GLFW** windowing dependency (plotting owns a window). The full chain is:
 
 ```
 cheatah-plot  →  cheatah-gpu  →  standard library
      └──────────────────────────────→ standard library (+ GLFW window)
 ```
 
-## How the dependencies are declared
+## How the dependencies stay coherent
 
-Each extension is an ordinary cheatah project with a `cheatah.toml` manifest. One that
-depends on *another* extension lists it in that manifest's `[dependencies]` section, exactly
-as your own project would — which is precisely why `biome add cheatah-plot` brings in
-`cheatah-gpu` for you. See [biome](biome.html) for how the manifest drives the build, and
-[Imports & module resolution](imports.html) for how each `import` is then resolved to a
-module on disk.
+Each extension is an ordinary cheatah project with a `cheatah.toml` manifest, and a manifest
+*documents* what its extension builds on. But the thing that keeps an inter-extension
+dependency **version-coherent** is the [Biome Standard](biome.html#biome-standard): when an
+extension that depends on another joins a standard, the standard carries **both** members at
+tags tested together, so there is never a "which cheatah-gpu does this cheatah-plot need?"
+question — your standard answers it. (cheatah-plot has not yet joined a standard; it becomes
+addable the release it passes the cross-member gate.) See [biome](biome.html) for how the
+manifest drives the build, and [Imports & module resolution](imports.html) for how each
+`import` is then resolved to a module on disk.

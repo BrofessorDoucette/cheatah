@@ -77,6 +77,7 @@ biome init <name>     scaffold a new cheatah project
 biome add <ext>       add an optional standard-library extension
 biome remove <ext>    remove an extension
 biome list [dir]      list the extensions used by the project at <dir> (default: .)
+biome standards       list the Biome Standards (tested-together component sets)
 biome configure       regenerate CMakeLists.txt from the manifest and run the CMake configure
 biome build           build the configured project (add --clean-first for a from-scratch rebuild)
 biome version         print the biome version   (also --version / -v)
@@ -104,7 +105,7 @@ That is the **complete** command surface. A few things to note:
 ```sh
 biome init hello
 cd hello
-biome add cheatah-plot         # optional — opt into an extension
+biome add cheatah-gpu          # optional — opt into an extension
 biome configure                # CMake configure: CPM fetches the toolchain + extensions
 biome build                    # compile (add --clean-first to rebuild from scratch)
 cheatah build/hello.so         # run it — always with the cheatah runtime, never biome
@@ -137,22 +138,126 @@ manifest looks like this:
 name = "hello"
 
 [cheatah]
-version = "0.9.0"           # the cheatah toolchain version, pinned as a git tag
+standard = "0.1.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
 
 [extensions]
-cheatah-plot = "0.1.0"      # one line per opted-in extension
+cheatah-gpu = "v0.5.0-alpha"      # one line per opted-in extension; the value is the
+                                  # release tag RESOLVED from the standard (informational)
 
 [dependencies]
 shared = { path = "../shared" }   # a local dependency at a path on disk
 ```
 
 - `[project] name` names the executable that gets built.
-- `[cheatah] version` pins which release of the toolchain to fetch (a git tag).
+- `[cheatah] standard` pins the **Biome Standard** — the one version you track. It names
+  the exact toolchain *and* extension releases that were tested to work together (see
+  [The Biome Standard](#biome-standard) below); biome resolves every git tag it writes
+  into the generated CMake from it.
+- `[cheatah] version` (optional) is a manual override of the *toolchain* tag alone, for
+  the rare case you need a toolchain release different from the standard's. Extensions
+  always resolve from the standard. Omit it — the standard covers everything.
 - `[extensions]` lists optional standard-library extensions (see below). `biome add`
-  and `biome remove` edit this section for you.
+  and `biome remove` edit this section for you; the values are the tags the standard
+  resolved, written out so the manifest is self-describing.
 - `[dependencies]` lists your own libraries. Each is `name = { path = "…" }` — a
   folder on disk that holds cheatah modules you want to `import`. This is how one
   cheatah project consumes another.
+
+## The Biome Standard {#biome-standard}
+
+The cheatah ecosystem is deliberately many small repositories — you install only what you
+need and keep your dependency surface low. What keeps that from becoming version chaos is
+the **Biome Standard**: one semantic version that names a *set* of component releases
+(the toolchain plus extensions) **tested to work together**. Members keep their own
+per-repo versions for internal bookkeeping; the standard is the compatibility contract
+*you* rely on, and the one number your manifest pins.
+
+Each standard is a short, append-only definition — the canonical files live in
+[`standards/`](https://github.com/BrofessorDoucette/cheatah/tree/main/standards) and
+`biome standards` prints the table your biome ships with:
+
+```toml
+[standard]
+version = "0.1.0-alpha"
+released = "2026-07-25"
+status = "current"          # current | supported | deprecated (security-only)
+
+[components]
+cheatah = "v1.7.0-alpha"
+cheatah-gpu = "v0.5.0-alpha"
+```
+
+### What the standard's version means
+
+The standard's **major version is a promise about your code**, not about member churn:
+
+- **Major** — only when programs written against the previous standard cannot carry
+  forward. Exactly two events justify it: a security measure so necessary we force users
+  to change their code, or a change to the cheatah language so fundamental that the
+  packages' APIs all had to change — it's basically not the same cheatah anymore. A member
+  breaking compatibility with *another member*, absorbed inside the ecosystem so your
+  programs still work, is **not** a major.
+- **Minor** — the tested set changed in compatible ways: members added features, a member
+  took an internal/major bump the ecosystem absorbed, or a new member joined.
+- **Patch** — patch-only member updates (fixes, no API change).
+- The standard carries `-alpha` while its members are alpha; it earns `1.0.0` only once
+  the ecosystem is stable enough that we expect no forced user-code breaks. Standard
+  majors are meant to be rare, heartbreaking-level events.
+
+### Worked examples
+
+1. *`cheatah-gpu` fixes a Metal dispatch bug; no API changes anywhere.* cheatah-gpu cuts a
+   patch tag; a new standard **patch** (0.1.0 → 0.1.1) pins the fixed set. Your manifest
+   bumps one number and nothing about your code changes.
+2. *The stdlib adds a new module and `cheatah-gpu` adds new dispatch helpers.* Purely
+   additive; existing programs untouched → standard **minor** (0.1.x → 0.2.0).
+3. *`cheatah-plot` passes the cross-member gate for the first time and joins the tested
+   set.* New member, nothing else changed → standard **minor**.
+4. *`cheatah-gpu` reworks the integration seam `cheatah-plot` renders through — a breaking
+   change between two members.* Both members are updated and re-tested together inside the
+   same new standard; programs written against the documented surfaces keep compiling →
+   standard **minor**, explicitly **not** a major. Member-to-member breakage the ecosystem
+   absorbs never escalates to the standard's major.
+5. *A cryptographic flaw forces removing an insecure API mode that user programs call, and
+   it cannot be shimmed safely.* One of the two events that justify a **major**: the
+   affected older standards are marked `deprecated` with a public advisory, and the new
+   major documents exactly what user code must change.
+6. *A fundamental language change (say, a rework of ownership semantics) ripples through
+   every package's API.* The other major event — → standard **major**, with the old majors
+   remaining installable and archived.
+
+### How the community avoids majors
+
+These are standing practices, not aspirations:
+
+- **Additive evolution** — new capability arrives as new modules/functions beside the old,
+  never by mutating existing signatures (sized integers `i8`…`u64` shipped opt-in while
+  `int` stayed the 64-bit default).
+- **Deprecate, don't delete** — a superseded API is documented deprecated and keeps
+  working for the life of the current major; removal is only ever part of a (rare) major.
+- **Absorb breaks inside the standard** — when a member must break an inter-member seam,
+  every dependent member is updated and cross-tested in the *same* standard release
+  (worked example 4), so users only ever see a minor.
+- **Backport security patches** — older `supported` standards receive patched member tags
+  rather than forcing users forward; only an unpatchable flaw deprecates a standard
+  (worked example 5).
+- **The standard is published only when the full cross-member QA passes** — each member's
+  own gate plus the biome-install integration check. "Tested together" is the definition,
+  not a slogan.
+- **Nothing is ever stranded** — every standard's member sources stay obtainable
+  (immutable git tags, source tarballs attached to each release, and local archives), so
+  even a major never cuts a decades-scale project off from the code it builds on. And
+  because the ecosystem does its best to maintain standard compatibility with Doxygen
+  documentation generators — the full API contract (`@brief`/`@param`/`@return`/
+  `@complexity`/`@alloc`/`@test`) lives *in the source headers*, not only on this site —
+  we believe the source code itself is of sufficient quality that users could reproduce
+  the documentation sites themselves in a decades-long project, even if we are no longer
+  hosting them ourselves.
+
+Older standards stay selectable forever: pin `standard = "<older-ver>"` and biome resolves
+that set's tags exactly as it did the day it shipped. A standard is only ever retired
+(`deprecated`) for a security flaw we could not patch — with a public advisory, and with
+its sources still archived.
 
 ## Adding an extension — what actually happens
 
@@ -167,14 +272,22 @@ fetched on demand, so you build only what you opt into:
 
 For what each extension provides and — importantly — **which ones depend on *other*
 extensions** (not just the standard library), see
-[Standard library extensions](extensions.html). Adding one that depends on another (e.g.
-`cheatah-plot`, which builds on `cheatah-gpu`) fetches the whole chain for you.
+[Standard library extensions](extensions.html).
 
-Running `biome add cheatah-plot` does three small things:
+Not every registered extension can be added to every project: `biome add` only accepts
+extensions that are **members of your project's Biome Standard** — i.e. releases that were
+actually tested with your toolchain. `biome list` shows each extension's resolved tag, or
+`(not in this standard)` for ones that have not joined your standard yet. (When an
+extension that depends on another joins a standard — `cheatah-plot` builds on
+`cheatah-gpu` — the standard carries both members at tested-together tags, which is how
+the dependency chain stays coherent.)
 
-1. adds `cheatah-plot = "0.1.0"` to the `[extensions]` section of `cheatah.toml`;
-2. regenerates `CMakeLists.txt` so it now contains a `CPMAddPackage(NAME cheatah-plot …)`
-   line and passes `cheatah-plot` to `cheatah_add_program(… EXTENSIONS …)`;
+Running `biome add cheatah-gpu` does three small things:
+
+1. adds `cheatah-gpu = "v0.5.0-alpha"` (the tag resolved from your standard) to the
+   `[extensions]` section of `cheatah.toml`;
+2. regenerates `CMakeLists.txt` so it now contains a `CPMAddPackage(NAME cheatah-gpu …)`
+   line and passes `cheatah-gpu` to `cheatah_add_program(… EXTENSIONS …)`;
 3. prints a reminder to `biome configure` + `biome build`.
 
 The fetch happens on the next `biome configure`, and the compile on `biome build` — not on
@@ -188,8 +301,8 @@ The two steps map exactly onto CMake's own two phases:
   `cmake -S . -B build` (the CMake *configure*). During that configure, the generated
   `CMakeLists.txt`:
   1. `include(cmake/CPM.cmake)` — bootstraps CPM (downloaded once into the build tree);
-  2. `CPMAddPackage(NAME cheatah … GIT_TAG v0.9.0)` — **fetches** the cheatah toolchain
-     (`purrc`, the runtime, and the stdlib), pinned to the version in `cheatah.toml`;
+  2. `CPMAddPackage(NAME cheatah … GIT_TAG v1.7.0-alpha)` — **fetches** the cheatah toolchain
+     (`purrc`, the runtime, and the stdlib), pinned to the tag your Biome Standard resolves;
   3. one `CPMAddPackage(NAME cheatah-… …)` per extension you opted into;
   4. `include(${cheatah_SOURCE_DIR}/cmake/CheatahProgram.cmake)` then
      `cheatah_add_program(hello SOURCES src/main.purr EXTENSIONS … IMPORT_ROOTS …)`.
@@ -255,8 +368,11 @@ an `import` into a file on disk are on the
 
 ## Status
 
-This is an early, working skeleton. Verified end-to-end today: `init` / `add` /
-`remove` / `list` / `version`, manifest round-tripping, `CMakeLists.txt` generation,
-and `build` / `run` against the cheatah **core** (configure → `purrc` module → native
-launcher, driven entirely by CMake/CPM). Full extension link-integration and published
-extension release tags are still in progress.
+This is an early, working tool. Verified end-to-end today: `init` / `add` / `remove` /
+`list` / `standards` / `version`, manifest round-tripping, `CMakeLists.txt` generation
+with every tag resolved from the Biome Standard, and `build` / `run` against the cheatah
+**core** (configure → `purrc` module → native launcher, driven entirely by CMake/CPM).
+Biome Standard 0.1.0-alpha has two members — the cheatah toolchain and `cheatah-gpu`,
+both with published release tags; `cheatah-plot` and `cheatah-space` are registered but
+join a standard only once they pass the cross-member gate (until then `biome add`
+declines them, truthfully).

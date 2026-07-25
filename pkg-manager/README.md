@@ -22,6 +22,7 @@ biome init <name>     scaffold a new cheatah project
 biome add <ext>       add an optional standard-library extension
 biome remove <ext>    remove an extension
 biome list [dir]      list the extensions used by the project at <dir> (default: .)
+biome standards       list the Biome Standards (tested-together component sets)
 biome configure       regenerate CMakeLists.txt from the manifest and run the CMake configure
 biome build           build the configured project (add --clean-first for a from-scratch rebuild)
 biome version         print the biome version   (also --version / -v)
@@ -37,7 +38,7 @@ project-scoped: it shows nothing unless pointed at a directory holding a `cheata
 ```sh
 biome init hello
 cd hello
-biome add cheatah-plot         # optional — opt into an extension
+biome add cheatah-gpu          # optional — opt into an extension
 biome configure                # CMake configure: CPM fetches the toolchain + extensions
 biome build                    # compile (add --clean-first to rebuild from scratch)
 cheatah build/hello.so         # run it — always with the cheatah runtime, never biome
@@ -47,7 +48,7 @@ A fresh project looks like:
 
 ```
 hello/
-├── cheatah.toml            # the manifest (project name, cheatah version, extensions)
+├── cheatah.toml            # the manifest (project name, Biome Standard, extensions)
 ├── CMakeLists.txt          # GENERATED from cheatah.toml — do not edit by hand
 ├── cmake/
 │   └── CPM.cmake           # CPM bootstrap (auto-downloads CPM at configure time)
@@ -63,10 +64,10 @@ hello/
 name = "hello"
 
 [cheatah]
-version = "1.6.0-alpha"     # the cheatah toolchain version, pinned as a git tag
+standard = "0.1.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
 
 [extensions]
-cheatah-plot = "0.1.0"      # one line per opted-in extension
+cheatah-gpu = "v0.5.0-alpha"      # per opted-in extension: the tag RESOLVED from the standard
 
 [dependencies]
 shared = { path = "../shared" }   # a local/path dependency (crate-style)
@@ -75,6 +76,15 @@ shared = { path = "../shared" }   # a local/path dependency (crate-style)
 `biome add`/`remove` edit `[extensions]` (and regenerate `CMakeLists.txt` so the
 two never drift). `biome build` regenerates `CMakeLists.txt` from the manifest
 before configuring, so the manifest is always the single source of truth.
+
+The **Biome Standard** is the one version users track: it names the set of component
+releases (toolchain + extensions) tested to work together, and biome resolves every
+`GIT_TAG` in the generated CMake from it. The canonical definitions live in
+[../standards/](../standards/), mirrored by the append-only table in `biome.purr`
+(`scripts/check_standards.sh` fails the QA gate if the two drift). An optional
+`[cheatah] version = "…"` remains as a manual override of the *toolchain* tag alone.
+See the "The Biome Standard" section of `docs/biome.md` for the full versioning
+contract (when its major/minor/patch move, and the source-retention guarantee).
 
 ## Dependencies & how `import` resolves
 
@@ -120,7 +130,9 @@ and a cheatah pulled in as a sub-project builds **without** its own test suite
 ## Optional standard-library extensions
 
 Extensions are **separate git repositories**, fetched on demand by CPM — you only
-build what you opt into. The registry biome validates against:
+build what you opt into. The registry biome validates names against (membership in
+your project's Biome Standard decides whether an extension is *addable* — `biome
+standards` shows each standard's members):
 
 | extension | what it adds |
 |---|---|
@@ -132,17 +144,20 @@ See [extension-template/](extension-template/) for the shape of an extension rep
 
 ## Status
 
-This is the first working skeleton. Implemented and verified end-to-end today:
-`init` / `add` / `remove` / `list` / `version`, manifest round-tripping,
-`CMakeLists.txt` generation, and `build` / `run` against the cheatah **core**
-(configure → `purrc` module → native launcher, driven entirely by CMake/CPM).
+Implemented and verified end-to-end today: `init` / `add` / `remove` / `list` /
+`standards` / `version`, manifest round-tripping, `CMakeLists.txt` generation with
+every tag resolved from the Biome Standard, and `build` / `run` against the cheatah
+**core** (configure → `purrc` module → native launcher, driven entirely by CMake/CPM).
+Biome Standard 0.1.0-alpha members: the cheatah toolchain (`v1.7.0-alpha`) and
+`cheatah-gpu` (`v0.5.0-alpha`) — both published tags. `cheatah-plot` and
+`cheatah-space` are registered but not yet members of any standard, so `biome add`
+declines them until they pass the cross-member gate.
 
 Pending next increments:
 - **Extension link integration** — `cheatah_add_program(EXTENSIONS …)` records
   the chosen extensions and CPM fetches them, but wiring a third-party module's
   headers/archive into `purrc`'s link line is not done yet (purrc currently
-  resolves modules from a single baked toolchain root). The four extension repos
-  above are not published yet either.
-- A pinned `v1.6.0-alpha` (and per-extension) **release tag** so CPM fetches a real tag
-  rather than needing the local-source override.
+  resolves modules from a single baked toolchain root).
+- `cheatah-plot` / `cheatah-space` release tags + cross-member gate runs, so they
+  can join a standard.
 - A proper TOML reader (the current parser handles the subset biome writes).

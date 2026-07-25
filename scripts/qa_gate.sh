@@ -27,7 +27,8 @@
 #   1c. VS Code extension (hard gate): regenerate its hover database from the stdlib
 #       API (Doxygen XML -> gen-hover-docs.py) and FAIL if it drifted.
 #   2. Configure (debug for tests, release for benchmarks).
-#   3. Build (debug); 3b module-header drift; 3c frontend golden-master.
+#   3. Build (debug); 3b module-header drift; 3c frontend golden-master; 3d Biome
+#      Standard drift (standards/*.toml must match biome's in-source table).
 #   4. Unit test suite (hard gate) — ctest, parallel.
 #   5. ASan+UBSan build + suite; 5b TSan build + concurrency suites.
 #   6. Valgrind memcheck (sharded) — 100% unit-test coverage, no errors/leaks.
@@ -263,6 +264,11 @@ fi
 bold "Checking frontend golden-master (emitted C++ is byte-identical)…"
 ctest --preset debug --output-on-failure --parallel "$JOBS" -R 'golden-master' || fail "frontend golden-master drifted — the transpiler changed its emitted C++"
 bg_poll
+
+# 3d. Biome Standard drift (hard gate) — the append-only standards/*.toml files must be
+#     byte-identical to biome's in-source table (each side is meaningless without the other).
+bold "Checking Biome Standard files match biome's in-source table…"
+bash scripts/check_standards.sh build/debug/bin/biome || fail "Biome Standard drift — standards/*.toml and biome.purr's known_standards() disagree"
 
 # 4. Unit tests (hard gate) --------------------------------------------------
 # The "previously_broken" regression suite (bugs that ONCE broke the toolchain) runs

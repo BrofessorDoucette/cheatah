@@ -40,3 +40,15 @@ mkdir -p archive
 TARBALL="archive/cheatah-${VERSION}.tar.gz"
 tar -czf "$TARBALL" -C review "cheatah-${VERSION}"
 echo "[archive] ${TARBALL}  ($(du -h "$TARBALL" | cut -f1))"
+
+# Source-retention guarantee (the Biome Standard promise): attach the source tarball to
+# the GitHub release as an explicit asset, so the archive outlives any local checkout.
+# Best-effort here — the gh release may not exist yet mid-push; the release ritual
+# re-runs this once the release page is up.
+if command -v gh >/dev/null 2>&1 && gh release view "${VERSION}" >/dev/null 2>&1; then
+    gh release upload "${VERSION}" "$TARBALL" --clobber \
+        && echo "[archive] uploaded ${TARBALL} to the ${VERSION} GitHub release" \
+        || echo "[archive] WARNING: gh release upload failed — attach ${TARBALL} to ${VERSION} by hand"
+else
+    echo "[archive] note: no gh release for ${VERSION} yet — re-run after \`gh release create\` to attach the tarball"
+fi
