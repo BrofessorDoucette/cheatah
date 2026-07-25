@@ -57,26 +57,38 @@ public:
      * @param obj pointer to the owned object.
      * @param gate the generation gate that carries the yield signal.
      * @param release callback fired once on destruction to tell the owner this lease is done.
+     * @concurrency called by the owner with its coordinator mutex held — never construct one yourself.
+     * @test Memory.EveryAccessorReturnsARequestNotABareLease
      */
     Lease(T* obj, std::shared_ptr<detail::Gate> gate, std::function<void()> release) noexcept
         : obj_(obj), gate_(std::move(gate)), release_(std::move(release)) {}
 
     /// Move-construct, taking over @p o's grant (it is left released). @param o the lease to move from.
+    /// @complexity O(1). @alloc none. @test Memory.EveryAccessorReturnsARequestNotABareLease
     Lease(Lease&& o) noexcept { steal(o); }
     /// Move-assign: release ours, then take over @p o's grant. @param o source. @return `*this`.
+    /// @complexity O(1). @alloc none. @test Memory.EveryAccessorReturnsARequestNotABareLease
     Lease& operator=(Lease&& o) noexcept { if (this != &o) { drop(); steal(o); } return *this; }
     Lease(const Lease&) = delete;
     Lease& operator=(const Lease&) = delete;
     /// Release the lease (fires the owner's release callback if still held).
+    /// @complexity O(1). @alloc none.
+    /// @concurrency the release callback takes the owner's coordinator mutex and wakes waiting
+    /// requests (a draining writer proceeds once the last reader releases here).
+    /// @test Memory.WriteWaitsForReadersToDrain
     ~Lease() { drop(); }
 
     /// Read the whole object. Available on every lease. @return a `const T&` — never a copy or `T*`.
     /// @complexity O(1). @alloc none.
+    /// @concurrency race-free while the lease is held: a writer cannot proceed until this lease
+    /// releases (yielding on `!valid()` is cooperative, not forced). No lock is taken here.
+    /// @test Memory.ReadReturnsAReferenceNotACopyOrPointer
     const T& read() const { return *obj_; }
 
     /// Read element @p index of an Indexed sequence: `r.read(i)`. Mirrors `w.write(i, v)`.
     /// @param index the position to read. @return a const reference to the element.
     /// @complexity `T::operator[]`. @alloc none.
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     const auto& read(std::size_t index) const
         requires Indexed<T>
     { return (*obj_)[index]; }
@@ -85,6 +97,7 @@ public:
     /// (reading a missing key never inserts). @tparam K a type convertible to the key type.
     /// @param key the key to look up. @return a const reference to the mapped value.
     /// @complexity `T::at`. @alloc none.
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     template <class K>
         requires (Mapping<T> && std::convertible_to<K, typename T::key_type>)
     const auto& read(K&& key) const
@@ -92,12 +105,14 @@ public:
 
     /// Read the first element (containers with `front()`: vector / deque / list / string …).
     /// @return a const reference to the first element. @complexity O(1). @alloc none.
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     const auto& read_front() const
         requires HasFront<T>
     { return (*obj_).front(); }
 
     /// Read the last element (containers with `back()`).
     /// @return a const reference to the last element. @complexity O(1). @alloc none.
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     const auto& read_back() const
         requires HasBack<T>
     { return (*obj_).back(); }
@@ -105,6 +120,12 @@ public:
     /// Replace the whole object: `w.write(value)`. The primary write form. Write / write_renewable only.
     /// @param value the new value (moved in). @complexity O(1) plus assigning @p value.
     /// @alloc whatever `T`'s assignment allocates.
+    /// @concurrency exclusive: no reader or other writer coexists while this lease is valid. A
+    /// writer that observed `!valid()` (an immediate-write preempted it) must wait for `valid()` to
+    /// flip back before writing again — writing while suspended races with the immediate-write.
+    /// @test Memory.WriteWaitsForReadersToDrain
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
+    /// @systest MemoryCheatah.ScalarWriteReadModifyWrite
     void write(T value)
         requires is_write_mode<M>
     { *obj_ = std::move(value); }
@@ -112,6 +133,8 @@ public:
     /// Set element @p index of an Indexed sequence: `w.write(i, v)`. Deduced. Write modes only.
     /// @tparam V the element value type. @param index the position to set. @param value the new element.
     /// @complexity `T::operator[]`. @alloc whatever the element assignment allocates.
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
+    /// @systest MemoryCheatah.OwnerOfNdArrayElements
     template <class V>
         requires (is_write_mode<M> && Indexed<T>)
     void write(std::size_t index, V&& value)
@@ -120,6 +143,7 @@ public:
     /// Set @p key of a Mapping: `w.write(k, v)`. Deduced. Write modes only. @tparam K key type.
     /// @tparam V value type. @param key the key to set (may insert). @param value the mapped value.
     /// @complexity `T::operator[]` (may insert). @alloc whatever the insert/assignment allocates.
+    /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     template <class K, class V>
         requires (is_write_mode<M> && Mapping<T> &&
                   std::convertible_to<K, typename T::key_type>)
@@ -129,6 +153,11 @@ public:
     /// Still ours? `true` until the owner asks us to yield (a writer waiting; an immediate-write). The
     /// holder observing `!valid()` is how the owner learns it has paused. @return whether the lease is
     /// still valid. @complexity O(1). @alloc none.
+    /// @concurrency an atomic acquire load; the first observation of a stop acks and wakes the owner
+    /// (that one call briefly takes the owner's mutex) — polling this from the holding thread is what
+    /// lets a drain/preempt make progress. The lease handle itself is not internally synchronized:
+    /// poll from the thread that holds the lease.
+    /// @test Memory.ReadLeaseValidUntilAWriterNeedsIn
     bool valid() const noexcept {
         const bool v = gate_->valid.load(std::memory_order_acquire);
         if (!v) {
@@ -142,11 +171,17 @@ public:
     }
     /// Asked to yield? The negation of valid(). @return `true` once the owner needs the lease back.
     /// @complexity O(1). @alloc none.
+    /// @test Memory.ReadLeaseValidUntilAWriterNeedsIn
+    /// @systest MemoryCheatah.ReadLeaseValidState
     bool expired() const noexcept { return !valid(); }
 
     /// Register the "what to do if the owner interrupts me" handler; fires once, in the holder's thread,
     /// the first time `valid()` observes the stop. Replaces any previous handler. @complexity O(1).
+    /// @alloc one callback holder (the @p handler `std::function`, moved in — nothing beyond its own state).
     /// @param handler the callback to run when the owner asks this lease to yield.
+    /// @concurrency the handler never fires asynchronously — only from inside a `valid()` call, on
+    /// the thread that polls it.
+    /// @test Memory.InterruptCallbackFiresWhenTheOwnerNeedsTheLeaseBack
     void on_interrupt(std::function<void()> handler) { on_interrupt_ = std::move(handler); }
 
 private:

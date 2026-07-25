@@ -29,8 +29,7 @@ namespace cheatah::x25519 {
  * @complexity O(1) — 255 constant-time ladder steps.
  * @alloc the returned string.
  * @test CheatahX25519.Rfc7748Vector1
- * @crtest X25519CompileRun.SharedSecret
- * @systest StdlibE2E.X25519
+ * @systest TlsSys.HandshakeAgainstOpenssl
  */
 std::string x25519(std::string_view scalar_hex, std::string_view point_hex);
 
@@ -42,8 +41,7 @@ std::string x25519(std::string_view scalar_hex, std::string_view point_hex);
  * @complexity O(1) — one ladder.
  * @alloc the returned string.
  * @test CheatahX25519.DiffieHellman
- * @crtest X25519CompileRun.PublicKey
- * @systest StdlibE2E.X25519
+ * @systest TlsSys.HandshakeAgainstOpenssl
  */
 std::string x25519_base(std::string_view scalar_hex);
 

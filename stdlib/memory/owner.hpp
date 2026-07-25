@@ -53,6 +53,11 @@ public:
     /// Owner), never copied. An lvalue won't bind here (bind an rvalue: `own(std::move(x))`).
     /// @param value the object to take ownership of (moved in).
     /// @param pol the scheduling policy (interleave / writes_first).
+    /// @complexity O(1) plus moving @p value.
+    /// @alloc one read-generation gate (`std::make_shared`); the value's own storage just moves.
+    /// @concurrency construct before sharing; the pinned Owner must outlive every lease and every
+    /// thread that uses it.
+    /// @test Memory.OwnerConsumesAndMovesTheObjectInNeverCopies
     explicit Owner(T&& value, policy pol = policy::interleave)
         : value_(std::move(value)), policy_(pol) { read_gate_ = make_gate(); }
     Owner(const Owner&) = delete;                // copying an owner is forbidden — there is one owner.
@@ -60,9 +65,17 @@ public:
     Owner(Owner&&) = delete;                      // pinned: &value_ must stay stable for live leases.
     Owner& operator=(Owner&&) = delete;
 
-    /// Request a shared READ lease. Blocks (inside `.acquire()`) only if a write is pending/active;
-    /// otherwise many read leases coexist. @return a request for a read lease.
+    /// Request a shared READ lease. Blocks — in THIS call: the grant is synchronous, so the returned
+    /// request is already fulfilled — only while a write is pending/active or queued; otherwise many
+    /// read leases coexist. @return a request for a read lease.
     /// @complexity O(1) amortized. @alloc the request's promise/future.
+    /// @concurrency callable from any thread; readers share. Writer-preference: this waits while any
+    /// write is active, suspended, or queued, so writers cannot starve.
+    /// @warning requesting while the SAME thread still holds a lease on this owner can deadlock (a
+    /// queued write makes the grant wait on that very lease) — renewal is release, then re-request.
+    /// @test Memory.ReadLeasesCoexist
+    /// @test MemoryConcurrency.ManyReadersCoexistThenAWriteDrains
+    /// @systest MemoryCheatah.ReadLeaseValidState
     Request<Lease<T, read>> rread() {
         std::promise<Lease<T, read>> p;
         auto fut = p.get_future();
@@ -78,9 +91,22 @@ public:
 
     /// Request an exclusive WRITE lease at compile-time `priority` (a plain int or the caller's enum;
     /// higher = served first, ties FIFO). `priority < 0` (spell it `memory::immediate`) is an
-    /// immediate-write. @tparam priority the compile-time write priority. @return a request for a write
-    /// lease. @complexity O(log k) to enqueue among k waiters (O(1) immediate). @alloc the request's
-    /// promise/future (plus one queue node for a non-immediate write).
+    /// immediate-write. Blocks in THIS call — the grant is synchronous, so the returned request is
+    /// already fulfilled — until the readers drain and this write wins the queue.
+    /// @tparam priority the compile-time write priority. @return a request for a write
+    /// lease. @complexity O(log k) to enqueue among k waiters (O(1) immediate), plus the blocking wait.
+    /// @alloc the request's promise/future, two fresh gates (`std::make_shared`: this write's own +
+    /// the next read generation's), plus one queue-ticket slot (amortized) for a non-immediate write.
+    /// @concurrency callable from any thread. Drain-before-write: flips the current read generation's
+    /// gate and waits until every reader has released and no other write is active; an immediate-write
+    /// skips the queue and additionally preempts a cooperating active writer (which resumes after).
+    /// @warning requesting while the SAME thread still holds a lease on this owner deadlocks (the
+    /// drain waits on that very lease) — release first, then re-request.
+    /// @test Memory.WriteWaitsForReadersToDrain
+    /// @test Memory.HigherPriorityWriteServedFirst
+    /// @test Memory.NegativePriorityImmediateWritePreemptsTheActiveWriterWhichThenResumes
+    /// @test MemoryConcurrency.ManyWritersDeterministicSum
+    /// @systest MemoryCheatah.ConcurrentSumOverSharedOwner
     template <auto priority = 0>
     Request<Lease<T, write>> rwrite() {
         constexpr long long P = static_cast<long long>(priority);
@@ -203,7 +229,9 @@ private:
 /// Take sole ownership of @p value and hand back its `Owner`. @tparam T the owned type.
 /// @param value the object to own (moved in). @param pol the scheduling policy.
 /// @return an `Owner<T>` that has consumed @p value.
-/// @complexity O(1) plus moving @p value. @alloc none of our own (the value owns its storage).
+/// @complexity O(1) plus moving @p value. @alloc one read-generation gate (`std::make_shared`, in
+/// the `Owner` constructor); the value's own storage just moves.
+/// @test Memory.ObjectDiesWithOwner
 template <Ownable T>
 Owner<T> own(T value, policy pol = policy::interleave) { return Owner<T>(std::move(value), pol); }
 

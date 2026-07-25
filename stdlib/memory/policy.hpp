@@ -12,6 +12,9 @@
 namespace cheatah::memory {
 
 /// How the owner schedules pending writes against reads. Chosen at construction (a stored value).
+/// NOTE: the current coordinator is writer-preferring under BOTH values — a renewing reader waits
+/// until the write queue is empty (today both behave as `writes_first`); `interleave` records the
+/// declared fairness intent.
 enum class policy : std::uint8_t {
     interleave,    ///< (default) readers renew *between* writes; writers + waiting readers are fair.
     writes_first,  ///< drain the ENTIRE write queue before renewing any reader (owner's declared choice).

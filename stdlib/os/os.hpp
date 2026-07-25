@@ -152,7 +152,8 @@ void rename(const std::string& src, const std::string& dst);
  * @param name the variable name.
  * @param fallback returned when unset.
  * @return the value, or @p fallback.
- * @complexity O(1) + a syscall.
+ * @complexity O(environment size) — `std::getenv` is a linear scan of the C library's
+ *   environment table (no syscall).
  * @alloc allocates the returned string.
  * @test CheatahOs.GetenvFallback, CheatahOs.SetenvThenGetenv
  * @crtest OsCompileRun.Getenv
@@ -168,7 +169,8 @@ std::string getenv(const std::string& name, const std::string& fallback = "");
  * @param name the variable name.
  * @param value the value to set.
  * @param overwrite replace an existing value when true.
- * @complexity O(1) + a syscall.
+ * @complexity O(environment size) — the C library scans and updates its environment
+ *   table (no syscall).
  * @alloc may allocate inside the C library's environment table.
  * @test CheatahOs.SetenvThenGetenv
  * @crtest OsCompileRun.Setenv
@@ -210,6 +212,8 @@ unsigned cpu_count();
  * @return the command's exit status.
  * @complexity O(1) here + the cost of the spawned process (fork/exec via the shell).
  * @alloc none.
+ * @warning @p command is interpreted by the shell (quoting, expansion, `;`/`|`) — never
+ *   build it from untrusted input.
  * @test CheatahOs.PidAndSystem
  * @crtest OsCompileRun.System
  * @systest StdlibE2E.Os
@@ -222,10 +226,12 @@ int system(const std::string& command);
  * on POSIX, `BCryptGenRandom` on Windows — suitable for keys and signatures. Unlike
  * the `random` module (a deterministic, seedable PRNG), this is NOT reproducible and
  * must not be seeded. Throws `std::runtime_error` if the OS source cannot be read
- * (so a key is never built from non-random bytes).
- * @param n the number of bytes to return.
+ * (so a key is never built from non-random bytes), and `std::invalid_argument` for a
+ * negative @p n.
+ * @param n the number of bytes to return (must be non-negative).
  * @return a string of @p n random bytes (may contain embedded NULs).
- * @complexity O(n) plus a syscall.
+ * @complexity O(n), plus one syscall per 256-byte chunk on POSIX (getentropy's
+ *   per-call limit; a single BCryptGenRandom call on Windows).
  * @alloc allocates the n-byte result.
  * @test CheatahOs.Urandom
  * @crtest OsCompileRun.Urandom
@@ -284,6 +290,8 @@ std::string join(const std::string& first, const Parts&... rest) {
  * @return true iff @p p exists.
  * @complexity O(n) + a syscall.
  * @alloc none.
+ * @warning The answer is a snapshot: the entry can be created or removed between this
+ *   check and any subsequent use (TOCTOU) — do not rely on it as a security check.
  * @test CheatahOs.MakeDirExistsThenRemove
  * @crtest OsCompileRun.PathExists
  * @systest StdlibE2E.Os

@@ -7,9 +7,11 @@
  * @brief `regex` — a fast, from-scratch regular-expression engine. `import regex`.
  *
  * A **linear-time** matcher: the pattern compiles to a Thompson NFA and runs as a **lazy
- * DFA** (RE2-style), so matching is O(n) in the input length with **no backtracking** — it
- * cannot blow up on adversarial patterns the way `std::regex` and backtracking engines
- * (Boost) do. A compiled @ref Pattern owns its program **and a reusable DFA cache**, so
+ * DFA** (RE2-style), so one DFA pass is O(n) in the input length with **no backtracking** — it
+ * cannot blow up exponentially on adversarial patterns the way `std::regex` and backtracking
+ * engines (Boost) do. (An unanchored @ref search / @ref find may retry the anchored DFA from
+ * successive start positions, so the worst case over the whole input is quadratic — still
+ * polynomial, never exponential; see each function's `@complexity`.) A compiled @ref Pattern owns its program **and a reusable DFA cache**, so
  * repeated matches over one pattern warm the cache and pay only a byte-table lookup per input
  * character. It is statically typed and **never allocates an intermediate string**: matching
  * touches only the input bytes (as a `string_view`) and integer program-counters. @ref find
@@ -48,6 +50,8 @@ struct Pattern {
  * @return the compiled pattern (check `.ok`).
  * @complexity O(m) in the pattern length.
  * @alloc the compiled program + DFA cache on the heap (owned by the returned Pattern).
+ * @systest RegexE2E.MalformedPatternReportsNotOk
+ * @systest RegexE2E.SearchPresentAbsent
  */
 Pattern compile(std::string_view pattern);
 
@@ -56,9 +60,18 @@ Pattern compile(std::string_view pattern);
  * @param re a compiled pattern.
  * @param text the input to search.
  * @return true if some substring of @p text matches.
- * @complexity O(n) amortized in the length of @p text (lazy-DFA, no backtracking); O(n·m) worst case
- *             while new DFA states are still being built (m = pattern size).
- * @alloc none beyond growing the shared DFA cache; never an intermediate string.
+ * @complexity one DFA pass — O(n) amortized in the length of @p text — when the pattern is
+ *             start-anchored or has no first-byte information (the built-in `.*?` prefix); the
+ *             unanchored fast path re-runs the anchored DFA from each candidate first byte, so
+ *             adversarial input (e.g. `a*b` over `aaa…a`) is O(n²) worst case — always polynomial,
+ *             never exponential (no backtracking). Add O(m) per uncached transition while new DFA
+ *             states are still being built (m = pattern size).
+ * @alloc never copies the input; allocates only DFA machinery — a start-state closure scratch (and
+ *        its intern key) per call, plus new states/transition rows while the shared cache is cold.
+ * @warning a pathological pattern whose lazy DFA exceeds the state budget (100k states) throws
+ *          `std::runtime_error` rather than exhausting memory.
+ * @systest RegexE2E.SearchPresentAbsent
+ * @systest RegexE2E.ReDoSNestedQuantifierReturnsFalseFast
  */
 bool search(const Pattern& re, std::string_view text);
 
@@ -67,9 +80,13 @@ bool search(const Pattern& re, std::string_view text);
  * @param re a compiled pattern.
  * @param text the input.
  * @return true iff all of @p text matches.
- * @complexity O(n) amortized in the length of @p text; O(n·m) worst case while new DFA states are
- *             still being built (m = pattern size).
- * @alloc none beyond growing the shared DFA cache; never an intermediate string.
+ * @complexity O(n) amortized in the length of @p text (a single anchored DFA pass); O(n·m) worst
+ *             case while new DFA states are still being built (m = pattern size).
+ * @alloc never copies the input; allocates only DFA machinery — a start-state closure scratch (and
+ *        its intern key) per call, plus new states/transition rows while the shared cache is cold.
+ * @warning a pathological pattern whose lazy DFA exceeds the state budget (100k states) throws
+ *          `std::runtime_error` rather than exhausting memory.
+ * @systest RegexE2E.FullMatchIsAnchoredBothEnds
  */
 bool full_match(const Pattern& re, std::string_view text);
 
@@ -90,10 +107,19 @@ struct Match {
  * @param re a compiled pattern.
  * @param text the input to search.
  * @return the match (check `.matched`); `.text` owns the matched bytes.
- * @complexity O(n) amortized; O(n·m) worst case while new DFA states are built. The DFA-state cache is
- *             shared across start positions.
- * @alloc the matching itself allocates nothing beyond growing the shared DFA cache; on a hit, `.text`
- *        owns one copy of the matched bytes (`end - begin`). Use `.begin`/`.end` to avoid even that.
+ * @complexity O(n) amortized per start position tried (the DFA-state cache is shared across start
+ *             positions); an unanchored pattern retries from each successive position until a match,
+ *             so a late or absent match is O(n²) worst case over the whole input — always polynomial,
+ *             never exponential (no backtracking). Add O(m) per uncached transition while new DFA
+ *             states are built.
+ * @alloc the matching itself never copies the input — it allocates only DFA machinery (a start-state
+ *        closure scratch per start position, plus new states while the cache is cold); on a hit,
+ *        `.text` owns one copy of the matched bytes (`end - begin`). Use `.begin`/`.end` to avoid
+ *        even that.
+ * @warning a pathological pattern whose lazy DFA exceeds the state budget (100k states) throws
+ *          `std::runtime_error` rather than exhausting memory.
+ * @systest RegexE2E.FindOffsetsAndOwnedText
+ * @systest RegexE2E.FindIsLeftmostLongest
  */
 Match find(const Pattern& re, std::string_view text);
 

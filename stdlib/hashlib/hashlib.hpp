@@ -120,9 +120,9 @@ std::string sha512_digest(std::string_view data);  // 64 raw bytes
  * @param data raw message bytes.
  * @return the 32-byte MAC as raw bytes.
  * @complexity O(|key| + |data|).
- * @alloc the returned 32-byte digest plus fixed key/inner/outer scratch buffers.
+ * @alloc the returned 32-byte digest plus fixed key/inner/outer scratch buffers and
+ *        message-sized concatenation/padding temporaries.
  * @test CheatahHashlib.HmacSha256
- * @crtest HashlibCompileRun.Hmac
  * @systest StdlibE2E.Hashlib
  */
 std::string hmac_sha256(std::string_view key, std::string_view data);
@@ -135,9 +135,9 @@ std::string hmac_sha256(std::string_view key, std::string_view data);
  * @param data raw message bytes.
  * @return the 48-byte MAC as raw bytes.
  * @complexity O(|key| + |data|).
- * @alloc the returned 48-byte digest plus fixed key/inner/outer scratch buffers.
- * @test CheatahHashlib.HmacSha384
- * @crtest HashlibCompileRun.Hmac
+ * @alloc the returned 48-byte digest plus fixed key/inner/outer scratch buffers and
+ *        message-sized concatenation/padding temporaries.
+ * @test HashlibVsOpenssl.HmacSha384
  * @systest StdlibE2E.Hashlib
  */
 std::string hmac_sha384(std::string_view key, std::string_view data);
@@ -150,9 +150,9 @@ std::string hmac_sha384(std::string_view key, std::string_view data);
  * @param data raw message bytes.
  * @return the 64-byte MAC as raw bytes.
  * @complexity O(|key| + |data|).
- * @alloc the returned 64-byte digest plus fixed key/inner/outer scratch buffers.
+ * @alloc the returned 64-byte digest plus fixed key/inner/outer scratch buffers and
+ *        message-sized concatenation/padding temporaries.
  * @test CheatahHashlib.HmacSha512
- * @crtest HashlibCompileRun.Hmac
  * @systest StdlibE2E.Hashlib
  */
 std::string hmac_sha512(std::string_view key, std::string_view data);
@@ -165,7 +165,6 @@ std::string hmac_sha512(std::string_view key, std::string_view data);
  * @complexity O(n).
  * @alloc the returned string.
  * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip
- * @crtest HashlibCompileRun.Base64
  * @systest StdlibE2E.Hashlib
  */
 std::string base64_encode(std::string_view data);
@@ -182,8 +181,8 @@ std::string base64_encode(std::string_view data);
  * @return the decoded raw bytes (may contain embedded NULs); `""` in strict mode on a bad byte.
  * @complexity O(|text|).
  * @alloc the returned string.
- * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip
- * @crtest HashlibCompileRun.Base64
+ * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip,
+ *   CheatahHashlib.Base64DecodeStrict
  * @systest StdlibE2E.Hashlib
  */
 std::string base64_decode(std::string_view text, bool strict = false);
@@ -232,9 +231,9 @@ std::string from_hex(std::string_view hex);
  * @param ikm the input keying material.
  * @return the 32-byte pseudorandom key (PRK) as raw bytes.
  * @complexity O(|salt| + |ikm|).
- * @alloc the returned 32-byte PRK plus fixed HMAC scratch buffers.
+ * @alloc the returned 32-byte PRK plus HMAC scratch buffers (including ikm-sized
+ *        concatenation/padding temporaries).
  * @test CheatahHashlib.HkdfRfc5869Case1
- * @crtest HashlibCompileRun.Hkdf
  * @systest StdlibE2E.Hashlib
  */
 std::string hkdf_extract(std::string_view salt, std::string_view ikm);
@@ -245,11 +244,10 @@ std::string hkdf_extract(std::string_view salt, std::string_view ikm);
  * @param prk a pseudorandom key (e.g. from hkdf_extract()).
  * @param info optional context/application-specific info binding the output ("" for none).
  * @param length the number of output-keying-material bytes to produce.
- * @return the OKM as raw bytes, or "" when length is 0 or exceeds 255*32 (the RFC bound).
- * @complexity O(length).
- * @alloc the returned keystream plus one HMAC scratch buffer per 32-byte output block.
- * @test CheatahHashlib.HkdfRfc5869Case1
- * @crtest HashlibCompileRun.Hkdf
+ * @return the OKM as raw bytes, or "" when length is 0 (or negative) or exceeds 255*32 (the RFC bound).
+ * @complexity O(⌈length/32⌉ · (|prk| + |info| + 32)) — one HMAC per 32-byte output block.
+ * @alloc the returned keystream plus HMAC scratch buffers per 32-byte output block.
+ * @test CheatahHashlib.HkdfRfc5869Case1, CheatahHashlib.HkdfBounds
  * @systest StdlibE2E.Hashlib
  */
 std::string hkdf_expand(std::string_view prk, std::string_view info, long long length);
@@ -261,8 +259,9 @@ std::string hkdf_expand(std::string_view prk, std::string_view info, long long l
  * @param ikm the input keying material.
  * @return the 48-byte pseudorandom key (PRK) as raw bytes.
  * @complexity O(|salt| + |ikm|).
- * @alloc the returned 48-byte PRK plus fixed HMAC scratch buffers.
- * @test CheatahHashlib.HkdfSha384
+ * @alloc the returned 48-byte PRK plus HMAC scratch buffers (including ikm-sized
+ *        concatenation/padding temporaries).
+ * @systest TlsSys.HandshakeAes256GcmSha384
  */
 std::string hkdf_extract_sha384(std::string_view salt, std::string_view ikm);
 
@@ -272,10 +271,10 @@ std::string hkdf_extract_sha384(std::string_view salt, std::string_view ikm);
  * @param prk a pseudorandom key (e.g. from hkdf_extract_sha384()).
  * @param info optional context/application-specific info binding the output ("" for none).
  * @param length the number of output-keying-material bytes to produce.
- * @return the OKM as raw bytes, or "" when length is 0 or exceeds 255*48 (the RFC bound).
- * @complexity O(length).
- * @alloc the returned keystream plus one HMAC scratch buffer per 48-byte output block.
- * @test CheatahHashlib.HkdfSha384
+ * @return the OKM as raw bytes, or "" when length is 0 (or negative) or exceeds 255*48 (the RFC bound).
+ * @complexity O(⌈length/48⌉ · (|prk| + |info| + 48)) — one HMAC per 48-byte output block.
+ * @alloc the returned keystream plus HMAC scratch buffers per 48-byte output block.
+ * @systest TlsSys.HandshakeAes256GcmSha384
  */
 std::string hkdf_expand_sha384(std::string_view prk, std::string_view info, long long length);
 

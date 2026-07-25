@@ -57,7 +57,7 @@ std::string generate();
  * @param secret_hex the secret seed as 64 hex chars.
  * @return the public key as 64 hex chars.
  * @complexity O(1) (one fixed-base scalar multiplication).
- * @alloc allocates the result string.
+ * @alloc allocates the result string and a temporary decoded-seed string.
  * @test CheatahEd25519.KnownVectors, CheatahEd25519.GenerateRoundTrip
  * @crtest Ed25519CompileRun.PublicKey
  * @systest StdlibE2E.Ed25519
@@ -73,8 +73,10 @@ std::string public_key(std::string_view secret_hex);
  * @param secret_hex the secret seed as 64 hex chars.
  * @param message the bytes to sign.
  * @return the signature as 128 hex chars (64 bytes).
- * @complexity O(n) in the message length (a SHA-512) plus one scalar multiplication.
- * @alloc allocates the signature string and an internal buffer.
+ * @complexity O(n) in the message length (two message-length SHA-512s) plus two fixed-base
+ * scalar multiplications (public-key derivation and R).
+ * @alloc allocates the signature string and two message-sized internal hash-input buffers
+ * (plus small seed/digest temporaries).
  * @test CheatahEd25519.KnownVectors, CheatahEd25519.SignVerifyRoundTrip
  * @crtest Ed25519CompileRun.SignVerify
  * @systest StdlibE2E.Ed25519
@@ -93,7 +95,8 @@ std::string sign(std::string_view secret_hex, std::string_view message);
  * @param signature_hex the signature as 128 hex chars.
  * @return true iff the signature verifies.
  * @complexity O(n) in the message length plus two scalar multiplications.
- * @alloc allocates internal buffers.
+ * @alloc allocates internal buffers (the decoded key/signature strings and a message-sized
+ * hash-input buffer).
  * @test CheatahEd25519.KnownVectors, CheatahEd25519.RejectsTamperAndWrongKey
  * @crtest Ed25519CompileRun.SignVerify
  * @systest StdlibE2E.Ed25519

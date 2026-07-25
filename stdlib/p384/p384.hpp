@@ -38,8 +38,8 @@ namespace cheatah::p384 {
  *        are taken whole (X9.62 bits2int).
  * @param sig_der the signature, DER-encoded SEQUENCE{INTEGER r, INTEGER s}.
  * @return true iff the signature is valid for @p pubkey_xy over @p msg_hash.
- * @complexity two scalar multiplications.
- * @alloc small temporaries only.
+ * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
+ * @alloc a temporary raw r||s signature string.
  * @test CheatahP384.VerifyKnownVector
  */
 [[nodiscard]] bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
@@ -52,8 +52,8 @@ namespace cheatah::p384 {
  * @param msg_hash the digest (truncated to 384 bits if longer, taken whole if shorter).
  * @param sig_raw the signature as 96 bytes r||s.
  * @return true iff valid.
- * @complexity two scalar multiplications.
- * @alloc small temporaries.
+ * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
+ * @alloc none.
  * @test CheatahP384.VerifyKnownVector
  */
 [[nodiscard]] bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,

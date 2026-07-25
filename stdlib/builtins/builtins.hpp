@@ -78,6 +78,8 @@ public:
      * @param message the human-readable description.
      * @complexity O(message).
      * @alloc copies the message (twice: the base class keeps its own).
+     * @test CheatahBuiltins.ErrorCarriesKindAndMessage
+     * @crtest PurrcPipeline.CompilesAndRunsTryExceptRaise
      */
     explicit Error(std::string message)
         : std::runtime_error(message), kind_(kErrorKindError), message_(std::move(message)) {}
@@ -88,6 +90,7 @@ public:
      * @param message the human-readable description.
      * @complexity O(kind + message).
      * @alloc copies both strings.
+     * @test CheatahBuiltins.ErrorCarriesKindAndMessage
      */
     Error(std::string kind, std::string message)
         : std::runtime_error(message), kind_(std::move(kind)), message_(std::move(message)) {}
@@ -97,6 +100,7 @@ public:
      * @return the kind, by const reference; never empty for an Error built through these constructors.
      * @complexity O(1).
      * @alloc none.
+     * @test CheatahBuiltins.ErrorCarriesKindAndMessage
      */
     const std::string& kind() const noexcept { return kind_; }
 
@@ -106,6 +110,7 @@ public:
      * @return the message, by const reference.
      * @complexity O(1).
      * @alloc none.
+     * @test CheatahBuiltins.ErrorCarriesKindAndMessage
      */
     const std::string& message() const noexcept { return message_; }
 
@@ -126,6 +131,7 @@ private:
  * @return true when the error's message is exactly @p s.
  * @complexity O(min(len)).
  * @alloc none.
+ * @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage
  */
 inline bool operator==(const Error& e, const std::string& s) { return e.message() == s; }
 
@@ -133,28 +139,32 @@ inline bool operator==(const Error& e, const std::string& s) { return e.message(
  *  @param s the message to compare against.
  *  @param e the error.
  *  @return true when the error's message is exactly @p s.
- *  @complexity O(min(len)). @alloc none. */
+ *  @complexity O(min(len)). @alloc none.
+ *  @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage */
 inline bool operator==(const std::string& s, const Error& e) { return e.message() == s; }
 
 /** @brief Message comparison against a string literal.
  *  @param e the error.
  *  @param s the NUL-terminated message to compare against.
  *  @return true when the error's message is exactly @p s.
- *  @complexity O(min(len)). @alloc none. */
+ *  @complexity O(min(len)). @alloc none.
+ *  @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage */
 inline bool operator==(const Error& e, const char* s) { return e.message() == s; }
 
 /** @brief Message comparison against a string literal, arguments reversed.
  *  @param s the NUL-terminated message to compare against.
  *  @param e the error.
  *  @return true when the error's message is exactly @p s.
- *  @complexity O(min(len)). @alloc none. */
+ *  @complexity O(min(len)). @alloc none.
+ *  @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage */
 inline bool operator==(const char* s, const Error& e) { return e.message() == s; }
 
 /** @brief Stream an error as its MESSAGE — the kind would be noise in output that wanted the sentence.
  *  @param os the destination stream.
  *  @param e the error.
  *  @return @p os, for chaining.
- *  @complexity O(message). @alloc none beyond the stream's own. */
+ *  @complexity O(message). @alloc none beyond the stream's own.
+ *  @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage */
 inline std::ostream& operator<<(std::ostream& os, const Error& e) { return os << e.message(); }
 
 /**
@@ -170,6 +180,8 @@ inline std::ostream& operator<<(std::ostream& os, const Error& e) { return os <<
  *         anything else as "unknown".
  * @complexity O(1) plus the message copy.
  * @alloc copies the kind and message.
+ * @test CheatahBuiltins.CurrentErrorNormalizesEveryThrownType
+ * @crtest PurrcPipeline.CompilesAndRunsTryExceptRaise
  */
 inline Error current_error() {
     try {
@@ -196,6 +208,7 @@ public:
      * @param f the callable to invoke from the destructor.
      * @complexity O(1).
      * @alloc moves @p f into the guard.
+     * @test CheatahBuiltins.FinallyRunsOnEveryExitPath
      */
     explicit Finally(F f) : f_(std::move(f)) {}
     Finally(const Finally&) = delete;
@@ -207,6 +220,8 @@ public:
      *        duplicated block.
      * @complexity that of the action.
      * @alloc that of the action.
+     * @test CheatahBuiltins.FinallyRunsOnEveryExitPath
+     * @test CheatahBuiltins.FinallySwallowsItsOwnThrowDuringUnwinding
      */
     ~Finally() {
         // A `finally` that throws while an exception is already unwinding would terminate the process,
@@ -229,6 +244,7 @@ private:
  * @return the guard; keep it alive for the scope you want covered.
  * @complexity O(1).
  * @alloc moves @p f into the returned guard.
+ * @test CheatahBuiltins.FinallyRunsOnEveryExitPath
  */
 template <std::invocable F>
 Finally<F> make_finally(F f) {
@@ -313,7 +329,7 @@ std::string chr(int codepoint);
  * @param value the integer.
  * @return `"0x…"` (with sign).
  * @complexity O(log @p value).
- * @alloc allocates the result string.
+ * @alloc allocates the result string, built from a temporary digits buffer.
  * @test CheatahBuiltins.BaseReprs
  * @crtest BuiltinsCompileRun.Hex
  * @systest StdlibE2E.Builtins
@@ -327,7 +343,7 @@ std::string hex(long long value);
  * @param value the integer.
  * @return `"0o…"` (with sign).
  * @complexity O(log @p value).
- * @alloc allocates the result string.
+ * @alloc allocates the result string, built from a temporary digits buffer.
  * @test CheatahBuiltins.BaseReprs
  * @crtest BuiltinsCompileRun.Oct
  * @systest StdlibE2E.Builtins
@@ -341,7 +357,7 @@ std::string oct(long long value);
  * @param value the integer.
  * @return `"0b…"` (with sign).
  * @complexity O(log @p value).
- * @alloc allocates the result string.
+ * @alloc allocates the result string, built from a temporary digits buffer.
  * @test CheatahBuiltins.BaseReprs
  * @crtest BuiltinsCompileRun.Bin
  * @systest StdlibE2E.Builtins
@@ -357,7 +373,7 @@ std::string bin(long long value);
  * @param s input.
  * @return the quoted repr.
  * @complexity O(n).
- * @alloc allocates the result string.
+ * @alloc allocates the result string, plus a temporary ostringstream per escaped byte.
  * @test CheatahBuiltins.Ascii
  * @crtest BuiltinsCompileRun.Ascii
  * @systest StdlibE2E.Builtins
@@ -416,6 +432,7 @@ long long to_int(std::string_view s);
  * @return @p x toward zero.
  * @complexity O(1).
  * @alloc none.
+ * @warning @p x outside `long long`'s range (or NaN) is undefined behavior — no clamp or check.
  * @test CheatahBuiltins.Conversions
  * @crtest BuiltinsCompileRun.IntFromFloat
  * @systest StdlibE2E.Builtins
@@ -508,6 +525,7 @@ inline std::string str(bool b) { return b ? "True" : "False"; }
  * @return the error's message.
  * @complexity O(message).
  * @alloc copies the message.
+ * @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage
  */
 inline std::string str(const Error& e) { return e.message(); }
 
@@ -522,12 +540,16 @@ inline std::string str(const Error& e) { return e.message(); }
  * @return the value's decimal digits.
  * @complexity O(1).
  * @alloc allocates the small result string.
+ * @test CheatahBuiltins.StrByteWidthIntsAreNumbers
  */
 inline std::string str(signed char v) { return std::to_string(static_cast<int>(v)); }
 /**
  * `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char).
  * @param v the `u8` value to render.
  * @return the value's decimal digits.
+ * @complexity O(1).
+ * @alloc allocates the small result string.
+ * @test CheatahBuiltins.StrByteWidthIntsAreNumbers
  */
 inline std::string str(unsigned char v) { return std::to_string(static_cast<unsigned>(v)); }
 
@@ -555,11 +577,12 @@ double truediv(A a, B b) {
  * Python does, not truncating toward zero like raw C++); a floating operand gives a
  * floored double (`7.0 // 2 == 3.0`).
  * @param a numerator.
- * @param b denominator.
+ * @param b denominator; @p b == 0 throws `std::domain_error` (integer floor division by zero).
  * @return `floor(a / b)`, integral for integral operands.
  * @complexity O(1).
  * @alloc none.
  * @test CheatahBuiltins.Division
+ * @test CheatahBuiltins.IntegerDivideAndModuloByZeroThrow
  * @crtest BuiltinsCompileRun.FloorDivision
  * @systest StdlibE2E.Builtins
  */
@@ -645,7 +668,7 @@ std::size_t hash(const T& x) { return std::hash<T>{}(x); }
  * @complexity amortized O(1).
  * @alloc reallocates @p v when it outgrows its capacity.
  * @test CheatahBuiltins.Append
- * @crtest BuiltinsCompileRun.Append
+ * @crtest LangFeatures.AppendAndDictMutation
  * @systest StdlibE2E.Builtins
  */
 template <typename T, typename U>
@@ -662,7 +685,7 @@ void append(std::vector<T>& v, U&& x) {
  * @complexity O(len(@p prefix)).
  * @alloc none.
  * @test CheatahBuiltins.StringPredicates
- * @crtest BuiltinsCompileRun.StartsWith
+ * @crtest LangFeatures.MethodPredicates
  * @systest StdlibE2E.Builtins
  */
 inline bool startswith(std::string_view s, std::string_view prefix) {
@@ -677,7 +700,7 @@ inline bool startswith(std::string_view s, std::string_view prefix) {
  * @complexity O(len(@p suffix)).
  * @alloc none.
  * @test CheatahBuiltins.StringPredicates
- * @crtest BuiltinsCompileRun.EndsWith
+ * @crtest LangFeatures.MethodPredicates
  * @systest StdlibE2E.Builtins
  */
 inline bool endswith(std::string_view s, std::string_view suffix) {
@@ -693,7 +716,7 @@ inline bool endswith(std::string_view s, std::string_view suffix) {
  * @complexity O(len(@p s) · len(@p sub)) worst case.
  * @alloc none.
  * @test CheatahBuiltins.StringPredicates
- * @crtest BuiltinsCompileRun.Contains
+ * @crtest LangFeatures.MethodPredicates
  * @systest StdlibE2E.Builtins
  */
 inline bool contains(std::string_view s, std::string_view sub) {
@@ -707,7 +730,6 @@ inline bool contains(std::string_view s, std::string_view sub) {
  * @return true iff @p key is present in @p d.
  * @complexity O(1) average.
  * @alloc none.
- * @test CheatahBuiltins.ContainsDict
  * @crtest LangFeatures.InOperator
  */
 template <class K, class V, class H, class E, class A, class Key>
@@ -722,7 +744,6 @@ bool contains(const std::unordered_map<K, V, H, E, A>& d, const Key& key) {
  * @return true iff some element of @p xs compares equal to @p value.
  * @complexity O(n).
  * @alloc none.
- * @test CheatahBuiltins.ContainsList
  * @crtest LangFeatures.InOperator
  */
 template <class T, class A, class Value>
@@ -742,6 +763,7 @@ bool contains(const std::vector<T, A>& xs, const Value& value) {
  * @complexity O(1).
  * @alloc none.
  * @test CheatahBuiltins.Mod
+ * @test CheatahBuiltins.IntegerDivideAndModuloByZeroThrow
  * @crtest LangFeatures.Modulo
  */
 template <class A, class B>
@@ -797,7 +819,7 @@ inline long long norm_index(long long i, long long n) { return i < 0 ? i + n : i
  * @complexity O(1).
  * @alloc none (1-char small-string optimization).
  * @test CheatahBuiltins.IndexString
- * @crtest BuiltinsCompileRun.IndexString
+ * @crtest LangFeatures.StringSlicingAndIndex
  * @systest StdlibE2E.Builtins
  */
 inline std::string index(const std::string& s, long long i) {
@@ -827,7 +849,7 @@ inline std::string index(const std::string& s, long long i) {
  * @complexity O(1).
  * @alloc none.
  * @test CheatahBuiltins.IndexList
- * @crtest BuiltinsCompileRun.IndexList
+ * @crtest LangFeatures.ListSlicingAndIndex
  * @systest StdlibE2E.Builtins
  */
 template <typename C>
@@ -872,7 +894,7 @@ inline bool index(const std::vector<bool>& c, long long i) {
  * @complexity O(1) average.
  * @alloc none.
  * @test CheatahBuiltins.IndexDict
- * @crtest BuiltinsCompileRun.IndexDict
+ * @crtest LangFeatures.AppendAndDictMutation
  * @systest StdlibE2E.Builtins
  */
 template <typename K, typename V, typename H, typename E, typename A, typename Key>
@@ -892,7 +914,7 @@ const V& index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
  * @complexity O(hi-lo).
  * @alloc the result string.
  * @test CheatahBuiltins.SliceString
- * @crtest BuiltinsCompileRun.SliceString
+ * @crtest LangFeatures.StringSlicingAndIndex
  * @systest StdlibE2E.Builtins
  */
 inline std::string slice(const std::string& s, long long lo, long long hi) {
@@ -914,7 +936,7 @@ inline std::string slice(const std::string& s, long long lo, long long hi) {
  * @complexity O(hi-lo).
  * @alloc the result vector.
  * @test CheatahBuiltins.SliceList
- * @crtest BuiltinsCompileRun.SliceList
+ * @crtest LangFeatures.ListSlicingAndIndex
  * @systest StdlibE2E.Builtins
  */
 template <typename C>

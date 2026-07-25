@@ -86,7 +86,7 @@ std::string today();
  * @param epoch epoch seconds.
  * @param fmt a strftime format string.
  * @return the formatted string.
- * @complexity O(1) time.
+ * @complexity O(@p fmt.size()) — the expansion is capped by the 128-byte internal buffer.
  * @alloc allocates a temporary `std::string` for @p fmt plus the result.
  * @test CheatahDatetime.Format
  * @crtest DatetimeCompileRun.Format

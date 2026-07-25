@@ -7,10 +7,11 @@
  * @brief `memory::Request<Lease>` — a promise for a lease; `.acquire(on_interrupt)` blocks.
  *
  * What `Owner::rread()` / `rwrite<…>()` return. Move-only; wraps a
- * `std::future<Lease>` (the owner fulfills the matching `std::promise` when it grants). Obtaining a
- * `Request` does NOT block — you hold "a request for a lease". `acquire()` is the single blocking
- * redemption; the future/promise never surface in cheatah. No `friend`: the interrupt handler is
- * attached through the lease's public `on_interrupt()`.
+ * `std::future<Lease>` (the owner fulfills the matching `std::promise` when it grants). `acquire()`
+ * is the flow's single blocking redemption — though today's owner grants synchronously, so the wait
+ * for the drain happens inside `rread()`/`rwrite<…>()` itself and the future a `Request` wraps is
+ * already fulfilled by the time you hold one. The future/promise never surface in cheatah. No
+ * `friend`: the interrupt handler is attached through the lease's public `on_interrupt()`.
  */
 
 #include <functional>
@@ -29,21 +30,32 @@ template <class LeaseT>
 class Request {
 public:
     /// Wrap the owner-supplied future. @param fut the future the owner fulfills. @complexity O(1). @alloc none.
+    /// @test Memory.EveryAccessorReturnsARequestNotABareLease
     explicit Request(std::future<LeaseT>&& fut) noexcept : fut_(std::move(fut)) {}
-    /// Move-construct (a request is move-only).
+    /// Move-construct (a request is move-only). @complexity O(1). @alloc none.
+    /// @test Memory.EveryAccessorReturnsARequestNotABareLease
     Request(Request&&) noexcept = default;
-    /// Move-assign (a request is move-only). @return `*this`.
+    /// Move-assign (a request is move-only). @return `*this`. @complexity O(1). @alloc none.
+    /// @test Memory.EveryAccessorReturnsARequestNotABareLease
     Request& operator=(Request&&) noexcept = default;
     Request(const Request&) = delete;
 
     /**
-     * BLOCK until the owner grants, then return the lease. @p on_interrupt is the requester's
+     * Redeem the request: wait for the owner's grant, then return the lease. (Today's owner grants
+     * synchronously inside `rread()`/`rwrite<…>()`, so the wrapped future is already fulfilled and
+     * this returns at once.) @p on_interrupt is the requester's
      * interruption handler — wired to the granted lease so if the owner later needs the lease back the
      * handler fires. Omit it to rely purely on the lease's `valid()`/`expired()` polling. One-shot.
      * @param on_interrupt optional handler to run when the owner asks the lease to yield.
      * @return the granted lease.
-     * @complexity O(1) once granted; **blocks** until the owner fulfills the request.
+     * @complexity O(1) once granted; blocks only until the owner fulfills the request (already done
+     * by the time a `Request` exists today).
      * @alloc none, unless @p on_interrupt is supplied — then one callback holder (via `Lease::on_interrupt`).
+     * @concurrency one-shot: a second `acquire()` on the same request throws `std::future_error`.
+     * @p on_interrupt later fires on whichever thread polls the lease's `valid()` — never
+     * asynchronously.
+     * @test Memory.EveryAccessorReturnsARequestNotABareLease
+     * @test Memory.InterruptCallbackFiresWhenTheOwnerNeedsTheLeaseBack
      */
     LeaseT acquire(std::function<void()> on_interrupt = {}) {
         LeaseT lease = fut_.get();                       // block until the owner fulfills the promise

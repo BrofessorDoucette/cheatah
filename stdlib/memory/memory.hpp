@@ -13,7 +13,9 @@
  * coordinator over explicit reader/writer state, a `std::priority_queue` of waiting writes, and
  * `std::promise`/`std::future` for the request → acquire handshake. Memory safety comes from *what* is
  * handed back — a lease you can only `read()`/`write(...)` through — not from hiding the plumbing.
- * **No GC. No copy/clone. No heap of ours.** This Owner/Lease/Request model is the real
+ * **No GC. No copy/clone. No hidden copies of the owned object** — the only heap the coordinator
+ * touches is its own small bookkeeping (gates, promise/future state, the write queue). This
+ * Owner/Lease/Request model is the real
  * ownership/borrow system that supersedes the earlier `view<T>` stopgap (e.g. regex's `view<str>`).
  *
  * Split across focused headers (this umbrella just includes them):

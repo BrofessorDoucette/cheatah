@@ -28,6 +28,8 @@ ALIASES               += "alloc=\xrefitem alloc \"Allocation\" \"Allocation\""
 # Three test kinds, all shown per function and linked to their source by the generator.
 ALIASES               += "crtest=\xrefitem crtest \"Compile-run test\" \"Compile-run test\""
 ALIASES               += "systest=\xrefitem systest \"System test\" \"System test\""
+# Concurrency contract — applied where a function's thread-safety/blocking behavior matters.
+ALIASES               += "concurrency=\xrefitem concurrency \"Concurrency\" \"Concurrency\""
 
 #---------------------------------------------------------------------------
 # Build / extraction

@@ -112,12 +112,18 @@ std::string str(bool b);
  * and deliberately unmatched (cheatah has no bare-`char` value — single chars are 1-char strings).
  * @param v the `i8` value to render.
  * @return the value's decimal digits.
+ * @complexity O(1).
+ * @alloc allocates the small result string.
+ * @test CheatahIo.StrByteWidthIntsAreNumbers
  */
 std::string str(signed char v);
 /**
  * `str()` for `u8` (`std::uint8_t`) — numeric, not a character. See @ref str(signed char).
  * @param v the `u8` value to render.
  * @return the value's decimal digits.
+ * @complexity O(1).
+ * @alloc allocates the small result string.
+ * @test CheatahIo.StrByteWidthIntsAreNumbers
  */
 std::string str(unsigned char v);
 
@@ -163,6 +169,8 @@ std::string repr(const std::unordered_map<K, V, H, E, A>& m);
  * a built-in object like NDArray): defer to that method's rendering.
  * @param value a HasStr value.
  * @return `value.str()`, itself run through str() so the result is a string.
+ * @complexity O(n) in the output length, plus the cost of `value.str()` itself.
+ * @alloc allocates the result string, plus whatever `value.str()` allocates.
  * @test CheatahIo.StrRendersContainersAndObjects
  * @systest StdlibE2E.Io
  */
@@ -177,6 +185,8 @@ std::string str(const T& value) {
  * Negative zero in either part is flushed to `+0` (a conjugate prints `1+0j`).
  * @param z the complex value.
  * @return the `a±bj` rendering.
+ * @complexity O(1) (renders the two components).
+ * @alloc allocates the result string (via an ostringstream).
  * @test CheatahIo.StrRendersComplex
  * @systest StdlibE2E.Io
  */
@@ -197,6 +207,8 @@ std::string str(const std::complex<T>& z) {
  * `list[str]` prints with quotes (`['a', 'b']`), matching Python.
  * @param v the list (its element type must be Printable).
  * @return the bracketed rendering.
+ * @complexity O(total output length).
+ * @alloc allocates the result string, plus a temporary string per element (repr()).
  * @test CheatahIo.StrRendersContainersAndObjects
  * @systest StdlibE2E.Io
  */
@@ -217,6 +229,8 @@ std::string str(const std::vector<T>& v) {
  * hash map). Keys and values are rendered with repr().
  * @param m the dict (key and value types must be Printable).
  * @return the brace-wrapped rendering.
+ * @complexity O(total output length).
+ * @alloc allocates the result string, plus a temporary string per key/value (repr()).
  * @test CheatahIo.StrRendersContainersAndObjects
  * @systest StdlibE2E.Io
  */
@@ -245,7 +259,10 @@ std::string str(const std::unordered_map<K, V, H, E, A>& m) {
  * `Point(\n    x = 1,\n    y = 2\n)`. Use @ref rprint to print a struct in its compact form.
  * @param args zero or more printable values.
  * @complexity O(total output length).
- * @alloc each arg is routed through str()/its pretty-printer, allocating temporary strings.
+ * @alloc allocates a temporary string per str()-routed arg; a struct's pretty-printer
+ *   streams straight to stdout instead.
+ * @concurrency writes to the shared `std::cout`; concurrent prints from several threads
+ *   do not race but may interleave their characters.
  * @test CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline
  * @crtest IoCompileRun.Print
  * @systest StdlibE2E.Io
@@ -274,6 +291,8 @@ void print(const Args&... args) {
  * @param args zero or more printable values.
  * @complexity O(total output length).
  * @alloc each arg is routed through str(), allocating temporary strings.
+ * @concurrency writes to the shared `std::cout`; concurrent prints from several threads
+ *   do not race but may interleave their characters.
  * @test CheatahIo.RprintIsCompact
  * @crtest IoCompileRun.Rprint
  * @systest StdlibE2E.Io
@@ -305,6 +324,7 @@ std::string repr(const T& value) { return str(value); }
  * not quoted), so a `list[complex]` renders its elements readably.
  * @param z the complex value.
  * @return the `a±bj` rendering.
+ * @complexity O(1). @alloc allocates the result string.
  * @test CheatahIo.StrRendersComplex
  * @systest StdlibE2E.Io
  */
@@ -438,6 +458,7 @@ std::string format(std::string_view fmt, const Args&... args) {
  * @return the line read, with the trailing newline stripped.
  * @complexity O(line length).
  * @alloc allocates the returned string.
+ * @concurrency blocks the calling thread until a full line (or EOF) arrives on stdin.
  * @test CheatahIo.InputReadsALine
  * @note No compile-run test: io.input reads stdin, which the e2e harness does not
  *       feed, so it is intentionally skipped in tests/purrc/io_cr_test.cpp.
@@ -584,6 +605,9 @@ public:
      * @param value any streamable value.
      * @complexity O(output length).
      * @alloc none (writes straight to the stream buffer).
+     * @warning A failed write is not reported: on a closed File or a failed stream the
+     *   data is silently dropped (only the stream's error state records it) — there is
+     *   no exception and no return value.
      * @test CheatahIo.FileWriteThenReadWhole, CheatahIo.FileAppendMode
      * @crtest IoCompileRun.OpenWriteRead
      * @systest StdlibE2E.Io

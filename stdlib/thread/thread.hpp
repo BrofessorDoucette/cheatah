@@ -123,6 +123,10 @@ std::remove_cvref_t<A>& unhold(held_t<A>& h) {
  * (`cheatah thread: unhandled exception in thread: ...`) — the honest fallback, since a
  * destructor must not throw.
  *
+ * @concurrency the handle itself is not internally synchronized — drive a given `Thread` from one
+ * thread at a time (the worker it owns is, of course, another thread; `join()` is the
+ * synchronization point with it).
+ *
  * @test CheatahThread.MoveTransfersOwnership
  * @test CheatahThread.DestructorJoinsARunningThread
  * @crtest ThreadCompileRun.SpawnJoin
@@ -137,6 +141,7 @@ public:
      * @param t the running jthread to own.
      * @param state the error slot the spawn trampoline writes into.
      * @complexity O(1). @alloc none (moves the handles in).
+     * @concurrency the worker is already running when the handle adopts it.
      * @test CheatahThread.SpawnRunsTheWorker
      */
     Thread(std::jthread t, std::shared_ptr<detail::State> state) noexcept;
@@ -151,6 +156,7 @@ public:
     /// @param other the handle to take the thread from (left non-joinable).
     /// @return this handle, now owning @p other's thread.
     /// @complexity O(join). @alloc none.
+    /// @concurrency may block: the destination joins its old worker before adopting the new one.
     /// @test CheatahThread.MoveAssignSettlesTheOldThread
     Thread& operator=(Thread&& other) noexcept;
 
@@ -159,6 +165,8 @@ public:
 
     /// Joins if still joinable; reports an unobserved worker exception on stderr (one line).
     /// @complexity O(join) — blocks until the worker finishes. @alloc none.
+    /// @concurrency blocks the destroying thread until the worker finishes — on every exit path,
+    /// including unwinding.
     /// @test CheatahThread.DestructorJoinsARunningThread
     /// @test CheatahThread.DestructorReportsAnUnobservedException
     ~Thread();
@@ -168,7 +176,10 @@ public:
      * — catch it with `try { t.join() } catch e { ... }`. Joining a thread that was already
      * joined (or moved away) raises.
      * @complexity O(join) — blocks until the worker finishes. @alloc none.
+     * @concurrency blocks the calling thread; the worker's writes happen-before `join()` returns
+     * (the join is the synchronization). One-shot — a second join raises.
      * @test CheatahThread.JoinRethrowsTheWorkersException
+     * @test CheatahThread.JoinOnNothingRaises
      * @crtest ThreadCompileRun.JoinCatchesWorkerRaise
      * @systest StdlibE2E.Thread
      */
@@ -208,11 +219,21 @@ private:
  * @param args its arguments (copied in; a non-copyable lvalue by reference — see above).
  * @return the owning `Thread` guard (joins at scope exit).
  * @complexity O(1) plus copying the arguments and the OS thread start.
- * @alloc one shared error slot + the thread's argument copies + the OS thread stack.
+ * @alloc one shared error slot + the thread's start-state block (the closure holding the argument
+ * copies — `std::jthread` puts it on the heap) + the OS thread stack.
+ * @concurrency the worker may already be running before `spawn` returns. Copyable arguments are
+ * captured before the thread starts, so the caller may immediately mutate or destroy its originals;
+ * a by-reference argument (a pinned `memory.Owner`) is shared with the running worker from that
+ * moment on.
+ * @warning cheatah does not detect data races: mutable state shared any way other than through a
+ * `memory.Owner`'s leases is at your own risk.
  * @test CheatahThread.SpawnRunsTheWorker
+ * @test CheatahThread.CopyableArgumentsAreCopied
  * @test CheatahThread.SpawnPassesANonCopyableByReference
+ * @test CheatahThread.SpawnMovesANonCopyableRvalue
  * @crtest ThreadCompileRun.SpawnJoin
  * @systest StdlibE2E.Thread
+ * @systest StdlibE2E.ThreadSharedOwnerSum
  */
 template <class F, class... Args>
     requires SpawnCallable<F, Args...> && (SpawnArg<Args> && ...)

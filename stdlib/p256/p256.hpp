@@ -14,10 +14,12 @@
  * certificate (ecdsa_secp256r1_sha256) and sign an ES256 JWT.
  *
  * Field/scalar arithmetic is Montgomery form over the two P-256 moduli (the
- * field prime p and the group order n); points use Jacobian coordinates with a
- * constant-time-ish double-and-add scalar multiply. Verification handles public
- * data; signing uses an RFC 6979 deterministic nonce (HMAC-SHA256), so it needs
- * no entropy source and never repeats a nonce.
+ * field prime p and the group order n); points use Jacobian coordinates — a
+ * branchy Strauss-Shamir double chain for verification (public data) and a
+ * constant-time fixed-base comb (branch-free point ops, masked table selection)
+ * for the secret-scalar signing/keygen path. Signing uses an RFC 6979
+ * deterministic nonce (HMAC-SHA256), so it needs no entropy source and never
+ * repeats a nonce.
  *
  * Byte conventions: scalars/coordinates are 32 big-endian bytes; an uncompressed
  * public key point is the 64 bytes X||Y; a raw ECDSA signature is the 64 bytes
@@ -37,8 +39,8 @@ namespace cheatah::p256 {
  *        32 bytes it is truncated to the leftmost 256 bits (FIPS 186-4).
  * @param sig_der the signature, DER-encoded SEQUENCE{INTEGER r, INTEGER s}.
  * @return true iff the signature is valid for @p pubkey_xy over @p msg_hash.
- * @complexity two scalar multiplications.
- * @alloc small temporaries only.
+ * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
+ * @alloc a temporary raw r||s signature string.
  * @test CheatahP256.VerifyKnownVector
  */
 [[nodiscard]] bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
@@ -51,8 +53,8 @@ namespace cheatah::p256 {
  * @param msg_hash the digest (truncated to 256 bits if longer).
  * @param sig_raw the signature as 64 bytes r||s.
  * @return true iff valid.
- * @complexity two scalar multiplications.
- * @alloc small temporaries.
+ * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
+ * @alloc none.
  * @test CheatahP256.VerifyKnownVector
  */
 [[nodiscard]] bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
@@ -63,9 +65,10 @@ namespace cheatah::p256 {
  * raw 64-byte r||s signature — the form an ES256 JWT carries.
  * @param privkey the private scalar d as 32 big-endian bytes.
  * @param msg_hash the digest to sign (truncated to 256 bits if longer).
- * @return the signature as 64 bytes r||s.
- * @complexity one scalar multiplication per RFC 6979 candidate (almost always one).
- * @alloc small temporaries.
+ * @return the signature as 64 bytes r||s, or "" if @p privkey is not a valid scalar
+ *         (wrong length, zero, or >= the group order n).
+ * @complexity O(1) — one fixed-base scalar multiplication per RFC 6979 candidate (almost always one).
+ * @alloc the returned signature plus RFC 6979 HMAC scratch strings.
  * @test CheatahP256.SignKnownVector
  */
 [[nodiscard]] std::string sign_raw(const std::string& privkey, const std::string& msg_hash);
@@ -74,7 +77,7 @@ namespace cheatah::p256 {
  * Derive the public key point from a private scalar: Q = d·G.
  * @param privkey the private scalar d as 32 big-endian bytes.
  * @return the public key as 64 bytes (X||Y), or "" if d is out of range.
- * @complexity one scalar multiplication.
+ * @complexity O(1) — one fixed-base scalar multiplication.
  * @alloc the returned point.
  * @test CheatahP256.PublicFromPrivate
  */

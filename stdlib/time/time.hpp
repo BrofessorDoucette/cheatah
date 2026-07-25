@@ -133,6 +133,7 @@ double process_time();
  * @param seconds duration to sleep (fractional).
  * @complexity O(1) plus the sleep wait.
  * @alloc none.
+ * @concurrency blocks only the calling thread; other threads keep running.
  * @test CheatahTime.MonotonicClocksAdvanceAcrossSleep
  * @crtest TimeCompileRun.Sleep
  * @systest StdlibE2E.Time

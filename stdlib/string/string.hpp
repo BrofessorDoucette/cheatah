@@ -116,8 +116,8 @@ std::string swapcase(std::string_view s);
  * @param s input.
  * @param chars cut set.
  * @return trimmed @p s.
- * @complexity O(n).
- * @alloc allocates.
+ * @complexity O(n·m) (m = size of the @p chars set; a constant for the default).
+ * @alloc allocates the result plus lstrip's intermediate string.
  * @test CheatahString.Trimming
  * @crtest StringCompileRun.Strip
  * @systest StdlibE2E.String
@@ -131,7 +131,7 @@ std::string strip(std::string_view s, std::string_view chars = whitespace);
  * @param s input.
  * @param chars cut set.
  * @return left-trimmed @p s.
- * @complexity O(n).
+ * @complexity O(n·m) (m = size of the @p chars set; a constant for the default).
  * @alloc allocates.
  * @test CheatahString.Trimming
  * @crtest StringCompileRun.Lstrip
@@ -146,7 +146,7 @@ std::string lstrip(std::string_view s, std::string_view chars = whitespace);
  * @param s input.
  * @param chars cut set.
  * @return right-trimmed @p s.
- * @complexity O(n).
+ * @complexity O(n·m) (m = size of the @p chars set; a constant for the default).
  * @alloc allocates.
  * @test CheatahString.Trimming
  * @crtest StringCompileRun.Rstrip
@@ -203,8 +203,8 @@ bool contains(std::string_view s, std::string_view sub);
  * contains() with a single-char needle — what iterating a string yields (`for ch in s`).
  * @param s input. @param c the character. @return true when present.
  * @complexity O(n). @alloc none.
- * @test CheatahString.SearchAndTest
- * @crtest StringCompileRun.Find
+ * @test CheatahString.ContainsChar
+ * @crtest StringCompileRun.Contains
  * @systest StdlibE2E.String
  */
 inline bool contains(std::string_view s, char c) { return s.find(c) != std::string_view::npos; }
@@ -281,7 +281,7 @@ long count(std::string_view s, std::string_view sub);
  * @param s input.
  * @param from,to needle/replacement.
  * @return new string.
- * @complexity O(n·m).
+ * @complexity O(n·m + result length).
  * @alloc allocates.
  * @test CheatahString.Transform
  * @crtest StringCompileRun.Replace
@@ -343,7 +343,7 @@ std::vector<std::string> splitlines(std::string_view s);
  * @param s input.
  * @return the result.
  * @complexity O(n).
- * @alloc allocates.
+ * @alloc allocates a vector of words plus the result.
  * @test CheatahString.Transform
  * @crtest StringCompileRun.Capwords
  * @systest StdlibE2E.String
@@ -394,7 +394,7 @@ std::string join(std::string_view sep, const Range& parts) {
  * @param width target.
  * @param fill pad char.
  * @return padded @p s (or @p s if already ≥ width).
- * @complexity O(width).
+ * @complexity O(n + width).
  * @alloc allocates.
  * @test CheatahString.Padding
  * @crtest StringCompileRun.Ljust
@@ -411,8 +411,8 @@ std::string ljust(std::string_view s, std::size_t width, std::string_view fill =
  * @param width target.
  * @param fill pad char.
  * @return padded @p s.
- * @complexity O(width).
- * @alloc allocates.
+ * @complexity O(n + width).
+ * @alloc allocates the result plus concatenation temporaries.
  * @test CheatahString.Padding
  * @crtest StringCompileRun.Rjust
  * @systest StdlibE2E.String
@@ -428,8 +428,8 @@ std::string rjust(std::string_view s, std::size_t width, std::string_view fill =
  * @param width target.
  * @param fill pad char.
  * @return padded @p s.
- * @complexity O(width).
- * @alloc allocates.
+ * @complexity O(n + width).
+ * @alloc allocates the result plus concatenation temporaries.
  * @test CheatahString.Padding
  * @crtest StringCompileRun.Center
  * @systest StdlibE2E.String
@@ -444,8 +444,8 @@ std::string center(std::string_view s, std::size_t width, std::string_view fill 
  * @param s input.
  * @param width target.
  * @return `'0'`-padded @p s.
- * @complexity O(width).
- * @alloc allocates.
+ * @complexity O(n + width).
+ * @alloc allocates the result plus concatenation temporaries.
  * @test CheatahString.Padding
  * @crtest StringCompileRun.Zfill
  * @systest StdlibE2E.String
@@ -517,7 +517,7 @@ bool isspace(std::string_view s);
  * non-letter characters are ignored, so e.g. "ABC123" is uppercase but "123" and the
  * empty string are not.
  * @param s input.
- * @return true iff non-empty and has no lowercase.
+ * @return true iff @p s has ≥ 1 uppercase letter and no lowercase.
  * @complexity O(n).
  * @alloc none.
  * @test CheatahString.Classification
@@ -532,7 +532,7 @@ bool isupper(std::string_view s);
  * non-letter characters are ignored, so e.g. "abc123" is lowercase but "123" and the
  * empty string are not.
  * @param s input.
- * @return true iff non-empty and has no uppercase.
+ * @return true iff @p s has ≥ 1 lowercase letter and no uppercase.
  * @complexity O(n).
  * @alloc none.
  * @test CheatahString.Classification

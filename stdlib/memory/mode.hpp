@@ -15,8 +15,8 @@
 
 namespace cheatah::memory {
 
-struct read {};             ///< a shared, read-only lease (`std::shared_lock`).
-struct write {};            ///< an exclusive, one-shot write lease (`std::unique_lock`).
+struct read {};             ///< a shared, read-only lease (readers coexist — `std::shared_lock`-flavored, but no lock object is held).
+struct write {};            ///< an exclusive, one-shot write lease (a writer is alone — `std::unique_lock`-flavored, but no lock object is held).
 struct write_renewable {};  ///< an exclusive write lease that MAY re-lease — a distinct, visible smell.
 
 /// The lease-mode concept — every `Lease`/`Request` template is constrained to one of the three tags

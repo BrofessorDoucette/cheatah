@@ -49,6 +49,8 @@ inline constexpr double nan = std::numeric_limits<double>::quiet_NaN();   ///< q
  * @return |@p x|.
  * @complexity O(1) time.
  * @alloc none.
+ * @warning For a signed integer type the most-negative value cannot be negated:
+ *          `abs` of it overflows (undefined behavior).
  * @test CheatahMath.BuiltinLikeOps
  * @crtest MathCompileRun.Abs
  * @systest StdlibE2E.Math
@@ -77,6 +79,8 @@ const T& min(const T& a, const T& b) { return (b < a) ? b : a; }
  * @param a,b the first two values.
  * @param rest the remaining values (`operator<` required).
  * @return a reference to the minimum.
+ * @complexity O(n) in the argument count.
+ * @alloc none.
  * @test CheatahMath.BuiltinLikeOps
  * @crtest MathCompileRun.Min
  * @systest StdlibE2E.Math
@@ -105,6 +109,8 @@ const T& max(const T& a, const T& b) { return (a < b) ? b : a; }
  * @param a,b the first two values.
  * @param rest the remaining values (`operator<` required).
  * @return a reference to the maximum.
+ * @complexity O(n) in the argument count.
+ * @alloc none.
  * @test CheatahMath.BuiltinLikeOps
  * @crtest MathCompileRun.Max
  * @systest StdlibE2E.Math
