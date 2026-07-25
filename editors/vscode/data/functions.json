@@ -19,11 +19,11 @@
         "complexity": "amortized O(1).",
         "alloc": "reallocates v when it outgrows its capacity.",
         "test": "CheatahBuiltins.Append",
-        "crtest": "BuiltinsCompileRun.Append",
+        "crtest": "LangFeatures.AppendAndDictMutation",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 653,
+      "srcline": 676,
       "module": "",
       "qualified": "append"
     },
@@ -40,13 +40,13 @@
       "returns": "the quoted repr.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "allocates the result string.",
+        "alloc": "allocates the result string, plus a temporary ostringstream per escaped byte.",
         "test": "CheatahBuiltins.Ascii",
         "crtest": "BuiltinsCompileRun.Ascii",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 365,
+      "srcline": 381,
       "module": "",
       "qualified": "ascii"
     },
@@ -63,13 +63,13 @@
       "returns": "\"0b…\" (with sign).",
       "tags": {
         "complexity": "O(log value).",
-        "alloc": "allocates the result string.",
+        "alloc": "allocates the result string, built from a temporary digits buffer.",
         "test": "CheatahBuiltins.BaseReprs",
         "crtest": "BuiltinsCompileRun.Bin",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 349,
+      "srcline": 365,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 393,
+      "srcline": 409,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 306,
+      "srcline": 322,
       "module": "",
       "qualified": "chr"
     },
@@ -137,11 +137,10 @@
       "tags": {
         "complexity": "O(n).",
         "alloc": "none.",
-        "test": "CheatahBuiltins.ContainsList",
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 729,
+      "srcline": 750,
       "module": "",
       "qualified": "contains"
     },
@@ -153,10 +152,12 @@
       "returns": "the in-flight exception as an Error: a raised Error verbatim, a std::out_of_range as kind \"index\", a std::domain_error as \"arithmetic\", any other std::exception as \"error\", and anything else as \"unknown\".",
       "tags": {
         "complexity": "O(1) plus the message copy.",
-        "alloc": "copies the kind and message."
+        "alloc": "copies the kind and message.",
+        "test": "CheatahBuiltins.CurrentErrorNormalizesEveryThrownType",
+        "crtest": "PurrcPipeline.CompilesAndRunsTryExceptRaise"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 174,
+      "srcline": 186,
       "module": "",
       "qualified": "current_error"
     },
@@ -179,11 +180,11 @@
         "complexity": "O(len(suffix)).",
         "alloc": "none.",
         "test": "CheatahBuiltins.StringPredicates",
-        "crtest": "BuiltinsCompileRun.EndsWith",
+        "crtest": "LangFeatures.MethodPredicates",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 683,
+      "srcline": 706,
       "module": "",
       "qualified": "endswith"
     },
@@ -206,7 +207,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 458,
+      "srcline": 475,
       "module": "",
       "qualified": "float"
     },
@@ -233,7 +234,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 592,
+      "srcline": 615,
       "module": "",
       "qualified": "floordiv"
     },
@@ -256,7 +257,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 629,
+      "srcline": 652,
       "module": "",
       "qualified": "hash"
     },
@@ -273,13 +274,13 @@
       "returns": "\"0x…\" (with sign).",
       "tags": {
         "complexity": "O(log value).",
-        "alloc": "allocates the result string.",
+        "alloc": "allocates the result string, built from a temporary digits buffer.",
         "test": "CheatahBuiltins.BaseReprs",
         "crtest": "BuiltinsCompileRun.Hex",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 321,
+      "srcline": 337,
       "module": "",
       "qualified": "hex"
     },
@@ -306,11 +307,11 @@
         "complexity": "O(ndim).",
         "alloc": "none.",
         "test": "CheatahNDArray.SubscriptReadWrite",
-        "crtest": "NdarrayCompileRun.Subscript",
+        "crtest": "LangFeatures.NdarraySubscript",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 2005,
+      "srcline": 2008,
       "module": "",
       "qualified": "index"
     },
@@ -333,7 +334,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 423,
+      "srcline": 440,
       "module": "",
       "qualified": "int"
     },
@@ -356,7 +357,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 252,
+      "srcline": 268,
       "module": "",
       "qualified": "len"
     },
@@ -373,10 +374,11 @@
       "returns": "the guard; keep it alive for the scope you want covered.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "moves f into the returned guard."
+        "alloc": "moves f into the returned guard.",
+        "test": "CheatahBuiltins.FinallyRunsOnEveryExitPath"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 234,
+      "srcline": 250,
       "module": "",
       "qualified": "make_finally"
     },
@@ -402,7 +404,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 771,
+      "srcline": 793,
       "module": "",
       "qualified": "mod"
     },
@@ -419,13 +421,13 @@
       "returns": "\"0o…\" (with sign).",
       "tags": {
         "complexity": "O(log value).",
-        "alloc": "allocates the result string.",
+        "alloc": "allocates the result string, built from a temporary digits buffer.",
         "test": "CheatahBuiltins.BaseReprs",
         "crtest": "BuiltinsCompileRun.Oct",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 335,
+      "srcline": 351,
       "module": "",
       "qualified": "oct"
     },
@@ -447,7 +449,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 291,
+      "srcline": 307,
       "module": "",
       "qualified": "ord"
     },
@@ -492,11 +494,11 @@
         "complexity": "O(hi-lo).",
         "alloc": "the result vector.",
         "test": "CheatahBuiltins.SliceList",
-        "crtest": "BuiltinsCompileRun.SliceList",
+        "crtest": "LangFeatures.ListSlicingAndIndex",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 922,
+      "srcline": 944,
       "module": "",
       "qualified": "slice"
     },
@@ -519,11 +521,11 @@
         "complexity": "O(len(prefix)).",
         "alloc": "none.",
         "test": "CheatahBuiltins.StringPredicates",
-        "crtest": "BuiltinsCompileRun.StartsWith",
+        "crtest": "LangFeatures.MethodPredicates",
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 668,
+      "srcline": 691,
       "module": "",
       "qualified": "startswith"
     },
@@ -538,9 +540,13 @@
         }
       ],
       "returns": "the value's decimal digits.",
-      "tags": {},
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "allocates the small result string.",
+        "test": "CheatahBuiltins.StrByteWidthIntsAreNumbers"
+      },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 532,
+      "srcline": 554,
       "module": "",
       "qualified": "str"
     },
@@ -563,7 +569,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 393,
+      "srcline": 409,
       "module": "",
       "qualified": "to_bool"
     },
@@ -586,7 +592,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 458,
+      "srcline": 475,
       "module": "",
       "qualified": "to_float"
     },
@@ -609,7 +615,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 423,
+      "srcline": 440,
       "module": "",
       "qualified": "to_int"
     },
@@ -636,9 +642,30 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 549,
+      "srcline": 571,
       "module": "",
       "qualified": "truediv"
+    },
+    {
+      "name": "aead_len_ok",
+      "signature": "aead_len_ok(std::string_view msg)",
+      "brief": "Whether one AEAD message is under the 64 GiB counter-wrap cap above.",
+      "params": [
+        {
+          "name": "msg",
+          "desc": "the plaintext or ciphertext."
+        }
+      ],
+      "returns": "true iff msg is within the single-message limit.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahAead.Rfc8439Encrypt"
+      },
+      "srcfile": "stdlib/aead/aead.cpp",
+      "srcline": 411,
+      "module": "aead",
+      "qualified": "aead.aead_len_ok"
     },
     {
       "name": "aes128gcm_decrypt",
@@ -665,11 +692,11 @@
       "returns": "the plaintext, or \"\" when the tag does not verify (the check is constant-time) or the input is malformed.",
       "tags": {
         "complexity": "O(|ciphertext| + |aad|).",
-        "alloc": "the returned string.",
-        "test": "CheatahAead.AesGcmRejectsTamper"
+        "alloc": "the returned string (the hardware path allocates the candidate plaintext even when the tag check fails and \"\" is returned).",
+        "test": "CheatahAead.AesGcmRejectsTamperAndMalformed"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 86,
+      "srcline": 95,
       "module": "aead",
       "qualified": "aead.aes128gcm_decrypt"
     },
@@ -695,14 +722,15 @@
           "desc": "the raw-byte message to encrypt (binary-safe)."
         }
       ],
-      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex.",
+      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex or a message over the 64 GiB single-message cap.",
       "tags": {
         "complexity": "O(|plaintext| + |aad|).",
         "alloc": "the returned string.",
-        "test": "CheatahAead.AesGcmRoundTrip"
+        "test": "CheatahAead.AesGcmNistCase4",
+        "systest": "TlsSys.HandshakeAes128Gcm"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 70,
+      "srcline": 78,
       "module": "aead",
       "qualified": "aead.aes128gcm_encrypt"
     },
@@ -731,11 +759,11 @@
       "returns": "the plaintext, or \"\" when the tag does not verify (constant-time check) or the input is malformed.",
       "tags": {
         "complexity": "O(|ciphertext| + |aad|).",
-        "alloc": "the returned string.",
+        "alloc": "the returned string (the hardware path allocates the candidate plaintext even when the tag check fails and \"\" is returned).",
         "test": "CheatahAead.Aes256GcmRejectsTamper"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 118,
+      "srcline": 133,
       "module": "aead",
       "qualified": "aead.aes256gcm_decrypt"
     },
@@ -761,14 +789,15 @@
           "desc": "the raw-byte message to encrypt (binary-safe)."
         }
       ],
-      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex.",
+      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex or a message over the 64 GiB single-message cap.",
       "tags": {
         "complexity": "O(|plaintext| + |aad|).",
         "alloc": "the returned string.",
-        "test": "CheatahAead.Aes256GcmNistKat"
+        "test": "CheatahAead.Aes256GcmNistKat",
+        "systest": "TlsSys.HandshakeAes256GcmSha384"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 103,
+      "srcline": 117,
       "module": "aead",
       "qualified": "aead.aes256gcm_encrypt"
     },
@@ -797,13 +826,12 @@
       "returns": "the plaintext, or \"\" when the tag does not verify (tampering / wrong key or nonce / malformed input) — the tag check is constant-time.",
       "tags": {
         "complexity": "O(|ciphertext| + |aad|).",
-        "alloc": "the returned string.",
+        "alloc": "the returned string plus a temporary Poly1305 MAC-input buffer (|aad| + |ciphertext| + padding).",
         "test": "CheatahAead.Rfc8439Decrypt",
-        "crtest": "AeadCompileRun.RoundTrip",
-        "systest": "StdlibE2E.Aead"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 53,
+      "srcline": 57,
       "module": "aead",
       "qualified": "aead.chacha20poly1305_decrypt"
     },
@@ -829,34 +857,54 @@
           "desc": "the raw-byte message to encrypt (binary-safe)."
         }
       ],
-      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex.",
+      "returns": "ciphertext with the 16-byte tag appended, or \"\" on malformed key/nonce hex or a message over the 64 GiB single-message cap.",
       "tags": {
         "complexity": "O(|plaintext| + |aad|).",
-        "alloc": "the returned string.",
+        "alloc": "the returned string plus a temporary Poly1305 MAC-input buffer (|aad| + |plaintext| + padding).",
         "test": "CheatahAead.Rfc8439Encrypt",
-        "crtest": "AeadCompileRun.RoundTrip",
-        "systest": "StdlibE2E.Aead"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 35,
+      "srcline": 39,
       "module": "aead",
       "qualified": "aead.chacha20poly1305_encrypt"
     },
     {
       "name": "crypto_hardware_active",
       "signature": "crypto_hardware_active()",
-      "brief": "Whether AES-128-GCM is currently using the CPU's crypto instructions: the x86 AES-NI + PCLMULQDQ path, or the ARMv8 AES + PMULL path on AArch64 (e.g.",
+      "brief": "Whether AES-GCM (AES-128 and AES-256) is currently using the CPU's crypto instructions: the x86 AES-NI + PCLMULQDQ path, or the ARMv8 AES + PMULL path on AArch64 (e.g.",
       "params": [],
-      "returns": "true iff a hardware AES-128-GCM path (x86 AES-NI/PCLMULQDQ or ARMv8 AES/PMULL) is active.",
+      "returns": "true iff a hardware AES-GCM path (x86 AES-NI/PCLMULQDQ or ARMv8 AES/PMULL) is active.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "none.",
+        "alloc": "none after the first call (the first call may run the one-time hardware known-answer self-test, which allocates short scratch strings).",
         "test": "CryptoPlatform.Report"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 143,
+      "srcline": 163,
       "module": "aead",
       "qualified": "aead.crypto_hardware_active"
+    },
+    {
+      "name": "set_force_portable_crypto",
+      "signature": "set_force_portable_crypto(bool on)",
+      "brief": "Pin (or release) the portable scalar AES-GCM path — the test/determinism hook whose full contract lives on the declaration in aead.hpp (kept out of the public docs via \\cond there).",
+      "params": [
+        {
+          "name": "on",
+          "desc": "true to pin the portable scalar path; false to allow the hardware path again."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahAead.AesGcmPortableMatchesHardware"
+      },
+      "srcfile": "stdlib/aead/aead.cpp",
+      "srcline": 387,
+      "module": "aead",
+      "qualified": "aead.set_force_portable_crypto"
     },
     {
       "name": "day",
@@ -897,7 +945,7 @@
       ],
       "returns": "the formatted string.",
       "tags": {
-        "complexity": "O(1) time.",
+        "complexity": "O(fmt.size()) — the expansion is capped by the 128-byte internal buffer.",
         "alloc": "allocates a temporary std::string for fmt plus the result.",
         "test": "CheatahDatetime.Format",
         "crtest": "DatetimeCompileRun.Format",
@@ -1119,6 +1167,958 @@
       "qualified": "datetime.year"
     },
     {
+      "name": "Fn",
+      "signature": "Fn()",
+      "brief": "The curve's scalar context: the Montgomery context for the group order N, built once per instantiation (function-local static).",
+      "params": [],
+      "returns": "the context mod C::N.",
+      "tags": {
+        "complexity": "O(1) after the one-time static make_mont on first use.",
+        "alloc": "none — static storage.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 364,
+      "module": "ec",
+      "qualified": "ec.Fn"
+    },
+    {
+      "name": "Fp",
+      "signature": "Fp()",
+      "brief": "The curve's field context: the Montgomery context for the prime P, built once per instantiation (function-local static).",
+      "params": [],
+      "returns": "the context mod C::P.",
+      "tags": {
+        "complexity": "O(1) after the one-time static make_mont on first use.",
+        "alloc": "none — static storage.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 350,
+      "module": "ec",
+      "qualified": "ec.Fp"
+    },
+    {
+      "name": "add_carry",
+      "signature": "add_carry(fe< C > &r, const fe< C > &a, const fe< C > &b)",
+      "brief": "r = a + b (mod 2^kBits), returns the carry.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the sum."
+        },
+        {
+          "name": "a",
+          "desc": "first addend."
+        },
+        {
+          "name": "b",
+          "desc": "second addend."
+        }
+      ],
+      "returns": "the final carry out of the top limb (0 or 1).",
+      "tags": {
+        "complexity": "O(1) — one pass over kLimbs limbs.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 119,
+      "module": "ec",
+      "qualified": "ec.add_carry"
+    },
+    {
+      "name": "affine_to_jac",
+      "signature": "affine_to_jac(const fe< C > &x, const fe< C > &y)",
+      "brief": "Lift an affine point into Jacobian Montgomery form (Z = 1).",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the affine x-coordinate (plain form)."
+        },
+        {
+          "name": "y",
+          "desc": "the affine y-coordinate (plain form)."
+        }
+      ],
+      "returns": "the Jacobian point.",
+      "tags": {
+        "complexity": "O(1) — two to_mont conversions.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 629,
+      "module": "ec",
+      "qualified": "ec.affine_to_jac"
+    },
+    {
+      "name": "base_point",
+      "signature": "base_point()",
+      "brief": "The curve base point G, lifted to Jacobian form once (function-local static).",
+      "params": [],
+      "returns": "G.",
+      "tags": {
+        "complexity": "O(1) after the one-time static lift on first use.",
+        "alloc": "none — static storage.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 647,
+      "module": "ec",
+      "qualified": "ec.base_point"
+    },
+    {
+      "name": "be_to_fe",
+      "signature": "be_to_fe(const unsigned char *b)",
+      "brief": "Load kBytes big-endian bytes into a little-endian limb array.",
+      "params": [
+        {
+          "name": "b",
+          "desc": "pointer to kBytes bytes, most significant first."
+        }
+      ],
+      "returns": "the value.",
+      "tags": {
+        "complexity": "O(1) — kBytes byte reads.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 380,
+      "module": "ec",
+      "qualified": "ec.be_to_fe"
+    },
+    {
+      "name": "ct_add_selfcheck",
+      "signature": "ct_add_selfcheck()",
+      "brief": "Differential self-check for the constant-time point ops.",
+      "params": [],
+      "returns": "true iff every CT result matches the branchy reference.",
+      "tags": {
+        "complexity": "O(1) — a fixed handful of point operations.",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimePointOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 917,
+      "module": "ec",
+      "qualified": "ec.ct_add_selfcheck"
+    },
+    {
+      "name": "ct_mask",
+      "signature": "ct_mask(bool c)",
+      "brief": "Branch-free boolean-to-mask: false -> 0, true -> all-ones.",
+      "params": [
+        {
+          "name": "c",
+          "desc": "the condition."
+        }
+      ],
+      "returns": "the 64-bit mask.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimePointOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 710,
+      "module": "ec",
+      "qualified": "ec.ct_mask"
+    },
+    {
+      "name": "ct_select",
+      "signature": "ct_select(Jac< C > &out, const std::array< Jac< C >, N > &tbl, unsigned sel)",
+      "brief": "Constant-time table lookup: scan every entry, copying the one whose index == sel via a mask, so the memory-access pattern (and timing) is independent of the secret selector.",
+      "params": [
+        {
+          "name": "out",
+          "desc": "receives tbl[sel]."
+        },
+        {
+          "name": "tbl",
+          "desc": "the table."
+        },
+        {
+          "name": "sel",
+          "desc": "the (secret) index."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(N) — every entry is scanned by design.",
+        "alloc": "none.",
+        "test": "CheatahP256.SignKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 868,
+      "module": "ec",
+      "qualified": "ec.ct_select"
+    },
+    {
+      "name": "der_to_rs",
+      "signature": "der_to_rs(const std::string &der, unsigned char *r, unsigned char *s)",
+      "brief": "Parse SEQUENCE{INTEGER r, INTEGER s} -> kBytes big-endian r and s.",
+      "params": [
+        {
+          "name": "der",
+          "desc": "the DER-encoded signature."
+        },
+        {
+          "name": "r",
+          "desc": "receives kBytes big-endian r."
+        },
+        {
+          "name": "s",
+          "desc": "receives kBytes big-endian s."
+        }
+      ],
+      "returns": "false on any malformed encoding.",
+      "tags": {
+        "complexity": "O(1) — short-form DER caps the accepted input at 129 bytes (a longer der fails the exact-length check without being scanned).",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyDerWithLeadingZeroIntegers"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 1020,
+      "module": "ec",
+      "qualified": "ec.der_to_rs"
+    },
+    {
+      "name": "fe_cmov",
+      "signature": "fe_cmov(fe< C > &r, const fe< C > &a, u64 m)",
+      "brief": "Constant-time conditional move over a field element: r = m ?",
+      "params": [
+        {
+          "name": "r",
+          "desc": "the destination (kept when m is 0)."
+        },
+        {
+          "name": "a",
+          "desc": "the source (copied when m is all-ones)."
+        },
+        {
+          "name": "m",
+          "desc": "the ct_mask (0 or all-ones)."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimePointOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 723,
+      "module": "ec",
+      "qualified": "ec.fe_cmov"
+    },
+    {
+      "name": "fe_to_be",
+      "signature": "fe_to_be(unsigned char *out, const fe< C > &a)",
+      "brief": "Store a limb array as kBytes big-endian bytes (the inverse of be_to_fe).",
+      "params": [
+        {
+          "name": "out",
+          "desc": "receives kBytes bytes, most significant first."
+        },
+        {
+          "name": "a",
+          "desc": "the value to serialize."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — kBytes byte writes.",
+        "alloc": "none.",
+        "test": "CheatahP256.SignKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 400,
+      "module": "ec",
+      "qualified": "ec.fe_to_be"
+    },
+    {
+      "name": "from_mont",
+      "signature": "from_mont(fe< C > &r, const fe< C > &a, const Mont< C > &M)",
+      "brief": "Convert a out of Montgomery form: r = a*R^-1 mod m (one mont_mul by 1).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the plain value."
+        },
+        {
+          "name": "a",
+          "desc": "the Montgomery-form value."
+        },
+        {
+          "name": "M",
+          "desc": "the Montgomery context."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — one mont_mul.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 260,
+      "module": "ec",
+      "qualified": "ec.from_mont"
+    },
+    {
+      "name": "g_comb",
+      "signature": "g_comb()",
+      "brief": "Fixed-base comb for k*G.",
+      "params": [],
+      "returns": "the comb table.",
+      "tags": {
+        "complexity": "O(1) after the one-time static build (kLimbs*64 doublings plus the subset sums).",
+        "alloc": "none — the table is a function-local static std::array.",
+        "test": "CheatahP256.SignKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 664,
+      "module": "ec",
+      "qualified": "ec.g_comb"
+    },
+    {
+      "name": "geq",
+      "signature": "geq(const fe< C > &a, const fe< C > &b)",
+      "brief": "Multi-limb unsigned compare, most-significant limb first.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "left operand."
+        },
+        {
+          "name": "b",
+          "desc": "right operand."
+        }
+      ],
+      "returns": "true iff a >= b.",
+      "tags": {
+        "complexity": "O(1) — at most kLimbs limb compares.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyRejectsOutOfRangeAndInfinity"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 81,
+      "module": "ec",
+      "qualified": "ec.geq"
+    },
+    {
+      "name": "hash_to_scalar",
+      "signature": "hash_to_scalar(const std::string &h)",
+      "brief": "Reduce a big-endian hash to a scalar in [0, n).",
+      "params": [
+        {
+          "name": "h",
+          "desc": "the digest bytes."
+        }
+      ],
+      "returns": "the scalar in [0, n).",
+      "tags": {
+        "complexity": "O(1) — at most kBytes are copied regardless of the hash length.",
+        "alloc": "none — a stack buffer.",
+        "test": "CheatahP256.HashToScalarReducesWhenGreaterThanOrder CheatahP384.HashToScalarReducesWhenGreaterThanOrder"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 996,
+      "module": "ec",
+      "qualified": "ec.hash_to_scalar"
+    },
+    {
+      "name": "inv64",
+      "signature": "inv64(u64 a)",
+      "brief": "a^-1 mod 2^64 (a odd), by Newton's iteration.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the odd value to invert."
+        }
+      ],
+      "returns": "the inverse mod 2^64.",
+      "tags": {
+        "complexity": "O(1) — five fixed Newton steps.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 298,
+      "module": "ec",
+      "qualified": "ec.inv64"
+    },
+    {
+      "name": "is_zero",
+      "signature": "is_zero(const fe< C > &a)",
+      "brief": "Whether every limb of a is zero (an OR-accumulate over all limbs, no early exit).",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the value to test."
+        }
+      ],
+      "returns": "true iff a == 0.",
+      "tags": {
+        "complexity": "O(1) — kLimbs limb reads on a fixed-width value.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyRejectsOutOfRangeAndInfinity"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 65,
+      "module": "ec",
+      "qualified": "ec.is_zero"
+    },
+    {
+      "name": "jac_add",
+      "signature": "jac_add(Jac< C > &r, const Jac< C > &a, const Jac< C > &b)",
+      "brief": "Jacobian point addition, r = a + b, with branchy special cases (either operand infinity, a == b -> double, a == -b -> infinity).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the sum."
+        },
+        {
+          "name": "a",
+          "desc": "first point."
+        },
+        {
+          "name": "b",
+          "desc": "second point."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — a fixed count of field operations.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyHitsGroupLawSpecialCases"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 501,
+      "module": "ec",
+      "qualified": "ec.jac_add"
+    },
+    {
+      "name": "jac_add_ct",
+      "signature": "jac_add_ct(Jac< C > &r, const Jac< C > &a, const Jac< C > &b)",
+      "brief": "Point addition, branch-free.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives a + b."
+        },
+        {
+          "name": "a",
+          "desc": "first point."
+        },
+        {
+          "name": "b",
+          "desc": "second point."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — the same fixed field-operation count for every input (the double is always computed).",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimePointOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 806,
+      "module": "ec",
+      "qualified": "ec.jac_add_ct"
+    },
+    {
+      "name": "jac_affine_x",
+      "signature": "jac_affine_x(const Jac< C > &q)",
+      "brief": "The affine x-coordinate (normal form) of a Jacobian point: x = X / Z^2.",
+      "params": [
+        {
+          "name": "q",
+          "desc": "the point (not infinity: Z must be invertible)."
+        }
+      ],
+      "returns": "x out of Montgomery form.",
+      "tags": {
+        "complexity": "O(1) — dominated by one mont_inv (a fixed Fermat ladder).",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 607,
+      "module": "ec",
+      "qualified": "ec.jac_affine_x"
+    },
+    {
+      "name": "jac_cmov",
+      "signature": "jac_cmov(Jac< C > &r, const Jac< C > &a, u64 m)",
+      "brief": "Constant-time conditional move over a Jacobian point (all three coordinates via fe_cmov; the inf flag is recomputed from Z, which encodes infinity throughout the CT path).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "the destination point."
+        },
+        {
+          "name": "a",
+          "desc": "the source point."
+        },
+        {
+          "name": "m",
+          "desc": "the ct_mask (0 or all-ones)."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimePointOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 738,
+      "module": "ec",
+      "qualified": "ec.jac_cmov"
+    },
+    {
+      "name": "jac_double",
+      "signature": "jac_double(Jac< C > &r, const Jac< C > &q)",
+      "brief": "Jacobian point doubling, r = 2q, using the a = -3 formulas (true of every NIST prime curve).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the doubled point."
+        },
+        {
+          "name": "q",
+          "desc": "the point to double."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — a fixed count of field operations.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 444,
+      "module": "ec",
+      "qualified": "ec.jac_double"
+    },
+    {
+      "name": "jac_double_ct",
+      "signature": "jac_double_ct(Jac< C > &r, const Jac< C > &q)",
+      "brief": "Point doubling WITHOUT the is-infinity early return: the formula's Z3 = 2*Y*Z is already 0 when the input is infinity (Z==0), so it self-encodes infinity, and a prime-order curve has no finite 2-torsion point that could double TO infinity — so no branch is needed.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives 2q."
+        },
+        {
+          "name": "q",
+          "desc": "the point to double."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — the same fixed field-operation count for every input.",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimePointOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 757,
+      "module": "ec",
+      "qualified": "ec.jac_double_ct"
+    },
+    {
+      "name": "jac_double_mul",
+      "signature": "jac_double_mul(Jac< C > &r, const fe< C > &u1, const Jac< C > &A, const fe< C > &u2, const Jac< C > &B)",
+      "brief": "Strauss-Shamir: u1*A + u2*B with ONE doubling chain (kBits doublings total) instead of two separate scalar multiplications.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives u1*A + u2*B."
+        },
+        {
+          "name": "u1",
+          "desc": "first (public) scalar."
+        },
+        {
+          "name": "A",
+          "desc": "first point."
+        },
+        {
+          "name": "u2",
+          "desc": "second (public) scalar."
+        },
+        {
+          "name": "B",
+          "desc": "second point."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — kBits doublings plus at most kBits/2 adds.",
+        "alloc": "none — the 16-entry window table lives on the stack.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 568,
+      "module": "ec",
+      "qualified": "ec.jac_double_mul"
+    },
+    {
+      "name": "jac_infinity",
+      "signature": "jac_infinity()",
+      "brief": "The point at infinity (the group identity): Z = 0 with the explicit flag set.",
+      "params": [],
+      "returns": "the identity point.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyHitsGroupLawSpecialCases"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 429,
+      "module": "ec",
+      "qualified": "ec.jac_infinity"
+    },
+    {
+      "name": "jac_mul_base",
+      "signature": "jac_mul_base(Jac< C > &r, const fe< C > &k)",
+      "brief": "k*G for a SECRET scalar k, in constant time: 64 doublings + 64 unconditional adds over the fixed-base comb table.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives k*G."
+        },
+        {
+          "name": "k",
+          "desc": "the secret scalar."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — exactly 64 CT doublings, 64 CT table scans, and 64 CT adds.",
+        "alloc": "none.",
+        "test": "CheatahP256.SignKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 887,
+      "module": "ec",
+      "qualified": "ec.jac_mul_base"
+    },
+    {
+      "name": "make_mont",
+      "signature": "make_mont(const fe< C > &m)",
+      "brief": "Build the Montgomery context for modulus m — every constant (n0, R^2 mod m, R mod m) derived at startup, no hand-transcribed Montgomery magic.",
+      "params": [
+        {
+          "name": "m",
+          "desc": "the (odd, prime) modulus."
+        }
+      ],
+      "returns": "the derived context.",
+      "tags": {
+        "complexity": "O(1) — 2*kBits fixed doubling steps to derive R^2 mod m.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 314,
+      "module": "ec",
+      "qualified": "ec.make_mont"
+    },
+    {
+      "name": "mont_add",
+      "signature": "mont_add(fe< C > &r, const fe< C > &a, const fe< C > &b, const Mont< C > &M)",
+      "brief": "Modular addition: r = a + b mod m (add, then one conditional subtract of m).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the sum."
+        },
+        {
+          "name": "a",
+          "desc": "first addend."
+        },
+        {
+          "name": "b",
+          "desc": "second addend."
+        },
+        {
+          "name": "M",
+          "desc": "the Montgomery context (only its modulus is used)."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 203,
+      "module": "ec",
+      "qualified": "ec.mont_add"
+    },
+    {
+      "name": "mont_inv",
+      "signature": "mont_inv(fe< C > &r, const fe< C > &a, const Mont< C > &M)",
+      "brief": "r = a^-1 mod m, via Fermat: a^(m-2).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the inverse (Montgomery form)."
+        },
+        {
+          "name": "a",
+          "desc": "the value to invert (Montgomery form, nonzero)."
+        },
+        {
+          "name": "M",
+          "desc": "the Montgomery context."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — a fixed kBits-step square-and-multiply ladder.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 276,
+      "module": "ec",
+      "qualified": "ec.mont_inv"
+    },
+    {
+      "name": "mont_mul",
+      "signature": "mont_mul(fe< C > &r, const fe< C > &a, const fe< C > &b, const Mont< C > &M)",
+      "brief": "CIOS Montgomery multiplication: r = a*b*R^-1 mod m.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the product."
+        },
+        {
+          "name": "a",
+          "desc": "first factor (Montgomery form)."
+        },
+        {
+          "name": "b",
+          "desc": "second factor (Montgomery form)."
+        },
+        {
+          "name": "M",
+          "desc": "the Montgomery context."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — kLimbs^2 limb multiplies on a fixed-width value.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 151,
+      "module": "ec",
+      "qualified": "ec.mont_mul"
+    },
+    {
+      "name": "mont_sub",
+      "signature": "mont_sub(fe< C > &r, const fe< C > &a, const fe< C > &b, const Mont< C > &M)",
+      "brief": "Modular subtraction: r = a - b mod m (subtract, then one conditional add of m on borrow).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the difference."
+        },
+        {
+          "name": "a",
+          "desc": "minuend."
+        },
+        {
+          "name": "b",
+          "desc": "subtrahend."
+        },
+        {
+          "name": "M",
+          "desc": "the Montgomery context (only its modulus is used)."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 225,
+      "module": "ec",
+      "qualified": "ec.mont_sub"
+    },
+    {
+      "name": "on_curve",
+      "signature": "on_curve(const fe< C > &x, const fe< C > &y)",
+      "brief": "Is (x, y) on the curve y^2 = x^3 - 3x + b (mod p)?",
+      "params": [
+        {
+          "name": "x",
+          "desc": "the affine x-coordinate (plain form, < p)."
+        },
+        {
+          "name": "y",
+          "desc": "the affine y-coordinate (plain form, < p)."
+        }
+      ],
+      "returns": "true iff the point satisfies the curve equation.",
+      "tags": {
+        "complexity": "O(1) — a fixed handful of field operations.",
+        "alloc": "none.",
+        "test": "CheatahP256.RejectsOffCurvePublicKey CheatahP384.RejectsOffCurvePublicKey"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 1063,
+      "module": "ec",
+      "qualified": "ec.on_curve"
+    },
+    {
+      "name": "reduce_mod_n",
+      "signature": "reduce_mod_n(const fe< C > &v)",
+      "brief": "Reduce a scalar already known to be < 2n into [0, n): a single conditional subtraction of the group order n.",
+      "params": [
+        {
+          "name": "v",
+          "desc": "the value, < 2n."
+        }
+      ],
+      "returns": "v mod n.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahP256.ReduceModNBoundary"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 974,
+      "module": "ec",
+      "qualified": "ec.reduce_mod_n"
+    },
+    {
+      "name": "sub_borrow",
+      "signature": "sub_borrow(fe< C > &r, const fe< C > &a, const fe< C > &b)",
+      "brief": "r = a - b (mod 2^kBits), returns the borrow.",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the difference."
+        },
+        {
+          "name": "a",
+          "desc": "minuend."
+        },
+        {
+          "name": "b",
+          "desc": "subtrahend."
+        }
+      ],
+      "returns": "the final borrow: 1 iff a < b, else 0.",
+      "tags": {
+        "complexity": "O(1) — one pass over kLimbs limbs.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 98,
+      "module": "ec",
+      "qualified": "ec.sub_borrow"
+    },
+    {
+      "name": "to_mont",
+      "signature": "to_mont(fe< C > &r, const fe< C > &a, const Mont< C > &M)",
+      "brief": "Convert a into Montgomery form: r = a*R mod m (one mont_mul by R^2).",
+      "params": [
+        {
+          "name": "r",
+          "desc": "receives the Montgomery form."
+        },
+        {
+          "name": "a",
+          "desc": "the plain value."
+        },
+        {
+          "name": "M",
+          "desc": "the Montgomery context."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — one mont_mul.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 246,
+      "module": "ec",
+      "qualified": "ec.to_mont"
+    },
+    {
+      "name": "verify_der",
+      "signature": "verify_der(const std::string &pubkey_xy, const std::string &msg_hash, const std::string &sig_der)",
+      "brief": "ECDSA verification of the DER form (SEQUENCE{INTEGER r, INTEGER s} — TLS/X.509).",
+      "params": [
+        {
+          "name": "pubkey_xy",
+          "desc": "the public key point, 2*kBytes X||Y big-endian."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the message digest."
+        },
+        {
+          "name": "sig_der",
+          "desc": "the DER-encoded signature."
+        }
+      ],
+      "returns": "true iff the DER parses and the signature verifies.",
+      "tags": {
+        "complexity": "O(1) — der_to_rs plus one verify_raw.",
+        "alloc": "a temporary raw r||s signature string.",
+        "test": "CheatahP256.VerifyDerWithLeadingZeroIntegers CheatahP384.VerifyDerWithLeadingZeroIntegers"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 1138,
+      "module": "ec",
+      "qualified": "ec.verify_der"
+    },
+    {
+      "name": "verify_raw",
+      "signature": "verify_raw(const std::string &pubkey_xy, const std::string &msg_hash, const std::string &sig_raw)",
+      "brief": "ECDSA verification over raw byte forms: pubkey = 2*kBytes X||Y, sig = 2*kBytes r||s.",
+      "params": [
+        {
+          "name": "pubkey_xy",
+          "desc": "the public key point, 2*kBytes X||Y big-endian."
+        },
+        {
+          "name": "msg_hash",
+          "desc": "the message digest (truncated/reduced by hash_to_scalar)."
+        },
+        {
+          "name": "sig_raw",
+          "desc": "the signature, 2*kBytes r||s big-endian."
+        }
+      ],
+      "returns": "true iff the signature verifies (range checks, on-curve check, and x == r all pass).",
+      "tags": {
+        "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
+        "alloc": "none.",
+        "test": "CheatahP256.VerifyKnownVector CheatahP384.VerifyKnownVector"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 1092,
+      "module": "ec",
+      "qualified": "ec.verify_raw"
+    },
+    {
       "name": "from_hex",
       "signature": "from_hex(std::string_view hex)",
       "brief": "Hex DECODE — the inverse of to_hex.",
@@ -1170,7 +2170,7 @@
       "returns": "the public key as 64 hex chars.",
       "tags": {
         "complexity": "O(1) (one fixed-base scalar multiplication).",
-        "alloc": "allocates the result string.",
+        "alloc": "allocates the result string and a temporary decoded-seed string.",
         "test": "CheatahEd25519.KnownVectors, CheatahEd25519.GenerateRoundTrip",
         "crtest": "Ed25519CompileRun.PublicKey",
         "systest": "StdlibE2E.Ed25519"
@@ -1196,14 +2196,14 @@
       ],
       "returns": "the signature as 128 hex chars (64 bytes).",
       "tags": {
-        "complexity": "O(n) in the message length (a SHA-512) plus one scalar multiplication.",
-        "alloc": "allocates the signature string and an internal buffer.",
+        "complexity": "O(n) in the message length (two message-length SHA-512s) plus two fixed-base scalar multiplications (public-key derivation and R).",
+        "alloc": "allocates the signature string and two message-sized internal hash-input buffers (plus small seed/digest temporaries).",
         "test": "CheatahEd25519.KnownVectors, CheatahEd25519.SignVerifyRoundTrip",
         "crtest": "Ed25519CompileRun.SignVerify",
         "systest": "StdlibE2E.Ed25519"
       },
       "srcfile": "stdlib/ed25519/ed25519.hpp",
-      "srcline": 82,
+      "srcline": 84,
       "module": "ed25519",
       "qualified": "ed25519.sign"
     },
@@ -1253,13 +2253,13 @@
       "returns": "true iff the signature verifies.",
       "tags": {
         "complexity": "O(n) in the message length plus two scalar multiplications.",
-        "alloc": "allocates internal buffers.",
+        "alloc": "allocates internal buffers (the decoded key/signature strings and a message-sized hash-input buffer).",
         "test": "CheatahEd25519.KnownVectors, CheatahEd25519.RejectsTamperAndWrongKey",
         "crtest": "Ed25519CompileRun.SignVerify",
         "systest": "StdlibE2E.Ed25519"
       },
       "srcfile": "stdlib/ed25519/ed25519.hpp",
-      "srcline": 101,
+      "srcline": 104,
       "module": "ed25519",
       "qualified": "ed25519.verify"
     },
@@ -1280,7 +2280,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1002,
+      "srcline": 1020,
       "module": "fixarray",
       "qualified": "fixarray.abs"
     },
@@ -1309,7 +2309,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1126,
+      "srcline": 1144,
       "module": "fixarray",
       "qualified": "fixarray.clamp"
     },
@@ -1334,7 +2334,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1284,
+      "srcline": 1302,
       "module": "fixarray",
       "qualified": "fixarray.column"
     },
@@ -1359,7 +2359,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 577,
+      "srcline": 592,
       "module": "fixarray",
       "qualified": "fixarray.cross"
     },
@@ -1380,7 +2380,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 777,
+      "srcline": 795,
       "module": "fixarray",
       "qualified": "fixarray.determinant"
     },
@@ -1405,7 +2405,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 915,
+      "srcline": 933,
       "module": "fixarray",
       "qualified": "fixarray.distance"
     },
@@ -1430,7 +2430,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 929,
+      "srcline": 947,
       "module": "fixarray",
       "qualified": "fixarray.distance_squared"
     },
@@ -1455,7 +2455,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 547,
+      "srcline": 562,
       "module": "fixarray",
       "qualified": "fixarray.dot"
     },
@@ -1484,7 +2484,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 981,
+      "srcline": 999,
       "module": "fixarray",
       "qualified": "fixarray.faceforward"
     },
@@ -1505,7 +2505,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 858,
+      "srcline": 876,
       "module": "fixarray",
       "qualified": "fixarray.inverse"
     },
@@ -1526,7 +2526,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1246,
+      "srcline": 1264,
       "module": "fixarray",
       "qualified": "fixarray.inverse_transpose"
     },
@@ -1551,7 +2551,7 @@
         "test": "Fixarray.Matmul"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 679,
+      "srcline": 697,
       "module": "fixarray",
       "qualified": "fixarray.matmul"
     },
@@ -1576,7 +2576,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1214,
+      "srcline": 1232,
       "module": "fixarray",
       "qualified": "fixarray.matrix_comp_mult"
     },
@@ -1601,7 +2601,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1089,
+      "srcline": 1107,
       "module": "fixarray",
       "qualified": "fixarray.max"
     },
@@ -1626,7 +2626,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1054,
+      "srcline": 1072,
       "module": "fixarray",
       "qualified": "fixarray.min"
     },
@@ -1655,7 +2655,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1162,
+      "srcline": 1180,
       "module": "fixarray",
       "qualified": "fixarray.mix"
     },
@@ -1676,7 +2676,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 608,
+      "srcline": 626,
       "module": "fixarray",
       "qualified": "fixarray.norm"
     },
@@ -1697,7 +2697,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 624,
+      "srcline": 642,
       "module": "fixarray",
       "qualified": "fixarray.normalize"
     },
@@ -1722,7 +2722,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1229,
+      "srcline": 1247,
       "module": "fixarray",
       "qualified": "fixarray.outer_product"
     },
@@ -1747,7 +2747,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 944,
+      "srcline": 962,
       "module": "fixarray",
       "qualified": "fixarray.reflect"
     },
@@ -1776,7 +2776,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 962,
+      "srcline": 980,
       "module": "fixarray",
       "qualified": "fixarray.refract"
     },
@@ -1801,7 +2801,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1266,
+      "srcline": 1284,
       "module": "fixarray",
       "qualified": "fixarray.row"
     },
@@ -1822,7 +2822,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1019,
+      "srcline": 1037,
       "module": "fixarray",
       "qualified": "fixarray.sign"
     },
@@ -1851,7 +2851,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1194,
+      "srcline": 1212,
       "module": "fixarray",
       "qualified": "fixarray.smoothstep"
     },
@@ -1872,7 +2872,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 593,
+      "srcline": 611,
       "module": "fixarray",
       "qualified": "fixarray.squared_norm"
     },
@@ -1897,7 +2897,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1178,
+      "srcline": 1196,
       "module": "fixarray",
       "qualified": "fixarray.step"
     },
@@ -1915,11 +2915,10 @@
       "tags": {
         "complexity": "O(Fixed::size).",
         "alloc": "the result string.",
-        "test": "Fixarray.ToString",
-        "crtest": "FixarrayCompileRun.PrintVectorAndMatrix"
+        "test": "Fixarray.ToStringMatchesTheNDArrayRendering"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1304,
+      "srcline": 1321,
       "module": "fixarray",
       "qualified": "fixarray.to_string"
     },
@@ -1940,7 +2939,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 661,
+      "srcline": 679,
       "module": "fixarray",
       "qualified": "fixarray.trace"
     },
@@ -1961,7 +2960,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 643,
+      "srcline": 661,
       "module": "fixarray",
       "qualified": "fixarray.transpose"
     },
@@ -1983,12 +2982,11 @@
       "tags": {
         "complexity": "O(|text|).",
         "alloc": "the returned string.",
-        "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip",
-        "crtest": "HashlibCompileRun.Base64",
+        "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip, CheatahHashlib.Base64DecodeStrict",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 189,
+      "srcline": 188,
       "module": "hashlib",
       "qualified": "hashlib.base64_decode"
     },
@@ -2007,11 +3005,10 @@
         "complexity": "O(n).",
         "alloc": "the returned string.",
         "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip",
-        "crtest": "HashlibCompileRun.Base64",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 171,
+      "srcline": 170,
       "module": "hashlib",
       "qualified": "hashlib.base64_encode"
     },
@@ -2032,7 +3029,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 226,
+      "srcline": 225,
       "module": "hashlib",
       "qualified": "hashlib.from_hex"
     },
@@ -2054,16 +3051,15 @@
           "desc": "the number of output-keying-material bytes to produce."
         }
       ],
-      "returns": "the OKM as raw bytes, or \"\" when length is 0 or exceeds 255*32 (the RFC bound).",
+      "returns": "the OKM as raw bytes, or \"\" when length is 0 (or negative) or exceeds 255*32 (the RFC bound).",
       "tags": {
-        "complexity": "O(length).",
-        "alloc": "the returned keystream plus one HMAC scratch buffer per 32-byte output block.",
-        "test": "CheatahHashlib.HkdfRfc5869Case1",
-        "crtest": "HashlibCompileRun.Hkdf",
+        "complexity": "O(⌈length/32⌉ · (|prk| + |info| + 32)) — one HMAC per 32-byte output block.",
+        "alloc": "the returned keystream plus HMAC scratch buffers per 32-byte output block.",
+        "test": "CheatahHashlib.HkdfRfc5869Case1, CheatahHashlib.HkdfBounds",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 255,
+      "srcline": 253,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_expand"
     },
@@ -2085,14 +3081,14 @@
           "desc": "the number of output-keying-material bytes to produce."
         }
       ],
-      "returns": "the OKM as raw bytes, or \"\" when length is 0 or exceeds 255*48 (the RFC bound).",
+      "returns": "the OKM as raw bytes, or \"\" when length is 0 (or negative) or exceeds 255*48 (the RFC bound).",
       "tags": {
-        "complexity": "O(length).",
-        "alloc": "the returned keystream plus one HMAC scratch buffer per 48-byte output block.",
-        "test": "CheatahHashlib.HkdfSha384"
+        "complexity": "O(⌈length/48⌉ · (|prk| + |info| + 48)) — one HMAC per 48-byte output block.",
+        "alloc": "the returned keystream plus HMAC scratch buffers per 48-byte output block.",
+        "systest": "TlsSys.HandshakeAes256GcmSha384"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 280,
+      "srcline": 279,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_expand_sha384"
     },
@@ -2113,13 +3109,12 @@
       "returns": "the 32-byte pseudorandom key (PRK) as raw bytes.",
       "tags": {
         "complexity": "O(|salt| + |ikm|).",
-        "alloc": "the returned 32-byte PRK plus fixed HMAC scratch buffers.",
+        "alloc": "the returned 32-byte PRK plus HMAC scratch buffers (including ikm-sized concatenation/padding temporaries).",
         "test": "CheatahHashlib.HkdfRfc5869Case1",
-        "crtest": "HashlibCompileRun.Hkdf",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 240,
+      "srcline": 239,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_extract"
     },
@@ -2140,11 +3135,11 @@
       "returns": "the 48-byte pseudorandom key (PRK) as raw bytes.",
       "tags": {
         "complexity": "O(|salt| + |ikm|).",
-        "alloc": "the returned 48-byte PRK plus fixed HMAC scratch buffers.",
-        "test": "CheatahHashlib.HkdfSha384"
+        "alloc": "the returned 48-byte PRK plus HMAC scratch buffers (including ikm-sized concatenation/padding temporaries).",
+        "systest": "TlsSys.HandshakeAes256GcmSha384"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 267,
+      "srcline": 266,
       "module": "hashlib",
       "qualified": "hashlib.hkdf_extract_sha384"
     },
@@ -2165,9 +3160,8 @@
       "returns": "the 32-byte MAC as raw bytes.",
       "tags": {
         "complexity": "O(|key| + |data|).",
-        "alloc": "the returned 32-byte digest plus fixed key/inner/outer scratch buffers.",
+        "alloc": "the returned 32-byte digest plus fixed key/inner/outer scratch buffers and message-sized concatenation/padding temporaries.",
         "test": "CheatahHashlib.HmacSha256",
-        "crtest": "HashlibCompileRun.Hmac",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
@@ -2192,9 +3186,8 @@
       "returns": "the 48-byte MAC as raw bytes.",
       "tags": {
         "complexity": "O(|key| + |data|).",
-        "alloc": "the returned 48-byte digest plus fixed key/inner/outer scratch buffers.",
-        "test": "CheatahHashlib.HmacSha384",
-        "crtest": "HashlibCompileRun.Hmac",
+        "alloc": "the returned 48-byte digest plus fixed key/inner/outer scratch buffers and message-sized concatenation/padding temporaries.",
+        "test": "HashlibVsOpenssl.HmacSha384",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
@@ -2219,9 +3212,8 @@
       "returns": "the 64-byte MAC as raw bytes.",
       "tags": {
         "complexity": "O(|key| + |data|).",
-        "alloc": "the returned 64-byte digest plus fixed key/inner/outer scratch buffers.",
+        "alloc": "the returned 64-byte digest plus fixed key/inner/outer scratch buffers and message-sized concatenation/padding temporaries.",
         "test": "CheatahHashlib.HmacSha512",
-        "crtest": "HashlibCompileRun.Hmac",
         "systest": "StdlibE2E.Hashlib"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
@@ -2384,7 +3376,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 202,
+      "srcline": 201,
       "module": "hashlib",
       "qualified": "hashlib.to_hex"
     },
@@ -2411,7 +3403,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 140,
+      "srcline": 146,
       "module": "io",
       "qualified": "io.fixed"
     },
@@ -2438,7 +3430,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 426,
+      "srcline": 446,
       "module": "io",
       "qualified": "io.format"
     },
@@ -2460,7 +3452,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 446,
+      "srcline": 467,
       "module": "io",
       "qualified": "io.input"
     },
@@ -2487,7 +3479,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 614,
+      "srcline": 638,
       "module": "io",
       "qualified": "io.open"
     },
@@ -2504,13 +3496,13 @@
       "returns": "",
       "tags": {
         "complexity": "O(total output length).",
-        "alloc": "each arg is routed through str()/its pretty-printer, allocating temporary strings.",
+        "alloc": "allocates a temporary string per str()-routed arg; a struct's pretty-printer streams straight to stdout instead.",
         "test": "CheatahIo.PrintWritesSpaceSeparatedLine, CheatahIo.PrintNoArgsIsJustNewline",
         "crtest": "IoCompileRun.Print",
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 254,
+      "srcline": 271,
       "module": "io",
       "qualified": "io.print"
     },
@@ -2533,7 +3525,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 630,
+      "srcline": 654,
       "module": "io",
       "qualified": "io.read_file"
     },
@@ -2555,7 +3547,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 159,
+      "srcline": 165,
       "module": "io",
       "qualified": "io.repr"
     },
@@ -2578,7 +3570,7 @@
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 282,
+      "srcline": 301,
       "module": "io",
       "qualified": "io.rprint"
     },
@@ -2594,11 +3586,13 @@
       ],
       "returns": "the brace-wrapped rendering.",
       "tags": {
+        "complexity": "O(total output length).",
+        "alloc": "allocates the result string, plus a temporary string per key/value (repr()).",
         "test": "CheatahIo.StrRendersContainersAndObjects",
         "systest": "StdlibE2E.Io"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 225,
+      "srcline": 239,
       "module": "io",
       "qualified": "io.str"
     },
@@ -2615,13 +3609,13 @@
       "returns": "lower-triangular L with A = L·Lᵀ.",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates a new NDArray result; the factor is computed into O(n²) private scratch, then copied in.",
         "test": "LinalgRoutines.CholeskyAndQR",
         "crtest": "LinalgCompileRun.Cholesky",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 231,
+      "srcline": 237,
       "module": "linalg",
       "qualified": "linalg.cholesky"
     },
@@ -2644,7 +3638,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 659,
+      "srcline": 671,
       "module": "linalg",
       "qualified": "linalg.cond"
     },
@@ -2661,13 +3655,13 @@
       "returns": "the c×r adjoint of an r×c input; throws on non-2-D input.",
       "tags": {
         "complexity": "O(r·c).",
-        "alloc": "allocates only the c×r result.",
+        "alloc": "allocates only the c×r result; a non-contiguous operand is packed once into scratch.",
         "test": "LinalgRoutines.ComplexProducts",
         "crtest": "LinalgCompileRun.ConjTranspose",
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 342,
+      "srcline": 347,
       "module": "linalg",
       "qualified": "linalg.conj_transpose"
     },
@@ -2690,7 +3684,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 681,
+      "srcline": 693,
       "module": "linalg",
       "qualified": "linalg.det"
     },
@@ -2717,7 +3711,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 177,
+      "srcline": 182,
       "module": "linalg",
       "qualified": "linalg.dot"
     },
@@ -2734,13 +3728,13 @@
       "returns": "EigC with complex values and matching complex eigenvector columns.",
       "tags": {
         "complexity": "iterative O(n³) via Hessenberg + shifted QR for the eigenvalues; the general (non-symmetric) eigenvectors add O(n⁴) — one inverse iteration, each with its own O(n³) complex LU factorization, per eigenvalue (a symmetric a stays O(n³) via eigh, which accumulates the vectors in the QL sweep).",
-        "alloc": "allocates both members.",
+        "alloc": "allocates both members; plus O(n²) factorization scratch (on the non-symmetric path, a fresh complex n×n LU per eigenvalue).",
         "test": "LinalgRoutines.GeneralEig",
         "crtest": "LinalgCompileRun.Eig",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 451,
+      "srcline": 461,
       "module": "linalg",
       "qualified": "linalg.eig"
     },
@@ -2757,13 +3751,13 @@
       "returns": "Eig with descending values and matching eigenvectors.",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates both members.",
+        "alloc": "allocates both members; the solver allocates its own O(n²) scratch (a complex Hermitian input first embeds into a 2n×2n real matrix).",
         "test": "LinalgRoutines.SvdAndEigh LinalgRoutines.ComplexHermitianEigh",
         "crtest": "LinalgCompileRun.Eigh LinalgCompileRun.EighComplex",
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 540,
+      "srcline": 551,
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
@@ -2780,13 +3774,13 @@
       "returns": "length-n complex vector of eigenvalues.",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates a new CNDArray result.",
+        "alloc": "allocates a new CNDArray result; the iteration allocates its own O(n²) scratch.",
         "test": "LinalgRoutines.SvdAndEigh",
         "crtest": "LinalgCompileRun.Eigvals",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 496,
+      "srcline": 506,
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
@@ -2803,13 +3797,13 @@
       "returns": "length-n vector of real eigenvalues.",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates a new result.",
+        "alloc": "allocates a new result; the solver allocates its own O(n²) scratch (a complex Hermitian input first embeds into a 2n×2n real matrix).",
         "test": "LinalgRoutines.EigvalshSymmetric LinalgRoutines.ComplexHermitianEigh",
         "crtest": "LinalgCompileRun.Eigvalsh LinalgCompileRun.EigvalshComplex",
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 590,
+      "srcline": 602,
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
@@ -2836,7 +3830,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 226,
+      "srcline": 231,
       "module": "linalg",
       "qualified": "linalg.inner"
     },
@@ -2853,13 +3847,13 @@
       "returns": "A⁻¹.",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates a new NDArray result; the LU factorization and the whole-identity back-solve allocate their own O(n²) scratch.",
         "test": "LinalgRoutines.SolveDetInv",
         "crtest": "LinalgCompileRun.Inv",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 850,
+      "srcline": 864,
       "module": "linalg",
       "qualified": "linalg.inv"
     },
@@ -2888,13 +3882,13 @@
       "returns": "(m·p)×(k·q) block product.",
       "tags": {
         "complexity": "O(n⁴) in the output area.",
-        "alloc": "allocates only the (m·p)×(k·q) result.",
+        "alloc": "allocates only the (m·p)×(k·q) result; a non-contiguous operand is packed once into scratch.",
         "test": "LinalgRoutines.VdotInnerOuterKron",
         "crtest": "LinalgCompileRun.Kron",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 195,
+      "srcline": 200,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
@@ -2915,13 +3909,13 @@
       "returns": "minimizing x.",
       "tags": {
         "complexity": "iterative O(n³) via SVD.",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates a new NDArray result; plus the intermediate n×m pseudo-inverse and its SVD scratch.",
         "test": "LinalgRoutines.Lstsq",
         "crtest": "LinalgCompileRun.Lstsq",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 809,
+      "srcline": 822,
       "module": "linalg",
       "qualified": "linalg.lstsq"
     },
@@ -2948,7 +3942,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 69,
+      "srcline": 74,
       "module": "linalg",
       "qualified": "linalg.matmul"
     },
@@ -2969,13 +3963,13 @@
       "returns": "Aⁿ.",
       "tags": {
         "complexity": "O(n³·log|n|) by binary exponentiation.",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates a new NDArray result; the binary-exponentiation matmul steps allocate their own intermediates.",
         "test": "LinalgRoutines.MatrixPower",
         "crtest": "LinalgCompileRun.MatrixPower",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 155,
+      "srcline": 160,
       "module": "linalg",
       "qualified": "linalg.matrix_power"
     },
@@ -2998,7 +3992,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 704,
+      "srcline": 716,
       "module": "linalg",
       "qualified": "linalg.matrix_rank"
     },
@@ -3021,7 +4015,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 638,
+      "srcline": 650,
       "module": "linalg",
       "qualified": "linalg.norm"
     },
@@ -3048,7 +4042,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 322,
+      "srcline": 327,
       "module": "linalg",
       "qualified": "linalg.outer"
     },
@@ -3065,13 +4059,13 @@
       "returns": "n×m pseudo-inverse.",
       "tags": {
         "complexity": "iterative O(n³) via SVD.",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates a new NDArray result; the SVD and the assembly allocate their own O(m·n) scratch.",
         "test": "LinalgRoutines.PinvCondRankOnWideMatrix",
         "crtest": "LinalgCompileRun.Pinv",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 887,
+      "srcline": 902,
       "module": "linalg",
       "qualified": "linalg.pinv"
     },
@@ -3088,13 +4082,13 @@
       "returns": "QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates both members.",
+        "alloc": "allocates both members; the factorization works in O(m²) private scratch (a full m×m Q workspace), then copies the reduced factors in.",
         "test": "LinalgRoutines.CholeskyAndQR",
         "crtest": "LinalgCompileRun.Qr",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 279,
+      "srcline": 286,
       "module": "linalg",
       "qualified": "linalg.qr"
     },
@@ -3105,10 +4099,12 @@
       "params": [],
       "returns": ";-separated feature list.",
       "tags": {
+        "complexity": "O(1).",
+        "alloc": "the returned feature string.",
         "test": "LinalgSmoke.SimdFeaturesReported"
       },
       "srcfile": "stdlib/linalg/simd.hpp",
-      "srcline": 67,
+      "srcline": 70,
       "module": "linalg",
       "qualified": "linalg.simd_features"
     },
@@ -3124,7 +4120,7 @@
         "test": "LinalgSmoke.SimdFeaturesReported"
       },
       "srcfile": "stdlib/linalg/simd.hpp",
-      "srcline": 77,
+      "srcline": 80,
       "module": "linalg",
       "qualified": "linalg.simd_lane_doubles"
     },
@@ -3147,7 +4143,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 739,
+      "srcline": 751,
       "module": "linalg",
       "qualified": "linalg.slogdet"
     },
@@ -3168,13 +4164,13 @@
       "returns": "solution x.",
       "tags": {
         "complexity": "O(n³).",
-        "alloc": "allocates a new NDArray result.",
+        "alloc": "allocates a new NDArray result; the LU factorization allocates its own O(n²) scratch.",
         "test": "LinalgRoutines.SolveDetInv",
         "crtest": "LinalgCompileRun.Solve",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 769,
+      "srcline": 781,
       "module": "linalg",
       "qualified": "linalg.solve"
     },
@@ -3191,13 +4187,13 @@
       "returns": "SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).",
       "tags": {
         "complexity": "iterative O(n³).",
-        "alloc": "allocates all members.",
+        "alloc": "allocates all members; the Golub–Reinsch reduction allocates its own O(m·n) workspace.",
         "test": "LinalgRoutines.SvdAndEigh",
         "crtest": "LinalgCompileRun.Svd",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 330,
+      "srcline": 337,
       "module": "linalg",
       "qualified": "linalg.svd"
     },
@@ -3214,13 +4210,13 @@
       "returns": "length-min(m,n) vector of singular values, descending.",
       "tags": {
         "complexity": "iterative O(n³), but a large constant factor below svd.",
-        "alloc": "allocates a new NDArray result (no U/V scratch).",
+        "alloc": "allocates a new NDArray result; the reduction still allocates its O(m·n) workspace (the values-only path skips the U/V accumulation work and result copies, not the working buffers).",
         "test": "LinalgRoutines.SvdAndEigh",
         "crtest": "LinalgCompileRun.Svdvals",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 373,
+      "srcline": 382,
       "module": "linalg",
       "qualified": "linalg.svdvals"
     },
@@ -3243,7 +4239,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 248,
+      "srcline": 253,
       "module": "linalg",
       "qualified": "linalg.trace"
     },
@@ -3270,7 +4266,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 204,
+      "srcline": 209,
       "module": "linalg",
       "qualified": "linalg.vdot"
     },
@@ -3291,7 +4287,7 @@
         "test": "LinalgRoutines.ProductsAndTrace"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 102,
+      "srcline": 107,
       "module": "linalg",
       "qualified": "linalg.vector_len"
     },
@@ -3314,7 +4310,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 57,
+      "srcline": 59,
       "module": "math",
       "qualified": "math.abs"
     },
@@ -3337,7 +4333,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 364,
+      "srcline": 370,
       "module": "math",
       "qualified": "math.acos"
     },
@@ -3360,7 +4356,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 350,
+      "srcline": 356,
       "module": "math",
       "qualified": "math.asin"
     },
@@ -3383,7 +4379,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 378,
+      "srcline": 384,
       "module": "math",
       "qualified": "math.atan"
     },
@@ -3410,7 +4406,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 393,
+      "srcline": 399,
       "module": "math",
       "qualified": "math.atan2"
     },
@@ -3433,7 +4429,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 166,
+      "srcline": 172,
       "module": "math",
       "qualified": "math.cbrt"
     },
@@ -3456,7 +4452,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 207,
+      "srcline": 213,
       "module": "math",
       "qualified": "math.ceil"
     },
@@ -3483,7 +4479,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 439,
+      "srcline": 445,
       "module": "math",
       "qualified": "math.copysign"
     },
@@ -3506,7 +4502,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 321,
+      "srcline": 327,
       "module": "math",
       "qualified": "math.cos"
     },
@@ -3529,7 +4525,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 450,
+      "srcline": 456,
       "module": "math",
       "qualified": "math.degrees"
     },
@@ -3552,7 +4548,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 251,
+      "srcline": 257,
       "module": "math",
       "qualified": "math.exp"
     },
@@ -3575,7 +4571,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 177,
+      "srcline": 183,
       "module": "math",
       "qualified": "math.fabs"
     },
@@ -3598,7 +4594,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 531,
+      "srcline": 537,
       "module": "math",
       "qualified": "math.factorial"
     },
@@ -3621,7 +4617,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 192,
+      "srcline": 198,
       "module": "math",
       "qualified": "math.floor"
     },
@@ -3648,7 +4644,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 423,
+      "srcline": 429,
       "module": "math",
       "qualified": "math.fmod"
     },
@@ -3675,7 +4671,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 516,
+      "srcline": 522,
       "module": "math",
       "qualified": "math.gcd"
     },
@@ -3702,7 +4698,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 408,
+      "srcline": 414,
       "module": "math",
       "qualified": "math.hypot"
     },
@@ -3725,7 +4721,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 500,
+      "srcline": 506,
       "module": "math",
       "qualified": "math.isfinite"
     },
@@ -3748,7 +4744,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 489,
+      "srcline": 495,
       "module": "math",
       "qualified": "math.isinf"
     },
@@ -3771,7 +4767,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 475,
+      "srcline": 481,
       "module": "math",
       "qualified": "math.isnan"
     },
@@ -3794,7 +4790,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 265,
+      "srcline": 271,
       "module": "math",
       "qualified": "math.log"
     },
@@ -3817,7 +4813,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 293,
+      "srcline": 299,
       "module": "math",
       "qualified": "math.log10"
     },
@@ -3840,7 +4836,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 279,
+      "srcline": 285,
       "module": "math",
       "qualified": "math.log2"
     },
@@ -3864,12 +4860,14 @@
       ],
       "returns": "a reference to the maximum.",
       "tags": {
+        "complexity": "O(n) in the argument count.",
+        "alloc": "none.",
         "test": "CheatahMath.BuiltinLikeOps",
         "crtest": "MathCompileRun.Max",
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 113,
+      "srcline": 119,
       "module": "math",
       "qualified": "math.max"
     },
@@ -3893,12 +4891,14 @@
       ],
       "returns": "a reference to the minimum.",
       "tags": {
+        "complexity": "O(n) in the argument count.",
+        "alloc": "none.",
         "test": "CheatahMath.BuiltinLikeOps",
         "crtest": "MathCompileRun.Min",
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 85,
+      "srcline": 89,
       "module": "math",
       "qualified": "math.min"
     },
@@ -3925,7 +4925,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 132,
+      "srcline": 138,
       "module": "math",
       "qualified": "math.pow"
     },
@@ -3948,7 +4948,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 461,
+      "srcline": 467,
       "module": "math",
       "qualified": "math.radians"
     },
@@ -3971,7 +4971,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 237,
+      "srcline": 243,
       "module": "math",
       "qualified": "math.round"
     },
@@ -3994,7 +4994,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 307,
+      "srcline": 313,
       "module": "math",
       "qualified": "math.sin"
     },
@@ -4017,7 +5017,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 152,
+      "srcline": 158,
       "module": "math",
       "qualified": "math.sqrt"
     },
@@ -4040,7 +5040,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 336,
+      "srcline": 342,
       "module": "math",
       "qualified": "math.tan"
     },
@@ -4063,7 +5063,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 222,
+      "srcline": 228,
       "module": "math",
       "qualified": "math.trunc"
     },
@@ -4084,10 +5084,11 @@
       "returns": "an Owner<T> that has consumed value.",
       "tags": {
         "complexity": "O(1) plus moving value.",
-        "alloc": "none of our own (the value owns its storage)."
+        "alloc": "one read-generation gate (std::make_shared, in the Owner constructor); the value's own storage just moves.",
+        "test": "Memory.ObjectDiesWithOwner"
       },
       "srcfile": "stdlib/memory/owner.hpp",
-      "srcline": 208,
+      "srcline": 246,
       "module": "memory",
       "qualified": "memory.own"
     },
@@ -4109,7 +5110,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1732,
+      "srcline": 1734,
       "module": "ndarray",
       "qualified": "ndarray.abs"
     },
@@ -4136,7 +5137,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 998,
+      "srcline": 993,
       "module": "ndarray",
       "qualified": "ndarray.add"
     },
@@ -4161,13 +5162,13 @@
       "returns": "a 1-D basic_ndarray<T> of the generated values.",
       "tags": {
         "complexity": "O(count).",
-        "alloc": "allocates a new buffer; throws if step is zero.",
+        "alloc": "allocates a new buffer (built via a growing temporary vector, then copied); throws if step is zero.",
         "test": "CheatahNDArray.Arange",
         "crtest": "NdarrayCompileRun.Arange",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 786,
+      "srcline": 781,
       "module": "ndarray",
       "qualified": "ndarray.arange"
     },
@@ -4189,7 +5190,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 669,
+      "srcline": 668,
       "module": "ndarray",
       "qualified": "ndarray.array"
     },
@@ -4212,7 +5213,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 846,
+      "srcline": 841,
       "module": "ndarray",
       "qualified": "ndarray.astype"
     },
@@ -4238,7 +5239,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 528,
+      "srcline": 524,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes"
     },
@@ -4258,11 +5259,13 @@
       ],
       "returns": "a VIEW sharing a's buffer (no element copy).",
       "tags": {
+        "complexity": "O(rank of target).",
+        "alloc": "no element copy — only the view's stride vector; throws if the shapes are not broadcast-compatible.",
         "test": "CheatahNDArray.BroadcastTo",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 575,
+      "srcline": 574,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to"
     },
@@ -4284,7 +5287,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1658,
+      "srcline": 1660,
       "module": "ndarray",
       "qualified": "ndarray.cbrt"
     },
@@ -4311,7 +5314,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1548,
+      "srcline": 1550,
       "module": "ndarray",
       "qualified": "ndarray.complex"
     },
@@ -4334,7 +5337,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1575,
+      "srcline": 1577,
       "module": "ndarray",
       "qualified": "ndarray.conj"
     },
@@ -4356,7 +5359,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1708,
+      "srcline": 1710,
       "module": "ndarray",
       "qualified": "ndarray.cos"
     },
@@ -4383,7 +5386,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1040,
+      "srcline": 1035,
       "module": "ndarray",
       "qualified": "ndarray.divide"
     },
@@ -4406,7 +5409,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1671,
+      "srcline": 1673,
       "module": "ndarray",
       "qualified": "ndarray.exp"
     },
@@ -4433,7 +5436,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 726,
+      "srcline": 725,
       "module": "ndarray",
       "qualified": "ndarray.full"
     },
@@ -4455,12 +5458,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates a new buffer.",
-        "test": "CheatahNDArray.LikeFactories",
-        "crtest": "NdarrayCompileRun.FullLike",
-        "systest": "StdlibE2E.Ndarray"
+        "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 742,
+      "srcline": 739,
       "module": "ndarray",
       "qualified": "ndarray.full_like"
     },
@@ -4487,7 +5488,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1812,
+      "srcline": 1815,
       "module": "ndarray",
       "qualified": "ndarray.get"
     },
@@ -4510,7 +5511,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1618,
+      "srcline": 1620,
       "module": "ndarray",
       "qualified": "ndarray.imag"
     },
@@ -4532,7 +5533,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 550,
+      "srcline": 546,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous"
     },
@@ -4554,7 +5555,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1683,
+      "srcline": 1685,
       "module": "ndarray",
       "qualified": "ndarray.log"
     },
@@ -4577,7 +5578,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1795,
+      "srcline": 1798,
       "module": "ndarray",
       "qualified": "ndarray.mean"
     },
@@ -4604,7 +5605,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1026,
+      "srcline": 1021,
       "module": "ndarray",
       "qualified": "ndarray.mul"
     },
@@ -4627,7 +5628,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 711,
+      "srcline": 710,
       "module": "ndarray",
       "qualified": "ndarray.ones"
     },
@@ -4645,11 +5646,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates a new buffer.",
-        "test": "CheatahNDArray.LikeFactories",
-        "systest": "StdlibE2E.Ndarray"
+        "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 770,
+      "srcline": 764,
       "module": "ndarray",
       "qualified": "ndarray.ones_like"
     },
@@ -4672,7 +5672,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1596,
+      "srcline": 1598,
       "module": "ndarray",
       "qualified": "ndarray.real"
     },
@@ -4699,7 +5699,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 805,
+      "srcline": 800,
       "module": "ndarray",
       "qualified": "ndarray.reshape"
     },
@@ -4722,7 +5722,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 683,
+      "srcline": 682,
       "module": "ndarray",
       "qualified": "ndarray.scalar"
     },
@@ -4745,7 +5745,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1826,
+      "srcline": 1829,
       "module": "ndarray",
       "qualified": "ndarray.shape_of"
     },
@@ -4768,7 +5768,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1696,
+      "srcline": 1698,
       "module": "ndarray",
       "qualified": "ndarray.sin"
     },
@@ -4791,7 +5791,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1842,
+      "srcline": 1845,
       "module": "ndarray",
       "qualified": "ndarray.size_of"
     },
@@ -4814,7 +5814,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1646,
+      "srcline": 1648,
       "module": "ndarray",
       "qualified": "ndarray.sqrt"
     },
@@ -4841,7 +5841,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1012,
+      "srcline": 1007,
       "module": "ndarray",
       "qualified": "ndarray.sub"
     },
@@ -4856,16 +5856,20 @@
         }
       ],
       "returns": "the integer position it names (a scoped enum's underlying ordinal).",
-      "tags": {},
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "Fixarray.EnumIndexingOnVectorsAndMatrices"
+      },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 118,
+      "srcline": 121,
       "module": "ndarray",
       "qualified": "ndarray.subscript_index"
     },
     {
       "name": "sum",
       "signature": "sum(const basic_ndarray< T > &a)",
-      "brief": "Sum of all elements — a full reduction across every axis (vectorized via std::reduce(unseq) when contiguous, else a C-order walk); empty sums to 0.",
+      "brief": "Sum of all elements — a full reduction across every axis (a contiguous array goes through the shared multi-accumulator SIMD reduction detail::reduce_lanes, else a C-order walk); empty sums to 0.",
       "params": [
         {
           "name": "a",
@@ -4881,7 +5885,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1771,
+      "srcline": 1774,
       "module": "ndarray",
       "qualified": "ndarray.sum"
     },
@@ -4903,7 +5907,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1720,
+      "srcline": 1722,
       "module": "ndarray",
       "qualified": "ndarray.tan"
     },
@@ -4926,7 +5930,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1948,
+      "srcline": 1951,
       "module": "ndarray",
       "qualified": "ndarray.to_string"
     },
@@ -4949,7 +5953,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 698,
+      "srcline": 697,
       "module": "ndarray",
       "qualified": "ndarray.zeros"
     },
@@ -4967,12 +5971,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates a new buffer.",
-        "test": "CheatahNDArray.LikeFactories",
-        "crtest": "NdarrayCompileRun.ZerosLike",
-        "systest": "StdlibE2E.Ndarray"
+        "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 757,
+      "srcline": 752,
       "module": "ndarray",
       "qualified": "ndarray.zeros_like"
     },
@@ -5013,7 +6015,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 202,
+      "srcline": 204,
       "module": "os",
       "qualified": "os.cpu_count"
     },
@@ -5051,14 +6053,14 @@
       ],
       "returns": "the value, or fallback.",
       "tags": {
-        "complexity": "O(1) + a syscall.",
+        "complexity": "O(environment size) — std::getenv is a linear scan of the C library's environment table (no syscall).",
         "alloc": "allocates the returned string.",
         "test": "CheatahOs.GetenvFallback, CheatahOs.SetenvThenGetenv",
         "crtest": "OsCompileRun.Getenv",
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 161,
+      "srcline": 162,
       "module": "os",
       "qualified": "os.getenv"
     },
@@ -5076,7 +6078,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 188,
+      "srcline": 190,
       "module": "os",
       "qualified": "os.getpid"
     },
@@ -5163,7 +6165,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 251,
+      "srcline": 257,
       "module": "os",
       "qualified": "os.module_ext"
     },
@@ -5260,14 +6262,14 @@
       ],
       "returns": "",
       "tags": {
-        "complexity": "O(1) + a syscall.",
+        "complexity": "O(environment size) — the C library scans and updates its environment table (no syscall).",
         "alloc": "may allocate inside the C library's environment table.",
         "test": "CheatahOs.SetenvThenGetenv",
         "crtest": "OsCompileRun.Setenv",
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 177,
+      "srcline": 179,
       "module": "os",
       "qualified": "os.setenv"
     },
@@ -5290,7 +6292,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 217,
+      "srcline": 221,
       "module": "os",
       "qualified": "os.system"
     },
@@ -5301,19 +6303,19 @@
       "params": [
         {
           "name": "n",
-          "desc": "the number of bytes to return."
+          "desc": "the number of bytes to return (must be non-negative)."
         }
       ],
       "returns": "a string of n random bytes (may contain embedded NULs).",
       "tags": {
-        "complexity": "O(n) plus a syscall.",
+        "complexity": "O(n), plus one syscall per 256-byte chunk on POSIX (getentropy's per-call limit; a single BCryptGenRandom call on Windows).",
         "alloc": "allocates the n-byte result.",
         "test": "CheatahOs.Urandom",
         "crtest": "OsCompileRun.Urandom",
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 234,
+      "srcline": 240,
       "module": "os",
       "qualified": "os.urandom"
     },
@@ -5336,7 +6338,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 364,
+      "srcline": 372,
       "module": "os.path",
       "qualified": "os.path.abspath"
     },
@@ -5359,7 +6361,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 334,
+      "srcline": 342,
       "module": "os.path",
       "qualified": "os.path.basename"
     },
@@ -5382,7 +6384,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 349,
+      "srcline": 357,
       "module": "os.path",
       "qualified": "os.path.dirname"
     },
@@ -5405,7 +6407,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 291,
+      "srcline": 299,
       "module": "os.path",
       "qualified": "os.path.exists"
     },
@@ -5428,7 +6430,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 389,
+      "srcline": 397,
       "module": "os.path",
       "qualified": "os.path.getsize"
     },
@@ -5451,7 +6453,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 319,
+      "srcline": 327,
       "module": "os.path",
       "qualified": "os.path.isdir"
     },
@@ -5474,7 +6476,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 305,
+      "srcline": 313,
       "module": "os.path",
       "qualified": "os.path.isfile"
     },
@@ -5501,7 +6503,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 272,
+      "srcline": 278,
       "module": "os.path",
       "qualified": "os.path.join"
     },
@@ -5524,7 +6526,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 375,
+      "srcline": 383,
       "module": "os.path",
       "qualified": "os.path.normpath"
     },
@@ -5547,7 +6549,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 407,
+      "srcline": 415,
       "module": "os.path",
       "qualified": "os.path.splitext"
     },
@@ -5563,12 +6565,12 @@
       ],
       "returns": "the public key as 64 bytes (X||Y), or \"\" if d is out of range.",
       "tags": {
-        "complexity": "one scalar multiplication.",
+        "complexity": "O(1) — one fixed-base scalar multiplication.",
         "alloc": "the returned point.",
         "test": "CheatahP256.PublicFromPrivate"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 81,
+      "srcline": 84,
       "module": "p256",
       "qualified": "p256.public_from_private"
     },
@@ -5586,14 +6588,14 @@
           "desc": "the digest to sign (truncated to 256 bits if longer)."
         }
       ],
-      "returns": "the signature as 64 bytes r||s.",
+      "returns": "the signature as 64 bytes r||s, or \"\" if privkey is not a valid scalar (wrong length, zero, or >= the group order n).",
       "tags": {
-        "complexity": "one scalar multiplication per RFC 6979 candidate (almost always one).",
-        "alloc": "small temporaries.",
+        "complexity": "O(1) — one fixed-base scalar multiplication per RFC 6979 candidate (almost always one).",
+        "alloc": "the returned signature plus RFC 6979 HMAC scratch strings.",
         "test": "CheatahP256.SignKnownVector"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 71,
+      "srcline": 74,
       "module": "p256",
       "qualified": "p256.sign_raw"
     },
@@ -5614,7 +6616,7 @@
         "test": "CheatahP256.SpkiExtractsPoint"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 94,
+      "srcline": 97,
       "module": "p256",
       "qualified": "p256.spki_ec_point"
     },
@@ -5638,12 +6640,12 @@
       ],
       "returns": "true iff the signature is valid for pubkey_xy over msg_hash.",
       "tags": {
-        "complexity": "two scalar multiplications.",
-        "alloc": "small temporaries only.",
+        "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
+        "alloc": "a temporary raw r||s signature string.",
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 44,
+      "srcline": 46,
       "module": "p256",
       "qualified": "p256.verify_der"
     },
@@ -5667,12 +6669,12 @@
       ],
       "returns": "true iff valid.",
       "tags": {
-        "complexity": "two scalar multiplications.",
-        "alloc": "small temporaries.",
+        "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
+        "alloc": "none.",
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 58,
+      "srcline": 60,
       "module": "p256",
       "qualified": "p256.verify_raw"
     },
@@ -5717,8 +6719,8 @@
       ],
       "returns": "true iff the signature is valid for pubkey_xy over msg_hash.",
       "tags": {
-        "complexity": "two scalar multiplications.",
-        "alloc": "small temporaries only.",
+        "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
+        "alloc": "a temporary raw r||s signature string.",
         "test": "CheatahP384.VerifyKnownVector"
       },
       "srcfile": "stdlib/p384/p384.hpp",
@@ -5746,8 +6748,8 @@
       ],
       "returns": "true iff valid.",
       "tags": {
-        "complexity": "two scalar multiplications.",
-        "alloc": "small temporaries.",
+        "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
+        "alloc": "none.",
         "test": "CheatahP384.VerifyKnownVector"
       },
       "srcfile": "stdlib/p384/p384.hpp",
@@ -5772,10 +6774,12 @@
       "returns": "a newly allocated escaped copy.",
       "tags": {
         "complexity": "O(n) time in the length of s.",
-        "alloc": "one result string on the heap."
+        "alloc": "one result string on the heap.",
+        "test": "ParsersHtml.EscapeAllSpecialsWithAndWithoutQuote",
+        "crtest": "ParsersCompileRun.HtmlEscapeUnescape"
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 44,
+      "srcline": 46,
       "module": "parsers.html",
       "qualified": "parsers.html.escape"
     },
@@ -5796,10 +6800,12 @@
       "returns": "the attribute value, or \"\".",
       "tags": {
         "complexity": "O(k) in the attribute count of t.",
-        "alloc": "one result string on the heap."
+        "alloc": "one result string on the heap.",
+        "test": "ParsersHtml.GetAttrHasAttrLookup",
+        "crtest": "ParsersCompileRun.HtmlAttrHelpers"
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 108,
+      "srcline": 116,
       "module": "parsers.html",
       "qualified": "parsers.html.get_attr"
     },
@@ -5820,10 +6826,12 @@
       "returns": "true if present (even if valueless).",
       "tags": {
         "complexity": "O(k) in the attribute count of t.",
-        "alloc": "none."
+        "alloc": "none.",
+        "test": "ParsersHtml.GetAttrHasAttrLookup",
+        "crtest": "ParsersCompileRun.HtmlAttrHelpers"
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 118,
+      "srcline": 128,
       "module": "parsers.html",
       "qualified": "parsers.html.has_attr"
     },
@@ -5840,10 +6848,12 @@
       "returns": "the token list (empty for empty input).",
       "tags": {
         "complexity": "O(n) time in the length of html.",
-        "alloc": "the token vector and its strings on the heap."
+        "alloc": "the token vector and its strings on the heap.",
+        "test": "ParsersHtml.ParsesStartDataEndInDocumentOrder",
+        "crtest": "ParsersCompileRun.HtmlParseWalk"
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 98,
+      "srcline": 104,
       "module": "parsers.html",
       "qualified": "parsers.html.parse"
     },
@@ -5860,12 +6870,46 @@
       "returns": "a newly allocated decoded copy.",
       "tags": {
         "complexity": "O(n) time in the length of s.",
-        "alloc": "one result string on the heap."
+        "alloc": "one result string on the heap.",
+        "test": "ParsersHtml.UnescapeNamedAndNumericForms",
+        "crtest": "ParsersCompileRun.HtmlEscapeUnescape"
       },
       "srcfile": "stdlib/parsers/html/html.hpp",
-      "srcline": 58,
+      "srcline": 62,
       "module": "parsers.html",
       "qualified": "parsers.html.unescape"
+    },
+    {
+      "name": "String",
+      "signature": "String(std::string) -> String< std::string >",
+      "brief": "Deduction guides — route each argument to the right storage.",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(1) — deduction is compile-time; the chosen constructor moves or views.",
+        "alloc": "none.",
+        "test": "CheatahParsersJson.ContainerTokenLifecycle"
+      },
+      "srcfile": "stdlib/parsers/json/string.hpp",
+      "srcline": 75,
+      "module": "parsers.json",
+      "qualified": "parsers.json.String"
+    },
+    {
+      "name": "decode_escapes",
+      "signature": "decode_escapes(std::string_view raw, std::string &out)",
+      "brief": "Decode the raw (escaped) inner bytes of a JSON string (scan.hpp's detail::decode_escapes).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(|raw|).",
+        "alloc": "output growth (reserved once up front).",
+        "test": "CheatahParsersJson.ScanNumbersAndEscapes"
+      },
+      "srcfile": "stdlib/parsers/json/json.cpp",
+      "srcline": 37,
+      "module": "parsers.json",
+      "qualified": "parsers.json.decode_escapes"
     },
     {
       "name": "dump",
@@ -5876,12 +6920,74 @@
       "tags": {
         "complexity": "O(nodes)",
         "alloc": "the returned string",
-        "test": "Json.DumpRoundTrip"
+        "test": "ParsersJsonDom.OwningContainersAndDumpRoundTrip"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
       "srcline": 63,
       "module": "parsers.json",
       "qualified": "parsers.json.dump"
+    },
+    {
+      "name": "field",
+      "signature": "field(std::string_view name, Member Class::*ptr) noexcept",
+      "brief": "Build one key->member mapping.",
+      "params": [
+        {
+          "name": "name",
+          "desc": "the JSON object key."
+        },
+        {
+          "name": "ptr",
+          "desc": "pointer to the target data member."
+        }
+      ],
+      "returns": "the Field mapping.",
+      "tags": {
+        "complexity": "O(1) — constexpr aggregate construction.",
+        "alloc": "none.",
+        "test": "CheatahParsers.SchemaFactoriesAtRuntime"
+      },
+      "srcfile": "stdlib/parsers/json/schema.hpp",
+      "srcline": 52,
+      "module": "parsers.json",
+      "qualified": "parsers.json.field"
+    },
+    {
+      "name": "match",
+      "signature": "match(Cursor &c, std::string_view lit) noexcept",
+      "brief": "Consume an exact literal like \"true\" if present, else leave the cursor put (detail::match).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(|literal|).",
+        "alloc": "none.",
+        "test": "CheatahParsersJson.ScanNumbersAndEscapes"
+      },
+      "srcfile": "stdlib/parsers/json/json.cpp",
+      "srcline": 43,
+      "module": "parsers.json",
+      "qualified": "parsers.json.match"
+    },
+    {
+      "name": "object",
+      "signature": "object(Fields... fs) noexcept",
+      "brief": "Bundle fields into a schema.",
+      "params": [
+        {
+          "name": "fs",
+          "desc": "the field mappings, in declaration order (cosmetic — matching is by name)."
+        }
+      ],
+      "returns": "the ObjectSchema.",
+      "tags": {
+        "complexity": "O(1) — constexpr tuple construction.",
+        "alloc": "none.",
+        "test": "CheatahParsers.SchemaFactoriesAtRuntime"
+      },
+      "srcfile": "stdlib/parsers/json/schema.hpp",
+      "srcline": 76,
+      "module": "parsers.json",
+      "qualified": "parsers.json.object"
     },
     {
       "name": "parse",
@@ -5892,7 +6998,7 @@
       "tags": {
         "complexity": "O(n) in the input length",
         "alloc": "allocates the owned document tree (arrays, objects, and copied strings)",
-        "test": "Json.ParseObject"
+        "test": "ParsersJsonDom.ParsesEveryScalarKind"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
       "srcline": 54,
@@ -5908,12 +7014,44 @@
       "tags": {
         "complexity": "O(n) in the input length",
         "alloc": "only the owned std::string fields / vector growth in out — no DOM, no Node tree",
-        "test": "JsonRead.*"
+        "test": "CheatahParsersJson.TypedReadWithUnknownKeys CheatahParsersJson.TypedReadOptionalAndReject CheatahParsersJson.TypedReadEscapesAndKeyOrder"
       },
       "srcfile": "stdlib/parsers/json/read.hpp",
-      "srcline": 376,
+      "srcline": 378,
       "module": "parsers.json",
       "qualified": "parsers.json.read"
+    },
+    {
+      "name": "scan_string",
+      "signature": "scan_string(Cursor &c, std::string_view &raw, bool &esc)",
+      "brief": "Scan a quoted string to its raw inner bytes + had-escapes flag (detail::scan_string).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(|string|) — SIMD, 32 bytes per step.",
+        "alloc": "none — the raw bytes are a view.",
+        "test": "CheatahParsersJson.ScanNumbersAndEscapes"
+      },
+      "srcfile": "stdlib/parsers/json/json.cpp",
+      "srcline": 49,
+      "module": "parsers.json",
+      "qualified": "parsers.json.scan_string"
+    },
+    {
+      "name": "skip_ws",
+      "signature": "skip_ws(Cursor &c) noexcept",
+      "brief": "Advance the cursor past JSON whitespace (detail::skip_ws over the SIMD skip).",
+      "params": [],
+      "returns": "",
+      "tags": {
+        "complexity": "O(whitespace run).",
+        "alloc": "none.",
+        "test": "ParsersJsonDom.ParsesEveryScalarKind"
+      },
+      "srcfile": "stdlib/parsers/json/json.cpp",
+      "srcline": 55,
+      "module": "parsers.json",
+      "qualified": "parsers.json.skip_ws"
     },
     {
       "name": "to_view",
@@ -5924,7 +7062,7 @@
       "tags": {
         "complexity": "O(1)",
         "alloc": "none",
-        "test": "Json.ParseObject"
+        "test": "ParsersJsonDom.ToViewReadsBothBackingsAndRejectsNonStrings"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
       "srcline": 36,
@@ -5952,10 +7090,11 @@
       "returns": "the attribute value, or \"\" if absent.",
       "tags": {
         "complexity": "O(k) in the attribute count of id.",
-        "alloc": "one result string."
+        "alloc": "one result string.",
+        "test": "ParsersXml.AttributeQuotingForms"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 107,
+      "srcline": 113,
       "module": "parsers.xml",
       "qualified": "parsers.xml.attr"
     },
@@ -5976,10 +7115,11 @@
       "returns": "the child node ids in document order.",
       "tags": {
         "complexity": "O(1) (returns a copy of the id list).",
-        "alloc": "the id list."
+        "alloc": "the id list.",
+        "test": "ParsersXml.FindFindallIterChildren"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 139,
+      "srcline": 148,
       "module": "parsers.xml",
       "qualified": "parsers.xml.children"
     },
@@ -6004,10 +7144,11 @@
       "returns": "the first matching child element id, or -1.",
       "tags": {
         "complexity": "O(c) in the direct-child count of id.",
-        "alloc": "none."
+        "alloc": "none.",
+        "test": "ParsersXml.FindFindallIterChildren"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 151,
+      "srcline": 161,
       "module": "parsers.xml",
       "qualified": "parsers.xml.find"
     },
@@ -6032,10 +7173,11 @@
       "returns": "the matching direct-child element ids.",
       "tags": {
         "complexity": "O(c) in the direct-child count of id.",
-        "alloc": "the result id list."
+        "alloc": "the result id list.",
+        "test": "ParsersXml.FindFindallIterChildren"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 162,
+      "srcline": 173,
       "module": "parsers.xml",
       "qualified": "parsers.xml.findall"
     },
@@ -6060,10 +7202,11 @@
       "returns": "whether id carries attribute name.",
       "tags": {
         "complexity": "O(k) in the attribute count of id.",
-        "alloc": "none."
+        "alloc": "none.",
+        "test": "ParsersXml.ParsesElementsAttrsAndText"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 118,
+      "srcline": 125,
       "module": "parsers.xml",
       "qualified": "parsers.xml.has_attr"
     },
@@ -6084,10 +7227,11 @@
       "returns": "true iff id is a valid element node.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "none."
+        "alloc": "none.",
+        "test": "ParsersXml.OutOfRangeAndTypeMismatchedIdsAreSafe"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 86,
+      "srcline": 90,
       "module": "parsers.xml",
       "qualified": "parsers.xml.is_element"
     },
@@ -6112,10 +7256,11 @@
       "returns": "the matching element ids in the subtree, in document order.",
       "tags": {
         "complexity": "O(m) in the subtree size of id.",
-        "alloc": "the result id list (and a transient walk stack)."
+        "alloc": "the result id list (and a transient walk stack).",
+        "test": "ParsersXml.FindFindallIterChildren"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 174,
+      "srcline": 186,
       "module": "parsers.xml",
       "qualified": "parsers.xml.iter"
     },
@@ -6132,10 +7277,11 @@
       "returns": "the parsed document (root-only for empty/blank input).",
       "tags": {
         "complexity": "O(n) time in the length of xml.",
-        "alloc": "the node slab and its strings on the heap (owned by the returned Document)."
+        "alloc": "the node slab and its strings on the heap (owned by the returned Document).",
+        "test": "ParsersXml.ParsesElementsAttrsAndText ParsersXml.LenientOnMalformedInput"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 67,
+      "srcline": 69,
       "module": "parsers.xml",
       "qualified": "parsers.xml.parse"
     },
@@ -6152,10 +7298,11 @@
       "returns": "the root node id (its children are the top-level nodes).",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "none."
+        "alloc": "none.",
+        "test": "ParsersXml.IgnorableVsSignificantWhitespace"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 76,
+      "srcline": 79,
       "module": "parsers.xml",
       "qualified": "parsers.xml.root"
     },
@@ -6176,10 +7323,11 @@
       "returns": "the tag name, or \"\" if id is not an element.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "one result string."
+        "alloc": "one result string.",
+        "test": "ParsersXml.ParsesElementsAttrsAndText"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 96,
+      "srcline": 101,
       "module": "parsers.xml",
       "qualified": "parsers.xml.tag"
     },
@@ -6200,10 +7348,11 @@
       "returns": "the concatenated descendant text.",
       "tags": {
         "complexity": "O(m) in the number of descendants of id.",
-        "alloc": "one result string."
+        "alloc": "one result string.",
+        "test": "ParsersXml.NestedTextIsCollectedRecursively"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
-      "srcline": 129,
+      "srcline": 137,
       "module": "parsers.xml",
       "qualified": "parsers.xml.text"
     },
@@ -6220,13 +7369,13 @@
       "returns": "a copy of a uniformly chosen element.",
       "tags": {
         "complexity": "O(1) time.",
-        "alloc": "none (copies one element; via randint).",
+        "alloc": "copies the chosen element — none unless the element's copy itself allocates (e.g. str).",
         "test": "CheatahRandom.Choice",
         "crtest": "RandomCompileRun.Choice",
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 119,
+      "srcline": 126,
       "module": "random",
       "qualified": "random.choice"
     },
@@ -6253,7 +7402,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 102,
+      "srcline": 107,
       "module": "random",
       "qualified": "random.gauss"
     },
@@ -6280,7 +7429,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 87,
+      "srcline": 91,
       "module": "random",
       "qualified": "random.randint"
     },
@@ -6298,7 +7447,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 59,
+      "srcline": 61,
       "module": "random",
       "qualified": "random.random"
     },
@@ -6321,7 +7470,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 46,
+      "srcline": 47,
       "module": "random",
       "qualified": "random.seed"
     },
@@ -6339,7 +7488,7 @@
           "desc": "the bounds."
         }
       ],
-      "returns": "a value in [a, b].",
+      "returns": "a value in [a, b) — the upper bound is excluded, like random().",
       "tags": {
         "complexity": "O(1) time.",
         "alloc": "none.",
@@ -6348,7 +7497,7 @@
         "systest": "StdlibE2E.Random"
       },
       "srcfile": "stdlib/random/random.hpp",
-      "srcline": 73,
+      "srcline": 76,
       "module": "random",
       "qualified": "random.uniform"
     },
@@ -6365,10 +7514,11 @@
       "returns": "the compiled pattern (check .ok).",
       "tags": {
         "complexity": "O(m) in the pattern length.",
-        "alloc": "the compiled program + DFA cache on the heap (owned by the returned Pattern)."
+        "alloc": "the compiled program + DFA cache on the heap (owned by the returned Pattern).",
+        "systest": "RegexE2E.MalformedPatternReportsNotOk RegexE2E.SearchPresentAbsent"
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 52,
+      "srcline": 56,
       "module": "regex",
       "qualified": "regex.compile"
     },
@@ -6388,11 +7538,12 @@
       ],
       "returns": "the match (check .matched); .text owns the matched bytes.",
       "tags": {
-        "complexity": "O(n) amortized; O(n·m) worst case while new DFA states are built. The DFA-state cache is shared across start positions.",
-        "alloc": "the matching itself allocates nothing beyond growing the shared DFA cache; on a hit, .text owns one copy of the matched bytes (end - begin). Use .begin/.end to avoid even that."
+        "complexity": "O(n) amortized per start position tried (the DFA-state cache is shared across start positions); an unanchored pattern retries from each successive position until a match, so a late or absent match is O(n²) worst case over the whole input — always polynomial, never exponential (no backtracking). Add O(m) per uncached transition while new DFA states are built.",
+        "alloc": "the matching itself never copies the input — it allocates only DFA machinery (a start-state closure scratch per start position, plus new states while the cache is cold); on a hit, .text owns one copy of the matched bytes (end - begin). Use .begin/.end to avoid even that.",
+        "systest": "RegexE2E.FindOffsetsAndOwnedText RegexE2E.FindIsLeftmostLongest"
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 98,
+      "srcline": 124,
       "module": "regex",
       "qualified": "regex.find"
     },
@@ -6412,11 +7563,12 @@
       ],
       "returns": "true iff all of text matches.",
       "tags": {
-        "complexity": "O(n) amortized in the length of text; O(n·m) worst case while new DFA states are still being built (m = pattern size).",
-        "alloc": "none beyond growing the shared DFA cache; never an intermediate string."
+        "complexity": "O(n) amortized in the length of text (a single anchored DFA pass); O(n·m) worst case while new DFA states are still being built (m = pattern size).",
+        "alloc": "never copies the input; allocates only DFA machinery — a start-state closure scratch (and its intern key) per call, plus new states/transition rows while the shared cache is cold.",
+        "systest": "RegexE2E.FullMatchIsAnchoredBothEnds"
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 74,
+      "srcline": 91,
       "module": "regex",
       "qualified": "regex.full_match"
     },
@@ -6436,11 +7588,12 @@
       ],
       "returns": "true if some substring of text matches.",
       "tags": {
-        "complexity": "O(n) amortized in the length of text (lazy-DFA, no backtracking); O(n·m) worst case while new DFA states are still being built (m = pattern size).",
-        "alloc": "none beyond growing the shared DFA cache; never an intermediate string."
+        "complexity": "one DFA pass — O(n) amortized in the length of text — when the pattern is start-anchored or has no first-byte information (the built-in .*? prefix); the unanchored fast path re-runs the anchored DFA from each candidate first byte, so adversarial input (e.g. a*b over aaa…a) is O(n²) worst case — always polynomial, never exponential (no backtracking). Add O(m) per uncached transition while new DFA states are still being built (m = pattern size).",
+        "alloc": "never copies the input; allocates only DFA machinery — a start-state closure scratch (and its intern key) per call, plus new states/transition rows while the shared cache is cold.",
+        "systest": "RegexE2E.SearchPresentAbsent RegexE2E.ReDoSNestedQuantifierReturnsFalseFast"
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 63,
+      "srcline": 76,
       "module": "regex",
       "qualified": "regex.search"
     },
@@ -6457,7 +7610,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 977,
+      "srcline": 987,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -6474,7 +7627,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 913,
+      "srcline": 923,
       "module": "requests",
       "qualified": "requests.get"
     },
@@ -6491,7 +7644,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 993,
+      "srcline": 1003,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -6508,7 +7661,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1009,
+      "srcline": 1019,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -6525,7 +7678,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 961,
+      "srcline": 971,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -6542,7 +7695,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 929,
+      "srcline": 939,
       "module": "requests",
       "qualified": "requests.post"
     },
@@ -6559,7 +7712,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 945,
+      "srcline": 955,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -6580,7 +7733,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 897,
+      "srcline": 907,
       "module": "requests",
       "qualified": "requests.request"
     },
@@ -6624,7 +7777,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 84,
+      "srcline": 87,
       "module": "socket",
       "qualified": "socket.accept"
     },
@@ -6649,13 +7802,13 @@
       "returns": "0 on success, -1 on error.",
       "tags": {
         "complexity": "O(1) + resolution.",
-        "alloc": "none.",
+        "alloc": "none (the resolver's transient getaddrinfo list is freed before returning).",
         "test": "CheatahSocket.ListenLowLevel, CheatahSocket.ResolveFailure",
         "crtest": "SocketCompileRun.Bind",
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 211,
+      "srcline": 225,
       "module": "socket",
       "qualified": "socket.bind"
     },
@@ -6678,7 +7831,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 151,
+      "srcline": 159,
       "module": "socket",
       "qualified": "socket.close"
     },
@@ -6703,13 +7856,13 @@
       "returns": "0 on success, -1 on error.",
       "tags": {
         "complexity": "O(1) + DNS.",
-        "alloc": "none.",
+        "alloc": "none (the resolver's transient getaddrinfo list is freed before returning).",
         "test": "CheatahSocket.ConnectRefused",
         "crtest": "SocketCompileRun.Connect",
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 245,
+      "srcline": 260,
       "module": "socket",
       "qualified": "socket.connect"
     },
@@ -6727,7 +7880,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 290,
+      "srcline": 303,
       "module": "socket",
       "qualified": "socket.last_error"
     },
@@ -6754,7 +7907,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 227,
+      "srcline": 241,
       "module": "socket",
       "qualified": "socket.listen"
     },
@@ -6777,7 +7930,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 260,
+      "srcline": 275,
       "module": "socket",
       "qualified": "socket.local_port"
     },
@@ -6799,12 +7952,10 @@
       "tags": {
         "complexity": "O(1) + DNS resolution.",
         "alloc": "none beyond the Conn itself.",
-        "test": "CheatahSocket.ConnLoopback",
-        "crtest": "SocketCompileRun.OpenWith",
-        "systest": "StdlibE2E.Socket"
+        "test": "CheatahSocket.ConnLoopback"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 539,
+      "srcline": 554,
       "module": "socket",
       "qualified": "socket.open"
     },
@@ -6825,13 +7976,13 @@
       "returns": "the bytes read (binary-safe), or \"\" on EOF/error.",
       "tags": {
         "complexity": "O(bufsize).",
-        "alloc": "allocates the returned string.",
+        "alloc": "allocates the returned string (and grows a reused per-thread scratch buffer up to bufsize on first use).",
         "test": "CheatahSocket.Loopback",
         "crtest": "SocketCompileRun.Recv",
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 102,
+      "srcline": 108,
       "module": "socket",
       "qualified": "socket.recv"
     },
@@ -6858,7 +8009,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 118,
+      "srcline": 124,
       "module": "socket",
       "qualified": "socket.send"
     },
@@ -6885,7 +8036,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 135,
+      "srcline": 143,
       "module": "socket",
       "qualified": "socket.sendall"
     },
@@ -6911,12 +8062,10 @@
       "tags": {
         "complexity": "O(1) (a few syscalls).",
         "alloc": "none beyond the Listener itself.",
-        "test": "CheatahSocket.ListenerLoopback",
-        "crtest": "SocketCompileRun.ServeWith",
-        "systest": "StdlibE2E.Socket"
+        "test": "CheatahSocket.ListenerLoopback"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 554,
+      "srcline": 567,
       "module": "socket",
       "qualified": "socket.serve"
     },
@@ -6939,7 +8088,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 194,
+      "srcline": 208,
       "module": "socket",
       "qualified": "socket.set_reuseaddr"
     },
@@ -6961,12 +8110,10 @@
       "tags": {
         "complexity": "O(1) (two setsockopt calls).",
         "alloc": "none.",
-        "test": "CheatahSocket.SetTimeout",
-        "crtest": "SocketCompileRun.SetTimeout",
-        "systest": "StdlibE2E.Socket"
+        "test": "CheatahSocket.TimeoutThenShutdown"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 276,
+      "srcline": 289,
       "module": "socket",
       "qualified": "socket.set_timeout"
     },
@@ -6983,10 +8130,11 @@
       "returns": "0 on success, -1 on error.",
       "tags": {
         "complexity": "O(1) syscall.",
-        "alloc": "none."
+        "alloc": "none.",
+        "test": "CheatahSocket.TimeoutThenShutdown"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 163,
+      "srcline": 174,
       "module": "socket",
       "qualified": "socket.shutdown"
     },
@@ -7004,7 +8152,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 179,
+      "srcline": 190,
       "module": "socket",
       "qualified": "socket.socket"
     },
@@ -7025,13 +8173,13 @@
       "returns": "the connected fd, or -1 on error.",
       "tags": {
         "complexity": "O(1) + DNS resolution.",
-        "alloc": "none.",
+        "alloc": "none (the resolver's transient getaddrinfo list is freed before returning).",
         "test": "CheatahSocket.Loopback",
         "crtest": "SocketCompileRun.TcpConnect",
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 66,
+      "srcline": 68,
       "module": "socket",
       "qualified": "socket.tcp_connect"
     },
@@ -7056,13 +8204,13 @@
       "returns": "the listening fd, or -1 on error.",
       "tags": {
         "complexity": "O(1) (a few syscalls).",
-        "alloc": "none.",
+        "alloc": "none (the resolver's transient getaddrinfo list is freed before returning).",
         "test": "CheatahSocket.Loopback",
         "crtest": "SocketCompileRun.TcpListen",
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 49,
+      "srcline": 50,
       "module": "socket",
       "qualified": "socket.tcp_listen"
     },
@@ -7286,7 +8434,7 @@
       "returns": "the result.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "allocates.",
+        "alloc": "allocates a vector of words plus the result.",
         "test": "CheatahString.Transform",
         "crtest": "StringCompileRun.Capwords",
         "systest": "StdlibE2E.String"
@@ -7316,8 +8464,8 @@
       ],
       "returns": "padded s.",
       "tags": {
-        "complexity": "O(width).",
-        "alloc": "allocates.",
+        "complexity": "O(n + width).",
+        "alloc": "allocates the result plus concatenation temporaries.",
         "test": "CheatahString.Padding",
         "crtest": "StringCompileRun.Center",
         "systest": "StdlibE2E.String"
@@ -7345,8 +8493,8 @@
       "tags": {
         "complexity": "O(n).",
         "alloc": "none.",
-        "test": "CheatahString.SearchAndTest",
-        "crtest": "StringCompileRun.Find",
+        "test": "CheatahString.ContainsChar",
+        "crtest": "StringCompileRun.Contains",
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
@@ -7518,7 +8666,7 @@
           "desc": "input."
         }
       ],
-      "returns": "true iff non-empty and has no uppercase.",
+      "returns": "true iff s has ≥ 1 lowercase letter and no uppercase.",
       "tags": {
         "complexity": "O(n).",
         "alloc": "none.",
@@ -7564,7 +8712,7 @@
           "desc": "input."
         }
       ],
-      "returns": "true iff non-empty and has no lowercase.",
+      "returns": "true iff s has ≥ 1 uppercase letter and no lowercase.",
       "tags": {
         "complexity": "O(n).",
         "alloc": "none.",
@@ -7624,7 +8772,7 @@
       ],
       "returns": "padded s (or s if already ≥ width).",
       "tags": {
-        "complexity": "O(width).",
+        "complexity": "O(n + width).",
         "alloc": "allocates.",
         "test": "CheatahString.Padding",
         "crtest": "StringCompileRun.Ljust",
@@ -7674,7 +8822,7 @@
       ],
       "returns": "left-trimmed s.",
       "tags": {
-        "complexity": "O(n).",
+        "complexity": "O(n·m) (m = size of the chars set; a constant for the default).",
         "alloc": "allocates.",
         "test": "CheatahString.Trimming",
         "crtest": "StringCompileRun.Lstrip",
@@ -7705,7 +8853,7 @@
       ],
       "returns": "new string.",
       "tags": {
-        "complexity": "O(n·m).",
+        "complexity": "O(n·m + result length).",
         "alloc": "allocates.",
         "test": "CheatahString.Transform",
         "crtest": "StringCompileRun.Replace",
@@ -7763,8 +8911,8 @@
       ],
       "returns": "padded s.",
       "tags": {
-        "complexity": "O(width).",
-        "alloc": "allocates.",
+        "complexity": "O(n + width).",
+        "alloc": "allocates the result plus concatenation temporaries.",
         "test": "CheatahString.Padding",
         "crtest": "StringCompileRun.Rjust",
         "systest": "StdlibE2E.String"
@@ -7790,7 +8938,7 @@
       ],
       "returns": "right-trimmed s.",
       "tags": {
-        "complexity": "O(n).",
+        "complexity": "O(n·m) (m = size of the chars set; a constant for the default).",
         "alloc": "allocates.",
         "test": "CheatahString.Trimming",
         "crtest": "StringCompileRun.Rstrip",
@@ -7890,8 +9038,8 @@
       ],
       "returns": "trimmed s.",
       "tags": {
-        "complexity": "O(n).",
-        "alloc": "allocates.",
+        "complexity": "O(n·m) (m = size of the chars set; a constant for the default).",
+        "alloc": "allocates the result plus lstrip's intermediate string.",
         "test": "CheatahString.Trimming",
         "crtest": "StringCompileRun.Strip",
         "systest": "StdlibE2E.String"
@@ -7986,8 +9134,8 @@
       ],
       "returns": "'0'-padded s.",
       "tags": {
-        "complexity": "O(width).",
-        "alloc": "allocates.",
+        "complexity": "O(n + width).",
+        "alloc": "allocates the result plus concatenation temporaries.",
         "test": "CheatahString.Padding",
         "crtest": "StringCompileRun.Zfill",
         "systest": "StdlibE2E.String"
@@ -8014,13 +9162,13 @@
       "returns": "the owning Thread guard (joins at scope exit).",
       "tags": {
         "complexity": "O(1) plus copying the arguments and the OS thread start.",
-        "alloc": "one shared error slot + the thread's argument copies + the OS thread stack.",
-        "test": "CheatahThread.SpawnRunsTheWorker CheatahThread.SpawnPassesANonCopyableByReference",
+        "alloc": "one shared error slot + the thread's start-state block (the closure holding the argument copies — std::jthread puts it on the heap) + the OS thread stack.",
+        "test": "CheatahThread.SpawnRunsTheWorker CheatahThread.CopyableArgumentsAreCopied CheatahThread.SpawnPassesANonCopyableByReference CheatahThread.SpawnMovesANonCopyableRvalue",
         "crtest": "ThreadCompileRun.SpawnJoin",
-        "systest": "StdlibE2E.Thread"
+        "systest": "StdlibE2E.Thread StdlibE2E.ThreadSharedOwnerSum"
       },
       "srcfile": "stdlib/thread/thread.hpp",
-      "srcline": 219,
+      "srcline": 240,
       "module": "thread",
       "qualified": "thread.spawn"
     },
@@ -8133,7 +9281,7 @@
         "systest": "StdlibE2E.Time"
       },
       "srcfile": "stdlib/time/time.hpp",
-      "srcline": 140,
+      "srcline": 141,
       "module": "time",
       "qualified": "time.sleep"
     },
@@ -8194,13 +9342,83 @@
       "returns": "an owning Conn; on handshake failure its is_open() is false (see last_error()).",
       "tags": {
         "complexity": "one network round trip + O(handshake bytes) crypto.",
-        "alloc": "the session state.",
+        "alloc": "the session state (plus transient handshake buffers).",
         "systest": "TlsSys.ServerHandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 196,
+      "srcline": 211,
       "module": "tls",
       "qualified": "tls.accept"
+    },
+    {
+      "name": "derive_secret_impl",
+      "signature": "derive_secret_impl(std::string_view secret, std::string_view label, std::string_view transcript, bool sha384=false)",
+      "brief": "Derive-Secret(secret, label, transcript) = Expand-Label(secret, label, Hash(transcript), HashLen), where Hash is the negotiated suite's hash (SHA-256, or SHA-384 when sha384).",
+      "params": [
+        {
+          "name": "secret",
+          "desc": "the HKDF secret."
+        },
+        {
+          "name": "label",
+          "desc": "the schedule label."
+        },
+        {
+          "name": "transcript",
+          "desc": "the handshake transcript to hash into the context."
+        },
+        {
+          "name": "sha384",
+          "desc": "selects the SHA-384 schedule; default is SHA-256."
+        }
+      ],
+      "returns": "the derived secret (32 or 48 bytes).",
+      "tags": {
+        "complexity": "O(|transcript|) — one transcript hash, then a fixed-size expand.",
+        "alloc": "the transcript-hash string and the returned secret.",
+        "test": "CheatahTls.KeySchedule"
+      },
+      "srcfile": "stdlib/tls/tls.cpp",
+      "srcline": 108,
+      "module": "tls",
+      "qualified": "tls.derive_secret_impl"
+    },
+    {
+      "name": "expand_label_impl",
+      "signature": "expand_label_impl(std::string_view secret, std::string_view label, std::string_view context, unsigned length, bool sha384=false)",
+      "brief": "HKDF-Expand-Label(secret, label, context, length) with the \"tls13 \" prefix (RFC 8446 §7.1).",
+      "params": [
+        {
+          "name": "secret",
+          "desc": "the HKDF secret."
+        },
+        {
+          "name": "label",
+          "desc": "the schedule label (without the \"tls13 \" prefix, which is added here)."
+        },
+        {
+          "name": "context",
+          "desc": "the hash context bytes."
+        },
+        {
+          "name": "length",
+          "desc": "the output length in bytes."
+        },
+        {
+          "name": "sha384",
+          "desc": "selects the SHA-384 HKDF (for the TLS_AES_256_GCM_SHA384 key schedule); default is the SHA-256 schedule."
+        }
+      ],
+      "returns": "the expanded key material, length bytes.",
+      "tags": {
+        "complexity": "O(length) — HKDF-Expand emits ceil(length/hash) HMAC blocks.",
+        "alloc": "the returned key material plus the HkdfLabel info string.",
+        "test": "CheatahTls.ExpandLabel"
+      },
+      "srcfile": "stdlib/tls/tls.cpp",
+      "srcline": 83,
+      "module": "tls",
+      "qualified": "tls.expand_label_impl"
     },
     {
       "name": "from_hex",
@@ -8219,7 +9437,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/tls/tls.cpp",
-      "srcline": 45,
+      "srcline": 46,
       "module": "tls",
       "qualified": "tls.from_hex"
     },
@@ -8232,12 +9450,10 @@
       "tags": {
         "complexity": "O(1).",
         "alloc": "the returned string.",
-        "test": "TlsSys.RefusesBadPeer",
-        "crtest": "TlsSys.HandshakeAgainstOpenssl",
-        "systest": "TlsSys.HttpsGet"
+        "systest": "TlsSys.RefusesBadPeer TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 47,
+      "srcline": 48,
       "module": "tls",
       "qualified": "tls.last_error"
     },
@@ -8265,13 +9481,12 @@
       ],
       "returns": "an owning Conn; on handshake or validation failure its is_open() is false (see last_error()).",
       "tags": {
-        "complexity": "one network round trip + O(handshake bytes) crypto (+ a one-time CA-store parse).",
-        "alloc": "the session state.",
-        "test": "TlsSys.ConnGuardRoundTrip",
-        "systest": "TlsSys.HttpsGet"
+        "complexity": "one network round trip + O(handshake bytes) crypto (+ a one-time parse of the system CA store; a custom ca_file is parsed on every call).",
+        "alloc": "the session state (plus transient handshake buffers).",
+        "systest": "TlsSys.ConnGuardRoundTrip TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 176,
+      "srcline": 189,
       "module": "tls",
       "qualified": "tls.open"
     },
@@ -8296,7 +9511,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/tls/tls.cpp",
-      "srcline": 44,
+      "srcline": 45,
       "module": "tls",
       "qualified": "tls.to_hex"
     },
@@ -8334,10 +9549,10 @@
       "tags": {
         "complexity": "one TCP + one TLS handshake + one HTTP round trip.",
         "alloc": "the session.",
-        "systest": "WebSocketSys.EchoRoundTrip"
+        "systest": "WebSocketSys.ClientOpenAndMoveAssignClosesOpen"
       },
       "srcfile": "stdlib/websocket/websocket.hpp",
-      "srcline": 170,
+      "srcline": 182,
       "module": "websocket",
       "qualified": "websocket.open"
     },
@@ -8363,10 +9578,11 @@
       "tags": {
         "complexity": "as open().",
         "alloc": "the session.",
-        "test": "CheatahWebSocket.ClientDefaultIsClosed"
+        "test": "CheatahWebSocket.ConnectUrlRejectsNonWss",
+        "systest": "WebSocketSys.ClientGuardRoundTrip"
       },
       "srcfile": "stdlib/websocket/websocket.hpp",
-      "srcline": 185,
+      "srcline": 200,
       "module": "websocket",
       "qualified": "websocket.open_url"
     },
@@ -8389,11 +9605,10 @@
         "complexity": "O(1) — 255 constant-time ladder steps.",
         "alloc": "the returned string.",
         "test": "CheatahX25519.Rfc7748Vector1",
-        "crtest": "X25519CompileRun.SharedSecret",
-        "systest": "StdlibE2E.X25519"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/x25519/x25519.hpp",
-      "srcline": 35,
+      "srcline": 34,
       "module": "x25519",
       "qualified": "x25519.x25519"
     },
@@ -8412,11 +9627,10 @@
         "complexity": "O(1) — one ladder.",
         "alloc": "the returned string.",
         "test": "CheatahX25519.DiffieHellman",
-        "crtest": "X25519CompileRun.PublicKey",
-        "systest": "StdlibE2E.X25519"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/x25519/x25519.hpp",
-      "srcline": 48,
+      "srcline": 46,
       "module": "x25519",
       "qualified": "x25519.x25519_base"
     }
