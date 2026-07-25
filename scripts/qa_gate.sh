@@ -35,7 +35,8 @@
 #   6. Valgrind memcheck (sharded) — 100% unit-test coverage, no errors/leaks.
 #   7. Benchmarks: smoke pass (sharded; timings discarded) then the Fixed-vs-GLM
 #      performance gate (scripts/bench_gate.sh — the measured authority).
-#   8. Editor refresh (best-effort) · 8b cppcheck · 9 release staging.
+#   8. Editor refresh (best-effort) · 8b cppcheck + private-reference scan · 9 release
+#      staging.
 #
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
 #       QA_GATE_SKIP_COVERAGE=1   skip only the coverage/README-table/100% stage
@@ -117,7 +118,7 @@ bg_poll() {  # reap any lane that has already exited (fail fast); running lanes 
         "PID_COV:$LOG_COV:coverage report" \
         "PID_DOCS:$LOG_DOCS:documentation coverage or contract tags incomplete — see the entities listed above" \
         "PID_EXT:$LOG_EXT:VS Code extension hover-DB check" \
-        "PID_CPPCHECK:$LOG_CPPCHECK:cppcheck (performance/security findings)" \
+        "PID_CPPCHECK:$LOG_CPPCHECK:cppcheck findings, or a private-project reference in the public tree" \
         "PID_BENCHBUILD:$LOG_BENCHBUILD:release benchmark build" \
         "PID_TSANBUILD:$LOG_TSANBUILD:tsan build"; do
         _v="${_spec%%:*}"; _t="${_spec##*:}"; _l="${_spec#*:}"; _l="${_l%:*}"
@@ -231,9 +232,11 @@ else
         '"$(declare -f lane_extension_check)"'
         lane_extension_check'
 fi
-# 8b. cppcheck (pure source analysis, already -j nproc internally).
-bold "Running cppcheck (performance + security, background lane)…"
-bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash scripts/cppcheck.sh
+# 8b. cppcheck (pure source analysis, already -j nproc internally) + the private-reference
+#     scan (sibling-project names must not reach the public tree — see
+#     scripts/check_no_private_refs.sh; the commit-msg / pre-push hooks cover messages).
+bold "Running cppcheck + private-reference scan (background lane)…"
+bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh'
 
 # 2. Configure ---------------------------------------------------------------
 bold "Configuring (debug + release)…"

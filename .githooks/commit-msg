@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Git commit-msg hook — refuses a commit message that names a non-public sibling
+# project. This is the CHEAPEST place to catch it: the message is still a file on
+# disk, so fixing it is just editing. Once pushed, a message can only be changed by
+# rewriting history, which would invalidate every release tag and break the Biome
+# Standard's immutable-tag guarantee — so the leak becomes permanent.
+#
+# Enabled via `git config core.hooksPath .githooks` (scripts/setup_hooks.sh).
+# Bypass (discouraged): `git commit --no-verify`.
+set -uo pipefail
+exec bash "$(git rev-parse --show-toplevel)/scripts/check_no_private_refs.sh" --message "$1"

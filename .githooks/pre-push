@@ -16,11 +16,26 @@ repo_root="$(git rev-parse --show-toplevel)"
 # stdin; note whether main, and/or a version tag (refs/tags/v*), is being pushed.
 pushing_main=0
 pushed_tag=""
-while read -r _local_ref _local_sha remote_ref _remote_sha; do
+push_ranges=()
+while read -r _local_ref local_sha remote_ref remote_sha; do
     [ "$remote_ref" = "refs/heads/main" ] && pushing_main=1
     case "$remote_ref" in
         refs/tags/v*) pushed_tag="${remote_ref#refs/tags/}" ;;
     esac
+    # Range of commits this push would publish (all-zero remote sha = new ref).
+    if [ -n "${local_sha:-}" ] && [ "$local_sha" != "0000000000000000000000000000000000000000" ]; then
+        case "$remote_sha" in
+            ""|0000000000000000000000000000000000000000) push_ranges+=("$local_sha") ;;
+            *) push_ranges+=("$remote_sha..$local_sha") ;;
+        esac
+    fi
+done
+
+# 0. Private-reference scan on the commit MESSAGES about to be published. Once a
+#    message is on the remote it cannot be fixed without rewriting history (which
+#    would invalidate every release tag), so this is the last chance to catch one.
+for _range in ${push_ranges+"${push_ranges[@]}"}; do
+    bash "$repo_root/scripts/check_no_private_refs.sh" --range "$_range" || exit 1
 done
 
 # 1. QA gate — blocks the push on failure.
