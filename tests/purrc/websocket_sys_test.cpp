@@ -65,8 +65,12 @@ public:
                                   cert_ + "' '" + key_ + "' " + tag + " " + mode + " >'" +
                                   ready_ + "' 2>&1 &";
         node_ok_ = std::system(serve.c_str()) == 0;
-        // Wait (up to ~5s) for the server to print READY, i.e. it has bound the port.
-        for (int i = 0; i < 100; ++i) {
+        // Wait (up to ~20s) for the server to print READY, i.e. it has bound the port.
+        // The budget is deliberately generous: this waits on a Node process starting under
+        // a machine that may be running the whole sanitizer suite in parallel, and the wait
+        // costs nothing when the server is quick (the loop exits on the marker). At ~5s this
+        // reported a spurious "could not start node ws echo server" under gate load.
+        for (int i = 0; i < 400; ++i) {
             if (ready_marker_seen()) { bound_ = true; break; }
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
