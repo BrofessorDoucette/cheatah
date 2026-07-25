@@ -29,9 +29,29 @@ namespace {
 
 // The low-level scanners live in scan.hpp (detail::), shared verbatim with the struct reader; pull
 // the ones the DOM grammar uses into this scope.
+/**
+ * Decode the raw (escaped) inner bytes of a JSON string (scan.hpp's detail::decode_escapes).
+ * @complexity O(|raw|). @alloc output growth (reserved once up front).
+ * @test CheatahParsersJson.ScanNumbersAndEscapes
+ */
 using detail::decode_escapes;
+/**
+ * Consume an exact literal like "true" if present, else leave the cursor put (detail::match).
+ * @complexity O(|literal|). @alloc none.
+ * @test CheatahParsersJson.ScanNumbersAndEscapes
+ */
 using detail::match;
+/**
+ * Scan a quoted string to its raw inner bytes + had-escapes flag (detail::scan_string).
+ * @complexity O(|string|) — SIMD, 32 bytes per step. @alloc none — the raw bytes are a view.
+ * @test CheatahParsersJson.ScanNumbersAndEscapes
+ */
 using detail::scan_string;
+/**
+ * Advance the cursor past JSON whitespace (detail::skip_ws over the SIMD skip).
+ * @complexity O(whitespace run). @alloc none.
+ * @test ParsersJsonDom.ParsesEveryScalarKind
+ */
 using detail::skip_ws;
 
 // Parse a JSON string straight into `out`. OwnsStrings is the builder's string policy: when false

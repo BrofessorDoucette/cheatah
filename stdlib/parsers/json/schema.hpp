@@ -37,7 +37,17 @@ struct Field {
     using member_type = Member;  ///< the member's value type.
 };
 
-// Build one key->member mapping. @complexity O(1) constexpr  @alloc none  @test JsonRead.NestedStructs
+/**
+ * Build one key->member mapping.
+ * @tparam Class the struct type owning the member.
+ * @tparam Member the member's value type.
+ * @param name the JSON object key.
+ * @param ptr pointer to the target data member.
+ * @return the Field mapping.
+ * @complexity O(1) — constexpr aggregate construction.
+ * @alloc none.
+ * @test CheatahParsers.SchemaFactoriesAtRuntime
+ */
 template <class Class, class Member>
 constexpr Field<Class, Member> field(std::string_view name, Member Class::*ptr) noexcept {
     return Field<Class, Member>{name, ptr};
@@ -53,7 +63,15 @@ struct ObjectSchema {
     std::tuple<Fields...> fields;  ///< the field mappings, held as a tuple.
 };
 
-// Bundle fields into a schema. @complexity O(1) constexpr  @alloc none  @test JsonRead.NestedStructs
+/**
+ * Bundle fields into a schema.
+ * @tparam Fields the Field types making up the schema.
+ * @param fs the field mappings, in declaration order (cosmetic — matching is by name).
+ * @return the ObjectSchema.
+ * @complexity O(1) — constexpr tuple construction.
+ * @alloc none.
+ * @test CheatahParsers.SchemaFactoriesAtRuntime
+ */
 template <class... Fields>
 constexpr ObjectSchema<Fields...> object(Fields... fs) noexcept {
     return ObjectSchema<Fields...>{std::tuple<Fields...>{fs...}};

@@ -1315,6 +1315,7 @@ constexpr Vec<T, R> column(const Mat<T, R, C>& m, Ix j) {
  * @param v the value to format.
  * @return the bracketed text.
  * @complexity O(@ref Fixed::size). @alloc the result string.
+ * @test Fixarray.ToStringMatchesTheNDArrayRendering
  */
 template <ndarray::Field T, std::size_t... Dims>
 std::string to_string(const Fixed<T, Dims...>& v) {
@@ -1345,6 +1346,7 @@ std::string to_string(const Fixed<T, Dims...>& v) {
  * primitive.
  * @param os the stream. @param v the value. @return @p os.
  * @complexity O(@ref Fixed::size). @alloc the intermediate string.
+ * @test Fixarray.StreamInsertionUsesTheToStringForm
  */
 template <ndarray::Field T, std::size_t... Dims>
 std::ostream& operator<<(std::ostream& os, const Fixed<T, Dims...>& v) {
@@ -1359,13 +1361,13 @@ std::ostream& operator<<(std::ostream& os, const Fixed<T, Dims...>& v) {
 // NDArray subscript. (The ndarray overloads live beside these; both are found by the qualified call.)
 namespace cheatah::builtins {
 
-/** Vector element read `v[i]`. @param v the vector. @param i the index (or enum label). @return the element. @complexity O(1). @alloc none. */
+/** Vector element read `v[i]`. @param v the vector. @param i the index (or enum label). @return the element. @complexity O(1). @alloc none. @test Fixarray.BuiltinsIndexLowersSubscripts */
 template <::cheatah::ndarray::Field T, std::size_t... Dims, ::cheatah::ndarray::Subscript Ix>
 T index(const ::cheatah::fixarray::Fixed<T, Dims...>& v, Ix i) {
     return v[i];
 }
 
-/** Matrix element read `m[i, j]`. @param m the matrix. @param i the row. @param j the column (or enum label). @return the element. @complexity O(1). @alloc none. */
+/** Matrix element read `m[i, j]`. @param m the matrix. @param i the row. @param j the column (or enum label). @return the element. @complexity O(1). @alloc none. @test Fixarray.BuiltinsIndexLowersSubscripts */
 template <::cheatah::ndarray::Field T, std::size_t... Dims,
           ::cheatah::ndarray::Subscript I, ::cheatah::ndarray::Subscript J>
 T index(const ::cheatah::fixarray::Fixed<T, Dims...>& m, I i, J j) {

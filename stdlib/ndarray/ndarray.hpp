@@ -1306,6 +1306,7 @@ basic_ndarray<T> operator*(const basic_ndarray<T>& a, const basic_ndarray<T>& b)
  * Elementwise `a / b` with broadcasting (infix form of divide()).
  * @param a numerator. @param b denominator.
  * @return the broadcast quotient (a fresh array). @complexity O(size of result). @alloc the result.
+ * @test CheatahNDArray.DivideInfixLvalueForm
  */
 template <typename T>
 basic_ndarray<T> operator/(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return divide(a, b); }

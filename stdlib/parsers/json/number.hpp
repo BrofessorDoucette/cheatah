@@ -15,6 +15,9 @@ public:
     /**
      * Construct from a double.
      * @param value the numeric value.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     Number(double value) : value_(value) {}
     ~Number() = default;
@@ -23,6 +26,9 @@ public:
     /**
      * Read the numeric value (fixed for the token's lifetime; no setter).
      * @return the stored double.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     [[nodiscard]] double value() const noexcept { return value_; }
 };

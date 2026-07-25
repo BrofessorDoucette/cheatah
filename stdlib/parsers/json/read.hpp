@@ -370,7 +370,9 @@ bool read_object(Cursor& c, T& out, const ObjectSchema<Fields...>& sch) {
  *
  * @complexity O(n) in the input length
  * @alloc only the owned std::string fields / vector growth in `out` — no DOM, no Node tree
- * @test JsonRead.*
+ * @test CheatahParsersJson.TypedReadWithUnknownKeys
+ * @test CheatahParsersJson.TypedReadOptionalAndReject
+ * @test CheatahParsersJson.TypedReadEscapesAndKeyOrder
  */
 template <bool Validate = true, class T>
 [[nodiscard]] bool read(std::string_view text, T& out) {

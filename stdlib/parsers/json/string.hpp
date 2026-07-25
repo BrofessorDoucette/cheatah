@@ -42,6 +42,9 @@ public:
      * Construct from the backing storage. Owning S=std::string moves the rvalue in; viewing
      * S=std::string_view just stores the (cheap) view — the characters are never copied here.
      * @param value the string storage (moved in).
+     * @complexity O(1) — a std::string move or a std::string_view copy; characters are never copied.
+     * @alloc none.
+     * @test CheatahParsersJson.ContainerTokenLifecycle
      */
     String(S value) : value_(std::move(value)) {}
     ~String() = default;
@@ -49,16 +52,26 @@ public:
     /**
      * Read the characters uniformly as a view, whether owning or viewing (no setter).
      * @return a std::string_view over the stored characters.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.ContainerTokenLifecycle
      */
     [[nodiscard]] std::string_view value() const noexcept { return value_; }
 };
 
-// Deduction guides — route each argument to the right storage. A const char* and a
-// std::string_view become VIEWS (never a std::string); an rvalue std::string is OWNED. These
-// user-defined guides are preferred over the implicit one, so String{"lit"} deduces
-// String<std::string_view>, not String<const char*>.
+/**
+ * Deduction guides — route each argument to the right storage. A const char* and a
+ * std::string_view become VIEWS (never a std::string); an rvalue std::string is OWNED. These
+ * user-defined guides are preferred over the implicit one, so String{"lit"} deduces
+ * String<std::string_view>, not String<const char*>.
+ * @complexity O(1) — deduction is compile-time; the chosen constructor moves or views.
+ * @alloc none.
+ * @test CheatahParsersJson.ContainerTokenLifecycle
+ */
 String(const char*) -> String<std::string_view>;
+/** @copydoc String(const char*) */
 String(std::string_view) -> String<std::string_view>;
+/** @copydoc String(const char*) */
 String(std::string) -> String<std::string>;
 
 }  // namespace cheatah::parsers::json

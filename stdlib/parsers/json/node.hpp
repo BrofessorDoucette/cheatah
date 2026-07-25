@@ -47,6 +47,9 @@ public:
      * so the copy/move constructors are not hidden.
      * @tparam T one of the variant alternative types.
      * @param value the token value to store (forwarded into the variant).
+     * @complexity O(1) — one move/copy of the token into the variant.
+     * @alloc none of its own (whatever the moved-in token owns comes along).
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     template <class T>
         requires(!std::is_same_v<std::remove_cvref_t<T>, Node>)
@@ -55,11 +58,17 @@ public:
     /**
      * The underlying variant, for dispatch with std::visit / std::get / std::get_if / emplace.
      * @return a mutable reference to the wrapped variant.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     [[nodiscard]] variant_type& variant() noexcept { return data_; }
     /**
      * The underlying variant (const overload).
      * @return a const reference to the wrapped variant.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     [[nodiscard]] const variant_type& variant() const noexcept { return data_; }
 

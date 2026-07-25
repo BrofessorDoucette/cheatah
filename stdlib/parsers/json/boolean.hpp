@@ -16,12 +16,18 @@ public:
     /**
      * Construct from a bool.
      * @param value the boolean value (`true` or `false`).
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     Boolean(bool value) : value_(value) {}
 
     /**
      * Read the boolean value (fixed for the token's lifetime; no setter).
      * @return the stored bool.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     [[nodiscard]] bool value() const noexcept { return value_; }
 };

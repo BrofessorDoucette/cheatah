@@ -34,6 +34,9 @@ public:
     /**
      * Construct from the backing storage (moved in).
      * @param value the element storage (an owning vector or a non-owning span).
+     * @complexity O(1) — a vector move or a span copy; the elements are never copied.
+     * @alloc none.
+     * @test CheatahParsersJson.ContainerTokenLifecycle
      */
     Array(S value) : value_(std::move(value)) {}
     ~Array() = default;
@@ -56,6 +59,9 @@ public:
     /**
      * Read the elements uniformly as a view, whether owned or viewed (no setter).
      * @return a std::span<const Node> over the array's elements.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.ContainerTokenLifecycle
      */
     [[nodiscard]] std::span<const Node> value() const noexcept { return value_; }
 };

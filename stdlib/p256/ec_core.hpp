@@ -52,19 +52,48 @@ template <WeierstrassCurve C>
 inline constexpr std::size_t kBytes = C::kLimbs * 8;  // big-endian byte size (32 / 48)
 
 // ---- plain multi-limb helpers -----------------------------------------------------------------
+/**
+ * Whether every limb of @p a is zero (an OR-accumulate over all limbs, no early exit).
+ * @tparam C the curve traits.
+ * @param a the value to test.
+ * @return true iff @p a == 0.
+ * @complexity O(1) — kLimbs limb reads on a fixed-width value.
+ * @alloc none.
+ * @test CheatahP256.VerifyRejectsOutOfRangeAndInfinity
+ */
 template <WeierstrassCurve C>
 bool is_zero(const fe<C>& a) {
     u64 acc = 0;
     for (const u64 limb : a) acc |= limb;
     return acc == 0;
 }
+/**
+ * Multi-limb unsigned compare, most-significant limb first.
+ * @tparam C the curve traits.
+ * @param a left operand.
+ * @param b right operand.
+ * @return true iff a >= b.
+ * @complexity O(1) — at most kLimbs limb compares.
+ * @alloc none.
+ * @test CheatahP256.VerifyRejectsOutOfRangeAndInfinity
+ */
 template <WeierstrassCurve C>
 bool geq(const fe<C>& a, const fe<C>& b) {  // a >= b
     for (int i = static_cast<int>(C::kLimbs) - 1; i >= 0; --i)
         if (a[i] != b[i]) return a[i] > b[i];
     return true;
 }
-// a - b (mod 2^kBits), returns borrow.
+/**
+ * r = a - b (mod 2^kBits), returns the borrow.
+ * @tparam C the curve traits.
+ * @param r receives the difference.
+ * @param a minuend.
+ * @param b subtrahend.
+ * @return the final borrow: 1 iff a < b, else 0.
+ * @complexity O(1) — one pass over kLimbs limbs.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 u64 sub_borrow(fe<C>& r, const fe<C>& a, const fe<C>& b) {
     u128 br = 0;
@@ -75,7 +104,17 @@ u64 sub_borrow(fe<C>& r, const fe<C>& a, const fe<C>& b) {
     }
     return (u64)br;
 }
-// a + b (mod 2^kBits), returns carry.
+/**
+ * r = a + b (mod 2^kBits), returns the carry.
+ * @tparam C the curve traits.
+ * @param r receives the sum.
+ * @param a first addend.
+ * @param b second addend.
+ * @return the final carry out of the top limb (0 or 1).
+ * @complexity O(1) — one pass over kLimbs limbs.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 u64 add_carry(fe<C>& r, const fe<C>& a, const fe<C>& b) {
     u128 c = 0;
@@ -97,7 +136,17 @@ struct Mont {
     u64 n0;     ///< -m^{-1} mod 2^64
 };
 
-// CIOS Montgomery multiplication: r = a*b*R^-1 mod m.
+/**
+ * CIOS Montgomery multiplication: r = a*b*R^-1 mod m.
+ * @tparam C the curve traits.
+ * @param r receives the product.
+ * @param a first factor (Montgomery form).
+ * @param b second factor (Montgomery form).
+ * @param M the Montgomery context.
+ * @complexity O(1) — kLimbs^2 limb multiplies on a fixed-width value.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void mont_mul(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     constexpr std::size_t L = C::kLimbs;
@@ -139,6 +188,17 @@ void mont_mul(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     }
     r = res;
 }
+/**
+ * Modular addition: r = a + b mod m (add, then one conditional subtract of m).
+ * @tparam C the curve traits.
+ * @param r receives the sum.
+ * @param a first addend.
+ * @param b second addend.
+ * @param M the Montgomery context (only its modulus is used).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void mont_add(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     fe<C> s;
@@ -150,6 +210,17 @@ void mont_add(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     }
     r = s;
 }
+/**
+ * Modular subtraction: r = a - b mod m (subtract, then one conditional add of m on borrow).
+ * @tparam C the curve traits.
+ * @param r receives the difference.
+ * @param a minuend.
+ * @param b subtrahend.
+ * @param M the Montgomery context (only its modulus is used).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void mont_sub(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     fe<C> d;
@@ -161,17 +232,46 @@ void mont_sub(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     }
     r = d;
 }
+/**
+ * Convert @p a into Montgomery form: r = a*R mod m (one mont_mul by R^2).
+ * @tparam C the curve traits.
+ * @param r receives the Montgomery form.
+ * @param a the plain value.
+ * @param M the Montgomery context.
+ * @complexity O(1) — one mont_mul.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void to_mont(fe<C>& r, const fe<C>& a, const Mont<C>& M) {
     mont_mul<C>(r, a, M.rr, M);
 }
+/**
+ * Convert @p a out of Montgomery form: r = a*R^-1 mod m (one mont_mul by 1).
+ * @tparam C the curve traits.
+ * @param r receives the plain value.
+ * @param a the Montgomery-form value.
+ * @param M the Montgomery context.
+ * @complexity O(1) — one mont_mul.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void from_mont(fe<C>& r, const fe<C>& a, const Mont<C>& M) {
     fe<C> one{};
     one[0] = 1;
     mont_mul<C>(r, a, one, M);
 }
-// r = a^-1 mod m, via Fermat: a^(m-2). (m is prime for both p and n.)
+/**
+ * r = a^-1 mod m, via Fermat: a^(m-2). (m is prime for both p and n.)
+ * @tparam C the curve traits.
+ * @param r receives the inverse (Montgomery form).
+ * @param a the value to invert (Montgomery form, nonzero).
+ * @param M the Montgomery context.
+ * @complexity O(1) — a fixed kBits-step square-and-multiply ladder.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void mont_inv(fe<C>& r, const fe<C>& a, const Mont<C>& M) {
     fe<C> two{};
@@ -187,11 +287,29 @@ void mont_inv(fe<C>& r, const fe<C>& a, const Mont<C>& M) {
     r = result;
 }
 
-inline u64 inv64(u64 a) {  // a^-1 mod 2^64 (a odd), Newton's iteration
+/**
+ * a^-1 mod 2^64 (@p a odd), by Newton's iteration.
+ * @param a the odd value to invert.
+ * @return the inverse mod 2^64.
+ * @complexity O(1) — five fixed Newton steps.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
+inline u64 inv64(u64 a) {  // starts correct to 3 bits, doubles per step
     u64 x = a;             // correct to 3 bits
     for (int i = 0; i < 5; ++i) x *= 2 - a * x;
     return x;
 }
+/**
+ * Build the Montgomery context for modulus @p m — every constant (n0, R^2 mod m, R mod m)
+ * derived at startup, no hand-transcribed Montgomery magic.
+ * @tparam C the curve traits.
+ * @param m the (odd, prime) modulus.
+ * @return the derived context.
+ * @complexity O(1) — 2*kBits fixed doubling steps to derive R^2 mod m.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 Mont<C> make_mont(const fe<C>& m) {
     Mont<C> M;
@@ -219,11 +337,29 @@ Mont<C> make_mont(const fe<C>& m) {
 }
 
 // ---- the two per-curve field contexts (built once per instantiation) ---------------------------
+/**
+ * The curve's field context: the Montgomery context for the prime P, built once per
+ * instantiation (function-local static).
+ * @tparam C the curve traits.
+ * @return the context mod C::P.
+ * @complexity O(1) after the one-time static make_mont on first use.
+ * @alloc none — static storage.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 const Mont<C>& Fp() {
     static const Mont<C> m = make_mont<C>(C::P);
     return m;
 }
+/**
+ * The curve's scalar context: the Montgomery context for the group order N, built once per
+ * instantiation (function-local static).
+ * @tparam C the curve traits.
+ * @return the context mod C::N.
+ * @complexity O(1) after the one-time static make_mont on first use.
+ * @alloc none — static storage.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 const Mont<C>& Fn() {
     static const Mont<C> m = make_mont<C>(C::N);
@@ -231,6 +367,15 @@ const Mont<C>& Fn() {
 }
 
 // ---- bytes <-> limbs (kBytes big-endian bytes) --------------------------------------------------
+/**
+ * Load kBytes big-endian bytes into a little-endian limb array.
+ * @tparam C the curve traits.
+ * @param b pointer to kBytes bytes, most significant first.
+ * @return the value.
+ * @complexity O(1) — kBytes byte reads.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 fe<C> be_to_fe(const unsigned char* b) {
     fe<C> r{};
@@ -242,6 +387,15 @@ fe<C> be_to_fe(const unsigned char* b) {
     }
     return r;
 }
+/**
+ * Store a limb array as kBytes big-endian bytes (the inverse of be_to_fe).
+ * @tparam C the curve traits.
+ * @param out receives kBytes bytes, most significant first.
+ * @param a the value to serialize.
+ * @complexity O(1) — kBytes byte writes.
+ * @alloc none.
+ * @test CheatahP256.SignKnownVector
+ */
 template <WeierstrassCurve C>
 void fe_to_be(unsigned char* out, const fe<C>& a) {
     for (std::size_t limb = 0; limb < C::kLimbs; ++limb) {
@@ -263,11 +417,29 @@ struct Jac {
     fe<C> Z;   ///< projective Z (0 also encodes the point at infinity)
     bool inf;  ///< explicit point-at-infinity flag
 };
+/**
+ * The point at infinity (the group identity): Z = 0 with the explicit flag set.
+ * @tparam C the curve traits.
+ * @return the identity point.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.VerifyHitsGroupLawSpecialCases
+ */
 template <WeierstrassCurve C>
 Jac<C> jac_infinity() {
     return Jac<C>{Fp<C>().one, Fp<C>().one, fe<C>{}, true};
 }
 
+/**
+ * Jacobian point doubling, r = 2q, using the a = -3 formulas (true of every NIST prime curve).
+ * Branchy (early-returns on infinity): for PUBLIC data only — the secret path uses jac_double_ct.
+ * @tparam C the curve traits.
+ * @param r receives the doubled point.
+ * @param q the point to double.
+ * @complexity O(1) — a fixed count of field operations.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void jac_double(Jac<C>& r, const Jac<C>& q) {
     const Mont<C>& F = Fp<C>();
@@ -314,6 +486,17 @@ void jac_double(Jac<C>& r, const Jac<C>& q) {
     r = Jac<C>{X3, Y3, Z3, false};
 }
 
+/**
+ * Jacobian point addition, r = a + b, with branchy special cases (either operand infinity,
+ * a == b -> double, a == -b -> infinity). For PUBLIC data only — the secret path uses jac_add_ct.
+ * @tparam C the curve traits.
+ * @param r receives the sum.
+ * @param a first point.
+ * @param b second point.
+ * @complexity O(1) — a fixed count of field operations.
+ * @alloc none.
+ * @test CheatahP256.VerifyHitsGroupLawSpecialCases
+ */
 template <WeierstrassCurve C>
 void jac_add(Jac<C>& r, const Jac<C>& a, const Jac<C>& b) {
     const Mont<C>& F = Fp<C>();
@@ -367,9 +550,20 @@ void jac_add(Jac<C>& r, const Jac<C>& a, const Jac<C>& b) {
     r = Jac<C>{X3, Y3, Z3, false};
 }
 
-// Strauss-Shamir: u1*A + u2*B with ONE doubling chain (kBits doublings total)
-// instead of two separate scalar multiplications. A 2-bit window over both
-// scalars uses a 16-entry combined table [i*A + j*B] so it also halves the adds.
+/**
+ * Strauss-Shamir: u1*A + u2*B with ONE doubling chain (kBits doublings total)
+ * instead of two separate scalar multiplications. A 2-bit window over both
+ * scalars uses a 16-entry combined table [i*A + j*B] so it also halves the adds.
+ * @tparam C the curve traits.
+ * @param r receives u1*A + u2*B.
+ * @param u1 first (public) scalar.
+ * @param A first point.
+ * @param u2 second (public) scalar.
+ * @param B second point.
+ * @complexity O(1) — kBits doublings plus at most kBits/2 adds.
+ * @alloc none — the 16-entry window table lives on the stack.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 void jac_double_mul(Jac<C>& r, const fe<C>& u1, const Jac<C>& A, const fe<C>& u2, const Jac<C>& B) {
     Jac<C> tbl[4][4];  // tbl[i][j] = i*A + j*B, i,j in {0..3}
@@ -400,7 +594,15 @@ void jac_double_mul(Jac<C>& r, const fe<C>& u1, const Jac<C>& A, const fe<C>& u2
     r = acc;
 }
 
-// affine x-coordinate (normal form) of a Jacobian point: x = X / Z^2.
+/**
+ * The affine x-coordinate (normal form) of a Jacobian point: x = X / Z^2.
+ * @tparam C the curve traits.
+ * @param q the point (not infinity: Z must be invertible).
+ * @return x out of Montgomery form.
+ * @complexity O(1) — dominated by one mont_inv (a fixed Fermat ladder).
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 fe<C> jac_affine_x(const Jac<C>& q) {
     const Mont<C>& F = Fp<C>();
@@ -413,6 +615,16 @@ fe<C> jac_affine_x(const Jac<C>& q) {
     return out;
 }
 
+/**
+ * Lift an affine point into Jacobian Montgomery form (Z = 1).
+ * @tparam C the curve traits.
+ * @param x the affine x-coordinate (plain form).
+ * @param y the affine y-coordinate (plain form).
+ * @return the Jacobian point.
+ * @complexity O(1) — two to_mont conversions.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 Jac<C> affine_to_jac(const fe<C>& x, const fe<C>& y) {
     const Mont<C>& F = Fp<C>();
@@ -423,16 +635,31 @@ Jac<C> affine_to_jac(const fe<C>& x, const fe<C>& y) {
     p.inf = false;
     return p;
 }
+/**
+ * The curve base point G, lifted to Jacobian form once (function-local static).
+ * @tparam C the curve traits.
+ * @return G.
+ * @complexity O(1) after the one-time static lift on first use.
+ * @alloc none — static storage.
+ * @test CheatahP256.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 const Jac<C>& base_point() {
     static const Jac<C> g = affine_to_jac<C>(C::GX, C::GY);
     return g;
 }
 
-// Fixed-base comb for k*G. G is constant, so we precompute (once) the 2^kLimbs-entry
-// table T[s] = sum over set bits i of s of (2^(64*i) * G). Then k*G is just 64
-// doublings + 64 adds (vs kBits doublings for a generic window) — the big win for
-// the per-message signing path. Selector at step j is bit j of each 64-bit limb.
+/**
+ * Fixed-base comb for k*G. G is constant, so we precompute (once) the 2^kLimbs-entry
+ * table T[s] = sum over set bits i of s of (2^(64*i) * G). Then k*G is just 64
+ * doublings + 64 adds (vs kBits doublings for a generic window) — the big win for
+ * the per-message signing path. Selector at step j is bit j of each 64-bit limb.
+ * @tparam C the curve traits.
+ * @return the comb table.
+ * @complexity O(1) after the one-time static build (kLimbs*64 doublings plus the subset sums).
+ * @alloc none — the table is a function-local static std::array.
+ * @test CheatahP256.SignKnownVector
+ */
 template <WeierstrassCurve C>
 const std::array<Jac<C>, (1u << C::kLimbs)>& g_comb() {
     static const std::array<Jac<C>, (1u << C::kLimbs)> tbl = [] {
@@ -469,14 +696,44 @@ const std::array<Jac<C>, (1u << C::kLimbs)>& g_comb() {
 // jac_double_mul (verify) operates on PUBLIC data and stays branchy; the fixed-base comb below,
 // which multiplies the secret nonce/key, must not branch or index on secret bits. These helpers
 // give it branch-free doubling, addition, and table selection. They are differentially tested
-// against the branchy jac_double/jac_add over random + edge inputs (CheatahP256.ConstantTimeAddMatches).
+// against the branchy jac_double/jac_add over general + edge inputs
+// (CheatahP256.ConstantTimePointOpsMatchReference).
 
-inline u64 ct_mask(bool c) { return u64(0) - static_cast<u64>(c); }  // false->0, true->all-ones
+/**
+ * Branch-free boolean-to-mask: false -> 0, true -> all-ones.
+ * @param c the condition.
+ * @return the 64-bit mask.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
+inline u64 ct_mask(bool c) { return u64(0) - static_cast<u64>(c); }
 
+/**
+ * Constant-time conditional move over a field element: r = m ? a : r, per limb, no branch.
+ * @tparam C the curve traits.
+ * @param r the destination (kept when @p m is 0).
+ * @param a the source (copied when @p m is all-ones).
+ * @param m the ct_mask (0 or all-ones).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
 template <WeierstrassCurve C>
-inline void fe_cmov(fe<C>& r, const fe<C>& a, u64 m) {  // r = m ? a : r  (per-limb, constant-time)
+inline void fe_cmov(fe<C>& r, const fe<C>& a, u64 m) {
     for (std::size_t i = 0; i < C::kLimbs; ++i) r[i] = (r[i] & ~m) | (a[i] & m);
 }
+/**
+ * Constant-time conditional move over a Jacobian point (all three coordinates via fe_cmov;
+ * the inf flag is recomputed from Z, which encodes infinity throughout the CT path).
+ * @tparam C the curve traits.
+ * @param r the destination point.
+ * @param a the source point.
+ * @param m the ct_mask (0 or all-ones).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
 template <WeierstrassCurve C>
 inline void jac_cmov(Jac<C>& r, const Jac<C>& a, u64 m) {
     fe_cmov<C>(r.X, a.X, m);
@@ -485,9 +742,17 @@ inline void jac_cmov(Jac<C>& r, const Jac<C>& a, u64 m) {
     r.inf = is_zero<C>(r.Z);  // infinity is encoded by Z==0 throughout the CT path
 }
 
-// Point doubling WITHOUT the is-infinity early return: the formula's Z3 = 2*Y*Z is already 0 when
-// the input is infinity (Z==0), so it self-encodes infinity, and a prime-order curve has no
-// finite 2-torsion point that could double TO infinity — so no branch is needed.
+/**
+ * Point doubling WITHOUT the is-infinity early return: the formula's Z3 = 2*Y*Z is already 0 when
+ * the input is infinity (Z==0), so it self-encodes infinity, and a prime-order curve has no
+ * finite 2-torsion point that could double TO infinity — so no branch is needed.
+ * @tparam C the curve traits.
+ * @param r receives 2q.
+ * @param q the point to double.
+ * @complexity O(1) — the same fixed field-operation count for every input.
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
 template <WeierstrassCurve C>
 void jac_double_ct(Jac<C>& r, const Jac<C>& q) {
     const Mont<C>& F = Fp<C>();
@@ -525,9 +790,18 @@ void jac_double_ct(Jac<C>& r, const Jac<C>& q) {
     r = Jac<C>{X3, Y3, Z3, is_zero<C>(Z3)};
 }
 
-// Point addition, branch-free. It always computes the general add formula, then constant-time-
-// selects the correct result over the special cases via masks: a==inf -> b, b==inf -> a,
-// a==b -> double(a), a==-b -> infinity. Precedence is enforced by cmov ORDER (a==inf last / highest).
+/**
+ * Point addition, branch-free. It always computes the general add formula, then constant-time-
+ * selects the correct result over the special cases via masks: a==inf -> b, b==inf -> a,
+ * a==b -> double(a), a==-b -> infinity. Precedence is enforced by cmov ORDER (a==inf last / highest).
+ * @tparam C the curve traits.
+ * @param r receives a + b.
+ * @param a first point.
+ * @param b second point.
+ * @complexity O(1) — the same fixed field-operation count for every input (the double is always computed).
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
 template <WeierstrassCurve C>
 void jac_add_ct(Jac<C>& r, const Jac<C>& a, const Jac<C>& b) {
     const Mont<C>& F = Fp<C>();
@@ -578,19 +852,37 @@ void jac_add_ct(Jac<C>& r, const Jac<C>& a, const Jac<C>& b) {
     r.inf = is_zero<C>(r.Z);
 }
 
-// Constant-time table lookup: scan every entry, copying the one whose index == sel via a mask, so
-// the memory-access pattern (and timing) is independent of the secret selector.
+/**
+ * Constant-time table lookup: scan every entry, copying the one whose index == sel via a mask, so
+ * the memory-access pattern (and timing) is independent of the secret selector.
+ * @tparam C the curve traits.
+ * @tparam N the table size.
+ * @param out receives tbl[sel].
+ * @param tbl the table.
+ * @param sel the (secret) index.
+ * @complexity O(N) — every entry is scanned by design.
+ * @alloc none.
+ * @test CheatahP256.SignKnownVector
+ */
 template <WeierstrassCurve C, std::size_t N>
 void ct_select(Jac<C>& out, const std::array<Jac<C>, N>& tbl, unsigned sel) {
     out = jac_infinity<C>();
     for (unsigned i = 0; i < N; ++i) jac_cmov<C>(out, tbl[i], ct_mask(i == sel));
 }
 
-// k*G for a SECRET scalar k, in constant time: 64 doublings + 64 unconditional adds over the
-// fixed-base comb table. The old form skipped the add when the window was zero and indexed the
-// table by the secret selector — both leaked bits of k. Here every step does the same work
-// (branch-free double, masked table select, unconditional branch-free add — add of the T[0]=infinity
-// entry when the window is zero is a no-op via the CT add's masks).
+/**
+ * k*G for a SECRET scalar k, in constant time: 64 doublings + 64 unconditional adds over the
+ * fixed-base comb table. The old form skipped the add when the window was zero and indexed the
+ * table by the secret selector — both leaked bits of k. Here every step does the same work
+ * (branch-free double, masked table select, unconditional branch-free add — add of the T[0]=infinity
+ * entry when the window is zero is a no-op via the CT add's masks).
+ * @tparam C the curve traits.
+ * @param r receives k*G.
+ * @param k the secret scalar.
+ * @complexity O(1) — exactly 64 CT doublings, 64 CT table scans, and 64 CT adds.
+ * @alloc none.
+ * @test CheatahP256.SignKnownVector
+ */
 template <WeierstrassCurve C>
 void jac_mul_base(Jac<C>& r, const fe<C>& k) {
     const auto& T = g_comb<C>();
@@ -609,12 +901,18 @@ void jac_mul_base(Jac<C>& r, const fe<C>& k) {
     r = acc;
 }
 
-// Differential self-check for the constant-time point ops. A TEMPLATE, instantiated ONLY by the
-// p256/p384 test seam (so there is no such code in a production build), it confirms jac_add_ct /
-// jac_double_ct agree with the branchy reference jac_add / jac_double on the general case AND every
-// special case — a==b, a==-b, and infinity operands — which the signing path exercises rarely or
-// never, so this both proves correctness and drives those branches for coverage. Returns true iff
-// all match.
+/**
+ * Differential self-check for the constant-time point ops. A TEMPLATE, instantiated ONLY by the
+ * p256/p384 test seam (so there is no such code in a production build), it confirms jac_add_ct /
+ * jac_double_ct agree with the branchy reference jac_add / jac_double on the general case AND every
+ * special case — a==b, a==-b, and infinity operands — which the signing path exercises rarely or
+ * never, so this both proves correctness and drives those branches for coverage.
+ * @tparam C the curve traits.
+ * @return true iff every CT result matches the branchy reference.
+ * @complexity O(1) — a fixed handful of point operations.
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
 template <WeierstrassCurve C>
 bool ct_add_selfcheck() {
     const Mont<C>& F = Fp<C>();
@@ -661,9 +959,17 @@ bool ct_add_selfcheck() {
     return ok;
 }
 
-// Reduce a scalar already known to be < 2n into [0, n): a single conditional
-// subtraction of the group order n. Used for the FIPS 186-4 hash truncation and
-// for folding a curve x-coordinate (which lives in [0, p) < 2n) into a scalar.
+/**
+ * Reduce a scalar already known to be < 2n into [0, n): a single conditional
+ * subtraction of the group order n. Used for the FIPS 186-4 hash truncation and
+ * for folding a curve x-coordinate (which lives in [0, p) < 2n) into a scalar.
+ * @tparam C the curve traits.
+ * @param v the value, < 2n.
+ * @return v mod n.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.ReduceModNBoundary
+ */
 template <WeierstrassCurve C>
 fe<C> reduce_mod_n(const fe<C>& v) {
     if (geq<C>(v, C::N)) {
@@ -674,9 +980,18 @@ fe<C> reduce_mod_n(const fe<C>& v) {
     return v;
 }
 
-// Reduce a big-endian hash to a scalar in [0, n). A hash of at least kBytes keeps its
-// leftmost kBytes (the FIPS 186-4 leftmost-bits truncation); a SHORTER hash is the whole
-// value (X9.62 bits2int — right-aligned), e.g. a SHA-256 signature under a P-384 key.
+/**
+ * Reduce a big-endian hash to a scalar in [0, n). A hash of at least kBytes keeps its
+ * leftmost kBytes (the FIPS 186-4 leftmost-bits truncation); a SHORTER hash is the whole
+ * value (X9.62 bits2int — right-aligned), e.g. a SHA-256 signature under a P-384 key.
+ * @tparam C the curve traits.
+ * @param h the digest bytes.
+ * @return the scalar in [0, n).
+ * @complexity O(1) — at most kBytes are copied regardless of the hash length.
+ * @alloc none — a stack buffer.
+ * @test CheatahP256.HashToScalarReducesWhenGreaterThanOrder
+ * @test CheatahP384.HashToScalarReducesWhenGreaterThanOrder
+ */
 template <WeierstrassCurve C>
 fe<C> hash_to_scalar(const std::string& h) {
     unsigned char buf[kBytes<C>] = {0};
@@ -688,8 +1003,19 @@ fe<C> hash_to_scalar(const std::string& h) {
 }
 
 // ---- minimal DER helpers ------------------------------------------------------------------------
-// Parse SEQUENCE{INTEGER r, INTEGER s} -> kBytes big-endian r and s. false on error.
-// Short-form lengths only: both curves' SEQUENCE stays under 128 bytes (P-384: <= ~104).
+/**
+ * Parse SEQUENCE{INTEGER r, INTEGER s} -> kBytes big-endian r and s.
+ * Short-form lengths only: both curves' SEQUENCE stays under 128 bytes (P-384: <= ~104).
+ * @tparam C the curve traits.
+ * @param der the DER-encoded signature.
+ * @param r receives kBytes big-endian r.
+ * @param s receives kBytes big-endian s.
+ * @return false on any malformed encoding.
+ * @complexity O(1) — short-form DER caps the accepted input at 129 bytes (a longer @p der
+ *   fails the exact-length check without being scanned).
+ * @alloc none.
+ * @test CheatahP256.VerifyDerWithLeadingZeroIntegers
+ */
 template <WeierstrassCurve C>
 bool der_to_rs(const std::string& der, unsigned char* r, unsigned char* s) {
     const unsigned char* p = (const unsigned char*)der.data();
@@ -720,9 +1046,19 @@ bool der_to_rs(const std::string& der, unsigned char* r, unsigned char* s) {
     return read_int(r) && read_int(s);
 }
 
-// Is (x, y) on the curve y^2 = x^3 - 3x + b (mod p)? Rejects an off-curve /
-// invalid-curve public key — SP 800-56A / FIPS 186 point validation, which the plain
-// coordinate-range check (x,y < p) does not catch.
+/**
+ * Is (x, y) on the curve y^2 = x^3 - 3x + b (mod p)? Rejects an off-curve /
+ * invalid-curve public key — SP 800-56A / FIPS 186 point validation, which the plain
+ * coordinate-range check (x,y < p) does not catch.
+ * @tparam C the curve traits.
+ * @param x the affine x-coordinate (plain form, < p).
+ * @param y the affine y-coordinate (plain form, < p).
+ * @return true iff the point satisfies the curve equation.
+ * @complexity O(1) — a fixed handful of field operations.
+ * @alloc none.
+ * @test CheatahP256.RejectsOffCurvePublicKey
+ * @test CheatahP384.RejectsOffCurvePublicKey
+ */
 template <WeierstrassCurve C>
 bool on_curve(const fe<C>& x, const fe<C>& y) {
     const Mont<C>& F = Fp<C>();
@@ -740,7 +1076,18 @@ bool on_curve(const fe<C>& x, const fe<C>& y) {
     return std::memcmp(y2.data(), rhs.data(), sizeof(fe<C>)) == 0;
 }
 
-// ECDSA verification over raw byte forms: pubkey = 2*kBytes X||Y, sig = 2*kBytes r||s.
+/**
+ * ECDSA verification over raw byte forms: pubkey = 2*kBytes X||Y, sig = 2*kBytes r||s.
+ * @tparam C the curve traits.
+ * @param pubkey_xy the public key point, 2*kBytes X||Y big-endian.
+ * @param msg_hash the message digest (truncated/reduced by hash_to_scalar).
+ * @param sig_raw the signature, 2*kBytes r||s big-endian.
+ * @return true iff the signature verifies (range checks, on-curve check, and x == r all pass).
+ * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
+ * @alloc none.
+ * @test CheatahP256.VerifyKnownVector
+ * @test CheatahP384.VerifyKnownVector
+ */
 template <WeierstrassCurve C>
 bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
                 const std::string& sig_raw) {
@@ -775,7 +1122,18 @@ bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
     return std::memcmp(x.data(), r.data(), sizeof(fe<C>)) == 0;
 }
 
-// ECDSA verification of the DER form (SEQUENCE{INTEGER r, INTEGER s} — TLS/X.509).
+/**
+ * ECDSA verification of the DER form (SEQUENCE{INTEGER r, INTEGER s} — TLS/X.509).
+ * @tparam C the curve traits.
+ * @param pubkey_xy the public key point, 2*kBytes X||Y big-endian.
+ * @param msg_hash the message digest.
+ * @param sig_der the DER-encoded signature.
+ * @return true iff the DER parses and the signature verifies.
+ * @complexity O(1) — der_to_rs plus one verify_raw.
+ * @alloc a temporary raw r||s signature string.
+ * @test CheatahP256.VerifyDerWithLeadingZeroIntegers
+ * @test CheatahP384.VerifyDerWithLeadingZeroIntegers
+ */
 template <WeierstrassCurve C>
 bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
                 const std::string& sig_der) {

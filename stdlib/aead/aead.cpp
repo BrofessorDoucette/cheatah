@@ -376,6 +376,14 @@ bool g_force_portable = false;
 
 } // namespace
 
+/**
+ * Pin (or release) the portable scalar AES-GCM path — the test/determinism hook whose full
+ * contract lives on the declaration in aead.hpp (kept out of the public docs via \\cond there).
+ * @param on true to pin the portable scalar path; false to allow the hardware path again.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahAead.AesGcmPortableMatchesHardware
+ */
 void set_force_portable_crypto(bool on) { g_force_portable = on; }
 
 namespace {
@@ -391,6 +399,15 @@ bool crypto_hardware_active() { return aes_gcm_use_hw(); }
 // and the message must fit in memory), but bounds the primitive against misuse. Cross-message nonce
 // uniqueness remains the caller's responsibility, as documented.
 constexpr std::uint64_t kMaxAeadMessage = std::uint64_t{1} << 36;  // 64 GiB
+/**
+ * Whether one AEAD message is under the 64 GiB counter-wrap cap above. Every encrypt/decrypt
+ * checks it; the over-cap branch is unreachable in a test (the message would not fit in memory).
+ * @param msg the plaintext or ciphertext.
+ * @return true iff @p msg is within the single-message limit.
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahAead.Rfc8439Encrypt
+ */
 inline bool aead_len_ok(std::string_view msg) {
     return static_cast<std::uint64_t>(msg.size()) <= kMaxAeadMessage;
 }

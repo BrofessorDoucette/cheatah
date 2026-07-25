@@ -129,6 +129,16 @@ private:
 
     struct Ticket { long long prio; std::uint64_t seq; };
     struct ServedLater {  // priority_queue is a max-heap: top = highest priority, then earliest arrival.
+        /**
+         * The heap ordering: is @p a served later than @p b? Higher priority wins; within a
+         * priority, the earlier arrival (lower seq) wins — FIFO among equals.
+         * @param a one waiting write's ticket.
+         * @param b the other waiting write's ticket.
+         * @return true iff @p a is served after @p b.
+         * @complexity O(1).
+         * @alloc none.
+         * @test Memory.HigherPriorityWriteServedFirst
+         */
         bool operator()(const Ticket& a, const Ticket& b) const {
             return a.prio != b.prio ? a.prio < b.prio : a.seq > b.seq;
         }

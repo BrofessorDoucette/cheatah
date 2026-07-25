@@ -63,6 +63,8 @@ namespace cheatah::linalg {
  * @return `;`-separated feature list.
  * @note O(1); reflects compile-time target flags (e.g. -march=native), not a runtime CPUID
  *   probe. Allocates the returned std::string.
+ * @complexity O(1).
+ * @alloc the returned feature string.
  * @test LinalgSmoke.SimdFeaturesReported
  */
 std::string simd_features();

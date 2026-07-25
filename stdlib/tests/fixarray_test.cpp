@@ -16,6 +16,7 @@
 #include "fixarray.hpp"
 
 #include <cmath>
+#include <sstream>
 #include <stdexcept>
 #include <type_traits>
 #include <vector>
@@ -623,4 +624,37 @@ TEST(Fixarray, FromIndices) {
     EXPECT_EQ(m.data()[3], 3.0F);
     EXPECT_EQ(m(0, 0), 0.0F);
     EXPECT_EQ(m(0, 1), 2.0F);  // flat index 2 is (row 0, col 1) in column-major
+}
+
+// ---- display: to_string and the stream operator, in the NDArray's nested-bracket form -----------
+
+TEST(Fixarray, ToStringMatchesTheNDArrayRendering) {
+    // A vector is one bracket level; elements go through the SHARED scalar formatter
+    // (1.5 prints "1.5", a whole number prints with no trailing ".0").
+    EXPECT_EQ(fa::to_string(fa::vec3f{1.5F, -2.0F, 3.0F}), "[1.5, -2, 3]");
+    // A matrix renders in reading (row, column) order regardless of the column-major storage.
+    EXPECT_EQ(fa::to_string(fa::mat2f{1.0F, 2.0F, 3.0F, 4.0F}), "[[1, 2], [3, 4]]");
+    // The double instantiation formats identically.
+    EXPECT_EQ(fa::to_string(fa::vec2d{0.25, 42.0}), "[0.25, 42]");
+}
+
+TEST(Fixarray, StreamInsertionUsesTheToStringForm) {
+    std::ostringstream vs;
+    vs << fa::vec3f{1.0F, 2.5F, -3.0F};
+    EXPECT_EQ(vs.str(), "[1, 2.5, -3]");
+    std::ostringstream ms;
+    ms << fa::mat2f{1.0F, 2.0F, 3.0F, 4.0F};
+    EXPECT_EQ(ms.str(), "[[1, 2], [3, 4]]");
+}
+
+// ---- builtins::index — what cheatah's value-position subscript v[i] / m[i, j] lowers to ---------
+
+TEST(Fixarray, BuiltinsIndexLowersSubscripts) {
+    const fa::vec3f v{7.0F, 8.0F, 9.0F};
+    EXPECT_FLOAT_EQ(cheatah::builtins::index(v, std::size_t{1}), 8.0F);
+    EXPECT_FLOAT_EQ(cheatah::builtins::index(v, Axis::Z), 9.0F);  // enum labels work here too
+
+    const fa::mat2f m{1.0F, 2.0F, 3.0F, 4.0F};  // reading order
+    EXPECT_FLOAT_EQ(cheatah::builtins::index(m, std::size_t{1}, std::size_t{0}), 3.0F);
+    EXPECT_FLOAT_EQ(cheatah::builtins::index(m, Axis::X, Axis::Y), 2.0F);  // (row 0, col 1)
 }

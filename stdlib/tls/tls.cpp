@@ -67,8 +67,19 @@ unsigned get24(std::string_view s, std::size_t i) {
 
 } // namespace (pause: the key-schedule impls are namespace-level so detail:: can reach them)
 
-// HKDF-Expand-Label(secret, label, context, length) with the "tls13 " prefix. @p sha384 selects the
-// SHA-384 HKDF (for the TLS_AES_256_GCM_SHA384 key schedule); default is the SHA-256 schedule.
+/**
+ * HKDF-Expand-Label(secret, label, context, length) with the "tls13 " prefix (RFC 8446 §7.1).
+ * @param secret the HKDF secret.
+ * @param label the schedule label (without the "tls13 " prefix, which is added here).
+ * @param context the hash context bytes.
+ * @param length the output length in bytes.
+ * @param sha384 selects the SHA-384 HKDF (for the TLS_AES_256_GCM_SHA384 key schedule);
+ *        default is the SHA-256 schedule.
+ * @return the expanded key material, @p length bytes.
+ * @complexity O(length) — HKDF-Expand emits ceil(length/hash) HMAC blocks.
+ * @alloc the returned key material plus the HkdfLabel info string.
+ * @test CheatahTls.ExpandLabel
+ */
 std::string expand_label_impl(std::string_view secret, std::string_view label,
                               std::string_view context, unsigned length, bool sha384 = false) {
     std::string info;
@@ -82,8 +93,18 @@ std::string expand_label_impl(std::string_view secret, std::string_view label,
                   : hashlib::hkdf_expand(secret, info, length);
 }
 
-// Derive-Secret(secret, label, transcript) = Expand-Label(secret, label, Hash(transcript), HashLen),
-// where Hash is the negotiated suite's hash (SHA-256, or SHA-384 when @p sha384).
+/**
+ * Derive-Secret(secret, label, transcript) = Expand-Label(secret, label, Hash(transcript), HashLen),
+ * where Hash is the negotiated suite's hash (SHA-256, or SHA-384 when @p sha384).
+ * @param secret the HKDF secret.
+ * @param label the schedule label.
+ * @param transcript the handshake transcript to hash into the context.
+ * @param sha384 selects the SHA-384 schedule; default is SHA-256.
+ * @return the derived secret (32 or 48 bytes).
+ * @complexity O(|transcript|) — one transcript hash, then a fixed-size expand.
+ * @alloc the transcript-hash string and the returned secret.
+ * @test CheatahTls.KeySchedule
+ */
 std::string derive_secret_impl(std::string_view secret, std::string_view label,
                                std::string_view transcript, bool sha384 = false) {
     const std::string th =

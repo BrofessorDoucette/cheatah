@@ -63,6 +63,8 @@ struct Document {
  * @return the parsed document (root-only for empty/blank input).
  * @complexity O(n) time in the length of @p xml.
  * @alloc the node slab and its strings on the heap (owned by the returned Document).
+ * @test ParsersXml.ParsesElementsAttrsAndText
+ * @test ParsersXml.LenientOnMalformedInput
  */
 Document parse(std::string_view xml);
 
@@ -72,6 +74,7 @@ Document parse(std::string_view xml);
  * @alloc none.
  * @param doc the document.
  * @return the root node id (its children are the top-level nodes).
+ * @test ParsersXml.IgnorableVsSignificantWhitespace
  */
 int root(const Document& doc);
 
@@ -82,6 +85,7 @@ int root(const Document& doc);
  * @param doc the document.
  * @param id the node id to test.
  * @return true iff @p id is a valid element node.
+ * @test ParsersXml.OutOfRangeAndTypeMismatchedIdsAreSafe
  */
 bool is_element(const Document& doc, int id);
 
@@ -92,6 +96,7 @@ bool is_element(const Document& doc, int id);
  * @param doc the document.
  * @param id the element node id.
  * @return the tag name, or "" if @p id is not an element.
+ * @test ParsersXml.ParsesElementsAttrsAndText
  */
 std::string tag(const Document& doc, int id);
 
@@ -103,6 +108,7 @@ std::string tag(const Document& doc, int id);
  * @param id the element node id.
  * @param name the attribute name.
  * @return the attribute value, or "" if absent.
+ * @test ParsersXml.AttributeQuotingForms
  */
 std::string attr(const Document& doc, int id, std::string_view name);
 
@@ -114,6 +120,7 @@ std::string attr(const Document& doc, int id, std::string_view name);
  * @param id the element node id.
  * @param name the attribute name.
  * @return whether @p id carries attribute @p name.
+ * @test ParsersXml.ParsesElementsAttrsAndText
  */
 bool has_attr(const Document& doc, int id, std::string_view name);
 
@@ -125,6 +132,7 @@ bool has_attr(const Document& doc, int id, std::string_view name);
  * @param doc the document.
  * @param id the node id.
  * @return the concatenated descendant text.
+ * @test ParsersXml.NestedTextIsCollectedRecursively
  */
 std::string text(const Document& doc, int id);
 
@@ -135,6 +143,7 @@ std::string text(const Document& doc, int id);
  * @param doc the document.
  * @param id the node id.
  * @return the child node ids in document order.
+ * @test ParsersXml.FindFindallIterChildren
  */
 std::vector<int> children(const Document& doc, int id);
 
@@ -147,6 +156,7 @@ std::vector<int> children(const Document& doc, int id);
  * @param id the parent node id.
  * @param tag the child tag to match.
  * @return the first matching child element id, or -1.
+ * @test ParsersXml.FindFindallIterChildren
  */
 int find(const Document& doc, int id, std::string_view tag);
 
@@ -158,6 +168,7 @@ int find(const Document& doc, int id, std::string_view tag);
  * @param id the parent node id.
  * @param tag the child tag to match.
  * @return the matching direct-child element ids.
+ * @test ParsersXml.FindFindallIterChildren
  */
 std::vector<int> findall(const Document& doc, int id, std::string_view tag);
 
@@ -170,6 +181,7 @@ std::vector<int> findall(const Document& doc, int id, std::string_view tag);
  * @param id the subtree root node id.
  * @param tag the tag to match.
  * @return the matching element ids in the subtree, in document order.
+ * @test ParsersXml.FindFindallIterChildren
  */
 std::vector<int> iter(const Document& doc, int id, std::string_view tag);
 

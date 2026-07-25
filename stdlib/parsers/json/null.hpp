@@ -17,6 +17,9 @@ public:
     /**
      * The value of `null` (there is no data; provided for a uniform value() interface).
      * @return always nullptr.
+     * @complexity O(1).
+     * @alloc none.
+     * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     [[nodiscard]] int* value() const noexcept { return nullptr; }
 

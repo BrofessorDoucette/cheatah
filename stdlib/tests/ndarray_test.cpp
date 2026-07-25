@@ -824,3 +824,20 @@ TEST(CheatahNDArray, AstypeNonContiguousSource) {
         EXPECT_EQ(nd::get(u8, {r, 2}), std::uint8_t{44});   // 300 wraps to 44 in a byte
     }
 }
+
+TEST(CheatahNDArray, DivideInfixLvalueForm) {
+    // The lvalue `a / b` infix (the operator form of divide()): a fresh broadcast quotient,
+    // with both named operands left untouched.
+    const nd::basic_ndarray<double> a = nd::array(std::vector<double>{6.0, 9.0, 12.0});
+    const nd::basic_ndarray<double> b = nd::array(std::vector<double>{3.0});  // broadcasts
+    const nd::basic_ndarray<double> q = a / b;
+    EXPECT_DOUBLE_EQ(nd::get(q, {0}), 2.0);
+    EXPECT_DOUBLE_EQ(nd::get(q, {1}), 3.0);
+    EXPECT_DOUBLE_EQ(nd::get(q, {2}), 4.0);
+    EXPECT_NE(q.buffer().get(), a.buffer().get()) << "lvalue / must allocate a fresh result";
+    EXPECT_DOUBLE_EQ(nd::get(a, {0}), 6.0) << "operands must be untouched";
+    EXPECT_DOUBLE_EQ(nd::get(b, {0}), 3.0);
+    // Elementwise (equal shapes) as well as broadcast.
+    const nd::basic_ndarray<double> c = nd::array(std::vector<double>{2.0, 3.0, 4.0});
+    EXPECT_DOUBLE_EQ(nd::get(a / c, {2}), 3.0);
+}
