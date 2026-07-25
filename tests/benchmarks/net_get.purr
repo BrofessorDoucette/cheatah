@@ -1,5 +1,5 @@
 # net_get — a minimal cheatah HTTPS GET, timed, for the net_bench_compare harness. Downloads a URL
-# with the stdlib `requests` client (the same TLS/socket path alice uses) and prints ONE line:
+# with the stdlib `requests` client (the same TLS/socket path a real scraper takes) and prints ONE line:
 #   NET_GET bytes=<n> secs=<t> mbps=<r>
 # so scripts/net_bench_compare.sh can put cheatah head-to-head with curl/wget on the identical URL
 # under the identical (possibly throttled) network — the throttle cancels in the ratio.

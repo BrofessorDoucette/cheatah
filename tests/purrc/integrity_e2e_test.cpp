@@ -216,7 +216,7 @@ TEST(ModuleIntegrity, TrustFileIgnoresCommentsAndBlanks) {
     const std::string key = kTmp + "/commented";
     const std::string pub = keygen(key);
     const std::string trust = kTmp + "/commented.trust";
-    write_text(trust, "# cheatah release keys\n\n  # the 2026 signing key\n" + pub + "  alice\n\n");
+    write_text(trust, "# cheatah release keys\n\n  # the 2026 signing key\n" + pub + "  release-signer\n\n");
     const std::string so = build_module("commented_app", "--sign " + q(key + ".key"));
 
     EXPECT_EQ(run_cmd("CHEATAH_TRUST=" + q(trust) + " " + CH("--verify " + q(so))).code, 0);

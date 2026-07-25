@@ -89,8 +89,8 @@ endif()
 # The objection is that -flto makes the compiler emit LLVM BITCODE objects instead of ELF. Those link
 # only when -flto is on the LINK line too. purrc's program path is a single compile+link invocation and
 # would be fine — but these same flags feed `--emit-library`, whose libcheatah_<m>.a archives are
-# linked by OUTSIDE builds that know nothing about LTO (godspeed's scripts/build_editor.sh is exactly
-# this). Bitcode in a published archive fails there with "file format not recognized" — the very error
+# linked by OUTSIDE builds that know nothing about LTO (a downstream application's own build script
+# is exactly this). Bitcode in a published archive fails there with "file format not recognized" — the very error
 # CMake's own check_cxx_compiler_flag("-flto") hits, because it compiles with the flag and links
 # without it.
 #
