@@ -3,6 +3,7 @@
 add_executable(cheatah_purrc_tests
     compile_run_test.cpp
     cli_test.cpp                # --help / -h / --version usage for purrc + cheatah
+    biome_cli_test.cpp          # biome (suite BiomeCli): Biome Standard behavior end-to-end
     lang_features_test.cpp
     sized_int_cr_test.cpp      # opt-in sized integer storage types (i8..u64) — memory footprint
     fixarray_cr_test.cpp       # fixarray Fixed/vec/mat called from cheatah (construct, typed, ops)
@@ -47,6 +48,7 @@ add_executable(cheatah_purrc_tests
     hashlib_cr_test.cpp
     ed25519_cr_test.cpp
     thread_cr_test.cpp
+    sys_cr_test.cpp            # sys.argv via the runtime's cheatah_set_argv hook (also carries StdlibE2E.Sys)
     # System-level tests: real multi-module mini-apps (suite SystemApps).
     app_grades_test.cpp
     app_matrix_test.cpp
@@ -83,7 +85,10 @@ target_compile_definitions(cheatah_purrc_tests PRIVATE
     LINALG_PROGRAMS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/linalg_programs"
     # websocket_sys_test: the Node `ws` wss echo fixture + the node binary.
     WEBSOCKET_FIXTURE_DIR="${CMAKE_SOURCE_DIR}/tests/fixtures"
-    NODE_EXECUTABLE="node")
+    NODE_EXECUTABLE="node"
+    # biome_cli_test: the package-manager program + the committed canonical standards.
+    BIOME_PURR_PATH="${CMAKE_SOURCE_DIR}/pkg-manager/biome.purr"
+    BIOME_STANDARDS_DIR="${CMAKE_SOURCE_DIR}/standards")
 
 # The test shells out to these at run time, and purrc links the stdlib libs into
 # the module it builds — so all must exist before the test runs.
@@ -106,6 +111,7 @@ add_dependencies(cheatah_purrc_tests
     cheatah_linalg_static
     cheatah_regex_static       # regex_e2e_test (purrc links libcheatah_regex.a into the module)
     cheatah_thread_static      # thread_cr_test / thread_sys_test
+    cheatah_sys_static         # sys_cr_test (purrc links libcheatah_sys.a into the module)
     cheatah_websocket_static)  # websocket_sys_test
 
 gtest_discover_tests(cheatah_purrc_tests TEST_PREFIX "purrc:")

@@ -34,6 +34,12 @@ namespace cheatah::sys {
  * program runs. Read it directly (`sys.argv`, `sys.argv[1]`, `len(sys.argv)`,
  * `for a in sys.argv { … }`).
  * @test CheatahSys.Argv
+ * @test CheatahSys.ArgvCopiesRatherThanAliases
+ * @crtest SysCompileRun.ArgvNoUserArguments
+ * @crtest SysCompileRun.ArgvForwardsUserArguments
+ * @crtest SysCompileRun.ArgvPreservesSpacedAndEmptyArguments
+ * @crtest SysCompileRun.ArgvSliceOfUserArguments
+ * @crtest SysCompileRun.ArgvIsIterable
  * @systest StdlibE2E.Sys
  */
 extern std::vector<std::string> argv;
@@ -50,6 +56,12 @@ extern std::vector<std::string> argv;
  * @complexity O(argc · m) for argument length m.
  * @alloc allocates the argument strings.
  * @test CheatahSys.Argv
+ * @test CheatahSys.SetArgvReplacesPreviousArguments
+ * @test CheatahSys.SetArgvZeroCountYieldsEmptyArgv
+ * @test CheatahSys.SetArgvNegativeCountYieldsEmptyArgv
+ * @test CheatahSys.SetArgvNullVectorYieldsEmptyArgv
+ * @test CheatahSys.SetArgvNullEntryBecomesEmptyString
+ * @test CheatahSys.ExportedRuntimeHookForwardsToSetArgv
  */
 void set_argv(int argc, char** argv_);
 /// @endcond
