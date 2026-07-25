@@ -112,6 +112,8 @@ class Fixed {
     static constexpr std::size_t cols = rank == 2 ? shape[1] : 1;
 
     /// Every element zero — the additive identity, and what a default-constructed value holds.
+    /// @complexity O(size). @alloc none.
+    /// @test Fixarray.DefaultIsZero
     constexpr Fixed() = default;
 
     /**
@@ -120,6 +122,10 @@ class Fixed {
      * @p T, so a `vec3f` accepts the doubles a cheatah program computes with.
      * @tparam Args the argument types; each must be convertible to @p T.
      * @param args the elements in reading order; exactly @ref size of them.
+     * @complexity O(size).
+     * @alloc none.
+     * @test Fixarray.MatrixIndexing
+     * @crtest FixarrayCompileRun.ConstructAndDot
      */
     template <class... Args>
         requires(sizeof...(Args) == size) && (std::convertible_to<Args, T> && ...)
@@ -202,6 +208,8 @@ class Fixed {
     /// @tparam Ix the enum index type.
     /// @param i the element to address, named by an enumerator.
     /// @return a reference to the element.
+    /// @complexity O(1). @alloc none.
+    /// @test Fixarray.EnumIndexingOnVectorsAndMatrices
     template <::cheatah::ndarray::Subscript Ix>
         requires(rank == 1 && std::is_enum_v<Ix>)
     constexpr T& operator[](Ix i) {
@@ -226,6 +234,8 @@ class Fixed {
     /// @tparam Ix the enum index type.
     /// @param i the element to address, named by an enumerator.
     /// @return a const reference to the element.
+    /// @complexity O(1). @alloc none.
+    /// @test Fixarray.EnumIndexingOnVectorsAndMatrices
     template <::cheatah::ndarray::Subscript Ix>
         requires(rank == 1 && std::is_enum_v<Ix>)
     constexpr const T& operator[](Ix i) const {
@@ -253,6 +263,8 @@ class Fixed {
     /// @tparam R the row index type. @tparam C the column index type; at least one is an enum.
     /// @param row the row to address. @param col the column to address.
     /// @return a reference to the element.
+    /// @complexity O(1). @alloc none.
+    /// @test Fixarray.EnumIndexingOnVectorsAndMatrices
     template <::cheatah::ndarray::Subscript R, ::cheatah::ndarray::Subscript C>
         requires(rank == 2 && (std::is_enum_v<R> || std::is_enum_v<C>))
     constexpr T& operator()(R row, C col) {
@@ -280,6 +292,8 @@ class Fixed {
     /// @tparam R the row index type. @tparam C the column index type; at least one is an enum.
     /// @param row the row to address. @param col the column to address.
     /// @return a const reference to the element.
+    /// @complexity O(1). @alloc none.
+    /// @test Fixarray.EnumIndexingOnVectorsAndMatrices
     template <::cheatah::ndarray::Subscript R, ::cheatah::ndarray::Subscript C>
         requires(rank == 2 && (std::is_enum_v<R> || std::is_enum_v<C>))
     constexpr const T& operator()(R row, C col) const {
@@ -465,7 +479,8 @@ class Fixed {
 template <ndarray::Field T, std::size_t N>
 using Vec = Fixed<T, N>;
 
-/// A fixed-extent matrix of @p R rows and @p C columns, row-major.
+/// A fixed-extent matrix of @p R rows and @p C columns — column-major storage, mathematical
+/// `(row, col)` indexing (see the file doc).
 /// @tparam T the element type. @tparam R the rows. @tparam C the columns.
 template <ndarray::Field T, std::size_t R, std::size_t C>
 using Mat = Fixed<T, R, C>;
@@ -587,6 +602,9 @@ constexpr Vec<T, 3> cross(const Vec<T, 3>& a, const Vec<T, 3>& b) {
  * @return `Σ vᵢ²`.
  * @complexity O(N).
  * @alloc none.
+ * @warning for a complex element this is the bilinear `Σ vᵢ²` (matching @ref dot), not
+ *          the Hermitian `Σ |vᵢ|²` — it is the squared Euclidean LENGTH only for real
+ *          elements.
  * @test Fixarray.NormAndNormalize
  */
 template <ndarray::Field T, std::size_t N>
@@ -1297,8 +1315,6 @@ constexpr Vec<T, R> column(const Mat<T, R, C>& m, Ix j) {
  * @param v the value to format.
  * @return the bracketed text.
  * @complexity O(@ref Fixed::size). @alloc the result string.
- * @test Fixarray.ToString
- * @crtest FixarrayCompileRun.PrintVectorAndMatrix
  */
 template <ndarray::Field T, std::size_t... Dims>
 std::string to_string(const Fixed<T, Dims...>& v) {

@@ -47,9 +47,10 @@
  *    different reduction orders under vectorization can change the last ULP versus a
  *    scalar build; algorithms here are written to be stable, but exact equality
  *    across tiers is not guaranteed (tests compare within a tolerance).
- *  - **Scope today:** the linalg kernels are `double`-only (NDArray); the templated
- *    ndarray elementwise ops vectorize for any `T`. Generalizing linalg over the
- *    element type is a later phase.
+ *  - **Scope today:** the linalg kernels are two-layer `Field` templates shipping
+ *    `double` and `std::complex<double>` instantiations (NDArray/CNDArray); the
+ *    templated ndarray elementwise ops vectorize for any `T`. Further element types
+ *    are a matter of adding instantiations.
  *
  * The actual kernels live in routines.hpp. Tested in stdlib/tests/linalg_smoke_test.cpp.
  */

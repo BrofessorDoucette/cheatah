@@ -9,7 +9,7 @@
  *
  * `import linalg` to use it (auto-links ndarray). Unit tests:
  * stdlib/tests/linalg_routines_test.cpp; SIMD reporting tested in
- * tests/linalg/smoke_test.cpp. The suite runs under AddressSanitizer (the `asan`
+ * stdlib/tests/linalg_smoke_test.cpp. The suite runs under AddressSanitizer (the `asan`
  * preset) and Valgrind (security/run-valgrind.sh) on every QA-gate run.
  *
  * Routines operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). They mirror
@@ -31,6 +31,10 @@
  *       factorization even though they return a scalar; the products and reductions
  *       (`dot`/`matmul`/`trace`/`norm`/…) read their operands in place — zero-copy
  *       when contiguous, packing a strided view once.
+ *
+ * @concurrency every routine is DELIBERATELY single-threaded (no hidden thread pool —
+ *       the fastest-per-core contract); the caller composes parallelism across
+ *       independent problems.
  */
 #include <complex>
 #include <vector>
@@ -145,7 +149,8 @@ void norm(T& out, const Array<T>& a);
  * @param n exponent.
  * @return Aⁿ.
  * @complexity O(n³·log|n|) by binary exponentiation.
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; the binary-exponentiation @ref matmul steps
+ *        allocate their own intermediates.
  * @test LinalgRoutines.MatrixPower
  * @crtest LinalgCompileRun.MatrixPower
  * @systest StdlibE2E.Linalg
@@ -185,7 +190,7 @@ void matrix_power(Array<T>& out, const Array<T>& a, long long n);
  * @param b p×q matrix.
  * @return (m·p)×(k·q) block product.
  * @complexity O(n⁴) in the output area.
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; a non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Kron
  * @systest StdlibE2E.Linalg
@@ -221,7 +226,8 @@ void kron(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * @param a square SPD matrix.
  * @return lower-triangular L with A = L·Lᵀ.
  * @complexity O(n³).
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; the factor is computed into O(n²) private
+ *        scratch, then copied in.
  * @test LinalgRoutines.CholeskyAndQR
  * @crtest LinalgCompileRun.Cholesky
  * @systest StdlibE2E.Linalg
@@ -269,7 +275,8 @@ struct QR {
  * @param a m×n matrix.
  * @return @ref QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).
  * @complexity O(n³).
- * @alloc allocates both members.
+ * @alloc allocates both members; the factorization works in O(m²) private scratch
+ *        (a full m×m Q workspace), then copies the reduced factors in.
  * @test LinalgRoutines.CholeskyAndQR
  * @crtest LinalgCompileRun.Qr
  * @systest StdlibE2E.Linalg
@@ -320,7 +327,7 @@ struct SVD {
  * @param a m×n matrix.
  * @return @ref SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).
  * @complexity iterative O(n³).
- * @alloc allocates all members.
+ * @alloc allocates all members; the Golub–Reinsch reduction allocates its own O(m·n) workspace.
  * @test LinalgRoutines.SvdAndEigh
  * @crtest LinalgCompileRun.Svd
  * @systest StdlibE2E.Linalg
@@ -363,7 +370,9 @@ void svd(Array<T>& u, Array<T>& s, Array<T>& vh, const Array<T>& a);
  * @param a m×n matrix.
  * @return length-min(m,n) vector of singular values, descending.
  * @complexity iterative O(n³), but a large constant factor below @ref svd.
- * @alloc allocates a new NDArray result (no U/V scratch).
+ * @alloc allocates a new NDArray result; the reduction still allocates its O(m·n)
+ *        workspace (the values-only path skips the U/V accumulation work and result
+ *        copies, not the working buffers).
  * @test LinalgRoutines.SvdAndEigh
  * @crtest LinalgCompileRun.Svdvals
  * @systest StdlibE2E.Linalg
@@ -441,7 +450,8 @@ using eigh_result_t = std::conditional_t<ndarray::is_complex_v<T>,
  *        general (non-symmetric) eigenvectors add O(n⁴) — one inverse iteration, each
  *        with its own O(n³) complex LU factorization, per eigenvalue (a symmetric @p a
  *        stays O(n³) via @ref eigh, which accumulates the vectors in the QL sweep).
- * @alloc allocates both members.
+ * @alloc allocates both members; plus O(n²) factorization scratch (on the non-symmetric
+ *        path, a fresh complex n×n LU per eigenvalue).
  * @test LinalgRoutines.GeneralEig
  * @crtest LinalgCompileRun.Eig
  * @systest StdlibE2E.Linalg
@@ -486,7 +496,7 @@ void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>
  * @param a square matrix.
  * @return length-n complex vector of eigenvalues.
  * @complexity iterative O(n³).
- * @alloc allocates a new CNDArray result.
+ * @alloc allocates a new CNDArray result; the iteration allocates its own O(n²) scratch.
  * @test LinalgRoutines.SvdAndEigh
  * @crtest LinalgCompileRun.Eigvals
  * @systest StdlibE2E.Linalg
@@ -527,7 +537,8 @@ void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a);
  * @param a square symmetric matrix.
  * @return @ref Eig with descending values and matching eigenvectors.
  * @complexity iterative O(n³).
- * @alloc allocates both members.
+ * @alloc allocates both members; the solver allocates its own O(n²) scratch (a complex
+ *        Hermitian input first embeds into a 2n×2n real matrix).
  * @test LinalgRoutines.SvdAndEigh
  * @test LinalgRoutines.ComplexHermitianEigh
  * @crtest LinalgCompileRun.Eigh
@@ -577,7 +588,8 @@ void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array
  * @param a square symmetric (real) / Hermitian (complex) matrix.
  * @return length-n vector of real eigenvalues.
  * @complexity iterative O(n³).
- * @alloc allocates a new result.
+ * @alloc allocates a new result; the solver allocates its own O(n²) scratch (a complex
+ *        Hermitian input first embeds into a 2n×2n real matrix).
  * @test LinalgRoutines.EigvalshSymmetric
  * @test LinalgRoutines.ComplexHermitianEigh
  * @crtest LinalgCompileRun.Eigvalsh
@@ -759,7 +771,7 @@ template <ndarray::Field T, template <typename> class Array>
  * @param b right-hand-side vector.
  * @return solution x.
  * @complexity O(n³).
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; the LU factorization allocates its own O(n²) scratch.
  * @test LinalgRoutines.SolveDetInv
  * @crtest LinalgCompileRun.Solve
  * @systest StdlibE2E.Linalg
@@ -799,7 +811,8 @@ void solve(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * @param b right-hand side.
  * @return minimizing x.
  * @complexity iterative O(n³) via SVD.
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; plus the intermediate n×m pseudo-inverse and
+ *        its SVD scratch.
  * @test LinalgRoutines.Lstsq
  * @crtest LinalgCompileRun.Lstsq
  * @systest StdlibE2E.Linalg
@@ -824,7 +837,7 @@ template <ndarray::Field T, template <typename> class Array>
  * @param a m×n matrix.
  * @param b right-hand side.
  * @complexity iterative O(n³).
- * @alloc reuses @p out; the pseudo-inverse SVD allocates its own scratch.
+ * @alloc reuses @p out; allocates the intermediate n×m pseudo-inverse and its SVD scratch.
  * @test LinalgRoutines.FactorizationOutReusesBuffer
  */
 template <ndarray::Field T, template <typename> class Array>
@@ -840,7 +853,8 @@ void lstsq(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * @param a square matrix.
  * @return A⁻¹.
  * @complexity O(n³).
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; the LU factorization and the whole-identity
+ *        back-solve allocate their own O(n²) scratch.
  * @test LinalgRoutines.SolveDetInv
  * @crtest LinalgCompileRun.Inv
  * @systest StdlibE2E.Linalg
@@ -877,7 +891,8 @@ void inv(Array<T>& out, const Array<T>& a);
  * @param a m×n matrix.
  * @return n×m pseudo-inverse.
  * @complexity iterative O(n³) via SVD.
- * @alloc allocates a new NDArray result.
+ * @alloc allocates a new NDArray result; the SVD and the assembly allocate their own
+ *        O(m·n) scratch.
  * @test LinalgRoutines.PinvCondRankOnWideMatrix
  * @crtest LinalgCompileRun.Pinv
  * @systest StdlibE2E.Linalg

@@ -4,8 +4,9 @@
 
 /**
  * @file ndarray.hpp
- * @brief cheatah `ndarray` — our own numpy-flavored N-dimensional array (of
- *        doubles) with NumPy broadcasting, surfaced as a `NDArray` class plus free
+ * @brief cheatah `ndarray` — our own numpy-flavored N-dimensional array
+ *        (`basic_ndarray<T>` over any @ref Element type; `NDArray` is the `double`
+ *        default) with NumPy broadcasting, surfaced as a `NDArray` class plus free
  *        functions (a .purr program writes `ndarray.zeros([2, 3])`).
  *        See https://numpy.org/doc/stable/user/basics.broadcasting.html.
  *
@@ -14,7 +15,7 @@
  * preset) and Valgrind (`security/run-valgrind.sh`) on every QA-gate run.
  *
  * @note Design (the "pointers + a bit of thinking"): the elements live in a shared
- *       buffer (`std::shared_ptr<std::vector<double>>`) and an array is a VIEW into
+ *       buffer (`std::shared_ptr<buffer_t<T>>`) and an array is a VIEW into
  *       it — {shape, strides, offset}. That makes reshape and **broadcast**
  *       zero-copy: to stretch a dimension of size 1 we give it a stride of 0, so
  *       every index along it reads the same element. Shared ownership = memory-safe,
@@ -114,6 +115,8 @@ concept Subscript = std::is_convertible_v<T, long long> || std::is_enum_v<T>;
 /// @tparam Ix the subscript type: an integer, or a scoped `enum class`.
 /// @param i the subscript to resolve.
 /// @return the integer position it names (a scoped enum's underlying ordinal).
+/// @complexity O(1). @alloc none.
+/// @test Fixarray.EnumIndexingOnVectorsAndMatrices
 template <Subscript Ix>
 [[nodiscard]] constexpr long long subscript_index(Ix i) noexcept {
     return static_cast<long long>(i);
@@ -282,12 +285,12 @@ public:
     /**
      * Construct a contiguous array of @p shape filled with @p fill.
      *
-     * Allocates a fresh buffer of `product(shape)` doubles all set to @p fill and
+     * Allocates a fresh buffer of `product(shape)` elements all set to @p fill and
      * computes C-order (row-major) strides; the dimension product is overflow-checked.
      * @param shape the dimensions.
      * @param fill value for every element.
      * @complexity O(size).
-     * @alloc allocates a new NDArray buffer (shared_ptr<vector<double>>) of
+     * @alloc allocates a new shared buffer (`shared_ptr<buffer_t<T>>`) of
      *   `product(shape)` elements; throws if the shape overflows size_t.
      * @test CheatahNDArray.ShapeFactoriesAndReductions
      * @systest StdlibE2E.Ndarray
@@ -381,20 +384,6 @@ public:
     std::size_t size() const { return detail::product(shape_); }  // 1 for a 0-d scalar
 
     /**
-     * Read one element by multi-index (via strides).
-     *
-     * Computes the flat buffer position as `offset + sum(index[i] * strides[i])`, so
-     * it correctly resolves views (including broadcast dims with stride 0); throws if
-     * @p index has the wrong rank or any coordinate is out of range for its dimension.
-     * @param index one coordinate per dimension.
-     * @return the element value.
-     * @complexity O(ndim).
-     * @alloc none; bounds-checks rank and range, throwing on a bad index.
-     * @test CheatahNDArray.ShapeFactoriesAndReductions,
-     *   CheatahNDArray.RejectsMaliciousShapesAndIndices
-     * @systest StdlibE2E.Ndarray
-     */
-    /**
      * MUTABLE element reference by multi-index — the write path behind cheatah
      * subscript assignment `x[i] = v` / `x[i, j] = v`. Negative indices count
      * from the end of their dimension; rank and bounds are checked.
@@ -402,7 +391,7 @@ public:
      * @return a writable reference into the backing buffer.
      * @complexity O(ndim). @alloc none.
      * @test CheatahNDArray.SubscriptReadWrite
-     * @crtest NdarrayCompileRun.Subscript
+     * @crtest LangFeatures.NdarraySubscript
      * @systest StdlibE2E.Ndarray
      */
     template <typename... Ix>
@@ -426,6 +415,8 @@ public:
     /// enum column label (see @ref Subscript), so `q[QuatCol::W] = v` writes column W of a 1-D row.
     /// @param i the element index (negative counts from the end, Python-style).
     /// @return a mutable reference to element @p i.
+    /// @complexity O(1). @alloc none.
+    /// @test CheatahNDArray.SubscriptReadWrite
     template <Subscript Ix>
     T& operator[](Ix i) {
         return item_ref(subscript_index(i));
@@ -433,12 +424,17 @@ public:
 
     /**
      * Read one element by a full multidimensional index (one component per axis), resolved via
-     * the array's strides. Bounds- and rank-checked.
+     * the array's strides. Computes the flat buffer position as
+     * `offset + sum(index[i] * strides[i])`, so it correctly resolves views (including
+     * broadcast dims with stride 0). Bounds- and rank-checked.
      * @param index the per-axis indices; its size must equal the array's rank.
      * @return a copy of the addressed element.
      * @throws std::runtime_error if @p index has the wrong rank or any component is out of range.
      * @complexity O(rank).
      * @alloc none.
+     * @test CheatahNDArray.AtVectorRankAndRangeErrors,
+     *   CheatahNDArray.RejectsMaliciousShapesAndIndices
+     * @systest StdlibE2E.Ndarray
      */
     T at(const std::vector<std::size_t>& index) const {  // element via strides
         // Bounds-check: a wrong-rank or out-of-range index would otherwise compute an
@@ -479,7 +475,7 @@ public:
      * @return the array formatted as nested brackets.
      * @complexity O(n) in the element count.
      * @alloc allocates the result string.
-     * @test CheatahNDArray.ToString
+     * @test CheatahNDArray.PrettyPrintAbbreviatesLarge
      * @systest StdlibE2E.Ndarray
      */
     std::string str() const;
@@ -568,6 +564,9 @@ inline bool is_contiguous(const basic_ndarray<T>& a) {
  * @param a source array.
  * @param target the shape to stretch to.
  * @return a VIEW sharing @p a's buffer (no element copy).
+ * @complexity O(rank of @p target).
+ * @alloc no element copy — only the view's stride vector; throws if the shapes are
+ *   not broadcast-compatible.
  * @test CheatahNDArray.BroadcastTo
  * @systest StdlibE2E.Ndarray
  */
@@ -735,8 +734,6 @@ basic_ndarray<T> full(const std::vector<long long>& shape, T value) {
  * @complexity O(size).
  * @alloc allocates a new buffer.
  * @test CheatahNDArray.LikeFactories
- * @crtest NdarrayCompileRun.FullLike
- * @systest StdlibE2E.Ndarray
  */
 template <Copyable T>
 basic_ndarray<T> full_like(const basic_ndarray<T>& a, T value) {
@@ -750,8 +747,6 @@ basic_ndarray<T> full_like(const basic_ndarray<T>& a, T value) {
  * @complexity O(size).
  * @alloc allocates a new buffer.
  * @test CheatahNDArray.LikeFactories
- * @crtest NdarrayCompileRun.ZerosLike
- * @systest StdlibE2E.Ndarray
  */
 template <Copyable T>
 basic_ndarray<T> zeros_like(const basic_ndarray<T>& a) {
@@ -764,7 +759,6 @@ basic_ndarray<T> zeros_like(const basic_ndarray<T>& a) {
  * @complexity O(size).
  * @alloc allocates a new buffer.
  * @test CheatahNDArray.LikeFactories
- * @systest StdlibE2E.Ndarray
  */
 template <Copyable T>
 basic_ndarray<T> ones_like(const basic_ndarray<T>& a) {
@@ -777,7 +771,8 @@ basic_ndarray<T> ones_like(const basic_ndarray<T>& a) {
  * @param step increment (throws if zero); a step pointing away from @p stop yields empty.
  * @return a 1-D `basic_ndarray<T>` of the generated values.
  * @complexity O(count).
- * @alloc allocates a new buffer; throws if @p step is zero.
+ * @alloc allocates a new buffer (built via a growing temporary vector, then copied);
+ *   throws if @p step is zero.
  * @test CheatahNDArray.Arange
  * @crtest NdarrayCompileRun.Arange
  * @systest StdlibE2E.Ndarray
@@ -1106,7 +1101,7 @@ void divide(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basic_ndarra
  * @complexity O(size of @p a).
  * @alloc none on the contiguous fast path; one result array on the fallback.
  * @test CheatahNDArray.CompoundAssignInPlace
- * @crtest NdarrayCompileRun.CompoundAssign
+ * @crtest LangFeatures.NdarrayOperators
  * @systest StdlibE2E.Ndarray
  */
 template <typename T, typename Op>
@@ -1289,6 +1284,7 @@ basic_ndarray<T> divide(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return div
  * Elementwise `a + b` with broadcasting (infix form of add()).
  * @param a first operand. @param b second operand.
  * @return the broadcast sum (a fresh array). @complexity O(size of result). @alloc the result.
+ * @test CheatahNDArray.RvalueOperandReusesBuffer
  */
 template <typename T>
 basic_ndarray<T> operator+(const basic_ndarray<T>& a, const basic_ndarray<T>& b) { return add(a, b); }
@@ -1374,15 +1370,15 @@ basic_ndarray<T> operator+(S s, const basic_ndarray<T>& a) { return binary_op(sc
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T> operator-(const basic_ndarray<T>& a, S s) { return binary_op(a, scalar(static_cast<T>(s)), detail::sub_op{}); }
-/** `s - a`: elementwise @p s minus each element. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+/** `s - a`: elementwise @p s minus each element. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. @test CheatahNDArray.ScalarTimesSizeOneArrayKeepsShape */
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T> operator-(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::sub_op{}); }
-/** `a * s`: multiply every element by scalar @p s. @param a the array. @param s the arithmetic scalar (converted to @p T). @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+/** `a * s`: multiply every element by scalar @p s. @param a the array. @param s the arithmetic scalar (converted to @p T). @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. @test CheatahNDArray.CompoundAssignInPlace */
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T> operator*(const basic_ndarray<T>& a, S s) { return binary_op(a, scalar(static_cast<T>(s)), detail::mul_op{}); }
-/** `s * a`: multiply every element by scalar @p s. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. */
+/** `s * a`: multiply every element by scalar @p s. @param s the arithmetic scalar (converted to @p T). @param a the array. @return a fresh array of @p a's shape. @complexity O(size of @p a). @alloc the result. @test CheatahNDArray.ScalarTimesSizeOneArrayKeepsShape */
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T> operator*(S s, const basic_ndarray<T>& a) { return binary_op(scalar(static_cast<T>(s)), a, detail::mul_op{}); }
@@ -1431,6 +1427,8 @@ basic_ndarray<T> operator/(basic_ndarray<T>&& a, S s) { return divide(std::move(
  * In-place `a += b`, updating @p a's buffer (see compound_apply).
  * @param a the array to update in place. @param b the right operand (same shape or single-element).
  * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ * @test CheatahNDArray.CompoundAssignInPlace
+ * @test CheatahNDArray.CompoundAssignNonContiguousFallback
  */
 template <typename T>
 basic_ndarray<T>& operator+=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
@@ -1440,6 +1438,7 @@ basic_ndarray<T>& operator+=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * In-place `a -= b`, updating @p a's buffer (see compound_apply).
  * @param a the array to update in place. @param b the right operand (same shape or single-element).
  * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ * @test CheatahNDArray.CompoundAssignNonContiguousFallback
  */
 template <typename T>
 basic_ndarray<T>& operator-=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
@@ -1449,6 +1448,7 @@ basic_ndarray<T>& operator-=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * In-place `a *= b`, updating @p a's buffer (see compound_apply).
  * @param a the array to update in place. @param b the right operand (same shape or single-element).
  * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ * @test CheatahNDArray.CompoundAssignNonContiguousFallback
  */
 template <typename T>
 basic_ndarray<T>& operator*=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
@@ -1458,6 +1458,7 @@ basic_ndarray<T>& operator*=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
  * In-place `a /= b`, updating @p a's buffer (see compound_apply).
  * @param a the array to update in place. @param b the right operand (same shape or single-element).
  * @return reference to @p a. @complexity O(size of @p a). @alloc none on the contiguous fast path.
+ * @test CheatahNDArray.CompoundAssignNonContiguousFallback
  */
 template <typename T>
 basic_ndarray<T>& operator/=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
@@ -1467,15 +1468,15 @@ basic_ndarray<T>& operator/=(basic_ndarray<T>& a, const basic_ndarray<T>& b) {
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T>& operator+=(basic_ndarray<T>& a, S s) { return a += scalar(static_cast<T>(s)); }
-/** In-place `a -= s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+/** In-place `a -= s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. @test CheatahNDArray.CompoundAssignInPlace */
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T>& operator-=(basic_ndarray<T>& a, S s) { return a -= scalar(static_cast<T>(s)); }
-/** In-place `a *= s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+/** In-place `a *= s` (scalar). @param a the array to update. @param s the arithmetic scalar (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. @test CheatahNDArray.CompoundAssignInPlace */
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T>& operator*=(basic_ndarray<T>& a, S s) { return a *= scalar(static_cast<T>(s)); }
-/** In-place `a /= s` (scalar). @param a the array to update. @param s the arithmetic scalar divisor (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. */
+/** In-place `a /= s` (scalar). @param a the array to update. @param s the arithmetic scalar divisor (converted to @p T). @return reference to @p a. @complexity O(size of @p a). @alloc none on the fast path. @test CheatahNDArray.CompoundAssignInPlace */
 template <typename T, typename S>
     requires std::is_arithmetic_v<S>
 basic_ndarray<T>& operator/=(basic_ndarray<T>& a, S s) { return a /= scalar(static_cast<T>(s)); }
@@ -1757,8 +1758,9 @@ constexpr T reduce_lanes(std::size_t n, Get get) {
 }
 }  // namespace detail
 /**
- * Sum of all elements — a full reduction across every axis (vectorized via
- * `std::reduce(unseq)` when contiguous, else a C-order walk); empty sums to 0.
+ * Sum of all elements — a full reduction across every axis (a contiguous array goes
+ * through the shared multi-accumulator SIMD reduction @ref detail::reduce_lanes, else
+ * a C-order walk); empty sums to 0.
  * @param a the array.
  * @return the total, as the element type @p T.
  * @complexity O(size).
@@ -1970,7 +1972,7 @@ inline std::string basic_ndarray<T>::str() const {
  * @return @p os.
  * @complexity O(size).
  * @alloc allocates the intermediate string.
- * @test CheatahNDArray.ToString
+ * @test CheatahNDArray.StreamableOperator
  * @systest StdlibE2E.Ndarray
  */
 template <Element T>
@@ -1998,7 +2000,7 @@ namespace cheatah::builtins {
  * @return the element value.
  * @complexity O(ndim). @alloc none.
  * @test CheatahNDArray.SubscriptReadWrite
- * @crtest NdarrayCompileRun.Subscript
+ * @crtest LangFeatures.NdarraySubscript
  * @systest StdlibE2E.Ndarray
  */
 template <typename T, ::cheatah::ndarray::Subscript First, ::cheatah::ndarray::Subscript... Ix>

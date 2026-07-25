@@ -38,6 +38,9 @@ namespace cheatah::linalg {
  * @tparam T the element type; @tparam Array the (host) container template.
  * @param out contiguous [a.rows, b.cols] destination, overwritten; must NOT alias @p a or @p b.
  * @param a,b the operands.
+ * @complexity O(n³) (× B for a batch).
+ * @alloc none for contiguous operands (product written straight into @p out); a
+ *        non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.MatmulIntoReusesBuffer
  * @test LinalgRoutines.ComplexMatmulIntoReusesBuffer
  */
@@ -59,6 +62,8 @@ void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * @return m×p product (or the B×m×p batch), an `Array<T>` of the same container and element.
  * @complexity O(n³) (× B for a batch).
  * @alloc allocates only the result; operands read in place (a strided host view packs once).
+ * @concurrency deliberately single-threaded (the fastest-per-core contract); parallelize
+ *        across independent products in the caller.
  * @test LinalgRoutines.ProductsAndTrace
  * @test LinalgRoutines.BatchedMatmul
  * @crtest LinalgCompileRun.Matmul
@@ -332,7 +337,7 @@ template <ndarray::Field T, template <typename> class Array>
  * @param a a 2-D matrix.
  * @return the c×r adjoint of an r×c input; throws on non-2-D input.
  * @complexity O(r·c).
- * @alloc allocates only the c×r result.
+ * @alloc allocates only the c×r result; a non-contiguous operand is packed once into scratch.
  * @test LinalgRoutines.ComplexProducts
  * @crtest LinalgCompileRun.ConjTranspose
  * @systest StdlibE2E.LinalgComplex
@@ -356,7 +361,8 @@ template <ndarray::Field T, template <typename> class Array>
  * @param b p×q matrix.
  * @return (m·p)×(k·q) block product.
  * @complexity O(n⁴) in the output area.
- * @alloc allocates only the (m·p)×(k·q) result.
+ * @alloc allocates only the (m·p)×(k·q) result; a non-contiguous operand is packed once
+ *        into scratch.
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Kron
  * @systest StdlibE2E.Linalg
