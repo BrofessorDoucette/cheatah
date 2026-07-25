@@ -23,7 +23,8 @@
 #   1. Coverage: regenerate the README coverage table from clang source-based
 #      coverage; FAIL if it changed, and HARD-FAIL unless line + function coverage
 #      are both 100% (so pushed code is always fully unit-tested).
-#   1b. Documentation coverage: 100% Javadoc on the public stdlib API (hard gate).
+#   1b. Documentation coverage: 100% Javadoc on the public stdlib API, then the
+#       doc-tag lint (@complexity + @alloc + a test link on every public function).
 #   1c. VS Code extension (hard gate): regenerate its hover database from the stdlib
 #       API (Doxygen XML -> gen-hover-docs.py) and FAIL if it drifted.
 #   2. Configure (debug for tests, release for benchmarks).
@@ -114,7 +115,7 @@ bg_poll() {  # reap any lane that has already exited (fail fast); running lanes 
     local _v _l _t _pid
     for _spec in \
         "PID_COV:$LOG_COV:coverage report" \
-        "PID_DOCS:$LOG_DOCS:documentation coverage below 100% — document the entities listed above" \
+        "PID_DOCS:$LOG_DOCS:documentation coverage or contract tags incomplete — see the entities listed above" \
         "PID_EXT:$LOG_EXT:VS Code extension hover-DB check" \
         "PID_CPPCHECK:$LOG_CPPCHECK:cppcheck (performance/security findings)" \
         "PID_BENCHBUILD:$LOG_BENCHBUILD:release benchmark build" \
@@ -208,12 +209,14 @@ else
     bold "Coverage: instrumented build + sharded unit run (background lane)…"
     bg_launch PID_COV "$LOG_COV" bash scripts/coverage.sh --phase=prepare
 fi
-# 1b. Documentation coverage (single strict doxygen parse; writes nothing).
+# 1b. Documentation coverage (single strict doxygen parse; writes nothing), then the
+#     doc-TAG lint in the same lane: every public stdlib function must carry
+#     @complexity, @alloc, and a @test/@crtest/@systest link (scripts/doc_tag_lint.sh).
 if [ "${QA_GATE_SKIP_DOCS:-0}" = "1" ]; then
     bold "Skipping documentation-coverage stage (QA_GATE_SKIP_DOCS=1)."
 else
-    bold "Checking documentation coverage (100% Javadoc, background lane)…"
-    bg_launch PID_DOCS "$LOG_DOCS" bash scripts/doc_coverage.sh
+    bold "Checking documentation coverage + contract tags (background lane)…"
+    bg_launch PID_DOCS "$LOG_DOCS" bash -c 'bash scripts/doc_coverage.sh && bash scripts/doc_tag_lint.sh'
 fi
 # 1c. Extension hover-DB drift check (its own doxygen run + node tests).
 if [ "${QA_GATE_SKIP_EXTENSION:-0}" = "1" ]; then
@@ -346,7 +349,7 @@ if [ "${QA_GATE_SKIP_COVERAGE:-0}" != "1" ]; then
     bg_launch PID_COVFIN "$LOG_COVFIN" bash scripts/coverage.sh --phase=finish update-readme
 fi
 # 1b/1c/8b/7-prep joins (each prints its lane log tail + fails the gate on nonzero).
-bg_join PID_DOCS "$LOG_DOCS" "documentation coverage below 100% — document the entities listed above"
+bg_join PID_DOCS "$LOG_DOCS" "documentation coverage or contract tags incomplete — see the entities listed above"
 [ -z "$PID_DOCS" ] && [ "${QA_GATE_SKIP_DOCS:-0}" != "1" ] && bold "Documentation coverage lane: OK."
 bg_join PID_EXT "$LOG_EXT" "VS Code extension hover-DB check"
 [ "${QA_GATE_SKIP_EXTENSION:-0}" != "1" ] && bold "VS Code extension lane: OK (details in $LOG_EXT)."
