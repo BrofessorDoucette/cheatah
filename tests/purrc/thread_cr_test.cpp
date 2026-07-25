@@ -24,6 +24,9 @@ io.print("joined")
 }
 
 TEST(ThreadCompileRun, Joinable) {
+    // Both joinable() readings are SAMPLED around the join but PRINTED after it, so the
+    // worker's line always lands first: printing the pre-join reading directly would race
+    // the worker's own output (this test did, and flaked under load).
     e2e::expect_e2e("thread_joinable", R"PURR(import io
 import thread
 
@@ -32,11 +35,13 @@ fn worker() {
 }
 
 let t = thread.spawn(worker)
-io.print(t.joinable())
+let before = t.joinable()
 t.join()
-io.print(t.joinable())
+let after = t.joinable()
+io.print(before)
+io.print(after)
 )PURR",
-                    "True\nran\nFalse\n");
+                    "ran\nTrue\nFalse\n");
 }
 
 TEST(ThreadCompileRun, JoinCatchesWorkerRaise) {
