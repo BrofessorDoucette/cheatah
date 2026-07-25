@@ -21,6 +21,46 @@ echo "[docs] doxygen (XML)…"
 rm -rf docs/xml
 "$DOXYGEN" Doxyfile
 
+# ── Extensions: sibling standard-library extensions join the site ────────────────
+# Each extension's Doxygen XML lands in its OWN tree (docs/xml-ext/<ext>/), NEVER in
+# docs/xml — the stdlib XML also feeds the VS Code hover DB and the doc-coverage
+# gates, which stay stdlib-only. The extension's Doxyfile is piped through with
+# overrides: output redirected here, EXTRACT_ALL on, and the vulkan/metal
+# EXCLUDE_PATTERNS dropped — the generated forwarders carry uniform doc comments,
+# and the SITE wants the full public surface (the strict per-repo doc gate is the
+# one that excludes them). The extension repo itself is never written to.
+EXTENSIONS="cheatah-gpu"
+rm -rf docs/xml-ext
+for ext in $EXTENSIONS; do
+    EXT_DIR="../$ext"
+    if [ ! -d "$EXT_DIR" ]; then
+        if [ "${SKIP_EXT_DOCS:-0}" = "1" ]; then
+            echo "[docs] WARNING: sibling checkout $EXT_DIR is missing — SKIP_EXT_DOCS=1, so the site is being published WITHOUT the $ext pages" >&2
+            continue
+        fi
+        echo "[docs] error: sibling checkout $EXT_DIR not found — the published site must cover the $ext API." >&2
+        echo "[docs]        Clone it next to this repo, or set SKIP_EXT_DOCS=1 to knowingly publish without it." >&2
+        exit 1
+    fi
+    echo "[docs] doxygen (XML) — extension $ext…"
+    EXT_OUT="$(pwd)/docs/xml-ext"
+    mkdir -p "$EXT_OUT/$ext"
+    (
+        cd "$EXT_DIR"
+        {
+            cat Doxyfile
+            echo "OUTPUT_DIRECTORY = $EXT_OUT"
+            echo "XML_OUTPUT = $ext"
+            echo "EXTRACT_ALL = YES"
+            # Reset (=, not +=): keep tests/vendor out, drop the vulkan/metal excludes.
+            echo "EXCLUDE_PATTERNS = */tests/* */systests/* */scripts/* */vendor/*"
+            # The generated Vulkan forwarders sit behind the registry's feature guards;
+            # define them so the full documented surface lands in the XML.
+            echo "PREDEFINED = CHEATAH_GPU_BACKEND_VULKAN=1 VK_VERSION_1_0 VK_VERSION_1_1 VK_VERSION_1_2 VK_VERSION_1_3 VK_VERSION_1_4 VK_KHR_surface VK_KHR_swapchain"
+        } | "$DOXYGEN" -
+    )
+done
+
 # The toolchain: prefer the release build, fall back to debug.
 BIN=build/release/bin
 if [ ! -x "$BIN/purrc" ] || [ ! -x "$BIN/cheatah" ]; then

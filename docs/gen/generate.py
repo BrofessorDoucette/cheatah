@@ -35,7 +35,17 @@ def _ver(text: str) -> str:
 ROOT = Path(__file__).resolve().parent.parent.parent        # repo root
 XML = ROOT / "docs" / "xml"
 OUT = ROOT / "docs" / "html"
+EXT_XML = ROOT / "docs" / "xml-ext"                         # per-extension Doxygen XML trees
 ASSETS = Path(__file__).resolve().parent / "assets"
+
+# Extension version badge shown atop every one of that extension's pages — hardcoded
+# like TOOLS_ORDER (it changes per release, alongside biome's Standard table).
+EXT_BADGES = {
+    "cheatah-gpu": "cheatah-gpu v0.5.0-alpha — Biome Standard 0.1.0-alpha",
+}
+
+# The topbar search placeholder; widened in main() when extension pages are present.
+SEARCH_PLACEHOLDER = "Search the standard library…"
 
 # Per-function benchmark numbers (regenerated periodically by scripts/perf_suite.py,
 # NOT in the QA gate). The docs render a "Performance" row for any function found here,
@@ -255,7 +265,7 @@ class Member:
 
 class Compound:
     __slots__ = ("refid", "kind", "name", "short", "brief_xml", "detail_xml",
-                 "members", "title")
+                 "members", "title", "ext")   # ext: owning extension name, "" = stdlib
 
 def text_of(el) -> str:
     return "".join(el.itertext()) if el is not None else ""
@@ -301,6 +311,7 @@ def load() -> tuple[dict[str, Compound], dict[str, str]]:
         comp.brief_xml = cdef.find("briefdescription")
         comp.detail_xml = cdef.find("detaileddescription")
         comp.members = []
+        comp.ext = ""
         if kind == NS:
             MOD_SHORT[refid] = comp.short.replace("::", ".")
         seen_ids: set[str] = set()   # Doxygen can list a memberdef more than once (e.g. a
@@ -332,6 +343,63 @@ def load() -> tuple[dict[str, Compound], dict[str, str]]:
             continue   # drop empty container namespaces (e.g. the root `cheatah`)
         compounds[refid] = comp
     return compounds, member_index
+
+
+def load_ext(ext: str) -> tuple[list[Compound], dict[str, str]]:
+    """Parse one extension's Doxygen XML tree (docs/xml-ext/<ext>/): its namespaces
+    become module pages in the sidebar's "Extensions" group. Loaded fully apart from
+    the stdlib so the stdlib output stays byte-identical whether or not any extension
+    tree is present — extensions only ADD pages, sidebar entries and search rows."""
+    xdir = EXT_XML / ext
+    index = ET.parse(xdir / "index.xml").getroot()
+    comps: list[Compound] = []
+    member_index: dict[str, str] = {}
+    for c in index.findall("compound"):
+        if c.get("kind") != NS:
+            continue
+        refid = c.get("refid")
+        cdef = ET.parse(xdir / f"{refid}.xml").getroot().find("compounddef")
+        if cdef is None:
+            continue
+        name = cdef.findtext("compoundname") or c.findtext("name") or refid
+        segs = name.split("::")
+        if "detail" in segs or any("anonymous" in s or s.startswith("@") for s in segs):
+            continue
+        comp = Compound()
+        comp.refid = refid
+        comp.kind = NS
+        comp.name = name
+        comp.short = comp.name.replace("cheatah::", "")
+        comp.title = cdef.findtext("title") or comp.short
+        comp.brief_xml = cdef.find("briefdescription")
+        comp.detail_xml = cdef.find("detaileddescription")
+        comp.members = []
+        comp.ext = ext
+        seen_ids: set[str] = set()
+        for md in cdef.iter("memberdef"):
+            mid = md.get("id")
+            if mid in seen_ids:
+                continue
+            seen_ids.add(mid)
+            m = Member()
+            m.id = mid
+            m.kind = md.get("kind")
+            m.static = md.get("static") == "yes"
+            m.prot = md.get("prot")
+            m.name = md.findtext("name") or ""
+            m.type_xml = md.find("type")
+            m.args = (md.findtext("argsstring") or "").strip()
+            m.brief_xml = md.find("briefdescription")
+            m.detail_xml = md.find("detaileddescription")
+            m.compound = refid
+            m.srcfile = None   # extension sources live in the sibling repo: no source pages
+            m.srcline = None
+            comp.members.append(m)
+            member_index[m.id] = refid
+        if not comp.members:
+            continue   # e.g. the empty `cheatah` container namespace in the extension tree
+        comps.append(comp)
+    return comps, member_index
 
 
 # ---------------------------------------------------------------------------
@@ -772,7 +840,7 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
-    <div class="search"><input id="q" type="search" placeholder="Search the standard library…" autocomplete="off" spellcheck="false">
+    <div class="search"><input id="q" type="search" placeholder="{SEARCH_PLACEHOLDER}" autocomplete="off" spellcheck="false">
       <div id="results" class="results" hidden></div>
     </div>
     <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
@@ -789,7 +857,7 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
 </body>
 </html>"""
 
-def build_sidebar(compounds: dict[str, Compound]) -> str:
+def build_sidebar(compounds: dict[str, Compound], ext_comps: list[Compound]) -> str:
     parts = ['<a class="side-home" href="index.html">Overview</a>']
     # Guide pages, in a deliberate reading order. The two language-comparison pages
     # (cheatah ↔ Python, cheatah ↔ C++) live in their OWN "Language parity" section.
@@ -859,6 +927,16 @@ def build_sidebar(compounds: dict[str, Compound]) -> str:
     tops = sorted((c for c in ns if "::" not in c.short), key=lambda c: c.short.lower())
     mod = "".join(f'<li class="side-mod">{node(c)}</li>' for c in tops)
     parts.append(f'<div class="side-group"><div class="side-h">Modules</div><ul>{mod}</ul></div>')
+
+    # Extensions — module pages from sibling extension repos (docs/xml-ext/<ext>/),
+    # flat and labeled with their full dotted import path (gpu.dispatch, …).
+    if ext_comps:
+        elinks = "".join(
+            f'<li class="side-mod"><a href="{c.refid}.html" data-ref="{c.refid}">'
+            f'{html.escape(c.short.replace("::", "."))}</a></li>'
+            for c in sorted(ext_comps, key=lambda c: c.short.replace("::", ".").lower()))
+        parts.append(
+            f'<div class="side-group"><div class="side-h">Extensions</div><ul>{elinks}</ul></div>')
     return "".join(parts)
 
 def build_toc(members: list[Member]) -> str:
@@ -916,10 +994,13 @@ def render_compound_page(r: Renderer, comp: Compound, sidebar: str) -> str:
             for c in MODULE_CLASSES[comp.short])
         class_section = f'<h2 class="group">Classes</h2><ul class="class-list">{items}</ul>'
     title = html.escape(comp.title) if is_page else f"<code>{html.escape(comp.short)}</code>"
+    # An extension page carries its version badge (extension release — Biome Standard).
+    badge = (f'<p class="ext-badge">{html.escape(EXT_BADGES[comp.ext])}</p>'
+             if comp.ext and comp.ext in EXT_BADGES else '')
     content = f"""<div class="page-head">
   <div class="eyebrow">{kind_label}</div>
   <h1>{title}</h1>
-  {f'<p class="lede">{brief}</p>' if brief else ''}
+  {badge}{f'<p class="lede">{brief}</p>' if brief else ''}
 </div>
 <div class="overview">{detail}</div>
 {class_section}
@@ -1080,9 +1161,11 @@ def render_transpiler_page(sidebar: str) -> str:
            if toc_items else "")
     return page_shell("Transpiler", sidebar, content, toc)
 
-def build_search_index(compounds: dict[str, Compound]) -> str:
+def build_search_index(compounds: dict[str, Compound], ext_comps: list[Compound]) -> str:
     entries = []
-    for c in compounds.values():
+    # Extension rows join AFTER the stdlib rows, so the stdlib part of the index is
+    # byte-identical with or without extension trees present.
+    for c in list(compounds.values()) + ext_comps:
         if c.kind == "page":
             continue
         entries.append({"n": c.short, "k": c.kind, "u": f"{c.refid}.html"})
@@ -1098,6 +1181,7 @@ def build_search_index(compounds: dict[str, Compound]) -> str:
 
 
 def main() -> int:
+    global SEARCH_PLACEHOLDER
     if not XML.is_dir():
         print(f"generate: {XML} not found — run Doxygen with GENERATE_XML=YES first")
         return 1
@@ -1156,12 +1240,34 @@ def main() -> int:
         s.title = short.replace("::", ".")
         s.brief_xml = s.detail_xml = None
         s.members = []
+        s.ext = ""
         compounds[s.refid] = s
         MOD_SHORT[s.refid] = short.replace("::", ".")
-    sidebar = build_sidebar(compounds)
+
+    # Extension trees (docs/xml-ext/<ext>/) — namespaces from sibling extension repos
+    # join the site as extra module pages, sidebar entries and search rows.
+    ext_comps: list[Compound] = []
+    if EXT_XML.is_dir():
+        for ext in sorted(p.name for p in EXT_XML.iterdir()
+                          if p.is_dir() and (p / "index.xml").is_file()):
+            comps, emi = load_ext(ext)
+            ext_comps.extend(comps)
+            member_index.update(emi)   # r.mi shares this dict: member refs resolve
+    for comp in ext_comps:
+        r.valid.add(comp.refid)
+        for xml in (comp.detail_xml, comp.brief_xml):
+            if xml is None:
+                continue
+            for sect in xml.iter():
+                if sect.tag in ("sect1", "sect2", "sect3", "sect4", "anchor") and sect.get("id"):
+                    r.valid.add(sect.get("id"))
+    if ext_comps:
+        SEARCH_PLACEHOLDER = "Search the standard library &amp; extensions…"
+
+    sidebar = build_sidebar(compounds, ext_comps)
 
     # Content hashes for cache-busting (?v=…) so browsers never serve stale assets.
-    search_js = build_search_index(compounds)
+    search_js = build_search_index(compounds, ext_comps)
     VERS["css"] = _ver((ASSETS / "cheatah-docs.css").read_text())
     VERS["js"] = _ver((ASSETS / "cheatah-docs.js").read_text())
     VERS["search"] = _ver(search_js)
@@ -1179,6 +1285,9 @@ def main() -> int:
                 (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
                 pages += 1
             continue
+        (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
+        pages += 1
+    for comp in ext_comps:
         (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
         pages += 1
 

@@ -83,6 +83,7 @@ struct Compound {
     brief_id: int
     detail_id: int
     members: list<Member>
+    ext: str                       # owning extension name ("" = the stdlib)
 }
 
 # The generator's whole state (Documents are re-parsed per page — see doc_of).
@@ -106,6 +107,7 @@ struct Gen {
     vers_css: str
     vers_js: str
     vers_search: str
+    search_ph: str                 # topbar search placeholder (widened when extensions exist)
     cur_module: str
     cur_func: str
     kw: dict<str, bool>            # cheatah (+ Python) keywords for the highlighter
@@ -1242,7 +1244,7 @@ fn render_member_group(g, doc, members, idxs: list<int>) {
 fn page_shell(g, title, sidebar, content, toc) {
     let body = string.replace(content, "🐾", "<span class=\"paw\">🐾</span>")
     body = apply_sidebyside(body)
-    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"index.html\"><img src=\"cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    <div class=\"search\"><input id=\"q\" type=\"search\" placeholder=\"Search the standard library…\" autocomplete=\"off\" spellcheck=\"false\">\n" + "      <div id=\"results\" class=\"results\" hidden></div>\n" + "    </div>\n" + "    <button id=\"theme\" class=\"theme-btn\" title=\"Toggle theme\" aria-label=\"Toggle theme\">◐</button>\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<script src=\"search-index.js?v=" + g.vers_search + "\"></script>\n" + "<script src=\"cheatah-docs.js?v=" + g.vers_js + "\"></script>\n" + "<footer class=\"sitefoot\">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"index.html\"><img src=\"cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    <div class=\"search\"><input id=\"q\" type=\"search\" placeholder=\"" + g.search_ph + "\" autocomplete=\"off\" spellcheck=\"false\">\n" + "      <div id=\"results\" class=\"results\" hidden></div>\n" + "    </div>\n" + "    <button id=\"theme\" class=\"theme-btn\" title=\"Toggle theme\" aria-label=\"Toggle theme\">◐</button>\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<script src=\"search-index.js?v=" + g.vers_search + "\"></script>\n" + "<script src=\"cheatah-docs.js?v=" + g.vers_js + "\"></script>\n" + "<footer class=\"sitefoot\">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
 }
 
 # One module entry in the sidebar tree (submodules as collapsible dropdowns).
@@ -1358,12 +1360,13 @@ fn build_sidebar(g) {
         }
         parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Language parity</div><ul>" + plinks + "</ul></div>"
     }
-    # Modules: top-level entries with nested submodules
+    # Modules: top-level entries with nested submodules (the stdlib only —
+    # extension namespaces get their own group below)
     let kid_keys: dict<str, str> = {}
     ci = 0
     while ci < len(g.comps) {
         let c = g.comps[ci]
-        if c.kind == "namespace" and string.contains(c.short, "::") {
+        if c.kind == "namespace" and c.ext == "" and string.contains(c.short, "::") {
             let cut = string.rfind(c.short, "::")
             let parent = c.short[:cut]
             let prev = ""
@@ -1378,7 +1381,7 @@ fn build_sidebar(g) {
     ci = 0
     while ci < len(g.comps) {
         let c = g.comps[ci]
-        if c.kind == "namespace" and not string.contains(c.short, "::") {
+        if c.kind == "namespace" and c.ext == "" and not string.contains(c.short, "::") {
             top_keys.append(string.lower(c.short) + us() + c.refid)
         }
         ci = ci + 1
@@ -1389,6 +1392,26 @@ fn build_sidebar(g) {
         mods = mods + "<li class=\"side-mod\">" + side_node(g, kids, k[cut + 1:]) + "</li>"
     }
     parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Modules</div><ul>" + mods + "</ul></div>"
+    # Extensions — module pages from sibling extension repos (docs/xml-ext/<ext>/),
+    # flat and labeled with their full dotted import path (gpu.dispatch, …)
+    let ext_keys: list<str> = []
+    ci = 0
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        if c.kind == "namespace" and c.ext != "" {
+            ext_keys.append(string.lower(string.replace(c.short, "::", ".")) + us() + c.refid)
+        }
+        ci = ci + 1
+    }
+    if len(ext_keys) > 0 {
+        let elinks = ""
+        for k in sorted_strs(ext_keys) {
+            let cut = string.rfind(k, us())
+            let c = g.comps[g.comp_idx[k[cut + 1:]]]
+            elinks = elinks + "<li class=\"side-mod\"><a href=\"" + c.refid + ".html\" data-ref=\"" + c.refid + "\">" + esc(string.replace(c.short, "::", ".")) + "</a></li>"
+        }
+        parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Extensions</div><ul>" + elinks + "</ul></div>"
+    }
     return parts
 }
 
@@ -1413,10 +1436,24 @@ fn build_toc(members) {
 # Documents are not storable in containers (no qualified template args), so each
 # page re-parses its compound XML — deterministic parsing keeps the node ids
 # recorded at load valid against the fresh parse.
-fn doc_of(refid) {
-    let path = "docs/xml/" + refid + ".xml"
+fn doc_of(xdir, refid) {
+    let path = xdir + "/" + refid + ".xml"
     if os.path.isfile(path) { return parsers.xml.parse(io.read_file(path)) }
     return parsers.xml.parse("")
+}
+
+# The XML tree a compound was parsed from: the stdlib's, or its extension's own.
+fn xdir_of(c: Compound) {
+    if c.ext != "" { return "docs/xml-ext/" + c.ext }
+    return "docs/xml"
+}
+
+# Extension version badge (extension release — Biome Standard), one entry per
+# extension like the tools-order map: it changes per release, alongside biome's
+# in-source Standard table (mirrors generate.py's EXT_BADGES).
+fn ext_badge_of(extname) {
+    if extname == "cheatah-gpu" { return "cheatah-gpu v0.5.0-alpha — Biome Standard 0.1.0-alpha" }
+    return ""
 }
 
 fn render_compound_page(g, ci, sidebar) {
@@ -1429,11 +1466,11 @@ fn render_compound_page(g, ci, sidebar) {
     elif c.kind == "struct" { kind_label = "Struct" }
     elif c.kind == "concept" { kind_label = "Concept" }
     g.cur_module = c.short
-    let cdoc = doc_of(doc_key)
+    let cdoc = doc_of(xdir_of(c), doc_key)
     let brief = render_brief(g, cdoc, c.brief_id)
     let detail = ""
     if c.kind == "namespace" and c.short in g.readme_key {
-        let rdoc = doc_of(g.readme_key[c.short])
+        let rdoc = doc_of("docs/xml", g.readme_key[c.short])
         detail = render_desc(g, rdoc, g.readme_node[c.short])
     }
     detail = detail + render_desc(g, cdoc, c.detail_id)
@@ -1482,7 +1519,7 @@ fn render_compound_page(g, ci, sidebar) {
             let leaf = cc.short
             let cut = string.rfind(leaf, "::")
             if cut >= 0 { leaf = leaf[cut + 2:] }
-            let ccdoc = doc_of(cc.refid)
+            let ccdoc = doc_of(xdir_of(cc), cc.refid)
             let cbrief = render_brief(g, ccdoc, cc.brief_id)
             let extra = ""
             if cbrief != "" { extra = " — " + cbrief }
@@ -1494,9 +1531,15 @@ fn render_compound_page(g, ci, sidebar) {
     }
     let title_html = "<code>" + esc(c.short) + "</code>"
     if is_page { title_html = esc(c.title) }
+    # an extension page carries its version badge (extension release — Biome Standard)
+    let badge_html = ""
+    if c.ext != "" {
+        let btxt = ext_badge_of(c.ext)
+        if btxt != "" { badge_html = "<p class=\"ext-badge\">" + esc(btxt) + "</p>" }
+    }
     let brief_html = ""
     if brief != "" { brief_html = "<p class=\"lede\">" + brief + "</p>" }
-    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">" + kind_label + "</div>\n" + "  <h1>" + title_html + "</h1>\n" + "  " + brief_html + "\n" + "</div>\n" + "<div class=\"overview\">" + detail + "</div>\n" + class_section + "\n" + sections
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">" + kind_label + "</div>\n" + "  <h1>" + title_html + "</h1>\n" + "  " + badge_html + brief_html + "\n" + "</div>\n" + "<div class=\"overview\">" + detail + "</div>\n" + class_section + "\n" + sections
     let page_title = c.short
     if is_page { page_title = c.title }
     return page_shell(g, page_title, sidebar, content, build_toc(c.members))
@@ -1504,7 +1547,7 @@ fn render_compound_page(g, ci, sidebar) {
 
 fn render_home(g, ci, sidebar) {
     let c = g.comps[ci]
-    let hdoc = doc_of(c.refid)
+    let hdoc = doc_of(xdir_of(c), c.refid)
     let detail = render_desc(g, hdoc, c.detail_id)
     let content = "<div class=\"home\">\n" + "  <div class=\"hero\">\n" + "    <img class=\"hero-logo\" src=\"cheatah-logo.png\" alt=\"\">\n" + "    <div class=\"hero-text\">\n" + "      <h1 class=\"hero-title\">cheatah</h1>\n" + "      <p class=\"hero-tagline\">Programs so fast they purrrrrrrrrrrrr like a kitten.</p>\n" + "    </div>\n" + "  </div>\n" + "  " + detail + "</div>"
     return page_shell(g, "cheatah standard library", sidebar, content, "")
@@ -1706,6 +1749,56 @@ fn load_all(g) {
     }
 }
 
+# Parse one extension's Doxygen XML tree (docs/xml-ext/<ext>/): its namespaces
+# become module pages in the sidebar's "Extensions" group. Loaded fully apart from
+# the stdlib so the stdlib output stays byte-identical whether or not an extension
+# tree is present — extensions only ADD pages, sidebar entries and search rows.
+fn load_ext_tree(g, extname) {
+    let xdir = "docs/xml-ext/" + extname
+    let idx = parsers.xml.parse(io.read_file(xdir + "/index.xml"))
+    let idx_root = parsers.xml.find(idx, parsers.xml.root(idx), "doxygenindex")
+    for c in parsers.xml.findall(idx, idx_root, "compound") {
+        if parsers.xml.attr(idx, c, "kind") != "namespace" { continue }
+        let refid = parsers.xml.attr(idx, c, "refid")
+        let cdoc = parsers.xml.parse(io.read_file(xdir + "/" + refid + ".xml"))
+        let dox = parsers.xml.find(cdoc, parsers.xml.root(cdoc), "doxygen")
+        let cdef = parsers.xml.find(cdoc, dox, "compounddef")
+        if cdef < 0 { continue }
+        let cname = text_of_child(cdoc, cdef, "compoundname")
+        if cname == "" { cname = text_of_child(idx, c, "name") }
+        if cname == "" { cname = refid }
+        if is_internal_namespace(cname) { continue }
+        let comp = Compound({.refid = refid, .kind = "namespace", .name = cname, .ext = extname})
+        comp.short = string.replace(cname, "cheatah::", "")
+        comp.title = text_of_child(cdoc, cdef, "title")
+        if comp.title == "" { comp.title = comp.short }
+        comp.brief_id = parsers.xml.find(cdoc, cdef, "briefdescription")
+        comp.detail_id = parsers.xml.find(cdoc, cdef, "detaileddescription")
+        let seen_ids: dict<str, bool> = {}
+        for md in parsers.xml.iter(cdoc, cdef, "memberdef") {
+            let mid = parsers.xml.attr(cdoc, md, "id")
+            if mid in seen_ids { continue }
+            seen_ids[mid] = true
+            let m = Member({.id = mid})
+            m.kind = parsers.xml.attr(cdoc, md, "kind")
+            m.is_static = parsers.xml.attr(cdoc, md, "static") == "yes"
+            m.name = text_of_child(cdoc, md, "name")
+            m.type_id = parsers.xml.find(cdoc, md, "type")
+            m.args = string.strip(text_of_child(cdoc, md, "argsstring"))
+            m.brief_id = parsers.xml.find(cdoc, md, "briefdescription")
+            m.detail_id = parsers.xml.find(cdoc, md, "detaileddescription")
+            m.compound = refid
+            # extension sources live in the sibling repo: no source pages/links
+            comp.members.append(m)
+            g.mi[mid] = refid
+        }
+        if len(comp.members) == 0 { continue }   # e.g. the empty `cheatah` container ns
+        g.comp_idx[refid] = len(g.comps)
+        g.comps.append(comp)
+        g.valid[refid] = true
+    }
+}
+
 fn cpp_files_sorted(dirpath) {
     let out: list<str> = []
     if not os.path.isdir(dirpath) { return out }
@@ -1869,7 +1962,7 @@ fn main() {
         io.print("generate: docs/xml not found — run Doxygen with GENERATE_XML=YES first")
         return
     }
-    let g = Gen({.cur_module = ""})
+    let g = Gen({.cur_module = "", .search_ph = "Search the standard library…"})
 
     # highlighter vocabularies (the compiler's keywords + Python's, minus literals)
     add_kw(g.kw, "and as break case constexpr continue elif else enum except false fn for from if import in interface let match not or raise return struct true try while with")
@@ -1906,11 +1999,11 @@ fn main() {
     ci = 0
     while ci < len(g.comps) {
         let c = g.comps[ci]
-        let adoc = doc_of(c.refid)
+        let adoc = doc_of(xdir_of(c), c.refid)
         register_anchors(g, adoc, c.detail_id)
         register_anchors(g, adoc, c.brief_id)
         if c.short in g.readme_key {
-            let ardoc = doc_of(g.readme_key[c.short])
+            let ardoc = doc_of("docs/xml", g.readme_key[c.short])
             register_anchors(g, ardoc, g.readme_node[c.short])
         }
         ci = ci + 1
@@ -1996,6 +2089,29 @@ fn main() {
         g.comps.append(sc)
         g.mod_short[srefid] = string.replace(short, "::", ".")
         g.valid[srefid] = true
+    }
+
+    # extension trees (docs/xml-ext/<ext>/) — namespaces from sibling extension
+    # repos join the site as extra module pages, sidebar entries and search rows
+    let n_stdlib = len(g.comps)
+    if os.path.isdir("docs/xml-ext") {
+        let ext_dirs: list<str> = []
+        for d in os.listdir("docs/xml-ext") {
+            if os.path.isfile("docs/xml-ext/" + d + "/index.xml") { ext_dirs.append(d) }
+        }
+        for extname in sorted_strs(ext_dirs) { load_ext_tree(g, extname) }
+    }
+    if len(g.comps) > n_stdlib {
+        g.search_ph = "Search the standard library &amp; extensions…"
+    }
+    # section anchors on extension pages are valid link targets too
+    ci = n_stdlib
+    while ci < len(g.comps) {
+        let c = g.comps[ci]
+        let adoc = doc_of(xdir_of(c), c.refid)
+        register_anchors(g, adoc, c.detail_id)
+        register_anchors(g, adoc, c.brief_id)
+        ci = ci + 1
     }
 
     let sidebar = build_sidebar(g)

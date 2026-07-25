@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>gpu::metal4 · cheatah</title>
+<link rel="icon" href="cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="cheatah-docs.css?v=670176d5">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <div class="search"><input id="q" type="search" placeholder="Search the standard library &amp; extensions…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><div class="side-h">Essential tools</div><ul><li><a href="purrc.html" data-ref="purrc">purrc — the compiler</a></li><li><a href="runtime.html" data-ref="runtime">The cheatah runtime</a></li><li><a href="biome.html" data-ref="biome">biome — the package manager</a></li><li><a href="extensions.html" data-ref="extensions">Standard library extensions</a></li></ul></div><div class="side-group"><div class="side-h">Guides</div><ul><li><a href="why.html" data-ref="why">Why cheatah?</a></li><li><a href="getting-started.html" data-ref="getting-started">Getting Started</a></li><li><a href="porting.html" data-ref="porting">Coming from Python</a></li><li><a href="imports.html" data-ref="imports">Imports &amp; module resolution</a></li><li><a href="ownership.html" data-ref="ownership">Ownership</a></li><li><a href="transpiler.html" data-ref="transpiler">Transpiler</a></li><li><a href="performance.html" data-ref="performance">Performance</a></li><li><a href="optimizations.html" data-ref="optimizations">Optimizations</a></li><li><a href="security.html" data-ref="security">Security</a></li><li><a href="md_CHANGELOG.html" data-ref="md_CHANGELOG">Changelog</a></li><li><a href="concurrency.html" data-ref="concurrency">Concurrency</a></li></ul></div><div class="side-group"><div class="side-h">Language parity</div><ul><li><a href="md_compiler_2PYTHON.html" data-ref="md_compiler_2PYTHON">cheatah ↔ Python</a></li><li><a href="cpp.html" data-ref="cpp">cheatah ↔ C++</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1aead.html" data-ref="namespacecheatah_1_1aead">aead</a></li><li class="side-mod"><a href="namespacecheatah_1_1builtins.html" data-ref="namespacecheatah_1_1builtins">builtins</a></li><li class="side-mod"><a href="namespacecheatah_1_1datetime.html" data-ref="namespacecheatah_1_1datetime">datetime</a></li><li class="side-mod"><a href="namespacecheatah_1_1ec.html" data-ref="namespacecheatah_1_1ec">ec</a></li><li class="side-mod"><a href="namespacecheatah_1_1ed25519.html" data-ref="namespacecheatah_1_1ed25519">ed25519</a></li><li class="side-mod"><a href="namespacecheatah_1_1fixarray.html" data-ref="namespacecheatah_1_1fixarray">fixarray</a></li><li class="side-mod"><a href="namespacecheatah_1_1hashlib.html" data-ref="namespacecheatah_1_1hashlib">hashlib</a></li><li class="side-mod"><a href="namespacecheatah_1_1io.html" data-ref="namespacecheatah_1_1io">io</a></li><li class="side-mod"><a href="namespacecheatah_1_1linalg.html" data-ref="namespacecheatah_1_1linalg">linalg</a></li><li class="side-mod"><a href="namespacecheatah_1_1math.html" data-ref="namespacecheatah_1_1math">math</a></li><li class="side-mod"><a href="namespacecheatah_1_1memory.html" data-ref="namespacecheatah_1_1memory">memory</a></li><li class="side-mod"><a href="namespacecheatah_1_1ndarray.html" data-ref="namespacecheatah_1_1ndarray">ndarray</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1os.html" data-ref="namespacecheatah_1_1os">os</a></summary><ul><li><a href="namespacecheatah_1_1os_1_1path.html" data-ref="namespacecheatah_1_1os_1_1path">path</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1p256.html" data-ref="namespacecheatah_1_1p256">p256</a></li><li class="side-mod"><a href="namespacecheatah_1_1p384.html" data-ref="namespacecheatah_1_1p384">p384</a></li><li class="side-mod"><details class="side-sub"><summary><a href="nsx_parsers.html" data-ref="nsx_parsers">parsers</a></summary><ul><li><a href="namespacecheatah_1_1parsers_1_1html.html" data-ref="namespacecheatah_1_1parsers_1_1html">html</a></li><li><a href="namespacecheatah_1_1parsers_1_1json.html" data-ref="namespacecheatah_1_1parsers_1_1json">json</a></li><li><a href="nsx_parsers_url.html" data-ref="nsx_parsers_url">url</a></li><li><a href="namespacecheatah_1_1parsers_1_1xml.html" data-ref="namespacecheatah_1_1parsers_1_1xml">xml</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1random.html" data-ref="namespacecheatah_1_1random">random</a></li><li class="side-mod"><a href="namespacecheatah_1_1regex.html" data-ref="namespacecheatah_1_1regex">regex</a></li><li class="side-mod"><a href="namespacecheatah_1_1requests.html" data-ref="namespacecheatah_1_1requests">requests</a></li><li class="side-mod"><a href="namespacecheatah_1_1socket.html" data-ref="namespacecheatah_1_1socket">socket</a></li><li class="side-mod"><a href="namespacecheatah_1_1statistics.html" data-ref="namespacecheatah_1_1statistics">statistics</a></li><li class="side-mod"><a href="namespacecheatah_1_1string.html" data-ref="namespacecheatah_1_1string">string</a></li><li class="side-mod"><a href="namespacecheatah_1_1sys.html" data-ref="namespacecheatah_1_1sys">sys</a></li><li class="side-mod"><a href="namespacecheatah_1_1thread.html" data-ref="namespacecheatah_1_1thread">thread</a></li><li class="side-mod"><a href="namespacecheatah_1_1time.html" data-ref="namespacecheatah_1_1time">time</a></li><li class="side-mod"><a href="namespacecheatah_1_1tls.html" data-ref="namespacecheatah_1_1tls">tls</a></li><li class="side-mod"><a href="namespacecheatah_1_1websocket.html" data-ref="namespacecheatah_1_1websocket">websocket</a></li><li class="side-mod"><a href="namespacecheatah_1_1x25519.html" data-ref="namespacecheatah_1_1x25519">x25519</a></li></ul></div><div class="side-group"><div class="side-h">Extensions</div><ul><li class="side-mod"><a href="namespacecheatah_1_1gpu.html" data-ref="namespacecheatah_1_1gpu">gpu</a></li><li class="side-mod"><a href="namespacecheatah_1_1gpu_1_1dispatch.html" data-ref="namespacecheatah_1_1gpu_1_1dispatch">gpu.dispatch</a></li><li class="side-mod"><a href="namespacecheatah_1_1gpu_1_1metal.html" data-ref="namespacecheatah_1_1gpu_1_1metal">gpu.metal</a></li><li class="side-mod"><a href="namespacecheatah_1_1gpu_1_1metal_1_1emulated.html" data-ref="namespacecheatah_1_1gpu_1_1metal_1_1emulated">gpu.metal.emulated</a></li><li class="side-mod"><a href="namespacecheatah_1_1gpu_1_1metal4.html" data-ref="namespacecheatah_1_1gpu_1_1metal4">gpu.metal4</a></li><li class="side-mod"><a href="namespacecheatah_1_1gpu_1_1vulkan.html" data-ref="namespacecheatah_1_1gpu_1_1vulkan">gpu.vulkan</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>gpu::metal4</code></h1>
+  <p class="ext-badge">cheatah-gpu v0.5.0-alpha — Biome Standard 0.1.0-alpha</p>
+</div>
+<div class="overview"></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a1090628264ae7a1c2ec80bdc70859307">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorNone</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a1090628264ae7a1c2ec80bdc70859307" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a7fb919827f996b07bbf9a45a78d9dab8">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorTimeout</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a7fb919827f996b07bbf9a45a78d9dab8" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aad3b23ceb20a7e16d5685eecbc0a5d43">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorNotPermitted</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aad3b23ceb20a7e16d5685eecbc0a5d43" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a2309519631e1c2c0c82a34f2f648caaf">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorOutOfMemory</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a2309519631e1c2c0c82a34f2f648caaf" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a06c2324f505240f42e6418cdf48de333">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorDeviceRemoved</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a06c2324f505240f42e6418cdf48de333" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aad19144a3c8a077ba9cc0bb2ba1ac829">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorAccessRevoked</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aad19144a3c8a077ba9cc0bb2ba1ac829" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1adcc737f4e74c428e80d333c1d7496fa7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CommandQueueErrorInternal</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1adcc737f4e74c428e80d333c1d7496fa7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a90433f00379b0b410826a1865e71a6a1">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CompilerTaskStatusNone</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a90433f00379b0b410826a1865e71a6a1" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aedc902acd7f3cc7f2bfbc5bf1a0f89ff">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CompilerTaskStatusScheduled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aedc902acd7f3cc7f2bfbc5bf1a0f89ff" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a1a5c797a631ef161a13094fea95f8f4c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CompilerTaskStatusCompiling</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a1a5c797a631ef161a13094fea95f8f4c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aea335360234e8cb875fbfe2d03466355">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CompilerTaskStatusFinished</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aea335360234e8cb875fbfe2d03466355" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a2207598a4b57b5bf43799eb8ff6bbaf2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CounterHeapTypeInvalid</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a2207598a4b57b5bf43799eb8ff6bbaf2" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aafbc0f0218e8461894a4f89ba3ee16cc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">CounterHeapTypeTimestamp</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aafbc0f0218e8461894a4f89ba3ee16cc" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a0dbf49fbaaebdc7c1b53f3a2dfaff326">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">TimestampGranularityRelaxed</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a0dbf49fbaaebdc7c1b53f3a2dfaff326" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ad9fa3501035a5b3938fe4c88f2cdbddb">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">TimestampGranularityPrecise</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ad9fa3501035a5b3938fe4c88f2cdbddb" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a873c60b231119a9680f18d16ea8e1d32">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">AlphaToOneStateDisabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a873c60b231119a9680f18d16ea8e1d32" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a99cd3e2e4c1352d1d049dcef3a4ea609">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">AlphaToOneStateEnabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a99cd3e2e4c1352d1d049dcef3a4ea609" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a201be10565f43cef8842c024537a8475">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">AlphaToCoverageStateDisabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a201be10565f43cef8842c024537a8475" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a2308445fdbccc3de8a9e475729af926d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">AlphaToCoverageStateEnabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a2308445fdbccc3de8a9e475729af926d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a5691c287203f116b72e25676a0b06d19">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">BlendStateDisabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a5691c287203f116b72e25676a0b06d19" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a0056a10fdf4a486c8b4926b1f1bd8f4f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">BlendStateEnabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a0056a10fdf4a486c8b4926b1f1bd8f4f" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a50e7911c56c88eda71740274b00d1ca4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">BlendStateUnspecialized</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a50e7911c56c88eda71740274b00d1ca4" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a97d1b8b562aa6676ca561c966487101b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">IndirectCommandBufferSupportStateDisabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a97d1b8b562aa6676ca561c966487101b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a9d0c0cd76ada1414e7f68bda64d00ef4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">IndirectCommandBufferSupportStateEnabled</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a9d0c0cd76ada1414e7f68bda64d00ef4" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a45f68ae3eaa2b77411aff674c277aea7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">LogicalToPhysicalColorAttachmentMappingStateIdentity</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a45f68ae3eaa2b77411aff674c277aea7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a6269dccb7281d8bc49f448ca034f7cd3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">LogicalToPhysicalColorAttachmentMappingStateInherited</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a6269dccb7281d8bc49f448ca034f7cd3" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a987ae02e62daf955f0e512357c5401c1">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">BinaryFunctionOptionNone</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a987ae02e62daf955f0e512357c5401c1" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a06f3e10e20c780d160a2ae68bf87234c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">BinaryFunctionOptionPipelineIndependent</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a06f3e10e20c780d160a2ae68bf87234c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a806f71b60dcd2b50905bcbd4a3477e92">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">VisibilityOptionNone</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a806f71b60dcd2b50905bcbd4a3477e92" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aadfceeb9ecbe1da9cae7fbd27c77fa49">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">VisibilityOptionDevice</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aadfceeb9ecbe1da9cae7fbd27c77fa49" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a30c1e5d3d6bbdcd2f4fd5e9ae5188914">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">VisibilityOptionResourceAlias</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a30c1e5d3d6bbdcd2f4fd5e9ae5188914" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a7a476ee4059aa64a61d3da777a403213">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">PipelineDataSetSerializerConfigurationCaptureDescriptors</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a7a476ee4059aa64a61d3da777a403213" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a041499d8391b65b3af9b16851c0013bb">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">PipelineDataSetSerializerConfigurationCaptureBinaries</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a041499d8391b65b3af9b16851c0013bb" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a4cddfc93154755bec2fe189bdf1e41e4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">ShaderReflectionNone</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a4cddfc93154755bec2fe189bdf1e41e4" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a6188b1cfcf98c783c8b91819d5ae290b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">ShaderReflectionBindingInfo</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a6188b1cfcf98c783c8b91819d5ae290b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a966138b4946e3ccf64288721704c31bc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">ShaderReflectionBufferTypeInfo</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a966138b4946e3ccf64288721704c31bc" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a82798b1660dcaf8141401316e257a79f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">RenderEncoderOptionNone</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a82798b1660dcaf8141401316e257a79f" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ad3c2eb023fae5c20b40f00a397ead28a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">RenderEncoderOptionSuspending</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ad3c2eb023fae5c20b40f00a397ead28a" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aa72a4287ec2c71b4f311af35581254e0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">RenderEncoderOptionResuming</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aa72a4287ec2c71b4f311af35581254e0" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ac90b83858d92fc14579ef1fe4f4ddc18">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::Archive</span> <span class="mname">Archive</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ac90b83858d92fc14579ef1fe4f4ddc18" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aea35ed014dff38626497d31c73b770c6">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::ArgumentTableDescriptor</span> <span class="mname">ArgumentTableDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aea35ed014dff38626497d31c73b770c6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a13b18eca8ae2ffd05434fa6b7216f8b3">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::ArgumentTable</span> <span class="mname">ArgumentTable</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a13b18eca8ae2ffd05434fa6b7216f8b3" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1afb3b80aa3781a5954f41810fd3d06979">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::BinaryFunctionDescriptor</span> <span class="mname">BinaryFunctionDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1afb3b80aa3781a5954f41810fd3d06979" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1af7291035e5998ab7160ff48db1b07cb6">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::BinaryFunction</span> <span class="mname">BinaryFunction</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1af7291035e5998ab7160ff48db1b07cb6" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a929984b69f535da0e15a47b8e51b7a4b">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CommandAllocatorDescriptor</span> <span class="mname">CommandAllocatorDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a929984b69f535da0e15a47b8e51b7a4b" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a02fdd563fa620032f7c4990f8ad684f3">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CommandAllocator</span> <span class="mname">CommandAllocator</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a02fdd563fa620032f7c4990f8ad684f3" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ad3b3625c7c9ddf903c2148fc5ba7a6ba">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CommandBufferOptions</span> <span class="mname">CommandBufferOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ad3b3625c7c9ddf903c2148fc5ba7a6ba" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a836e10ea5b849833b96ecbfc8fda3e26">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CommitOptions</span> <span class="mname">CommitOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a836e10ea5b849833b96ecbfc8fda3e26" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a20ed5617b6334c8ead400a40e88f740d">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CommitFeedback</span> <span class="mname">CommitFeedback</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a20ed5617b6334c8ead400a40e88f740d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ac06f4f2bba0eec3209c61b51e060a471">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CompilerDescriptor</span> <span class="mname">CompilerDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ac06f4f2bba0eec3209c61b51e060a471" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a82082d8c7cac4bd76d33ee4584133239">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CompilerTaskOptions</span> <span class="mname">CompilerTaskOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a82082d8c7cac4bd76d33ee4584133239" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a6198d99a89a42dfb2cd0cb011821344a">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::Compiler</span> <span class="mname">Compiler</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a6198d99a89a42dfb2cd0cb011821344a" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1adbfe1464e15ff948aeff8627e1a1905c">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CompilerTask</span> <span class="mname">CompilerTask</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1adbfe1464e15ff948aeff8627e1a1905c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ae73b82eec6ff1f68604a93bcc90a3a51">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CounterHeapDescriptor</span> <span class="mname">CounterHeapDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ae73b82eec6ff1f68604a93bcc90a3a51" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a43722a5b3e73f14f05d063edf8d65ca9">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CounterHeap</span> <span class="mname">CounterHeap</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a43722a5b3e73f14f05d063edf8d65ca9" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a72500ef937b1069a022a63d05220b206">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::LibraryDescriptor</span> <span class="mname">LibraryDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a72500ef937b1069a022a63d05220b206" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a1200a02f5097bfd2eca30734f8e76e89">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::LibraryFunctionDescriptor</span> <span class="mname">LibraryFunctionDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a1200a02f5097bfd2eca30734f8e76e89" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a92cacf4aa3a6f5e49952d16bb5744c60">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::StaticLinkingDescriptor</span> <span class="mname">StaticLinkingDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a92cacf4aa3a6f5e49952d16bb5744c60" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a1e9bc56272453d277a1cf441c2a22465">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::PipelineStageDynamicLinkingDescriptor</span> <span class="mname">PipelineStageDynamicLinkingDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a1e9bc56272453d277a1cf441c2a22465" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1aeb5d2a6bf9e07dab537ba34483b91344">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::RenderPipelineDynamicLinkingDescriptor</span> <span class="mname">RenderPipelineDynamicLinkingDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1aeb5d2a6bf9e07dab537ba34483b91344" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1afd14e3a9548946ff6351ba3fad4a53a8">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::MachineLearningCommandEncoder</span> <span class="mname">MachineLearningCommandEncoder</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1afd14e3a9548946ff6351ba3fad4a53a8" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a6a53b2f89556f6e8b153621596c332b3">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::MachineLearningPipelineDescriptor</span> <span class="mname">MachineLearningPipelineDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a6a53b2f89556f6e8b153621596c332b3" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1abfaece8dffd371c400625f6826093801">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::MachineLearningPipelineReflection</span> <span class="mname">MachineLearningPipelineReflection</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1abfaece8dffd371c400625f6826093801" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ab7eb7270bedd470dadf50b891c346333">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::MachineLearningPipelineState</span> <span class="mname">MachineLearningPipelineState</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ab7eb7270bedd470dadf50b891c346333" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a18f284cc7023fc4613b7f7ef3d6bfcee">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::PipelineDataSetSerializerDescriptor</span> <span class="mname">PipelineDataSetSerializerDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a18f284cc7023fc4613b7f7ef3d6bfcee" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a8ca2502e690e17954807e99050252c45">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::PipelineDataSetSerializer</span> <span class="mname">PipelineDataSetSerializer</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a8ca2502e690e17954807e99050252c45" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1afe9af5be84e416e26a98c2d46afdd5c1">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::PipelineOptions</span> <span class="mname">PipelineOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1afe9af5be84e416e26a98c2d46afdd5c1" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a940b32f496bb69e8871a523465f2f184">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::PipelineDescriptor</span> <span class="mname">PipelineDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a940b32f496bb69e8871a523465f2f184" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ac30cd85acd7f3b9fc49c975dc3ba37df">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::RenderPipelineBinaryFunctionsDescriptor</span> <span class="mname">RenderPipelineBinaryFunctionsDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ac30cd85acd7f3b9fc49c975dc3ba37df" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a7775b27a1a81420501ab297ff323ff79">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::SpecializedFunctionDescriptor</span> <span class="mname">SpecializedFunctionDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a7775b27a1a81420501ab297ff323ff79" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a1e58f9a71a799ec347bf7f75bbbce156">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::StitchedFunctionDescriptor</span> <span class="mname">StitchedFunctionDescriptor</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a1e58f9a71a799ec347bf7f75bbbce156" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ac2e92523c8bd977ef3fbaf94c31e974e">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CommandQueueError</span> <span class="mname">CommandQueueError</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ac2e92523c8bd977ef3fbaf94c31e974e" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1ad732c2d5a1e7d13a4757ec5ca1a28723">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CompilerTaskStatus</span> <span class="mname">CompilerTaskStatus</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1ad732c2d5a1e7d13a4757ec5ca1a28723" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a3cfac4acc13c7448a856cfb7c0ff7e5e">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::CounterHeapType</span> <span class="mname">CounterHeapType</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a3cfac4acc13c7448a856cfb7c0ff7e5e" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a21f55100df3b89ca813ce01f964577e4">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::TimestampGranularity</span> <span class="mname">TimestampGranularity</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a21f55100df3b89ca813ce01f964577e4" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1acaef87d631c78983fbcc8e171ec067d5">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::AlphaToOneState</span> <span class="mname">AlphaToOneState</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1acaef87d631c78983fbcc8e171ec067d5" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a780f79b87db7ad7aa3f31c99c827aa90">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::AlphaToCoverageState</span> <span class="mname">AlphaToCoverageState</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a780f79b87db7ad7aa3f31c99c827aa90" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a761fbd4bbcf180a04f796ff13d8844ca">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::BlendState</span> <span class="mname">BlendState</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a761fbd4bbcf180a04f796ff13d8844ca" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a5ce17be4bd8ec3f20401e931737c31f8">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::IndirectCommandBufferSupportState</span> <span class="mname">IndirectCommandBufferSupportState</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a5ce17be4bd8ec3f20401e931737c31f8" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1abf630535896c1edd2a1f3726a39934eb">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::LogicalToPhysicalColorAttachmentMappingState</span> <span class="mname">LogicalToPhysicalColorAttachmentMappingState</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1abf630535896c1edd2a1f3726a39934eb" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a5df8f1c81ee2433ee59ff8a4726d77ca">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::BinaryFunctionOptions</span> <span class="mname">BinaryFunctionOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a5df8f1c81ee2433ee59ff8a4726d77ca" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1abaf9489093565f93d255b21440e12666">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::VisibilityOptions</span> <span class="mname">VisibilityOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1abaf9489093565f93d255b21440e12666" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a0874432d9a00d49a372c945c9d920c86">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::PipelineDataSetSerializerConfiguration</span> <span class="mname">PipelineDataSetSerializerConfiguration</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a0874432d9a00d49a372c945c9d920c86" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a75327df2338ede90c76f715a659b91d4">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::ShaderReflection</span> <span class="mname">ShaderReflection</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a75327df2338ede90c76f715a659b91d4" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1metal4_1a76495869396dafffc06ce3c1ac148a29">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">::MTL4::RenderEncoderOptions</span> <span class="mname">RenderEncoderOptions</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1metal4_1a76495869396dafffc06ce3c1ac148a29" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ac90b83858d92fc14579ef1fe4f4ddc18">Archive</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aea35ed014dff38626497d31c73b770c6">ArgumentTableDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a13b18eca8ae2ffd05434fa6b7216f8b3">ArgumentTable</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1afb3b80aa3781a5954f41810fd3d06979">BinaryFunctionDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1af7291035e5998ab7160ff48db1b07cb6">BinaryFunction</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a929984b69f535da0e15a47b8e51b7a4b">CommandAllocatorDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a02fdd563fa620032f7c4990f8ad684f3">CommandAllocator</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ad3b3625c7c9ddf903c2148fc5ba7a6ba">CommandBufferOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a836e10ea5b849833b96ecbfc8fda3e26">CommitOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a20ed5617b6334c8ead400a40e88f740d">CommitFeedback</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ac06f4f2bba0eec3209c61b51e060a471">CompilerDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a82082d8c7cac4bd76d33ee4584133239">CompilerTaskOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a6198d99a89a42dfb2cd0cb011821344a">Compiler</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1adbfe1464e15ff948aeff8627e1a1905c">CompilerTask</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ae73b82eec6ff1f68604a93bcc90a3a51">CounterHeapDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a43722a5b3e73f14f05d063edf8d65ca9">CounterHeap</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a72500ef937b1069a022a63d05220b206">LibraryDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a1200a02f5097bfd2eca30734f8e76e89">LibraryFunctionDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a92cacf4aa3a6f5e49952d16bb5744c60">StaticLinkingDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a1e9bc56272453d277a1cf441c2a22465">PipelineStageDynamicLinkingDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aeb5d2a6bf9e07dab537ba34483b91344">RenderPipelineDynamicLinkingDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1afd14e3a9548946ff6351ba3fad4a53a8">MachineLearningCommandEncoder</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a6a53b2f89556f6e8b153621596c332b3">MachineLearningPipelineDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1abfaece8dffd371c400625f6826093801">MachineLearningPipelineReflection</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ab7eb7270bedd470dadf50b891c346333">MachineLearningPipelineState</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a18f284cc7023fc4613b7f7ef3d6bfcee">PipelineDataSetSerializerDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a8ca2502e690e17954807e99050252c45">PipelineDataSetSerializer</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1afe9af5be84e416e26a98c2d46afdd5c1">PipelineOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a940b32f496bb69e8871a523465f2f184">PipelineDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ac30cd85acd7f3b9fc49c975dc3ba37df">RenderPipelineBinaryFunctionsDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a7775b27a1a81420501ab297ff323ff79">SpecializedFunctionDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a1e58f9a71a799ec347bf7f75bbbce156">StitchedFunctionDescriptor</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ac2e92523c8bd977ef3fbaf94c31e974e">CommandQueueError</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ad732c2d5a1e7d13a4757ec5ca1a28723">CompilerTaskStatus</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a3cfac4acc13c7448a856cfb7c0ff7e5e">CounterHeapType</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a21f55100df3b89ca813ce01f964577e4">TimestampGranularity</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1acaef87d631c78983fbcc8e171ec067d5">AlphaToOneState</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a780f79b87db7ad7aa3f31c99c827aa90">AlphaToCoverageState</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a761fbd4bbcf180a04f796ff13d8844ca">BlendState</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a5ce17be4bd8ec3f20401e931737c31f8">IndirectCommandBufferSupportState</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1abf630535896c1edd2a1f3726a39934eb">LogicalToPhysicalColorAttachmentMappingState</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a5df8f1c81ee2433ee59ff8a4726d77ca">BinaryFunctionOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1abaf9489093565f93d255b21440e12666">VisibilityOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a0874432d9a00d49a372c945c9d920c86">PipelineDataSetSerializerConfiguration</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a75327df2338ede90c76f715a659b91d4">ShaderReflection</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a76495869396dafffc06ce3c1ac148a29">RenderEncoderOptions</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a1090628264ae7a1c2ec80bdc70859307">CommandQueueErrorNone</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a7fb919827f996b07bbf9a45a78d9dab8">CommandQueueErrorTimeout</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aad3b23ceb20a7e16d5685eecbc0a5d43">CommandQueueErrorNotPermitted</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a2309519631e1c2c0c82a34f2f648caaf">CommandQueueErrorOutOfMemory</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a06c2324f505240f42e6418cdf48de333">CommandQueueErrorDeviceRemoved</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aad19144a3c8a077ba9cc0bb2ba1ac829">CommandQueueErrorAccessRevoked</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1adcc737f4e74c428e80d333c1d7496fa7">CommandQueueErrorInternal</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a90433f00379b0b410826a1865e71a6a1">CompilerTaskStatusNone</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aedc902acd7f3cc7f2bfbc5bf1a0f89ff">CompilerTaskStatusScheduled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a1a5c797a631ef161a13094fea95f8f4c">CompilerTaskStatusCompiling</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aea335360234e8cb875fbfe2d03466355">CompilerTaskStatusFinished</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a2207598a4b57b5bf43799eb8ff6bbaf2">CounterHeapTypeInvalid</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aafbc0f0218e8461894a4f89ba3ee16cc">CounterHeapTypeTimestamp</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a0dbf49fbaaebdc7c1b53f3a2dfaff326">TimestampGranularityRelaxed</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ad9fa3501035a5b3938fe4c88f2cdbddb">TimestampGranularityPrecise</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a873c60b231119a9680f18d16ea8e1d32">AlphaToOneStateDisabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a99cd3e2e4c1352d1d049dcef3a4ea609">AlphaToOneStateEnabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a201be10565f43cef8842c024537a8475">AlphaToCoverageStateDisabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a2308445fdbccc3de8a9e475729af926d">AlphaToCoverageStateEnabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a5691c287203f116b72e25676a0b06d19">BlendStateDisabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a0056a10fdf4a486c8b4926b1f1bd8f4f">BlendStateEnabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a50e7911c56c88eda71740274b00d1ca4">BlendStateUnspecialized</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a97d1b8b562aa6676ca561c966487101b">IndirectCommandBufferSupportStateDisabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a9d0c0cd76ada1414e7f68bda64d00ef4">IndirectCommandBufferSupportStateEnabled</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a45f68ae3eaa2b77411aff674c277aea7">LogicalToPhysicalColorAttachmentMappingStateIdentity</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a6269dccb7281d8bc49f448ca034f7cd3">LogicalToPhysicalColorAttachmentMappingStateInherited</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a987ae02e62daf955f0e512357c5401c1">BinaryFunctionOptionNone</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a06f3e10e20c780d160a2ae68bf87234c">BinaryFunctionOptionPipelineIndependent</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a806f71b60dcd2b50905bcbd4a3477e92">VisibilityOptionNone</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aadfceeb9ecbe1da9cae7fbd27c77fa49">VisibilityOptionDevice</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a30c1e5d3d6bbdcd2f4fd5e9ae5188914">VisibilityOptionResourceAlias</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a7a476ee4059aa64a61d3da777a403213">PipelineDataSetSerializerConfigurationCaptureDescriptors</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a041499d8391b65b3af9b16851c0013bb">PipelineDataSetSerializerConfigurationCaptureBinaries</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a4cddfc93154755bec2fe189bdf1e41e4">ShaderReflectionNone</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a6188b1cfcf98c783c8b91819d5ae290b">ShaderReflectionBindingInfo</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a966138b4946e3ccf64288721704c31bc">ShaderReflectionBufferTypeInfo</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1a82798b1660dcaf8141401316e257a79f">RenderEncoderOptionNone</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1ad3c2eb023fae5c20b40f00a397ead28a">RenderEncoderOptionSuspending</a></li><li><a href="#namespacecheatah_1_1gpu_1_1metal4_1aa72a4287ec2c71b4f311af35581254e0">RenderEncoderOptionResuming</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=34c0155b"></script>
+<script src="cheatah-docs.js?v=be832e47"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

@@ -175,6 +175,10 @@ ul.class-list li a code { color: var(--accent); }
 .page-head h1 { margin: .25em 0 .2em; font-size: 2rem; letter-spacing: -.02em; }
 .page-head h1 code { background: none; padding: 0; color: var(--fg); }
 .lede { color: var(--fg-dim); font-size: 1.05rem; margin: 0; }
+/* extension pages: the version badge line (extension release — Biome Standard) */
+.ext-badge { display: inline-block; margin: 0 0 .5em; padding: 2px 10px; font-size: .78rem;
+  color: var(--accent); background: var(--accent-soft); border: 1px solid var(--border-soft);
+  border-radius: 999px; }
 .overview { margin-bottom: 30px; }
 h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; padding-bottom: 6px; border-bottom: 1px solid var(--border-soft); }
 .content h2 { letter-spacing: -.01em; }
