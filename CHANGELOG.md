@@ -3,6 +3,79 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.7.0-alpha (2026-07-25) — errors grow a kind, the Biome Standard, and documentation you can trust
+
+Exception handling becomes real error *handling*: errors carry a **kind**, `except` can match on it
+across multiple handlers, `finally` runs on every exit path, and re-raise works — no more silent
+terminate. The ecosystem gains the **Biome Standard**: one semantic version naming the set of
+component releases tested to work together, with an append-only definition, a source-retention
+guarantee, and biome resolving every fetched tag from it. And the documentation contract stopped
+being a convention: every `@alloc`/`@complexity` claim in the standard library was audited against
+the implementation — **transitively**, callees included — and a new gate now enforces the tags
+forever.
+
+### Language — errors carry a kind
+- **`raise` / `except` / `finally` matured**: errors carry a kind, multiple `except` handlers match
+  on it, `finally` runs on every exit path (including unwinding), and re-raise propagates the
+  original error. A failing program now reports its error instead of silently terminating.
+- `index()` returns a const reference (no more deep copy on every subscript, unblocking the
+  optimizer); list slices `memmove`; Python floor-mod on integers; user programs unroll.
+
+### The Biome Standard — one version for the tested-together ecosystem
+- **`standard = "0.1.0-alpha"` in `cheatah.toml` is now the one version users track.** It names the
+  exact toolchain + extension releases tested to work together (this release: cheatah
+  `v1.7.0-alpha` + cheatah-gpu `v0.5.0-alpha`); biome resolves every `GIT_TAG` it writes from the
+  standard, refuses extensions that aren't members of your standard, and gains a `biome standards`
+  command. The old hardcoded `v0.1.0` extension pin is gone; `[cheatah] version` survives as a
+  manual toolchain override.
+- **The standard's major version is a promise about user code**: it only ever increments when
+  programs cannot carry forward (a forced security change, or a language change so fundamental the
+  ecosystem's APIs all moved). Member-to-member breakage absorbed inside the set is at most a
+  minor. The full contract, worked examples, and the community practices that keep majors rare are
+  in `docs/biome.md`.
+- **Nothing is ever stranded**: standards are append-only (`standards/*.toml`, drift-checked
+  against biome's in-source table by QA gate stage 3d); release tarballs attach to every GitHub
+  release; `scripts/archive_standard.sh` snapshots a whole standard (definition + git-archive of
+  every member at its pinned tag); and a standard is only ever deprecated for an unpatchable
+  security flaw, with a public advisory. biome itself is `0.2.0-alpha` and finally has tests
+  (a 12-test CLI round-trip suite).
+
+### Documentation — audited to be true, then gated to stay true
+- **Every `@alloc` and `@complexity` tag in the stdlib was verified against the implementation,
+  transitively** — a function's tags now account for everything its callees allocate and cost.
+  Dozens of falsehoods fixed, among them: HMAC/HKDF "fixed scratch buffers" that are really
+  message-sized; `hkdf_expand` was not `O(length)`; ed25519 `sign` runs *two* base-point
+  multiplications and hashes the message twice; `regex` unanchored search is worst-case O(n²)
+  (still ReDoS-immune — never exponential); TLS `recv` drains every buffered record, and a custom
+  CA file is parsed per call; `svdvals` allocates the full SVD workspaces; the `memory` module's
+  request/acquire docs described blocking on the wrong side. Dead `@test` references (tests that
+  never existed) were fixed across the library — 11 in `builtins` alone.
+- **A new `@concurrency` tag** documents blocking behavior and thread-safety where it matters
+  (memory, thread, socket, tls, websocket, random, io), and `@warning` marks real hazards (nonce
+  reuse, TOCTOU, `insecure=true`, shell interpretation).
+- **`scripts/doc_tag_lint.sh` joins the QA gate**: every public stdlib function must carry
+  `@complexity`, `@alloc`, and a `@test`/`@crtest`/`@systest` link, or the push is blocked. The
+  documentation site now also covers **extension APIs** — cheatah-gpu's full `gpu.*` surface joins
+  the sidebar and search index.
+- The regex audit found (and this release fixes) a real engine bug: patterns that can match empty
+  at end-of-input (`a*$`) never matched.
+
+### Coverage — the denominator now tells the whole truth
+- **`parsers.html`, the compiled JSON DOM (`parsers/json/json.cpp`), and `sys` were shipped but
+  invisible to the 100% gate** — never compiled into a coverage binary, so the green 100% silently
+  excluded them. All three now carry full suites (tokenizer/entity edge cases and a malformed
+  battery for HTML; a 23-input rejection battery and the 1000-deep nesting cap for the JSON DOM;
+  argv fail-safes for sys) and sit inside the measured denominator at 100% lines and functions.
+
+### Networking — faster downloads
+- **Download throughput fixed**: connected sockets are tuned, hardware AES is preferred for TLS
+  records, and buffered records are drained per read. New loopback/net benchmark harnesses
+  (`scripts/tls_loopback_bench.sh`, `scripts/net_bench_compare.sh`) keep the numbers honest.
+
+### Linalg
+- Real `conj_transpose` instantiations ship, and the out-param kernels validate shapes
+  allocation-free.
+
 ## v1.6.0-alpha (2026-07-17) — a faster transpiler, a parallelized QA gate, and a full security audit
 
 The `purrc` transpiler is faster and the QA gate is dramatically faster — both without changing a
