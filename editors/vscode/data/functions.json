@@ -663,7 +663,7 @@
         "test": "CheatahAead.Rfc8439Encrypt"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 411,
+      "srcline": 487,
       "module": "aead",
       "qualified": "aead.aead_len_ok"
     },
@@ -696,7 +696,7 @@
         "test": "CheatahAead.AesGcmRejectsTamperAndMalformed"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 95,
+      "srcline": 154,
       "module": "aead",
       "qualified": "aead.aes128gcm_decrypt"
     },
@@ -730,7 +730,7 @@
         "systest": "TlsSys.HandshakeAes128Gcm"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 78,
+      "srcline": 137,
       "module": "aead",
       "qualified": "aead.aes128gcm_encrypt"
     },
@@ -763,7 +763,7 @@
         "test": "CheatahAead.Aes256GcmRejectsTamper"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 133,
+      "srcline": 192,
       "module": "aead",
       "qualified": "aead.aes256gcm_decrypt"
     },
@@ -797,7 +797,7 @@
         "systest": "TlsSys.HandshakeAes256GcmSha384"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 117,
+      "srcline": 176,
       "module": "aead",
       "qualified": "aead.aes256gcm_encrypt"
     },
@@ -831,9 +831,54 @@
         "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 57,
+      "srcline": 116,
       "module": "aead",
       "qualified": "aead.chacha20poly1305_decrypt"
+    },
+    {
+      "name": "chacha20poly1305_decrypt_into",
+      "signature": "chacha20poly1305_decrypt_into(const unsigned char key[32], const unsigned char nonce[12], const unsigned char *aad, std::size_t aad_len, const unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *out)",
+      "brief": "Verify + decrypt into a CALLER-PROVIDED buffer — the allocation-free inverse of chacha20poly1305_encrypt_into.",
+      "params": [
+        {
+          "name": "key",
+          "desc": "the 32-byte key."
+        },
+        {
+          "name": "nonce",
+          "desc": "the 12-byte nonce used to encrypt."
+        },
+        {
+          "name": "aad",
+          "desc": "the same additional authenticated data (may be null when aad_len is 0)."
+        },
+        {
+          "name": "aad_len",
+          "desc": "length of aad in bytes."
+        },
+        {
+          "name": "ciphertext",
+          "desc": "the ciphertext WITH its trailing 16-byte tag."
+        },
+        {
+          "name": "ciphertext_len",
+          "desc": "total length including the tag; must be >= 16."
+        },
+        {
+          "name": "out",
+          "desc": "receives ciphertext_len - 16 plaintext bytes. May alias ciphertext. May be null ONLY when the message is tag-only (ciphertext_len == 16), i.e. there is no plaintext to write — so authenticating an empty message needs no buffer."
+        }
+      ],
+      "returns": "false when the tag does not verify (nothing is written), or on a malformed argument; true on success.",
+      "tags": {
+        "complexity": "O(|ciphertext| + |aad|).",
+        "alloc": "none. @thread any thread; no shared state. Async-signal-safe (no allocation, no locks, no errno use).",
+        "test": "CheatahAead.IntoFormsMatchStringForms"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 96,
+      "module": "aead",
+      "qualified": "aead.chacha20poly1305_decrypt_into"
     },
     {
       "name": "chacha20poly1305_encrypt",
@@ -865,9 +910,54 @@
         "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 39,
+      "srcline": 40,
       "module": "aead",
       "qualified": "aead.chacha20poly1305_encrypt"
+    },
+    {
+      "name": "chacha20poly1305_encrypt_into",
+      "signature": "chacha20poly1305_encrypt_into(const unsigned char key[32], const unsigned char nonce[12], const unsigned char *aad, std::size_t aad_len, const unsigned char *plaintext, std::size_t plaintext_len, unsigned char *out)",
+      "brief": "ChaCha20-Poly1305 encryption into a CALLER-PROVIDED buffer — the allocation-free form.",
+      "params": [
+        {
+          "name": "key",
+          "desc": "the 32-byte key."
+        },
+        {
+          "name": "nonce",
+          "desc": "the 12-byte nonce; MUST be unique per key."
+        },
+        {
+          "name": "aad",
+          "desc": "additional authenticated data (may be null when aad_len is 0)."
+        },
+        {
+          "name": "aad_len",
+          "desc": "length of aad in bytes."
+        },
+        {
+          "name": "plaintext",
+          "desc": "the message to encrypt (may be null when plaintext_len is 0)."
+        },
+        {
+          "name": "plaintext_len",
+          "desc": "length of plaintext in bytes."
+        },
+        {
+          "name": "out",
+          "desc": "receives plaintext_len + 16 bytes: the ciphertext followed by the tag. May alias plaintext to encrypt in place."
+        }
+      ],
+      "returns": "false on a null buffer with a nonzero length, or a message over the 64 GiB single-message cap; true otherwise.",
+      "tags": {
+        "complexity": "O(|plaintext| + |aad|).",
+        "alloc": "none. @thread any thread; no shared state. Async-signal-safe (no allocation, no locks, no errno use).",
+        "test": "CheatahAead.IntoFormsMatchStringForms"
+      },
+      "srcfile": "stdlib/aead/aead.hpp",
+      "srcline": 70,
+      "module": "aead",
+      "qualified": "aead.chacha20poly1305_encrypt_into"
     },
     {
       "name": "crypto_hardware_active",
@@ -881,7 +971,7 @@
         "test": "CryptoPlatform.Report"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 163,
+      "srcline": 222,
       "module": "aead",
       "qualified": "aead.crypto_hardware_active"
     },
@@ -902,7 +992,7 @@
         "test": "CheatahAead.AesGcmPortableMatchesHardware"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 387,
+      "srcline": 463,
       "module": "aead",
       "qualified": "aead.set_force_portable_crypto"
     },

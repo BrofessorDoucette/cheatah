@@ -3,6 +3,29 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.8.0-alpha (2026-07-26) — authenticated encryption without an allocator
+
+ChaCha20-Poly1305 grows an **allocation-free surface**. The string-returning forms are still the
+ones you want in ordinary code, but they allocate — a result string and a temporary MAC-input
+buffer — which rules them out of the places that forbid allocation outright: signal handlers,
+embedded targets, and hot loops that already own their memory. The new `_into` forms take caller
+buffers and allocate nothing at all, and they are byte-for-byte identical to the forms they mirror.
+
+### AEAD — `_into` forms that allocate nothing
+- **`aead.chacha20poly1305_encrypt_into` / `chacha20poly1305_decrypt_into`** write into a
+  caller-provided buffer, allocate **nothing**, and are async-signal-safe (no allocation, no locks,
+  no `errno`). Both may alias their input to work **in place**. Decryption verifies the tag in
+  constant time *before* any plaintext reaches the caller's buffer, so a tampered message never
+  leaves a partial decrypt behind.
+- **Poly1305 is now an incremental core** (`init`/`block`/`finish`), with the one-shot form
+  reimplemented on top of it — both paths are provably the same arithmetic rather than two
+  hand-kept-in-sync copies. Because the AEAD's MAC input pads every segment to a 16-byte boundary,
+  no Poly1305 block ever straddles a segment, which is what lets the tag be streamed straight from
+  `aad + ciphertext + lengths` with **no concatenation buffer**.
+- The equivalence is tested, not asserted: byte-identical output to the string forms over the
+  RFC 8439 vector and 200 randomized sizes chosen to straddle the 64- and 16-byte block boundaries,
+  plus tamper rejection for **every single bit flip** in the message.
+
 ## v1.7.0-alpha (2026-07-25) — errors grow a kind, the Biome Standard, and documentation you can trust
 
 Exception handling becomes real error *handling*: errors carry a **kind**, `except` can match on it
