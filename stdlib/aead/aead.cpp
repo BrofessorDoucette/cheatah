@@ -71,12 +71,22 @@ std::string chacha_xor(const u32 key[8], const u32 nonce[3], u32 counter0, std::
     return out;
 }
 
-// Poly1305 over the already-assembled MAC input, keyed by (r, s) from ChaCha block 0.
+// Poly1305, INCREMENTAL: keyed by (r, s) from ChaCha block 0, then fed 16-byte blocks. Splitting
+// the one-shot form into init/block/finish lets a caller authenticate a message that arrives in
+// pieces WITHOUT first concatenating it into one buffer — which is what makes the allocation-free
+// AEAD path below possible (the AEAD MAC input is aad || pad || ct || pad || lengths, and every
+// segment is 16-byte aligned, so no block ever straddles two segments).
 // 26-bit limbs in u64 lanes — the standard portable shape. @complexity O(n) @alloc none
-// @test CheatahAead.Rfc8439Encrypt
-void poly1305(const unsigned char rs[32], std::string_view msg, unsigned char tag[16]) {
+// @test CheatahAead.Rfc8439Encrypt / CheatahAead.IntoFormsMatchStringForms
+struct Poly1305 {
     u32 r0, r1, r2, r3, r4;
-    {  // load and clamp r (RFC 8439 §2.5)
+    u32 s1, s2, s3, s4;
+    u32 h0 = 0, h1 = 0, h2 = 0, h3 = 0, h4 = 0;
+    unsigned char rs_copy[32];
+
+    // Load and clamp r (RFC 8439 §2.5) and keep s for the final addition.
+    void init(const unsigned char rs[32]) {
+        std::memcpy(rs_copy, rs, 32);
         u32 t[4];
         std::memcpy(t, rs, 16);
         t[0] &= 0x0fffffff; t[1] &= 0x0ffffffc; t[2] &= 0x0ffffffc; t[3] &= 0x0ffffffc;
@@ -85,25 +95,22 @@ void poly1305(const unsigned char rs[32], std::string_view msg, unsigned char ta
         r2 = ((t[1] >> 20) | (t[2] << 12)) & 0x3ffffff;
         r3 = ((t[2] >> 14) | (t[3] << 18)) & 0x3ffffff;
         r4 = (t[3] >> 8) & 0x3ffffff;
+        s1 = r1 * 5; s2 = r2 * 5; s3 = r3 * 5; s4 = r4 * 5;
+        h0 = h1 = h2 = h3 = h4 = 0;
     }
-    const u32 s1 = r1 * 5, s2 = r2 * 5, s3 = r3 * 5, s4 = r4 * 5;
-    u32 h0 = 0, h1 = 0, h2 = 0, h3 = 0, h4 = 0;
 
-    std::size_t pos = 0;
-    while (pos < msg.size()) {
-        unsigned char block[17] = {0};
-        const std::size_t n = std::min<std::size_t>(16, msg.size() - pos);
-        std::memcpy(block, msg.data() + pos, n);
-        block[n] = 1;  // the high bit of the (padded) block
-        pos += n;
-
+    // Absorb ONE block: @p n bytes (n <= 16) zero-padded, with the high bit set per the RFC.
+    void block(const unsigned char* data, std::size_t n) {
+        unsigned char blk[17] = {0};
+        std::memcpy(blk, data, n);
+        blk[n] = 1;
         u32 t[4];
-        std::memcpy(t, block, 16);
+        std::memcpy(t, blk, 16);
         h0 += t[0] & 0x3ffffff;
         h1 += ((t[0] >> 26) | (t[1] << 6)) & 0x3ffffff;
         h2 += ((t[1] >> 20) | (t[2] << 12)) & 0x3ffffff;
         h3 += ((t[2] >> 14) | (t[3] << 18)) & 0x3ffffff;
-        h4 += (t[3] >> 8) | (static_cast<u32>(block[16]) << 24);
+        h4 += (t[3] >> 8) | (static_cast<u32>(blk[16]) << 24);
 
         const u64 d0 = (u64)h0 * r0 + (u64)h1 * s4 + (u64)h2 * s3 + (u64)h3 * s2 + (u64)h4 * s1;
         const u64 d1 = (u64)h0 * r1 + (u64)h1 * r0 + (u64)h2 * s4 + (u64)h3 * s3 + (u64)h4 * s2;
@@ -120,6 +127,42 @@ void poly1305(const unsigned char rs[32], std::string_view msg, unsigned char ta
         h1 += static_cast<u32>(c);
     }
 
+    // Absorb a whole segment plus its zero padding to a 16-byte boundary (the AEAD shape).
+    void segment_padded(const unsigned char* data, std::size_t len) {
+        std::size_t pos = 0;
+        while (pos + 16 <= len) { block(data + pos, 16); pos += 16; }
+        if (pos < len) {
+            unsigned char pad[16] = {0};
+            std::memcpy(pad, data + pos, len - pos);
+            block(pad, 16);   // the AEAD pads to a full block (NOT the one-shot partial rule)
+        }
+    }
+
+    void finish(unsigned char tag[16]);
+};
+
+void poly1305_state_finish(Poly1305& st, unsigned char tag[16]);
+
+void Poly1305::finish(unsigned char tag[16]) { poly1305_state_finish(*this, tag); }
+
+// The one-shot form, now expressed through the incremental core so both paths are provably the
+// same arithmetic. Keeps the RFC's partial-final-block rule (pad with zeros, high bit after the
+// last real byte) which differs from the AEAD's whole-block padding.
+void poly1305(const unsigned char rs[32], std::string_view msg, unsigned char tag[16]) {
+    Poly1305 st;
+    st.init(rs);
+    std::size_t pos = 0;
+    while (pos < msg.size()) {
+        const std::size_t n = std::min<std::size_t>(16, msg.size() - pos);
+        st.block(reinterpret_cast<const unsigned char*>(msg.data()) + pos, n);
+        pos += n;
+    }
+    st.finish(tag);
+}
+
+void poly1305_state_finish(Poly1305& state, unsigned char tag[16]) {
+    const unsigned char* rs = state.rs_copy;
+    u32 h0 = state.h0, h1 = state.h1, h2 = state.h2, h3 = state.h3, h4 = state.h4;
     // final reduction mod 2^130 - 5, then the trial subtraction (constant-time select)
     u32 c = h1 >> 26; h1 &= 0x3ffffff; h2 += c;
     c = h2 >> 26; h2 &= 0x3ffffff; h3 += c;
@@ -180,6 +223,39 @@ void aead_tag(const u32 key[8], const u32 nonce[3], std::string_view aad, std::s
     }
     mac_input.append(reinterpret_cast<const char*>(lens), 16);
     poly1305(block0, mac_input, tag);
+}
+
+// ChaCha20 keystream XOR into a CALLER buffer — the allocation-free twin of chacha_xor. in/out may
+// alias (encrypt in place). @complexity O(n) @alloc none @test CheatahAead.IntoFormsMatchStringForms
+void chacha_xor_into(const u32 key[8], const u32 nonce[3], u32 counter0, const unsigned char* in,
+                     std::size_t len, unsigned char* out) {
+    unsigned char block[64];
+    for (std::size_t off = 0; off < len; off += 64) {
+        chacha_block(key, counter0 + static_cast<u32>(off / 64), nonce, block);
+        const std::size_t n = std::min<std::size_t>(64, len - off);
+        for (std::size_t i = 0; i < n; ++i) out[off + i] = static_cast<unsigned char>(in[off + i] ^ block[i]);
+    }
+}
+
+// The AEAD tag WITHOUT assembling the MAC input: feed aad, ciphertext and the length block straight
+// into the incremental Poly1305. Same arithmetic as aead_tag, no buffer.
+// @complexity O(|aad| + |ct|) @alloc none @test CheatahAead.IntoFormsMatchStringForms
+void aead_tag_into(const u32 key[8], const u32 nonce[3], const unsigned char* aad, std::size_t aad_len,
+                   const unsigned char* ct, std::size_t ct_len, unsigned char tag[16]) {
+    unsigned char block0[64];
+    chacha_block(key, 0, nonce, block0);
+    Poly1305 st;
+    st.init(block0);
+    st.segment_padded(aad, aad_len);
+    st.segment_padded(ct, ct_len);
+    unsigned char lens[16];
+    const u64 alen = aad_len, clen = ct_len;
+    for (int i = 0; i < 8; ++i) {
+        lens[i] = static_cast<unsigned char>(alen >> (8 * i));
+        lens[8 + i] = static_cast<unsigned char>(clen >> (8 * i));
+    }
+    st.block(lens, 16);
+    st.finish(tag);
 }
 
 // hex -> n bytes (false on malformed). @complexity O(n) @alloc none @test CheatahAead.RejectsTamper
@@ -421,6 +497,45 @@ std::string chacha20poly1305_encrypt(std::string_view key_hex, std::string_view 
     aead_tag(key, nonce, aad, ct, tag);
     ct.append(reinterpret_cast<const char*>(tag), 16);
     return ct;
+}
+
+bool chacha20poly1305_encrypt_into(const unsigned char key[32], const unsigned char nonce[12],
+                                   const unsigned char* aad, std::size_t aad_len,
+                                   const unsigned char* plaintext, std::size_t plaintext_len,
+                                   unsigned char* out) {
+    if (out == nullptr || (plaintext == nullptr && plaintext_len != 0) ||
+        (aad == nullptr && aad_len != 0) ||
+        static_cast<std::uint64_t>(plaintext_len) > kMaxAeadMessage) {
+        return false;
+    }
+    u32 k[8], n[3];
+    std::memcpy(k, key, 32);      // little-endian words per RFC 8439
+    std::memcpy(n, nonce, 12);
+    chacha_xor_into(k, n, 1, plaintext, plaintext_len, out);   // counter 1 (0 keys the MAC)
+    aead_tag_into(k, n, aad, aad_len, out, plaintext_len, out + plaintext_len);
+    return true;
+}
+
+bool chacha20poly1305_decrypt_into(const unsigned char key[32], const unsigned char nonce[12],
+                                   const unsigned char* aad, std::size_t aad_len,
+                                   const unsigned char* ciphertext, std::size_t ciphertext_len,
+                                   unsigned char* out) {
+    if (ciphertext == nullptr || ciphertext_len < 16 || (aad == nullptr && aad_len != 0) ||
+        static_cast<std::uint64_t>(ciphertext_len) > kMaxAeadMessage) {
+        return false;
+    }
+    const std::size_t ct_len = ciphertext_len - 16;
+    if (out == nullptr && ct_len != 0) return false;   // a tag-only message needs no out buffer
+    u32 k[8], n[3];
+    std::memcpy(k, key, 32);
+    std::memcpy(n, nonce, 12);
+    unsigned char tag[16];
+    aead_tag_into(k, n, aad, aad_len, ciphertext, ct_len, tag);
+    unsigned char diff = 0;   // constant-time compare: never early-exit on a mismatching byte
+    for (int i = 0; i < 16; ++i) diff |= tag[i] ^ ciphertext[ct_len + i];
+    if (diff != 0) return false;
+    chacha_xor_into(k, n, 1, ciphertext, ct_len, out);
+    return true;
 }
 
 std::string chacha20poly1305_decrypt(std::string_view key_hex, std::string_view nonce_hex,

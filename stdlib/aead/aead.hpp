@@ -14,6 +14,7 @@
  * The 16-byte tag is APPENDED to the ciphertext; decryption verifies it in
  * constant time and returns "" on ANY mismatch — tampered data never comes back.
  */
+#include <cstddef>
 #include <string>
 #include <string_view>
 
@@ -38,6 +39,64 @@ namespace cheatah::aead {
  */
 std::string chacha20poly1305_encrypt(std::string_view key_hex, std::string_view nonce_hex,
                                      std::string_view aad, std::string_view plaintext);
+
+/**
+ * ChaCha20-Poly1305 encryption into a CALLER-PROVIDED buffer — the allocation-free form.
+ *
+ * The string-returning form above allocates its result and a temporary MAC-input buffer, which
+ * makes it unusable where allocation is forbidden or merely unwelcome: signal handlers, embedded
+ * targets, hot loops that own their memory, and any caller that already has the bytes in place.
+ * This form allocates NOTHING — the tag is computed by streaming the AEAD's segments through
+ * Poly1305 rather than concatenating them — and is therefore safe to call from such contexts.
+ * Byte-for-byte identical output to the string form (asserted by an equivalence test).
+ *
+ * @param key the 32-byte key.
+ * @param nonce the 12-byte nonce; MUST be unique per key.
+ * @param aad additional authenticated data (may be null when @p aad_len is 0).
+ * @param aad_len length of @p aad in bytes.
+ * @param plaintext the message to encrypt (may be null when @p plaintext_len is 0).
+ * @param plaintext_len length of @p plaintext in bytes.
+ * @param out receives `plaintext_len + 16` bytes: the ciphertext followed by the tag. May alias
+ *        @p plaintext to encrypt in place.
+ * @return false on a null buffer with a nonzero length, or a message over the 64 GiB
+ *         single-message cap; true otherwise.
+ * @complexity O(|plaintext| + |aad|).
+ * @alloc none.
+ * @thread any thread; no shared state. Async-signal-safe (no allocation, no locks, no errno use).
+ * @warning The nonce MUST never repeat under the same key: nonce reuse leaks the XOR of the
+ *          plaintexts and lets an attacker forge tags.
+ * @test CheatahAead.IntoFormsMatchStringForms
+ */
+bool chacha20poly1305_encrypt_into(const unsigned char key[32], const unsigned char nonce[12],
+                                   const unsigned char* aad, std::size_t aad_len,
+                                   const unsigned char* plaintext, std::size_t plaintext_len,
+                                   unsigned char* out);
+
+/**
+ * Verify + decrypt into a CALLER-PROVIDED buffer — the allocation-free inverse of
+ * @ref chacha20poly1305_encrypt_into. The tag is verified in constant time before any plaintext is
+ * written back to the caller.
+ *
+ * @param key the 32-byte key.
+ * @param nonce the 12-byte nonce used to encrypt.
+ * @param aad the same additional authenticated data (may be null when @p aad_len is 0).
+ * @param aad_len length of @p aad in bytes.
+ * @param ciphertext the ciphertext WITH its trailing 16-byte tag.
+ * @param ciphertext_len total length including the tag; must be >= 16.
+ * @param out receives `ciphertext_len - 16` plaintext bytes. May alias @p ciphertext. May be null
+ *        ONLY when the message is tag-only (`ciphertext_len == 16`), i.e. there is no plaintext to
+ *        write — so authenticating an empty message needs no buffer.
+ * @return false when the tag does not verify (nothing is written), or on a malformed argument;
+ *         true on success.
+ * @complexity O(|ciphertext| + |aad|).
+ * @alloc none.
+ * @thread any thread; no shared state. Async-signal-safe (no allocation, no locks, no errno use).
+ * @test CheatahAead.IntoFormsMatchStringForms
+ */
+bool chacha20poly1305_decrypt_into(const unsigned char key[32], const unsigned char nonce[12],
+                                   const unsigned char* aad, std::size_t aad_len,
+                                   const unsigned char* ciphertext, std::size_t ciphertext_len,
+                                   unsigned char* out);
 
 /**
  * Verify + decrypt the inverse of chacha20poly1305_encrypt.

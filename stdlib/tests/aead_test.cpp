@@ -4,6 +4,9 @@
 // round-trip, tamper-rejection, and malformed-input behavior.
 #include <gtest/gtest.h>
 
+#include <cstring>
+#include <random>
+#include <vector>
 #include <string>
 
 #include "aead.hpp"
@@ -261,4 +264,109 @@ TEST(CheatahAead, Aes256GcmPortableMatchesHardware) {
     a::set_force_portable_crypto(false);
     EXPECT_EQ(hw, sw);
     EXPECT_EQ(a::aes256gcm_decrypt(key, nonce, big_aad, hw), pt);
+}
+
+// The allocation-free `_into` forms must be indistinguishable from the string-returning ones —
+// same ciphertext, same tag, same rejection behavior — across the RFC vector, empty inputs,
+// aliasing, and randomized sizes that straddle ChaCha's 64-byte block and Poly1305's 16-byte block.
+TEST(CheatahAead, IntoFormsMatchStringForms) {
+    const auto unhex = [](const std::string& h) {
+        std::vector<unsigned char> b(h.size() / 2);
+        for (std::size_t i = 0; i < b.size(); ++i)
+            b[i] = static_cast<unsigned char>(std::stoul(h.substr(2 * i, 2), nullptr, 16));
+        return b;
+    };
+    const std::vector<unsigned char> key = unhex(kKey);
+    const std::vector<unsigned char> nonce = unhex(kNonce);
+    const std::string plain(kPlain);   // kPlain is a const char* literal
+
+    // (a) the RFC 8439 §2.8.2 vector, through both forms.
+    {
+        const std::string want = a::chacha20poly1305_encrypt(kKey, kNonce, kAad, kPlain);
+        ASSERT_FALSE(want.empty());
+        std::vector<unsigned char> got(plain.size() + 16);
+        ASSERT_TRUE(a::chacha20poly1305_encrypt_into(
+            key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(kAad.data()),
+            kAad.size(), reinterpret_cast<const unsigned char*>(plain.data()), plain.size(),
+            got.data()));
+        ASSERT_EQ(got.size(), want.size());
+        EXPECT_EQ(0, std::memcmp(got.data(), want.data(), want.size()));
+
+        std::vector<unsigned char> back(plain.size());
+        ASSERT_TRUE(a::chacha20poly1305_decrypt_into(
+            key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(kAad.data()),
+            kAad.size(), got.data(), got.size(), back.data()));
+        EXPECT_EQ(std::string(reinterpret_cast<char*>(back.data()), back.size()), plain);
+    }
+
+    // (b) randomized sizes around the block boundaries, with and without aad.
+    std::mt19937_64 rng(0xA11CE);
+    for (int trial = 0; trial < 200; ++trial) {
+        const std::size_t n = trial < 70 ? static_cast<std::size_t>(trial)
+                                         : static_cast<std::size_t>(rng() % 600);
+        const std::size_t an = trial % 3 == 0 ? 0 : static_cast<std::size_t>(rng() % 40);
+        std::string msg(n, '\0'), aad(an, '\0');
+        for (auto& c : msg) c = static_cast<char>(rng() & 0xff);
+        for (auto& c : aad) c = static_cast<char>(rng() & 0xff);
+
+        const std::string want = a::chacha20poly1305_encrypt(kKey, kNonce, aad, msg);
+        ASSERT_EQ(want.size(), n + 16) << "n=" << n;
+        std::vector<unsigned char> got(n + 16);
+        ASSERT_TRUE(a::chacha20poly1305_encrypt_into(
+            key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(aad.data()), an,
+            reinterpret_cast<const unsigned char*>(msg.data()), n, got.data()));
+        ASSERT_EQ(0, std::memcmp(got.data(), want.data(), want.size()))
+            << "ciphertext/tag differ at n=" << n << " aad=" << an;
+
+        std::vector<unsigned char> back(n);
+        ASSERT_TRUE(a::chacha20poly1305_decrypt_into(
+            key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(aad.data()), an,
+            got.data(), got.size(), back.data()));
+        ASSERT_EQ(0, n == 0 ? 0 : std::memcmp(back.data(), msg.data(), n)) << "n=" << n;
+    }
+
+    // (c) in-place aliasing: out may equal plaintext.
+    {
+        const std::string msg = "encrypt me where I already live";
+        const std::string want = a::chacha20poly1305_encrypt(kKey, kNonce, "", msg);
+        std::vector<unsigned char> buf(msg.size() + 16);
+        std::memcpy(buf.data(), msg.data(), msg.size());
+        ASSERT_TRUE(a::chacha20poly1305_encrypt_into(key.data(), nonce.data(), nullptr, 0,
+                                                     buf.data(), msg.size(), buf.data()));
+        EXPECT_EQ(0, std::memcmp(buf.data(), want.data(), want.size()));
+    }
+
+    // (d) tamper rejection, and the perturbation guard that proves (c)/(a) can fail: every single
+    // bit flip in the ciphertext OR the tag must be refused, and nothing written.
+    {
+        std::vector<unsigned char> ct(plain.size() + 16);
+        ASSERT_TRUE(a::chacha20poly1305_encrypt_into(
+            key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(kAad.data()),
+            kAad.size(), reinterpret_cast<const unsigned char*>(plain.data()), plain.size(),
+            ct.data()));
+        for (std::size_t i = 0; i < ct.size(); ++i) {
+            std::vector<unsigned char> bad = ct;
+            bad[i] ^= 0x01;
+            std::vector<unsigned char> back(plain.size(), 0xEE);
+            EXPECT_FALSE(a::chacha20poly1305_decrypt_into(
+                key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(kAad.data()),
+                kAad.size(), bad.data(), bad.size(), back.data()))
+                << "accepted a flipped bit at byte " << i;
+        }
+        // A changed aad must also fail.
+        std::vector<unsigned char> back(plain.size());
+        const std::string other_aad = kAad + "x";
+        EXPECT_FALSE(a::chacha20poly1305_decrypt_into(
+            key.data(), nonce.data(), reinterpret_cast<const unsigned char*>(other_aad.data()),
+            other_aad.size(), ct.data(), ct.size(), back.data()));
+    }
+
+    // (e) malformed arguments refuse rather than crash.
+    std::vector<unsigned char> sink(64);
+    EXPECT_FALSE(a::chacha20poly1305_encrypt_into(key.data(), nonce.data(), nullptr, 5,
+                                                  sink.data(), 1, sink.data()));
+    EXPECT_FALSE(a::chacha20poly1305_decrypt_into(key.data(), nonce.data(), nullptr, 0,
+                                                  sink.data(), 15, sink.data()));
+    EXPECT_FALSE(a::chacha20poly1305_encrypt_into(key.data(), nonce.data(), nullptr, 0,
+                                                  sink.data(), 1, nullptr));
 }
