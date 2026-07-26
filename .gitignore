@@ -75,6 +75,10 @@ books/
 .vscode/
 .idea/
 
+# Local agent/tool settings — machine-specific, and they accumulate absolute paths
+# to whatever else is checked out on that machine. Never committed to a public tree.
+.claude/
+
 # Doxygen XML — intermediate build artifact for the docs generator
 docs/xml/
 docs/xml-ext/
