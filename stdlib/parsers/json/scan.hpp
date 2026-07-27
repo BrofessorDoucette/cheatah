@@ -18,6 +18,10 @@
 #include "cursor.hpp"
 #include "simd.hpp"
 
+#if !defined(__cpp_lib_to_chars)
+#  include <cstdlib>   // strtod / strtof / strtold — see from_chars_fp
+#endif
+
 namespace cheatah::parsers::json::detail {
 
 // Advance the cursor past JSON whitespace (SIMD-accelerated; see simd.hpp).
@@ -174,6 +178,77 @@ inline constexpr double kPow10[23] = {1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  
                                       1e8,  1e9,  1e10, 1e11, 1e12, 1e13, 1e14, 1e15,
                                       1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22};
 
+/**
+ * `std::from_chars` for a FLOATING-POINT type, on toolchains that have it — and an equivalent where
+ * they do not.
+ *
+ * The integral overloads are universal, but the floating-point ones are the last piece of
+ * `<charconv>` a standard library implements, and Apple's libc++ still ships them **deleted**: the
+ * call compiles to `error: call to deleted function 'from_chars'`, which is how the macOS build
+ * failed the first time CI ran it. `__cpp_lib_to_chars` is the feature-test macro that says both
+ * halves are present, so it is what selects the path — the same shape `ndarray.hpp` already uses
+ * for `__cpp_lib_execution`.
+ *
+ * The fallback is `strtod`, which needs a NUL-terminated string, so the numeric token is copied into
+ * a small stack buffer first. `strtod` is more permissive than `from_chars` (it accepts leading
+ * whitespace, a leading `+`, and hex floats), but that cannot matter here: every caller has already
+ * validated the token against the JSON grammar, so none of those forms can reach this function.
+ *
+ * @param first the first character of the number.
+ * @param last one past the last character the caller will allow it to consume.
+ * @param out receives the parsed value; untouched on failure.
+ * @param next receives one past the last character consumed.
+ * @return false when the text is not a number the type can hold.
+ * @complexity O(digits).
+ * @alloc none — the token is bounded and copied to the stack; an absurdly long literal is refused
+ *        rather than allocated for.
+ * @test JsonRead.Scalars / JsonRead.BigAndSmallDoubles
+ */
+template <class T>
+inline bool from_chars_fp(const char* first, const char* last, T& out, const char*& next) {
+#if defined(__cpp_lib_to_chars)
+    const std::from_chars_result r = std::from_chars(first, last, out);
+    if (r.ec != std::errc()) {
+        return false;
+    }
+    next = r.ptr;
+    return true;
+#else
+    // The longest token worth honouring. A correctly-rounded double needs at most ~17 significant
+    // digits; 512 leaves room for absurd-but-legal padding and still fits comfortably on the stack.
+    char buf[512];
+    const char* p = first;
+    while (p != last && (static_cast<unsigned>(*p - '0') <= 9u || *p == '-' || *p == '+' ||
+                         *p == '.' || *p == 'e' || *p == 'E')) {
+        ++p;
+    }
+    const std::size_t n = static_cast<std::size_t>(p - first);
+    if (n == 0 || n >= sizeof buf) {
+        return false;
+    }
+    for (std::size_t i = 0; i < n; ++i) {
+        buf[i] = first[i];
+    }
+    buf[n] = '\0';
+
+    char* stop = nullptr;
+    T value;
+    if constexpr (std::is_same_v<T, float>) {
+        value = std::strtof(buf, &stop);
+    } else if constexpr (std::is_same_v<T, long double>) {
+        value = std::strtold(buf, &stop);
+    } else {
+        value = static_cast<T>(std::strtod(buf, &stop));
+    }
+    if (stop == buf) {
+        return false;  // consumed nothing: not a number
+    }
+    out = value;
+    next = first + static_cast<std::size_t>(stop - buf);
+    return true;
+#endif
+}
+
 // Parse a JSON double the fast way (Clinger): accumulate the digits into an integer mantissa, then
 // scale by one power of ten. When the mantissa fits in 53 bits AND the scale is within ±22, both
 // are exact doubles, so the single multiply/divide rounds once — bit-identical to std::from_chars
@@ -248,12 +323,12 @@ inline bool parse_double_fast(Cursor& c, double& out) {
         return true;
     }
 
-    // Outside the window: std::from_chars handles arbitrary precision/exponents correctly.
-    const std::from_chars_result r = std::from_chars(c.it, end, out);
-    if (r.ec != std::errc()) {
+    // Outside the window: the general parser handles arbitrary precision/exponents correctly.
+    const char* next = nullptr;
+    if (!from_chars_fp(c.it, end, out, next)) {
         return false;
     }
-    c.it = r.ptr;
+    c.it = next;
     return true;
 }
 
@@ -299,11 +374,11 @@ inline bool parse_arithmetic(Cursor& c, T& out) {
     } else if constexpr (std::is_same_v<T, double>) {
         return parse_double_fast(c, out);
     } else {
-        const std::from_chars_result r = std::from_chars(c.it, c.end, out);
-        if (r.ec != std::errc()) {
+        const char* next = nullptr;
+        if (!from_chars_fp(c.it, c.end, out, next)) {
             return false;
         }
-        c.it = r.ptr;
+        c.it = next;
         return true;
     }
 }
