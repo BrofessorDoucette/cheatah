@@ -104,7 +104,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">decode_escapes</span>(std::string_view raw, std::string &amp;out)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L92" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a782a5f3e24c165df1bf66894c1516998" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L96" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a782a5f3e24c165df1bf66894c1516998" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Decode the raw (escaped) inner bytes of a JSON string (scan.hpp&#x27;s detail::decode_escapes). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(|raw|).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>output growth (reserved once up front).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_test_cpp.html#L190"><code><span class="tn-suite">CheatahParsersJson</span>.<span class="tn-case">ScanNumbersAndEscapes</span></code></a></span></div></div>
@@ -112,7 +112,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">match</span>(Cursor &amp;c, std::string_view lit) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L31" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a9cabb5f06ac77fcd68878c196f367ba6" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L35" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a9cabb5f06ac77fcd68878c196f367ba6" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Consume an exact literal like &quot;true&quot; if present, else leave the cursor put (detail::match). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(|literal|).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_test_cpp.html#L190"><code><span class="tn-suite">CheatahParsersJson</span>.<span class="tn-case">ScanNumbersAndEscapes</span></code></a></span></div></div>
@@ -120,7 +120,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">scan_string</span>(Cursor &amp;c, std::string_view &amp;raw, bool &amp;esc)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L144" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1ab5383b9e726ebd2b75fc80d2375a039d" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L148" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1ab5383b9e726ebd2b75fc80d2375a039d" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Scan a quoted string to its raw inner bytes + had-escapes flag (detail::scan_string). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(|string|) — SIMD, 32 bytes per step.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none — the raw bytes are a view.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_test_cpp.html#L190"><code><span class="tn-suite">CheatahParsersJson</span>.<span class="tn-case">ScanNumbersAndEscapes</span></code></a></span></div></div>
@@ -128,7 +128,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">void</span> <span class="mname">skip_ws</span>(Cursor &amp;c) noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L25" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a0d58f1d3fd2ca2fd93c99a1837e584ce" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_scan_hpp.html#L29" title="View source">source</a><a class="anchor" href="#namespacecheatah_1_1parsers_1_1json_1a0d58f1d3fd2ca2fd93c99a1837e584ce" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Advance the cursor past JSON whitespace (detail::skip_ws over the SIMD skip). </p>
   <div class="member-body"><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(whitespace run).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_dom_test_cpp.html#L33"><code><span class="tn-suite">ParsersJsonDom</span>.<span class="tn-case">ParsesEveryScalarKind</span></code></a></span></div></div>

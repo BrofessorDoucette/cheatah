@@ -325,9 +325,20 @@ TEST(RuntimeCheck, CompatibleRuntimeRuns) {
     EXPECT_EQ(r.out, "integrity ok\n");
 }
 
+// The two tests below assert a GLIBC-SPECIFIC refusal message. Off glibc the runtime records its C
+// runtime as "none" (compiler/build_fingerprint.hpp), so there is nothing for a fingerprint to be
+// incompatible WITH and the message never appears. Skipping is honest; failing would be reporting
+// the absence of a platform's libc as a defect.
+#if defined(__GLIBC__)
+constexpr bool kHostHasGlibc = true;
+#else
+constexpr bool kHostHasGlibc = false;
+#endif
+
 // A module that demands a newer glibc than the host has is refused cleanly (not a cryptic
 // dlopen failure) — even in default mode, since loading it would crash.
 TEST(RuntimeCheck, IncompatibleGlibcRefused) {
+    if (!kHostHasGlibc) GTEST_SKIP() << "no glibc on this platform — nothing to be incompatible with";
     const std::string so = build_module("rt_glibc_app", "--runtime");
     rewrite_rt_field(so, "libc", "99.9");  // pretend it was built against a far-future glibc
     const Proc r = run_cmd(CH(q(so)));
@@ -424,6 +435,7 @@ TEST(ModuleIntegrity, CodeSignedThenTamperedNeverRuns) {
 // incompatible with the host (here, made to demand a far-future glibc), cheatah detects it
 // and shuts down IMMEDIATELY — before loading or running the module (no output appears).
 TEST(RuntimeCheck, TamperedCRuntimeShutsDownBeforeRunning) {
+    if (!kHostHasGlibc) GTEST_SKIP() << "no glibc on this platform — nothing to be incompatible with";
     const std::string so = build_module("rt_shutdown_app", "--runtime");
     rewrite_rt_field(so, "libc", "99.9");  // the C runtime fingerprint no longer matches reality
 

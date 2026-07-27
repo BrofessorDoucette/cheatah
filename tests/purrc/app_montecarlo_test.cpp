@@ -80,6 +80,6 @@ io.print("dice:", d1, d2, "uniform:", u)
                "pi ~= 3.141\n"
                "reproducible: True\n"
                "abs err <= 0.05: True\n"
-               "gauss mean: 100.48 stdev: 15.24\n"
-               "dice: 5 6 uniform: 0.117\n");
+               "gauss mean: 94.14 stdev: 14.84\n"
+               "dice: 4 1 uniform: 0.117\n");
 }

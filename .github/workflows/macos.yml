@@ -76,9 +76,14 @@ jobs:
           brew install ninja openssl@3
           echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
       - name: Configure + build (asan)
+        # Only the C++ test binaries, NOT the whole `all` target. `all` includes the .purr modules
+        # purrc links itself, and purrc does not pass -fsanitize=address to that link — so a dylib
+        # built from ASan-instrumented archives has undefined __asan_* symbols. An ELF .so tolerates
+        # that; a Mach-O dylib does not, and the link fails. Those modules are covered by the debug
+        # lane; what ASan is here to check is the C++ standard library, which is these targets.
         run: |
           cmake --preset asan
-          cmake --build --preset asan
+          cmake --build --preset asan --target cheatah_tests cheatah_purrc_tests
       - name: ASan + UBSan
         # NOTE the absent detect_leaks. LeakSanitizer does not exist in Apple's ASan runtime, and
         # asking for it makes every instrumented binary abort at startup with "detect_leaks is not
