@@ -1,0 +1,87 @@
+# AArch64 performance, measured on real Apple Silicon.
+#
+# docs/performance.md has carried an explicit IOU: the crypto is *validated* on AArch64 under QEMU,
+# but "emulated timings are not representative, so AArch64 performance numbers will be added once
+# measured on real hardware (e.g. Apple Silicon)." This lane is how that gets paid.
+#
+# There are two claims to settle, both currently asserted and unmeasured:
+#   * the ARMv8 AES + PMULL route is the one actually taken on an Apple machine, and it is fast;
+#   * -fveclib=Accelerate (cmake/Portability.cmake) buys something on the transcendental-heavy work.
+#
+# IT DOES NOT GATE, AND THAT IS DELIBERATE. Hosted runners are shared, noisy, and vary between
+# machine generations; a threshold here would flake, and a flaky gate is one people learn to ignore.
+# The numbers go to the job summary so a human can read a trend. Regression-catching against a quiet
+# machine is the Linux bench gate's job (scripts/bench_gate.sh), and it stays there.
+name: macOS performance
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Monthly. Often enough to catch a drift, rare enough that nobody starts ignoring it.
+    - cron: '0 6 1 * *'
+
+jobs:
+  benchmarks:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          clang++ --version
+          sysctl -n machdep.cpu.brand_string || true
+          uname -m
+
+      - name: Dependencies
+        # glm is a hard requirement of the benchmark target (glm_compare_bench.cpp includes
+        # <glm/glm.hpp> unconditionally), and Homebrew's include prefix is not on clang's default
+        # search path — hence the explicit -I. openssl@3 gives the crypto comparison a real
+        # counterpart; macOS's own /usr/bin/openssl is LibreSSL.
+        run: |
+          brew install ninja glm openssl@3
+          echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
+
+      - name: Configure + build (release, benchmarks on)
+        run: |
+          cmake --preset release -DCMAKE_CXX_FLAGS="-I$(brew --prefix)/include"
+          cmake --build --preset release --target cheatah_benchmarks
+
+      - name: Which crypto path is actually live on this machine?
+        # The claim under test. CryptoPlatform.Report prints the route the runtime selected, and the
+        # sibling cases prove the hardware path reproduces the portable one bit for bit. A throughput
+        # number means nothing until we know which implementation produced it.
+        run: |
+          cmake --build --preset release --target cheatah_tests
+          ./build/release/bin/cheatah_tests --gtest_filter='CryptoPlatform.*' 2>&1 | tee /tmp/platform.txt
+
+      - name: Crypto throughput
+        run: |
+          ./build/release/bin/cheatah_benchmarks \
+            --benchmark_filter='BM_Crypto' --benchmark_min_time=0.5s \
+            --benchmark_format=console 2>&1 | tee /tmp/crypto.txt
+
+      - name: Math and linear algebra
+        # Where -fveclib=Accelerate would show up, if it shows up anywhere.
+        run: |
+          ./build/release/bin/cheatah_benchmarks \
+            --benchmark_filter='ndarray|linalg|Fixed' --benchmark_min_time=0.5s \
+            --benchmark_format=console 2>&1 | tee /tmp/math.txt
+
+      - name: Publish the numbers
+        # A job summary rather than an artifact: the point is that a person can glance at a run and
+        # see the AArch64 figures without downloading anything.
+        if: always()
+        run: |
+          {
+            echo "# AArch64 performance — $(uname -m), $(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'Apple Silicon')"
+            echo
+            echo "Measured on a shared GitHub-hosted runner, so treat these as a trend rather than"
+            echo "a precise figure. Nothing here gates; the Linux bench gate does that on a quiet machine."
+            echo
+            echo "## Which crypto path ran"
+            echo '```'; cat /tmp/platform.txt 2>/dev/null | head -30; echo '```'
+            echo "## Crypto throughput"
+            echo '```'; grep -E '^BM_' /tmp/crypto.txt 2>/dev/null; echo '```'
+            echo "## Math / linear algebra"
+            echo '```'; grep -E '^BM_' /tmp/math.txt 2>/dev/null; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
