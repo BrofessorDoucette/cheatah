@@ -148,7 +148,8 @@ queue), `sleep` (`time.sleep`), and `cpu_count` (`os.cpu_count`).
 
 ## Under the hood
 
-`thread` is a thin, honest layer: `std::jthread` + one shared error slot per spawn.
+`thread` is a thin, honest layer: `std::thread` + one shared error slot per spawn, with
+the handle joining in its own destructor.
 The QA gate runs the concurrency suites under **ThreadSanitizer** (the `tsan` preset)
 in addition to ASan/UBSan and Valgrind — a data race in the standard library is a gate
 failure, not a shrug. Your own `.purr` races are still yours: TSan guards the library's

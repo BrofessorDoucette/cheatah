@@ -138,13 +138,13 @@ public:
      * The grant path used by `spawn`: adopt a running thread and its shared error slot. Public
      * but not part of the cheatah surface (no module factory returns the pieces), matching the
      * memory module's no-`friend` stance.
-     * @param t the running jthread to own.
+     * @param t the running thread to own.
      * @param state the error slot the spawn trampoline writes into.
      * @complexity O(1). @alloc none (moves the handles in).
      * @concurrency the worker is already running when the handle adopts it.
      * @test CheatahThread.SpawnRunsTheWorker
      */
-    Thread(std::jthread t, std::shared_ptr<detail::State> state) noexcept;
+    Thread(std::thread t, std::shared_ptr<detail::State> state) noexcept;
 
     /// Threads have exactly one owner: moving transfers it, the source becomes non-joinable.
     /// @param other the handle to take the thread from (left non-joinable).
@@ -197,7 +197,14 @@ public:
 private:
     void settle() noexcept;  // join if joinable; stderr-report an unobserved worker error.
 
-    std::jthread t_;
+    // std::thread, deliberately, NOT std::jthread. This handle already joins in its own
+    // destructor (see settle()), so jthread's auto-join bought nothing — while costing
+    // portability: jthread lives in libc++'s EXPERIMENTAL library on Apple toolchains, gated
+    // behind _LIBCPP_ENABLE_EXPERIMENTAL, so the whole standard library failed to compile on
+    // macOS with "no type named jthread in namespace std". A standard library that claims
+    // cross-platform support must not depend on another standard library's experimental
+    // feature. Nothing here ever used a stop_token, which is the only thing jthread adds.
+    std::thread t_;
     std::shared_ptr<detail::State> state_;
 };
 
@@ -220,7 +227,7 @@ private:
  * @return the owning `Thread` guard (joins at scope exit).
  * @complexity O(1) plus copying the arguments and the OS thread start.
  * @alloc one shared error slot + the thread's start-state block (the closure holding the argument
- * copies — `std::jthread` puts it on the heap) + the OS thread stack.
+ * copies — `std::thread` puts it on the heap) + the OS thread stack.
  * @concurrency the worker may already be running before `spawn` returns. Copyable arguments are
  * captured before the thread starts, so the caller may immediately mutate or destroy its originals;
  * a by-reference argument (a pinned `memory.Owner`) is shared with the running worker from that
@@ -239,7 +246,7 @@ template <class F, class... Args>
     requires SpawnCallable<F, Args...> && (SpawnArg<Args> && ...)
 Thread spawn(F f, Args&&... args) {
     auto state = std::make_shared<detail::State>();
-    std::jthread t(
+    std::thread t(
         [state, fn = std::move(f),
          held = std::tuple<detail::held_t<Args>...>(
              detail::hold<Args>(std::forward<Args>(args))...)]() mutable {

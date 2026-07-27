@@ -4,7 +4,10 @@
 
 #include <cstdint>
 #include <cstring>
-#include <strings.h>   // explicit_bzero
+
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#  include <strings.h>   // explicit_bzero
+#endif
 
 #include "aes_gcm_ni.hpp"  // AES-NI + PCLMULQDQ fast path for AES-128-GCM (runtime-dispatched)
 
@@ -18,6 +21,31 @@ namespace {
 
 using u32 = std::uint32_t;
 using u64 = std::uint64_t;
+
+/**
+ * Erase secret bytes so they cannot outlive their use — and do it in a form the optimizer is not
+ * permitted to delete.
+ *
+ * A plain `std::memset` over a local that is never read again is a dead store, and compilers really
+ * do remove it; the expanded key would then stay on the stack for a core dump or ordinary stack
+ * reuse to surface. Each platform spells the un-removable version differently, so this picks one:
+ *
+ *   - `explicit_bzero` — glibc ≥ 2.25 and the BSDs.
+ *   - `memset_s` — the Darwin idiom (Apple's libc has no `explicit_bzero`, which is what broke the
+ *     macOS build of v1.8.0-alpha).
+ *   - a `volatile` store loop — the portable floor. `volatile` forbids eliding the writes, so this
+ *     is correct everywhere, just not vectorized.
+ */
+void secure_wipe(void* p, std::size_t n) {
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+    ::explicit_bzero(p, n);
+#elif defined(__APPLE__) || defined(__STDC_LIB_EXT1__)
+    ::memset_s(p, n, 0, n);
+#else
+    auto* volatile q = static_cast<volatile unsigned char*>(p);
+    for (std::size_t i = 0; i < n; ++i) q[i] = 0;
+#endif
+}
 
 u32 rotl(u32 x, int n) { return (x << n) | (x >> (32 - n)); }
 
@@ -515,9 +543,9 @@ bool chacha20poly1305_encrypt_into(const unsigned char key[32], const unsigned c
     chacha_xor_into(k, n, 1, plaintext, plaintext_len, out);   // counter 1 (0 keys the MAC)
     aead_tag_into(k, n, aad, aad_len, out, plaintext_len, out + plaintext_len);
     // Do not leave the expanded key on the stack: a later core dump, or ordinary stack reuse in a
-    // process that keeps running, should not be able to surface it. explicit_bzero is the form the
-    // optimizer may not elide (a plain memset to a dead local can be, and is, removed).
-    explicit_bzero(k, sizeof k);
+    // process that keeps running, should not be able to surface it. See secure_wipe — a plain memset
+    // to a dead local is legally removed by the optimizer, which is the whole point.
+    secure_wipe(k, sizeof k);
     return true;
 }
 
@@ -540,11 +568,11 @@ bool chacha20poly1305_decrypt_into(const unsigned char key[32], const unsigned c
     unsigned char diff = 0;   // constant-time compare: never early-exit on a mismatching byte
     for (int i = 0; i < 16; ++i) diff |= tag[i] ^ ciphertext[ct_len + i];
     if (diff != 0) {
-        explicit_bzero(k, sizeof k);
+        secure_wipe(k, sizeof k);
         return false;             // authentication failed: nothing is written to out
     }
     chacha_xor_into(k, n, 1, ciphertext, ct_len, out);
-    explicit_bzero(k, sizeof k);
+    secure_wipe(k, sizeof k);
     return true;
 }
 

@@ -7,7 +7,7 @@
 
 namespace cheatah::thread {
 
-Thread::Thread(std::jthread t, std::shared_ptr<detail::State> state) noexcept
+Thread::Thread(std::thread t, std::shared_ptr<detail::State> state) noexcept
     : t_(std::move(t)), state_(std::move(state)) {}
 
 Thread::Thread(Thread&& other) noexcept = default;

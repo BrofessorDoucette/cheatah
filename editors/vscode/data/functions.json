@@ -663,7 +663,7 @@
         "test": "CheatahAead.Rfc8439Encrypt"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 488,
+      "srcline": 516,
       "module": "aead",
       "qualified": "aead.aead_len_ok"
     },
@@ -992,7 +992,7 @@
         "test": "CheatahAead.AesGcmPortableMatchesHardware"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 464,
+      "srcline": 492,
       "module": "aead",
       "qualified": "aead.set_force_portable_crypto"
     },
@@ -9252,13 +9252,13 @@
       "returns": "the owning Thread guard (joins at scope exit).",
       "tags": {
         "complexity": "O(1) plus copying the arguments and the OS thread start.",
-        "alloc": "one shared error slot + the thread's start-state block (the closure holding the argument copies — std::jthread puts it on the heap) + the OS thread stack.",
+        "alloc": "one shared error slot + the thread's start-state block (the closure holding the argument copies — std::thread puts it on the heap) + the OS thread stack.",
         "test": "CheatahThread.SpawnRunsTheWorker CheatahThread.CopyableArgumentsAreCopied CheatahThread.SpawnPassesANonCopyableByReference CheatahThread.SpawnMovesANonCopyableRvalue",
         "crtest": "ThreadCompileRun.SpawnJoin",
         "systest": "StdlibE2E.Thread StdlibE2E.ThreadSharedOwnerSum"
       },
       "srcfile": "stdlib/thread/thread.hpp",
-      "srcline": 240,
+      "srcline": 247,
       "module": "thread",
       "qualified": "thread.spawn"
     },
