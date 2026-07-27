@@ -30,19 +30,21 @@ using u64 = std::uint64_t;
  * do remove it; the expanded key would then stay on the stack for a core dump or ordinary stack
  * reuse to surface. Each platform spells the un-removable version differently, so this picks one:
  *
- *   - `explicit_bzero` — glibc ≥ 2.25 and the BSDs.
- *   - `memset_s` — the Darwin idiom (Apple's libc has no `explicit_bzero`, which is what broke the
- *     macOS build of v1.8.0-alpha).
- *   - a `volatile` store loop — the portable floor. `volatile` forbids eliding the writes, so this
- *     is correct everywhere, just not vectorized.
+ *   - `explicit_bzero` where the platform has it (glibc ≥ 2.25 and the BSDs).
+ *   - a `volatile` store loop everywhere else. `volatile` forbids eliding the writes, so this is
+ *     correct on any conforming compiler with no platform support whatsoever.
+ *
+ * Apple deliberately gets the second path rather than `memset_s`: that function is only declared
+ * when `__STDC_WANT_LIB_EXT1__` is defined to 1 BEFORE the first `<string.h>` in the translation
+ * unit, which is a fragile thing to depend on in a file that includes other headers — and it is
+ * exactly what the first attempt at this fix got wrong ("no member named 'memset_s' in the global
+ * namespace", caught by the macOS CI in 39 seconds). Wiping 32 bytes is not worth a platform axis.
  */
 void secure_wipe(void* p, std::size_t n) {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
     ::explicit_bzero(p, n);
-#elif defined(__APPLE__) || defined(__STDC_LIB_EXT1__)
-    ::memset_s(p, n, 0, n);
 #else
-    auto* volatile q = static_cast<volatile unsigned char*>(p);
+    volatile auto* q = static_cast<volatile unsigned char*>(p);
     for (std::size_t i = 0; i < n; ++i) q[i] = 0;
 #endif
 }
