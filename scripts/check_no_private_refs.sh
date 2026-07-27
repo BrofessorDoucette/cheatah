@@ -52,9 +52,12 @@ case "${1:-}" in
     exit 0
     ;;
 --range)
-    range="${2:?--range needs A..B}"
+    # A git revision RANGE, unquoted on purpose: it may be "A..B" or a multi-token selector such as
+    # "<sha> --not --remotes=origin", which is what a new ref (a tag) needs — see .githooks/pre-push.
+    range="${2:?--range needs a git revision range}"
     hits=""
-    for c in $(git rev-list "$range" 2>/dev/null); do
+    # shellcheck disable=SC2086  # word splitting is the point: $range may carry several tokens.
+    for c in $(git rev-list $range 2>/dev/null); do
         m="$(git log -1 --format='%B' "$c" | grep -iwE "$PATTERN" | grep -viE "$ALLOW" || true)"
         [ -n "$m" ] && hits="${hits}${hits:+$'\n'}$(git log -1 --format='%h' "$c"): $(printf '%s' "$m" | head -1)"
     done

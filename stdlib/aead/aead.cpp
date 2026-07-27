@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <strings.h>   // explicit_bzero
 
 #include "aes_gcm_ni.hpp"  // AES-NI + PCLMULQDQ fast path for AES-128-GCM (runtime-dispatched)
 
@@ -503,8 +504,8 @@ bool chacha20poly1305_encrypt_into(const unsigned char key[32], const unsigned c
                                    const unsigned char* aad, std::size_t aad_len,
                                    const unsigned char* plaintext, std::size_t plaintext_len,
                                    unsigned char* out) {
-    if (out == nullptr || (plaintext == nullptr && plaintext_len != 0) ||
-        (aad == nullptr && aad_len != 0) ||
+    if (key == nullptr || nonce == nullptr || out == nullptr ||
+        (plaintext == nullptr && plaintext_len != 0) || (aad == nullptr && aad_len != 0) ||
         static_cast<std::uint64_t>(plaintext_len) > kMaxAeadMessage) {
         return false;
     }
@@ -513,6 +514,10 @@ bool chacha20poly1305_encrypt_into(const unsigned char key[32], const unsigned c
     std::memcpy(n, nonce, 12);
     chacha_xor_into(k, n, 1, plaintext, plaintext_len, out);   // counter 1 (0 keys the MAC)
     aead_tag_into(k, n, aad, aad_len, out, plaintext_len, out + plaintext_len);
+    // Do not leave the expanded key on the stack: a later core dump, or ordinary stack reuse in a
+    // process that keeps running, should not be able to surface it. explicit_bzero is the form the
+    // optimizer may not elide (a plain memset to a dead local can be, and is, removed).
+    explicit_bzero(k, sizeof k);
     return true;
 }
 
@@ -520,7 +525,8 @@ bool chacha20poly1305_decrypt_into(const unsigned char key[32], const unsigned c
                                    const unsigned char* aad, std::size_t aad_len,
                                    const unsigned char* ciphertext, std::size_t ciphertext_len,
                                    unsigned char* out) {
-    if (ciphertext == nullptr || ciphertext_len < 16 || (aad == nullptr && aad_len != 0) ||
+    if (key == nullptr || nonce == nullptr || ciphertext == nullptr || ciphertext_len < 16 ||
+        (aad == nullptr && aad_len != 0) ||
         static_cast<std::uint64_t>(ciphertext_len) > kMaxAeadMessage) {
         return false;
     }
@@ -533,8 +539,12 @@ bool chacha20poly1305_decrypt_into(const unsigned char key[32], const unsigned c
     aead_tag_into(k, n, aad, aad_len, ciphertext, ct_len, tag);
     unsigned char diff = 0;   // constant-time compare: never early-exit on a mismatching byte
     for (int i = 0; i < 16; ++i) diff |= tag[i] ^ ciphertext[ct_len + i];
-    if (diff != 0) return false;
+    if (diff != 0) {
+        explicit_bzero(k, sizeof k);
+        return false;             // authentication failed: nothing is written to out
+    }
     chacha_xor_into(k, n, 1, ciphertext, ct_len, out);
+    explicit_bzero(k, sizeof k);
     return true;
 }
 

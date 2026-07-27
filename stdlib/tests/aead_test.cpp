@@ -361,8 +361,17 @@ TEST(CheatahAead, IntoFormsMatchStringForms) {
             other_aad.size(), ct.data(), ct.size(), back.data()));
     }
 
-    // (e) malformed arguments refuse rather than crash.
+    // (e) malformed arguments refuse rather than crash — including a null key or nonce, which
+    // would otherwise reach memcpy as undefined behaviour.
     std::vector<unsigned char> sink(64);
+    EXPECT_FALSE(a::chacha20poly1305_encrypt_into(nullptr, nonce.data(), nullptr, 0, sink.data(), 1,
+                                                  sink.data()));
+    EXPECT_FALSE(a::chacha20poly1305_encrypt_into(key.data(), nullptr, nullptr, 0, sink.data(), 1,
+                                                  sink.data()));
+    EXPECT_FALSE(a::chacha20poly1305_decrypt_into(nullptr, nonce.data(), nullptr, 0, sink.data(), 32,
+                                                  sink.data()));
+    EXPECT_FALSE(a::chacha20poly1305_decrypt_into(key.data(), nullptr, nullptr, 0, sink.data(), 32,
+                                                  sink.data()));
     EXPECT_FALSE(a::chacha20poly1305_encrypt_into(key.data(), nonce.data(), nullptr, 5,
                                                   sink.data(), 1, sink.data()));
     EXPECT_FALSE(a::chacha20poly1305_decrypt_into(key.data(), nonce.data(), nullptr, 0,

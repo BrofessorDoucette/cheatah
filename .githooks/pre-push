@@ -22,10 +22,14 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
     case "$remote_ref" in
         refs/tags/v*) pushed_tag="${remote_ref#refs/tags/}" ;;
     esac
-    # Range of commits this push would publish (all-zero remote sha = new ref).
+    # Range of commits this push would publish. For a NEW ref (all-zero remote sha — every tag, and
+    # any new branch) there is no remote counterpart to diff against, so the range must be "what is
+    # not already published anywhere on this remote": a bare "$local_sha" would instead walk the
+    # ENTIRE history and re-scan commits that went out long ago, which made every release tag
+    # unpushable once old messages existed that predate this check.
     if [ -n "${local_sha:-}" ] && [ "$local_sha" != "0000000000000000000000000000000000000000" ]; then
         case "$remote_sha" in
-            ""|0000000000000000000000000000000000000000) push_ranges+=("$local_sha") ;;
+            ""|0000000000000000000000000000000000000000) push_ranges+=("$local_sha --not --remotes=origin") ;;
             *) push_ranges+=("$remote_sha..$local_sha") ;;
         esac
     fi

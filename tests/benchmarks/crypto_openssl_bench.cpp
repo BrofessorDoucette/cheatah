@@ -13,6 +13,7 @@
 #include <benchmark/benchmark.h>
 
 #include <string>
+#include <vector>
 
 #include "aead.hpp"
 #include "hashlib.hpp"
@@ -82,6 +83,23 @@ static void BM_CryptoChaCha20Poly1305_Cheatah(benchmark::State& s) {
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
 BENCHMARK(BM_CryptoChaCha20Poly1305_Cheatah);
+
+// The allocation-free form, measured against the row above. Same algorithm and the same code
+// paths — the only difference is that this one neither allocates its result nor assembles a
+// MAC-input buffer, so the gap is exactly the cost those two allocations were adding.
+static void BM_CryptoChaCha20Poly1305_Cheatah_Into(benchmark::State& s) {
+    unsigned char key[32], nonce[12];
+    for (int i = 0; i < 32; ++i) key[i] = static_cast<unsigned char>(i);
+    for (int i = 0; i < 12; ++i) nonce[i] = static_cast<unsigned char>(i);
+    std::vector<unsigned char> out(kData.size() + 16);
+    for (auto _ : s) {
+        benchmark::DoNotOptimize(cheatah::aead::chacha20poly1305_encrypt_into(
+            key, nonce, reinterpret_cast<const unsigned char*>(kAad.data()), kAad.size(),
+            reinterpret_cast<const unsigned char*>(kData.data()), kData.size(), out.data()));
+    }
+    s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
+}
+BENCHMARK(BM_CryptoChaCha20Poly1305_Cheatah_Into);
 
 // ---------------- AES-128-GCM ----------------
 static void BM_CryptoAes128Gcm_Cheatah(benchmark::State& s) {
