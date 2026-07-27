@@ -111,6 +111,22 @@ if(WIN32)
 else()
     list(APPEND CHEATAH_PURRC_CXXFLAGS "-fPIC" "-shared" "-pthread")
 endif()
+
+# In a SANITIZED build, purrc must sanitize the programs it compiles too. It links them against the
+# stdlib archives, which are instrumented in this configuration — so without the flag the module
+# references __asan_init and friends and nothing defines them. An ELF .so shrugs that off (the
+# runtime lives in the main executable and resolves at load), which is why Linux never noticed; a
+# Mach-O dylib requires every symbol at link time, so on macOS every test that compiles a .purr
+# program failed to link at all.
+#
+# Passing it is also strictly better than not: the generated program is now instrumented as well, so
+# the sanitizer lane actually covers the code purrc emits rather than only the library it calls into.
+if(CHEATAH_SANITIZE)
+    list(APPEND CHEATAH_PURRC_CXXFLAGS "-fsanitize=address,undefined" "-fno-omit-frame-pointer")
+elseif(CHEATAH_TSAN)
+    list(APPEND CHEATAH_PURRC_CXXFLAGS "-fsanitize=thread" "-fno-omit-frame-pointer")
+endif()
+
 set(CHEATAH_PURRC_MATHLINK ${_cheatah_math_link})
 
 # --- optimization flags for the stdlib module object libraries -------------------------
