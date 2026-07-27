@@ -33,7 +33,7 @@
 <span class="tok-kw">for</span> a <span class="tok-kw">in</span> sys.argv {
     io.<span class="tok-fn">print</span>(a)
 }
-io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;argument count:&quot;</span>, <span class="tok-fn">len</span>(sys.argv))</code></pre><p><code>sys.argv</code> is a <code>list[str]</code> — index it (<code>sys.argv[<span class="tok-num">1</span>]</code>), slice it (<code>sys.argv[<span class="tok-num">1</span>:]</code>), take its <code><span class="tok-fn">len</span>(...)</code>, and iterate it like any list.</p><h2 id="md_stdlib_2sys_2README_1autotoc_md94">When is </h2><p>The <code>cheatah</code> runtime forwards the program&#x27;s command-line arguments into <code>sys.argv</code> when it runs a module:</p><pre class="code"><code>purrc myprog.purr -o myprog.so       <span class="tok-com"># a loadable module (purrc never emits a binary)</span>
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;argument count:&quot;</span>, <span class="tok-fn">len</span>(sys.argv))</code></pre><p><code>sys.argv</code> is a <code>list[str]</code> — index it (<code>sys.argv[<span class="tok-num">1</span>]</code>), slice it (<code>sys.argv[<span class="tok-num">1</span>:]</code>), take its <code><span class="tok-fn">len</span>(...)</code>, and iterate it like any list.</p><h2 id="md_stdlib_2sys_2README_1autotoc_md95">When is </h2><p>The <code>cheatah</code> runtime forwards the program&#x27;s command-line arguments into <code>sys.argv</code> when it runs a module:</p><pre class="code"><code>purrc myprog.purr -o myprog.so       <span class="tok-com"># a loadable module (purrc never emits a binary)</span>
 cheatah myprog.so one two three      <span class="tok-com"># sys.argv == [&quot;myprog.so&quot;, &quot;one&quot;, &quot;two&quot;, &quot;three&quot;]</span></code></pre><p>The runtime does this through an exported <code>cheatah_set_argv</code> hook that the <code>sys</code> module provides, so only programs that <code><span class="tok-kw">import</span> sys</code> receive their arguments; everything else is unaffected.</p><p>To run a program as its own command (<code>myprog one two three</code>), build a launcher with <code><span class="tok-fn">cheatah_add_program</span>()</code> — it invokes the runtime on the module for you. The package manager <code>biome</code> is built exactly that way.</p></div>
 
 <h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1sys_1ad5aefdf9358a290f4181b9755778965e">
@@ -47,7 +47,7 @@ cheatah myprog.so one two three      <span class="tok-com"># sys.argv == [&quot;
 </section></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1sys_1ad5aefdf9358a290f4181b9755778965e">argv</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=34c0155b"></script>
+<script src="search-index.js?v=8b37c7e4"></script>
 <script src="cheatah-docs.js?v=be832e47"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>

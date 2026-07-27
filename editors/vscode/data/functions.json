@@ -663,7 +663,7 @@
         "test": "CheatahAead.Rfc8439Encrypt"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 487,
+      "srcline": 488,
       "module": "aead",
       "qualified": "aead.aead_len_ok"
     },
@@ -992,7 +992,7 @@
         "test": "CheatahAead.AesGcmPortableMatchesHardware"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 463,
+      "srcline": 464,
       "module": "aead",
       "qualified": "aead.set_force_portable_crypto"
     },

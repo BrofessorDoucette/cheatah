@@ -4,7 +4,7 @@
 [standard]
 version = "0.1.0-alpha"
 released = "2026-07-25"
-status = "current"
+status = "supported"
 
 [components]
 cheatah = "v1.7.0-alpha"

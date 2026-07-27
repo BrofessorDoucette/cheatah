@@ -106,7 +106,16 @@ fn known_standards() {
     let c0: list<StandardComponent> = []
     c0.append(StandardComponent("cheatah", "v1.7.0-alpha"))
     c0.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
-    xs.append(Standard("0.1.0-alpha", "2026-07-25", "current", c0))
+    xs.append(Standard("0.1.0-alpha", "2026-07-25", "supported", c0))
+
+    # Biome Standard 0.2.0-alpha — cheatah v1.8.0-alpha. A MINOR bump: the allocation-free
+    # crypto surface is added BESIDE the existing string-returning functions, so every program
+    # written against 0.1.0-alpha compiles and behaves identically. New capability, nothing
+    # removed, no signature changed.
+    let c1: list<StandardComponent> = []
+    c1.append(StandardComponent("cheatah", "v1.8.0-alpha"))
+    c1.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
+    xs.append(Standard("0.2.0-alpha", "2026-07-27", "current", c1))
 
     return xs
 }
