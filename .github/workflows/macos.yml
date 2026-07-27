@@ -85,6 +85,15 @@ jobs:
           cmake --preset asan
           cmake --build --preset asan --target cheatah_tests cheatah_purrc_tests
       - name: ASan + UBSan
+        # SYSTEM tests are excluded here, and that is deliberate rather than convenient: they spawn
+        # external peers (a Node `ws` server, `openssl s_server`) and check protocol behaviour, which
+        # the debug lane above already covers on this same platform. What ASan is here to find is our
+        # own memory handling. Leaving them in also cost a 40-minute hung runner once, because this
+        # job never installed the Node peer and the tests waited for it forever.
+        #
+        # --timeout is the backstop for exactly that: a test that hangs now fails in two minutes
+        # instead of holding a macOS runner until GitHub kills the job.
+        #
         # NOTE the absent detect_leaks. LeakSanitizer does not exist in Apple's ASan runtime, and
         # asking for it makes every instrumented binary abort at startup with "detect_leaks is not
         # supported on this platform" — which is precisely what has had cheatah-gpu's macOS lane red
@@ -93,4 +102,4 @@ jobs:
         env:
           ASAN_OPTIONS: abort_on_error=1
           UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
-        run: ctest --preset asan --output-on-failure --exclude-regex 'CompileRun'
+        run: ctest --preset asan --output-on-failure --timeout 120 --exclude-regex 'CompileRun|Sys'
