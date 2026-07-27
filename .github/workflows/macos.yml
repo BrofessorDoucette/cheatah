@@ -1,0 +1,91 @@
+# cheatah on real Apple Silicon.
+#
+# Everything downstream builds against this repo, and the consumers all had macOS CI while the
+# foundation they depend on had none. The consequences were exactly
+# what you would predict: `std::jthread` broke the macOS build, was fixed, and the fix was reverted
+# with an empty commit message; `explicit_bzero` (which Apple's libc does not have) landed in a
+# release. Both shipped, because nothing here ever compiled on a Mac.
+#
+# So this lane is not a formality. It is the thing that makes "cheatah builds and runs on macOS
+# (Apple Silicon)" — a claim CHANGELOG.md has carried since v1.5.0-alpha — true on purpose rather
+# than by luck.
+#
+# It deliberately does NOT run scripts/qa_gate.sh. That gate is the LINUX release gate: it wants a
+# pinned doxygen, cppcheck, llvm-cov/profdata, and a quiet machine for the benchmark comparison, and
+# its coverage stage rewrites README.md and fails on the diff. On a shared hosted runner those drift
+# or flake, and a flaky gate gets ignored, which is how we got here. macOS gets a build-and-test
+# gate that is true every time it is green.
+name: macOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push supersedes an in-flight run for the same ref; no point paying for a stale one.
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    # macos-15, not macos-14: macos-14's Xcode 15.4 libc++ is a generation behind, and a downstream
+    # consumer burned four runs learning that. Apple Silicon also means the ARMv8 AES+PMULL crypto route is
+    # the one under test here, which no Linux runner exercises.
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          clang++ --version
+          cmake --version
+
+      - name: Dependencies
+        # ninja because every CMakePresets configure preset hardcodes it. openssl@3 because macOS
+        # ships LibreSSL as /usr/bin/openssl, and the TLS system tests drive `openssl s_server` with
+        # flags LibreSSL does not have (tests/purrc/tls_sys_test.cpp already documents this and
+        # probes the Homebrew paths). Putting brew's openssl FIRST on PATH is what makes the
+        # hashlib-vs-openssl comparisons compare against the same implementation Linux does.
+        run: |
+          brew install ninja openssl@3
+          echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
+
+      - name: WebSocket test peer
+        # The websocket system tests speak to a Node `ws` peer; without it they fail rather than skip.
+        run: npm ci --prefix tests/fixtures || npm install --prefix tests/fixtures
+
+      - name: Configure + build (debug)
+        run: |
+          cmake --preset debug
+          cmake --build --preset debug
+
+      - name: Tests
+        # CompileRun tests are excluded here for the same reason scripts/qa_gate.sh excludes them by
+        # default: each one forks purrc and then a full `c++ -O3`, and there are 291 of them. What
+        # remains still covers the whole standard library and compiler on this platform.
+        run: ctest --preset debug --output-on-failure --exclude-regex 'CompileRun'
+
+  sanitizers:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencies
+        run: |
+          brew install ninja openssl@3
+          echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
+      - name: Configure + build (asan)
+        run: |
+          cmake --preset asan
+          cmake --build --preset asan
+      - name: ASan + UBSan
+        # NOTE the absent detect_leaks. LeakSanitizer does not exist in Apple's ASan runtime, and
+        # asking for it makes every instrumented binary abort at startup with "detect_leaks is not
+        # supported on this platform" — which is precisely what has had cheatah-gpu's macOS lane red
+        # since 2026-07-25. Valgrind is likewise unavailable here; this stage is the memory-safety
+        # coverage on macOS, exactly as scripts/qa_gate.sh already says for Darwin.
+        env:
+          ASAN_OPTIONS: abort_on_error=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+        run: ctest --preset asan --output-on-failure --exclude-regex 'CompileRun'
