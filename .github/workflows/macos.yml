@@ -76,14 +76,13 @@ jobs:
           brew install ninja openssl@3
           echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
       - name: Configure + build (asan)
-        # Only the C++ test binaries, NOT the whole `all` target. `all` includes the .purr modules
-        # purrc links itself, and purrc does not pass -fsanitize=address to that link — so a dylib
-        # built from ASan-instrumented archives has undefined __asan_* symbols. An ELF .so tolerates
-        # that; a Mach-O dylib does not, and the link fails. Those modules are covered by the debug
-        # lane; what ASan is here to check is the C++ standard library, which is these targets.
+        # The full target. An earlier version built only two test binaries, to dodge purrc failing to
+        # link .purr modules under ASan — but that left the other four test binaries unbuilt, and
+        # ctest registers a NOT_BUILT sentinel for each that fails the run. purrc now passes the
+        # sanitizer flags through (cmake/Portability.cmake), so there is nothing left to dodge.
         run: |
           cmake --preset asan
-          cmake --build --preset asan --target cheatah_tests cheatah_purrc_tests
+          cmake --build --preset asan
       - name: ASan + UBSan
         # SYSTEM tests are excluded here, and that is deliberate rather than convenient: they spawn
         # external peers (a Node `ws` server, `openssl s_server`) and check protocol behaviour, which

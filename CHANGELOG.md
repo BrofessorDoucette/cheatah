@@ -3,6 +3,45 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.9.0-alpha (2026-07-27) — macOS is checked, not claimed
+
+cheatah has said it "builds and runs on macOS (Apple Silicon)" since v1.5.0-alpha. Nothing
+checked, and by this release the claim was false in five separate ways. This release makes it
+true and adds the CI that keeps it true — the repository had **no workflows at all** until now,
+while every downstream consumer of it had a macOS lane.
+
+**A seeded RNG now means the same thing on every platform.** `std::mt19937_64` is fully specified,
+but `uniform_real_distribution`, `uniform_int_distribution` and `normal_distribution` are
+implementation-defined — so libstdc++ and libc++ turned one identical engine stream into different
+numbers. `seed(42)` printed one answer on Linux and another on macOS. The three mappings are now
+written out in cheatah itself: the top 53 bits scaled by 2⁻⁵³ for a canonical double, rejection
+sampling for an unbiased inclusive integer range, and Box-Muller for the normal (its spare value
+deliberately discarded, so a call never depends on how many calls came before it). Validated over
+two million draws — the normal lands at mean 100.012 / sd 14.992 with 68.27% inside one sigma.
+
+**This changes the numbers your seeds produce, on every platform.** Sequences were only ever
+reproducible within one standard library; they are now reproducible everywhere, which is the
+guarantee `seed()` was always documented to give.
+
+**The macOS build defects, each found by the new CI within minutes of it existing:**
+
+* `explicit_bzero` — added in v1.8.0-alpha's security audit; Apple's libc does not have it. The key
+  wipe now goes through one helper that keeps the property the audit wanted (the optimizer may not
+  delete it) with no platform support required.
+* `std::jthread` — used only for join-on-destruction, and gated behind libc++'s experimental
+  library on Apple. The handle already joined in its own destructor, so the dependency bought
+  nothing; it is `std::thread` now.
+* **Shared libraries did not link their dependencies.** Modules linked only their object target,
+  which propagates headers but not links. An ELF `.so` tolerates undefined symbols; a Mach-O dylib
+  does not. `add_cheatah_library` grows a `DEPENDS` argument that wires all three artifacts.
+* `std::from_chars` — its floating-point overloads are shipped **deleted** by Apple's libc++. The
+  JSON scanner selects on `__cpp_lib_to_chars` and falls back to `strtod` where they are absent.
+* Under a sanitized build, purrc now passes the sanitizer flags to the programs it compiles — which
+  both fixes the link and means the sanitizer lane covers the code purrc *emits*.
+
+**New:** a macOS lane that builds and tests on real Apple Silicon on every push, plus a monthly
+AArch64 performance lane that finally measures what `docs/performance.md` has owed since v1.5.0.
+
 ## v1.8.0-alpha (2026-07-26) — authenticated encryption without an allocator
 
 ChaCha20-Poly1305 grows an **allocation-free surface**. The string-returning forms are still the

@@ -138,7 +138,7 @@ manifest looks like this:
 name = "hello"
 
 [cheatah]
-standard = "0.2.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
+standard = "0.3.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
 
 [extensions]
 cheatah-gpu = "v0.5.0-alpha"      # one line per opted-in extension; the value is the
@@ -178,12 +178,12 @@ Each standard is a short, append-only definition — the canonical files live in
 
 ```toml
 [standard]
-version = "0.2.0-alpha"
+version = "0.3.0-alpha"
 released = "2026-07-27"
 status = "current"          # current | supported | deprecated (security-only)
 
 [components]
-cheatah = "v1.8.0-alpha"
+cheatah = "v1.9.0-alpha"
 cheatah-gpu = "v0.5.0-alpha"
 ```
 
@@ -372,7 +372,7 @@ This is an early, working tool. Verified end-to-end today: `init` / `add` / `rem
 `list` / `standards` / `version`, manifest round-tripping, `CMakeLists.txt` generation
 with every tag resolved from the Biome Standard, and `build` / `run` against the cheatah
 **core** (configure → `purrc` module → native launcher, driven entirely by CMake/CPM).
-Biome Standard 0.2.0-alpha has two members — the cheatah toolchain and `cheatah-gpu`,
+Biome Standard 0.3.0-alpha has two members — the cheatah toolchain and `cheatah-gpu`,
 both with published release tags; `cheatah-plot` and `cheatah-space` are registered but
 join a standard only once they pass the cross-member gate (until then `biome add`
 declines them, truthfully).

@@ -115,7 +115,15 @@ fn known_standards() {
     let c1: list<StandardComponent> = []
     c1.append(StandardComponent("cheatah", "v1.8.0-alpha"))
     c1.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
-    xs.append(Standard("0.2.0-alpha", "2026-07-27", "current", c1))
+    xs.append(Standard("0.2.0-alpha", "2026-07-27", "supported", c1))
+
+    # Biome Standard 0.3.0-alpha — cheatah v1.9.0-alpha. Minor: macOS portability fixes plus the
+    # portable RNG distributions. No API changed, so every program written against 0.2.0-alpha
+    # still compiles; what moved is the SEQUENCE a seed produces, which was never portable before.
+    let c2: list<StandardComponent> = []
+    c2.append(StandardComponent("cheatah", "v1.9.0-alpha"))
+    c2.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
+    xs.append(Standard("0.3.0-alpha", "2026-07-27", "current", c2))
 
     return xs
 }
