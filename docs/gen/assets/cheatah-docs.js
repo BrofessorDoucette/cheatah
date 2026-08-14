@@ -14,9 +14,15 @@
   });
 
   // ---- highlight current page in sidebar; open the dropdown(s) leading to it ----
-  var here = location.pathname.split("/").pop() || "index.html";
+  // Resolve each href against the page URL so it stays correct inside the
+  // extension subsites (docs/html/<ext>/), where "../index.html" and a sibling
+  // subsite's "index.html" must not collide with the page's own basename.
+  var herePath = location.pathname;
+  if (herePath.slice(-1) === "/") herePath += "index.html";
   document.querySelectorAll('.sidebar a[href]').forEach(function (a) {
-    if (a.getAttribute("href") === here) {
+    var target;
+    try { target = new URL(a.getAttribute("href"), location.href).pathname; } catch (e) { return; }
+    if (target === herePath) {
       a.classList.add("active");
       var d = a.closest("details");           // open the enclosing submodule dropdown(s)
       while (d) { d.open = true; d = d.parentElement && d.parentElement.closest("details"); }
