@@ -1318,6 +1318,7 @@ fn build_sidebar(g) {
                 elif r == "performance" { ord_key = "05" }
                 elif r == "optimizations" { ord_key = "06" }
                 elif r == "security" { ord_key = "07" }
+                elif r == "releasing" { ord_key = "08" }
                 elif r == "md_CHANGELOG" { ord_key = "09" }
                 let label = c.title
                 if label == "" { label = c.short }

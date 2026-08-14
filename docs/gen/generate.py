@@ -863,7 +863,7 @@ def build_sidebar(compounds: dict[str, Compound], ext_comps: list[Compound]) -> 
     # (cheatah ↔ Python, cheatah ↔ C++) live in their OWN "Language parity" section.
     GUIDE_ORDER = {"why": 0, "getting-started": 1, "porting": 2, "imports": 3,
                    "ownership": 4, "performance": 5, "optimizations": 6, "security": 7,
-                   "md_CHANGELOG": 9}
+                   "releasing": 8, "md_CHANGELOG": 9}
     # "Essential tools": the compiler first (users meet purrc before the runtime), then the
     # runtime, the package manager, and the extensions.
     TOOLS_ORDER = {"purrc": 0, "runtime": 1, "biome": 2, "extensions": 3}
