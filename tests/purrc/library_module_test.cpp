@@ -174,8 +174,9 @@ TEST(LibraryModule, DocCommentsBecomeJavadoc) {
               std::string::npos)
         << hdr;
     // fn doc -> Javadoc directly above the emitted function; @tags pass through verbatim.
+    // Library free fns are emitted `inline` — multi-TU consumers would hit ODR otherwise.
     EXPECT_NE(hdr.find("/**\n * Twice the input.\n *\n"
-                       " * @param x the input.\n * @return 2*x.\n */\nauto twice("),
+                       " * @param x the input.\n * @return 2*x.\n */\ninline auto twice("),
               std::string::npos)
         << hdr;
     // struct + method docs (method Javadoc is indented with its member).
@@ -184,7 +185,7 @@ TEST(LibraryModule, DocCommentsBecomeJavadoc) {
     // Non-docs stay out of the header: body/trailing/detached comments, and an
     // undocumented function gets no Javadoc block.
     EXPECT_EQ(hdr.find("NOT documentation"), std::string::npos) << hdr;
-    EXPECT_EQ(hdr.find("*/\nauto undocumented("), std::string::npos) << hdr;
+    EXPECT_EQ(hdr.find("*/\ninline auto undocumented("), std::string::npos) << hdr;
 }
 
 TEST(LibraryModule, FromImportBindsEnumAndStructBare) {

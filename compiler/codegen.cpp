@@ -706,16 +706,19 @@ private:
         os << indent << " */\n";
     }
 
-    // Library-mode free function: like gen_fn but WITHOUT `static` internal linkage, so
-    // the (implicitly-inline) function template is usable across translation units that
-    // include the module header. Same constrained-template lowering as gen_fn.
+    // Library-mode free function: like gen_fn but WITHOUT `static` internal linkage, so the
+    // function is usable across translation units that include the module header. A fn whose
+    // params all lower to concrete types is NOT a template, so it needs `inline` explicitly or
+    // a second including TU is an ODR violation (multiple definition at link); templates and
+    // constexpr fns are implicitly inline, and the keyword is harmless on them, so every
+    // non-constexpr library fn gets it. Same constrained-template lowering as gen_fn.
     void gen_fn_library(std::ostringstream& os, const FnDef& fd) {
         emit_doc(os, fd.doc);
         // Honour a `-> Type` hint exactly as program-mode gen_fn does. Without this the return type
         // is always deduced, so a body that only `raise`s deduces `void` and callers cannot use the
         // result — which makes an interface OUTLINE (declared surface, unimplemented bodies)
         // impossible to express in a library module.
-        os << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type) << " "
+        os << (fd.is_constexpr ? "constexpr " : "inline ") << return_type_cpp(fd.return_type) << " "
            << cpp_ident(fd.name) << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
             os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
