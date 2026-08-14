@@ -31,8 +31,12 @@ the newest release automatically. Pass `--latest` anyway — determinism beats d
    `docs/biome.md`'s pins, and `tests/purrc/biome_cli_test.cpp`'s expected strings. The
    body argues the semver level in prose.
 3. Tag the **tip of main** with an annotated tag: `git tag -a vX.Y.Z-alpha` — subject is
-   the headline, body a prose digest of the notes.
-4. One push: `git push origin main vX.Y.Z-alpha`. The pre-push hook runs the full gate,
+   the headline, body a prose digest of the notes — and park a release branch at the same
+   commit: `git branch release/vX.Y.Z-alpha vX.Y.Z-alpha^{commit}`. Every release has one;
+   it is where a hotfix for a supported Biome Standard would land without shipping main's
+   in-flight work.
+4. One push: `git push origin main vX.Y.Z-alpha release/vX.Y.Z-alpha`. The pre-push hook
+   runs the full gate,
    refreshes `docs/html/`, and archives `archive/cheatah-vX.Y.Z-alpha.tar.gz` from the
    staged `review/` bundle. If the hook refreshed the site, commit that as
    `docs: publish the regenerated site` and push again.
