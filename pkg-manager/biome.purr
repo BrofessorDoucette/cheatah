@@ -123,7 +123,17 @@ fn known_standards() {
     let c2: list<StandardComponent> = []
     c2.append(StandardComponent("cheatah", "v1.9.0-alpha"))
     c2.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
-    xs.append(Standard("0.3.0-alpha", "2026-07-27", "current", c2))
+    xs.append(Standard("0.3.0-alpha", "2026-07-27", "supported", c2))
+
+    # Biome Standard 0.4.0-alpha — cheatah v1.10.0-alpha. Minor: the regex matcher rewrite
+    # (one-pass search, reversed `$`, run skipping) keeps the API and semantics; the one
+    # user-visible change is that a pattern over 64 KiB (or one relying on the old, less
+    # precise nested-parse error message) now reports a different `error` string. Every real
+    # program written against 0.3.0-alpha compiles and behaves identically.
+    let c3: list<StandardComponent> = []
+    c3.append(StandardComponent("cheatah", "v1.10.0-alpha"))
+    c3.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
+    xs.append(Standard("0.4.0-alpha", "2026-08-13", "current", c3))
 
     return xs
 }

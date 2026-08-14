@@ -87,8 +87,8 @@ class BiomeCli : public ::testing::Test {
 // asserting BOTH rows is what proves that rather than just the newest.
 TEST_F(BiomeCli, StandardsListsKnownSets) {
   const std::string out = biome(scratch("standards_list"), "standards");
-  expect_has(out, "* 0.3.0-alpha  (current, released 2026-07-27)");
-  expect_has(out, "cheatah         v1.9.0-alpha");   // ljust(name, 16) columns
+  expect_has(out, "* 0.4.0-alpha  (current, released 2026-08-13)");
+  expect_has(out, "cheatah         v1.10.0-alpha");  // ljust(name, 16) columns
   expect_has(out, "cheatah-gpu     v0.5.0-alpha");
   expect_has(out, "0.1.0-alpha  (supported, released 2026-07-25)");
   expect_has(out, "0.2.0-alpha  (supported, released 2026-07-27)");
@@ -110,7 +110,7 @@ TEST_F(BiomeCli, StandardsEmitTomlUnknownVersion) {
   expect_has(out, "biome: unknown Biome Standard: 9.9.9");
 }
 
-// `biome init` pins the newest standard: cheatah.toml gets `standard = "0.3.0-alpha"`
+// `biome init` pins the newest standard: cheatah.toml gets `standard = "0.4.0-alpha"`
 // under [cheatah] and NO manual `version =` override; the generated CMake pins the
 // toolchain tag the standard resolves.
 TEST_F(BiomeCli, InitScaffoldsStandardPinnedProject) {
@@ -118,10 +118,10 @@ TEST_F(BiomeCli, InitScaffoldsStandardPinnedProject) {
   const std::string toml = e2e::read_file(proj + "/cheatah.toml");
   ASSERT_FALSE(toml.empty());
   expect_has(toml, "[cheatah]");
-  expect_has(toml, "standard = \"0.3.0-alpha\"");
+  expect_has(toml, "standard = \"0.4.0-alpha\"");
   expect_lacks(toml, "\nversion =");  // no manual toolchain override in a fresh project
   const std::string cml = e2e::read_file(proj + "/CMakeLists.txt");
-  expect_has(cml, "GIT_TAG v1.9.0-alpha");
+  expect_has(cml, "GIT_TAG v1.10.0-alpha");
   EXPECT_TRUE(fs::exists(proj + "/src/main.purr"));
   EXPECT_TRUE(fs::exists(proj + "/cmake/CPM.cmake"));
 }
@@ -132,7 +132,7 @@ TEST_F(BiomeCli, AddStandardMemberExtension) {
   const std::string proj = init_project("add_gpu");
   const std::string out = biome(proj, "add cheatah-gpu");
   expect_has(out, "biome: added cheatah-gpu v0.5.0-alpha — GPU arrays and compute kernels");
-  expect_has(out, "(from Biome Standard 0.3.0-alpha)");
+  expect_has(out, "(from Biome Standard 0.4.0-alpha)");
   const std::string toml = e2e::read_file(proj + "/cheatah.toml");
   expect_has(toml, "[extensions]");
   expect_has(toml, "cheatah-gpu = \"v0.5.0-alpha\"");
@@ -148,7 +148,7 @@ TEST_F(BiomeCli, AddNonMemberExtensionRefused) {
   const std::string proj = init_project("add_plot");
   const std::string before = e2e::read_file(proj + "/cheatah.toml");
   const std::string out = biome(proj, "add cheatah-plot");
-  expect_has(out, "biome: cheatah-plot is not a member of Biome Standard 0.3.0-alpha");
+  expect_has(out, "biome: cheatah-plot is not a member of Biome Standard 0.4.0-alpha");
   EXPECT_EQ(e2e::read_file(proj + "/cheatah.toml"), before) << "refusal must not edit the manifest";
   expect_lacks(e2e::read_file(proj + "/CMakeLists.txt"), "cheatah-plot");
 }
@@ -177,7 +177,7 @@ TEST_F(BiomeCli, ListShowsMembershipAndStandard) {
   const std::string proj = init_project("list");
   biome(proj, "add cheatah-gpu");
   const std::string out = biome(proj, "list");
-  expect_has(out, "Biome Standard 0.3.0-alpha");
+  expect_has(out, "Biome Standard 0.4.0-alpha");
   expect_has(out, "* cheatah-gpu     v0.5.0-alpha");           // added member: marked + tagged
   expect_has(out, "  cheatah-plot    (not in this standard)");  // known, but untested with this set
   expect_has(out, "  cheatah-space   (not in this standard)");
@@ -237,7 +237,7 @@ TEST_F(BiomeCli, LegacyManifestDefaultsStandard) {
   const std::string out = biome(dir, "add cheatah-gpu");  // loads, validates, saves
   expect_has(out, "biome: added cheatah-gpu v0.5.0-alpha");
   const std::string toml = e2e::read_file(dir + "/cheatah.toml");
-  expect_has(toml, "standard = \"0.3.0-alpha\"");  // written on the first save
+  expect_has(toml, "standard = \"0.4.0-alpha\"");  // written on the first save
   expect_has(toml, "version = \"1.6.0-alpha\"");   // the legacy pin is preserved
 }
 
