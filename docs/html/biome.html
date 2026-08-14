@@ -58,7 +58,7 @@ cheatah build/hello.so         <span class="tok-com"># run it — always with th
 name = <span class="tok-str">&quot;hello&quot;</span>
 
 [cheatah]
-standard = <span class="tok-str">&quot;0.5.3-alpha&quot;</span>    <span class="tok-com"># the Biome Standard — ONE version pinning the whole tested set</span>
+standard = <span class="tok-str">&quot;0.6.0-alpha&quot;</span>    <span class="tok-com"># the Biome Standard — ONE version pinning the whole tested set</span>
 
 [extensions]
 cheatah-gpu = <span class="tok-str">&quot;v0.5.0-alpha&quot;</span>      <span class="tok-com"># one line per opted-in extension; the value is the</span>
@@ -71,7 +71,7 @@ shared = { path = <span class="tok-str">&quot;../shared&quot;</span> }   <span c
 </li><li><p><code>[extensions]</code> lists optional standard-library extensions (see below). <code>biome add</code> and <code>biome remove</code> edit this section for you; the values are the tags the standard resolved, written out so the manifest is self-describing.</p>
 </li><li><p><code>[dependencies]</code> lists your own libraries. Each is <code>name = { path = <span class="tok-str">&quot;…&quot;</span> }</code> — a folder on disk that holds cheatah modules you want to <code><span class="tok-kw">import</span></code>. This is how one cheatah project consumes another.</p>
 </li></ul><h2 id="biome_1biome-standard">The Biome Standard</h2><p>The cheatah ecosystem is deliberately many small repositories — you install only what you need and keep your dependency surface low. What keeps that from becoming version chaos is the <strong>Biome Standard</strong>: one semantic version that names a <em>set</em> of component releases (the toolchain plus extensions) <strong>tested to work together</strong>. Members keep their own per-repo versions for internal bookkeeping; the standard is the compatibility contract <em>you</em> rely on, and the one number your manifest pins.</p><p>Each standard is a short, append-only definition — the canonical files live in <a href="https://github.com/BrofessorDoucette/cheatah/tree/main/standards" target="_blank" rel="noopener"><code>standards/</code></a> and <code>biome standards</code> prints the table your biome ships with:</p><pre class="code"><code>[standard]
-version = <span class="tok-str">&quot;0.5.3-alpha&quot;</span>
+version = <span class="tok-str">&quot;0.6.0-alpha&quot;</span>
 released = <span class="tok-str">&quot;2026-08-13&quot;</span>
 status = <span class="tok-str">&quot;current&quot;</span>          <span class="tok-com"># current | supported | deprecated (security-only)</span>
 
@@ -122,7 +122,7 @@ cheatah build/…/proj.so    <span class="tok-com"># writes hello.png — render
 </main>
   <aside class="toc" aria-label="On this page"></aside>
 </div>
-<script src="search-index.js?v=1b3d7a6f"></script>
+<script src="search-index.js?v=f0a4fd10"></script>
 <script src="cheatah-docs.js?v=c11a98e6"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
