@@ -192,7 +192,20 @@ fn known_standards() {
     c7.append(StandardComponent("cheatah-gpu-linalg", "v0.4.3-alpha"))
     c7.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c7.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.5.3-alpha", "2026-08-14", "current", c7))
+    xs.append(Standard("0.5.3-alpha", "2026-08-14", "supported", c7))
+
+    # Biome Standard 0.6.0-alpha — a MINOR: cheatah-gpu-linalg v0.4.4-alpha ADDS the
+    # available()/unavailable_reason() probe to its purr module surface (the acceptance
+    # test's program was the first purr consumer to gate device work on it, as the design
+    # prescribes). Additive only — every program written against 0.5.x compiles and behaves
+    # identically; the toolchain release carries this table.
+    let c8: list<StandardComponent> = []
+    c8.append(StandardComponent("cheatah", "v1.11.4-alpha"))
+    c8.append(StandardComponent("cheatah-gpu", "v0.5.1-alpha"))
+    c8.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
+    c8.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c8.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.6.0-alpha", "2026-08-14", "current", c8))
 
     return xs
 }

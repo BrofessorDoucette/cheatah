@@ -3,6 +3,13 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.4-alpha (2026-08-14) — the probe reaches purr
+
+Biome Standard **0.6.0-alpha** — a MINOR: cheatah-gpu-linalg v0.4.4-alpha ADDS
+`available()`/`unavailable_reason()` to its purr module surface, the probe the design tells
+consumers to gate device work on (the acceptance test's program was the first purr consumer
+to ask). Additive only; every other member unchanged; this release carries the table.
+
 ## v1.11.3-alpha (2026-08-14) — round three, one include
 
 Biome Standard **0.5.3-alpha** (a PATCH): the acceptance test's third round reached
