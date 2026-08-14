@@ -27,6 +27,10 @@ contract, so you always know what a call costs:
 > constant factors can shift with the **C runtime / standard library** linked at
 > run time. Treat Big-O as the contract; benchmark for absolute numbers.
 
+> **Examples in the docs:** function pages are gaining a consistent
+> **`@par Example`** block with runnable code — every `plot` function page
+> carries one today, and the same convention is arriving across the extensions.
+
 The entire library is verified on every QA-gate run under **AddressSanitizer**
 (the `asan` preset) and **Valgrind** (`security/run-valgrind.sh`), with **100% line
 and function coverage** of the stdlib.
