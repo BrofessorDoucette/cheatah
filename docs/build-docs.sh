@@ -4,7 +4,8 @@
 # (docs/gen-cheatah/gen.purr) renders the modern site into docs/html. The original
 # Python generator (docs/gen/generate.py) is kept solely as the gen_bench parity
 # benchmark — its output is byte-identical, and the benchmark keeps it that way.
-# Serve the site with the VS Code "Open docs in browser" task or scripts/serve-docs.purr.
+# Serve the site with the VS Code "Open docs in browser" task, a static file server, or the
+# host's own deployment tooling — this repo GENERATES the site and does not serve it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

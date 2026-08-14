@@ -64,8 +64,7 @@ with socket.open("example.com", 443) as sock {
   (PKCS#8 Ed25519, or PKCS#8/SEC1 P-256 EC); returns an owning `Conn`. `cert_pem` may be a full
   chain (`fullchain.pem` — leaf first, then intermediates) and every block is sent, so a
   Let's Encrypt certificate works as issued and browsers get a path to their trust anchor. This
-  is the "HTTPS with zero non-cheatah software" path — pair it with a `socket` accept loop (see
-  `scripts/serve-docs.purr --tls`).
+  is the "HTTPS with zero non-cheatah software" path — pair it with a `socket` accept loop.
 - **`Conn`** methods: `send(data)`, `recv(bufsize)`, `shutdown()`, `close()`, `is_open()`,
   `id()`. The `Conn` sends `close_notify` and erases its session automatically at scope exit —
   held as a plain `let` or in a `with`, it cannot leak.
