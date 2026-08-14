@@ -25,11 +25,13 @@ rm -rf docs/xml
 # Each extension's Doxygen XML lands in its OWN tree (docs/xml-ext/<ext>/), NEVER in
 # docs/xml — the stdlib XML also feeds the VS Code hover DB and the doc-coverage
 # gates, which stay stdlib-only. The extension's Doxyfile is piped through with
-# overrides: output redirected here, EXTRACT_ALL on, and the vulkan/metal
-# EXCLUDE_PATTERNS dropped — the generated forwarders carry uniform doc comments,
-# and the SITE wants the full public surface (the strict per-repo doc gate is the
-# one that excludes them). The extension repo itself is never written to.
-EXTENSIONS="cheatah-gpu"
+# overrides: output redirected here, EXTRACT_ALL on, and the per-repo strict-gate
+# EXCLUDE_PATTERNS reset to the tests/vendor baseline — the generated forwarders
+# and emitted submodule headers carry uniform doc comments, and the SITE wants the
+# full public surface (the strict per-repo doc gate is the one that excludes them).
+# The extension repo itself is never written to. Each extension renders as its own
+# SUBSITE (docs/html/<ext>/) with a landing page, releases page and search index.
+EXTENSIONS="cheatah-gpu cheatah-gpu-linalg cheatah-plot cheatah-space"
 rm -rf docs/xml-ext
 for ext in $EXTENSIONS; do
     EXT_DIR="../$ext"
@@ -48,15 +50,34 @@ for ext in $EXTENSIONS; do
     (
         cd "$EXT_DIR"
         {
-            cat Doxyfile
+            if [ -f Doxyfile ]; then
+                cat Doxyfile
+            else
+                # No Doxyfile yet (a freshly-scaffolded extension): a minimal one so the
+                # site can still cover it. INPUT is the package dir (`space` for
+                # cheatah-space); the repo's own Doxyfile takes over the day it lands.
+                echo "[docs] note: $ext has no Doxyfile — using the minimal fallback (INPUT = ${ext#cheatah-})" >&2
+                echo "PROJECT_NAME = $ext"
+                echo "INPUT = ${ext#cheatah-}"
+                echo "RECURSIVE = YES"
+                echo "GENERATE_HTML = NO"
+                echo "GENERATE_LATEX = NO"
+                echo "QUIET = YES"
+            fi
             echo "OUTPUT_DIRECTORY = $EXT_OUT"
             echo "XML_OUTPUT = $ext"
+            echo "GENERATE_XML = YES"
             echo "EXTRACT_ALL = YES"
-            # Reset (=, not +=): keep tests/vendor out, drop the vulkan/metal excludes.
+            # Reset (=, not +=): keep tests/vendor out, drop the per-repo doc-gate
+            # excludes (vulkan/metal forwarders, emitted submodule headers, …).
             echo "EXCLUDE_PATTERNS = */tests/* */systests/* */scripts/* */vendor/*"
-            # The generated Vulkan forwarders sit behind the registry's feature guards;
-            # define them so the full documented surface lands in the XML.
-            echo "PREDEFINED = CHEATAH_GPU_BACKEND_VULKAN=1 VK_VERSION_1_0 VK_VERSION_1_1 VK_VERSION_1_2 VK_VERSION_1_3 VK_VERSION_1_4 VK_KHR_surface VK_KHR_swapchain"
+            if [ "$ext" = "cheatah-gpu" ]; then
+                # The generated Vulkan forwarders sit behind the registry's feature guards;
+                # define them so the full documented surface lands in the XML. This is a
+                # cheatah-gpu-only override — every other extension keeps its Doxyfile's
+                # own PREDEFINED (e.g. cheatah-space's CHEATAH_SPACE_HAVE_NDARRAY).
+                echo "PREDEFINED = CHEATAH_GPU_BACKEND_VULKAN=1 VK_VERSION_1_0 VK_VERSION_1_1 VK_VERSION_1_2 VK_VERSION_1_3 VK_VERSION_1_4 VK_KHR_surface VK_KHR_swapchain"
+            fi
         } | "$DOXYGEN" -
     )
 done
@@ -71,10 +92,22 @@ if [ ! -x "$BIN/purrc" ] || [ ! -x "$BIN/cheatah" ]; then
     exit 1
 fi
 
+# The generator imports biome (pkg-manager/biome.purr) for the Biome Standard
+# table — the standards/extensions data has exactly one home. purrc imports
+# resolve to emitted library headers, so the biome module is emitted (transparent,
+# header-only; library mode drops biome's top-level entry call) into build/ first
+# and handed to the gen.purr compile as an --import-root.
+BIOME_HPP=build/docs-biome/biome.hpp
+if [ ! -f "$BIOME_HPP" ] || [ pkg-manager/biome.purr -nt "$BIOME_HPP" ] || [ "$BIN/purrc" -nt "$BIOME_HPP" ]; then
+    echo "[docs] emitting the biome library (pkg-manager/biome.purr)…"
+    mkdir -p build/docs-biome
+    "$BIN/purrc" --emit-library --transparent pkg-manager/biome.purr -o "$BIOME_HPP"
+fi
+
 GEN_SO=build/docs-gen.so
-if [ ! -f "$GEN_SO" ] || [ docs/gen-cheatah/gen.purr -nt "$GEN_SO" ] || [ "$BIN/purrc" -nt "$GEN_SO" ]; then
+if [ ! -f "$GEN_SO" ] || [ docs/gen-cheatah/gen.purr -nt "$GEN_SO" ] || [ "$BIN/purrc" -nt "$GEN_SO" ] || [ "$BIOME_HPP" -nt "$GEN_SO" ]; then
     echo "[docs] compiling the generator (docs/gen-cheatah/gen.purr)…"
-    "$BIN/purrc" docs/gen-cheatah/gen.purr -o "$GEN_SO"
+    "$BIN/purrc" docs/gen-cheatah/gen.purr -o "$GEN_SO" --import-root "$(pwd)/build/docs-biome"
 fi
 
 echo "[docs] generating site (pure cheatah)…"
