@@ -3,6 +3,51 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.10.0-alpha (2026-08-13) — regex, raced against RE2
+
+The `regex` module now races **Google RE2** — the engine whose lazy-DFA design it follows —
+alongside `std::regex` and Boost.Regex, over identical inputs in `stdlib/regex/bench/`:
+~90 cases spanning compile, search, `full_match`, `find`/find-all, realistic corpora,
+size sweeps, tiny-input latency, and catastrophic-backtracking inputs up to 64 MB. Every
+timed case is output-verified across all four engines before anything is measured, and a
+differential suite (`rxdiff`) checks cheatah against RE2-as-oracle on thousands of
+generated inputs. The tally at pinned medians of 7 repetitions, across all 83 cases:
+vs RE2 **69 faster / 14 parity / 0 slower** (every parity row is a memory-bandwidth-bound
+scan no engine can win); vs `std::regex` 64 / 0 / 0 over the cases it can run at all;
+vs Boost 61 / 2 / 1 — the loss, compiling a 64-byte pure literal, is analysis Boost skips
+and match time repays.
+
+The matcher work behind it — the public API is unchanged (`compile`/`search`/`full_match`/
+`find`, leftmost-longest, the same error strings):
+
+* **Unanchored `search` is one forward pass** — the compiled-in `.*?` prefix tracks every
+  start position in a single DFA state, so the old per-candidate rescans (O(n²) worst case)
+  are gone: O(n), always, with `memchr`/required-literal/first-set skips while no partial
+  match is alive.
+* **`$` runs backward.** A pattern anchored only at the end runs a reversed program from the
+  end of the input; `1274$` over 4 MB went from ~1.4 ms to ~8 ns — the one shape Boost used
+  to win.
+* **One load per byte.** Transition entries are row byte-offsets, the accept flag lives
+  inside the row, start states are cached in the pattern — a warm search allocates nothing.
+* **Self-loops are skipped, not stepped.** Start-state self-loop bytes are learned into a
+  LUT; any state that maps a byte onto itself lets the whole run of that byte be jumped
+  8 bytes at a time. The 16 MB adversarial rows fell from ~30 ms to under 1 ms.
+* A parse error from inside a group (the depth cap, a bad metacharacter) is no longer
+  overwritten by `unbalanced '('` — the inner, more precise message survives.
+
+**Hardening found while auditing the new code:** pattern length is now capped at 64 KiB
+(`"pattern too long"`) — `compile()` spends ~40 bytes of program per pattern byte, so an
+unbounded hostile pattern was a memory-amplification DoS the depth cap and state budget
+never covered. The audit's clean verdicts (bounds, cache-growth pointer discipline, skip
+soundness) are recorded in `SECURITY.md`'s standing review.
+
+`regex.cpp` is now compiled directly into the unit-test binary and sits in the **100%
+line+function coverage gate** — previously it was exercised only through subprocess e2e
+tests and invisible to coverage. The bench project pins RE2 + Abseil + Boost by commit;
+`RXBENCH_ASSERT=1` exits non-zero if any case is slower than RE2, and `RXBENCH_TABLE=<path>`
+writes the full comparison table (published in `stdlib/regex/README.md`). Losses are
+reported, not hidden.
+
 ## v1.9.0-alpha (2026-07-27) — macOS is checked, not claimed
 
 cheatah has said it "builds and runs on macOS (Apple Silicon)" since v1.5.0-alpha. Nothing

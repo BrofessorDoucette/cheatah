@@ -330,6 +330,44 @@ reproduces the known-answer vector at startup, else it falls back to the scalar 
 one thing not yet claimed is ARM *throughput*: emulated timings are not representative, so
 AArch64 performance numbers will be added once measured on real hardware (e.g. Apple Silicon).
 
+## Pattern matching vs std::regex, Boost, and RE2 {#vs-regex}
+
+The `regex` module is a from-scratch, linear-time lazy DFA. The standalone benchmark project
+(`stdlib/regex/bench/`) races it against **three reference engines over identical inputs** —
+`std::regex`, Boost.Regex, and **Google RE2**, the engine whose lazy-DFA approach cheatah's
+matcher is modeled on. Every timed case is output-verified across all four engines before
+anything is measured (the benchmark aborts on any disagreement), and a differential suite
+cross-checks cheatah against RE2-as-oracle on thousands of generated inputs, including
+half-megabyte adversarial ones.
+
+The suite spans compile time, boolean search, `full_match`, `find`/find-all extraction,
+realistic corpora (JSON-ish records, timestamps, hex tokens, UUIDs), input-size sweeps,
+match-position shapes, tiny-input latency, and — the reason linear-time engines exist —
+**catastrophic-backtracking inputs at up to 16–64 MB**, where `std::regex` needs seconds at
+*28 bytes* (and is unrunnable at megabyte scale) and Boost throws a "complexity exceeded"
+exception rather than answer.
+
+The tally, on pinned hardware at medians of 7 repetitions, across all 83 cases: vs RE2,
+**69 faster / 14 parity / 0 slower** — every parity row is a memory-bandwidth-bound scan
+where no engine separates by the gate's 1.15× margin; vs `std::regex`, 64 / 0 / 0 over the
+cases it can run at all; vs Boost.Regex, 61 / 2 / 1, the loss being a 64-byte pure-literal
+compile (analysis Boost skips and match time repays). Representative rows:
+
+| case | cheatah | std::regex | Boost | RE2 |
+|---|--:|--:|--:|--:|
+| `[0-9]+` over a 4 MB log | 6.7 ns | 75.2 ns | 48.0 ns | 32.0 ns |
+| `1274$` (end-anchored, 4 MB) | 6.3 ns | 36.4 ms | 110.5 ns | 34.2 ns |
+| find-all `[0-9]+` (256 KB) | 464.6 µs | 3.48 ms | 3.35 ms | 1.87 ms |
+| compile `[a-z]+@[a-z.]+` | 207.3 ns | 23.4 µs | 1.06 µs | 2.17 µs |
+| **ReDoS** `(a+)+$`, N=28 | 3.4 ns | hangs (seconds) | throws | 29.7 ns |
+| **ReDoS at 16 MB** `c[ab]*$` | 1.01 ms | unrunnable | unrunnable | 20.1 ms |
+
+The complete per-case table (all four engines, every benchmarked case) lives in
+[the regex module's README](../stdlib/regex/README.md); regenerate it any time with
+`RXBENCH_TABLE=<path> ./build/regexbench/rxbench`, and the standing claim is machine-checked —
+`RXBENCH_ASSERT=1` makes the run exit non-zero if any case falls behind RE2. As everywhere on
+this page: we report whatever the measurement says, losses included.
+
 ## No garbage collector — and so, no GC pauses {#no-gc}
 
 A big part of why those loops stay fast and *predictable*: **cheatah has no garbage

@@ -19,6 +19,7 @@ add_executable(cheatah_benchmarks
     p256_bench.cpp
     crypto_openssl_bench.cpp  # cheatah digests/HMAC/AEAD vs OpenSSL (libcrypto, if present)
     compiler_bench.cpp        # the cheatah frontend: lexer/parser/codegen transpilation speed
+    regex_bench.cpp           # cheatah regex compile/search/find; 4-engine comparison lives in stdlib/regex/bench/
     ${PROJECT_SOURCE_DIR}/runtime/integrity.cpp
 )
 
@@ -31,6 +32,7 @@ target_link_libraries(cheatah_benchmarks PRIVATE
     cheatah::p256_static
     cheatah::aead_static
     cheatah::hashlib_static
+    cheatah::regex_static
     benchmark::benchmark_main
 )
 target_include_directories(cheatah_benchmarks PRIVATE
@@ -39,7 +41,8 @@ target_include_directories(cheatah_benchmarks PRIVATE
     ${PROJECT_SOURCE_DIR}/stdlib/hashlib
     ${PROJECT_SOURCE_DIR}/stdlib/ed25519
     ${PROJECT_SOURCE_DIR}/stdlib/aead
-    ${PROJECT_SOURCE_DIR}/stdlib/p256)
+    ${PROJECT_SOURCE_DIR}/stdlib/p256
+    ${PROJECT_SOURCE_DIR}/stdlib/regex)
 
 # compiler_bench.cpp reads real .purr from the source tree at run time.
 target_compile_definitions(cheatah_benchmarks PRIVATE CHEATAH_SRC_ROOT="${PROJECT_SOURCE_DIR}")

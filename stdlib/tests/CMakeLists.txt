@@ -42,6 +42,7 @@ add_executable(cheatah_tests
     parsers_html_test.cpp
     thread_test.cpp
     sys_test.cpp
+    regex_test.cpp
     # parsers/xml/xml.cpp is compiled DIRECTLY into the test binary (like p256.cpp below) so the
     # slab-DOM XML reader's coverage is measured by parsers_xml_test.cpp here, rather than only
     # through the compiled libcheatah_parsers archive. (It is header-clean — no white-box seam.)
@@ -51,6 +52,10 @@ add_executable(cheatah_tests
     # parsers_html_test.cpp and the compiled JSON DOM parser/serializer by parsers_json_dom_test.cpp.
     ${CMAKE_SOURCE_DIR}/stdlib/parsers/html/html.cpp
     ${CMAKE_SOURCE_DIR}/stdlib/parsers/json/json.cpp
+    # regex.cpp is a direct source for the same coverage reason (header-clean — no white-box
+    # seam): regex_test.cpp carries the engine's line/function coverage in-process, where the
+    # RegexE2E suite (a purrc-subprocess e2e) cannot. cheatah::regex_static is NOT linked.
+    ${CMAKE_SOURCE_DIR}/stdlib/regex/regex.cpp
     # sys.cpp is compiled DIRECTLY into the test binary for the same coverage reason as xml.cpp:
     # sys_test.cpp exercises sys.argv/set_argv AND the exported cheatah_set_argv runtime hook, and
     # compiling the TU here (rather than linking cheatah::sys_static) guarantees llvm-cov mappings
@@ -106,6 +111,7 @@ target_include_directories(cheatah_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/stdlib/parsers
     ${CMAKE_SOURCE_DIR}/stdlib/p256    # p256.hpp, now that p256.cpp is a direct test source
     ${CMAKE_SOURCE_DIR}/stdlib/p384    # p384.hpp, likewise a direct test source
+    ${CMAKE_SOURCE_DIR}/stdlib/regex   # regex.hpp, now that regex.cpp is a direct test source
     ${CMAKE_SOURCE_DIR}/stdlib/sys     # sys.hpp, now that sys.cpp is a direct test source
     ${CMAKE_SOURCE_DIR}/stdlib/websocket)  # websocket.hpp, now that websocket.cpp is a direct source
 add_dependencies(cheatah_tests cheatah_requests_module)

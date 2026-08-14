@@ -7,14 +7,19 @@
  * @brief `regex` — a fast, from-scratch regular-expression engine. `import regex`.
  *
  * A **linear-time** matcher: the pattern compiles to a Thompson NFA and runs as a **lazy
- * DFA** (RE2-style), so one DFA pass is O(n) in the input length with **no backtracking** — it
+ * DFA** (RE2-style), so matching is O(n) in the input length with **no backtracking** — it
  * cannot blow up exponentially on adversarial patterns the way `std::regex` and backtracking
- * engines (Boost) do. (An unanchored @ref search / @ref find may retry the anchored DFA from
- * successive start positions, so the worst case over the whole input is quadratic — still
- * polynomial, never exponential; see each function's `@complexity`.) A compiled @ref Pattern owns its program **and a reusable DFA cache**, so
- * repeated matches over one pattern warm the cache and pay only a byte-table lookup per input
- * character. It is statically typed and **never allocates an intermediate string**: matching
- * touches only the input bytes (as a `string_view`) and integer program-counters. @ref find
+ * engines (Boost) do. An unanchored @ref search is ONE forward DFA pass (the compiled-in
+ * `.*?` prefix tracks every start position simultaneously), accelerated by a `memchr`/
+ * literal/first-set skip whenever the scan has no partial match alive; a `$`-anchored search
+ * runs a reversed program **backward from the end**, dying after a handful of bytes when the
+ * tail cannot match. Only @ref find on input that *does* contain a match may retry candidate
+ * starts (leftmost-longest is decided per start), so its worst case is quadratic — still
+ * polynomial, never exponential; see each function's `@complexity`. A compiled @ref Pattern
+ * owns its program **and a reusable DFA cache** (start states included), so repeated matches
+ * over one pattern warm the cache and pay only a byte-table lookup per input character. It is
+ * statically typed and **never allocates an intermediate string**: matching touches only the
+ * input bytes (as a `string_view`) and integer program-counters. @ref find
  * returns the matched bytes as an **owned `str`** (the library owns them — no borrow, so nothing
  * can dangle), plus the byte offsets for callers who prefer to slice their own input zero-copy.
  *
@@ -45,7 +50,9 @@ struct Pattern {
 
 /**
  * Compile @p pattern into a reusable @ref Pattern. Never throws — on a malformed pattern it
- * returns a `Pattern` with `ok == false` and a message in `error`.
+ * returns a `Pattern` with `ok == false` and a message in `error`. Patterns longer than
+ * 64 KiB are rejected as malformed (`"pattern too long"`): compilation spends O(m) memory,
+ * and the cap bounds what a crafted pattern can make it allocate.
  * @param pattern the regular-expression source.
  * @return the compiled pattern (check `.ok`).
  * @complexity O(m) in the pattern length.
@@ -60,14 +67,16 @@ Pattern compile(std::string_view pattern);
  * @param re a compiled pattern.
  * @param text the input to search.
  * @return true if some substring of @p text matches.
- * @complexity one DFA pass — O(n) amortized in the length of @p text — when the pattern is
- *             start-anchored or has no first-byte information (the built-in `.*?` prefix); the
- *             unanchored fast path re-runs the anchored DFA from each candidate first byte, so
- *             adversarial input (e.g. `a*b` over `aaa…a`) is O(n²) worst case — always polynomial,
- *             never exponential (no backtracking). Add O(m) per uncached transition while new DFA
- *             states are still being built (m = pattern size).
- * @alloc never copies the input; allocates only DFA machinery — a start-state closure scratch (and
- *        its intern key) per call, plus new states/transition rows while the shared cache is cold.
+ * @complexity O(n) — one DFA pass, always: anchored patterns run forward from the start;
+ *             `$`-anchored patterns run a reversed program backward from the end (typically
+ *             exiting after a few tail bytes); everything else is a single unanchored forward
+ *             pass whose built-in `.*?` prefix tracks all start positions at once, skipping
+ *             ahead via `memchr`/required-literal/first-set pruning whenever no partial match
+ *             is alive. Add O(m) per uncached transition while new DFA states are still being
+ *             built (m = pattern size).
+ * @alloc never copies the input; allocates only DFA machinery — new states/transition rows
+ *        while the shared cache is cold (start states are cached in the Pattern after the
+ *        first call; a warm pattern allocates nothing).
  * @warning a pathological pattern whose lazy DFA exceeds the state budget (100k states) throws
  *          `std::runtime_error` rather than exhausting memory.
  * @systest RegexE2E.SearchPresentAbsent
@@ -107,15 +116,18 @@ struct Match {
  * @param re a compiled pattern.
  * @param text the input to search.
  * @return the match (check `.matched`); `.text` owns the matched bytes.
- * @complexity O(n) amortized per start position tried (the DFA-state cache is shared across start
- *             positions); an unanchored pattern retries from each successive position until a match,
- *             so a late or absent match is O(n²) worst case over the whole input — always polynomial,
- *             never exponential (no backtracking). Add O(m) per uncached transition while new DFA
+ * @complexity a `$`-anchored pattern is O(n): one backward pass of the reversed program
+ *             finds the leftmost begin directly. Otherwise candidate starts are tried from
+ *             the left (leftmost-longest is decided per start), with the `memchr`/required-
+ *             literal/first-set skip jumping between plausible candidates — so sparse-
+ *             candidate input is effectively O(n), while a late or absent match over
+ *             candidate-dense input is O(n²) worst case — always polynomial, never
+ *             exponential (no backtracking). Add O(m) per uncached transition while new DFA
  *             states are built.
- * @alloc the matching itself never copies the input — it allocates only DFA machinery (a start-state
- *        closure scratch per start position, plus new states while the cache is cold); on a hit,
- *        `.text` owns one copy of the matched bytes (`end - begin`). Use `.begin`/`.end` to avoid
- *        even that.
+ * @alloc the matching itself never copies the input — it allocates only DFA machinery (new
+ *        states while the shared cache is cold; start states are cached in the Pattern, so a
+ *        warm pattern's scan allocates nothing); on a hit, `.text` owns one copy of the
+ *        matched bytes (`end - begin`). Use `.begin`/`.end` to avoid even that.
  * @warning a pathological pattern whose lazy DFA exceeds the state budget (100k states) throws
  *          `std::runtime_error` rather than exhausting memory.
  * @systest RegexE2E.FindOffsetsAndOwnedText

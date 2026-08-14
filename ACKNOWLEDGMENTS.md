@@ -29,7 +29,9 @@ own license.
 | **LAPACK** | <https://www.netlib.org/lapack/> | Reference factorizations and solver semantics behind `linalg`. |
 | **Eigen** | <https://eigen.tuxfamily.org/> | The C++ reference library cheatah benchmarks its single-threaded numeric core against. |
 | **GLM** | <https://github.com/g-truc/glm> | Vector/matrix and graphics-math conventions (relevant to `cheatah-space` / `cheatah-plot`). |
-| **RE2** | <https://github.com/google/re2> | The linear-time, backtracking-free **lazy-DFA** approach behind the `regex` module (designed and written from scratch; no RE2 code). |
+| **RE2** | <https://github.com/google/re2> | The linear-time, backtracking-free **lazy-DFA** approach behind the `regex` module, plus the published ideas its matcher borrows — the reversed-program pass for `$`-anchored searches, start-state-armed prefix acceleration, and the simultaneous front+back literal probe (designed and written from scratch; no RE2 code). Also the reference engine the standalone `stdlib/regex/bench/` comparison fetches and races against. |
+| **Abseil** | <https://github.com/abseil/abseil-cpp> | RE2's required base library — fetched only by the standalone regex benchmark project, never linked into cheatah. |
+| **Boost.Regex** | <https://www.boost.org/libs/regex> | The backtracking reference engine in the same standalone regex benchmark (fetched there only; never part of the cheatah build). |
 | **IETF RFCs** | <https://www.rfc-editor.org/> | The wire specifications re-implemented from their text: TLS 1.3 (8446), ChaCha20-Poly1305 (8439), X25519 (7748), Ed25519 (8032), WebSocket (6455). |
 
 …and the broader open-source numerical and systems-programming community whose
