@@ -164,7 +164,23 @@ fn known_standards() {
     c5.append(StandardComponent("cheatah-gpu-linalg", "v0.4.1-alpha"))
     c5.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c5.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.5.1-alpha", "2026-08-14", "current", c5))
+    xs.append(Standard("0.5.1-alpha", "2026-08-14", "supported", c5))
+
+    # Biome Standard 0.5.2-alpha — the acceptance test's second round: 0.5.1-alpha fixed the
+    # first seam it caught, and the SAME test then reached the compile line and caught the
+    # next two — consumer.cmake generated at the consumer's ROOT build dir instead of the
+    # extension's own (invisible to the per-extension path, colliding between extensions),
+    # and `import gpu` compiling against system Vulkan headers too old for the generated 1.4
+    # surface. cheatah-gpu v0.5.1-alpha (consumer.cmake with the SDK include) and
+    # cheatah-gpu-linalg v0.4.2-alpha (CURRENT_BINARY_DIR) fix them; cheatah v1.11.2-alpha
+    # carries this table. Still a PATCH: fixes only, no API change anywhere.
+    let c6: list<StandardComponent> = []
+    c6.append(StandardComponent("cheatah", "v1.11.2-alpha"))
+    c6.append(StandardComponent("cheatah-gpu", "v0.5.1-alpha"))
+    c6.append(StandardComponent("cheatah-gpu-linalg", "v0.4.2-alpha"))
+    c6.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c6.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.5.2-alpha", "2026-08-14", "current", c6))
 
     return xs
 }

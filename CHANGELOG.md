@@ -3,6 +3,26 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.2-alpha (2026-08-14) — the seam holds
+
+The acceptance test's second round: with 0.5.1-alpha's fixes in, the fresh-directory e2e
+reached the consumer's COMPILE LINE and caught the next two seam defects. Biome Standard
+**0.5.2-alpha** (still a PATCH — fixes only, no API change anywhere) carries the repaired
+members: cheatah-gpu v0.5.1-alpha and cheatah-gpu-linalg v0.4.2-alpha, with cheatah-plot and
+cheatah-space unchanged.
+
+- **cheatah-gpu v0.5.1-alpha** generates `consumer.cmake`: `import gpu` in a consumer project
+  compiled against system Vulkan headers too old for the generated 1.4 surface; the export
+  now carries the newest discovered SDK include (unconditionally — never gated on that
+  build's own device options) and the native frameworks on Apple.
+- **cheatah-gpu-linalg v0.4.2-alpha** writes `consumer.cmake` (and its exported volk archive
+  path) to its OWN binary dir instead of the root build tree — the per-extension path the
+  toolchain checks now actually sees it, and two extensions can no longer collide at the
+  consumer's root.
+- `biome`'s table gains 0.5.2-alpha (0.5.1-alpha flips to supported); the canonical
+  `standards/` file and the CLI expectations follow — including keeping the 0.1.0-alpha
+  fixture honest at THAT standard's tags.
+
 ## v1.11.1-alpha (2026-08-14) — the acceptance test earns its keep
 
 Hours after 0.5.0-alpha shipped, its own acceptance test — the fresh-directory e2e that

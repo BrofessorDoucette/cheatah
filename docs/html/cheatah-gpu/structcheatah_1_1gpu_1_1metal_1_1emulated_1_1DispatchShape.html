@@ -25,7 +25,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>gpu::metal::emulated::DispatchShape</code></h1>
-  <p class="ext-badge">cheatah-gpu v0.5.0-alpha — Biome Standard 0.5.0-alpha</p><p class="lede">The full shape of one dispatch, as a 3-D-aware stand-in kernel receives it. </p>
+  <p class="ext-badge">cheatah-gpu v0.5.0-alpha — Biome Standard 0.5.1-alpha</p><p class="lede">The full shape of one dispatch, as a 3-D-aware stand-in kernel receives it. </p>
 </div>
 <div class="overview"><p><code><a href="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape.html#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c">threads</a></code> is the TOTAL thread grid per axis for BOTH dispatch forms — <code>dispatchThreads</code> passes its grid through; <code>dispatchThreadgroups</code> is normalized to groups × threadsPerThreadgroup per axis (what real Metal launches) — so a kernel loops <code><a href="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape.html#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c">threads</a></code> without caring which form dispatched it. There is no threadgroup-memory emulation: a C++ stand-in shares the whole address space and needs none (MSL <code>threadgroup</code> tiles are an Apple-hardware concern).</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">MetalCompute</span>.<span class="tn-case">Grid3d</span></code> <code><span class="tn-suite">MetalCompute</span>.<span class="tn-case">Threadgroups</span></code></span></div></div>
 
