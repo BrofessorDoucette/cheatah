@@ -3,6 +3,14 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.3-alpha (2026-08-14) — round three, one include
+
+Biome Standard **0.5.3-alpha** (a PATCH): the acceptance test's third round reached
+cheatah-gpu-linalg's cross-repo include and caught its sibling-checkout default
+(`../cheatah-gpu`), which does not exist inside a consumer's `_deps` tree.
+cheatah-gpu-linalg v0.4.3-alpha prefers the consumer's CPM source dir; every other member
+unchanged; this release only carries the table.
+
 ## v1.11.2-alpha (2026-08-14) — the seam holds
 
 The acceptance test's second round: with 0.5.1-alpha's fixes in, the fresh-directory e2e

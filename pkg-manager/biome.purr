@@ -180,7 +180,19 @@ fn known_standards() {
     c6.append(StandardComponent("cheatah-gpu-linalg", "v0.4.2-alpha"))
     c6.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c6.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.5.2-alpha", "2026-08-14", "current", c6))
+    xs.append(Standard("0.5.2-alpha", "2026-08-14", "supported", c6))
+
+    # Biome Standard 0.5.3-alpha — round three: the acceptance test reached gpu-linalg's
+    # cross-repo include and caught its sibling-checkout default (../cheatah-gpu), which does
+    # not exist inside a consumer's _deps tree. cheatah-gpu-linalg v0.4.3-alpha prefers the
+    # consumer's CPM source dir; everything else unchanged. Still a PATCH.
+    let c7: list<StandardComponent> = []
+    c7.append(StandardComponent("cheatah", "v1.11.3-alpha"))
+    c7.append(StandardComponent("cheatah-gpu", "v0.5.1-alpha"))
+    c7.append(StandardComponent("cheatah-gpu-linalg", "v0.4.3-alpha"))
+    c7.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c7.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.5.3-alpha", "2026-08-14", "current", c7))
 
     return xs
 }
