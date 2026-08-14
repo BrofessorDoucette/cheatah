@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>scale · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>scale</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1scale_1_1Range.html"><code>Range</code></a> — A closed data interval [lo, hi] on one axis. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1scale_1a6ecaed831201f222ba28fe3b9423c04d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::ostream &amp;</span> <span class="mname">operator&lt;&lt;</span>(std::ostream &amp;os_, const Range &amp;v_)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a6ecaed831201f222ba28fe3b9423c04d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1a2099a86c50282a67836bf5a4b75207f8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1scale_1_1Range.html">Range</a></span> <span class="mname">data_range</span>(::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;values)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a2099a86c50282a67836bf5a4b75207f8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The [min, max] span of a data series, widened to a non-degenerate interval so a flat series still gets a sane axis (all-equal values -&gt; a unit interval centered on the value; empty -&gt; [0, 1]). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>values</code></td><td class="pdesc"><p>the data series.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the data <a href="structcheatah_1_1scale_1_1Range.html">Range</a> (always hi &gt; lo).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1scale_1_1Range.html">Range</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_scale</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> values = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">3.2</span>, <span class="tok-num">7.9</span>, <span class="tok-num">5.1</span>, <span class="tok-num">4.4</span>])
+<span class="tok-kw">let</span> r = scale.<span class="tok-fn">data_range</span>(values)   <span class="tok-com"># -&gt; Range 3.2 .. 7.9, ready for ticks()</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1a93d809d82791e697aa84a1d7fb7772d6">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">nice_step</span>(builtins::Value auto &amp;&amp;span, builtins::Value auto &amp;&amp;target)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a93d809d82791e697aa84a1d7fb7772d6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A &quot;nice&quot; tick step — 1, 2, or 5 times a power of ten — for about <code>target</code> ticks across <code>span</code>, so gridlines land on round numbers. </p>
+  <div class="member-body"><p>The classic axis-labelling choice.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>span</code></td><td class="pdesc"><p>the axis span (hi - lo); must be &gt; 0.</p></td></tr><tr><td class="pname"><code>target</code></td><td class="pdesc"><p>the desired tick count (approximate; must be &gt;= 1).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the nice step size (&gt; 0).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_scale</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">let</span> r = scale.<span class="tok-fn">Range</span>({.lo = <span class="tok-num">0.0</span>, .hi = <span class="tok-num">7.3</span>})
+<span class="tok-kw">let</span> step = scale.<span class="tok-fn">nice_step</span>(r.hi - r.lo, <span class="tok-num">6</span>)   <span class="tok-com"># -&gt; 1.0: gridlines land on whole numbers</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1a18f7cf65e7851c796db118c4ea0991fd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">inline ::cheatah::ndarray::basic_ndarray&lt; double &gt;</span> <span class="mname">ticks</span>(builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;target)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a18f7cf65e7851c796db118c4ea0991fd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The ascending tick positions across <code>r</code> on a nice step — the round values gridlines and labels sit on. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>the axis data range.</p></td></tr><tr><td class="pname"><code>target</code></td><td class="pdesc"><p>the desired tick count (approximate; must be &gt;= 1).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the ascending tick positions within [r.lo, r.hi] (at least one).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ticks).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned tick array.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_scale</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">let</span> r = scale.<span class="tok-fn">Range</span>({.lo = <span class="tok-num">0.0</span>, .hi = <span class="tok-num">7.3</span>})
+<span class="tok-kw">let</span> t = scale.<span class="tok-fn">ticks</span>(r, <span class="tok-num">6</span>)   <span class="tok-com"># -&gt; [0, 1, 2, 3, 4, 5, 6, 7]</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1a3fa04f647d6fae45570fb394dcef00d0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">inline ::cheatah::ndarray::basic_ndarray&lt; double &gt;</span> <span class="mname">log_ticks</span>(builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;target)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a3fa04f647d6fae45570fb394dcef00d0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The ascending tick positions for a LOG axis across <code>r</code> — decade marks (powers of ten), strided when the range spans more decades than <code>target</code>, and subdivided with the 1-2-5 mantissas when it spans fewer than two so short log axes still read well. </p>
+  <div class="member-body"><p>Sub-decade ranges that trap no 1-2-5 mantissa fall back to linear ticks (the honest choice — log labelling adds nothing there).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>the axis data range; a log axis holds positive data, so r.lo must be &gt; 0 (a non-positive or degenerate range falls back exactly like <code><a href="namespacecheatah_1_1scale.html#namespacecheatah_1_1scale_1a18f7cf65e7851c796db118c4ea0991fd">ticks</a></code>).</p></td></tr><tr><td class="pname"><code>target</code></td><td class="pdesc"><p>the desired tick count (approximate; must be &gt;= 1).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the ascending tick positions within [r.lo, r.hi] (at least one).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ticks).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned tick array.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_scale</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">let</span> r = scale.<span class="tok-fn">Range</span>({.lo = <span class="tok-num">1.0</span>, .hi = <span class="tok-num">10000.0</span>})
+<span class="tok-kw">let</span> t = scale.<span class="tok-fn">log_ticks</span>(r, <span class="tok-num">5</span>)   <span class="tok-com"># -&gt; [1, 10, 100, 1000, 10000]: decade marks</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1a507a518c8609990862731daf02aa5ca0">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">to_pixel</span>(builtins::Value auto &amp;&amp;value, builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;px_lo, builtins::Value auto &amp;&amp;px_hi)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a507a518c8609990862731daf02aa5ca0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Map a data value to a pixel coordinate: linearly from the data range <code>r</code> onto the pixel span [<code>px_lo</code>, <code>px_hi</code>]. </p>
+  <div class="member-body"><p>(For a screen Y axis, pass px_lo/px_hi flipped so larger data is higher up.)</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the data value to place.</p></td></tr><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>the axis data range.</p></td></tr><tr><td class="pname"><code>px_lo</code></td><td class="pdesc"><p>the pixel coordinate of r.lo.</p></td></tr><tr><td class="pname"><code>px_hi</code></td><td class="pdesc"><p>the pixel coordinate of r.hi.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the pixel coordinate of <code>value</code> (not clamped to the span).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_scale</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">let</span> r = scale.<span class="tok-fn">Range</span>({.lo = <span class="tok-num">0.0</span>, .hi = <span class="tok-num">10.0</span>})
+<span class="tok-kw">let</span> px = scale.<span class="tok-fn">to_pixel</span>(<span class="tok-num">2.5</span>, r, <span class="tok-num">0.0</span>, <span class="tok-num">800.0</span>)   <span class="tok-com"># -&gt; 200.0</span>
+<span class="tok-kw">let</span> py = scale.<span class="tok-fn">to_pixel</span>(<span class="tok-num">2.5</span>, r, <span class="tok-num">600.0</span>, <span class="tok-num">0.0</span>)   <span class="tok-com"># -&gt; 450.0: flipped span for screen Y</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1ac78f979ee79942606514a73988b20924">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">to_pixel_log</span>(builtins::Value auto &amp;&amp;value, builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;px_lo, builtins::Value auto &amp;&amp;px_hi)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1ac78f979ee79942606514a73988b20924" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Map a data value to a pixel coordinate on a LOG axis: linear in log10 space across <code>r</code>, onto the pixel span [<code>px_lo</code>, <code>px_hi</code>]. </p>
+  <div class="member-body"><p>Non-positive ranges or values fall back to the linear map — a log axis holds positive data, and the figure layer keeps it that way; the fallback just refuses to NaN.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the data value to place (&gt; 0 on a real log axis).</p></td></tr><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>the axis data range (both ends &gt; 0 on a real log axis).</p></td></tr><tr><td class="pname"><code>px_lo</code></td><td class="pdesc"><p>the pixel coordinate of r.lo.</p></td></tr><tr><td class="pname"><code>px_hi</code></td><td class="pdesc"><p>the pixel coordinate of r.hi.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the pixel coordinate of <code>value</code> (not clamped to the span).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_scale</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">let</span> r = scale.<span class="tok-fn">Range</span>({.lo = <span class="tok-num">1.0</span>, .hi = <span class="tok-num">1000.0</span>})
+<span class="tok-kw">let</span> px = scale.<span class="tok-fn">to_pixel_log</span>(<span class="tok-num">10.0</span>, r, <span class="tok-num">0.0</span>, <span class="tok-num">900.0</span>)   <span class="tok-com"># -&gt; 300.0: one decade of three</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1scale_1a359e7cb44003bd217f6a64f10f8d6566">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const char *</span> <span class="mname">module_abi</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1scale_1a359e7cb44003bd217f6a64f10f8d6566" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">ABI/identity marker for the <code><a href="namespacecheatah_1_1scale.html">scale</a></code> cheatah module: returns the module name. </p>
+  <div class="member-body"><p>Auto-emitted by purrc&#x27;s library emitter. It is the concrete symbol that anchors the module&#x27;s signed static archive in opaque (source-hidden) builds.</p><div class="ret"><span class="ret-h">Returns</span> <p>the module name (<code>&quot;<a href="namespacecheatah_1_1scale.html">scale</a>&quot;</code>).</p></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1scale_1a6ecaed831201f222ba28fe3b9423c04d">operator&lt;&lt;</a></li><li><a href="#namespacecheatah_1_1scale_1a2099a86c50282a67836bf5a4b75207f8">data_range</a></li><li><a href="#namespacecheatah_1_1scale_1a93d809d82791e697aa84a1d7fb7772d6">nice_step</a></li><li><a href="#namespacecheatah_1_1scale_1a18f7cf65e7851c796db118c4ea0991fd">ticks</a></li><li><a href="#namespacecheatah_1_1scale_1a3fa04f647d6fae45570fb394dcef00d0">log_ticks</a></li><li><a href="#namespacecheatah_1_1scale_1a507a518c8609990862731daf02aa5ca0">to_pixel</a></li><li><a href="#namespacecheatah_1_1scale_1ac78f979ee79942606514a73988b20924">to_pixel_log</a></li><li><a href="#namespacecheatah_1_1scale_1a359e7cb44003bd217f6a64f10f8d6566">module_abi</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

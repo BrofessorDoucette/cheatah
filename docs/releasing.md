@@ -48,6 +48,12 @@ the newest release automatically. Pass `--latest` anyway — determinism beats d
 6. Attach the source bundle: `bash scripts/archive_release.sh vX.Y.Z-alpha` (it uploads
    the tarball once the release page exists — the Biome Standard's source-retention
    guarantee).
+7. **Prove the standard end to end**: `bash scripts/test-standard-e2e.sh` — an EMPTY
+   directory, every cheatah env var cleared, `biome init` → `biome add` every member →
+   CPM fetches each member from GitHub BY THE TAGS JUST PUSHED (real network) → build →
+   a program exercising all five members prints `RESULT: PASS` and renders a PNG. This is
+   the acceptance test that the standard's tagged combination actually works together;
+   `.github/workflows/standard-e2e.yml` re-proves it on demand.
 
-A release is not done until the tag resolves on the remote, the page exists, and the
-tarball is attached — a `release:` commit alone is not a release.
+A release is not done until the tag resolves on the remote, the page exists, the tarball
+is attached, and the standard e2e passes — a `release:` commit alone is not a release.

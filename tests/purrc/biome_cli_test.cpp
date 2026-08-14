@@ -87,12 +87,16 @@ class BiomeCli : public ::testing::Test {
 // asserting BOTH rows is what proves that rather than just the newest.
 TEST_F(BiomeCli, StandardsListsKnownSets) {
   const std::string out = biome(scratch("standards_list"), "standards");
-  expect_has(out, "* 0.4.0-alpha  (current, released 2026-08-13)");
-  expect_has(out, "cheatah         v1.10.0-alpha");  // ljust(name, 16) columns
-  expect_has(out, "cheatah-gpu     v0.5.0-alpha");
+  expect_has(out, "* 0.5.0-alpha  (current, released 2026-08-14)");
+  expect_has(out, "0.4.0-alpha  (supported, released 2026-08-13)");
+  expect_has(out, "cheatah             v1.11.0-alpha");  // ljust(name, 20) columns
+  expect_has(out, "cheatah-gpu         v0.5.0-alpha");
+  expect_has(out, "cheatah-gpu-linalg  v0.4.0-alpha");
+  expect_has(out, "cheatah-plot        v0.1.0-alpha");
+  expect_has(out, "cheatah-space       v0.1.0-alpha");
   expect_has(out, "0.1.0-alpha  (supported, released 2026-07-25)");
   expect_has(out, "0.2.0-alpha  (supported, released 2026-07-27)");
-  expect_has(out, "cheatah         v1.7.0-alpha");
+  expect_has(out, "cheatah             v1.7.0-alpha");
 }
 
 // `--emit-toml <ver>` reproduces the committed standards/*.toml byte-for-byte — the
@@ -110,7 +114,7 @@ TEST_F(BiomeCli, StandardsEmitTomlUnknownVersion) {
   expect_has(out, "biome: unknown Biome Standard: 9.9.9");
 }
 
-// `biome init` pins the newest standard: cheatah.toml gets `standard = "0.4.0-alpha"`
+// `biome init` pins the newest standard: cheatah.toml gets `standard = "0.5.0-alpha"`
 // under [cheatah] and NO manual `version =` override; the generated CMake pins the
 // toolchain tag the standard resolves.
 TEST_F(BiomeCli, InitScaffoldsStandardPinnedProject) {
@@ -118,10 +122,10 @@ TEST_F(BiomeCli, InitScaffoldsStandardPinnedProject) {
   const std::string toml = e2e::read_file(proj + "/cheatah.toml");
   ASSERT_FALSE(toml.empty());
   expect_has(toml, "[cheatah]");
-  expect_has(toml, "standard = \"0.4.0-alpha\"");
+  expect_has(toml, "standard = \"0.5.0-alpha\"");
   expect_lacks(toml, "\nversion =");  // no manual toolchain override in a fresh project
   const std::string cml = e2e::read_file(proj + "/CMakeLists.txt");
-  expect_has(cml, "GIT_TAG v1.10.0-alpha");
+  expect_has(cml, "GIT_TAG v1.11.0-alpha");
   EXPECT_TRUE(fs::exists(proj + "/src/main.purr"));
   EXPECT_TRUE(fs::exists(proj + "/cmake/CPM.cmake"));
 }
@@ -132,7 +136,7 @@ TEST_F(BiomeCli, AddStandardMemberExtension) {
   const std::string proj = init_project("add_gpu");
   const std::string out = biome(proj, "add cheatah-gpu");
   expect_has(out, "biome: added cheatah-gpu v0.5.0-alpha — GPU arrays and compute kernels");
-  expect_has(out, "(from Biome Standard 0.4.0-alpha)");
+  expect_has(out, "(from Biome Standard 0.5.0-alpha)");
   const std::string toml = e2e::read_file(proj + "/cheatah.toml");
   expect_has(toml, "[extensions]");
   expect_has(toml, "cheatah-gpu = \"v0.5.0-alpha\"");
@@ -142,15 +146,41 @@ TEST_F(BiomeCli, AddStandardMemberExtension) {
              "GIT_TAG v0.5.0-alpha)");
 }
 
-// A known extension that is NOT a member of the pinned standard is refused, and
-// nothing is written. (Exit code stays 0 — the run() wart — so assert text only.)
+// A known extension that is NOT a member of the PINNED standard is refused, and nothing is
+// written — proven against 0.4.0-alpha, the last standard before cheatah-plot joined the set.
+// (Exit code stays 0 — the run() wart — so assert text only.)
 TEST_F(BiomeCli, AddNonMemberExtensionRefused) {
-  const std::string proj = init_project("add_plot");
+  const std::string proj = init_project("add_plot_old_standard");
+  std::string manifest = e2e::read_file(proj + "/cheatah.toml");
+  const auto at = manifest.find("standard = \"0.5.0-alpha\"");
+  ASSERT_NE(at, std::string::npos);
+  manifest.replace(at, std::string("standard = \"0.5.0-alpha\"").size(),
+                   "standard = \"0.4.0-alpha\"");
+  std::ofstream(proj + "/cheatah.toml") << manifest;
   const std::string before = e2e::read_file(proj + "/cheatah.toml");
   const std::string out = biome(proj, "add cheatah-plot");
   expect_has(out, "biome: cheatah-plot is not a member of Biome Standard 0.4.0-alpha");
   EXPECT_EQ(e2e::read_file(proj + "/cheatah.toml"), before) << "refusal must not edit the manifest";
   expect_lacks(e2e::read_file(proj + "/CMakeLists.txt"), "cheatah-plot");
+}
+
+// The three members that joined at 0.5.0-alpha now ADD cleanly, each pinned at the
+// standard's tag in the generated CMake.
+TEST_F(BiomeCli, AddNewStandardMembersSucceed) {
+  const std::string proj = init_project("add_new_members");
+  biome(proj, "add cheatah-gpu-linalg");
+  biome(proj, "add cheatah-plot");
+  biome(proj, "add cheatah-space");
+  const std::string cml = e2e::read_file(proj + "/CMakeLists.txt");
+  expect_has(cml,
+             "CPMAddPackage(NAME cheatah-gpu-linalg GITHUB_REPOSITORY "
+             "BrofessorDoucette/cheatah-gpu-linalg GIT_TAG v0.4.0-alpha)");
+  expect_has(cml,
+             "CPMAddPackage(NAME cheatah-plot GITHUB_REPOSITORY BrofessorDoucette/cheatah-plot "
+             "GIT_TAG v0.1.0-alpha)");
+  expect_has(cml,
+             "CPMAddPackage(NAME cheatah-space GITHUB_REPOSITORY BrofessorDoucette/cheatah-space "
+             "GIT_TAG v0.1.0-alpha)");
 }
 
 TEST_F(BiomeCli, AddUnknownExtensionRefused) {
@@ -177,10 +207,11 @@ TEST_F(BiomeCli, ListShowsMembershipAndStandard) {
   const std::string proj = init_project("list");
   biome(proj, "add cheatah-gpu");
   const std::string out = biome(proj, "list");
-  expect_has(out, "Biome Standard 0.4.0-alpha");
-  expect_has(out, "* cheatah-gpu     v0.5.0-alpha");           // added member: marked + tagged
-  expect_has(out, "  cheatah-plot    (not in this standard)");  // known, but untested with this set
-  expect_has(out, "  cheatah-space   (not in this standard)");
+  expect_has(out, "Biome Standard 0.5.0-alpha");
+  expect_has(out, "* cheatah-gpu         v0.5.0-alpha");       // added member: marked + tagged
+  expect_has(out, "  cheatah-gpu-linalg  v0.4.0-alpha");       // members, not yet added
+  expect_has(out, "  cheatah-plot        v0.1.0-alpha");
+  expect_has(out, "  cheatah-space       v0.1.0-alpha");
 }
 
 // A hand-edited manual `version =` under [cheatah] overrides the TOOLCHAIN tag only:
@@ -237,7 +268,7 @@ TEST_F(BiomeCli, LegacyManifestDefaultsStandard) {
   const std::string out = biome(dir, "add cheatah-gpu");  // loads, validates, saves
   expect_has(out, "biome: added cheatah-gpu v0.5.0-alpha");
   const std::string toml = e2e::read_file(dir + "/cheatah.toml");
-  expect_has(toml, "standard = \"0.4.0-alpha\"");  // written on the first save
+  expect_has(toml, "standard = \"0.5.0-alpha\"");  // written on the first save
   expect_has(toml, "version = \"1.6.0-alpha\"");   // the legacy pin is preserved
 }
 

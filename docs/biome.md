@@ -138,7 +138,7 @@ manifest looks like this:
 name = "hello"
 
 [cheatah]
-standard = "0.4.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
+standard = "0.5.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
 
 [extensions]
 cheatah-gpu = "v0.5.0-alpha"      # one line per opted-in extension; the value is the
@@ -178,7 +178,7 @@ Each standard is a short, append-only definition — the canonical files live in
 
 ```toml
 [standard]
-version = "0.4.0-alpha"
+version = "0.5.0-alpha"
 released = "2026-08-13"
 status = "current"          # current | supported | deprecated (security-only)
 
@@ -372,7 +372,45 @@ This is an early, working tool. Verified end-to-end today: `init` / `add` / `rem
 `list` / `standards` / `version`, manifest round-tripping, `CMakeLists.txt` generation
 with every tag resolved from the Biome Standard, and `build` / `run` against the cheatah
 **core** (configure → `purrc` module → native launcher, driven entirely by CMake/CPM).
-Biome Standard 0.4.0-alpha has two members — the cheatah toolchain and `cheatah-gpu`,
-both with published release tags; `cheatah-plot` and `cheatah-space` are registered but
-join a standard only once they pass the cross-member gate (until then `biome add`
-declines them, truthfully).
+Biome Standard 0.5.0-alpha has **five members**, every one with a published release tag:
+the cheatah toolchain (`v1.11.0-alpha`), `cheatah-gpu` (`v0.5.0-alpha`),
+`cheatah-gpu-linalg` (`v0.4.0-alpha`), `cheatah-plot` (`v0.1.0-alpha`), and
+`cheatah-space` (`v0.1.0-alpha`). From 0.5.0-alpha on, every standard releases a WORKING
+COMBINATION of all five — as members update, the standard's version moves with them
+(semantically: additive member updates are minors; a major happens only when user
+programs cannot carry forward). `scripts/test-standard-e2e.sh` proves each standard from
+an empty directory against the real GitHub tags.
+
+## From an empty directory to a plot
+
+The whole standard, exactly as a new user meets it — no checkouts, no environment, just a
+built `biome`:
+
+```sh
+mkdir demo && cd demo
+biome init proj && cd proj
+biome add cheatah-gpu cheatah-gpu-linalg cheatah-plot cheatah-space
+```
+
+Put this in `src/main.purr`:
+
+```cheatah
+import ndarray
+import plot
+import plot.figure as figure
+
+let xs = ndarray.array([0.0, 1.0, 2.0, 3.0])
+let ys = ndarray.array([0.0, 1.0, 4.0, 9.0])
+let fig = figure.line(figure.new_figure(), xs, ys)
+fig = figure.title(fig, "hello, standard")
+plot.save(fig, "hello.png")
+```
+
+```sh
+biome configure   # CPM fetches every member from GitHub by the standard's tags
+biome build
+cheatah build/…/proj.so    # writes hello.png — rendered by cheatah-plot's own rasterizer
+```
+
+That flow IS the release acceptance test (`scripts/test-standard-e2e.sh` runs it with every
+member exercised and the PNG bytes verified), so if a standard is released, this works.

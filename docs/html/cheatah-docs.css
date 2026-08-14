@@ -76,15 +76,22 @@ code, pre, .sig { font-family: var(--mono); }
   backdrop-filter: saturate(150%) blur(12px); -webkit-backdrop-filter: saturate(150%) blur(12px);
   border-bottom: 1px solid var(--border);
 }
-/* Mirror the body grid so the search sits in (and only in) the middle column. */
+/* Mirror the body grid: brand over the sidebar, then the package switcher, the
+   search in the flexible middle, and the theme toggle over the TOC column. */
 .topbar-inner {
-  display: grid; grid-template-columns: var(--side-w) minmax(0,1fr) var(--toc-w);
+  display: grid; grid-template-columns: var(--side-w) max-content minmax(0,1fr) var(--toc-w);
   align-items: center; gap: 18px; height: 58px;
   max-width: none; margin: 0; padding: 0 24px;
 }
 .brand { justify-self: center; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; color: var(--fg); font-size: 1.12rem; }
 .brand:hover { text-decoration: none; }
 .brand img { width: 26px; height: 26px; border-radius: 6px; }
+/* The package switcher: cheatah · gpu · gpu-linalg · … · Standard, current highlighted. */
+.pkgs { display: flex; align-items: center; gap: 1px; white-space: nowrap; font-size: .82rem; }
+.pkgs a { color: var(--fg-faint); padding: 3px 8px; border-radius: 999px; font-family: var(--mono); }
+.pkgs a:hover { color: var(--fg); background: var(--accent-soft); text-decoration: none; }
+.pkgs a.current { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.pkgs .pkgs-sep { color: var(--fg-faint); opacity: .55; user-select: none; }
 .search { position: relative; }
 .theme-btn { justify-self: end; }
 .search input {
@@ -244,6 +251,9 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .tag-perf .tag-v strong.perf-slower, .perf-slower { color: var(--perf-down); }
 .tag-crtest { border-left-color: #8c9488; }       /* neutral slate-grey */
 .tag-systest { border-left-color: #97918a; }      /* neutral warm-grey */
+.tag-gpualloc { border-left-color: #7f9a8f; }     /* @gpualloc — device memory, muted jade */
+.tag-destroy { border-left-color: #cf8470; }      /* @destroy — lifetime/caller-must-release, terracotta */
+.tag-gpualloc .tag-k, .tag-destroy .tag-k { min-width: 92px; }
 .tag-test .tag-v, .tag-crtest .tag-v, .tag-systest .tag-v { font-family: var(--mono); font-size: .85rem; }
 .tag-v .more { color: var(--fg-faint); cursor: help; padding: 0 2px; }
 .tag-test .tag-k, .tag-crtest .tag-k, .tag-systest .tag-k { min-width: 92px; }
@@ -293,6 +303,17 @@ pre.code code { background: none; padding: 0; }
 .dtable tr:last-child td { border-bottom: none; }
 hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 
+/* ---- the Biome Standard page + extension landings ---- */
+/* The dependency diagram: static inline SVG, themed via the CSS variables. */
+.dep-svg { display: block; width: 100%; max-width: 640px; height: auto; margin: 16px auto; }
+.dep-svg .dep-box { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+.dep-svg .dep-box-core { stroke: var(--accent); }
+.dep-svg text { fill: var(--fg); font-family: var(--mono); font-size: 14px; }
+.dep-svg a:hover .dep-box { fill: var(--surface-2); stroke: var(--accent); }
+.dep-svg .dep-edge { stroke: var(--fg-faint); stroke-width: 1.5; }
+.dep-svg .dep-arrowhead { fill: var(--fg-faint); }
+.ext-deps { color: var(--fg-dim); }
+
 /* ---- home ---- */
 .hero { display: flex; align-items: center; gap: 18px; padding-bottom: 18px; margin-bottom: 10px; border-bottom: 1px solid var(--border-soft); }
 .hero-logo { width: 58px; height: 58px; border-radius: 13px; }
@@ -306,7 +327,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 
 /* ---- responsive ---- */
 @media (max-width: 1100px) { .toc { display: none; } .layout { grid-template-columns: var(--side-w) minmax(0,1fr); } }
-@media (max-width: 1000px) { .tagline { display: none; } }
+@media (max-width: 1000px) { .tagline { display: none; } .pkgs { display: none; } }
 @media (max-width: 760px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border-soft); }

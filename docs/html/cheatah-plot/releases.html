@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>cheatah-plot releases · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Releases</div>
+  <h1><code>cheatah-plot</code></h1>
+  <p class="lede">Every notable change, release by release.</p>
+</div>
+<p>All notable changes to cheatah-plot. This project is <strong>alpha</strong> — expect breaking changes between releases. Public at github.com/BrofessorDoucette/cheatah-plot; a Biome Standard member alongside the other cheatah extensions.</p><h2 class="group" id="rel-1">v0.1.0-alpha (2026-08-14) — figures to pixels: the whole plotting stack, on CPU and GPU</h2><p>The first release carries the whole arc from the <code>plot.scale</code> seed to rendered PNGs.</p><h3>The model layers (pure cheatah on ndarray)</h3><ul><li><code>plot.scale</code> grows log-axis geometry (decade <code>log_ticks</code> with 1-2-5 subdivision, <code>to_pixel_log</code>); <code>plot.color</code> (palettes, viridis/magma/coolwarm, a CSS-style name table); <code>plot.series</code> (the mark value + two-arity constructors for all nine mark kinds); <code>plot.stats</code> (histogram binning, the <code>linalg.lstsq</code> fit line, SEM via <code>statistics</code>); <code>plot.figure</code> (subplot grids, axes, the fluent free-function builder).</li><li>Conventions that emerged from the language: two arities instead of default arguments, <code>list&lt;Color&gt;</code> palettes, fluent functions returning modified copies.</li></ul><h3>The renderer (cheatah-plot&#x27;s own layer on cheatah-gpu)</h3><ul><li>Compute-shader rasterization: ONE Slang source (<code>plot_clear</code> + <code>plot_raster</code>), a 64-byte primitive ABI (segments, discs, rects, triangles, glyphs — the glyph&#x27;s bitmap rides in the prim), CPU reduce → 16×16 tile binning → per-pixel integer src-over blending. Deterministic by construction.</li><li><strong>Three lanes, one contract</strong>: the C++ reference rasterizer is the executable spec; the emulated-Metal lane is BIT-EXACT against it (verified byte-for-byte); the Vulkan lane is tolerance-checked and runs on real hardware and llvmpipe. <code>render()</code> prefers a live GPU lane and falls back to the reference with a one-time notice; <code>CHEATAH_PLOT_FORCE_CPU=1</code> pins the reference path.</li><li>Dependency-free stored-deflate PNG encoder (+ PPM) and an ORIGINAL 8×16 bitmap font.</li><li>The purr surface: <code>plot.save(fig, path)</code> / <code>plot.render(fig)</code> after building any figure.</li></ul><h3>Tested and documented to the house bar</h3><ul><li><strong>100% line + function coverage</strong> over the package (backend bring-up excluded per the cheatah-gpu-linalg precedent, held instead by the dedicated GPU-lane tests); 78 C++ tests.</li><li>17 systests through the real runtime — one per plotting FEATURE (every mark kind, styles, grouping, log axes, subplots, legends, fit overlays, PNG save with verified bytes).</li><li>An <code>@par Example</code> block with a complete compilable program on EVERY public function, compile-verified by <code>scripts/check_doc_examples.sh</code> (a hard gate stage).</li><li>15 example programs render the gallery (<code>examples/purr_plot/run_examples.sh</code>); a Google Benchmark suite covers reduce, binning, raster fill-rate, and PNG encoding.</li><li>The full QA ladder: coverage → docs → module sync → build → systests → biome-install → unit tests → ASan/UBSan → Valgrind → cppcheck → private-refs → doc examples.</li></ul><h3>Docs</h3><ul><li>DESIGN.md and the API outline rewritten to the real architecture: headless first, the renderer on cheatah-gpu&#x27;s raw forwarders, windowing as a later <code>plot.window</code> layer; the manifest targets the v1.10.0-alpha toolchain and requires cheatah-gpu + cheatah-gpu-linalg.</li></ul></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">Releases</div><ul><li><a href="#rel-1">v0.1.0-alpha (2026-08-14) — figures to pixels: the whole plotting stack, on CPU and GPU</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

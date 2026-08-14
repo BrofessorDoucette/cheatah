@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>plot::renderer::Image · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>plot::renderer::Image</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p><p class="lede">An RGBA8 raster image — the CPU-side pixel form the rasterizer produces and both writers below serialize. </p>
+</div>
+<div class="overview"><p>Pixels are row-major from the top-left, 4 bytes per pixel in R, G, B, A order, so a valid image has <code>rgba.size() == <a href="structcheatah_1_1plot_1_1renderer_1_1Image.html#structcheatah_1_1plot_1_1renderer_1_1Image_1a54273fc4bc264c05ac3aaa2e9e14afc2">width</a> * <a href="structcheatah_1_1plot_1_1renderer_1_1Image.html#structcheatah_1_1plot_1_1renderer_1_1Image_1a0ed2d184486208ad7da507ba37490c3f">height</a> * 4</code>.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1plot_1_1renderer_1_1Image_1a54273fc4bc264c05ac3aaa2e9e14afc2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">width</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1plot_1_1renderer_1_1Image_1a54273fc4bc264c05ac3aaa2e9e14afc2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Width in pixels. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1plot_1_1renderer_1_1Image_1a0ed2d184486208ad7da507ba37490c3f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">height</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1plot_1_1renderer_1_1Image_1a0ed2d184486208ad7da507ba37490c3f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Height in pixels. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1plot_1_1renderer_1_1Image_1a46f719c327adcabe5fca1643f91a4bba">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::uint8_t &gt;</span> <span class="mname">rgba</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1plot_1_1renderer_1_1Image_1a46f719c327adcabe5fca1643f91a4bba" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Row-major RGBA bytes, exactly <code><a href="structcheatah_1_1plot_1_1renderer_1_1Image.html#structcheatah_1_1plot_1_1renderer_1_1Image_1a54273fc4bc264c05ac3aaa2e9e14afc2">width</a> * <a href="structcheatah_1_1plot_1_1renderer_1_1Image.html#structcheatah_1_1plot_1_1renderer_1_1Image_1a0ed2d184486208ad7da507ba37490c3f">height</a> * 4</code> of them. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1plot_1_1renderer_1_1Image_1a54273fc4bc264c05ac3aaa2e9e14afc2">width</a></li><li><a href="#structcheatah_1_1plot_1_1renderer_1_1Image_1a0ed2d184486208ad7da507ba37490c3f">height</a></li><li><a href="#structcheatah_1_1plot_1_1renderer_1_1Image_1a46f719c327adcabe5fca1643f91a4bba">rgba</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

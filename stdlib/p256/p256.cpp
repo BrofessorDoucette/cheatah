@@ -77,6 +77,10 @@ bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
     return ec::verify_der<P256Curve>(pubkey_xy, msg_hash, sig_der);
 }
 
+std::string rs_to_der(const std::string& sig_raw) {
+    return ec::rs_to_der<P256Curve>(sig_raw);
+}
+
 #ifdef CHEATAH_P256_TESTING
 // In test builds the RFC 6979 retry tail — normally a ~2^-128 event on real inputs —
 // is driven by rejecting the first `force_retries` otherwise-valid nonce candidates.

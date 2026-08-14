@@ -284,7 +284,7 @@ namespace cheatah::requests {
  * @alloc allocates the result.
  * @systest RequestsSys.QueryParams
  */
-auto percent_encode(builtins::Value auto&& text) {
+inline auto percent_encode(builtins::Value auto&& text) {
     auto unreserved = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~");
     auto hexdigits = std::string("0123456789ABCDEF");
     auto out = std::string("");
@@ -309,7 +309,7 @@ auto percent_encode(builtins::Value auto&& text) {
  * @alloc allocates the result.
  * @systest RequestsSys.PostJson
  */
-auto json_escape(builtins::Value auto&& text) {
+inline auto json_escape(builtins::Value auto&& text) {
     auto out = std::string("");
     for (auto& ch : text) {
         {
@@ -356,7 +356,7 @@ auto json_escape(builtins::Value auto&& text) {
  * @alloc allocates the result.
  * @systest RequestsSys.PostJson
  */
-auto to_json(builtins::Value auto&& fields) {
+inline auto to_json(builtins::Value auto&& fields) {
     auto out = std::string("{");
     auto sep = std::string("");
     for (auto& kv : fields) {
@@ -377,7 +377,7 @@ auto to_json(builtins::Value auto&& fields) {
  * @alloc allocates lowercased keys.
  * @systest RequestsSys.CustomHeaders
  */
-auto has_header(builtins::Value auto&& headers, builtins::Value auto&& name) {
+inline auto has_header(builtins::Value auto&& headers, builtins::Value auto&& name) {
     auto target = string::lower(name);
     for (auto& kv : headers) {
         if ((string::lower(kv.first) == target)) {
@@ -398,7 +398,7 @@ auto has_header(builtins::Value auto&& headers, builtins::Value auto&& name) {
  * @alloc none.
  * @systest RequestsSys.Chunked
  */
-auto parse_hex(builtins::Value auto&& text) {
+inline auto parse_hex(builtins::Value auto&& text) {
     auto n = 0LL;
     for (auto& ch : text) {
         if ((n > 1099511627776LL)) {
@@ -437,7 +437,7 @@ auto parse_hex(builtins::Value auto&& text) {
  * @test CheatahRequests.MalformedContentLengthIsError
  * @test CheatahRequests.MalformedStatusCodeIsError
  */
-auto parse_uint(builtins::Value auto&& text) {
+inline auto parse_uint(builtins::Value auto&& text) {
     auto n = 0LL;
     for (auto& ch : text) {
         auto v = builtins::ord(ch);
@@ -465,7 +465,7 @@ auto parse_uint(builtins::Value auto&& text) {
  * @alloc allocates the decoded body.
  * @systest RequestsSys.Chunked
  */
-auto dechunk(builtins::Value auto&& raw, builtins::Value auto&& r) {
+inline auto dechunk(builtins::Value auto&& raw, builtins::Value auto&& r) {
     auto body = std::string("");
     auto pos = 0LL;
     while (true) {
@@ -517,7 +517,7 @@ auto dechunk(builtins::Value auto&& raw, builtins::Value auto&& r) {
  * @alloc allocates the received buffer (bounded by @p limit).
  * @systest RequestsSys.BasicGet
  */
-auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn, builtins::Value auto&& limit) {
+inline auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn, builtins::Value auto&& limit) {
     auto raw = std::string("");
     while (true) {
         auto chunk = std::string("");
@@ -559,7 +559,7 @@ auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn, builtins::
  * @systest RequestsSys.EofFraming
  * @systest RequestsSys.HeaderLookup
  */
-auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builtins::Value auto&& method, builtins::Value auto&& limit) {
+inline auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builtins::Value auto&& method, builtins::Value auto&& limit) {
     auto head_end = string::find(raw, std::string("\r\n\r\n"));
     if ((head_end < 0LL)) {
         r.error = std::string("connection closed before a complete response head");
@@ -668,7 +668,7 @@ auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builti
  *              (`o.timeout_ms`, default 30 s).
  * @systest RequestsSys.PostJson
  */
-auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, builtins::Value auto&& o, builtins::Value auto&& r) {
+inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, builtins::Value auto&& o, builtins::Value auto&& r) {
     auto fd = socket::tcp_connect(u.host, u.port);
     if ((fd < 0LL)) {
         r.error = (((((std::string("connect to ") + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string(" failed: ")) + builtins::str(socket::last_error()));
@@ -776,7 +776,7 @@ auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, built
  * @test CheatahRequests.CrossHostRedirectStripsCredentials
  * @test CheatahRequests.SameHostRedirectKeepsCredentials
  */
-auto strip_sensitive(builtins::Value auto&& o) {
+inline auto strip_sensitive(builtins::Value auto&& o) {
     o.auth_user = std::string("");
     o.auth_pass = std::string("");
     std::unordered_map<std::string, std::string> clean;
@@ -813,7 +813,7 @@ auto strip_sensitive(builtins::Value auto&& o) {
  * @systest RequestsSys.Redirect
  * @systest RequestsSys.RedirectLoop
  */
-auto request(builtins::Value auto&& method, builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto request(builtins::Value auto&& method, builtins::Value auto&& url, builtins::Value auto&& o) {
     auto opts = o;
     auto max_hops = opts.max_redirects;
     if ((max_hops <= 0LL)) {
@@ -911,7 +911,7 @@ static auto request(builtins::Value auto&& method, builtins::Value auto&& url) {
  * @return the final Response. @complexity one request plus any redirects.
  * @alloc request/response buffers. @systest RequestsSys.BasicGet
  */
-auto get(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto get(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("GET"), url, o);
 }
 
@@ -927,7 +927,7 @@ static auto get(builtins::Value auto&& url) { return get(url, Options{.timeout_m
  * @return the final Response. @complexity one request plus any redirects.
  * @alloc request/response buffers. @systest RequestsSys.PostJson
  */
-auto post(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto post(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("POST"), url, o);
 }
 
@@ -943,7 +943,7 @@ static auto post(builtins::Value auto&& url) { return post(url, Options{.timeout
  * @return the final Response. @complexity one request plus any redirects.
  * @alloc request/response buffers. @systest RequestsSys.PostJson
  */
-auto put(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto put(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("PUT"), url, o);
 }
 
@@ -959,7 +959,7 @@ static auto put(builtins::Value auto&& url) { return put(url, Options{.timeout_m
  * @return the final Response. @complexity one request plus any redirects.
  * @alloc request/response buffers. @systest RequestsSys.PostJson
  */
-auto patch(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto patch(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("PATCH"), url, o);
 }
 
@@ -975,7 +975,7 @@ static auto patch(builtins::Value auto&& url) { return patch(url, Options{.timeo
  * @return the final Response. @complexity one request plus any redirects.
  * @alloc request/response buffers. @systest RequestsSys.Delete
  */
-auto delete_(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto delete_(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("DELETE"), url, o);
 }
 
@@ -991,7 +991,7 @@ static auto delete_(builtins::Value auto&& url) { return delete_(url, Options{.t
  * @return the final Response (empty body). @complexity one request plus any redirects.
  * @alloc request/response buffers. @systest RequestsSys.Head
  */
-auto head(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto head(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("HEAD"), url, o);
 }
 
@@ -1007,7 +1007,7 @@ static auto head(builtins::Value auto&& url) { return head(url, Options{.timeout
  * @return the final Response. @complexity one request plus any redirects.
  * @alloc request/response buffers. @test CheatahRequests.VerbMethods
  */
-auto options(builtins::Value auto&& url, builtins::Value auto&& o) {
+inline auto options(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("OPTIONS"), url, o);
 }
 

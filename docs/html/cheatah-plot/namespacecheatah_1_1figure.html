@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>figure · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>figure</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1figure_1_1Axis.html"><code>Axis</code></a> — One axis: label, transform, limits, and a target tick count. </li><li><a href="structcheatah_1_1figure_1_1Figure.html"><code>Figure</code></a> — The whole figure: a rows×cols grid of subplots, pixel size, the categorical palette, and the index fluent calls currently target. </li><li><a href="structcheatah_1_1figure_1_1Scale.html"><code>Scale</code></a> — An axis transform choice (&quot;linear&quot; or &quot;log&quot;) — a tiny struct instead of an enum, per the house style; make one with <code><a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8">linear()</a></code> / <code><a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732">log_scale()</a></code>. </li><li><a href="structcheatah_1_1figure_1_1Subplot.html"><code>Subplot</code></a> — One cell of the figure grid: a title, two axes, the series drawn in it, and a legend flag. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1figure_1adce91300cd23e0a52dbb99d7ac3da30d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">operator&lt;&lt;</span> <span class="overload-count">· 2 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype">std::ostream &amp;</span> <span class="mname">operator&lt;&lt;</span>(std::ostream &amp;os_, const Scale &amp;v_)</code><span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1adce91300cd23e0a52dbb99d7ac3da30d" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1figure_1a90497b80e48959d2dd5bc4ad6b68e53e"><code class="sig"><span class="mtype">std::ostream &amp;</span> <span class="mname">operator&lt;&lt;</span>(std::ostream &amp;os_, const Axis &amp;v_)</code><span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a90497b80e48959d2dd5bc4ad6b68e53e" aria-label="permalink">#</a></span></div></div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Scale.html">Scale</a></span> <span class="mname">linear</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The linear axis transform (the default). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the linear <a href="structcheatah_1_1figure_1_1Scale.html">Scale</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1figure_1_1Scale.html">Scale</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+<span class="tok-kw">let</span> s = figure.<span class="tok-fn">linear</span>()
+f = figure.<span class="tok-fn">xscale</span>(f, s)   <span class="tok-com"># -&gt; back to the default linear x transform</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Scale.html">Scale</a></span> <span class="mname">log_scale</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The log10 axis transform (positive data; ticks land on decades via plot.scale.log_ticks). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the log <a href="structcheatah_1_1figure_1_1Scale.html">Scale</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1figure_1_1Scale.html">Scale</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+<span class="tok-kw">let</span> s = figure.<span class="tok-fn">log_scale</span>()
+f = figure.<span class="tok-fn">yscale</span>(f, s)   <span class="tok-com"># -&gt; the classic semilog-y view</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1ad697ed5bdf012887b2f96db548f4eb6f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Axis.html">Axis</a></span> <span class="mname">default_axis</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1ad697ed5bdf012887b2f96db548f4eb6f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A fresh default axis: no label, linear, auto limits, 6 ticks — the one place axis defaults live. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the default <a href="structcheatah_1_1figure_1_1Axis.html">Axis</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1figure_1_1Axis.html">Axis</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> ax = figure.<span class="tok-fn">default_axis</span>()
+<span class="tok-kw">let</span> target = ax.ticks   <span class="tok-com"># -&gt; 6: unlabeled, linear, auto limits</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1afc9388b5973150882ba60b4e01514ccb">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">grid</span>(builtins::Value auto &amp;&amp;rows, builtins::Value auto &amp;&amp;cols)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1afc9388b5973150882ba60b4e01514ccb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A rows×cols grid figure with empty subplots, 900×600 pixels, the tab10 palette, targeting cell 0 — <code><a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1a82a9724c0b61bbfde527d427a9c878a7">new_figure()</a></code> is this with a 1×1 grid. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>rows</code></td><td class="pdesc"><p>the grid rows (clamped up to at least 1).</p></td></tr><tr><td class="pname"><code>cols</code></td><td class="pdesc"><p>the grid columns (clamped up to at least 1).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the empty grid <a href="structcheatah_1_1figure_1_1Figure.html">Figure</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(rows·cols).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1figure_1_1Figure.html">Figure</a> and its subplots.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">4.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">grid</span>(<span class="tok-num">2</span>, <span class="tok-num">2</span>)
+f = figure.<span class="tok-fn">subplot</span>(f, <span class="tok-num">0</span>, <span class="tok-num">1</span>)
+f = figure.<span class="tok-fn">line</span>(f, x, y)   <span class="tok-com"># -&gt; the line lands in the top-right cell</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a82a9724c0b61bbfde527d427a9c878a7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">new_figure</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a82a9724c0b61bbfde527d427a9c878a7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A fresh single-subplot figure — the usual starting point. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the empty 1×1 <a href="structcheatah_1_1figure_1_1Figure.html">Figure</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1figure_1_1Figure.html">Figure</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">4.0</span>, <span class="tok-num">9.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">line</span>(f, x, y)   <span class="tok-com"># -&gt; a 1x1 figure holding one line series</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a7b4defef22f069f82b57bc10dfa1f9f2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">subplot</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;c)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a7b4defef22f069f82b57bc10dfa1f9f2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Point fluent calls at grid cell (<code>r</code>, <code>c</code>) — out-of-range coordinates clamp to the grid. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>the target row (0-based).</p></td></tr><tr><td class="pname"><code>c</code></td><td class="pdesc"><p>the target column (0-based).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> targeting that cell.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> data = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">grid</span>(<span class="tok-num">1</span>, <span class="tok-num">2</span>)
+f = figure.<span class="tok-fn">subplot</span>(f, <span class="tok-num">0</span>, <span class="tok-num">1</span>)
+f = figure.<span class="tok-fn">hist</span>(f, data, <span class="tok-num">3</span>)   <span class="tok-com"># -&gt; the histogram fills the right-hand cell</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a81fa6e9947aa2eaf232bd63d225c4bcb">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">add</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;s)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a81fa6e9947aa2eaf232bd63d225c4bcb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Append a pre-built series to the targeted subplot — the bridge between the constructor style (<code>series.<span class="tok-fn">line</span>(x, y)</code>) and the fluent style. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>s</code></td><td class="pdesc"><p>the series to append.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with <code>s</code> appended to the current subplot.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> plot.series <span class="tok-kw">as</span> series
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">2.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> s = series.<span class="tok-fn">scatter</span>(x, y)
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">add</span>(f, s)   <span class="tok-com"># -&gt; the pre-built scatter joins the current subplot</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a02871f71c361906c3ffe23ca89a3a964">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">line</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a02871f71c361906c3ffe23ca89a3a964" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent line mark: append <code>series.<span class="tok-fn">line</span>(x, y)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the x positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the y values (same length).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the line appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">4.0</span>, <span class="tok-num">9.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">line</span>(f, x, y)   <span class="tok-com"># -&gt; one line mark in the single subplot</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a0450ff376ec868781d816044d6a57f38">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">scatter</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a0450ff376ec868781d816044d6a57f38" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent scatter mark: append <code>series.<span class="tok-fn">scatter</span>(x, y)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the x positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the y values (same length).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the scatter appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">4.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">2.1</span>, <span class="tok-num">3.9</span>, <span class="tok-num">6.2</span>, <span class="tok-num">7.8</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">scatter</span>(f, x, y)   <span class="tok-com"># -&gt; circle markers in the single subplot</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1ac18c2b8a208b42d24396135e8a02fd73">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">bar</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1ac18c2b8a208b42d24396135e8a02fd73" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent bar mark: append <code>series.<span class="tok-fn">bar</span>(x, y)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the bar positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the bar heights (same length).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the bars appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> counts = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">4.0</span>, <span class="tok-num">7.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">bar</span>(f, x, counts)   <span class="tok-com"># -&gt; three vertical bars</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a56391d9f7e66e298d77e1ee5928ab40e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">area</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a56391d9f7e66e298d77e1ee5928ab40e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent area mark: append <code>series.<span class="tok-fn">area</span>(x, y)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the x positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the top edge values (same length).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the area appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.5</span>, <span class="tok-num">1.5</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">area</span>(f, x, y)   <span class="tok-com"># -&gt; the filled area under the curve</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1acec04900a291e3550c02e5fc8affa67c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">step</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1acec04900a291e3550c02e5fc8affa67c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent step mark: append <code>series.<span class="tok-fn">step</span>(x, y)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the x positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the y values (same length).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the step line appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">2.5</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">step</span>(f, x, y)   <span class="tok-com"># -&gt; a hold-until-next-x step line</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1ad1b4452524b7fa20e80d0a10a7be073d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">errorbar</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;ylo, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;yhi)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1ad1b4452524b7fa20e80d0a10a7be073d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent error bars: append <code>series.<span class="tok-fn">errorbar</span>(x, y, ylo, yhi)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the x positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the central values.</p></td></tr><tr><td class="pname"><code>ylo</code></td><td class="pdesc"><p>the lower whisker ends (absolute).</p></td></tr><tr><td class="pname"><code>yhi</code></td><td class="pdesc"><p>the upper whisker ends (absolute).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the error bars appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">2.5</span>])
+<span class="tok-kw">let</span> ylo = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.7</span>, <span class="tok-num">2.6</span>, <span class="tok-num">2.2</span>])
+<span class="tok-kw">let</span> yhi = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">2.3</span>, <span class="tok-num">3.4</span>, <span class="tok-num">2.8</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">errorbar</span>(f, x, y, ylo, yhi)   <span class="tok-com"># -&gt; whiskered points in the subplot</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a1b719ebb1a7ba86aa486f87eb3f134e3">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">heatmap</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;z)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a1b719ebb1a7ba86aa486f87eb3f134e3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent heatmap: append <code>series.<span class="tok-fn">heatmap</span>(z)</code> to the targeted subplot. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>z</code></td><td class="pdesc"><p>the row-major 2-D value grid.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the heatmap appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> flat = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">4.0</span>, <span class="tok-num">5.0</span>, <span class="tok-num">6.0</span>])
+<span class="tok-kw">let</span> z = ndarray.<span class="tok-fn">reshape</span>(flat, [<span class="tok-num">2</span>, <span class="tok-num">3</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">heatmap</span>(f, z)   <span class="tok-com"># -&gt; the 2x3 grid, coloured by value</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1ad9522babb3646c263563082fab438d12">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">hist</span>(builtins::Value auto &amp;&amp;f, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;data, builtins::Value auto &amp;&amp;bins)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1ad9522babb3646c263563082fab438d12" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fluent histogram: bin <code>data</code> with <code>plot.stats.histogram</code> and append the bars (touching, per histogram convention). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the samples.</p></td></tr><tr><td class="pname"><code>bins</code></td><td class="pdesc"><p>the bin count (clamped up to at least 1).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the histogram bars appended.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n + bins + figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy plus the histogram arrays.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> data = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">4.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">hist</span>(f, data, <span class="tok-num">4</span>)   <span class="tok-com"># -&gt; touching histogram bars over 4 bins</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a70a937a9761dc966231c9ff767de6b44">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">title</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;t)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a70a937a9761dc966231c9ff767de6b44" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Set the targeted subplot&#x27;s title. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>the title text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the title set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">title</span>(f, <span class="tok-str">&quot;convergence&quot;</span>)   <span class="tok-com"># -&gt; the current subplot is titled</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a057613a40e8751be81326cba642b5c5e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">xlabel</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;s)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a057613a40e8751be81326cba642b5c5e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Set the targeted subplot&#x27;s x-axis label. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>s</code></td><td class="pdesc"><p>the label text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the label set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">xlabel</span>(f, <span class="tok-str">&quot;epoch&quot;</span>)   <span class="tok-com"># -&gt; the x axis reads &quot;epoch&quot;</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a985493da2175553049fa76bc4f23b123">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">ylabel</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;s)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a985493da2175553049fa76bc4f23b123" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Set the targeted subplot&#x27;s y-axis label. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>s</code></td><td class="pdesc"><p>the label text.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the label set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">ylabel</span>(f, <span class="tok-str">&quot;loss&quot;</span>)   <span class="tok-com"># -&gt; the y axis reads &quot;loss&quot;</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a1ea83d3329c545b70a5a6162ac0d0da2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">xlim</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;lo, builtins::Value auto &amp;&amp;hi)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a1ea83d3329c545b70a5a6162ac0d0da2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fix the targeted subplot&#x27;s x limits (overriding auto). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>lo</code></td><td class="pdesc"><p>the low limit.</p></td></tr><tr><td class="pname"><code>hi</code></td><td class="pdesc"><p>the high limit.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the limits set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">xlim</span>(f, <span class="tok-num">0.0</span>, <span class="tok-num">10.0</span>)   <span class="tok-com"># -&gt; x spans exactly [0, 10]; auto is overridden</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1aac12d3e20b782c46bcb0c5865bf3fe5a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">ylim</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;lo, builtins::Value auto &amp;&amp;hi)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1aac12d3e20b782c46bcb0c5865bf3fe5a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Fix the targeted subplot&#x27;s y limits (overriding auto). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>lo</code></td><td class="pdesc"><p>the low limit.</p></td></tr><tr><td class="pname"><code>hi</code></td><td class="pdesc"><p>the high limit.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the limits set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">ylim</span>(f, -<span class="tok-num">1.0</span>, <span class="tok-num">1.0</span>)   <span class="tok-com"># -&gt; y pinned to [-1, 1]</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1ad3e3c2ffb1dd02d696df3b9b6ccd89be">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">xscale</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;s)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1ad3e3c2ffb1dd02d696df3b9b6ccd89be" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Set the targeted subplot&#x27;s x-axis transform. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>s</code></td><td class="pdesc"><p>the <a href="structcheatah_1_1figure_1_1Scale.html">Scale</a> (<a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8">linear()</a> or <a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732">log_scale()</a>).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the transform set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+<span class="tok-kw">let</span> s = figure.<span class="tok-fn">log_scale</span>()
+f = figure.<span class="tok-fn">xscale</span>(f, s)   <span class="tok-com"># -&gt; decade ticks along x</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a96bdd34d1088960098ef49333761fbec">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">yscale</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;s)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a96bdd34d1088960098ef49333761fbec" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Set the targeted subplot&#x27;s y-axis transform. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>s</code></td><td class="pdesc"><p>the <a href="structcheatah_1_1figure_1_1Scale.html">Scale</a> (<a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8">linear()</a> or <a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732">log_scale()</a>).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the transform set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+<span class="tok-kw">let</span> s = figure.<span class="tok-fn">log_scale</span>()
+f = figure.<span class="tok-fn">yscale</span>(f, s)   <span class="tok-com"># -&gt; log10 y; ticks land on decades</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a7720c076e639b485e2012898aeac6910">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">legend</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;on)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a7720c076e639b485e2012898aeac6910" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Turn the targeted subplot&#x27;s legend on or off (labeled series get entries when on). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>on</code></td><td class="pdesc"><p>true to draw the legend box.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the flag set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">4.0</span>])
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">line</span>(f, x, y)
+f = figure.<span class="tok-fn">legend</span>(f, <span class="tok-kw">true</span>)   <span class="tok-com"># -&gt; labeled series get legend entries</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1af7ca206ae4c2a6d27cacd4bfe6a46194">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1figure_1_1Figure.html">Figure</a></span> <span class="mname">size</span>(builtins::Value auto &amp;&amp;f, builtins::Value auto &amp;&amp;w, builtins::Value auto &amp;&amp;h)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1af7ca206ae4c2a6d27cacd4bfe6a46194" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Set the figure&#x27;s pixel size. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>the figure.</p></td></tr><tr><td class="pname"><code>w</code></td><td class="pdesc"><p>the width in pixels (clamped up to at least 64).</p></td></tr><tr><td class="pname"><code>h</code></td><td class="pdesc"><p>the height in pixels (clamped up to at least 64).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a copy of <code>f</code> with the size set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(figure).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned copy.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_figure</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">size</span>(f, <span class="tok-num">1280</span>, <span class="tok-num">720</span>)   <span class="tok-com"># -&gt; a 1280x720 canvas</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1figure_1a4426cdfd20e09fbb99b8e862040d2805">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const char *</span> <span class="mname">module_abi</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1figure_1a4426cdfd20e09fbb99b8e862040d2805" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">ABI/identity marker for the <code><a href="namespacecheatah_1_1figure.html">figure</a></code> cheatah module: returns the module name. </p>
+  <div class="member-body"><p>Auto-emitted by purrc&#x27;s library emitter. It is the concrete symbol that anchors the module&#x27;s signed static archive in opaque (source-hidden) builds.</p><div class="ret"><span class="ret-h">Returns</span> <p>the module name (<code>&quot;<a href="namespacecheatah_1_1figure.html">figure</a>&quot;</code>).</p></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1figure_1adce91300cd23e0a52dbb99d7ac3da30d">operator&lt;&lt;</a></li><li><a href="#namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8">linear</a></li><li><a href="#namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732">log_scale</a></li><li><a href="#namespacecheatah_1_1figure_1ad697ed5bdf012887b2f96db548f4eb6f">default_axis</a></li><li><a href="#namespacecheatah_1_1figure_1afc9388b5973150882ba60b4e01514ccb">grid</a></li><li><a href="#namespacecheatah_1_1figure_1a82a9724c0b61bbfde527d427a9c878a7">new_figure</a></li><li><a href="#namespacecheatah_1_1figure_1a7b4defef22f069f82b57bc10dfa1f9f2">subplot</a></li><li><a href="#namespacecheatah_1_1figure_1a81fa6e9947aa2eaf232bd63d225c4bcb">add</a></li><li><a href="#namespacecheatah_1_1figure_1a02871f71c361906c3ffe23ca89a3a964">line</a></li><li><a href="#namespacecheatah_1_1figure_1a0450ff376ec868781d816044d6a57f38">scatter</a></li><li><a href="#namespacecheatah_1_1figure_1ac18c2b8a208b42d24396135e8a02fd73">bar</a></li><li><a href="#namespacecheatah_1_1figure_1a56391d9f7e66e298d77e1ee5928ab40e">area</a></li><li><a href="#namespacecheatah_1_1figure_1acec04900a291e3550c02e5fc8affa67c">step</a></li><li><a href="#namespacecheatah_1_1figure_1ad1b4452524b7fa20e80d0a10a7be073d">errorbar</a></li><li><a href="#namespacecheatah_1_1figure_1a1b719ebb1a7ba86aa486f87eb3f134e3">heatmap</a></li><li><a href="#namespacecheatah_1_1figure_1ad9522babb3646c263563082fab438d12">hist</a></li><li><a href="#namespacecheatah_1_1figure_1a70a937a9761dc966231c9ff767de6b44">title</a></li><li><a href="#namespacecheatah_1_1figure_1a057613a40e8751be81326cba642b5c5e">xlabel</a></li><li><a href="#namespacecheatah_1_1figure_1a985493da2175553049fa76bc4f23b123">ylabel</a></li><li><a href="#namespacecheatah_1_1figure_1a1ea83d3329c545b70a5a6162ac0d0da2">xlim</a></li><li><a href="#namespacecheatah_1_1figure_1aac12d3e20b782c46bcb0c5865bf3fe5a">ylim</a></li><li><a href="#namespacecheatah_1_1figure_1ad3e3c2ffb1dd02d696df3b9b6ccd89be">xscale</a></li><li><a href="#namespacecheatah_1_1figure_1a96bdd34d1088960098ef49333761fbec">yscale</a></li><li><a href="#namespacecheatah_1_1figure_1a7720c076e639b485e2012898aeac6910">legend</a></li><li><a href="#namespacecheatah_1_1figure_1af7ca206ae4c2a6d27cacd4bfe6a46194">size</a></li><li><a href="#namespacecheatah_1_1figure_1a4426cdfd20e09fbb99b8e862040d2805">module_abi</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

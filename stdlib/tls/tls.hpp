@@ -26,6 +26,7 @@
  */
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace cheatah::tls {
 
@@ -195,18 +196,25 @@ Conn open(long long fd, const std::string& server_name, bool insecure = false,
  * its key by signing the handshake, so a client that validates the certificate gets an
  * authenticated, encrypted channel with **no OpenSSL** anywhere.
  *
- * The server certificate must be **Ed25519** (the leaf's key and the private key both Ed25519);
- * this is the from-scratch signing path cheatah owns end to end. Both suites (ChaCha20-Poly1305
- * and AES-128-GCM) and X25519 key exchange are supported; the client picks the suite.
+ * The server certificate is **Ed25519 or ECDSA P-256** — the second is what public CAs
+ * (Let's Encrypt) actually issue, so a browser-facing HTTPS server works with an ordinary
+ * `fullchain.pem`/`privkey.pem` pair. @p cert_pem may carry the WHOLE chain (leaf first, then
+ * intermediates); every block is sent, giving clients a path to their trust anchor. The private
+ * key's derived public half must match the leaf's SPKI, or the handshake refuses at startup with
+ * a precise error rather than failing opaquely at the first client. Both suites
+ * (ChaCha20-Poly1305 and AES-128-GCM) and X25519 key exchange are supported; the client picks
+ * the suite, and per RFC 8446 §4.4.3 we refuse a client whose signature_algorithms do not
+ * include our certificate's algorithm.
  * @param fd a CONNECTED TCP socket from socket::accept()/Listener (e.g. one client of a server loop).
- * @param cert_pem the server's leaf certificate, PEM (`-----BEGIN CERTIFICATE-----`).
- * @param key_pem the matching PKCS#8 Ed25519 private key, PEM (`-----BEGIN PRIVATE KEY-----`).
+ * @param cert_pem the server certificate PEM — a single leaf or a full chain, leaf first.
+ * @param key_pem the leaf's private key, PEM: PKCS#8 Ed25519, or PKCS#8/SEC1 P-256 EC.
  * @return an owning Conn; on handshake failure its is_open() is false (see last_error()).
  * @complexity one network round trip + O(handshake bytes) crypto.
  * @alloc the session state (plus transient handshake buffers).
  * @concurrency blocks awaiting the client's handshake flights — bound it with
  *              socket.set_timeout() on @p fd so a silent client cannot hang the server.
  * @systest TlsSys.ServerHandshakeAgainstOpenssl
+ * @systest TlsSys.ServerHandshakeEcdsaAgainstOpenssl
  */
 Conn accept(long long fd, const std::string& cert_pem, const std::string& key_pem);
 
@@ -246,14 +254,17 @@ void append_cipher_preference(std::string& body, bool hardware_aes);
 // Server-handshake parsers, exposed as test seams so crafted-input unit tests can drive every
 // refusal branch deterministically (no network peer needed). Not part of the cheatah surface.
 /**
- * Parse a ClientHello (choose a supported suite, extract the client X25519 share + session id).
- * @param msg the handshake message bytes. @param client_pub_raw filled with the 32-byte share.
- * @param chosen_suite filled with the negotiated cipher suite. @param session_id filled with the
- * legacy_session_id to echo. @return true iff usable (TLS 1.3, X25519, a shared suite).
+ * Parse a ClientHello (choose a supported suite, extract the client X25519 share + session id +
+ * its signature_algorithms). @param msg the handshake message bytes. @param client_pub_raw filled
+ * with the 32-byte share. @param chosen_suite filled with the negotiated cipher suite.
+ * @param session_id filled with the legacy_session_id to echo. @param sig_algs filled with the
+ * raw u16-pair bytes of extension 13 ("" when absent — the parser stays lenient; server policy
+ * enforces the match). @return true iff usable (TLS 1.3, X25519, a shared suite).
  * @test CheatahTls.ParseClientHelloRejectsMalformed
+ * @test CheatahTls.ParseClientHelloSurfacesSignatureAlgorithms
  */
 bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsigned& chosen_suite,
-                        std::string& session_id);
+                        std::string& session_id, std::string& sig_algs);
 /**
  * A PEM block's DER bytes (strict base64). @param pem the PEM text. @param label e.g.
  * "CERTIFICATE". @return the decoded DER, or "" when the block is absent/malformed.
@@ -261,11 +272,25 @@ bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsig
  */
 std::string pem_block(const std::string& pem, const std::string& label);
 /**
+ * EVERY PEM block under @p label, in order — the server Certificate message sends a full chain.
+ * @param pem the PEM text (e.g. a fullchain.pem). @param label e.g. "CERTIFICATE".
+ * @return the decoded DER blocks, or {} when any block is malformed (no partial chains).
+ * @test CheatahTls.PemBlocksExtractsChains
+ */
+std::vector<std::string> pem_blocks(const std::string& pem, const std::string& label);
+/**
  * The 32-byte Ed25519 seed from a PKCS#8 private-key DER. @param der the key DER.
  * @return the 32-byte seed, or "" when @p der is not a PKCS#8 Ed25519 key.
  * @test CheatahTls.PemBlockExtractsAndRejects
  */
 std::string ed25519_seed_from_pkcs8(std::string_view der);
+/**
+ * The 32-byte P-256 private scalar from a server key PEM — PKCS#8 ("PRIVATE KEY") or SEC1
+ * ("EC PRIVATE KEY"), both requiring the prime256v1 OID so other curves are refused rather than
+ * misread. @param key_pem the key PEM text. @return the 32-byte scalar, or "" when absent.
+ * @test CheatahTls.EcP256ScalarFromPem
+ */
+std::string ec_p256_scalar_from_pem(const std::string& key_pem);
 /**
  * Build a ClientHello handshake message (offering both suites + an X25519 key share) — the test
  * seam a crafted "malformed client" peer uses to drive the server handshake past ServerHello.

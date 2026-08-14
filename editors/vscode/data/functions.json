@@ -2093,6 +2093,27 @@
       "qualified": "ec.reduce_mod_n"
     },
     {
+      "name": "rs_to_der",
+      "signature": "rs_to_der(const std::string &sig_raw)",
+      "brief": "Encode a raw r||s signature (2*kBytes big-endian bytes) as the DER SEQUENCE{INTEGER r, INTEGER s} that TLS CertificateVerify and X.509 carry — the exact inverse of der_to_rs.",
+      "params": [
+        {
+          "name": "sig_raw",
+          "desc": "the 2*kBytes r||s signature (e.g. sign_raw's output)."
+        }
+      ],
+      "returns": "the DER bytes, or \"\" if sig_raw has the wrong length or a zero integer (r = 0 / s = 0 is never a valid ECDSA signature).",
+      "tags": {
+        "complexity": "O(kBytes).",
+        "alloc": "the returned string plus the two integer temporaries.",
+        "test": "CheatahP256.RsToDerRoundTripsAndRejects"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 1165,
+      "module": "ec",
+      "qualified": "ec.rs_to_der"
+    },
+    {
       "name": "sub_borrow",
       "signature": "sub_borrow(fe< C > &r, const fe< C > &a, const fe< C > &b)",
       "brief": "r = a - b (mod 2^kBits), returns the borrow.",
@@ -6660,9 +6681,30 @@
         "test": "CheatahP256.PublicFromPrivate"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 84,
+      "srcline": 98,
       "module": "p256",
       "qualified": "p256.public_from_private"
+    },
+    {
+      "name": "rs_to_der",
+      "signature": "rs_to_der(const std::string &sig_raw)",
+      "brief": "Encode a raw 64-byte r||s signature as the DER SEQUENCE{INTEGER r, INTEGER s} that TLS CertificateVerify and X.509 carry — the inverse of the parse inside verify_der, with minimal-form integers (stripped leading zeros, 0x00 sign byte when the top bit is set).",
+      "params": [
+        {
+          "name": "sig_raw",
+          "desc": "the 64-byte r||s signature."
+        }
+      ],
+      "returns": "the DER bytes, or \"\" if sig_raw has the wrong length or a zero integer.",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "the returned string.",
+        "test": "CheatahP256.RsToDerRoundTripsAndRejects"
+      },
+      "srcfile": "stdlib/p256/p256.hpp",
+      "srcline": 88,
+      "module": "p256",
+      "qualified": "p256.rs_to_der"
     },
     {
       "name": "sign_raw",
@@ -6706,7 +6748,7 @@
         "test": "CheatahP256.SpkiExtractsPoint"
       },
       "srcfile": "stdlib/p256/p256.hpp",
-      "srcline": 97,
+      "srcline": 111,
       "module": "p256",
       "qualified": "p256.spki_ec_point"
     },
@@ -9422,21 +9464,21 @@
         },
         {
           "name": "cert_pem",
-          "desc": "the server's leaf certificate, PEM (-----BEGIN CERTIFICATE-----)."
+          "desc": "the server certificate PEM — a single leaf or a full chain, leaf first."
         },
         {
           "name": "key_pem",
-          "desc": "the matching PKCS#8 Ed25519 private key, PEM (-----BEGIN PRIVATE KEY-----)."
+          "desc": "the leaf's private key, PEM: PKCS#8 Ed25519, or PKCS#8/SEC1 P-256 EC."
         }
       ],
       "returns": "an owning Conn; on handshake failure its is_open() is false (see last_error()).",
       "tags": {
         "complexity": "one network round trip + O(handshake bytes) crypto.",
         "alloc": "the session state (plus transient handshake buffers).",
-        "systest": "TlsSys.ServerHandshakeAgainstOpenssl"
+        "systest": "TlsSys.ServerHandshakeAgainstOpenssl TlsSys.ServerHandshakeEcdsaAgainstOpenssl"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 211,
+      "srcline": 219,
       "module": "tls",
       "qualified": "tls.accept"
     },
@@ -9543,7 +9585,7 @@
         "systest": "TlsSys.RefusesBadPeer TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 48,
+      "srcline": 49,
       "module": "tls",
       "qualified": "tls.last_error"
     },
@@ -9576,7 +9618,7 @@
         "systest": "TlsSys.ConnGuardRoundTrip TlsSys.HttpsGet"
       },
       "srcfile": "stdlib/tls/tls.hpp",
-      "srcline": 189,
+      "srcline": 190,
       "module": "tls",
       "qualified": "tls.open"
     },

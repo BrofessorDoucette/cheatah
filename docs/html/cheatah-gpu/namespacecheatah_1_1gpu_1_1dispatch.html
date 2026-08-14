@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>gpu::dispatch · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html" class="current" aria-current="page">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-gpu…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu.html" data-ref="namespacecheatah_1_1gpu">gpu</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1dispatch.html" data-ref="namespacecheatah_1_1gpu_1_1dispatch">dispatch</a></li><li><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu_1_1metal.html" data-ref="namespacecheatah_1_1gpu_1_1metal">metal</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1metal_1_1emulated.html" data-ref="namespacecheatah_1_1gpu_1_1metal_1_1emulated">emulated</a></li></ul></details></li><li><a href="namespacecheatah_1_1gpu_1_1metal4.html" data-ref="namespacecheatah_1_1gpu_1_1metal4">metal4</a></li><li><a href="namespacecheatah_1_1gpu_1_1vulkan.html" data-ref="namespacecheatah_1_1gpu_1_1vulkan">vulkan</a></li></ul></details></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>gpu::dispatch</code></h1>
+  <p class="ext-badge">cheatah-gpu v0.5.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1gpu_1_1dispatch_1_1Dim3.html"><code>Dim3</code></a> — Three-dimensional dispatch extents — the (x, y, z) triple every GPU dispatch interface takes, whether it is <code><span class="tok-fn">vkCmdDispatch</span>(x, y, z)</code> or Metal&#x27;s <code>MTLSize</code>. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1gpu_1_1dispatch_1abfff16e6d78d36b0c0ec3555bf63749d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">ceil_div</span>(std::uint32_t numerator, std::uint32_t denom)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1dispatch_1abfff16e6d78d36b0c0ec3555bf63749d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Number of workgroups needed to cover <code>numerator</code> items at <code>denom</code> items per group (ceiling division). </p>
+  <div class="member-body"><p>Computed overflow-safe — without the usual <code>(n + d - <span class="tok-num">1</span>) / d</code>, which overflows for <code>numerator</code> near <code>UINT32_MAX</code>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>numerator</code></td><td class="pdesc"><p>total items to process (e.g. elements in a buffer).</p></td></tr><tr><td class="pname"><code>denom</code></td><td class="pdesc"><p>items handled per workgroup — the shader&#x27;s local size on this axis.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>ceil(numerator / denom); 0 when <code>denom</code> is 0 (an empty/invalid dispatch).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Dispatch</span>.<span class="tn-case">CeilDiv</span></code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch_cr_ceil_div</span>.<span class="tn-case">purr</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch</span>.<span class="tn-case">purr</span></code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1dispatch_1a93c14b29a6cf5311833f6d711dc92242">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">group_count_1d</span>(std::uint32_t items, std::uint32_t local_size)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1dispatch_1a93c14b29a6cf5311833f6d711dc92242" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">One-dimensional workgroup count for a 1-D compute dispatch: the <code>groupCountX</code> you pass to <code>vkCmdDispatch</code> so <code>items</code> invocations are covered at <code>local_size</code> threads per group. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>items</code></td><td class="pdesc"><p>total invocations the shader must cover.</p></td></tr><tr><td class="pname"><code>local_size</code></td><td class="pdesc"><p>the shader&#x27;s <code>local_size_x</code> (threads per workgroup).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the number of workgroups to dispatch on X; 0 when <code>local_size</code> is 0.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Dispatch</span>.<span class="tn-case">GroupCount1d</span></code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch_cr_group_count_1d</span>.<span class="tn-case">purr</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch</span>.<span class="tn-case">purr</span></code> <code><span class="tn-suite">systests/test_dispatch_limits</span>.<span class="tn-case">purr</span></code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1dispatch_1a2e6e893f1adf6b7630347dbc8dfe848b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">clamp_group_count</span> <span class="overload-count">· 2 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">clamp_group_count</span>(std::uint32_t want, std::uint32_t device_max)</code><span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1dispatch_1a2e6e893f1adf6b7630347dbc8dfe848b" aria-label="permalink">#</a></span></div><div class="overload" id="namespacecheatah_1_1gpu_1_1dispatch_1a34cc54e334b3e94916dfa249cc0082f2"><code class="sig"><span class="mtype"><a href="structcheatah_1_1gpu_1_1dispatch_1_1Dim3.html">Dim3</a></span> <span class="mname">clamp_group_count</span>(Dim3 want, Dim3 device_max)</code><span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1dispatch_1a34cc54e334b3e94916dfa249cc0082f2" aria-label="permalink">#</a></span></div></div>
+  <p class="member-brief">Clamp a desired workgroup count for one axis to the device&#x27;s limit, so a dispatch never exceeds <code>VkPhysicalDeviceLimits::maxComputeWorkGroupCount[axis]</code>. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>want</code></td><td class="pdesc"><p>the workgroup count the problem size asks for.</p></td></tr><tr><td class="pname"><code>device_max</code></td><td class="pdesc"><p>the device&#x27;s maximum workgroup count on this axis.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>want</code> when it fits, otherwise <code>device_max</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Dispatch</span>.<span class="tn-case">ClampGroupCount</span></code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch_cr_clamp_group_count</span>.<span class="tn-case">purr</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch_limits</span>.<span class="tn-case">purr</span></code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1dispatch_1ae4f22ea5cf4d72e540211f48314376cf">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">operator==</span>(Dim3 a, Dim3 b)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1dispatch_1ae4f22ea5cf4d72e540211f48314376cf" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Per-axis equality of two extents (all of x, y, and z match). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>a, b</code></td><td class="pdesc"><p>the extents to compare.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true when every axis is equal.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Dispatch</span>.<span class="tn-case">Dim3Equality</span></code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch_cr_dim3</span>.<span class="tn-case">purr</span></code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1gpu_1_1dispatch_1a8156fc4141d89e4311d8b3c77c1d67b7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1gpu_1_1dispatch_1_1Dim3.html">Dim3</a></span> <span class="mname">group_count_3d</span>(Dim3 items, Dim3 local_size)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1gpu_1_1dispatch_1a8156fc4141d89e4311d8b3c77c1d67b7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Three-dimensional workgroup count for a compute dispatch: the (groupCountX, groupCountY, groupCountZ) you pass to <code>vkCmdDispatch</code> so an <code>items</code> volume is covered at <code>local_size</code> threads per group on each axis — <a href="namespacecheatah_1_1gpu_1_1dispatch.html#namespacecheatah_1_1gpu_1_1dispatch_1abfff16e6d78d36b0c0ec3555bf63749d">ceil_div</a> applied per axis, with its overflow safety and <code><span class="tok-num">0</span></code>-on-zero-denominator semantics. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>items</code></td><td class="pdesc"><p>total invocations to cover on each axis (e.g. an image&#x27;s width × height).</p></td></tr><tr><td class="pname"><code>local_size</code></td><td class="pdesc"><p>the shader&#x27;s (local_size_x, local_size_y, local_size_z).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the per-axis workgroup counts; an axis is 0 when its <code>local_size</code> axis is 0.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">Dispatch</span>.<span class="tn-case">GroupCount3d</span></code></span></div><div class="tag tag-crtest"><span class="tag-k">Compile-run test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch_cr_group_count_3d</span>.<span class="tn-case">purr</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_dispatch</span>.<span class="tn-case">purr</span></code></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1gpu_1_1dispatch_1abfff16e6d78d36b0c0ec3555bf63749d">ceil_div</a></li><li><a href="#namespacecheatah_1_1gpu_1_1dispatch_1a93c14b29a6cf5311833f6d711dc92242">group_count_1d</a></li><li><a href="#namespacecheatah_1_1gpu_1_1dispatch_1a2e6e893f1adf6b7630347dbc8dfe848b">clamp_group_count</a></li><li><a href="#namespacecheatah_1_1gpu_1_1dispatch_1ae4f22ea5cf4d72e540211f48314376cf">operator==</a></li><li><a href="#namespacecheatah_1_1gpu_1_1dispatch_1a8156fc4141d89e4311d8b3c77c1d67b7">group_count_3d</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=bf7c4529"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

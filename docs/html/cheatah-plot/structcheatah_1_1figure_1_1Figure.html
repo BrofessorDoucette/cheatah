@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>figure::Figure · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>figure::Figure</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p><p class="lede">The whole figure: a rows×cols grid of subplots, pixel size, the categorical palette, and the index fluent calls currently target. </p>
+</div>
+<div class="overview"></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1figure_1_1Figure_1a35f5ea8397e3dcbf7ad8b74234134aa2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; <a href="structcheatah_1_1figure_1_1Subplot.html">Subplot</a> &gt;</span> <span class="mname">subplots</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1a35f5ea8397e3dcbf7ad8b74234134aa2" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1figure_1_1Figure_1a2e2a3a2d4de7ae0fb2428c5bb20da6d2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">rows</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1a2e2a3a2d4de7ae0fb2428c5bb20da6d2" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1figure_1_1Figure_1ac5f06a713b6c8a8e4a27b73ca4502ec9">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">cols</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1ac5f06a713b6c8a8e4a27b73ca4502ec9" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1figure_1_1Figure_1abb85bb351d5dce1bf5c949340502bead">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">cur</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1abb85bb351d5dce1bf5c949340502bead" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1figure_1_1Figure_1a3c167428235f86cd415d0e24cd8e9e52">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">width</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1a3c167428235f86cd415d0e24cd8e9e52" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1figure_1_1Figure_1ac9fc250fdf0b9f81b415cc6ffb9ba69e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">height</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1ac9fc250fdf0b9f81b415cc6ffb9ba69e" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1figure_1_1Figure_1a280c8832f3bddf2c0c3121045a7510a9">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; Color &gt;</span> <span class="mname">palette</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1figure_1_1Figure_1a280c8832f3bddf2c0c3121045a7510a9" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1figure_1_1Figure_1a35f5ea8397e3dcbf7ad8b74234134aa2">subplots</a></li><li><a href="#structcheatah_1_1figure_1_1Figure_1a2e2a3a2d4de7ae0fb2428c5bb20da6d2">rows</a></li><li><a href="#structcheatah_1_1figure_1_1Figure_1ac5f06a713b6c8a8e4a27b73ca4502ec9">cols</a></li><li><a href="#structcheatah_1_1figure_1_1Figure_1abb85bb351d5dce1bf5c949340502bead">cur</a></li><li><a href="#structcheatah_1_1figure_1_1Figure_1a3c167428235f86cd415d0e24cd8e9e52">width</a></li><li><a href="#structcheatah_1_1figure_1_1Figure_1ac9fc250fdf0b9f81b415cc6ffb9ba69e">height</a></li><li><a href="#structcheatah_1_1figure_1_1Figure_1a280c8832f3bddf2c0c3121045a7510a9">palette</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

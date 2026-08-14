@@ -74,6 +74,20 @@ namespace cheatah::p256 {
 [[nodiscard]] std::string sign_raw(const std::string& privkey, const std::string& msg_hash);
 
 /**
+ * Encode a raw 64-byte r||s signature as the DER `SEQUENCE{INTEGER r, INTEGER s}`
+ * that TLS CertificateVerify and X.509 carry — the inverse of the parse inside
+ * @ref verify_der, with minimal-form integers (stripped leading zeros, 0x00 sign
+ * byte when the top bit is set). Composes with @ref sign_raw to produce the wire
+ * form a TLS 1.3 server sends for `ecdsa_secp256r1_sha256`.
+ * @param sig_raw the 64-byte r||s signature.
+ * @return the DER bytes, or "" if @p sig_raw has the wrong length or a zero integer.
+ * @complexity O(1).
+ * @alloc the returned string.
+ * @test CheatahP256.RsToDerRoundTripsAndRejects
+ */
+[[nodiscard]] std::string rs_to_der(const std::string& sig_raw);
+
+/**
  * Derive the public key point from a private scalar: Q = d·G.
  * @param privkey the private scalar d as 32 big-endian bytes.
  * @return the public key as 64 bytes (X||Y), or "" if d is out of range.

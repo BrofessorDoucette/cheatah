@@ -495,9 +495,108 @@ TEST(TlsSys, ServerHandshakeAgainstOpenssl) {
         << "openssl s_client output:\n" << out;
 }
 
+// The ECDSA mirror of ServerHandshakeAgainstOpenssl: the SAME cheatah server code presenting a
+// P-256 leaf — the certificate type public CAs actually issue — with OpenSSL validating our
+// ecdsa_secp256r1_sha256 CertificateVerify end to end. This is the browser-facing HTTPS shape.
+TEST(TlsSys, ServerHandshakeEcdsaAgainstOpenssl) {
+    const long long port = 47972;
+    const std::string dir = PURR_TEST_TMP;
+    const std::string cert = dir + "/tls_srv_ec_cert_" + std::to_string(port) + ".pem";
+    const std::string key = dir + "/tls_srv_ec_key_" + std::to_string(port) + ".pem";
+    const std::string gen = "openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 "
+                            "-keyout '" + key + "' -out '" + cert +
+                            "' -days 2 -nodes -subj /CN=localhost "
+                            "-addext subjectAltName=DNS:localhost 2>/dev/null";
+    ASSERT_EQ(std::system(gen.c_str()), 0) << "could not generate a P-256 cert (test infra)";
+    const std::string cert_pem = slurp(cert), key_pem = slurp(key);
+    ASSERT_FALSE(cert_pem.empty());
+    ASSERT_FALSE(key_pem.empty());
+
+    const long long listen_fd = sock::tcp_listen("127.0.0.1", port, 4);
+    ASSERT_GE(listen_fd, 0) << sock::last_error();
+    std::string srv_err;
+    std::thread server([&] {
+        const long long conn = sock::accept(listen_fd);
+        if (conn < 0) { srv_err = "accept failed"; return; }
+        sock::set_timeout(conn, 5000);
+        tls::Conn tc = tls::accept(conn, cert_pem, key_pem);
+        if (!tc.is_open()) { srv_err = tls::last_error(); sock::close(conn); return; }
+        tc.recv(4096);
+        const std::string body = "hello from a pure-cheatah ECDSA TLS server";
+        tc.send("HTTP/1.0 200 ok\r\nContent-Length: " + std::to_string(body.size()) +
+                    "\r\nConnection: close\r\n\r\n" + body);
+        sock::close(conn);
+    });
+
+    const std::string out = run_s_client(port, cert, "GET / HTTP/1.0\\r\\n\\r\\n");
+    server.join();
+    sock::close(listen_fd);
+
+    EXPECT_TRUE(srv_err.empty()) << "cheatah server: " << srv_err;
+    EXPECT_NE(out.find("hello from a pure-cheatah ECDSA TLS server"), std::string::npos)
+        << "openssl s_client output:\n" << out;
+}
+
+// A CA-signed leaf served as a fullchain.pem (leaf + intermediate in one file — the exact artifact
+// Let's Encrypt/acme.sh hand a production server): the Certificate message must carry EVERY block,
+// because s_client is given only the CA. A leaf-only emission (the old behavior) cannot validate.
+TEST(TlsSys, ServerHandshakeFullChainAgainstOpenssl) {
+    const long long port = 47973;
+    const std::string dir = PURR_TEST_TMP;
+    const std::string ca_key = dir + "/tls_chain_ca_key.pem", ca_cert = dir + "/tls_chain_ca.pem";
+    const std::string leaf_key = dir + "/tls_chain_leaf_key.pem";
+    const std::string leaf_csr = dir + "/tls_chain_leaf.csr";
+    const std::string leaf_cert = dir + "/tls_chain_leaf.pem";
+    const std::string ext = dir + "/tls_chain_ext.cnf";
+    ASSERT_EQ(std::system(("openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 "
+                           "-keyout '" + ca_key + "' -out '" + ca_cert +
+                           "' -days 2 -nodes -subj /CN=cheatah-test-ca 2>/dev/null").c_str()), 0);
+    ASSERT_EQ(std::system(("openssl req -new -newkey ec -pkeyopt ec_paramgen_curve:P-256 "
+                           "-keyout '" + leaf_key + "' -out '" + leaf_csr +
+                           "' -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
+    {
+        std::FILE* f = std::fopen(ext.c_str(), "w");
+        ASSERT_NE(f, nullptr);
+        std::fputs("subjectAltName=DNS:localhost\n", f);
+        std::fclose(f);
+    }
+    ASSERT_EQ(std::system(("openssl x509 -req -in '" + leaf_csr + "' -CA '" + ca_cert +
+                           "' -CAkey '" + ca_key + "' -CAcreateserial -days 2 -extfile '" + ext +
+                           "' -out '" + leaf_cert + "' 2>/dev/null").c_str()), 0);
+    const std::string fullchain = slurp(leaf_cert) + slurp(ca_cert);  // leaf first, then issuer
+    const std::string key_pem = slurp(leaf_key);
+    ASSERT_FALSE(key_pem.empty());
+
+    const long long listen_fd = sock::tcp_listen("127.0.0.1", port, 4);
+    ASSERT_GE(listen_fd, 0) << sock::last_error();
+    std::string srv_err;
+    std::thread server([&] {
+        const long long conn = sock::accept(listen_fd);
+        if (conn < 0) { srv_err = "accept failed"; return; }
+        sock::set_timeout(conn, 5000);
+        tls::Conn tc = tls::accept(conn, fullchain, key_pem);
+        if (!tc.is_open()) { srv_err = tls::last_error(); sock::close(conn); return; }
+        tc.recv(4096);
+        const std::string body = "hello through a full chain";
+        tc.send("HTTP/1.0 200 ok\r\nContent-Length: " + std::to_string(body.size()) +
+                    "\r\nConnection: close\r\n\r\n" + body);
+        sock::close(conn);
+    });
+
+    // s_client trusts ONLY the CA — validating proves the intermediate rode in our Certificate.
+    const std::string out = run_s_client(port, ca_cert, "GET / HTTP/1.0\\r\\n\\r\\n");
+    server.join();
+    sock::close(listen_fd);
+
+    EXPECT_TRUE(srv_err.empty()) << "cheatah server: " << srv_err;
+    EXPECT_NE(out.find("hello through a full chain"), std::string::npos)
+        << "openssl s_client output:\n" << out;
+}
+
 // The server's certificate/key pre-flight refusals — checked before any socket read, so a bad fd
-// is never touched. A malformed cert PEM, a non-Ed25519 key, and a cert/key algorithm mismatch each
-// fail fast with a named error rather than starting a doomed handshake.
+// is never touched. A malformed cert PEM, an unparseable key, a cert/key MISMATCH (each key type),
+// and a key on an unsupported curve each fail fast with a named error rather than starting a
+// doomed handshake.
 TEST(TlsSys, ServerRejectsBadCredentials) {
     const std::string dir = PURR_TEST_TMP;
     // A valid Ed25519 cert + key to mix and match against bad ones.
@@ -505,18 +604,24 @@ TEST(TlsSys, ServerRejectsBadCredentials) {
     ASSERT_EQ(std::system(("openssl req -x509 -newkey ed25519 -keyout '" + ed_key + "' -out '" +
                            ed_cert + "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
     const std::string ed_cert_pem = slurp(ed_cert), ed_key_pem = slurp(ed_key);
-    // A P-256 cert whose key is NOT Ed25519 (to trip the "cert is not Ed25519" check via a valid
-    // Ed25519 *key* paired with a non-Ed25519 *cert*).
+    // A P-256 pair for the cross mismatches, and a P-384 key for the unsupported-curve refusal.
     const std::string ec_cert = dir + "/tls_bad_ec_cert.pem", ec_key = dir + "/tls_bad_ec_key.pem";
     ASSERT_EQ(std::system(("openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -keyout '" +
                            ec_key + "' -out '" + ec_cert +
                            "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
-    const std::string ec_cert_pem = slurp(ec_cert);
+    const std::string ec_cert_pem = slurp(ec_cert), ec_key_pem = slurp(ec_key);
+    const std::string p384_key = dir + "/tls_bad_p384_key.pem";
+    ASSERT_EQ(std::system(("openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-384 -out '" +
+                           p384_key + "' 2>/dev/null").c_str()), 0);
 
     EXPECT_LT(tls::server_accept(-1, "not a certificate", ed_key_pem), 0);   // malformed cert PEM
     EXPECT_FALSE(tls::last_error().empty());
-    EXPECT_LT(tls::server_accept(-1, ed_cert_pem, "not a key"), 0);          // non-Ed25519 key
-    EXPECT_LT(tls::server_accept(-1, ec_cert_pem, ed_key_pem), 0);          // cert not Ed25519
+    EXPECT_LT(tls::server_accept(-1, ed_cert_pem, "not a key"), 0);          // unparseable key
+    EXPECT_LT(tls::server_accept(-1, ec_cert_pem, ed_key_pem), 0);   // Ed25519 key, P-256 cert
+    EXPECT_NE(tls::last_error().find("does not match"), std::string::npos) << tls::last_error();
+    EXPECT_LT(tls::server_accept(-1, ed_cert_pem, ec_key_pem), 0);   // P-256 key, Ed25519 cert
+    EXPECT_NE(tls::last_error().find("does not match"), std::string::npos) << tls::last_error();
+    EXPECT_LT(tls::server_accept(-1, ec_cert_pem, slurp(p384_key)), 0);      // unsupported curve
 }
 
 // The server's ClientHello refusals against crafted TCP peers (mirror of RefusesBadPeer for the
@@ -576,6 +681,68 @@ std::string tls_record(unsigned type, const std::string& body) {
     return r;
 }
 }  // namespace
+
+// RFC 8446 §4.4.3: the server must not sign with an algorithm the client did not offer. A crafted
+// client sends a ClientHello that is valid in every respect (TLS 1.3, X25519 share, a shared
+// suite) but omits signature_algorithms entirely — the one shape openssl will never produce — and
+// the server must refuse before its certificate flight rather than sign anyway.
+TEST(TlsSys, ServerRefusesClientWithoutOurSignatureAlgorithm) {
+    const std::string dir = PURR_TEST_TMP;
+    const std::string cert = dir + "/tls_sigalg_cert.pem", key = dir + "/tls_sigalg_key.pem";
+    ASSERT_EQ(std::system(("openssl req -x509 -newkey ed25519 -keyout '" + key + "' -out '" + cert +
+                           "' -days 2 -nodes -subj /CN=localhost 2>/dev/null").c_str()), 0);
+    const std::string cert_pem = slurp(cert), key_pem = slurp(key);
+
+    // A minimal, well-formed ClientHello with NO extension 13.
+    std::string body;
+    const auto be16 = [&](std::string& o, unsigned v) {
+        o.push_back(static_cast<char>((v >> 8) & 0xFF));
+        o.push_back(static_cast<char>(v & 0xFF));
+    };
+    be16(body, 0x0303);
+    body.append(32, 'R');          // random
+    body.push_back(0);             // empty legacy_session_id
+    be16(body, 2);
+    be16(body, 0x1303);            // one suite: ChaCha20-Poly1305
+    body.push_back(1);
+    body.push_back(0);             // null compression
+    std::string ext;
+    be16(ext, 43); be16(ext, 3); ext.push_back(2); be16(ext, 0x0304);  // supported_versions
+    {
+        std::string entry;
+        be16(entry, 0x001d); be16(entry, 32); entry.append(32, 'K');
+        std::string ks; be16(ks, static_cast<unsigned>(entry.size())); ks += entry;
+        be16(ext, 51); be16(ext, static_cast<unsigned>(ks.size())); ext += ks;
+    }
+    be16(body, static_cast<unsigned>(ext.size()));
+    body += ext;
+    std::string hello;
+    hello.push_back(1);
+    hello.push_back(0); be16(hello, static_cast<unsigned>(body.size()));  // 24-bit length
+    hello += body;
+
+    const long long listen_fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(listen_fd, 0);
+    const long long port = sock::local_port(listen_fd);
+    std::string err;
+    std::thread server([&] {
+        const long long conn = sock::accept(listen_fd);
+        if (conn < 0) return;
+        sock::set_timeout(conn, 2000);
+        const long long s = tls::server_accept(conn, cert_pem, key_pem);
+        if (s < 0) err = tls::last_error();
+        else tls::close(s);
+        sock::close(conn);
+    });
+    const long long fd = sock::tcp_connect("127.0.0.1", port);
+    ASSERT_GE(fd, 0);
+    sock::sendall(fd, tls_record(22, hello));
+    sock::close(fd);
+    server.join();
+    sock::close(listen_fd);
+    EXPECT_NE(err.find("signature_algorithms"), std::string::npos)
+        << "expected the §4.4.3 refusal, got: " << err;
+}
 
 // A crafted client that sends a WELL-FORMED ClientHello (so the server proceeds through ServerHello
 // and its whole encrypted flight) and then misbehaves — closing, or sending an alert / a wrong-type

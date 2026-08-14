@@ -149,6 +149,39 @@ TEST(CheatahP256, VerifyDerWithLeadingZeroIntegers) {
     EXPECT_FALSE(p256::verify_der(pub, hash, bad));
 }
 
+TEST(CheatahP256, RsToDerRoundTripsAndRejects) {
+    // The RFC 6979 (r, s) both have the top bit set, so the encoder must emit 0x00 sign bytes —
+    // and the result must byte-match the hand-built DER the verify test above accepts, then
+    // round-trip through verify_der against the real public key.
+    const std::string raw = unhex(kR) + unhex(kS);
+    const std::string der = p256::rs_to_der(raw);
+    ASSERT_FALSE(der.empty());
+    EXPECT_EQ(static_cast<unsigned char>(der[0]), 0x30u);
+    EXPECT_EQ(static_cast<unsigned char>(der[1]), 0x46u);  // 70 bytes: two 33-byte INTEGERs
+    const std::string pub = unhex(kUx) + unhex(kUy);
+    const std::string hash = cheatah::hashlib::sha256_digest("sample");
+    EXPECT_TRUE(p256::verify_der(pub, hash, der));
+
+    // A small r (leading zeros, top bit clear) must MINIMALLY encode — strip zeros, no sign byte.
+    const std::string small = std::string(31, '\0') + "\x7f" + unhex(kS);
+    const std::string small_der = p256::rs_to_der(small);
+    ASSERT_FALSE(small_der.empty());
+    EXPECT_EQ(static_cast<unsigned char>(small_der[2]), 0x02u);
+    EXPECT_EQ(static_cast<unsigned char>(small_der[3]), 0x01u);  // r shrank to one byte
+    EXPECT_EQ(static_cast<unsigned char>(small_der[4]), 0x7fu);
+
+    // Wrong length and zero integers are not signatures.
+    EXPECT_EQ(p256::rs_to_der(raw.substr(1)), "");
+    EXPECT_EQ(p256::rs_to_der(std::string(32, '\0') + unhex(kS)), "");
+    EXPECT_EQ(p256::rs_to_der(unhex(kR) + std::string(32, '\0')), "");
+
+    // Full circle: a fresh sign_raw -> rs_to_der -> verify_der chain on a random-ish key.
+    const std::string priv = unhex(kPriv);
+    const std::string sig_raw = p256::sign_raw(priv, hash);
+    ASSERT_EQ(sig_raw.size(), std::size_t{64});
+    EXPECT_TRUE(p256::verify_der(p256::public_from_private(priv), hash, p256::rs_to_der(sig_raw)));
+}
+
 TEST(CheatahP256, VerifyRejectsOutOfRangeAndInfinity) {
     const std::string pub = unhex(kUx) + unhex(kUy);
     const std::string hash = cheatah::hashlib::sha256_digest("sample");

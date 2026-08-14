@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::time · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-space…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>space::time</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Concepts</h2><ul class="class-list"><li><a href="conceptcheatah_1_1space_1_1time_1_1DatetimeArray.html"><code>DatetimeArray</code></a> — An ndarray of datetime structs (see is_datetime_v) — lit up when that struct lands. </li><li><a href="conceptcheatah_1_1space_1_1time_1_1DatetimeScalar.html"><code>DatetimeScalar</code></a> — A single broken-down datetime value (see is_datetime_v). </li><li><a href="conceptcheatah_1_1space_1_1time_1_1Numeric.html"><code>Numeric</code></a> — A scalar that makes sense as a continuous time/epoch quantity — any arithmetic type. </li><li><a href="conceptcheatah_1_1space_1_1time_1_1NumericArray.html"><code>NumericArray</code></a> — An ndarray with a numeric (arithmetic) entry — the vectorized continuous-time input. </li><li><a href="conceptcheatah_1_1space_1_1time_1_1TimeInput.html"><code>TimeInput</code></a> — The full accepted domain: a sensible scalar, a numeric ndarray, or a datetime-struct ndarray. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1space_1_1time_1a6241b5406d440dc3a9d9101c9cb0f332">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">jd_unix_epoch</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a6241b5406d440dc3a9d9101c9cb0f332" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Julian Date of the Unix epoch, 1970-01-01T00:00:00Z. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code><span class="tok-num">2440587.5</span></code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_jd</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+<span class="tok-com"># The Unix epoch&#x27;s Julian Date is the anchor of every unix&lt;-&gt;jd conversion.</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_unix_epoch</span>())                       <span class="tok-com"># 2440587.5</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">unix_to_jd</span>(<span class="tok-num">0.0</span>) == st.<span class="tok-fn">jd_unix_epoch</span>()) <span class="tok-com"># true</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a459644e0962faf34393a33b9da492241">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">jd_j2000</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a459644e0962faf34393a33b9da492241" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Julian Date of the J2000.0 epoch, 2000-01-01T12:00:00 TT. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code><span class="tok-num">2451545.0</span></code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_jd</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+<span class="tok-com"># J2000.0 — the reference epoch of modern astronomical series.</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_j2000</span>())                            <span class="tok-com"># 2451545.0</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_to_j2000_seconds</span>(st.<span class="tok-fn">jd_j2000</span>()))    <span class="tok-com"># 0.0 — J2000 is its own origin</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1acde957fb79e69ad19f877f2d70c9550c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">cdf_epoch_unix_offset_ms</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1acde957fb79e69ad19f877f2d70c9550c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">CDF_EPOCH of the Unix epoch: milliseconds from 0000-01-01T00:00:00.000 to 1970-01-01 — the constant that bridges Unix time and NASA CDF&#x27;s millisecond epoch. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code><span class="tok-num">62167219200000.0</span></code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_epoch</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+<span class="tok-com"># The Unix epoch expressed as a CDF_EPOCH (ms since year 0).</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">cdf_epoch_unix_offset_ms</span>())                             <span class="tok-com"># 62167219200000.0</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">unix_to_cdf_epoch</span>(<span class="tok-num">0.0</span>) == st.<span class="tok-fn">cdf_epoch_unix_offset_ms</span>())  <span class="tok-com"># true</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a9bb7347c72561612b15f902c8905cecd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">unix_to_jd</span>(TimeInput auto &amp;&amp;seconds)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a9bb7347c72561612b15f902c8905cecd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Unix epoch seconds → Julian Date. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>seconds</code></td><td class="pdesc"><p>scalar or numeric ndarray of seconds since 1970-01-01T00:00:00Z.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the corresponding Julian Date(s).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_jd</span>.<span class="tn-case">purr</span></code> <code><span class="tn-suite">systests/test_vectorized</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">unix_to_jd</span>(<span class="tok-num">946728000.0</span>))               <span class="tok-com"># 2451545.0 — J2000, exactly</span>
+<span class="tok-kw">let</span> jds = st.<span class="tok-fn">unix_to_jd</span>(ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">86400.0</span>]))   <span class="tok-com"># a whole array, vectorized</span>
+io.<span class="tok-fn">print</span>(jds[<span class="tok-num">0</span>], jds[<span class="tok-num">1</span>])                           <span class="tok-com"># 2440587.5 2440588.5</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1af056a0884d2d689777b424e38ca3b8d7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">jd_to_unix</span>(TimeInput auto &amp;&amp;jd)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1af056a0884d2d689777b424e38ca3b8d7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Julian Date → Unix epoch seconds. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>jd</code></td><td class="pdesc"><p>scalar or numeric ndarray of Julian Dates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>seconds since 1970-01-01T00:00:00Z.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_jd</span>.<span class="tn-case">purr</span></code> <code><span class="tn-suite">systests/test_vectorized</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_to_unix</span>(<span class="tok-num">2451545.0</span>))                 <span class="tok-com"># 946728000.0 — J2000 in Unix seconds</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_to_unix</span>(st.<span class="tok-fn">unix_to_jd</span>(<span class="tok-num">86400.0</span>)))    <span class="tok-com"># 86400.0 — the round trip</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a5ceb877455f9993ae44edaee8a520581">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">jd_to_mjd</span>(TimeInput auto &amp;&amp;jd)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a5ceb877455f9993ae44edaee8a520581" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Julian Date → Modified Julian Date (MJD = JD − 2400000.5). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>jd</code></td><td class="pdesc"><p>scalar or numeric ndarray of Julian Dates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the Modified Julian Date(s).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_mjd</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_to_mjd</span>(st.<span class="tok-fn">jd_j2000</span>()))              <span class="tok-com"># 51544.5 — J2000 as an MJD</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a91a2b11a599bb72617b0ddba8918f9a5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">mjd_to_jd</span>(TimeInput auto &amp;&amp;mjd)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a91a2b11a599bb72617b0ddba8918f9a5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Modified Julian Date → Julian Date. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>mjd</code></td><td class="pdesc"><p>scalar or numeric ndarray of Modified Julian Dates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the Julian Date(s).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_mjd</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">mjd_to_jd</span>(<span class="tok-num">51544.5</span>))                    <span class="tok-com"># 2451545.0 — back to a full JD</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a8b99a7b8a9588e147eb6d4b71c8477ed">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">unix_to_mjd</span>(TimeInput auto &amp;&amp;seconds)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a8b99a7b8a9588e147eb6d4b71c8477ed" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Unix epoch seconds → Modified Julian Date. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>seconds</code></td><td class="pdesc"><p>scalar or numeric ndarray of seconds since the Unix epoch.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the Modified Julian Date(s).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_mjd</span>.<span class="tn-case">purr</span></code> <code><span class="tn-suite">systests/test_vectorized</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">unix_to_mjd</span>(<span class="tok-num">0.0</span>))                      <span class="tok-com"># 40587.0 — the Unix epoch&#x27;s MJD</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1ab444fbf5f17f6f96e5810082f4d9476a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">mjd_to_unix</span>(TimeInput auto &amp;&amp;mjd)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1ab444fbf5f17f6f96e5810082f4d9476a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Modified Julian Date → Unix epoch seconds. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>mjd</code></td><td class="pdesc"><p>scalar or numeric ndarray of Modified Julian Dates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>seconds since the Unix epoch.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_mjd</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">mjd_to_unix</span>(<span class="tok-num">40587.0</span>))                  <span class="tok-com"># 0.0 — the Unix epoch again</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a0b9c0215484cf24592ceca772b62463f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">jd_to_j2000_seconds</span>(TimeInput auto &amp;&amp;jd)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a0b9c0215484cf24592ceca772b62463f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Seconds elapsed since the J2000.0 epoch for a given Julian Date. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>jd</code></td><td class="pdesc"><p>scalar or numeric ndarray of Julian Dates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>seconds since 2000-01-01T12:00:00.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_j2000</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_to_j2000_seconds</span>(<span class="tok-num">2451546.0</span>))        <span class="tok-com"># 86400.0 — one day after J2000</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a95ac3458faa654dca066a17d5fbd1d04">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">jd_to_j2000_centuries</span>(TimeInput auto &amp;&amp;jd)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a95ac3458faa654dca066a17d5fbd1d04" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Julian centuries (36525 days) elapsed since J2000.0 — the time argument for most astronomical polynomial series (mean sidereal time, precession, …). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>jd</code></td><td class="pdesc"><p>scalar or numeric ndarray of Julian Dates.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>Julian centuries since J2000.0.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_j2000</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+<span class="tok-com"># The `T` fed to precession / sidereal-time polynomial series.</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">jd_to_j2000_centuries</span>(<span class="tok-num">2451545.0</span> + <span class="tok-num">36525.0</span>))   <span class="tok-com"># 1.0 — one Julian century</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a39165e71259c0ce0bb2f0e60470ae8ec">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">unix_to_cdf_epoch</span>(TimeInput auto &amp;&amp;seconds)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a39165e71259c0ce0bb2f0e60470ae8ec" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Unix epoch seconds → NASA CDF_EPOCH (milliseconds since year 0). </p>
+  <div class="member-body"><p>Feeds <code>space.cdf</code> epoch variables directly. CDF_TT2000 (ns since J2000 with leap seconds) needs a leap-second table and lands with <code>space.cdf</code> — see the cdf roadmap.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>seconds</code></td><td class="pdesc"><p>scalar or numeric ndarray of seconds since the Unix epoch.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the CDF_EPOCH value(s) in milliseconds.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_epoch</span>.<span class="tn-case">purr</span></code> <code><span class="tn-suite">systests/test_vectorized</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+<span class="tok-com"># J2000 as a CDF_EPOCH — ready to write into a CDF epoch variable.</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">unix_to_cdf_epoch</span>(<span class="tok-num">946728000.0</span>))        <span class="tok-com"># 63113947200000.0</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1time_1a093448bcae42dcae80b0dece33f5d4ec">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">auto</span> <span class="mname">cdf_epoch_to_unix</span>(TimeInput auto &amp;&amp;ms)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a093448bcae42dcae80b0dece33f5d4ec" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">NASA CDF_EPOCH (milliseconds since year 0) → Unix epoch seconds. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>ms</code></td><td class="pdesc"><p>scalar or numeric ndarray of CDF_EPOCH values in milliseconds.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>seconds since the Unix epoch.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one result array for an ndarray; none for a scalar.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_epoch</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+
+<span class="tok-com"># An epoch read from a CDF file, back onto the Unix scale.</span>
+io.<span class="tok-fn">print</span>(st.<span class="tok-fn">cdf_epoch_to_unix</span>(<span class="tok-num">63113947200000.0</span>))   <span class="tok-com"># 946728000.0 — J2000</span></code></pre></div></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1space_1_1time_1a264040cbff80b708c7856d443698ff82">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">is_datetime_v</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1time_1a264040cbff80b708c7856d443698ff82" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Trait hook for cheatah&#x27;s forthcoming datetime struct. </p>
+  <div class="member-body"><p>It defaults to <code><span class="tok-kw">false</span></code>; when <code>cheatah::datetime</code> defines its broken-down datetime type, this is specialized to <code><span class="tok-kw">true</span></code> for it (here or there), which lights up <a href="conceptcheatah_1_1space_1_1time_1_1DatetimeScalar.html">DatetimeScalar</a> / <a href="conceptcheatah_1_1space_1_1time_1_1DatetimeArray.html">DatetimeArray</a> and the datetime overloads — without this header taking a dependency on that type today.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1space_1_1time_1a6241b5406d440dc3a9d9101c9cb0f332">jd_unix_epoch</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a459644e0962faf34393a33b9da492241">jd_j2000</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1acde957fb79e69ad19f877f2d70c9550c">cdf_epoch_unix_offset_ms</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a9bb7347c72561612b15f902c8905cecd">unix_to_jd</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1af056a0884d2d689777b424e38ca3b8d7">jd_to_unix</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a5ceb877455f9993ae44edaee8a520581">jd_to_mjd</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a91a2b11a599bb72617b0ddba8918f9a5">mjd_to_jd</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a8b99a7b8a9588e147eb6d4b71c8477ed">unix_to_mjd</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1ab444fbf5f17f6f96e5810082f4d9476a">mjd_to_unix</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a0b9c0215484cf24592ceca772b62463f">jd_to_j2000_seconds</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a95ac3458faa654dca066a17d5fbd1d04">jd_to_j2000_centuries</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a39165e71259c0ce0bb2f0e60470ae8ec">unix_to_cdf_epoch</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a093448bcae42dcae80b0dece33f5d4ec">cdf_epoch_to_unix</a></li><li><a href="#namespacecheatah_1_1space_1_1time_1a264040cbff80b708c7856d443698ff82">is_datetime_v</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=09d1749d"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

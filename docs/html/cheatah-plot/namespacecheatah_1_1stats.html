@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>stats · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>stats</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1stats_1_1Hist.html"><code>Hist</code></a> — A binned histogram: everything a bar mark needs to draw it. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1stats_1a86c3adbc9ff2d32396604478ed71584d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1stats_1_1Hist.html">Hist</a></span> <span class="mname">histogram</span>(::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;data, builtins::Value auto &amp;&amp;bins)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1stats_1a86c3adbc9ff2d32396604478ed71584d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Uniform-bin histogram of <code>data</code> over its widened range (plot.scale.data_range, so flat or empty data still bins sanely). </p>
+  <div class="member-body"><p>NaN values are skipped; values at or beyond the top edge land in the last bin (the conventional right-inclusive tail).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the samples.</p></td></tr><tr><td class="pname"><code>bins</code></td><td class="pdesc"><p>the bin count (clamped up to at least 1).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the <a href="structcheatah_1_1stats_1_1Hist.html">Hist</a> with edges, centers, and counts.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n + bins).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the three returned arrays.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_stats</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.stats <span class="tok-kw">as</span> stats
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> data = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">1.5</span>, <span class="tok-num">2.0</span>, <span class="tok-num">2.5</span>, <span class="tok-num">3.0</span>, <span class="tok-num">3.5</span>, <span class="tok-num">4.0</span>])
+<span class="tok-kw">let</span> h = stats.<span class="tok-fn">histogram</span>(data, <span class="tok-num">4</span>)   <span class="tok-com"># -&gt; h.centers/h.counts are bar-ready arrays</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1stats_1a305d865e537dd6c7c9bec8bef8633be9">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">inline ::cheatah::ndarray::basic_ndarray&lt; double &gt;</span> <span class="mname">fit</span>(::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;x, ::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;y)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1stats_1a305d865e537dd6c7c9bec8bef8633be9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The least-squares LINE through (x, y), evaluated at each x — pass it straight to a line mark to overlay the trend (<code><a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1a02871f71c361906c3ffe23ca89a3a964">figure.line</a>(x, stats.fit(x, y))</code>). </p>
+  <div class="member-body"><p>The solve is <code>linalg.lstsq</code> on the [x, 1] design matrix; this function only assembles operands and evaluates the result.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x</code></td><td class="pdesc"><p>the x positions.</p></td></tr><tr><td class="pname"><code>y</code></td><td class="pdesc"><p>the y values (same length).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the fitted line&#x27;s y at each <code>x</code> (fewer than 2 points: <code>y</code> unchanged — no line to fit).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) assembly + the lstsq solve.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the design/rhs operands and the returned array.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_stats</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+<span class="tok-kw">import</span> plot.stats <span class="tok-kw">as</span> stats
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> x = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> y = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.1</span>, <span class="tok-num">2.9</span>, <span class="tok-num">5.2</span>, <span class="tok-num">6.8</span>])
+<span class="tok-kw">let</span> trend = stats.<span class="tok-fn">fit</span>(x, y)
+<span class="tok-kw">let</span> f = figure.<span class="tok-fn">new_figure</span>()
+f = figure.<span class="tok-fn">line</span>(f, x, trend)   <span class="tok-com"># -&gt; the least-squares trend over the data</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1stats_1abc529130c41147329966888ec6b0cee1">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sem</span>(::cheatah::ndarray::basic_ndarray&lt; double &gt; &amp;data)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1stats_1abc529130c41147329966888ec6b0cee1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The standard error of the mean — the honest default magnitude for symmetric error bars (<code>statistics.stdev</code> under the hood; this function only supplies the √n). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the samples.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>stdev(<code>data</code>) / √n (0 when fewer than 2 samples — no spread to estimate).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one transient list copy (statistics consumes lists).</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_stats</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.stats <span class="tok-kw">as</span> stats
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">let</span> data = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>, <span class="tok-num">4.0</span>])
+<span class="tok-kw">let</span> e = stats.<span class="tok-fn">sem</span>(data)   <span class="tok-com"># -&gt; 0.645...: stdev / sqrt(4), an errorbar magnitude</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1stats_1ae87a7177505c78c5d01c22f336bdda3c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const char *</span> <span class="mname">module_abi</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1stats_1ae87a7177505c78c5d01c22f336bdda3c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">ABI/identity marker for the <code><a href="namespacecheatah_1_1stats.html">stats</a></code> cheatah module: returns the module name. </p>
+  <div class="member-body"><p>Auto-emitted by purrc&#x27;s library emitter. It is the concrete symbol that anchors the module&#x27;s signed static archive in opaque (source-hidden) builds.</p><div class="ret"><span class="ret-h">Returns</span> <p>the module name (<code>&quot;<a href="namespacecheatah_1_1stats.html">stats</a>&quot;</code>).</p></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1stats_1a86c3adbc9ff2d32396604478ed71584d">histogram</a></li><li><a href="#namespacecheatah_1_1stats_1a305d865e537dd6c7c9bec8bef8633be9">fit</a></li><li><a href="#namespacecheatah_1_1stats_1abc529130c41147329966888ec6b0cee1">sem</a></li><li><a href="#namespacecheatah_1_1stats_1ae87a7177505c78c5d01c22f336bdda3c">module_abi</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

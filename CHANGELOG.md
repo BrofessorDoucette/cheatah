@@ -3,6 +3,77 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.0-alpha (2026-08-14) — the five-member Biome Standard
+
+Biome Standard **0.5.0-alpha** is the first standard to name a working combination of ALL
+FIVE ecosystem members — the toolchain plus `cheatah-gpu` v0.5.0-alpha,
+`cheatah-gpu-linalg` v0.4.0-alpha, `cheatah-plot` v0.1.0-alpha, and `cheatah-space`
+v0.1.0-alpha, every tag live with a gate-proven release behind it. A MINOR bump:
+membership is additive, and every program written against 0.4.0-alpha compiles and behaves
+identically. From here, each standard releases a tested-together set of all five.
+
+### The Biome Standard, grown and proven
+
+- `biome` registers `cheatah-gpu-linalg`; `known_standards()` gains the 0.5.0-alpha entry
+  (0.4.0-alpha flips to supported); `standards/biome-standard-0.5.0-alpha.toml` is the
+  canonical append-only file, byte-checked against the in-source table; the `list` and
+  `standards` name columns widen for the longest member. The CLI suite covers the new
+  membership: the three new members ADD cleanly at the standard's tags, and a project
+  pinned to 0.4.0-alpha still gets the truthful refusal.
+- **`scripts/test-standard-e2e.sh`** — the acceptance proof: an EMPTY directory, cheatah
+  env cleared, `biome init` → add every member → CPM fetches each member from GitHub BY
+  TAG (real network) → build → one program exercises all five members (the gpu dispatch
+  math, a gpu-linalg device sum behind the honest `available()` probe, a plot rendered to
+  a byte-verified PNG, the space.time J2000 round trip) → `RESULT: PASS`. Wired as
+  releasing checklist step 7 and the on-demand `standard-e2e` workflow.
+
+### One documentation site for the whole standard
+
+- The generator (`docs/gen-cheatah/gen.purr`) now builds per-extension SUBSITES —
+  `docs/html/<ext>/` with each package's OWN nested sidebar, landing page (version badge,
+  description, dependency line, module table), releases page rendered from its CHANGELOG,
+  and a scoped search index — plus a topbar package switcher on every page and
+  **`standard.html`**: the current standard's member table, the append-only history, a
+  static dependency diagram generated from the member manifests, and a latest-release
+  rollup linking every member's release notes.
+- Single source of truth: the generator IMPORTS `pkg-manager/biome.purr`, so badges,
+  tables, and the rollup derive from the same in-source standard table `biome` ships —
+  the old hardcoded badge string is gone. Extension classes/structs/concepts now render
+  (they were dropped before). 292 pages; every internal link across the tree verified
+  resolving; all URLs relative, so one host serves the whole site from any root.
+
+### TLS 1.3 server: the public-CA world
+
+The TLS 1.3 **server** now speaks the public-CA world: `tls.accept` accepts an **ECDSA
+P-256** leaf alongside Ed25519 (P-256 is what Let's Encrypt issues, so a browser-trusted
+HTTPS server is now pure cheatah), reads the private key from PKCS#8 or SEC1 PEM, sends
+the **whole certificate chain** from a `fullchain.pem` (previously only the first block
+went out — a chain silently lost its intermediates), honors the client's
+`signature_algorithms` per RFC 8446 §4.4.3, and refuses a cert/key mismatch at startup
+with a precise error instead of failing opaquely at the first client. `p256` gains
+`rs_to_der` (the DER signature encoder TLS and X.509 carry — the exact inverse of the
+existing parse). Validated both directions against OpenSSL: new system tests cover the
+ECDSA handshake, full-chain emission against a client that trusts only the CA, and every
+new pre-flight refusal.
+
+### purrc: library modules survive multiple translation units
+
+Library-mode free functions are now emitted `inline`. A function whose parameters all
+lower to concrete types is not a template, so a second including TU was an ODR violation
+(multiple definition at link) — found the day cheatah-plot's multi-file C++ test harness
+included one generated module from five TUs. Templates and constexpr functions were
+already implicitly inline; the emitted-source test asserts the new form.
+
+### Docs
+
+- `docs/biome.md`: the 0.5.0-alpha pins and a worked **"From an empty directory to a
+  plot"** example — the exact commands and program the e2e acceptance test runs.
+- `docs/extensions.md`: all four extensions with an honest dependency table (two stand on
+  the standard library alone; `cheatah-gpu-linalg` builds on `cheatah-gpu`; `cheatah-plot`
+  builds on both — headless, no windowing dependency).
+- `docs/mainpage.md`: the documentation-examples convention (`@par Example` blocks with
+  compile-verified programs — every public cheatah-plot function carries one today).
+
 ## v1.10.0-alpha (2026-08-13) — regex, raced against RE2
 
 The `regex` module now races **Google RE2** — the engine whose lazy-DFA design it follows —

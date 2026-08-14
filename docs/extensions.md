@@ -13,15 +13,16 @@ was tested with your toolchain. `biome add` only accepts extensions that are mem
 your project's standard — an extension that has not yet passed the cross-member gate is
 listed here but declined at `add` time, truthfully.
 
-Three extensions are public today. **Read the "Depends on" column carefully:** two of them
-rest on the standard library alone, but one — `cheatah-plot` — is built on *another
-extension*, so adding it pulls in more than itself.
+Four extensions are public today, and every one is a Biome Standard member. **Read the
+"Depends on" column carefully:** two rest on the standard library alone, and two are built
+on *other extensions*, so adding them pulls in more than themselves.
 
 | Extension | `import` | Depends on |
 |---|---|---|
 | [`cheatah-gpu`](https://github.com/BrofessorDoucette/cheatah-gpu) | `import gpu.dispatch` | the **standard library only** (plus a system Vulkan/Metal userspace stack) |
+| [`cheatah-gpu-linalg`](https://github.com/BrofessorDoucette/cheatah-gpu-linalg) | `import gpulinalg` | **`cheatah-gpu`** and the standard library (`linalg`/`ndarray`) |
 | [`cheatah-space`](https://github.com/BrofessorDoucette/cheatah-space) | `import space.time` | the **standard library only** (`ndarray`) |
-| [`cheatah-plot`](https://github.com/BrofessorDoucette/cheatah-plot) | `import plot` | **`cheatah-gpu`** — *another extension* — **and** the standard library + a GLFW windowing shim |
+| [`cheatah-plot`](https://github.com/BrofessorDoucette/cheatah-plot) | `import plot` | **`cheatah-gpu`** + **`cheatah-gpu-linalg`** and the standard library — headless (no windowing dependency) |
 
 ## cheatah-gpu — the GPU layer
 
@@ -33,8 +34,20 @@ surfaces).
 **Depends on: the standard library only — no other extension.** Its only extra
 requirements are *system* packages (the userspace Vulkan loader + validation layers on
 Linux, or Metal on macOS, plus the Slang shader compiler), which biome's
-`scripts/install-deps.sh` provisions. It does **not** build on `cheatah-plot` or
-`cheatah-space` — the dependency arrow points the other way.
+`scripts/install-deps.sh` provisions. It does **not** build on any other extension — the
+dependency arrows point the other way.
+
+## cheatah-gpu-linalg — GPU linear algebra
+
+The device backend for the standard library's `linalg`: a `device_array` whose elements
+live in GPU memory, with the SAME `linalg.matmul(...)` / `a + b` / `linalg.dot(...)` calls
+dispatching to register-tiled GPU kernels by ordinary overload resolution — no new language
+surface. `biome add cheatah-gpu-linalg`, then `import gpulinalg`; `gpulinalg.available()`
+answers the "is there a GPU here?" question honestly, and everything degrades to the host
+`linalg` when there is not.
+
+**Depends on: `cheatah-gpu`** (its Metal/Vulkan surfaces and the software-emulated Metal
+test device) and the standard library.
 
 ## cheatah-space — astronomy & spatial math
 
@@ -46,20 +59,21 @@ on the roadmap. `biome add cheatah-space`, then `import space.time`.
 concept-templated and vectorized over `ndarray` (SIMD); there is no GPU, plotting, or
 cross-extension dependency.
 
-## cheatah-plot — GPU plotting
+## cheatah-plot — cross-platform plotting
 
-Dead-simple cross-platform plotting: hand it some numbers, get a plot in a window, on
-Vulkan or Metal without learning either. `biome add cheatah-plot`, then `import plot`.
+Dead-simple plotting: hand it some numbers, get a PNG — rendered by cheatah-plot's OWN
+compute rasterizer on Vulkan or emulated Metal when a device is present, and by a
+bit-identical CPU reference everywhere else. Headless first (`plot.save` / `plot.render`);
+windowing is a later `plot.window` layer. `biome add cheatah-plot`, then `import plot`.
 
-**Depends on another extension — note this one.** Unlike the other two, cheatah-plot does
-**not** stand on the standard library alone: it renders through **`cheatah-gpu`**'s `gpu`
-surfaces (the same deliberately thin, 1:1 Vulkan/Metal interfaces — cheatah-gpu has no
-separate "easy" layer, by design). On top of that it needs the standard library and a
-first-class **GLFW** windowing dependency (plotting owns a window). The full chain is:
+**Depends on other extensions — note this one.** cheatah-plot renders through
+**`cheatah-gpu`**'s raw, 1:1 Vulkan/Metal forwarders (cheatah-gpu has no separate "easy"
+layer, by design — consumers own their orchestration), and its device-resident array math
+rides **`cheatah-gpu-linalg`**'s `linalg` overloads. The full chain is:
 
 ```
-cheatah-plot  →  cheatah-gpu  →  standard library
-     └──────────────────────────────→ standard library (+ GLFW window)
+cheatah-plot  →  cheatah-gpu-linalg  →  cheatah-gpu  →  standard library
+     └────────────────┴───────────────────────┴─────────→ standard library
 ```
 
 ## How the dependencies stay coherent

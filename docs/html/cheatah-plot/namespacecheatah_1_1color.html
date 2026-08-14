@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>color · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>color</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1color_1_1Color.html"><code>Color</code></a> — One RGBA colour, channels in [0, 1]. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1color_1aa055f0115f5a4e04a2ca9e778740f392">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::ostream &amp;</span> <span class="mname">operator&lt;&lt;</span>(std::ostream &amp;os_, const Color &amp;v_)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1aa055f0115f5a4e04a2ca9e778740f392" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a0251d79cd61ab546502d3b195f600cd1">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">rgb</span>(builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;g, builtins::Value auto &amp;&amp;b)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a0251d79cd61ab546502d3b195f600cd1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">An opaque colour from red/green/blue channels. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>red in [0, 1].</p></td></tr><tr><td class="pname"><code>g</code></td><td class="pdesc"><p>green in [0, 1].</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>blue in [0, 1].</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the opaque <a href="structcheatah_1_1color_1_1Color.html">Color</a> (alpha 1).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> steel = color.<span class="tok-fn">rgb</span>(<span class="tok-num">0.275</span>, <span class="tok-num">0.510</span>, <span class="tok-num">0.706</span>)
+<span class="tok-kw">let</span> a = steel.a   <span class="tok-com"># -&gt; 1.0: rgb always builds an opaque colour</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a72819ee8f62031b9b80f1ce37d3320cb">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">rgba</span>(builtins::Value auto &amp;&amp;r, builtins::Value auto &amp;&amp;g, builtins::Value auto &amp;&amp;b, builtins::Value auto &amp;&amp;a)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a72819ee8f62031b9b80f1ce37d3320cb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A colour from all four channels. </p>
+  <div class="member-body"><p>Note alpha exactly 0 is reserved as the auto sentinel — a fully transparent DRAWN colour is not representable (use a tiny alpha instead; nothing visible changes).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>r</code></td><td class="pdesc"><p>red in [0, 1].</p></td></tr><tr><td class="pname"><code>g</code></td><td class="pdesc"><p>green in [0, 1].</p></td></tr><tr><td class="pname"><code>b</code></td><td class="pdesc"><p>blue in [0, 1].</p></td></tr><tr><td class="pname"><code>a</code></td><td class="pdesc"><p>alpha in [0, 1].</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> band = color.<span class="tok-fn">rgba</span>(<span class="tok-num">0.122</span>, <span class="tok-num">0.467</span>, <span class="tok-num">0.706</span>, <span class="tok-num">0.25</span>)
+<span class="tok-kw">let</span> a = band.a   <span class="tok-com"># -&gt; 0.25: a translucent blue for bands and fills</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1aaeaeab3369e38a9877e81874f82a142d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">auto_color</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1aaeaeab3369e38a9877e81874f82a142d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The &quot;auto&quot; colour sentinel: alpha 0. </p>
+  <div class="member-body"><p>A Series carrying it gets the next palette colour when the figure resolves styles.</p><div class="ret"><span class="ret-h">Returns</span> <p>the transparent auto sentinel.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> c = color.<span class="tok-fn">auto_color</span>()
+<span class="tok-kw">let</span> a = color.<span class="tok-fn">is_auto</span>(c)   <span class="tok-com"># -&gt; true: the figure will assign the next palette colour</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1acfb41811d6be95cddb788d4dd0f9a0dc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">is_auto</span>(builtins::Value auto &amp;&amp;c)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1acfb41811d6be95cddb788d4dd0f9a0dc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether <code>c</code> is the auto sentinel (alpha exactly 0) — the test the figure layer runs before assigning palette colours. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>c</code></td><td class="pdesc"><p>the colour to inspect.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true when <code>c</code> means &quot;auto&quot;.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> c = color.<span class="tok-fn">named</span>(<span class="tok-str">&quot;tomato&quot;</span>)
+<span class="tok-kw">let</span> a = color.<span class="tok-fn">is_auto</span>(c)   <span class="tok-com"># -&gt; false: an explicit colour is kept as-is</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a1a6466e0e319b09cd0244a365214ec5a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">lerp</span>(builtins::Value auto &amp;&amp;c0, builtins::Value auto &amp;&amp;c1, builtins::Value auto &amp;&amp;t)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a1a6466e0e319b09cd0244a365214ec5a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Linear interpolation between two colours, channel-wise (alpha included), with <code>t</code> clamped to [0, 1] — the primitive every colormap is built from. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>c0</code></td><td class="pdesc"><p>the colour at t = 0.</p></td></tr><tr><td class="pname"><code>c1</code></td><td class="pdesc"><p>the colour at t = 1.</p></td></tr><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>the blend position (clamped to [0, 1]).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the blended <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> blue = color.<span class="tok-fn">rgb</span>(<span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>)
+<span class="tok-kw">let</span> red = color.<span class="tok-fn">rgb</span>(<span class="tok-num">1.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>)
+<span class="tok-kw">let</span> mid = color.<span class="tok-fn">lerp</span>(blue, red, <span class="tok-num">0.5</span>)   <span class="tok-com"># -&gt; the even blend (r 0.5, b 0.5)</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a6ec34a15366b47e04094f6b1765699d2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">sample</span>(builtins::Value auto &amp;&amp;anchors, builtins::Value auto &amp;&amp;t)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a6ec34a15366b47e04094f6b1765699d2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Sample an anchor table at <code>t</code> in [0, 1]: the anchors are treated as evenly spaced stops and the two neighbours of <code>t</code> are blended. </p>
+  <div class="member-body"><p>Out-of-range <code>t</code> clamps; an empty table returns opaque black.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>anchors</code></td><td class="pdesc"><p>the colour stops, evenly spaced across [0, 1].</p></td></tr><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>the sample position (clamped to [0, 1]).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the interpolated <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">import</span> Color <span class="tok-kw">from</span> plot.color
+<span class="tok-kw">let</span> anchors : list&lt;Color&gt; = []
+anchors.<span class="tok-fn">append</span>(color.<span class="tok-fn">rgb</span>(<span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.5</span>))
+anchors.<span class="tok-fn">append</span>(color.<span class="tok-fn">rgb</span>(<span class="tok-num">1.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">0.0</span>))
+<span class="tok-kw">let</span> mid = color.<span class="tok-fn">sample</span>(anchors, <span class="tok-num">0.5</span>)   <span class="tok-com"># -&gt; halfway between the two stops</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a2104a0ba92a9343580b7fe629e7e332b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">viridis</span>(builtins::Value auto &amp;&amp;t)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a2104a0ba92a9343580b7fe629e7e332b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The viridis colormap (dark violet -&gt; teal -&gt; yellow), sampled at <code>t</code> — perceptually uniform and colour-blind friendly; the default for continuous data. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>the sample position in [0, 1] (clamped).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a> at <code>t</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a> (plus the transient anchor table).</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> lo = color.<span class="tok-fn">viridis</span>(<span class="tok-num">0.0</span>)   <span class="tok-com"># -&gt; dark violet</span>
+<span class="tok-kw">let</span> hi = color.<span class="tok-fn">viridis</span>(<span class="tok-num">1.0</span>)   <span class="tok-com"># -&gt; bright yellow</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a0e55ce423bb601fd7c1118120668601a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">magma</span>(builtins::Value auto &amp;&amp;t)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a0e55ce423bb601fd7c1118120668601a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The magma colormap (black -&gt; purple -&gt; orange -&gt; pale yellow), sampled at <code>t</code>. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>the sample position in [0, 1] (clamped).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a> at <code>t</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a> (plus the transient anchor table).</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> lo = color.<span class="tok-fn">magma</span>(<span class="tok-num">0.0</span>)    <span class="tok-com"># -&gt; near black</span>
+<span class="tok-kw">let</span> hi = color.<span class="tok-fn">magma</span>(<span class="tok-num">0.75</span>)   <span class="tok-com"># -&gt; warm orange</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a1fdf41cbfd1ac9784ff1ffadbb65ff14">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">coolwarm</span>(builtins::Value auto &amp;&amp;t)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a1fdf41cbfd1ac9784ff1ffadbb65ff14" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The coolwarm diverging colormap (blue -&gt; pale grey -&gt; red), sampled at <code>t</code> — for data with a meaningful midpoint (deviations, correlations). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>t</code></td><td class="pdesc"><p>the sample position in [0, 1] (clamped).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a> at <code>t</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a> (plus the transient anchor table).</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> below = color.<span class="tok-fn">coolwarm</span>(<span class="tok-num">0.0</span>)   <span class="tok-com"># -&gt; blue: under the midpoint</span>
+<span class="tok-kw">let</span> mid = color.<span class="tok-fn">coolwarm</span>(<span class="tok-num">0.5</span>)     <span class="tok-com"># -&gt; pale grey: the meaningful middle</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a82f3f275fae9e8e7fb8d7a6ecceccf68">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; <a href="structcheatah_1_1color_1_1Color.html">Color</a> &gt;</span> <span class="mname">tab10</span>()</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a82f3f275fae9e8e7fb8d7a6ecceccf68" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The 10-colour categorical palette series colours cycle through (the familiar matplotlib-style tab10 wheel: blue, orange, green, red, violet, brown, pink, grey, olive, cyan). </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the 10 opaque categorical colours, in cycling order.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned list.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> wheel = color.<span class="tok-fn">tab10</span>()
+<span class="tok-kw">let</span> second = wheel[<span class="tok-num">1</span>]   <span class="tok-com"># -&gt; the tab10 orange (series index 1)</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a742a782ede975261c5313af5173c8cf8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; <a href="structcheatah_1_1color_1_1Color.html">Color</a> &gt;</span> <span class="mname">palette</span>(builtins::Value auto &amp;&amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a742a782ede975261c5313af5173c8cf8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A categorical palette by name: &quot;tab10&quot; (default) or &quot;dark&quot; (tab10 darkened for light backgrounds). </p>
+  <div class="member-body"><p>Unknown names return tab10 — a plot always gets usable colours.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the palette name.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the palette colours, in cycling order.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned list.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> dark = color.<span class="tok-fn">palette</span>(<span class="tok-str">&quot;dark&quot;</span>)
+<span class="tok-kw">let</span> first = dark[<span class="tok-num">0</span>]   <span class="tok-com"># -&gt; tab10 blue, darkened for light backgrounds</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a0efbfd0d41a0d05a69e75fb7e6e60e1f">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1color_1_1Color.html">Color</a></span> <span class="mname">named</span>(builtins::Value auto &amp;&amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a0efbfd0d41a0d05a69e75fb7e6e60e1f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A colour from a small CSS-style name table (the everyday names: black, white, red, green, blue, orange, purple, brown, pink, gray, cyan, magenta, gold, teal, steelblue, crimson, forestgreen, darkorange, royalblue, tomato, slategray). </p>
+  <div class="member-body"><p>Unknown names return opaque black.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the colour name (lowercase).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the named <a href="structcheatah_1_1color_1_1Color.html">Color</a> (opaque black when unknown).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the <a href="structcheatah_1_1color_1_1Color.html">Color</a>.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_color</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+<span class="tok-kw">let</span> stroke = color.<span class="tok-fn">named</span>(<span class="tok-str">&quot;crimson&quot;</span>)
+<span class="tok-kw">let</span> accent = color.<span class="tok-fn">named</span>(<span class="tok-str">&quot;gold&quot;</span>)   <span class="tok-com"># -&gt; everyday colours for the _styled marks</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1color_1a9cab7d187b359ae7d472cc4a104d3f2b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const char *</span> <span class="mname">module_abi</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1color_1a9cab7d187b359ae7d472cc4a104d3f2b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">ABI/identity marker for the <code><a href="namespacecheatah_1_1color.html">color</a></code> cheatah module: returns the module name. </p>
+  <div class="member-body"><p>Auto-emitted by purrc&#x27;s library emitter. It is the concrete symbol that anchors the module&#x27;s signed static archive in opaque (source-hidden) builds.</p><div class="ret"><span class="ret-h">Returns</span> <p>the module name (<code>&quot;<a href="namespacecheatah_1_1color.html">color</a>&quot;</code>).</p></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1color_1aa055f0115f5a4e04a2ca9e778740f392">operator&lt;&lt;</a></li><li><a href="#namespacecheatah_1_1color_1a0251d79cd61ab546502d3b195f600cd1">rgb</a></li><li><a href="#namespacecheatah_1_1color_1a72819ee8f62031b9b80f1ce37d3320cb">rgba</a></li><li><a href="#namespacecheatah_1_1color_1aaeaeab3369e38a9877e81874f82a142d">auto_color</a></li><li><a href="#namespacecheatah_1_1color_1acfb41811d6be95cddb788d4dd0f9a0dc">is_auto</a></li><li><a href="#namespacecheatah_1_1color_1a1a6466e0e319b09cd0244a365214ec5a">lerp</a></li><li><a href="#namespacecheatah_1_1color_1a6ec34a15366b47e04094f6b1765699d2">sample</a></li><li><a href="#namespacecheatah_1_1color_1a2104a0ba92a9343580b7fe629e7e332b">viridis</a></li><li><a href="#namespacecheatah_1_1color_1a0e55ce423bb601fd7c1118120668601a">magma</a></li><li><a href="#namespacecheatah_1_1color_1a1fdf41cbfd1ac9784ff1ffadbb65ff14">coolwarm</a></li><li><a href="#namespacecheatah_1_1color_1a82f3f275fae9e8e7fb8d7a6ecceccf68">tab10</a></li><li><a href="#namespacecheatah_1_1color_1a742a782ede975261c5313af5173c8cf8">palette</a></li><li><a href="#namespacecheatah_1_1color_1a0efbfd0d41a0d05a69e75fb7e6e60e1f">named</a></li><li><a href="#namespacecheatah_1_1color_1a9cab7d187b359ae7d472cc4a104d3f2b">module_abi</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

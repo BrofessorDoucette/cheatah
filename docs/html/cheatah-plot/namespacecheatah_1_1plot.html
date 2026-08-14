@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>plot · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html" class="current" aria-current="page">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-plot…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1color.html" data-ref="namespacecheatah_1_1color">color</a></li><li class="side-mod"><a href="namespacecheatah_1_1figure.html" data-ref="namespacecheatah_1_1figure">figure</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1plot.html" data-ref="namespacecheatah_1_1plot">plot</a></summary><ul><li><a href="namespacecheatah_1_1plot_1_1renderer.html" data-ref="namespacecheatah_1_1plot_1_1renderer">renderer</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1scale.html" data-ref="namespacecheatah_1_1scale">scale</a></li><li class="side-mod"><a href="namespacecheatah_1_1series.html" data-ref="namespacecheatah_1_1series">series</a></li><li class="side-mod"><a href="namespacecheatah_1_1stats.html" data-ref="namespacecheatah_1_1stats">stats</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>plot</code></h1>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.5.0-alpha</p>
+</div>
+<div class="overview"></div>
+
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1plot_1adf8fa60c860a3d60b6b1c0a374da6b18">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">Image</span> <span class="mname">render</span>(cheatah::figure::Figure &amp;fig)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1plot_1adf8fa60c860a3d60b6b1c0a374da6b18" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Render a figure to RGBA8 pixels at the figure&#x27;s own size — the readback form (the stream frame, the test surface, the encoder input). </p>
+  <div class="member-body"><p>A GPU-enabled build TRIES the default GPU lane first when gpu_available reports one and the environment does not say <code>CHEATAH_PLOT_FORCE_CPU=<span class="tok-num">1</span></code>; any device failure falls back to raster_cpu with a one-time stderr notice, and further renders stay on the CPU. The two rasterizers share the reduce, the bins and the quantization, so the choice never changes what the figure MEANS — only which silicon fills the pixels.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fig</code></td><td class="pdesc"><p>The figure model to draw.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>The rendered image (width/height from the figure, row-major RGBA).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(pixels + data); single-threaded by design.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned image + the transient draw list, bins, and framebuffer. @gpualloc on the GPU path, the five transient buffers of raster_gpu.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">plot:render</span></code></span></div></div>
+</section><section class="member" id="namespacecheatah_1_1plot_1a2796cce2c1bfd9dd353e4d4d1bb8d488">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">save</span>(cheatah::figure::Figure &amp;fig, const std::string &amp;path)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1plot_1a2796cce2c1bfd9dd353e4d4d1bb8d488" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Render a figure and write it to <code>path</code> as a PNG — the one-call &quot;give me my plot&quot; form. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>fig</code></td><td class="pdesc"><p>The figure model to draw.</p></td></tr><tr><td class="pname"><code>path</code></td><td class="pdesc"><p>The output file path (.png).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(pixels + data).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>transient render buffers + the encoded byte stream.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">plot:render</span></code></span></div></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1plot_1adf8fa60c860a3d60b6b1c0a374da6b18">render</a></li><li><a href="#namespacecheatah_1_1plot_1a2796cce2c1bfd9dd353e4d4d1bb8d488">save</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=975edfbe"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

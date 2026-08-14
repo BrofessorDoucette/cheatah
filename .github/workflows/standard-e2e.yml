@@ -1,0 +1,24 @@
+# The Biome Standard, proven end to end from an empty directory: biome init -> add every
+# member -> CPM fetches each member from GitHub BY ITS RELEASED TAG (real network) -> build ->
+# run a program exercising all five members -> RESULT: PASS. Network-dependent by design, so
+# it is on-demand + post-release rather than in the offline pre-push gate.
+name: standard-e2e
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: toolchain deps
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: build biome
+        run: |
+          cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/release --target biome -j
+      - name: the standard, end to end
+        run: bash scripts/test-standard-e2e.sh build/release/bin/biome

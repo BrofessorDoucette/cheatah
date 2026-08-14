@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>gpu::linalg::device_array · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html" class="current" aria-current="page">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-gpu-linalg…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu_1_1linalg.html" data-ref="namespacecheatah_1_1gpu_1_1linalg">gpu.linalg</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1linalg_1_1kernels.html" data-ref="namespacecheatah_1_1gpu_1_1linalg_1_1kernels">kernels</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1gpulinalg.html" data-ref="namespacecheatah_1_1gpulinalg">gpulinalg</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>gpu::linalg::device_array</code></h1>
+  <p class="ext-badge">cheatah-gpu-linalg v0.4.0-alpha — Biome Standard 0.5.0-alpha</p><p class="lede">A dense, row-major, GPU-resident array. </p>
+</div>
+<div class="overview"><p>Models cheatah&#x27;s <code>ArrayLike</code> (host-resident shape / strides / ndim / size / offset + a <code><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a02d0d16bf896fce626b9b5dc6411e940">uninitialized</a></code> factory) so it flows through the linalg templates; its elements live in a shared-storage cheatah-gpu buffer.</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1adcbf263a0e3e33ed212ab89de0bab81e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">device_array</span>()=default</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1adcbf263a0e3e33ed212ab89de0bab81e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">An empty array: no shape, no buffer (assign a factory result to make it real). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a73c13b3ba36b8ab54400ce896dadd2c5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">write_from</span>(const T *data)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a73c13b3ba36b8ab54400ce896dadd2c5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Upload <code><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a></code> contiguous elements into this (already-allocated) array — device-local memory on Vulkan goes through a staged transfer; unified memory is a memcpy. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>The host elements (<a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a> of them, contiguous; bounds-checked against the allocation).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) transfer.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none fresh — the Vulkan staging buffer recycles through the pool.</p></span></div><div class="tag tag-gpualloc"><span class="tag-k">GPU allocation</span><span class="tag-v"><p>none — writes into this array&#x27;s existing buffer.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">gpu:bridge</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a24755a9798bc72bb984aeb27b8d9965a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">void</span> <span class="mname">to_host</span>(T *out) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a24755a9798bc72bb984aeb27b8d9965a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Copy <code><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a></code> elements back to host memory (the download mirror of <a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a73c13b3ba36b8ab54400ce896dadd2c5">write_from</a> — a SYNC POINT). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>out</code></td><td class="pdesc"><p>The host destination (<a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a> elements of room).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) transfer.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none fresh — the Vulkan readback stages through a pooled host-cached buffer.</p></span></div><div class="tag tag-gpualloc"><span class="tag-k">GPU allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">gpu:matmul</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a91e44aa12fa42e2ef26a573702f42568">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const std::vector&lt; std::size_t &gt; &amp;</span> <span class="mname">shape</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a91e44aa12fa42e2ef26a573702f42568" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>The dimensions, row-major.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a791b8b69cbb94c97be53fc27c0593107">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const std::vector&lt; std::ptrdiff_t &gt; &amp;</span> <span class="mname">strides</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a791b8b69cbb94c97be53fc27c0593107" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>The element strides (C-order, in elements).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a972c08285674ebbee1e06c6b2ab4da08">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">ndim</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a972c08285674ebbee1e06c6b2ab4da08" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>The rank.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">size</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>The element count.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a263061cad327e6e5a207c3944f27b093">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">offset</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a263061cad327e6e5a207c3944f27b093" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>The view offset — always 0 (device arrays are whole-buffer views).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a59f2e30ea75193ce670e088570a9fcc2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1adcbf263a0e3e33ed212ab89de0bab81e">device_array</a></span> <span class="mname">with_shape</span>(std::vector&lt; std::size_t &gt; shape) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a59f2e30ea75193ce670e088570a9fcc2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A new view of the SAME buffer under a different (equal-size) contiguous shape — the zero-copy backend of <code><a href="namespacecheatah_1_1gpu_1_1linalg.html#namespacecheatah_1_1gpu_1_1linalg_1a388223ee27b6be1cd95067b35cd15a7e">reshape</a></code> (shares ownership through the same shared_ptr). </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>The new dimensions (caller guarantees the same element count — <code><a href="namespacecheatah_1_1gpu_1_1linalg.html#namespacecheatah_1_1gpu_1_1linalg_1a388223ee27b6be1cd95067b35cd15a7e">reshape</a></code> validates).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>A sibling array sharing this one&#x27;s device buffer.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ndim).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>the new shape/strides vectors.</p></span></div><div class="tag tag-gpualloc"><span class="tag-k">GPU allocation</span><span class="tag-v"><p>none — zero-copy by design.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">gpu:elementwise</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a91598478bf09d9eefe861beb6281c0d1">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">detail::Buffer *</span> <span class="mname">buffer</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a91598478bf09d9eefe861beb6281c0d1" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>The backend buffer handle (nullptr for an empty array) — NON-owning: the array keeps ownership, never pass it to release_buffer.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a02d0d16bf896fce626b9b5dc6411e940">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype"><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1adcbf263a0e3e33ed212ab89de0bab81e">device_array</a></span> <span class="mname">uninitialized</span>(std::vector&lt; std::size_t &gt; shape)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a02d0d16bf896fce626b9b5dc6411e940" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Allocate an uninitialized array of the given shape (the factory the allocating linalg fronts call as <code>Array&lt;T&gt;::<a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a02d0d16bf896fce626b9b5dc6411e940">uninitialized</a>({rows, cols})</code>). </p>
+  <div class="member-body"><p>Throws on an element-count overflow and past the 2³²−1 element cap (the 32-bit kernel-indexing invariant).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>The dimensions, row-major.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>A fresh array whose elements are uninitialized device memory.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(ndim) host metadata work; the buffer is a pooled acquire (hash lookup when recycled, one driver allocation otherwise).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>the shape/strides vectors (O(ndim)).</p></span></div><div class="tag tag-gpualloc"><span class="tag-k">GPU allocation</span><span class="tag-v"><p>one pooled device data buffer of <a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a>·sizeof(T) — VRAM (device-local) on Vulkan, shared storage on Metal; released to the pool by the last owner&#x27;s destructor.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">gpu:matmul</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1abf283ece1c57cf2cc415bd07d34f0c57">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype"><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1adcbf263a0e3e33ed212ab89de0bab81e">device_array</a></span> <span class="mname">from_host</span>(std::vector&lt; std::size_t &gt; shape, const T *data)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abf283ece1c57cf2cc415bd07d34f0c57" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Allocate and upload <code><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a></code> contiguous row-major elements from host memory. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>shape</code></td><td class="pdesc"><p>The dimensions, row-major.</p></td></tr><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>The host elements (<a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a> of them, contiguous).</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>A fresh device array holding a copy of <code>data</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) transfer.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Host allocation</span><span class="tag-v"><p>the O(ndim) metadata; the Vulkan upload stages through a pooled host-visible buffer.</p></span></div><div class="tag tag-gpualloc"><span class="tag-k">GPU allocation</span><span class="tag-v"><p>one pooled device data buffer of <a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size()</a>·sizeof(T).</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-case">gpu:matmul</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a690bc06d3a37f0544e50fdd87cbf8f10">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">std::vector&lt; std::ptrdiff_t &gt;</span> <span class="mname">c_order_strides</span>(const std::vector&lt; std::size_t &gt; &amp;shape)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a690bc06d3a37f0544e50fdd87cbf8f10" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a5e1af1f05387f629b4f5327ff4ff8095">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Buffer &gt;</span> <span class="mname">buf_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a5e1af1f05387f629b4f5327ff4ff8095" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Shared owner of the backend buffer: the deleter releases it through the active backend&#x27;s context when the last <code><a href="classcheatah_1_1gpu_1_1linalg_1_1device__array.html">device_array</a></code> sharing it goes away. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a64cd84be3c6a135ea0d97d150094f650">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::size_t &gt;</span> <span class="mname">shape_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a64cd84be3c6a135ea0d97d150094f650" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1acf3381172419b0f885a48847a2087b3c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::ptrdiff_t &gt;</span> <span class="mname">strides_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1acf3381172419b0f885a48847a2087b3c" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1aad3150d70ad1f814e2c4a403d2d2ad8f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">size_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1aad3150d70ad1f814e2c4a403d2d2ad8f" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="classcheatah_1_1gpu_1_1linalg_1_1device__array_1a2c964fd264e16227317211a038779d2b">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">value_type</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a2c964fd264e16227317211a038779d2b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The element type (the standard-container spelling of <code>T</code>). </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1adcbf263a0e3e33ed212ab89de0bab81e">device_array</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a73c13b3ba36b8ab54400ce896dadd2c5">write_from</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a24755a9798bc72bb984aeb27b8d9965a">to_host</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a91e44aa12fa42e2ef26a573702f42568">shape</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a791b8b69cbb94c97be53fc27c0593107">strides</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a972c08285674ebbee1e06c6b2ab4da08">ndim</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abcd5da50d09d3cdb8fd0f368cf7abcd7">size</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a263061cad327e6e5a207c3944f27b093">offset</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a59f2e30ea75193ce670e088570a9fcc2">with_shape</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a91598478bf09d9eefe861beb6281c0d1">buffer</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a02d0d16bf896fce626b9b5dc6411e940">uninitialized</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1abf283ece1c57cf2cc415bd07d34f0c57">from_host</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a690bc06d3a37f0544e50fdd87cbf8f10">c_order_strides</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a2c964fd264e16227317211a038779d2b">value_type</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a5e1af1f05387f629b4f5327ff4ff8095">buf_</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1a64cd84be3c6a135ea0d97d150094f650">shape_</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1acf3381172419b0f885a48847a2087b3c">strides_</a></li><li><a href="#classcheatah_1_1gpu_1_1linalg_1_1device__array_1aad3150d70ad1f814e2c4a403d2d2ad8f">size_</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=6b0dd2e0"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>

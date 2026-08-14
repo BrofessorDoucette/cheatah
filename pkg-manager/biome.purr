@@ -51,6 +51,7 @@ fn manifest_path() { return "cheatah.toml" }
 fn known_extensions() {
     let xs: list<str> = []
     xs.append("cheatah-gpu")
+    xs.append("cheatah-gpu-linalg")
     xs.append("cheatah-plot")
     xs.append("cheatah-space")
     return xs
@@ -58,6 +59,7 @@ fn known_extensions() {
 
 fn extension_desc(name) {
     if name == "cheatah-gpu" { return "GPU arrays and compute kernels" }
+    elif name == "cheatah-gpu-linalg" { return "GPU linear algebra (the linalg device backend)" }
     elif name == "cheatah-plot" { return "Plotting and charting" }
     elif name == "cheatah-space" { return "Astronomy and spatial math" }
     else { return "(unregistered extension)" }
@@ -133,7 +135,21 @@ fn known_standards() {
     let c3: list<StandardComponent> = []
     c3.append(StandardComponent("cheatah", "v1.10.0-alpha"))
     c3.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
-    xs.append(Standard("0.4.0-alpha", "2026-08-13", "current", c3))
+    xs.append(Standard("0.4.0-alpha", "2026-08-13", "supported", c3))
+
+    # Biome Standard 0.5.0-alpha — the FIVE-member set: three extensions join (cheatah-gpu-linalg,
+    # cheatah-plot, cheatah-space), each at its first standard-worthy release, and the toolchain
+    # moves to v1.11.0-alpha. A MINOR bump: membership is ADDITIVE — every program written against
+    # 0.4.0-alpha compiles and behaves identically (the toolchain release carries the library-mode
+    # `inline` emission fix and the docs site; no API changed, nothing removed). From here every
+    # standard names a WORKING COMBINATION of all five members, tested together.
+    let c4: list<StandardComponent> = []
+    c4.append(StandardComponent("cheatah", "v1.11.0-alpha"))
+    c4.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
+    c4.append(StandardComponent("cheatah-gpu-linalg", "v0.4.0-alpha"))
+    c4.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c4.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.5.0-alpha", "2026-08-14", "current", c4))
 
     return xs
 }
@@ -538,7 +554,7 @@ fn cmd_list(dir) {
         let tag = ""
         if si >= 0 { tag = component_tag(known_standards()[si], e) }
         if len(tag) == 0 { tag = "(not in this standard)" }
-        io.print(mark + string.ljust(e, 16) + string.ljust(tag, 24) + extension_desc(e))
+        io.print(mark + string.ljust(e, 20) + string.ljust(tag, 24) + extension_desc(e))
     }
     io.print("")
     io.print("(* = used by this project; `biome add <name>` to add one)")
@@ -568,7 +584,7 @@ fn cmd_standards() {
         if s.version == default_standard() { mark = "* " }
         io.print(mark + s.version + "  (" + s.status + ", released " + s.released + ")")
         for c in s.components {
-            io.print("    " + string.ljust(c.name, 16) + c.tag)
+            io.print("    " + string.ljust(c.name, 20) + c.tag)
         }
     }
     io.print("")

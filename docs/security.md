@@ -304,6 +304,12 @@ single-trust model:
   are likewise hardened against hostile remote data: TLS records, WebSocket frames, HTTP
   responses, and JSON are bounds-checked and size-capped so a malicious peer cannot corrupt
   memory, crash the client, or exhaust its memory.
+- **`tls.accept` serves CA-trusted HTTPS with no other software.** The from-scratch TLS 1.3
+  **server** presents an Ed25519 or ECDSA P-256 leaf (P-256 is what public CAs issue), sends
+  the full certificate chain from a `fullchain.pem`, signs CertificateVerify only with an
+  algorithm the client's `signature_algorithms` offered (RFC 8446 §4.4.3), refuses a cert/key
+  mismatch before touching the socket, and fails closed on anything it does not implement —
+  validated in both directions against OpenSSL in the system tests.
 - **The path-sniff checks have a small TOCTOU window.** The world-writable / magic checks
   in *Validated module loading* stat the path and then `dlopen` it, with a tiny
   time-of-check/time-of-use gap. (The integrity verification above closes this gap: it

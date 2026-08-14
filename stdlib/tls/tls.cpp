@@ -465,12 +465,65 @@ std::string ed25519_seed_from_pkcs8(std::string_view der) {
     return "";
 }
 
+// EVERY PEM block under @p label, in order — the server's Certificate message must carry the whole
+// chain (leaf first, then intermediates), so a Let's Encrypt fullchain.pem yields N entries here
+// where pem_block() alone would silently drop everything after the leaf and browsers would reject
+// the path. A malformed block (bad base64) poisons the whole read: better no chain than a hole.
+std::vector<std::string> pem_blocks(const std::string& pem, const std::string& label) {
+    std::vector<std::string> out;
+    const std::string begin = "-----BEGIN " + label + "-----";
+    const std::string end = "-----END " + label + "-----";
+    std::size_t at = 0;
+    while (true) {
+        const std::size_t s = pem.find(begin, at);
+        if (s == std::string::npos) break;
+        const std::size_t b = s + begin.size();
+        const std::size_t e = pem.find(end, b);
+        if (e == std::string::npos) return {};
+        const std::string der = hashlib::base64_decode(pem.substr(b, e - b), /*strict=*/true);
+        if (der.empty()) return {};
+        out.push_back(der);
+        at = e + end.size();
+    }
+    return out;
+}
+
+// The 32-byte P-256 private scalar from a server key PEM — either shape openssl/certbot emit:
+// PKCS#8 ("PRIVATE KEY": AlgorithmIdentifier{id-ecPublicKey, prime256v1} wrapping a SEC1
+// ECPrivateKey) or bare SEC1 ("EC PRIVATE KEY"). Both carry the scalar as 02 01 01 04 20 <d32>
+// (ECPrivateKey version 1, then the OCTET STRING), and both carry the prime256v1 OID
+// (2A 86 48 CE 3D 03 01 07) — required here so a P-384/other-curve key is refused instead of
+// misread. Same pattern-scan discipline as ed25519_seed_from_pkcs8 above.
+std::string ec_p256_scalar_from_pem(const std::string& key_pem) {
+    std::string der = pem_block(key_pem, "PRIVATE KEY");
+    if (der.empty()) der = pem_block(key_pem, "EC PRIVATE KEY");
+    if (der.empty()) return "";
+    static const unsigned char kOid[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07};
+    bool p256_curve = false;
+    for (std::size_t i = 0; i + sizeof kOid <= der.size() && !p256_curve; ++i) {
+        p256_curve = std::memcmp(der.data() + i, kOid, sizeof kOid) == 0;
+    }
+    if (!p256_curve) return "";
+    static const unsigned char kPat[] = {0x02, 0x01, 0x01, 0x04, 0x20};
+    for (std::size_t i = 0; i + sizeof kPat + 32 <= der.size(); ++i) {
+        if (std::memcmp(der.data() + i, kPat, sizeof kPat) == 0) {
+            return der.substr(i + sizeof kPat, 32);
+        }
+    }
+    return "";
+}
+
 // Parse a ClientHello: choose a cipher suite we support (ChaCha20 preferred), extract the client's
-// X25519 key share + its legacy_session_id (echoed in ServerHello), confirm it offered TLS 1.3.
+// X25519 key share + its legacy_session_id (echoed in ServerHello), confirm it offered TLS 1.3,
+// and surface its signature_algorithms (ext 13) as raw u16 pairs in @p sig_algs — the parser stays
+// lenient (an absent extension parses fine, sig_algs empty); server_handshake enforces the match,
+// because refusing to SIGN with an algorithm the client never offered is a handshake policy, not a
+// parse question.
 bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsigned& chosen_suite,
-                        std::string& session_id) {
+                        std::string& session_id, std::string& sig_algs) {
     client_pub_raw.clear();  // never leave stale out-params on a rejected/partial parse
     session_id.clear();
+    sig_algs.clear();
     if (msg.size() < 4 || static_cast<unsigned char>(msg[0]) != 1) return false;  // client_hello
     std::string_view b = msg.substr(4);
     std::size_t i = 2 + 32;                          // legacy_version + random
@@ -511,6 +564,12 @@ bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsig
             const unsigned n = static_cast<unsigned char>(b[i]);
             for (std::size_t j = 0; j + 2 <= n && i + 1 + j + 2 <= b.size(); j += 2) {
                 if (get16(b, i + 1 + j) == 0x0304) saw_13 = true;
+            }
+        }
+        if (etype == 13 && elen >= 2) {              // signature_algorithms: the u16-pair list
+            const unsigned sa_len = get16(b, i);
+            if (2 + sa_len <= elen && sa_len % 2 == 0) {
+                sig_algs = std::string(b.substr(i + 2, sa_len));
             }
         }
         if (etype == 51 && elen >= 2) {              // key_share (list): find our x25519 (0x001d)
@@ -565,25 +624,46 @@ std::string build_server_hello(std::string_view session_id, unsigned suite,
     return msg;
 }
 
-// The TLS 1.3 SERVER handshake over connected fd @p fd, presenting @p cert_pem (an Ed25519 leaf)
-// and proving possession with @p key_pem (its PKCS#8 Ed25519 private key). Mirror of handshake():
-// same key schedule and record I/O, roles reversed — we SIGN CertificateVerify instead of verifying
-// it, and send the certificate flight. Returns a session handle (>= 1) or -1 (see last_error()).
+// The TLS 1.3 SERVER handshake over connected fd @p fd, presenting @p cert_pem (an Ed25519 or
+// ECDSA P-256 leaf — @p cert_pem may be a fullchain.pem, and every block is sent) and proving
+// possession with @p key_pem (the leaf's PKCS#8 Ed25519 key, or its PKCS#8/SEC1 P-256 key).
+// Mirror of handshake(): same key schedule and record I/O, roles reversed — we SIGN
+// CertificateVerify instead of verifying it, and send the certificate flight. Returns a session
+// handle (>= 1) or -1 (see last_error()).
 long long server_handshake(long long fd, const std::string& cert_pem, const std::string& key_pem) {
     t_error.clear();
 
-    const std::string leaf_der = pem_block(cert_pem, "CERTIFICATE");
-    if (leaf_der.empty()) {
+    const std::vector<std::string> chain = pem_blocks(cert_pem, "CERTIFICATE");
+    if (chain.empty()) {
         fail("tls: server certificate PEM is missing or malformed");
         return -1;
     }
-    const std::string seed = ed25519_seed_from_pkcs8(pem_block(key_pem, "PRIVATE KEY"));
-    if (seed.size() != 32) {
-        fail("tls: server private key is not a PKCS#8 Ed25519 key");
-        return -1;
-    }
-    if (ed25519_spki_key(leaf_der).size() != 32) {
-        fail("tls: server certificate is not an Ed25519 leaf (only Ed25519 server certs are supported)");
+    const std::string& leaf_der = chain.front();
+
+    // Which key did we get, and does it actually belong to the leaf? Deriving the public key from
+    // the private half and comparing it to the leaf's SPKI catches a mixed-up cert/key pair at
+    // startup with a precise message, instead of as an opaque CertificateVerify failure on the
+    // first client. Exactly one signature algorithm follows from the key type — there is no
+    // negotiation surface on our side to confuse.
+    const std::string ed_seed = ed25519_seed_from_pkcs8(pem_block(key_pem, "PRIVATE KEY"));
+    const std::string ec_scalar = ec_p256_scalar_from_pem(key_pem);
+    unsigned cv_alg = 0;
+    if (ed_seed.size() == 32) {
+        const std::string spki = ed25519_spki_key(leaf_der);
+        if (spki.size() != 32 || ed25519::public_key(to_hex(ed_seed)) != to_hex(spki)) {
+            fail("tls: the Ed25519 private key does not match the server certificate");
+            return -1;
+        }
+        cv_alg = 0x0807;  // ed25519
+    } else if (ec_scalar.size() == 32) {
+        const std::string point = p256::spki_ec_point(leaf_der);
+        if (point.size() != 64 || p256::public_from_private(ec_scalar) != point) {
+            fail("tls: the ECDSA P-256 private key does not match the server certificate");
+            return -1;
+        }
+        cv_alg = 0x0403;  // ecdsa_secp256r1_sha256
+    } else {
+        fail("tls: server private key is not a PKCS#8 Ed25519 or P-256 EC key");
         return -1;
     }
 
@@ -602,10 +682,21 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
         }
         break;
     }
-    std::string client_pub_raw, session_id;
+    std::string client_pub_raw, session_id, sig_algs;
     unsigned suite = 0;
-    if (!parse_client_hello(payload, client_pub_raw, suite, session_id)) {
+    if (!parse_client_hello(payload, client_pub_raw, suite, session_id, sig_algs)) {
         fail("tls: malformed ClientHello (or no TLS 1.3 / X25519 / shared cipher suite)");
+        return -1;
+    }
+    // RFC 8446 §4.4.3: a server MUST NOT sign with an algorithm the client did not offer in
+    // signature_algorithms (§4.2.3 makes the extension mandatory for certificate auth). Our
+    // algorithm is fixed by the key type, so this is a containment check, not a negotiation.
+    bool alg_offered = false;
+    for (std::size_t j = 0; j + 2 <= sig_algs.size(); j += 2) {
+        if (get16(sig_algs, j) == cv_alg) alg_offered = true;
+    }
+    if (!alg_offered) {
+        fail("tls: the client's signature_algorithms do not include our certificate's algorithm");
         return -1;
     }
     // The server offers only the SHA-256 suites (ChaCha20 / AES-128-GCM), so the key schedule is SHA-256.
@@ -657,14 +748,16 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
 
     std::string cert_msg;
     {
-        std::string entry;                                    // one CertificateEntry
-        put24(entry, static_cast<unsigned>(leaf_der.size()));
-        entry += leaf_der;
-        put16(entry, 0);                                      // per-cert extensions: none
+        std::string entries;  // every chain block, leaf first — a fullchain.pem arrives intact,
+        for (const std::string& der : chain) {  // giving the client a path to its trust anchor
+            put24(entries, static_cast<unsigned>(der.size()));
+            entries += der;
+            put16(entries, 0);                                // per-cert extensions: none
+        }
         std::string cbody;
         cbody.push_back(0);                                   // certificate_request_context: empty
-        put24(cbody, static_cast<unsigned>(entry.size()));
-        cbody += entry;
+        put24(cbody, static_cast<unsigned>(entries.size()));
+        cbody += entries;
         cert_msg.push_back(11);                               // certificate
         put24(cert_msg, static_cast<unsigned>(cbody.size()));
         cert_msg += cbody;
@@ -678,14 +771,26 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
     std::string cv_msg;
     {
         // Same signed content the client verifies: 64 spaces, the context string, a NUL, then the
-        // transcript hash through Certificate. Ed25519 signs the content directly.
+        // transcript hash through Certificate. Ed25519 signs the content directly; ECDSA P-256
+        // signs SHA-256(content) and travels as DER — the exact mirror of the client's verify
+        // branches for 0x0807/0x0403.
         std::string signed_content(64, ' ');
         signed_content += "TLS 1.3, server CertificateVerify";
         signed_content.push_back('\0');
         signed_content += hashlib::sha256_digest(transcript);
-        const std::string sig = from_hex(ed25519::sign(to_hex(seed), signed_content));
+        std::string sig;
+        if (cv_alg == 0x0807) {
+            sig = from_hex(ed25519::sign(to_hex(ed_seed), signed_content));
+        } else {
+            sig = p256::rs_to_der(
+                p256::sign_raw(ec_scalar, hashlib::sha256_digest(signed_content)));
+            if (sig.empty()) {  // LCOV_EXCL_LINE: pre-flight proved the scalar derives the leaf's public key, so sign_raw cannot reject it
+                fail("tls: ECDSA signing failed (invalid P-256 private key scalar)");  // LCOV_EXCL_LINE
+                return -1;  // LCOV_EXCL_LINE
+            }
+        }
         std::string vbody;
-        put16(vbody, 0x0807);                                 // ed25519
+        put16(vbody, cv_alg);
         put16(vbody, static_cast<unsigned>(sig.size()));
         vbody += sig;
         cv_msg.push_back(15);                                 // certificate_verify
@@ -1281,14 +1386,21 @@ std::string derive_secret(std::string_view secret, std::string_view label,
     return cheatah::tls::derive_secret_impl(secret, label, transcript);
 }
 bool parse_client_hello(std::string_view msg, std::string& client_pub_raw, unsigned& chosen_suite,
-                        std::string& session_id) {
-    return cheatah::tls::parse_client_hello(msg, client_pub_raw, chosen_suite, session_id);
+                        std::string& session_id, std::string& sig_algs) {
+    return cheatah::tls::parse_client_hello(msg, client_pub_raw, chosen_suite, session_id,
+                                            sig_algs);
 }
 std::string pem_block(const std::string& pem, const std::string& label) {
     return cheatah::tls::pem_block(pem, label);
 }
+std::vector<std::string> pem_blocks(const std::string& pem, const std::string& label) {
+    return cheatah::tls::pem_blocks(pem, label);
+}
 std::string ed25519_seed_from_pkcs8(std::string_view der) {
     return cheatah::tls::ed25519_seed_from_pkcs8(der);
+}
+std::string ec_p256_scalar_from_pem(const std::string& key_pem) {
+    return cheatah::tls::ec_p256_scalar_from_pem(key_pem);
 }
 std::string build_client_hello(const std::string& server_name, std::string_view pub_raw) {
     return cheatah::tls::build_client_hello(server_name, pub_raw);

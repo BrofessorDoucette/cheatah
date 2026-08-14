@@ -60,9 +60,12 @@ with socket.open("example.com", 443) as sock {
   authenticating the server; returns an owning `Conn`. On failure `conn.is_open()` is false
   (see `tls.last_error()`).
 - **`tls.accept(fd, cert_pem, key_pem) -> Conn`** — run the **server** handshake over an accepted
-  fd, presenting an **Ed25519** leaf `cert_pem` and signing with its PKCS#8 `key_pem`; returns an
-  owning `Conn`. This is the "HTTPS with zero non-cheatah software" path — pair it with a
-  `socket` accept loop (see `scripts/serve-docs.purr --tls`).
+  fd, presenting an **Ed25519 or ECDSA P-256** leaf and signing with its private `key_pem`
+  (PKCS#8 Ed25519, or PKCS#8/SEC1 P-256 EC); returns an owning `Conn`. `cert_pem` may be a full
+  chain (`fullchain.pem` — leaf first, then intermediates) and every block is sent, so a
+  Let's Encrypt certificate works as issued and browsers get a path to their trust anchor. This
+  is the "HTTPS with zero non-cheatah software" path — pair it with a `socket` accept loop (see
+  `scripts/serve-docs.purr --tls`).
 - **`Conn`** methods: `send(data)`, `recv(bufsize)`, `shutdown()`, `close()`, `is_open()`,
   `id()`. The `Conn` sends `close_notify` and erases its session automatically at scope exit —
   held as a plain `let` or in a `with`, it cannot leak.
@@ -80,7 +83,9 @@ from cheatah, so cheatah code cannot leak a session — it uses the `tls.Conn` g
 **Scope (v1):** TLS 1.3 only, cipher suites TLS_CHACHA20_POLY1305_SHA256 and
 TLS_AES_128_GCM_SHA256, X25519 key share, SNI, and X.509 chain + hostname + expiry validation
 (RSA-PKCS1 SHA-256/384, ECDSA SHA-256/384 under P-256/P-384 keys, and Ed25519 chain
-signatures). The **server** side presents an **Ed25519** leaf certificate (the from-scratch
-signing path cheatah owns end to end); the client picks the record cipher. Not yet:
-non-Ed25519 **server** certificates, SHA-512 chain signatures (refused, not accepted),
-certificate revocation (OCSP/CRL), and client certificates.
+signatures). The **server** side presents an **Ed25519 or ECDSA P-256** leaf (P-256 is what
+public CAs issue, so a CA-trusted HTTPS server needs no other software; full-chain PEMs are
+sent whole), signs per RFC 8446 §4.4.3 only with an algorithm the client offered, and refuses
+a cert/key mismatch at startup with a precise error; the client picks the record cipher.
+Not yet: RSA or P-384 **server** certificates, SHA-512 chain signatures (refused, not
+accepted), certificate revocation (OCSP/CRL), and client certificates.

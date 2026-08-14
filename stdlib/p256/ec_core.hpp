@@ -1146,4 +1146,43 @@ bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
     return verify_raw<C>(pubkey_xy, msg_hash, raw);
 }
 
+/**
+ * Encode a raw r||s signature (2*kBytes big-endian bytes) as the DER
+ * `SEQUENCE{INTEGER r, INTEGER s}` that TLS CertificateVerify and X.509 carry — the
+ * exact inverse of @ref der_to_rs. Integers are minimal-form: leading zero bytes are
+ * stripped and a 0x00 sign byte is prepended when the top bit is set, so the output
+ * round-trips through any strict DER parser. The outer length always fits short form
+ * (max 2*(kBytes+3) = 102 bytes at P-384).
+ * @tparam C the curve traits.
+ * @param sig_raw the 2*kBytes r||s signature (e.g. sign_raw's output).
+ * @return the DER bytes, or "" if @p sig_raw has the wrong length or a zero integer
+ *         (r = 0 / s = 0 is never a valid ECDSA signature).
+ * @complexity O(kBytes).
+ * @alloc the returned string plus the two integer temporaries.
+ * @test CheatahP256.RsToDerRoundTripsAndRejects
+ */
+template <WeierstrassCurve C>
+std::string rs_to_der(const std::string& sig_raw) {
+    if (sig_raw.size() != 2 * kBytes<C>) return "";
+    const auto encode_int = [](const unsigned char* v) -> std::string {
+        std::size_t i = 0;
+        while (i < kBytes<C> - 1 && v[i] == 0) ++i;  // strip leading zeros, keep >= 1 byte
+        if (v[i] == 0) return "";                    // the integer is zero — not a signature
+        const bool sign = (v[i] & 0x80) != 0;
+        std::string out;
+        out.push_back(0x02);
+        out.push_back(static_cast<char>((kBytes<C> - i) + (sign ? 1 : 0)));
+        if (sign) out.push_back('\0');
+        out.append(reinterpret_cast<const char*>(v + i), kBytes<C> - i);
+        return out;
+    };
+    const std::string r = encode_int((const unsigned char*)sig_raw.data());
+    const std::string s = encode_int((const unsigned char*)sig_raw.data() + kBytes<C>);
+    if (r.empty() || s.empty()) return "";
+    std::string der;
+    der.push_back(0x30);
+    der.push_back(static_cast<char>(r.size() + s.size()));
+    return der + r + s;
+}
+
 }  // namespace cheatah::ec

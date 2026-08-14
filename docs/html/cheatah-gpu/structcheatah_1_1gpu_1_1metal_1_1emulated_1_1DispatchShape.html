@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>gpu::metal::emulated::DispatchShape · cheatah</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html" class="current" aria-current="page">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
+    <div class="search"><input id="q" type="search" placeholder="Search cheatah-gpu…" autocomplete="off" spellcheck="false">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu.html" data-ref="namespacecheatah_1_1gpu">gpu</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1dispatch.html" data-ref="namespacecheatah_1_1gpu_1_1dispatch">dispatch</a></li><li><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu_1_1metal.html" data-ref="namespacecheatah_1_1gpu_1_1metal">metal</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1metal_1_1emulated.html" data-ref="namespacecheatah_1_1gpu_1_1metal_1_1emulated">emulated</a></li></ul></details></li><li><a href="namespacecheatah_1_1gpu_1_1metal4.html" data-ref="namespacecheatah_1_1gpu_1_1metal4">metal4</a></li><li><a href="namespacecheatah_1_1gpu_1_1vulkan.html" data-ref="namespacecheatah_1_1gpu_1_1vulkan">vulkan</a></li></ul></details></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>gpu::metal::emulated::DispatchShape</code></h1>
+  <p class="ext-badge">cheatah-gpu v0.5.0-alpha — Biome Standard 0.5.0-alpha</p><p class="lede">The full shape of one dispatch, as a 3-D-aware stand-in kernel receives it. </p>
+</div>
+<div class="overview"><p><code><a href="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape.html#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c">threads</a></code> is the TOTAL thread grid per axis for BOTH dispatch forms — <code>dispatchThreads</code> passes its grid through; <code>dispatchThreadgroups</code> is normalized to groups × threadsPerThreadgroup per axis (what real Metal launches) — so a kernel loops <code><a href="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape.html#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c">threads</a></code> without caring which form dispatched it. There is no threadgroup-memory emulation: a C++ stand-in shares the whole address space and needs none (MSL <code>threadgroup</code> tiles are an Apple-hardware concern).</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">MetalCompute</span>.<span class="tn-case">Grid3d</span></code> <code><span class="tn-suite">MetalCompute</span>.<span class="tn-case">Threadgroups</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1Extent.html">Extent</a></span> <span class="mname">threads</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">total threads per axis (normalized, both dispatch forms). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1a87e8729ca73573b260d651409c3326c6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1gpu_1_1metal_1_1emulated_1_1Extent.html">Extent</a></span> <span class="mname">threads_per_threadgroup</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1a87e8729ca73573b260d651409c3326c6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">the second <code>MTL::Size</code> the dispatch call passed. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1ad4d37be08f956608b905b377ae40cc6c">threads</a></li><li><a href="#structcheatah_1_1gpu_1_1metal_1_1emulated_1_1DispatchShape_1a87e8729ca73573b260d651409c3326c6">threads_per_threadgroup</a></li></ul></aside>
+</div>
+<script src="search-index.js?v=bf7c4529"></script>
+<script src="../cheatah-docs.js?v=c11a98e6"></script>
+<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+</body>
+</html>
