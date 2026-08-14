@@ -149,7 +149,22 @@ fn known_standards() {
     c4.append(StandardComponent("cheatah-gpu-linalg", "v0.4.0-alpha"))
     c4.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c4.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.5.0-alpha", "2026-08-14", "current", c4))
+    xs.append(Standard("0.5.0-alpha", "2026-08-14", "supported", c4))
+
+    # Biome Standard 0.5.1-alpha — the PATCH the acceptance test earned: 0.5.0-alpha's members
+    # were individually gate-proven, but the fresh-directory e2e (an empty dir consuming every
+    # member from GitHub through biome) caught two consumer-context defects — cheatah-gpu-linalg
+    # configuring its dev battery inside a consumer's _deps tree, and the toolchain's program
+    # builder not wiring an extension's consumer interface (module path, includes, links) into
+    # the purrc compile. cheatah v1.11.1-alpha + cheatah-gpu-linalg v0.4.1-alpha fix exactly
+    # that; no API changed anywhere — a PATCH.
+    let c5: list<StandardComponent> = []
+    c5.append(StandardComponent("cheatah", "v1.11.1-alpha"))
+    c5.append(StandardComponent("cheatah-gpu", "v0.5.0-alpha"))
+    c5.append(StandardComponent("cheatah-gpu-linalg", "v0.4.1-alpha"))
+    c5.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c5.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.5.1-alpha", "2026-08-14", "current", c5))
 
     return xs
 }

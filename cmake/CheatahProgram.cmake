@@ -71,12 +71,53 @@ function(cheatah_add_program NAME)
     # module's signed header and linking its archive — so wiring an extension in is just adding
     # the fetched repo's directory to that search path for the purrc invocation below.
     set(_cheatah_modpath "")
+    set(_ext_flag_args "")
+    set(_ext_link_depends "")
     foreach(_ext ${CAP_EXTENSIONS})
         if(DEFINED ${_ext}_SOURCE_DIR)
-            if(_cheatah_modpath)
-                set(_cheatah_modpath "${_cheatah_modpath}:${${_ext}_SOURCE_DIR}")
-            else()
-                set(_cheatah_modpath "${${_ext}_SOURCE_DIR}")
+            # An extension's signed module dir sits at its repo root (gpu/, plot/, space/) or —
+            # cheatah-gpu-linalg's layout — under purr/. Search both; existence decides.
+            set(_ext_roots "${${_ext}_SOURCE_DIR}")
+            if(EXISTS "${${_ext}_SOURCE_DIR}/purr")
+                list(APPEND _ext_roots "${${_ext}_SOURCE_DIR}/purr")
+            endif()
+            foreach(_er ${_ext_roots})
+                if(_cheatah_modpath)
+                    set(_cheatah_modpath "${_cheatah_modpath}:${_er}")
+                else()
+                    set(_cheatah_modpath "${_er}")
+                endif()
+            endforeach()
+            # The consumer seam: an extension whose build generates <build>/consumer.cmake is
+            # declaring how a non-CMake compile line consumes it — flat variables named
+            # <EXT>_CONSUMER_{INCLUDES,CXXFLAGS,LIBS}. Translate them into purrc flags so
+            # `import <module>` compiles AND links without the program knowing any backend
+            # detail. (The standard e2e is what holds this seam honest.)
+            if(DEFINED ${_ext}_BINARY_DIR AND EXISTS "${${_ext}_BINARY_DIR}/consumer.cmake")
+                include("${${_ext}_BINARY_DIR}/consumer.cmake")
+                string(TOUPPER "${_ext}" _EXT_U)
+                string(REPLACE "-" "_" _EXT_U "${_EXT_U}")
+                foreach(_i ${${_EXT_U}_CONSUMER_INCLUDES})
+                    list(APPEND _ext_flag_args --cxxflag "-I${_i}")
+                endforeach()
+                foreach(_f ${${_EXT_U}_CONSUMER_CXXFLAGS})
+                    list(APPEND _ext_flag_args --cxxflag "${_f}")
+                endforeach()
+                foreach(_l ${${_EXT_U}_CONSUMER_LIBS})
+                    if(EXISTS "${_l}")
+                        list(APPEND _ext_flag_args --link "${_l}")
+                        list(APPEND _ext_link_depends "${_l}")
+                    elseif(_l MATCHES "^-")
+                        list(APPEND _ext_flag_args --link "${_l}")
+                    else()
+                        list(APPEND _ext_flag_args --link "-l${_l}")
+                    endif()
+                endforeach()
+            endif()
+            # Build-order edge onto the extension's own targets (protocol: the snake_case alias).
+            string(REPLACE "-" "_" _ext_target "${_ext}")
+            if(TARGET ${_ext_target})
+                list(APPEND _ext_link_depends ${_ext_target})
             endif()
         else()
             message(WARNING "cheatah_add_program(${NAME}): extension '${_ext}' was not fetched "
@@ -112,8 +153,8 @@ function(cheatah_add_program NAME)
     # 1) Compile the program into a loadable module with purrc (NEVER standalone).
     add_custom_command(
         OUTPUT "${_module}"
-        COMMAND ${_purrc_env} $<TARGET_FILE:purrc> ${_import_root_flags} ${_cxxflag_flags} "${_src}" -o "${_module}"
-        DEPENDS purrc cheatah_stdlib "${_src}"
+        COMMAND ${_purrc_env} $<TARGET_FILE:purrc> ${_import_root_flags} ${_ext_flag_args} ${_cxxflag_flags} "${_src}" -o "${_module}"
+        DEPENDS purrc cheatah_stdlib "${_src}" ${_ext_link_depends}
         COMMENT "purrc ${CAP_SOURCES} -> ${NAME}${_ext}"
         VERBATIM)
     add_custom_target(${NAME}_module ALL DEPENDS "${_module}")

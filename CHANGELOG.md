@@ -3,6 +3,27 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.1-alpha (2026-08-14) — the acceptance test earns its keep
+
+Hours after 0.5.0-alpha shipped, its own acceptance test — the fresh-directory e2e that
+consumes every member from GitHub through biome — caught two consumer-context defects no
+per-repo gate could see, because they only exist where the members MEET. Biome Standard
+**0.5.1-alpha** (a PATCH: fixes only, no API change anywhere) carries the repaired pair:
+cheatah v1.11.1-alpha + cheatah-gpu-linalg v0.4.1-alpha, with cheatah-gpu, cheatah-plot,
+and cheatah-space unchanged.
+
+- **`cheatah_add_program` wires an extension's consumer interface into the purrc compile.**
+  The module search now also covers a `purr/`-rooted module directory (cheatah-gpu-linalg's
+  layout), and an extension whose build generates `consumer.cmake` gets its flat-variable
+  interface — `<EXT>_CONSUMER_{INCLUDES,CXXFLAGS,LIBS}` — translated into `--cxxflag`/`--link`
+  flags with real build-order edges. `import gpulinalg` now compiles AND links in a biome
+  project without the program knowing any backend detail.
+- **cheatah-gpu-linalg v0.4.1-alpha** ends its build at the consumer surface when fetched as
+  a subproject (its dev battery no longer configures inside a consumer's `_deps` tree) and
+  completes the consumer flat-variable protocol with `_CONSUMER_CXXFLAGS`.
+- `biome`'s table gains the 0.5.1-alpha entry (0.5.0-alpha flips to supported); the canonical
+  `standards/` file and the CLI expectations follow.
+
 ## v1.11.0-alpha (2026-08-14) — the five-member Biome Standard
 
 Biome Standard **0.5.0-alpha** is the first standard to name a working combination of ALL
