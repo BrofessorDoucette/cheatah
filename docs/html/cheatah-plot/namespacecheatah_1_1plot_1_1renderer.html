@@ -21,7 +21,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Module</div>
   <h1><code>plot::renderer</code></h1>
-  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.6.0-alpha</p>
+  <p class="ext-badge">cheatah-plot v0.1.0-alpha — Biome Standard 0.6.1-alpha</p>
 </div>
 <div class="overview"></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1plot_1_1renderer_1_1Image.html"><code>Image</code></a> — An RGBA8 raster image — the CPU-side pixel form the rasterizer produces and both writers below serialize. </li><li><a href="structcheatah_1_1plot_1_1renderer_1_1Prim.html"><code>Prim</code></a> — One drawable primitive — a 64-byte POD laid out identically in C++ and Slang (16 four-byte lanes; no pointers, no padding surprises). </li><li><a href="structcheatah_1_1plot_1_1renderer_1_1RasterParams.html"><code>RasterParams</code></a> — The uniform parameter block the kernels read (bound as a trailing uint buffer, the proven emulated-Metal-compatible convention): framebuffer size, the tile grid, and the clear colour. </li><li><a href="structcheatah_1_1plot_1_1renderer_1_1TileBins.html"><code>TileBins</code></a> — The flattened per-tile primitive index lists (CSR layout) the kernels bind. </li></ul><h2 class="group">Concepts</h2><ul class="class-list"><li><a href="conceptcheatah_1_1plot_1_1renderer_1_1RasterContext.html"><code>RasterContext</code></a> — The context contract the raster step drives — what BOTH lane classes implement. </li></ul>
