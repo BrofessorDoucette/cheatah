@@ -6,7 +6,7 @@
 <meta name="generator" content="cheatah">
 <title>cheatah-space releases · cheatah</title>
 <link rel="icon" href="../cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+<link rel="stylesheet" href="../cheatah-docs.css?v=59b79d71">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -14,14 +14,10 @@
   <div class="topbar-inner">
     <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
     <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
-    <div class="search"><input id="q" type="search" placeholder="Search cheatah-space…" autocomplete="off" spellcheck="false">
-      <div id="results" class="results" hidden></div>
-    </div>
-    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
 </header>
 <div class="layout">
-  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a class="active" href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Releases</div>
   <h1><code>cheatah-space</code></h1>
@@ -30,8 +26,6 @@
 <p>All notable changes to cheatah-space. This project is <strong>alpha</strong> — expect breaking changes between releases. It is a cheatah standard-library extension and joins the Biome Standard alongside the other cheatah extensions.</p><h2 class="group" id="rel-1">v0.1.0-alpha (2026-08-14) — the time module, house-gated</h2><p>The first release-shaped state of the repo: one working module, <code>space.time</code> (Julian Date, Modified Julian Date, the J2000 epoch offsets, and the NASA CDF_EPOCH bridge), hand-authored as header-only, concept-templated C++20 — scalar and ndarray-vectorized through the same functions — plus the full extension-grade QA harness around it. <code>space.cdf</code> and <code>space.irbem</code> remain roadmaps (design notes in their subdirectory READMEs); nothing of them ships here.</p><h3>The module</h3><ul><li><code>space.time</code>: 3 reference-epoch functions (<code>jd_unix_epoch</code>, <code>jd_j2000</code>, <code>cdf_epoch_unix_offset_ms</code>) + 10 conversions (<code>unix_to_jd</code>/<code>jd_to_unix</code>, <code>jd_to_mjd</code>/<code>mjd_to_jd</code>, <code>unix_to_mjd</code>/<code>mjd_to_unix</code>, <code>jd_to_j2000_seconds</code>/ <code>jd_to_j2000_centuries</code>, <code>unix_to_cdf_epoch</code>/<code>cdf_epoch_to_unix</code>), each accepting a numeric scalar or a numeric <code>ndarray</code> through one <code>TimeInput</code>-constrained template.</li><li>Every public function&#x27;s docs carry <code>@complexity</code>, <code>@alloc</code>, truthful <code>@systest</code> tags naming the systests that cover it, and an <code>@par Example</code> with a compiling <code>@code{.purr}</code> block (the doc-examples convention; the gate compiles all 13 blocks).</li></ul><h3>Biome packaging</h3><ul><li><code>cheatah.toml</code> manifest (pure cheatah: no extension or system dependencies; targets the 1.10.0-alpha toolchain).</li><li><code>scripts/sign-modules.sh</code> writes the <code>.sha512</code> sidecars that make <code>import space</code> / <code>import space.time</code> resolve as VERIFIED modules on the extension path.</li><li><code>scripts/test-biome-install.sh</code> sandboxes the real consumer flow: the <code>space/</code> package copied to a throwaway dir, a fresh project compiled with cheatah env vars cleared and only <code>CHEATAH_MODULE_PATH</code> wired — a Julian-date round trip must print <code>RESULT: PASS</code>.</li></ul><h3>QA gate grown to the extension bar</h3><p><code>scripts/qa_gate.sh</code> (pre-push enforced) now runs: 100% unit coverage (clang source-based, lines + functions over the space headers, README table drift-checked) → 100% Javadoc (<code>scripts/doc_coverage.sh</code>) + compiling doc examples → module-sidecar verification → debug build → the <code>.purr</code> systests (moved from <code>tests/</code> to <code>systests/</code>) → the biome-install sandbox → GoogleTest unit suite (<code>tests/space_time_test.cpp</code>, new) → ASan + UBSan → Valgrind memcheck (<code>security/run-valgrind.sh</code>) → cppcheck → the private-reference scan (also guarding commit messages via the commit-msg and pre-push hooks).</p><h3>Removed</h3><ul><li><code>cmake/CPM.cmake</code> — dead: nothing referenced it (the toolchain is the sibling checkout / <code>CHEATAH_DIR</code>, and biome consumers get headers only).</li></ul><h3>Roadmap (unchanged)</h3><ul><li><code>space.cdf</code> — native NASA Common Data Format reader/writer, from scratch, zero dependencies; brings CDF_TT2000 + EPOCH16 with its leap-second table.</li><li><code>space.irbem</code> — clean-room reimplementation of the radiation-belt / magnetic-field model library (coordinate transforms → IGRF → Tsyganenko fields → L*/drift shells).</li></ul></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">Releases</div><ul><li><a href="#rel-1">v0.1.0-alpha (2026-08-14) — the time module, house-gated</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=09d1749d"></script>
-<script src="../cheatah-docs.js?v=c11a98e6"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
 </html>

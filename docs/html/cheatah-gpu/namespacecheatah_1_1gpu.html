@@ -6,7 +6,7 @@
 <meta name="generator" content="cheatah">
 <title>gpu · cheatah</title>
 <link rel="icon" href="../cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="../cheatah-docs.css?v=7193d926">
+<link rel="stylesheet" href="../cheatah-docs.css?v=59b79d71">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -14,14 +14,10 @@
   <div class="topbar-inner">
     <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
     <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html" class="current" aria-current="page">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="../standard.html">Standard</a></nav>
-    <div class="search"><input id="q" type="search" placeholder="Search cheatah-gpu…" autocomplete="off" spellcheck="false">
-      <div id="results" class="results" hidden></div>
-    </div>
-    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
 </header>
 <div class="layout">
-  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu.html" data-ref="namespacecheatah_1_1gpu">gpu</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1dispatch.html" data-ref="namespacecheatah_1_1gpu_1_1dispatch">dispatch</a></li><li><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu_1_1metal.html" data-ref="namespacecheatah_1_1gpu_1_1metal">metal</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1metal_1_1emulated.html" data-ref="namespacecheatah_1_1gpu_1_1metal_1_1emulated">emulated</a></li></ul></details></li><li><a href="namespacecheatah_1_1gpu_1_1metal4.html" data-ref="namespacecheatah_1_1gpu_1_1metal4">metal4</a></li><li><a href="namespacecheatah_1_1gpu_1_1vulkan.html" data-ref="namespacecheatah_1_1gpu_1_1vulkan">vulkan</a></li></ul></details></li></ul></div></nav>
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><details class="side-sub" open><summary><a class="active" href="namespacecheatah_1_1gpu.html" data-ref="namespacecheatah_1_1gpu">gpu</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1dispatch.html" data-ref="namespacecheatah_1_1gpu_1_1dispatch">dispatch</a></li><li><details class="side-sub"><summary><a href="namespacecheatah_1_1gpu_1_1metal.html" data-ref="namespacecheatah_1_1gpu_1_1metal">metal</a></summary><ul><li><a href="namespacecheatah_1_1gpu_1_1metal_1_1emulated.html" data-ref="namespacecheatah_1_1gpu_1_1metal_1_1emulated">emulated</a></li></ul></details></li><li><a href="namespacecheatah_1_1gpu_1_1metal4.html" data-ref="namespacecheatah_1_1gpu_1_1metal4">metal4</a></li><li><a href="namespacecheatah_1_1gpu_1_1vulkan.html" data-ref="namespacecheatah_1_1gpu_1_1vulkan">vulkan</a></li></ul></details></li></ul></div></nav>
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Module</div>
   <h1><code>gpu</code></h1>
@@ -144,8 +140,6 @@
 </section></main>
   <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1gpu_1a8f08aec54d563e90269ce739235d70ec">backend_name</a></li><li><a href="#namespacecheatah_1_1gpu_1ab9f7a6b3b77b80ba4f13fb9de5bb7284">active_backend_name</a></li><li><a href="#namespacecheatah_1_1gpu_1a89d7fa132baa9c6a31b16e57791aff24">backend_from_name</a></li><li><a href="#namespacecheatah_1_1gpu_1ac1f5a1f53bc5e98a5d4ef6e4baf51a72">is_active</a></li><li><a href="#namespacecheatah_1_1gpu_1a49ff530e2d326136d670211a582745dc">backend_warning_emitted</a></li><li><a href="#namespacecheatah_1_1gpu_1a0931fa9a189ce4997bdc7a417f5250bc">backend_warning_silenced</a></li><li><a href="#namespacecheatah_1_1gpu_1a04ce4fec1807e62046f0c0e89e0b3834">silence_backend_warning</a></li><li><a href="#namespacecheatah_1_1gpu_1a3f64ba4d9a46ba80620a681ff1b1d794">warn_backend_selection</a></li><li><a href="#namespacecheatah_1_1gpu_1adc365e07ed90f868fbcf121085ce7934">Backend</a></li><li><a href="#namespacecheatah_1_1gpu_1afe34228949bf50861116ec4f2d1f2980">active_backend</a></li><li><a href="#namespacecheatah_1_1gpu_1a73ea1446231062be7fa6f5499159c157">metal_available</a></li><li><a href="#namespacecheatah_1_1gpu_1aae272bd65d37fd70cd9e660e1f43763f">requested_backend</a></li><li><a href="#namespacecheatah_1_1gpu_1a2fce5875616db26c69a0aa063c8edc45">backend_was_switched</a></li><li><a href="#namespacecheatah_1_1gpu_1aa601d4378c91bf48a5b00ec0646a77f6">backend_is_suboptimal</a></li></ul></aside>
 </div>
-<script src="search-index.js?v=bf7c4529"></script>
-<script src="../cheatah-docs.js?v=c11a98e6"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
 </html>
