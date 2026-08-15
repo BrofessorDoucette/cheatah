@@ -85,12 +85,17 @@ code, pre, .sig { font-family: var(--mono); }
 .brand { justify-self: center; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; color: var(--fg); font-size: 1.12rem; }
 .brand:hover { text-decoration: none; }
 .brand img { width: 26px; height: 26px; border-radius: 6px; }
-/* The package switcher: cheatah · gpu · gpu-linalg · … · Standard, current highlighted. */
+/* The package switcher: cheatah · gpu · gpu-linalg · … · standard, current highlighted. */
 .pkgs { display: flex; align-items: center; gap: 1px; white-space: nowrap; font-size: .82rem; }
 .pkgs a { color: var(--fg-faint); padding: 3px 8px; border-radius: 999px; font-family: var(--mono); }
 .pkgs a:hover { color: var(--fg); background: var(--accent-soft); text-decoration: none; }
 .pkgs a.current { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 .pkgs .pkgs-sep { color: var(--fg-faint); opacity: .55; user-select: none; }
+/* The way back to the company storefront. Spans the last two grid columns so it lands on
+   the true right edge whether or not the toc column is showing. Unlike .pkgs it survives
+   every breakpoint below — mobile readers are still readers who might buy something. */
+.bb { grid-column: 3 / -1; justify-self: end; color: var(--fg-faint); font-size: .82rem; white-space: nowrap; }
+.bb:hover { color: var(--accent); text-decoration: none; }
 
 /* ---- member source link + permalink ---- */
 .member-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }

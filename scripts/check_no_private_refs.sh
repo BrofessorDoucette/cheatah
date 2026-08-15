@@ -11,7 +11,15 @@
 # Scope: tracked files, including docs/html (the generated site embeds test sources
 # verbatim in its source-view pages, so a scrubbed source with a stale site still leaks).
 #
-# "BigBrain LLC" in copyright headers is the company and is LEGITIMATE — allowlisted.
+# "BigBrain" — the company — is LEGITIMATE anywhere: copyright headers, the docs footer,
+# the topbar backlink. So is the storefront URL https://bigbrain-technology.com: it is the
+# company's PUBLIC sales page, not a private project, and the docs site links to it on
+# every page. What this check exists to stop is cheatah describing how the products WORK;
+# naming the shop that funds the language is the opposite of a leak.
+#
+# Allowlisting SCRUBS the allowed phrase and re-tests the line — it does not drop the
+# line. That distinction matters: "see bigbrain-technology.com for how godspeed does X"
+# must still FAIL on "godspeed", which a whole-line drop would have let through.
 #
 # Deliberately NOT in the pattern: "element" and "ash" (array elements, hash/bash/flash
 # — the false-positive rate makes the check useless). Word boundaries are mandatory:
@@ -28,7 +36,24 @@ set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 PATTERN='bigbrain|atomizer|godspeed|sherlock|conjure|looking-glass|lookingglass|scribe|zebra|glgan|alice'
-ALLOW='BigBrain LLC|Copyright \(c\) [0-9]+ BigBrain'
+ALLOW='BigBrain|(https://)?bigbrain-technology\.com[^ "<)]*'
+
+# Keep only the lines that still match PATTERN once the allowlisted phrases are removed.
+# Scrubbing (rather than dropping the whole line) is what stops an allowlisted phrase from
+# smuggling a real leak past the check on the same line. The ORIGINAL line is what gets
+# reported, so the reader sees the hit in its true context.
+#
+# ALLOW is matched CASE-SENSITIVELY (no sed /I) while PATTERN stays case-insensitive: only
+# the brand in its real casing — "BigBrain", "https://bigbrain-technology.com" — is waived.
+# A stray lower-case "bigbrain" somewhere else still fails, as it should.
+filter_allowed() {
+    while IFS= read -r line; do
+        if printf '%s\n' "$line" | sed -E "s@$ALLOW@@g" | grep -qIwiE "$PATTERN"; then
+            printf '%s\n' "$line"
+        fi
+    done
+    return 0
+}
 
 report() {  # report <what> <hits>
     local what="$1" hits="$2"
@@ -47,7 +72,7 @@ case "${1:-}" in
 --message)
     file="${2:?--message needs a commit-message file}"
     # Ignore comment lines git strips from the final message.
-    hits="$(grep -nIwiE "$PATTERN" "$file" 2>/dev/null | grep -v '^[0-9]*:#' | grep -viE "$ALLOW" || true)"
+    hits="$(grep -nIwiE "$PATTERN" "$file" 2>/dev/null | grep -v '^[0-9]*:#' | filter_allowed || true)"
     [ -z "$hits" ] || { report "this commit message" "$hits"; exit 1; }
     exit 0
     ;;
@@ -58,7 +83,7 @@ case "${1:-}" in
     hits=""
     # shellcheck disable=SC2086  # word splitting is the point: $range may carry several tokens.
     for c in $(git rev-list $range 2>/dev/null); do
-        m="$(git log -1 --format='%B' "$c" | grep -iwE "$PATTERN" | grep -viE "$ALLOW" || true)"
+        m="$(git log -1 --format='%B' "$c" | grep -iwE "$PATTERN" | filter_allowed || true)"
         [ -n "$m" ] && hits="${hits}${hits:+$'\n'}$(git log -1 --format='%h' "$c"): $(printf '%s' "$m" | head -1)"
     done
     [ -z "$hits" ] || { report "commit messages being pushed" "$hits"; exit 1; }
@@ -70,6 +95,6 @@ esac
 # This file is excluded from its own scan: PATTERN necessarily spells out every name,
 # so including it would be a guaranteed self-hit. (Standard for a linter's own rule
 # definitions. It does mean this one file is a blind spot — keep it to the pattern.)
-hits="$(git grep -nIwiE "$PATTERN" -- . ':!scripts/check_no_private_refs.sh' 2>/dev/null | grep -viE "$ALLOW" || true)"
+hits="$(git grep -nIwiE "$PATTERN" -- . ':!scripts/check_no_private_refs.sh' 2>/dev/null | filter_allowed || true)"
 [ -z "$hits" ] || { report "the public tree" "$hits"; exit 1; }
 echo "private-refs: clean — no sibling-project names in the public tree."

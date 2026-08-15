@@ -843,6 +843,7 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
   </div>
 </header>
 <div class="layout">
@@ -850,7 +851,7 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
   <main id="main" class="content">{content}</main>
   <aside class="toc" aria-label="On this page">{toc}</aside>
 </div>
-<footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
 </html>"""
 

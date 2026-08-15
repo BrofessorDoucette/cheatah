@@ -1264,10 +1264,11 @@ fn pkg_link(href, label, cur) {
     return "<a href=\"" + href + "\"" + cls + ">" + esc(label) + "</a>"
 }
 
-# The topbar package switcher: cheatah · gpu · gpu-linalg · … · Standard, on EVERY
-# page (core and subsites). `pkg` is "" on core pages, an extension name on its
-# subsite pages, or "standard" on the Biome Standard page; hrefs are prefix-aware
-# (subsite pages reach their siblings through "../").
+# The topbar package switcher: cheatah · gpu · gpu-linalg · … · standard, on EVERY
+# page (core and subsites). Every label is lower-case — these read as package names,
+# not prose, and one capitalised tab in the row sticks out. `pkg` is "" on core pages,
+# an extension name on its subsite pages, or "standard" on the Biome Standard page;
+# hrefs are prefix-aware (subsite pages reach their siblings through "../").
 fn pkg_switcher(g, pkg) {
     let prefix = ""
     if pkg != "" and pkg != "standard" { prefix = "../" }
@@ -1277,20 +1278,25 @@ fn pkg_switcher(g, pkg) {
         if string.startswith(e, "cheatah-") { label = e[8:] }
         out = out + "<span class=\"pkgs-sep\">·</span>" + pkg_link(prefix + e + "/index.html", label, pkg == e)
     }
-    out = out + "<span class=\"pkgs-sep\">·</span>" + pkg_link(prefix + "standard.html", "Standard", pkg == "standard")
+    out = out + "<span class=\"pkgs-sep\">·</span>" + pkg_link(prefix + "standard.html", "standard", pkg == "standard")
     return "<nav class=\"pkgs\" aria-label=\"Packages\">" + out + "</nav>"
 }
 
 # The page shell, package-aware. Core pages ("" / "standard") load the shared
 # assets same-dir; an extension's subsite pages load the shared css/logo from
 # the parent ("../"). No <script> anywhere: the site is zero-JS by design.
+#
+# Two links point at the company storefront — one in the topbar, one in the footer
+# copyright — on every page of every subsite. cheatah is free, and the products sold
+# there are what pay for it, so the docs carry the way back. They are absolute URLs,
+# so `prefix` does not apply to them.
 fn page_shell_in(g, pkg, title, sidebar, content, toc) {
     let is_sub = pkg != "" and pkg != "standard"
     let prefix = ""
     if is_sub { prefix = "../" }
     let body = string.replace(content, "🐾", "<span class=\"paw\">🐾</span>")
     body = apply_sidebyside(body)
-    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
 }
 
 # Server-side sidebar active state (the site ships zero JS): within the page's
