@@ -9,7 +9,7 @@ deliberate price we pay: **slower compilation**.
 
 ## The core bargain: compile-time cost for run-time speed
 
-A `.purr` program is transpiled to modern C++ and built at **`-O3 -march=native`**,
+A `.purr` program is transpiled to modern C++ and built at <b>`-O3 -march=native`</b>,
 then run on the headless host. We lean hard on **templates and C++20 concepts** for
 zero-cost abstraction — generic code that monomorphizes at the call site into exactly
 the machine code you'd write by hand, with no virtual dispatch, no boxing, no runtime
@@ -97,8 +97,8 @@ a task dominated by an already-native library narrows honestly to ~2×.
 
 The parallel generator is the same work spread across four threads, and it is the clearest
 demonstration of what the `memory` and `thread` modules are *for*: the read-only XML sources live in
-**one pinned `memory.Owner`** that every thread reads through **coexisting shared read leases**, while
-two accumulators (rendered bytes, and — counted with **`regex`** — the number of function members)
+<b>one pinned `memory.Owner`</b> that every thread reads through **coexisting shared read leases**, while
+two accumulators (rendered bytes, and — counted with <b>`regex`</b> — the number of function members)
 are `memory.Owner`s written through **exclusive write leases**. The ownership engine's
 *drain-before-write* discipline makes both totals **exact** — the parallel run's output is
 **byte-identical** to the single-threaded run (86 862 bytes, 402 functions) — so this is genuine
@@ -123,8 +123,8 @@ The comparison is the most honest one we can make: a **compiled cheatah program*
 against an **interpreted CPython program** running the *equivalent logic* — real
 whole-program execution, not a micro-measurement tuned to flatter either side. (We do
 **not** use `timeit`'s overhead-subtraction or best-call isolation — that measures
-something other than "run this program.") Both sides **call the function `N` times in a
-tight loop bracketed by a monotonic clock**, in a fresh process, and report the per-call
+something other than "run this program.") Both sides <b>call the function `N` times in a
+tight loop bracketed by a monotonic clock</b>, in a fresh process, and report the per-call
 time (minimum over several trials, to remove OS jitter). cheatah is built once at
 `-O3 -march=native`; CPython runs the stock interpreter (no JIT).
 
@@ -166,7 +166,7 @@ reflect work that actually happened.
 - The figures are **machine- and CPython-version-specific** — treat them as
   *representative* and benchmark your own hardware for absolutes (same disclaimer as
   `@complexity`).
-- **`@perf` compares against pure-CPython work, not C extensions.** Against a C-backed
+- <b>`@perf` compares against pure-CPython work, not C extensions.</b> Against a C-backed
   equivalent (`hashlib.sha256`, `math.sqrt`) the gap narrows to ~1×, reported honestly.
   For the numpy comparison, see below.
 
@@ -223,8 +223,8 @@ neither is handed an instruction set the other lacks, and the benchmark **verifi
 produce identical results before it times either** — a fast wrong answer cannot pose as a
 win.
 
-**`Fixed` is faster than or at parity with GLM on every one — 37 faster, 123 at parity,
-none slower.** It wins where structure pays:
+<b>`Fixed` is faster than or at parity with GLM on every one — 37 faster, 123 at parity,
+none slower.</b> It wins where structure pays:
 
 | operation | `Fixed` | GLM | |
 |-----------|--------:|----:|---|
@@ -395,7 +395,7 @@ real-time control step, or a latency-sensitive request handler.
 This page is the *comparison* — cheatah against CPython, NumPy/Eigen, and OpenSSL. *How*
 `purrc` reaches these numbers is its own page: dead-variable elimination, in-place string
 building (no accidental O(n²)), no-copy `auto&&` references, `match`→jump-table, and
-zero-cost generic + SIMD numerics — each shown as the **real `.gen.cpp` purrc emits**, with
+zero-cost generic + SIMD numerics — each shown as the <b>real `.gen.cpp` purrc emits</b>, with
 the un-optimized version beside it. See **[Optimizations](optimizations.html)**.
 
 ## Dynamism without the interpreter: the cheatah runtime

@@ -41,7 +41,7 @@ memory-safe** — the compiler emits no raw `new`/`delete` for any of it (see
   raises kind `"error"`; `raise Error("kind", "msg")` names one; a bare `raise` in a handler re-raises.
   Handlers run in order, `finally` runs on every exit path, and **anything no handler claims keeps
   travelling** rather than being swallowed.
-- **`//` is floor division and `**` is power** (not C++'s comment / no-power); `^` is
+- <b>`//` is floor division and `**` is power</b> (not C++'s comment / no-power); `^` is
   bitwise-xor as in C.
 
 ## Still the escape hatch: `cpp { … }`
@@ -64,6 +64,6 @@ io.print(demo())                                                  # 16
 Reach for it for: raw pointers / manual allocation, arbitrary third-party C++ headers and
 libraries, lambdas, templates you write by hand, and any other C++ feature not listed
 above. (Threads no longer need the escape hatch — `import thread` spawns cheatah `fn`s
-natively; see the [threading contract](threading.html).) **Memory safety is *not* guaranteed inside `cpp { … }`** — a raw block bypasses
+natively; see the [threading contract](threading.html).) <b>Memory safety is *not* guaranteed inside `cpp { … }`</b> — a raw block bypasses
 the value-semantics guarantees, so lifetimes and undefined behavior are your responsibility,
 exactly as in C++. Keep it small and rare; everything around it stays native and safe.

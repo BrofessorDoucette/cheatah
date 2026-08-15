@@ -2,7 +2,7 @@
 
 <div class="cheetah-slogan">🐱 <em>Reads <code>.purr</code>, writes native code — via modern C++.</em> 🐆</div>
 
-**`purrc`** is the cheatah compiler. It transpiles a `.purr` source file to modern C++, then
+<b>`purrc`</b> is the cheatah compiler. It transpiles a `.purr` source file to modern C++, then
 invokes the system C++ compiler (`-O3 -march=native`) to produce a **native loadable module**
 that the [cheatah runtime](runtime.html) loads and runs.
 
@@ -71,7 +71,7 @@ purrc takes exactly one `.purr` input (the first non-flag argument). All flags:
 | Flag | Effect |
 |---|---|
 | `--checksum` | Write a `<out>.sha512` corruption-check sidecar. |
-| `--sign <keyfile>` | Ed25519-**sign** the module with a code-signing key → `<out>.sig`. |
+| `--sign <keyfile>` | Ed25519-<b>sign</b> the module with a code-signing key → `<out>.sig`. |
 | `--runtime` | Write a `<out>.rt` build-runtime manifest (records the C runtime the module was built against). |
 | `--sign-runtime <keyfile>` | Sign the `.rt` manifest with a **separate** runtime key → `<out>.rt.sig`. |
 

@@ -69,7 +69,7 @@ per-repo gate could see, because they only exist where the members MEET. Biome S
 cheatah v1.11.1-alpha + cheatah-gpu-linalg v0.4.1-alpha, with cheatah-gpu, cheatah-plot,
 and cheatah-space unchanged.
 
-- **`cheatah_add_program` wires an extension's consumer interface into the purrc compile.**
+- <b>`cheatah_add_program` wires an extension's consumer interface into the purrc compile.</b>
   The module search now also covers a `purr/`-rooted module directory (cheatah-gpu-linalg's
   layout), and an extension whose build generates `consumer.cmake` gets its flat-variable
   interface — `<EXT>_CONSUMER_{INCLUDES,CXXFLAGS,LIBS}` — translated into `--cxxflag`/`--link`
@@ -98,7 +98,7 @@ identically. From here, each standard releases a tested-together set of all five
   `standards` name columns widen for the longest member. The CLI suite covers the new
   membership: the three new members ADD cleanly at the standard's tags, and a project
   pinned to 0.4.0-alpha still gets the truthful refusal.
-- **`scripts/test-standard-e2e.sh`** — the acceptance proof: an EMPTY directory, cheatah
+- <b>`scripts/test-standard-e2e.sh`</b> — the acceptance proof: an EMPTY directory, cheatah
   env cleared, `biome init` → add every member → CPM fetches each member from GitHub BY
   TAG (real network) → build → one program exercises all five members (the gpu dispatch
   math, a gpu-linalg device sum behind the honest `available()` probe, a plot rendered to
@@ -111,7 +111,7 @@ identically. From here, each standard releases a tested-together set of all five
   `docs/html/<ext>/` with each package's OWN nested sidebar, landing page (version badge,
   description, dependency line, module table), releases page rendered from its CHANGELOG,
   and a scoped search index — plus a topbar package switcher on every page and
-  **`standard.html`**: the current standard's member table, the append-only history, a
+  <b>`standard.html`</b>: the current standard's member table, the append-only history, a
   static dependency diagram generated from the member manifests, and a latest-release
   rollup linking every member's release notes.
 - Single source of truth: the generator IMPORTS `pkg-manager/biome.purr`, so badges,
@@ -169,11 +169,11 @@ and match time repays.
 The matcher work behind it — the public API is unchanged (`compile`/`search`/`full_match`/
 `find`, leftmost-longest, the same error strings):
 
-* **Unanchored `search` is one forward pass** — the compiled-in `.*?` prefix tracks every
+* <b>Unanchored `search` is one forward pass</b> — the compiled-in `.*?` prefix tracks every
   start position in a single DFA state, so the old per-candidate rescans (O(n²) worst case)
   are gone: O(n), always, with `memchr`/required-literal/first-set skips while no partial
   match is alive.
-* **`$` runs backward.** A pattern anchored only at the end runs a reversed program from the
+* <b>`$` runs backward.</b> A pattern anchored only at the end runs a reversed program from the
   end of the input; `1274$` over 4 MB went from ~1.4 ms to ~8 ns — the one shape Boost used
   to win.
 * **One load per byte.** Transition entries are row byte-offsets, the accept flag lives
@@ -245,7 +245,7 @@ embedded targets, and hot loops that already own their memory. The new `_into` f
 buffers and allocate nothing at all, and they are byte-for-byte identical to the forms they mirror.
 
 ### AEAD — `_into` forms that allocate nothing
-- **`aead.chacha20poly1305_encrypt_into` / `chacha20poly1305_decrypt_into`** write into a
+- <b>`aead.chacha20poly1305_encrypt_into` / `chacha20poly1305_decrypt_into`</b> write into a
   caller-provided buffer, allocate **nothing**, and are async-signal-safe (no allocation, no locks,
   no `errno`). Both may alias their input to work **in place**. Decryption verifies the tag in
   constant time *before* any plaintext reaches the caller's buffer, so a tampered message never
@@ -271,14 +271,14 @@ the implementation — **transitively**, callees included — and a new gate now
 forever.
 
 ### Language — errors carry a kind
-- **`raise` / `except` / `finally` matured**: errors carry a kind, multiple `except` handlers match
+- <b>`raise` / `except` / `finally` matured</b>: errors carry a kind, multiple `except` handlers match
   on it, `finally` runs on every exit path (including unwinding), and re-raise propagates the
   original error. A failing program now reports its error instead of silently terminating.
 - `index()` returns a const reference (no more deep copy on every subscript, unblocking the
   optimizer); list slices `memmove`; Python floor-mod on integers; user programs unroll.
 
 ### The Biome Standard — one version for the tested-together ecosystem
-- **`standard = "0.1.0-alpha"` in `cheatah.toml` is now the one version users track.** It names the
+- <b>`standard = "0.1.0-alpha"` in `cheatah.toml` is now the one version users track.</b> It names the
   exact toolchain + extension releases tested to work together (this release: cheatah
   `v1.7.0-alpha` + cheatah-gpu `v0.5.0-alpha`); biome resolves every `GIT_TAG` it writes from the
   standard, refuses extensions that aren't members of your standard, and gains a `biome standards`
@@ -297,8 +297,8 @@ forever.
   (a 12-test CLI round-trip suite).
 
 ### Documentation — audited to be true, then gated to stay true
-- **Every `@alloc` and `@complexity` tag in the stdlib was verified against the implementation,
-  transitively** — a function's tags now account for everything its callees allocate and cost.
+- <b>Every `@alloc` and `@complexity` tag in the stdlib was verified against the implementation,
+  transitively</b> — a function's tags now account for everything its callees allocate and cost.
   Dozens of falsehoods fixed, among them: HMAC/HKDF "fixed scratch buffers" that are really
   message-sized; `hkdf_expand` was not `O(length)`; ed25519 `sign` runs *two* base-point
   multiplications and hashes the message twice; `regex` unanchored search is worst-case O(n²)
@@ -306,10 +306,10 @@ forever.
   CA file is parsed per call; `svdvals` allocates the full SVD workspaces; the `memory` module's
   request/acquire docs described blocking on the wrong side. Dead `@test` references (tests that
   never existed) were fixed across the library — 11 in `builtins` alone.
-- **A new `@concurrency` tag** documents blocking behavior and thread-safety where it matters
+- <b>A new `@concurrency` tag</b> documents blocking behavior and thread-safety where it matters
   (memory, thread, socket, tls, websocket, random, io), and `@warning` marks real hazards (nonce
   reuse, TOCTOU, `insecure=true`, shell interpretation).
-- **`scripts/doc_tag_lint.sh` joins the QA gate**: every public stdlib function must carry
+- <b>`scripts/doc_tag_lint.sh` joins the QA gate</b>: every public stdlib function must carry
   `@complexity`, `@alloc`, and a `@test`/`@crtest`/`@systest` link, or the push is blocked. The
   documentation site now also covers **extension APIs** — cheatah-gpu's full `gpu.*` surface joins
   the sidebar and search index.
@@ -317,8 +317,8 @@ forever.
   at end-of-input (`a*$`) never matched.
 
 ### Coverage — the denominator now tells the whole truth
-- **`parsers.html`, the compiled JSON DOM (`parsers/json/json.cpp`), and `sys` were shipped but
-  invisible to the 100% gate** — never compiled into a coverage binary, so the green 100% silently
+- <b>`parsers.html`, the compiled JSON DOM (`parsers/json/json.cpp`), and `sys` were shipped but
+  invisible to the 100% gate</b> — never compiled into a coverage binary, so the green 100% silently
   excluded them. All three now carry full suites (tokenizer/entity edge cases and a malformed
   battery for HTML; a 23-input rejection battery and the 1000-deep nesting cap for the JSON DOM;
   argv fail-safes for sys) and sit inside the measured denominator at 100% lines and functions.
@@ -359,14 +359,14 @@ constant-time and closing two integer-overflow heap writes in `linalg`.
   on, or indexes the table by, the secret nonce/key bits, and its point arithmetic is branch-free —
   closing a local timing side-channel that could leak nonce bits. Verify paths (public data) are
   unchanged; a differential self-check confirms the constant-time ops match the reference on every case.
-- **Two `linalg` integer-overflow heap writes are fixed.** `matrix_power` and `kron` formed a product
+- <b>Two `linalg` integer-overflow heap writes are fixed.</b> `matrix_power` and `kron` formed a product
   of two dimensions before the overflow check, so a wrap under-allocated and the kernel wrote out of
   bounds (ASan-confirmed for `matrix_power` via a broadcast view); both now route through the checked
   multiply and throw on overflow.
 - **The JSON and XML parsers no longer overflow the stack on valid deep input** — JSON caps container
   nesting during the validated parse (its owning tree's destructor was the sink); XML's `text()` is
-  iterative. **`requests` chunked/header decoding is O(n) instead of O(n²)**, closing a remote
-  CPU-exhaustion DoS. **`regex` bounds its parser recursion, epsilon-closure, and lazy-DFA cache**
+  iterative. <b>`requests` chunked/header decoding is O(n) instead of O(n²)</b>, closing a remote
+  CPU-exhaustion DoS. <b>`regex` bounds its parser recursion, epsilon-closure, and lazy-DFA cache</b>
   against crafted patterns (match time was already linear).
 - **Supply-chain hardening for the coming package manager:** `purrc` now allowlists a module header's
   `cheatah-link:` flags to genuine linker inputs (a malicious dependency could otherwise run code on
@@ -390,15 +390,15 @@ multi-SAN matching plus ECDSA P-384 / SHA-384 certificate-chain validation.
   on Apple).
 - **Hardware crypto on Apple Silicon**: the AES-GCM path documents and asserts the ARMv8 AES +
   PMULL NEON route (every arm64 Mac ships FEAT_AES/FEAT_PMULL) alongside x86 AES-NI/PCLMULQDQ.
-- **`getentropy`** replaces `getrandom` for the CSPRNG — portable across Linux (glibc ≥ 2.25),
+- <b>`getentropy`</b> replaces `getrandom` for the CSPRNG — portable across Linux (glibc ≥ 2.25),
   macOS, and BSD.
-- **`float()` correctness**: `to_float` is now `template <Number T>`, so `float(0.95)` can never
+- <b>`float()` correctness</b>: `to_float` is now `template <Number T>`, so `float(0.95)` can never
   route through an integer overload and truncate to `0`.
 - The QA gate skips Valgrind on Darwin (broken on Apple Silicon; ASan/UBSan cover it); the TLS
   system test prefers a Homebrew OpenSSL peer over macOS LibreSSL.
 
 ### Linalg — one concept-templated definition per operation
-- **The whole `linalg` library is rewritten in a two-layer template form** — every routine is
+- <b>The whole `linalg` library is rewritten in a two-layer template form</b> — every routine is
   `template <Field T, template <typename> class Array>` over `Array<T>`, so real and complex (and
   host vs a future device container) are ONE definition instead of hand-duplicated overloads:
   `matmul`, `dot`/`vdot`/`inner` (a `Conj` enum), `solve`/`det`/`inv`, `qr`/`svd`, the eig family,
@@ -412,7 +412,7 @@ multi-SAN matching plus ECDSA P-384 / SHA-384 certificate-chain validation.
   dense routines and `fixarray` still beats GLM on the fixed-extent types (the QA perf gate).
 
 ### TLS fix — every subjectAltName is matched, not just the first
-- **X.509 SAN parsing stopped after the first `dNSName`** (a shared loop-bound variable in the
+- <b>X.509 SAN parsing stopped after the first `dNSName`</b> (a shared loop-bound variable in the
   DER walk), so any host matched by a *later* SAN entry was refused as "certificate is not valid
   for host". Multi-SAN certificates are the norm on CDN-shared hosts — `https://fastly.com`,
   `https://www.fastly.com`, and `https://github.io` all failed while the first-SAN host worked.
@@ -420,19 +420,19 @@ multi-SAN matching plus ECDSA P-384 / SHA-384 certificate-chain validation.
   `.MatchesLaterSan`).
 
 ### TLS feature — ECDSA P-384 and SHA-384 certificate chains validate
-- **New `p384` module**: NIST P-384 (secp384r1) ECDSA *verification*, sharing a width-generic,
+- <b>New `p384` module</b>: NIST P-384 (secp384r1) ECDSA *verification*, sharing a width-generic,
   concept-constrained template core (`p256/ec_core.hpp`) with `p256` — the same battle-tested
   Montgomery arithmetic and Jacobian group law, instantiated at 6 limbs. Verified against the
   RFC 6979 A.2.6 known-answer vectors (SHA-384 *and* SHA-256, pinning both hash-truncation
   semantics).
-- **`hashlib.sha384` / `hashlib.sha384_digest`**: SHA-384 via the existing SHA-512 core with its
+- <b>`hashlib.sha384` / `hashlib.sha384_digest`</b>: SHA-384 via the existing SHA-512 core with its
   own IV, NIST-vector- and OpenSSL-cross-checked.
 - **Chain validation** now verifies `ecdsa-with-SHA384` and `sha384WithRSAEncryption` signatures,
   dispatching the ECDSA curve by the **issuer key's** named-curve OID and the hash by the
   signature OID — real CA chains mix them (Sectigo signs a P-256 intermediate with a P-384 root).
   api.github.com and cdn.jsdelivr.net now validate; SHA-512 and rsassa-PSS chain signatures still
   **fail closed** by design.
-- **`ecdsa_secp384r1_sha384` (0x0503)** is offered in `signature_algorithms` and verified in
+- <b>`ecdsa_secp384r1_sha384` (0x0503)</b> is offered in `signature_algorithms` and verified in
   CertificateVerify, so P-384 *leaf* certificates handshake too (live `openssl s_server` system
   test).
 
@@ -452,7 +452,7 @@ first-class objects.
   `ndarray<i16>` carry narrow elements, and a `struct` of `u8` fields **packs** (two `u8`s → 2 bytes,
   not 16). Proven in-language with `sizeof`. Previously every integer was a 64-bit `long long`,
   everywhere.
-- **`int` is unchanged and still the default.** It stays `long long` (64-bit), so standalone
+- <b>`int` is unchanged and still the default.</b> It stays `long long` (64-bit), so standalone
   integers — loop counters, `++`/`--`, literals — never change or slow down. Narrowing is **opt-in
   per declaration**; nothing narrows implicitly.
 - **Three spellings, one type.** Each width is nameable as our short form (`i32`), the long form
@@ -466,7 +466,7 @@ first-class objects.
   only check and it costs nothing at runtime.
 
 ### `ndarray.astype` — build a narrow-element array
-- **`arr.astype(<width>)`** converts an ndarray's element type — numpy's `a.astype(dtype)` — so
+- <b>`arr.astype(<width>)`</b> converts an ndarray's element type — numpy's `a.astype(dtype)` — so
   `ndarray.array([1, 2, 3]).astype(i16)` is a `basic_ndarray<std::int16_t>` (2 bytes/element, not 8).
   Widening is exact; narrowing truncates at the target width; complex→real is a clear compile error.
 - **A declared narrow ndarray type drives construction:** `let a: ndarray<i8> = ndarray.array([…])`
@@ -480,7 +480,7 @@ first-class objects.
   program: **construct** (`fixarray.vec3f(1.0, 2.0, 3.0)`, `fixarray.Fixed<f32, 3>(…)`, narrow
   `fixarray.Vec<u8, 3>(…)`), and call its operations (`fixarray.dot`, `cross`, `normalize`,
   `matmul`, `+`/`-`/`*`). Previously the module was reachable only from C++.
-- **Module-qualified types now work in `let` and struct-field annotations** — `let v: fixarray.vec3f`,
+- <b>Module-qualified types now work in `let` and struct-field annotations</b> — `let v: fixarray.vec3f`,
   `let m: fixarray.Fixed<f32, 3>`, `struct Body { pos: fixarray.vec3f }` — closing a gap where a
   dotted type (`state.State`, `fixarray.Fixed<…>`) could only appear on function parameters/returns.
   Numeric template extents (`Fixed<f32, 4, 4>`) are also accepted in parameter/return positions.
@@ -494,12 +494,12 @@ leak-free. Copyright is held by **BigBrain LLC** (lead engineer and producer: Jo
 its behalf); MIT-licensed.
 
 ### New `memory` module — an ownership/borrow engine (`Owner` / `Lease` / `Request`)
-- **`memory.own(value) -> Owner<T>`** takes SOLE ownership by **moving** the value in (it is
+- <b>`memory.own(value) -> Owner<T>`</b> takes SOLE ownership by **moving** the value in (it is
   *consumed*, never copied); an `Owner` is non-copyable and pinned, so its object never moves and a
   borrow can never dangle. `T` is the only type you spell — the scheduling policy is a constructor
   argument.
 - **Every access is a request → acquire → lease.** `o.rread()` / `o.rwrite<priority>()` return a
-  `Request`; `.acquire()` blocks until the owner grants a **`Lease`** — the only handle to the object.
+  `Request`; `.acquire()` blocks until the owner grants a <b>`Lease`</b> — the only handle to the object.
   Read leases are shared (they coexist); write leases are exclusive.
 - **Setters and symmetric getters, concept-gated on the owned type.** `write` is a setter (never
   returns a mutable object): `w.write(value)`, and — deduced — `w.write(index, v)` for sequences and
@@ -513,24 +513,24 @@ its behalf); MIT-licensed.
   Deterministic-final results under nondeterministic interleaving; ASan/UBSan-clean.
 
 ### `regex` — the match is now **owned**, no more borrowed `view`
-- **`regex.find(...).text` is an owned `str`** (the library copies the matched bytes), so it is always
+- <b>`regex.find(...).text` is an owned `str`</b> (the library copies the matched bytes), so it is always
   safe to keep, pass, or return — even off a temporary input. The old borrowed `view<str>` (which
   dangled on a temporary — a use-after-free) is **removed entirely**, along with the `view<T>` type
   from the prelude. `.begin`/`.end` offsets remain for callers who want to slice their own input
   zero-copy. cheatah is C++ — *somewhere* we own the string.
 
 ### New `thread` module — cheatah gets real OS threads
-- **`thread.spawn(f, args...) -> Thread`** runs a cheatah `fn` on a new thread; the returned
+- <b>`thread.spawn(f, args...) -> Thread`</b> runs a cheatah `fn` on a new thread; the returned
   guard is move-only and **joins at scope exit** (plain `let`, `with`, or unwinding — every
-  thread finishes before `main` returns). **No `detach`, by design**: the host unloads the
+  thread finishes before `main` returns). <b>No `detach`, by design</b>: the host unloads the
   program's module right after `main`, and an unjoined thread would break the deterministic-
   cleanup guarantee.
-- **Copy-in by default; an `Owner` by reference.** Every copyable argument is copied into the
+- <b>Copy-in by default; an `Owner` by reference.</b> Every copyable argument is copied into the
   thread (a worker owns its values — you cannot accidentally share a plain value); a movable
   rvalue is moved in; a pinned, non-copyable `memory.Owner<T>` is the deliberate exception and
   travels by reference — the module's design funnels shared mutable state through the `memory`
   module's request → acquire → lease flow. A non-copyable temporary does not compile.
-- **A worker `raise` re-surfaces at `t.join()`** (catch it in-language with `try`/`except`);
+- <b>A worker `raise` re-surfaces at `t.join()`</b> (catch it in-language with `try`/`except`);
   an exception nobody joined for is reported on stderr by the guard's destructor. `joinable()`
   tracks the handle's lifecycle.
 - **The threading contract is documented** (`docs/threading.md`): races are the developer's
@@ -548,7 +548,7 @@ its behalf); MIT-licensed.
   and a QA-gate stage that runs the concurrency-relevant suites under TSan
   (`QA_GATE_SKIP_TSAN=1` to skip locally) — a data race in the standard library now fails the
   gate.
-- **`random` is per-thread**: the once-shared Mersenne Twister is now `thread_local`
+- <b>`random` is per-thread</b>: the once-shared Mersenne Twister is now `thread_local`
   (concurrent draws from spawned workers never race; `random.seed` seeds the calling thread
   only, and each new thread self-seeds from `std::random_device`).
 
@@ -565,7 +565,7 @@ its behalf); MIT-licensed.
   refreshed README, dropped the committed `.vsix` build artifact.
 
 ### `with` + owning RAII guards (deterministic cleanup)
-- **New `with resource [as name] { … }` statement** — binds a resource for the block and runs
+- <b>New `with resource [as name] { … }` statement</b> — binds a resource for the block and runs
   its destructor on **every** exit path (return, break, exception). Lowers to a lean C++ scope;
   it is RAII, not a Python `__enter__`/`__exit__` protocol (any value with a destructor works).
 - **Owning guard types** on every stateful module: `socket.Conn`/`Listener` (via `socket.open`/
@@ -585,18 +585,18 @@ its behalf); MIT-licensed.
 ### First-class crypto + networking (now tracked + 100% covered)
 Six modules that had lived out-of-tree are now committed, first-class, and held to the full
 gate (100% line+function coverage, 100% Javadoc, ASan/UBSan/Valgrind clean):
-- **`aead`** — ChaCha20-Poly1305 (RFC 8439) and AES-128/256-GCM authenticated encryption, with a
+- <b>`aead`</b> — ChaCha20-Poly1305 (RFC 8439) and AES-128/256-GCM authenticated encryption, with a
   runtime-selected AES-NI fast path and a portable fallback.
-- **`x25519`** — RFC 7748 Diffie-Hellman, constant-time in the secret scalar.
-- **`p256`** — NIST P-256 ECDSA sign/verify with RFC 6979 deterministic nonces, plus SPKI/DER
+- <b>`x25519`</b> — RFC 7748 Diffie-Hellman, constant-time in the secret scalar.
+- <b>`p256`</b> — NIST P-256 ECDSA sign/verify with RFC 6979 deterministic nonces, plus SPKI/DER
   parsing (ES256 JWTs and TLS leaf certificates).
-- **`tls`** — a from-scratch **TLS 1.3 client** (RFC 8446) built only on the cheatah crypto
+- <b>`tls`</b> — a from-scratch **TLS 1.3 client** (RFC 8446) built only on the cheatah crypto
   modules — **no OpenSSL**. TLS_CHACHA20_POLY1305_SHA256 / TLS_AES_128_GCM_SHA256, X25519, SNI;
   authenticates the server leaf (Ed25519 / ECDSA P-256 / RSA-PSS) and refuses a peer it cannot
   verify.
-- **`websocket`** — an RFC 6455 `wss://` client over the tls stack (client masking, fragmented
+- <b>`websocket`</b> — an RFC 6455 `wss://` client over the tls stack (client masking, fragmented
   message reassembly, transparent ping/pong).
-- **`requests`** — an HTTP/1.1 client (query params, custom headers, redirect following,
+- <b>`requests`</b> — an HTTP/1.1 client (query params, custom headers, redirect following,
   chunked/Content-Length/EOF framing, per-request timeouts, `https://`) and **the first
   standard-library module written in cheatah itself** (`requests.purr`).
 - **Coverage is measured against real peers, never a mock**: `tls` against `openssl s_server`
@@ -609,7 +609,7 @@ gate (100% line+function coverage, 100% Javadoc, ASan/UBSan/Valgrind clean):
   per-module hex helpers are gone).
 
 ### Compiler (`purrc`)
-- **Pure-cheatah modules with `struct`s are now fully documented**: purrc emits Javadoc for
+- <b>Pure-cheatah modules with `struct`s are now fully documented</b>: purrc emits Javadoc for
   struct **fields**, the synthesized `parsers.json.schema<>` specializations, `module_abi`, and
   default-argument forwarding overloads — so a `.purr` module passes the 100%-Javadoc gate.
 
@@ -617,7 +617,7 @@ gate (100% line+function coverage, 100% Javadoc, ASan/UBSan/Valgrind clean):
 - **Security audit** (`SECURITY-AUDIT-v1.3.0.md`): every heap/handle allocation site is enumerated
   and shown to be value-typed or RAII-guarded; ASan+UBSan and Valgrind report **0 leaks / 0
   errors** over the guards.
-- **`@complexity` / `@alloc` tags audited** for correctness across the whole stdlib — e.g.
+- <b>`@complexity` / `@alloc` tags audited</b> for correctness across the whole stdlib — e.g.
   `linalg.eig` corrected to **O(n⁴)** (per-eigenvalue inverse iteration), `string.split` to
   O(n·m), and out-parameter products now note the scratch packing of non-contiguous operands.
 - **Coverage gate** merges the in-process real-peer system tests and honors a sparing, justified
@@ -646,14 +646,14 @@ default, and the editor surfaces real compiler errors as you type. Additive — 
 programs keep working.
 
 ### Pure-cheatah library modules (`import` a `.purr`)
-- **`purrc --emit-library`** compiles a `.purr` into an importable module living in
+- <b>`purrc --emit-library`</b> compiles a `.purr` into an importable module living in
   `namespace cheatah::<name>` — a signed header (+ a compiled archive in opaque builds),
   verified by a consumer's `purrc` before it compiles against it. **Opaque by default**
   (ships only the API, hides concretely-typed implementations in `libcheatah_<name>.a`);
-  **`--transparent`** inlines the generated C++ source into the header (what the first-party
+  <b>`--transparent`</b> inlines the generated C++ source into the header (what the first-party
   stdlib uses, so the true code is always visible). purrc verifies a module's SHA-512 (and,
   with `CHEATAH_TRUST`, its Ed25519 signature) and **fails closed on a tampered module**.
-- **New first-party `parsers` module** — the first stdlib module authored in `.purr` (empty
+- <b>New first-party `parsers` module</b> — the first stdlib module authored in `.purr` (empty
   for now; the mechanism is set up). `cmake/CheatahModule.cmake` (`cheatah_add_module`) builds
   it; the QA gate guards that its committed header stays in sync with its source.
 - **biome** extension template is now a `.purr` library (opaque by default), and
@@ -670,32 +670,32 @@ programs keep working.
 - **Multi-line expressions.** Newlines inside `( )` and `[ ]` are now insignificant (Python
   implicit line continuation), and the generated C++ **preserves the source's multi-line
   layout** (readable `.gen.cpp`).
-- **`str()` is a builtin** (Python `str()`); `"x" + value` auto-stringifies to the *same*
+- <b>`str()` is a builtin</b> (Python `str()`); `"x" + value` auto-stringifies to the *same*
   minimal C++ as `"x" + str(value)`, and `str(str(x))` collapses to `str(x)`.
 - **Dead-variable elimination** is on by default (unused, non-returned locals are removed,
-  side-effecting initializers preserved); opt out with **`--no-remove-variables`** or the
-  umbrella **`--no-optimize-cpp`**.
-- **`--validate-cpp`** infrastructure (a post-codegen, pre-compile hook + a
+  side-effecting initializers preserved); opt out with <b>`--no-remove-variables`</b> or the
+  umbrella <b>`--no-optimize-cpp`</b>.
+- <b>`--validate-cpp`</b> infrastructure (a post-codegen, pre-compile hook + a
   `cheatah::purrc::CppValidationException`), wired but not yet enforcing.
 
 ### Readable-by-default output
-- **`io.print` pretty-prints**: a struct renders on indented multiple lines (recursively),
-  and a large **NDArray is abbreviated with `…`** (numpy-style edge items). **New `io.rprint`**
+- <b>`io.print` pretty-prints</b>: a struct renders on indented multiple lines (recursively),
+  and a large <b>NDArray is abbreviated with `…`</b> (numpy-style edge items). <b>New `io.rprint`</b>
   prints the raw/compact form (a full, unabbreviated array). NDArray is now directly
   **Streamable** (`operator<<`), and every cheatah struct of streamable fields gets an
   auto-generated `operator<<`.
 
 ### Editor (VS Code extension)
-- **Live diagnostics**: the extension type-checks the open buffer with **`purrc --check`** and
+- **Live diagnostics**: the extension type-checks the open buffer with <b>`purrc --check`</b> and
   squiggles real errors — a forgotten `let`, an unresolved symbol, a wrong argument count or
   type — mapped to the `.purr` via `#line` directives (settings: `cheatah.purrc`,
   `cheatah.diagnostics.enable`).
-- **Fixed autocomplete/hover for `linalg` and `ndarray`** (a perf-rendering crash had disabled
+- <b>Fixed autocomplete/hover for `linalg` and `ndarray`</b> (a perf-rendering crash had disabled
   the whole provider for those modules).
 
 ### Tooling + tests
-- **`previously_broken/` regression suite** — bugs that once broke the toolchain, **run FIRST
-  in the QA gate** so a reintroduction fails fast. **`library_module_test`** covers
+- <b>`previously_broken/` regression suite</b> — bugs that once broke the toolchain, **run FIRST
+  in the QA gate** so a reintroduction fails fast. <b>`library_module_test`</b> covers
   transparent/opaque emit, import verification, and tamper-fails-closed.
 
 ## v1.1.1-alpha (2026-06-10) — 512-bit module integrity + verification benchmarks
@@ -704,10 +704,10 @@ A hardening pass on the v1.1.0 integrity feature: the binary and runtime signing
 now **512-bit throughout**, and the per-tier verification cost is measured, not guessed.
 
 ### Signing now uses SHA-512 (512-bit), not SHA-256
-- The module **checksum sidecar is now `<module>.sha512`** (sha512sum-compatible), written
+- The module <b>checksum sidecar is now `<module>.sha512`</b> (sha512sum-compatible), written
   by `purrc --checksum`/`--sign` and auto-verified by the runtime. Ed25519 signatures
   already hashed with SHA-512 internally, so **all** of code- and runtime-signing is now
-  512-bit. **SHA-256 stays in the `hashlib` stdlib module** for your own applications — it
+  512-bit. <b>SHA-256 stays in the `hashlib` stdlib module</b> for your own applications — it
   is simply no longer used for signing.
 - *Breaking (alpha):* a `<module>.sha256` produced by v1.1.0 is no longer recognized;
   re-run `purrc --checksum` (or `--sign`) to emit the `.sha512` sidecar.
@@ -730,51 +730,51 @@ library** (no external dependency). Additive and opt-in — existing programs ar
 unaffected and pay nothing unless they turn it on.
 
 ### New stdlib crypto (no external dependency)
-- **`hashlib` gains SHA-512** (`sha512`) alongside SHA-256, plus raw-digest forms
+- <b>`hashlib` gains SHA-512</b> (`sha512`) alongside SHA-256, plus raw-digest forms
   (`sha256_digest`/`sha512_digest`, like Python's `.digest()` vs `.hexdigest()`).
-- **New `ed25519` module** — RFC 8032 public-key signatures (`generate`, `public_key`,
+- <b>New `ed25519` module</b> — RFC 8032 public-key signatures (`generate`, `public_key`,
   `sign`, `verify`), hand-implemented and **validated byte-for-byte against OpenSSL** and
   the RFC 8032 known-answer vectors. Strict verification rejects non-canonical signatures
   (`S ≥ L`). The runtime links this same code to verify modules.
-- **`os.urandom(n)`** — a CSPRNG (`getentropy` / `BCryptGenRandom`), fail-closed.
+- <b>`os.urandom(n)`</b> — a CSPRNG (`getentropy` / `BCryptGenRandom`), fail-closed.
 
 ### Module integrity (opt-in, fail-closed)
-- **`purrc --keygen <prefix>`** writes an Ed25519 keypair (secret key created `0600`);
-  **`purrc --sign <key>`** signs a built module (writes `<mod>.sig`); **`purrc --checksum`**
+- <b>`purrc --keygen <prefix>`</b> writes an Ed25519 keypair (secret key created `0600`);
+  <b>`purrc --sign <key>`</b> signs a built module (writes `<mod>.sig`); <b>`purrc --checksum`</b>
   writes a sha256sum-compatible `<mod>.sha256`.
-- The **runtime verifies before `dlopen`**: a `.sha256` sidecar is **auto-checked** for
-  corruption; with **`CHEATAH_VERIFY=strict`** (or `--verify`) a valid `.sig` from a key
+- The <b>runtime verifies before `dlopen`</b>: a `.sha256` sidecar is **auto-checked** for
+  corruption; with <b>`CHEATAH_VERIFY=strict`</b> (or `--verify`) a valid `.sig` from a key
   in the **trust file** (`CHEATAH_TRUST` / `--trust`) is **required**, else the module is
   refused. Verification binds the load to the exact bytes it hashed (`/proc/self/fd`, no
   verify-then-load race), is **non-downgradable** by argv, caps the module size, and is
   **off by default with zero overhead**. See the [Security](docs/security.md) guide; the
   runtime header documents the per-call `@complexity`/`@alloc`.
 - **C-runtime compatibility check.** `purrc --runtime` records the build's CPU arch, glibc
-  version, and libstdc++ ABI in a **`<mod>.rt`** manifest; the runtime checks it against
+  version, and libstdc++ ABI in a <b>`<mod>.rt`</b> manifest; the runtime checks it against
   the **live host** before loading (e.g. refuses *"module needs glibc >= 2.39, but this
-  host has glibc 2.31"* instead of a cryptic `dlopen` failure). **`purrc --sign-runtime
-  <key>`** signs the manifest with a key **separate from the code-signing key**
+  host has glibc 2.31"* instead of a cryptic `dlopen` failure). <b>`purrc --sign-runtime
+  <key>`</b> signs the manifest with a key **separate from the code-signing key**
   (`--trust-runtime` / `CHEATAH_RT_TRUST`), so code authenticity and build-runtime
   provenance are vouched for independently and the two keys are not interchangeable.
 
 ### Tooling
-- `purrc` and `cheatah` now accept **`--help` / `-h`** (usage to stdout, exit 0), in
+- `purrc` and `cheatah` now accept <b>`--help` / `-h`</b> (usage to stdout, exit 0), in
   addition to `--version` / `-v`.
 - The QA gate now runs **cppcheck** (performance + security) across the repo.
 - The VS Code extension highlights cheatah's custom Javadoc tags
   (`@complexity`/`@alloc`/`@test`/`@crtest`/`@systest`) like the standard ones.
 
 ### Performance & codegen
-- **`ndarray` result buffers are now allocated uninitialized** (a small default-init
+- <b>`ndarray` result buffers are now allocated uninitialized</b> (a small default-init
   allocator) instead of being zero-filled and then immediately overwritten. The throwaway
   zero pass was invisible on compute-heavy ops but dominated the bandwidth-bound ones:
-  element-wise `add` goes from **1.5× *slower*** than NumPy to **1.2× faster** (16384
+  element-wise `add` goes from <b>1.5× <em>slower</em></b> than NumPy to **1.2× faster** (16384
   elements), `sqrt` ties NumPy at large `n`, and `exp`/`sin` widen to **≈4–7×**. The
   `linalg` results that are as big as their own work — `outer`, `kron`, the conjugate
   transpose — build straight into that buffer and are moved in **zero-copy**, so `outer`
   now **beats Eigen** (was behind) and `kron` is ~1.5× faster than before. Verified ASan +
   Valgrind clean.
-- **Generated code now `#include`s a single `cheatah.hpp` prelude** instead of repeating a
+- <b>Generated code now `#include`s a single `cheatah.hpp` prelude</b> instead of repeating a
   dozen standard-library `#include`s (plus the export macro) at the top of every file. The
   built-in runtime already pulled in most of them; modules still map one-to-one to their
   own headers.
@@ -797,12 +797,12 @@ The transpiler now shortens every module reference in the C++ it emits. This is 
 behavior of any program is unchanged) — so the version steps to 1.0.0.
 
 ### Codegen — every module gets its own short namespace alias
-- **The whole program is emitted inside a dedicated `namespace cheatah_program`**, and
+- <b>The whole program is emitted inside a dedicated `namespace cheatah_program`</b>, and
   the exported entry point becomes a one-line `extern "C"` trampoline
   (`PURR_EXPORT void purr_main() { cheatah_program::run(); }`). This wrapper is what
   makes the aliasing below *safe*.
-- **Each imported module — plus the always-available `builtins` — gets its own distinct
-  alias** at the top of that namespace (`namespace io = ::cheatah::io;`,
+- <b>Each imported module — plus the always-available `builtins` — gets its own distinct
+  alias</b> at the top of that namespace (`namespace io = ::cheatah::io;`,
   `namespace ndarray = ::cheatah::ndarray;`, `namespace linalg = ::cheatah::linalg;`,
   `namespace builtins = ::cheatah::builtins;`, …). The body then reads `io::print`,
   `linalg::solve`, `builtins::len` instead of repeating `cheatah::io::…` everywhere. For
@@ -817,7 +817,7 @@ behavior of any program is unchanged) — so the version steps to 1.0.0.
   *explicit* (`::cheatah::os::…`) so the alias can't shadow or clash with user code. A
   bare identifier that shadows a module name now correctly resolves to the local (fixes a
   latent bug where `fn bump(math)` emitted `cheatah::math` for the parameter).
-- The change is purely in emitted code; **no `.purr` source needs to change** and program
+- The change is purely in emitted code; <b>no `.purr` source needs to change</b> and program
   output is identical.
 
 ### Extensions
@@ -826,7 +826,7 @@ behavior of any program is unchanged) — so the version steps to 1.0.0.
   must have distinct module names.
 
 ### Tests
-- New **`NamespaceAliasing`** system-level suite (runs in the QA gate) asserts the
+- New <b>`NamespaceAliasing`</b> system-level suite (runs in the QA gate) asserts the
   generated C++ itself — each module aliased distinctly, libc-named modules aliased
   safely, and collisions staying explicit — alongside compiling and running each program.
 
@@ -836,17 +836,17 @@ A small follow-up: the transpiler emits leaner string-building code, and `enum` 
 syntax-highlights in the docs.
 
 ### Codegen — self-append builds in place, in one statement
-- **A `+`-chain self-append now lowers to a single chained statement** with no
+- <b>A `+`-chain self-append now lowers to a single chained statement</b> with no
   intermediate `std::string`. `head = head + "Content-Type: " + ctype + nl` becomes
   `((head += "Content-Type: ") += ctype) += nl;` — three in-place appends, no temporary
-  per piece, and a string **literal appends as a bare `const char*`** (so `operator+=`
+  per piece, and a string <b>literal appends as a bare `const char*`</b> (so `operator+=`
   takes it directly rather than constructing a throwaway `std::string`). Chaining is used
   only where it's valid (`operator+=` returns a reference — std::string and arithmetic
   accumulators, the only types a `+` self-append fires on); a single appended operand
   stays a plain `x += e;`.
 
 ### Docs
-- **`enum` now syntax-highlights** in the generated docs site — the highlighter's keyword
+- <b>`enum` now syntax-highlights</b> in the generated docs site — the highlighter's keyword
   set had drifted out of sync with the lexer.
 
 ## v0.9.0-alpha (2026-06-09) — enums, the `sys` module, and the `biome` package manager
@@ -857,7 +857,7 @@ package manager written largely in cheatah, lands in `pkg-manager/`. The VS Code
 extension learns all of it, and gains hover docs for your own same-file definitions.
 
 ### Language — enums
-- **`enum` declares a scoped, type-safe enumeration** that lowers to a C++ `enum
+- <b>`enum` declares a scoped, type-safe enumeration</b> that lowers to a C++ `enum
   class` (not a plain C `enum`): `enum Color { RED, GREEN, BLUE }`. Members are
   reached through the enum name (`Color.RED`), separated by newlines, commas, or
   semicolons, and may carry an explicit value (`enum Status { OK = 0, WARN, FAIL }`,
@@ -881,14 +881,14 @@ recurring villains were the same few mistakes, hunted down across every function
   (the compiler can't reassociate without `-ffast-math`). `dot`/`norm`/`sum`/`cholesky`/
   `trace` and the symmetric-eigensolver tridiagonalization now use several independent
   accumulators, so `-O3 -march=native` issues SIMD+FMA and reaches memory bandwidth.
-- **`matmul` re-streamed B per output row** → 4-row register blocking (real *and* complex)
+- <b>`matmul` re-streamed B per output row</b> → 4-row register blocking (real *and* complex)
   reuses each B element four times.
-- **`qr` walked columns of a row-major matrix** (stride-n, un-vectorizable) → it now works
+- <b>`qr` walked columns of a row-major matrix</b> (stride-n, un-vectorizable) → it now works
   on the transpose so the Householder reductions/updates are contiguous.
 - **The symmetric eigensolver's tridiagonalization** kept the active block full-symmetric
   so its matrix–vector product vectorizes (no packed column-stride walk).
-- **`make_matrix`/`make_vector` zero-filled a full-size result buffer and then threw it
-  away**, replacing it with the computed data — a wasted O(n²) pass that dominated
+- <b>`make_matrix`/`make_vector` zero-filled a full-size result buffer and then threw it
+  away</b>, replacing it with the computed data — a wasted O(n²) pass that dominated
   memory-bound ops. They now build the result directly from the buffer.
 
 Result: on one core, cheatah **matches or beats Eigen on most dense routines** (matmul,
@@ -902,7 +902,7 @@ honestly, not hidden.
 
 ### Numeric core — N-dimensional `ndarray` construction
 
-- **`ndarray.array(...)` now builds an array of any rank from a nested list** —
+- <b>`ndarray.array(...)` now builds an array of any rank from a nested list</b> —
   `array([[1, 2], [3, 4]])` is 2-D, `array([[[1],[2]],[[3],[4]]])` is 3-D, and so on to
   any depth. The shape is inferred from the nesting and the leaf type deduced; a ragged
   list is rejected, exactly as numpy rejects one. (Previously only `reshape` could make a
@@ -911,17 +911,17 @@ honestly, not hidden.
   system-test suite that loads editable `.purr` programs from `tests/purrc/linalg_programs/`.
 
 ### Standard library — `sys` (command-line arguments)
-- **New `sys` module exposes `sys.argv`** — a `list[str]` of the program's
+- <b>New `sys` module exposes `sys.argv`</b> — a `list[str]` of the program's
   command-line arguments (`sys.argv[0]` is the program, `sys.argv[1:]` the
   arguments), exactly like Python. Index it, slice it, `len(...)` it, iterate it.
-- **The `cheatah` runtime forwards arguments to the program.** Running
+- <b>The `cheatah` runtime forwards arguments to the program.</b> Running
   `cheatah app.so one two` populates `sys.argv` via an exported `cheatah_set_argv`
   hook the `sys` module provides; programs that do not `import sys` are unaffected.
   purrc still emits **only** loadable modules — compiled code always runs under the
   runtime.
 
 ### Tooling — `biome`, the package manager
-- **New `biome` package manager** (in `pkg-manager/`) — most of it written in
+- <b>New `biome` package manager</b> (in `pkg-manager/`) — most of it written in
   cheatah itself (`biome.purr`, compiled to a module by purrc), driven by a small
   native launcher so it is invoked as `biome <command> <args>` while its compiled
   code still runs only under the cheatah runtime.
@@ -930,7 +930,7 @@ honestly, not hidden.
   standard-library extensions — `cheatah-gpu`/`cheatah-plot`/`cheatah-space`),
   and `build`/`run` (drive **CMake + CPM**, so the whole build is
   handled by CMake).
-- **New `cmake/CheatahProgram.cmake` helper** — `cheatah_add_program(NAME SOURCES
+- <b>New `cmake/CheatahProgram.cmake` helper</b> — `cheatah_add_program(NAME SOURCES
   x.purr …)` compiles a `.purr` to a module with purrc and builds a launcher that
   runs it via the runtime. Downstream projects fetch the toolchain with
   `CPMAddPackage(NAME cheatah …)` and use this helper. A cheatah pulled in as a
@@ -941,7 +941,7 @@ honestly, not hidden.
   publishing the extension repos + release tags, are follow-ups.
 
 ### Editor — VS Code extension
-- **`enum` is highlighted** (the keyword and the enum name as a type), and the
+- <b>`enum` is highlighted</b> (the keyword and the enum name as a type), and the
   extension's IntelliSense understands enums declared in your file: hover an enum
   type or a member (`Color.RED`), autocomplete members after `Color.`, and
   go-to-definition jumps to the declaration.
@@ -963,9 +963,9 @@ docs site grew to cover the **entire** standard library: every module's README n
 on its page, and the linalg-vs-NumPy numbers live beside the functions they measure.
 
 ### Language — division (**breaking**)
-- **`/` is true division.** `6 / 4 == 1.5`, and even an exact `6 / 2` is a `double`. The
+- <b>`/` is true division.</b> `6 / 4 == 1.5`, and even an exact `6 / 2` is a `double`. The
   operator lowers to `cheatah::builtins::truediv`.
-- **`//` is opt-in floor division**, flooring toward −∞ like Python (`-7 // 2 == -4`,
+- <b>`//` is opt-in floor division</b>, flooring toward −∞ like Python (`-7 // 2 == -4`,
   `7.0 // 2.0 == 3.0`) — `cheatah::builtins::floordiv`. As a result `//` is **no longer a
   comment**; comments are `#` only.
 - *Porting:* a `/` that you relied on for integer division becomes `//`.
@@ -997,7 +997,7 @@ detection and want on-device confirmation.)
   on Apple Silicon), the loadable-module extension (`.so` / `.dylib` / `.dll`), the
   vector-math library, and the flag/link lists `purrc` passes the C++ backend. The rest
   of the build (and `purrc`) just consumes them, so no `#ifdef` sprawl.
-- **`purrc`** consumes the baked flags; spawns the compiler via `fork`+`execvp` (POSIX)
+- <b>`purrc`</b> consumes the baked flags; spawns the compiler via `fork`+`execvp` (POSIX)
   or `_spawnvp` (Windows); emits the platform module extension.
 - **Runtime** validates the host's binary format — **ELF** (Linux), **Mach-O** incl.
   fat/universal (macOS), **PE** (Windows) — and loads via `dlopen` (POSIX) or
@@ -1028,18 +1028,18 @@ element access, and inner loops that couldn't vectorize.
 
 ### Linear algebra — algorithms and kernels
 - **Killed the per-element heap allocation in matrix/vector extraction.** The extractors
-  read elements through `a.at({i, j})`, and the `{i, j}` braced index **heap-allocated a
-  `std::vector` per element** — pulling out an n×n matrix did n² allocations before any
+  read elements through `a.at({i, j})`, and the `{i, j}` braced index <b>heap-allocated a
+  `std::vector` per element</b> — pulling out an n×n matrix did n² allocations before any
   math. Replaced with direct contiguous reads (`memcpy` fast path; strided walk for
   views). This alone is a large speedup across *every* routine.
 - **Zero-copy reads for the read-only routines.** `dot`/`matmul`/`outer`/`trace`/`norm`/
   `cholesky`/`kron`/`conj_transpose` (real **and** complex) now operate straight on the
   array's own buffer when it's contiguous — they allocate only their result.
-- **`dot` beats BLAS `ddot`.** The reduction was a serial floating-point dependency chain
+- <b>`dot` beats BLAS `ddot`.</b> The reduction was a serial floating-point dependency chain
   that can't vectorize without `-ffast-math`; rewritten with independent accumulators so
   `-O3 -march=native` issues SIMD+FMA. 16384-element `dot`: **280µs → 3.7µs**, from 36×
   *slower* than NumPy to **2.1× faster**.
-- **`inv` wins.** It was `n` serial-reduction back-substitutions (un-vectorizable);
+- <b>`inv` wins.</b> It was `n` serial-reduction back-substitutions (un-vectorizable);
   rewritten as a whole-identity block solve whose inner loops are vectorizable SAXPYs.
   32×32: **26µs → 5.7µs**, from NumPy-1.1× to **cheatah 4.2×**. (`det` already won — same
   LU, but its SAXPY update vectorizes; that contrast was the tell.)
@@ -1055,7 +1055,7 @@ element access, and inner loops that couldn't vectorize.
   `cond`/`matrix_rank`. Replacing the correctly-rounded `std::hypot` in the O(n²) Givens
   rotations with the faster EISPACK `pythag` was the final unlock. 64×64 `svd` went from
   **3505µs (NumPy 18.8×) to a 1.8× win**.
-- **New `linalg.svdvals(a)`** — singular values only (≈ `numpy.linalg.svd(compute_uv=False)`):
+- <b>New `linalg.svdvals(a)`</b> — singular values only (≈ `numpy.linalg.svd(compute_uv=False)`):
   skips U/V accumulation and the dominant U/V rotations.
 - **Fewer allocations everywhere:** hoisted per-iteration working buffers out of loops
   (`inv`, `qr`, the general eigensolver), factor-the-complex-LU-once in inverse iteration,
@@ -1067,10 +1067,10 @@ element access, and inner loops that couldn't vectorize.
   compiled `-fveclib=libmvec -fno-math-errno`, so they vectorize through glibc's vector
   math — **without** `-ffast-math`, so results stay strictly IEEE and the rest of cheatah's
   arithmetic is untouched. `exp` now wins ≈3×, `sin` ≈5× at 16384 elements.
-- **`array ⊕ scalar` broadcasting fast path.** It was doing a bounds-checked `at()` per
+- <b>`array ⊕ scalar` broadcasting fast path.</b> It was doing a bounds-checked `at()` per
   element (no SIMD); a contiguous fast path took `ndarray.add` from **≈20× slower than
   NumPy to ~even**, speeding up every scalar-broadcast op.
-- **`purrc` now passes `-fno-math-errno`** (lets `sqrt`/algebraic math vectorize; strictly
+- <b>`purrc` now passes `-fno-math-errno`</b> (lets `sqrt`/algebraic math vectorize; strictly
   IEEE, unlike `-ffast-math`) and links `-lm` for the libmvec symbols.
 
 ### Docs, benchmarks & tooling
@@ -1096,14 +1096,14 @@ report where cheatah *loses*, not just where it wins); the numeric core gains
 element-wise math; and the VS Code extension becomes a real reference tool.
 
 ### Performance & benchmarks
-- **`@perf` on every function.** The reference docs and editor hover now show a measured
+- <b>`@perf` on every function.</b> The reference docs and editor hover now show a measured
   *Performance* row per function — cheatah ns/call vs the honest baseline (CPython, or
   **NumPy** for the numeric modules) with the version it was measured against. Numbers
   live in one provenance-tagged `docs/perf_data.json`, regenerated periodically by
   `scripts/perf_suite.py` (NOT in the QA gate — benchmarks are noisy/machine-specific).
 - **Honest benchmark methodology.** Benchmarks are **elision-proof** (vary input +
   accumulate + print, so the optimizer can't delete the work — a naive loop measured a
-  bogus "125000×"). cheatah is ~**20–35×** faster than CPython on real loops, ~**1×**
+  bogus "125000×"). cheatah is ~<b>20–35×</b> faster than CPython on real loops, ~<b>1×</b>
   where the work is already native (`hashlib`), and the whole-program suite (Mandelbrot,
   N-body, RK4, integral) runs **14–97×** faster.
 - **cheatah vs NumPy, by dimension.** cheatah *wins* small/medium dense `matmul`/`solve`/
@@ -1149,7 +1149,7 @@ new guides (Getting Started, Coming from Python, Security).
 
 ### Numeric core (`ndarray`)
 - **Complex element type.** The array element constraint widened from `Numeric` to
-  **`Field`** — a real arithmetic type *or* a `std::complex` of a floating type — so
+  <b>`Field`</b> — a real arithmetic type *or* a `std::complex` of a floating type — so
   complex matrices and vectors are first-class. Complex arrays print Python-style
   (`a+bj` / `a-bj`).
 - **Construct & inspect complex arrays:** `complex(re, im)`, `real(a)`, `imag(a)`,
@@ -1210,7 +1210,7 @@ a named error, never template spam.
   polymorphism, no inheritance, no vtables.
 
 ### Numerics — generic over the element type
-- **`ndarray` is now `basic_ndarray<T>`** over any `Numeric` element type, **deduced
+- <b>`ndarray` is now `basic_ndarray<T>`</b> over any `Numeric` element type, **deduced
   from the literals** (`array([1,2,3])` is integer, `array([1.0,…])` is double).
   `NDArray` remains the default `basic_ndarray<double>`, so existing code is unchanged.
 - **Declarative SIMD:** element-wise ops use `std::transform(std::execution::unseq, …)`
@@ -1221,7 +1221,7 @@ a named error, never template spam.
   generalization to come.
 
 ### io
-- **`Printable` protocol:** `io.print` / `io.str` now render **lists, dicts,
+- <b>`Printable` protocol:</b> `io.print` / `io.str` now render **lists, dicts,
   structs, and ndarrays** — a value is printable if it streams, exposes a `str()`
   method, or is a container of printables (recursive). `NDArray` gained a `str()`.
 
@@ -1261,7 +1261,7 @@ site generator**, and builds out a **three-tier, per-function test system** behi
 a stricter QA gate.
 
 ### Standard library
-- **New `socket` module** — a thin, memory-safe BSD-socket wrapper
+- <b>New `socket` module</b> — a thin, memory-safe BSD-socket wrapper
   (`tcp_listen`/`tcp_connect`/`accept`/`send`/`sendall`/`recv`/`bind`/`listen`/
   `connect`/`close`/`local_port`/`last_error`, …). `import socket`.
 - A **pure-cheatah docs server** (`scripts/serve-docs.purr`) written entirely in
@@ -1308,9 +1308,9 @@ checkers.
   `if`/`else if`/`else`, `while`, `for … in range(…)`; `fn` functions (recursion);
   `struct` records; `list`/`dict`/`array` collections; `try`/`except` + `raise`;
   `import` with `as` aliases and dotted modules.
-- **`cpp { … }` raw-C++ escape hatch** — file scope at the top level, inline inside
+- <b>`cpp { … }` raw-C++ escape hatch</b> — file scope at the top level, inline inside
   a function (memory safety is the author's responsibility there).
-- **`;`** is an optional statement separator/terminator (and struct-field separator).
+- <b>`;`</b> is an optional statement separator/terminator (and struct-field separator).
 
 ### Standard library
 `builtins`, `io`, `os`, `string`, `math`, `time`, `datetime`, `random`,

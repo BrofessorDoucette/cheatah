@@ -828,8 +828,16 @@ def apply_sidebyside(content: str) -> str:
 def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) -> str:
     content = content.replace("🐾", '<span class="paw">🐾</span>')  # recolor blue system paw emoji
     content = apply_sidebyside(content)
+    # No hardcoded data-theme: the theme button was JavaScript and the serving CSP has no
+    # script-src, so a baked-in dark attribute would make the stylesheet's light palette
+    # unreachable for every reader. Bare <html> lets prefers-color-scheme decide.
+    # An empty "On this page" rail is a labelled landmark with nothing in it (and a
+    # reserved 224px column), so pages with no headings omit the aside and say so on
+    # .layout — keep the two in lockstep.
+    toc_el = f'\n  <aside class="toc" aria-label="On this page">{toc}</aside>' if toc else ""
+    layout_cls = "layout" if toc else "layout no-toc"
     return f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -846,10 +854,9 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
     <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
   </div>
 </header>
-<div class="layout">
+<div class="{layout_cls}">
   <nav class="sidebar" aria-label="Modules">{sidebar}</nav>
-  <main id="main" class="content">{content}</main>
-  <aside class="toc" aria-label="On this page">{toc}</aside>
+  <main id="main" class="content">{content}</main>{toc_el}
 </div>
 <footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>

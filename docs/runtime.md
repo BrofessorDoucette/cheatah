@@ -3,7 +3,7 @@
 <div class="cheetah-slogan">🐱 <em>A tiny, headless host that loads your module and runs it.</em> 🐆</div>
 
 `purrc` turns a `.purr` into a **native loadable module** — a `.so` (Linux), `.dylib`
-(macOS), or `.dll` (Windows). The **`cheatah`** runtime is the small program that loads and
+(macOS), or `.dll` (Windows). The <b>`cheatah`</b> runtime is the small program that loads and
 runs it:
 
 ```sh

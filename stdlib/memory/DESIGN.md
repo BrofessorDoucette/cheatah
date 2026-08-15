@@ -6,12 +6,12 @@ A **C++ backend** that cheatah `import memory`s. It gives ownership and access t
 enforces memory safety by construction. It is a **thin layer over bare standard-library primitives** —
 a hand-rolled coordinator built on one `std::mutex` + `std::condition_variable` and a
 `std::priority_queue`, plus `std::promise` / `std::future` for the request handshake. What you get back
-from an accessor is a `memory::Request<Lease>`, a small **move-only wrapper around a `std::future`**
+from an accessor is a `memory::Request<Lease>`, a small <b>move-only wrapper around a `std::future`</b>
 (composition — no inheritance, no `friend`); you block for the lease with `.acquire(on_interrupt)`, so
 cheatah never has to learn the words "future"/"promise" yet. The safety comes from *what* we hand back
 (a lease you can only read/write through), not from hiding the plumbing.
 
-**No garbage collection. No `view` type. No copy/clone. No heap of ours.** Just modern-C++
+<b>No garbage collection. No `view` type. No copy/clone. No heap of ours.</b> Just modern-C++
 `std::mutex` / `std::condition_variable` / `std::promise` / `std::future` / `std::priority_queue`
 (plus a small per-generation *gate* of `std::atomic`s for the yield signal), wrapped into `Lease`,
 `Request`, and `Owner` (plus a free `own()` factory). We hand-roll the priority reader/writer lock
@@ -25,13 +25,13 @@ the `Mode` concept), `policy.hpp` (the `policy` enum + `immediate`), `lease.hpp`
 ## The two types
 
 ### `Owner<T>` — sole owner + coordinator
-**`T` is the only template argument, ever.** The class is *not* parameterised on policy or priority:
+<b>`T` is the only template argument, ever.</b> The class is *not* parameterised on policy or priority:
 - the **scheduling policy** is a value passed **at construction** (and stored), and
 - the **priority** of a write is a value passed **at the call**, as a template argument on the
   accessor (`o.rwrite<priority>()`).
 
-Crucially, **every accessor is a *request* — it returns a `memory::Request<Lease<…>>`, never a lease
-directly** (a read included). The owner may not be ready to hand out access the instant you ask
+Crucially, <b>every accessor is a *request* — it returns a `memory::Request<Lease<…>>`, never a lease
+directly</b> (a read included). The owner may not be ready to hand out access the instant you ask
 (a write may be pending, a drain in progress); a request lets the owner decide *when* to grant.
 There is deliberately **no** API that returns a bare lease — so "I got handed access I wasn't really
 cleared for" is unrepresentable. A `Request<L>` wraps a `std::future<L>`; you redeem it with
@@ -55,19 +55,19 @@ class Owner {
 ```
 - Holds the value and coordinates all access. **Non-copyable, pinned** — there is never a second
   owner, so when the owner drops, the object is destroyed.
-- **`memory::policy`** (a plain runtime enum, given to the constructor) chooses how pending writes are
+- <b>`memory::policy`</b> (a plain runtime enum, given to the constructor) chooses how pending writes are
   scheduled against reads:
-  - **`memory::interleave`** (default) — readers renew *between* writes; writers and waiting readers are
+  - <b>`memory::interleave`</b> (default) — readers renew *between* writes; writers and waiting readers are
     served fairly.
-  - **`memory::writes_first`** — drain the **entire** write queue before renewing any reader. (Under a
+  - <b>`memory::writes_first`</b> — drain the **entire** write queue before renewing any reader. (Under a
     steady write stream this starves readers — but the owner *chose* that policy at construction; it
     is a deliberate, visible declaration, never a memory-safety hole.)
-- **Priority is a compile-time argument on `rwrite`.** `o.rwrite()` is priority `0`; `o.rwrite<10>()`
+- <b>Priority is a compile-time argument on `rwrite`.</b> `o.rwrite()` is priority `0`; `o.rwrite<10>()`
   jumps ahead of it; the caller may use its own enum for legible names —
   `enum class Job { normal = 0, ui = 10, alarm = 100 };` then `o.rwrite<Job::alarm>()`.
   The only rule the value must obey: **higher = higher priority**, and **negative = immediate**. The
   queue orders by `(static_cast<long long>(priority) desc, arrival asc)`.
-- **`memory::immediate`** — a named constant, `= -1`, the canonical spelling of an immediate-write:
+- <b>`memory::immediate`</b> — a named constant, `= -1`, the canonical spelling of an immediate-write:
   `o.rwrite<memory::immediate>()` reads far better than `o.rwrite<-1>()`. (Any negative value is an
   immediate-write; `memory::immediate` is simply the readable name for it.)
 
@@ -113,8 +113,8 @@ atomic, notify a condition) and let your own loop react.
 ### `Lease<T, memory::read | memory::write | memory::write_renewable>` — the only handle to the object
 - The one way to touch the object. Holds its grant for its lifetime plus a direct pointer to the
   object. RAII / move-only.
-- **Access is `read()` / `write(…)`, never `get()`, and `write` NEVER returns an object.** A read lease
-  is read with `r.read()` (→ `const T&`); a write lease is **set with `w.write(value)`** (the obvious
+- <b>Access is `read()` / `write(…)`, never `get()`, and `write` NEVER returns an object.</b> A read lease
+  is read with `r.read()` (→ `const T&`); a write lease is <b>set with `w.write(value)`</b> (the obvious
   setter — not `w.write() = value`). For fine-grained mutation without replacing the whole object, the
   write lease offers **deduced element setters**: `w.write(index, v)` for an `Indexed` sequence
   (vector / array / string / ndarray) and `w.write(key, v)` for a `Mapping` (map / unordered_map). A
@@ -152,27 +152,27 @@ atomic, notify a condition) and let your own loop react.
 4. **The writer writes**, possibly **moving** the object.
 5. **The owner fulfills promises.** The write lease ends; the owner (per its stored `policy`) either
    serves the next queued writer or renews the readers that asked to renew — fulfilling each renewal
-   `promise` whose **`future` payload is the object's *current* location**, so a renewed reader never
+   `promise` whose <b>`future` payload is the object's *current* location</b>, so a renewed reader never
    holds a stale pointer even though the object may have moved.
 
 ## Scheduling (owner's decision)
 - Pending **writes** live in a `std::priority_queue` keyed by `(priority-as-long-long, arrival)`; the
   owner pops the winner and fulfills its `std::promise<Lease<T, write>>`.
 - **Waiting readers** hold renewal futures fulfilled in a wave after a write.
-- The stored **`policy`** decides, at each hand-off, whether the next grant is a queued writer or the
+- The stored <b>`policy`</b> decides, at each hand-off, whether the next grant is a queued writer or the
   reader renewal wave (`interleave` vs `writes_first`).
 
 ## Negative priority = immediate-write (the one queue-bypass)
 Sometimes a write is *so* urgent it cannot wait for the queue or even the next scheduling tick (an
 alarm, a shutdown flag, a correction that everything else is now reading wrong). A **negative
-priority** — spelled with the named constant **`o.rwrite<memory::immediate>()`** (`memory::immediate == -1`)
+priority** — spelled with the named constant <b>`o.rwrite<memory::immediate>()`</b> (`memory::immediate == -1`)
 — is that escape hatch, and **only** that:
 
 1. It **does not enter the priority queue** — it goes to the front of everything, above every
    non-negative level.
 2. It **preempts the active writer**: the owner flips that writer's `Gate`, so its lease sees
-   `expired()`. The active writer, seeing `!w.valid()` at its next check, **stops touching `w.write()`
-   and waits** — it does *not* destroy the lease. (A writer that never loops on `valid()` runs its
+   `expired()`. The active writer, seeing `!w.valid()` at its next check, <b>stops touching `w.write()`
+   and waits</b> — it does *not* destroy the lease. (A writer that never loops on `valid()` runs its
    current lease to completion first — cooperative, never forced.) The owner internally suspends that
    writer's lock.
 3. The immediate-write acquires exclusively, does its work (possibly moving the object), releases.
@@ -221,7 +221,7 @@ lease, **no** `std::promise` (owner-only), **no** hand-spelled class template pa
 ## No new cheatah vocabulary — `Request` hides the future
 Cheatah does **not** gain `future`/`promise` types right now. `rread()`/`rwrite<…>()` return a
 `memory::Request<Lease<…>>`, which codegen maps like any module type. Its only cheatah-visible operation
-is **`.acquire(on_interrupt)`** (→ the lease); the wrapped `std::future` and the owner's `std::promise`
+is <b>`.acquire(on_interrupt)`</b> (→ the lease); the wrapped `std::future` and the owner's `std::promise`
 stay entirely inside the C++ backend. (Design history: a hand-rolled `pending`(`.claim`) → bare
 `std::future`(`.get`) → a `std::future` *subclass* → this composition wrapper with `.acquire()` — the
 last keeps future/promise terminology out of the language, lets the interrupt callback ride into the

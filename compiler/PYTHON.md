@@ -5,8 +5,8 @@ set of deliberate deviations** from Python syntax (chosen for simplicity and a
 clean, fast compile to C++). Goal: **most Python scripts port to cheatah with
 light edits.** Update this as the language grows.
 
-> TL;DR of the deviations: **blocks use `{ }` not indentation**; **`let`** declares
-> a variable; **`fn`** not `def`; **`struct`** not `class`; **everything is
+> TL;DR of the deviations: <b>blocks use `{ }` not indentation</b>; <b>`let`</b> declares
+> a variable; <b>`fn`</b> not `def`; <b>`struct`</b> not `class`; **everything is
 > imported** (even `print`, from `io`); types are **inferred and static** under the
 > hood.
 
@@ -104,7 +104,7 @@ cheatah code therefore always runs under the runtime, never standalone.
 
 ## 🔀 Deliberate deviations from Python (and why)
 
-1. **Blocks use braces `{ }`, not indentation + colons.**
+1. <b>Blocks use braces `{ }`, not indentation + colons.</b>
    ```python
    # cheatah                # Python
    if x > 0 {                  if x > 0:
@@ -114,13 +114,13 @@ cheatah code therefore always runs under the runtime, never standalone.
    *Why:* the lexer stays simple (no INDENT/DEDENT), and braces give C-style
    structure. **Porting:** replace `:` + indentation with `{ … }`.
 
-2. **`let` declares a new variable; bare `=` reassigns.**
+2. <b>`let` declares a new variable; bare `=` reassigns.</b>
    `let x = 1` then `x = 2`. *Why:* a clear declaration point maps to C++
    `auto x = …;`. **Porting:** add `let` on first assignment of a name.
 
-3. **`fn` instead of `def`.** `fn add(a, b) { return a + b }`.
+3. <b>`fn` instead of `def`.</b> `fn add(a, b) { return a + b }`.
 
-4. **`struct` instead of `class` — with methods and interfaces.**
+4. <b>`struct` instead of `class` — with methods and interfaces.</b>
    A `struct` is more than a data class: it carries **typed fields**, **methods**,
    and can declare the **interfaces** it fulfills.
    ```python
@@ -153,10 +153,10 @@ cheatah code therefore always runs under the runtime, never standalone.
      interfaces. Interfaces today are **flat**: refining one interface from another
      (C++ concept subsumption) is on the roadmap, not in yet. Struct inheritance is a
      deliberate non-goal, so the interface graph is where any "is-a" structure lives.
-   - **No custom constructor / `__init__`** yet — construction is **positional** over
+   - <b>No custom constructor / `__init__`</b> yet — construction is **positional** over
      the fields in declaration order (`Circle(2.0)`, `Bar("d", 1.0)`).
 
-5. **Everything is imported — including `print`.** `print` lives in `io` (`import io`
+5. <b>Everything is imported — including `print`.</b> `print` lives in `io` (`import io`
    then `io.print(...)`); the math functions `abs`/`min`/`max`/`round`/`pow` live in
    `math` (`math.abs(...)`), not as globals. *Why:* explicit dependencies = the
    compiler links exactly what you use. **Porting:** add the relevant `import` and
@@ -167,10 +167,10 @@ cheatah code therefore always runs under the runtime, never standalone.
    per dependency — see biome's `[dependencies]`), else the compiler errors telling you how
    to point it at the module.
 
-6. **`^` is bitwise-xor (C++), not power.** Use `**` for exponentiation (it maps
+6. <b>`^` is bitwise-xor (C++), not power.</b> Use `**` for exponentiation (it maps
    to `std::pow`), e.g. `2 ** 10`.
 
-7. **`/` is true division; `//` floors.** Like Python 3, `/` always yields a float
+7. <b>`/` is true division; `//` floors.</b> Like Python 3, `/` always yields a float
    (even `int / int`), and `//` floor-divides toward −∞.
 
 8. **Containers map to STL types.** `list[T]` → `std::vector<T>`, `dict[K,V]` →
@@ -184,7 +184,7 @@ cheatah code therefore always runs under the runtime, never standalone.
    (`x = 1; x = "s"` won't work).
 
 10. **No indentation significance.** Newlines separate statements; `{ }` groups
-    them; indentation is purely cosmetic. A **`;`** is an *optional* statement
+    them; indentation is purely cosmetic. A <b>`;`</b> is an *optional* statement
     separator/terminator (`let a = 1; let b = 2`, a trailing `x = x + 1;`, or to
     separate `struct` fields) — handy if you're used to Python's `;` or C++'s, but
     never required.
@@ -194,7 +194,7 @@ cheatah code therefore always runs under the runtime, never standalone.
     object); `raise "msg"` throws a generic error. No typed `except ValueError`,
     `as`, or `finally` yet.
 
-12. **`with` for resources — RAII, not a context-manager protocol.** `with expr [as
+12. <b>`with` for resources — RAII, not a context-manager protocol.</b> `with expr [as
     name] { … }` binds `expr` for the block and lowers to a plain C++ scope, so the
     value's destructor runs at block exit on every path (return/break/exception). It
     is the direct analog of Python's `with open(…) as f:` — cheatah's `io.open`,
@@ -209,8 +209,8 @@ cheatah code therefore always runs under the runtime, never standalone.
 ## 🚧 Not yet supported (roadmap)
 
 Comprehensions; typed exceptions & `finally`; **interface refinement** (one
-interface building on another — interfaces are flat for now); **custom constructors /
-`__init__`** (construction is positional for now); f-strings & rich string formatting
+interface building on another — interfaces are flat for now); <b>custom constructors /
+`__init__`</b> (construction is positional for now); f-strings & rich string formatting
 (use `io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);
 tuples/unpacking; generators/`yield`; `lambda`.
 

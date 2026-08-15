@@ -53,7 +53,7 @@ myproj/
 purrc myproj/main.purr -o app.so      # import mathx → myproj/mathx/mathx.hpp
 ```
 
-**3 — a dependency elsewhere on disk (`--import-root`).** Point purrc at each root:
+<b>3 — a dependency elsewhere on disk (`--import-root`).</b> Point purrc at each root:
 
 ```
 workspace/
@@ -68,7 +68,7 @@ purrc app/main.purr -o app.so --import-root ../mathx
 #   import mathx.linear → ../mathx/mathx/mathx.hpp  ( .linear is a nested namespace )
 ```
 
-**4 — a signed extension on the module path (`$CHEATAH_MODULE_PATH`).** How fetched
+<b>4 — a signed extension on the module path (`$CHEATAH_MODULE_PATH`).</b> How fetched
 extensions resolve; the header **must** carry a `.sha512` sidecar to match here:
 
 ```sh
@@ -90,8 +90,8 @@ For a module name `m`, purrc searches these in order and **stops at the first hi
 
 | # | Where it looks | Matches | Needs a `.sha512` sidecar? |
 |---|---|---|---|
-| 1 | The **source file's own directory**, then each **`--import-root <dir>`** (in order given) | `<root>/<m>/<m>.hpp`, then `<root>/<m>.hpp` | No — plain header *or* signed library |
-| 2 | **`$CHEATAH_MODULE_PATH`** entries (`:`-separated), then the baked root | `<dir>/<m>/<m>.hpp` **only if** `<dir>/<m>/<m>.hpp.sha512` also exists | Yes — signed libraries only |
+| 1 | The **source file's own directory**, then each <b>`--import-root <dir>`</b> (in order given) | `<root>/<m>/<m>.hpp`, then `<root>/<m>.hpp` | No — plain header *or* signed library |
+| 2 | <b>`$CHEATAH_MODULE_PATH`</b> entries (`:`-separated), then the baked root | `<dir>/<m>/<m>.hpp` **only if** `<dir>/<m>/<m>.hpp.sha512` also exists | Yes — signed libraries only |
 | 3 | The **baked toolchain root** (fallback) | `<root>/<m>/<m>.hpp`, archive under the baked lib dir | No — this is how the C++ stdlib resolves |
 
 Consequences worth internalizing:
@@ -99,10 +99,10 @@ Consequences worth internalizing:
 - **Local wins.** A module next to your source or under `--import-root` is found before
   the env path or the baked stdlib. The source's own directory is always searched first,
   so two files side by side just work (Python-style).
-- **Dotted names resolve by their *first* segment.** `import a.b.c` looks up **`a`** as
+- **Dotted names resolve by their *first* segment.** `import a.b.c` looks up <b>`a`</b> as
   the module; `b.c` are nested namespaces *inside* `a`'s header — purrc never looks for a
   file at `a/b/c`. (`import os.path` → the `os` module; `os.path.join(…)` reaches inside it.)
-- A co-located **`libcheatah_<m>.a`** is linked if present but never required (branches 1 & 3).
+- A co-located <b>`libcheatah_<m>.a`</b> is linked if present but never required (branches 1 & 3).
 - Resolve nowhere → a clear error naming the unresolved import and telling you to place it
   beside the source, pass `--import-root <dir>`, or declare it in `cheatah.toml`.
 
@@ -143,8 +143,8 @@ header in `namespace cheatah::<m>`. Two flavors:
 | **transparent** | `purrc --emit-library --transparent <m>.purr` | the full generated C++, inlined | none (header-only) |
 
 `--transparent` is what the first-party stdlib uses, so users (and the VS Code
-Go-to-Definition) always see the true C++. Either way the `<m>.hpp` ships **committed next
-to the `.purr`** with its `.sha512` sidecar — the exact marker branches 1 & 2 use to
+Go-to-Definition) always see the true C++. Either way the `<m>.hpp` ships <b>committed next
+to the `.purr`</b> with its `.sha512` sidecar — the exact marker branches 1 & 2 use to
 recognize and verify it.
 
 ## Where biome fits

@@ -108,16 +108,16 @@ print(c.area())
   the roadmap, not in yet); struct inheritance is a deliberate non-goal, so the
   interface graph is where any "is-a" structure will live.
 - **Construction is positional** over the fields in declaration order
-  (`Circle(2.0)`); there is **no custom constructor / `__init__`** yet. Field access
+  (`Circle(2.0)`); there is <b>no custom constructor / `__init__`</b> yet. Field access
   is `c.r`.
 
 ## Deliberate deviations (and why)
 
 1. **Braces, not indentation.** Keeps the lexer simple (no INDENT/DEDENT) and the
    structure explicit. *Porting:* replace `:`+indent with `{ … }`.
-2. **`let` declares, `=` reassigns.** A clear declaration point maps to C++ `auto`.
+2. <b>`let` declares, `=` reassigns.</b> A clear declaration point maps to C++ `auto`.
    *Porting:* add `let` on a name's first assignment.
-3. **Everything is imported — including `print`.** `print` is `io.print`; math
+3. <b>Everything is imported — including `print`.</b> `print` is `io.print`; math
    helpers (`abs`/`min`/`max`/`pow`/`round`) live in `math`. *Why:* the compiler
    links exactly what you use. Global built-ins (`len`/`hex`/`ord`) need no import.
 4. **Static types under the hood.** `let`/params use C++ `auto`, so a name's type is
@@ -134,10 +134,10 @@ print(c.area())
    bare `raise` inside a handler re-raises. `finally { … }` runs on every exit path.
    There is no exception *hierarchy* — cheatah has no inheritance, so kinds are open
    strings rather than classes. An error no handler claims keeps travelling.
-8. **`with` is RAII, not a context-manager protocol.** `with expr [as name] { … }`
+8. <b>`with` is RAII, not a context-manager protocol.</b> `with expr [as name] { … }`
    binds a resource for the block and its destructor releases it on **every** exit path
    (`return`/`break`/exception) — the direct analog of Python's `with open(…) as f:`.
-   There is **no `__enter__`/`__exit__`**: any value with a destructor works (`io.open`,
+   There is <b>no `__enter__`/`__exit__`</b>: any value with a destructor works (`io.open`,
    `socket.open`/`serve`, `tls.open`, `websocket.open`/`open_url` all return owning
    guards). No `with a, b:` multi-context form yet — nest blocks.
 
@@ -304,7 +304,7 @@ run time**, every time the line is reached. The whole philosophy of C++ (and so 
 which compiles to it) is the opposite: **do as much as possible once, at compile time**, so
 the running program only does the work that genuinely depends on runtime data.
 
-cheatah hands you a tool Python simply doesn't have: a **compile-time `if`**. Bind a value
+cheatah hands you a tool Python simply doesn't have: a <b>compile-time `if`</b>. Bind a value
 with `constexpr let` and an `if` over it is resolved *while compiling* — the losing branch
 isn't just skipped at runtime, it is **never compiled into the program at all**:
 

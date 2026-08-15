@@ -4,8 +4,8 @@
 > to be as readable as Python *and* as fast as hand-tuned native code — so when you
 > hit run, your programs **purrrrrrrrrrrrr**. 😼⚡
 
-cheatah is a small, **Python-like** language (`.purr`) with a **C-style `struct`
-vibe**, that **compiles to native machine code** and is hosted by the **cheatah
+cheatah is a small, **Python-like** language (`.purr`) with a <b>C-style `struct`
+vibe</b>, that **compiles to native machine code** and is hosted by the **cheatah
 runtime**. It is a general-purpose language built for numerical and systems work:
 data crunching, model training, numerical analysis, and scripting — at native
 speed.
@@ -38,11 +38,11 @@ loadable module that the runtime executable loads and runs.
  dlopen("hello.so") → resolve `purr_main` → call it
 ```
 
-- **`purrc`** ([`purrc.cpp`](../compiler/purrc.cpp)) drives lexer → parser → codegen, then
+- <b>`purrc`</b> ([`purrc.cpp`](../compiler/purrc.cpp)) drives lexer → parser → codegen, then
   invokes the system C++ compiler (`c++ -std=c++20 -O2 -fPIC -shared`) to build a
   loadable `.so`. The generated translation unit exports
   `extern "C" void purr_main()` — no `main()`.
-- **`cheatah`** ([`../runtime/`](../runtime/)) validates the module path,
+- <b>`cheatah`</b> ([`../runtime/`](../runtime/)) validates the module path,
   `dlopen`s the module, resolves `purr_main`, and calls it. The module statically
   links only the stdlib it imported, so it is self-contained — the host shares no
   state with it.
@@ -61,9 +61,9 @@ C++ compiler emits for equivalent code. Measured: a recursive `fib(35)` in
 cheatah runs **at parity with hand-written C++** compiled by the same compiler.
 
 What makes it C++-fast:
-- **`-O3 -march=native -DNDEBUG -fno-semantic-interposition`** — full optimization
+- <b>`-O3 -march=native -DNDEBUG -fno-semantic-interposition`</b> — full optimization
   and host SIMD (programs are compiled and run on the same machine).
-- **User functions are `static`** (internal linkage) → the optimizer inlines them
+- <b>User functions are `static`</b> (internal linkage) → the optimizer inlines them
   like local C++ functions, no exported-symbol barrier.
 - **Value semantics + STL containers + monomorphized templates** — `auto` params
   become abbreviated function templates; ints are 64-bit, strings `std::string`,
@@ -185,26 +185,26 @@ in [`../cmake/CheatahLibrary.cmake`](../cmake/CheatahLibrary.cmake)).
 Templated entry points (constrained with C++20 **concepts** for clear errors) live
 in headers; non-template symbols compile into the library.
 
-- **`builtins`** *(always available, no import)* — `len`, `ord`, `chr`,
+- <b>`builtins`</b> *(always available, no import)* — `len`, `ord`, `chr`,
   `hex`/`oct`/`bin`, `ascii`, `hash`, `bool`/`int`/`float` conversions.
-- **`io`** — `print`, `input`, `str`/`repr`/`format`, `open`/`File`.
-- **`os`** — filesystem, env, process, and `os.path`.
-- **`string`** — case, strip, split/join, replace, find/count, padding, classify.
-- **`math`** — `abs`/`min`/`max`/`round`/`pow`, `sqrt`/trig/`log`, `gcd`/`factorial`,
+- <b>`io`</b> — `print`, `input`, `str`/`repr`/`format`, `open`/`File`.
+- <b>`os`</b> — filesystem, env, process, and `os.path`.
+- <b>`string`</b> — case, strip, split/join, replace, find/count, padding, classify.
+- <b>`math`</b> — `abs`/`min`/`max`/`round`/`pow`, `sqrt`/trig/`log`, `gcd`/`factorial`,
   `pi`/`e`/`tau`/`inf`/`nan`.
-- **`time`** — high-accuracy `<chrono>` timing: `perf_counter`/`monotonic`/`time`/
+- <b>`time`</b> — high-accuracy `<chrono>` timing: `perf_counter`/`monotonic`/`time`/
   `sleep`.
-- **`ndarray`** — numpy-flavored N-d arrays with broadcasting (shared buffer +
+- <b>`ndarray`</b> — numpy-flavored N-d arrays with broadcasting (shared buffer +
   strides; SIMD element-wise ops).
-- **`linalg`** — the SIMD linear-algebra core: `matmul`/`solve`/`inv`/`det`/`qr`/
+- <b>`linalg`</b> — the SIMD linear-algebra core: `matmul`/`solve`/`inv`/`det`/`qr`/
   `svd`/`eig`/`norm`/… over `ndarray`.
-- **`datetime`**, **`random`**, **`statistics`**, **`hashlib`**, **`ed25519`** —
+- <b>`datetime`</b>, <b>`random`</b>, <b>`statistics`</b>, <b>`hashlib`</b>, <b>`ed25519`</b> —
   dates/epochs, Mersenne-Twister RNG, summary statistics, self-contained SHA-256/512,
   and from-scratch Ed25519 public-key signatures.
 
 ## Escape hatch: raw C++ (`cpp { … }`)
 By default cheatah looks like Python. When you need the full power of the host
-language, a **`cpp { … }`** block drops to **raw C++**, emitted verbatim:
+language, a <b>`cpp { … }`</b> block drops to **raw C++**, emitted verbatim:
 
 ```python
 import io
@@ -239,7 +239,7 @@ io.print(run())                        # 5050
   `R"(...)"` containing unbalanced braces — can; wrap or avoid those.)
 - `cpp` is only special immediately before `{` on the same line; elsewhere it's an
   ordinary identifier.
-- ⚠️ **Memory safety is not guaranteed inside `cpp { … }`.** Ordinary cheatah code
+- ⚠️ <b>Memory safety is not guaranteed inside `cpp { … }`.</b> Ordinary cheatah code
   is memory-safe (value types, STL containers, smart pointers — no raw
   `new`/`delete`), but a raw-C++ block is emitted verbatim and is **not** sandboxed
   or checked: raw pointers, unchecked indexing, lifetimes, and undefined behavior
@@ -256,7 +256,7 @@ you `import`, so a lot of raw C++ needs no extra `#include` at all.
   `of` and `finally` are **contextual** — recognised after `except` / a try block, but
   still usable as ordinary names anywhere else.
 - **Operators/punctuation:** `+ - * / ^ = == != < <= > >= ( ) { } [ ] , : ; .`
-- **Newlines** separate statements; brace `{ }` blocks group them. A **`;`** is an
+- **Newlines** separate statements; brace `{ }` blocks group them. A <b>`;`</b> is an
   *optional* statement separator/terminator — `let a = 1; let b = 2` or a trailing
   `x = x + 1;` both work (and `;` may separate `struct` fields). It's never required.
 

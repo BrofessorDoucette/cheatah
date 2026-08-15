@@ -35,7 +35,7 @@ a pong, a close ends the stream — none of which the caller sees.
 
 ## API
 
-The cheatah-facing API is the owning **`Client`** guard from `open`/`open_url`:
+The cheatah-facing API is the owning <b>`Client`</b> guard from `open`/`open_url`:
 
 | Call | What |
 |------|------|

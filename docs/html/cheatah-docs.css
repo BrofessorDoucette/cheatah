@@ -10,7 +10,9 @@
   --border-soft: #2c2720;
   --fg: #ece6da;
   --fg-dim: #b3aa98;
-  --fg-faint: #8a8170;
+  /* 4.80:1 against --surface (#24201a), the lightest ground it is ever drawn on, so it
+     clears WCAG 1.4.3 everywhere. The old #8a8170 measured 4.21:1 there and failed. */
+  --fg-faint: #948b79;
   --accent: #d6ad73;        /* warm tan */
   --accent-2: #e7c897;
   --accent-soft: rgba(214,173,115,.14);
@@ -43,6 +45,24 @@
   --code-bg: #f3ecdd; --code-fg: #33302a;
   --shadow: 0 16px 40px -30px rgba(60,45,20,.4);
 }
+/* Honour the reader's OS setting. The theme toggle was JavaScript and the serving CSP has
+   no script-src, so with it gone this media query is the ONLY way light mode is reachable
+   — which is why the generator emits no hardcoded data-theme on <html>. An explicit
+   data-theme="dark" still wins, so the attribute remains a real override. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --perf-up: #4f7a32; --perf-down: #b14d38;
+    --bg: #f7f3ea; --bg-2: #f1ebde; --surface: #fffdf8; --surface-2: #f4eee2;
+    --border: #e0d7c5; --border-soft: #ebe3d4;
+    --fg: #2c2820; --fg-dim: #5f584b; --fg-faint: #6b6151;
+    --accent: #835d20; --accent-2: #6f4e1a;
+    --accent-soft: rgba(131,93,32,.12);
+    --code-bg: #f3ecdd; --code-fg: #33302a;
+    --shadow: 0 16px 40px -30px rgba(60,45,20,.4);
+  }
+  :root:not([data-theme="dark"]) * { scrollbar-color: #c9bda4 transparent; }
+  :root:not([data-theme="dark"]) ::-webkit-scrollbar-thumb { background: #c9bda4; }
+}
 
 * { box-sizing: border-box; }
 /* Neutral, theme-matched scrollbars (sidebar/TOC/code), not the default blue. */
@@ -58,6 +78,9 @@ body {
   margin: 0; background: var(--bg); color: var(--fg);
   font-family: var(--font); font-size: 15.5px; line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  /* Backstop only. A stray wide element must be FIXED, not hidden — clip keeps one
+     mistake from making the whole document scroll sideways on a phone. */
+  overflow-x: clip;
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
@@ -76,25 +99,32 @@ code, pre, .sig { font-family: var(--mono); }
   backdrop-filter: saturate(150%) blur(12px); -webkit-backdrop-filter: saturate(150%) blur(12px);
   border-bottom: 1px solid var(--border);
 }
-/* Mirror the body grid: brand over the sidebar, then the package switcher. */
+/* Mirror the body grid: brand over the sidebar, then the package switcher.
+   EVERY fixed column here must be dropped by the responsive block at the breakpoint that
+   hides its content — otherwise the header keeps a 248+224px floor and the whole document
+   scrolls sideways on a phone (WCAG 1.4.10 Reflow). docs_a11y_gate.sh gates exactly that. */
 .topbar-inner {
   display: grid; grid-template-columns: var(--side-w) max-content minmax(0,1fr) var(--toc-w);
   align-items: center; gap: 18px; height: 58px;
-  max-width: none; margin: 0; padding: 0 24px;
+  max-width: none; margin: 0; padding: 0 24px; min-width: 0;
 }
-.brand { justify-self: center; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; color: var(--fg); font-size: 1.12rem; }
+/* Starts at the same x as the sidebar's links (24px padding vs 14px + 10px). */
+.brand { justify-self: start; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; color: var(--fg); font-size: 1.12rem; min-width: 0; }
 .brand:hover { text-decoration: none; }
 .brand img { width: 26px; height: 26px; border-radius: 6px; }
 /* The package switcher: cheatah · gpu · gpu-linalg · … · standard, current highlighted. */
 .pkgs { display: flex; align-items: center; gap: 1px; white-space: nowrap; font-size: .82rem; }
-.pkgs a { color: var(--fg-faint); padding: 3px 8px; border-radius: 999px; font-family: var(--mono); }
+.pkgs a { color: var(--fg-dim); padding: 3px 8px; border-radius: 999px; font-family: var(--mono);
+  display: inline-flex; align-items: center; min-height: 24px; }   /* 24px: WCAG 2.5.8 */
 .pkgs a:hover { color: var(--fg); background: var(--accent-soft); text-decoration: none; }
 .pkgs a.current { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 .pkgs .pkgs-sep { color: var(--fg-faint); opacity: .55; user-select: none; }
-/* The way back to the company storefront. Spans the last two grid columns so it lands on
-   the true right edge whether or not the toc column is showing. Unlike .pkgs it survives
-   every breakpoint below — mobile readers are still readers who might buy something. */
-.bb { grid-column: 3 / -1; justify-self: end; color: var(--fg-faint); font-size: .82rem; white-space: nowrap; }
+/* The way back to the company storefront. Spans to the last column so it lands on the true
+   right edge whether or not the toc column is showing — the responsive block re-points it
+   as columns are dropped. Unlike .pkgs it survives every breakpoint below: mobile readers
+   are still readers who might buy something. */
+.bb { grid-column: 3 / -1; justify-self: end; color: var(--fg-dim); font-size: .82rem; white-space: nowrap;
+  display: inline-flex; align-items: center; min-height: 24px; padding: 0 2px; }
 .bb:hover { color: var(--accent); text-decoration: none; }
 
 /* ---- member source link + permalink ---- */
@@ -118,31 +148,37 @@ code, pre, .sig { font-family: var(--mono); }
   display: grid; grid-template-columns: var(--side-w) minmax(0,1fr) var(--toc-w);
   gap: 0; align-items: start; max-width: none; margin: 0;
 }
+/* Pages with no headings to list (the landings) drop the aside entirely — the generator
+   omits the element rather than shipping an empty labelled landmark, so the column that
+   would hold it must go too. */
+.layout.no-toc { grid-template-columns: var(--side-w) minmax(0,1fr); }
 .sidebar {
   position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto;
   padding: 22px 14px 40px; border-right: 1px solid var(--border-soft); font-size: 1rem;
 }
-.side-home { display: block; font-weight: 600; color: var(--fg); padding: 6px 10px; border-radius: 7px; margin-bottom: 8px; text-align: center; }
+/* Nav reads left-aligned: centred nav text wraps into ragged blocks ("biome — the package
+   manager") and is measurably harder to scan. */
+.side-home { display: block; font-weight: 600; color: var(--fg); padding: 6px 10px; border-radius: 7px; margin-bottom: 8px; }
 .side-home:hover { background: var(--accent-soft); text-decoration: none; }
 .side-group { margin: 16px 0; }
-.side-h { text-transform: uppercase; letter-spacing: .08em; font-size: .7rem; color: var(--fg-faint); padding: 0 10px 8px; font-size: .8rem; text-align: center; }
-.sidebar ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-.sidebar li a { display: block; padding: 5px 10px; border-radius: 7px; color: var(--fg-dim); font-family: var(--mono); font-size: .98rem; text-align: center; }
+.side-h { text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); padding: 0 10px 8px; font-size: .8rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: stretch; }
+.sidebar li a { display: flex; align-items: center; min-height: 28px; padding: 5px 10px; border-radius: 7px; color: var(--fg-dim); font-family: var(--mono); font-size: .98rem; }
 .sidebar li a:hover { background: var(--accent-soft); color: var(--fg); text-decoration: none; }
 .sidebar li a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
 /* Submodule dropdowns (os.path, parsers.json, …) nested in the Modules list. */
 .side-sub { width: 100%; }
 .side-sub > summary { list-style: none; cursor: pointer; display: flex; align-items: center;
-  justify-content: center; gap: 5px; border-radius: 7px; }
+  gap: 5px; border-radius: 7px; min-height: 28px; }
 .side-sub > summary::-webkit-details-marker { display: none; }
-.side-sub > summary::after { content: "\25B8"; font-size: .68rem; color: var(--fg-faint);
-  transition: transform .15s ease; }
+.side-sub > summary::after { content: "\25B8"; font-size: .68rem; color: var(--fg-dim);
+  margin-left: auto; transition: transform .15s ease; }
 .side-sub[open] > summary::after { transform: rotate(90deg); }
 .side-sub > summary:hover { background: var(--accent-soft); }
 .side-sub > summary > a { padding: 5px 4px; }
-.side-sub > ul { margin: 2px 0 6px; padding-bottom: 2px; }
-.side-sub > ul a { font-size: .9rem; color: var(--fg-faint); }
+.side-sub > ul { margin: 2px 0 6px; padding-bottom: 2px; padding-left: 12px; }
+.side-sub > ul a { font-size: .9rem; color: var(--fg-dim); }
 
 /* Classes listed on a module's own page (in place of a sidebar Classes column). */
 ul.class-list { list-style: none; margin: 8px 0 0; padding: 0; }
@@ -154,10 +190,10 @@ ul.class-list li a code { color: var(--accent); }
   color: var(--fg-faint); font-size: .8rem; }
 
 .content { padding: 36px 48px 120px; min-width: 0; max-width: none; }
-.toc { position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; padding: 30px 16px; font-size: .95rem; text-align: center; }
-.toc-h { text-transform: uppercase; letter-spacing: .08em; font-size: .7rem; color: var(--fg-faint); margin-bottom: 8px; text-align: center; }
-.toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-.toc li a { display: block; padding: 3px 8px; color: var(--fg-faint); font-family: var(--mono); font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 6px; font-size: .9rem; padding: 5px 10px; text-align: center; }
+.toc { position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; padding: 30px 16px; font-size: .95rem; }
+.toc-h { text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); margin-bottom: 8px; font-size: .8rem; padding: 0 10px; }
+.toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: stretch; }
+.toc li a { display: flex; align-items: center; min-height: 26px; color: var(--fg-dim); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 6px; font-size: .9rem; padding: 4px 10px; }
 .toc li a:hover { color: var(--accent); background: var(--accent-soft); text-decoration: none; }
 
 /* ---- page head ---- */
@@ -238,7 +274,10 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .tag-gpualloc { border-left-color: #7f9a8f; }     /* @gpualloc — device memory, muted jade */
 .tag-destroy { border-left-color: #cf8470; }      /* @destroy — lifetime/caller-must-release, terracotta */
 .tag-gpualloc .tag-k, .tag-destroy .tag-k { min-width: 92px; }
-.tag-test .tag-v, .tag-crtest .tag-v, .tag-systest .tag-v { font-family: var(--mono); font-size: .85rem; }
+/* Qualified gtest names (Suite.Case) are long single tokens with no space to break at —
+   let them break anywhere rather than push the page wider than the viewport. */
+.tag-test .tag-v, .tag-crtest .tag-v, .tag-systest .tag-v { font-family: var(--mono); font-size: .85rem;
+  min-width: 0; overflow-wrap: anywhere; }
 .tag-v .more { color: var(--fg-faint); cursor: help; padding: 0 2px; }
 .tag-test .tag-k, .tag-crtest .tag-k, .tag-systest .tag-k { min-width: 92px; }
 
@@ -248,7 +287,8 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .admon-b { color: var(--fg-dim); }
 
 /* ---- code & tables ---- */
-code { background: var(--code-bg); padding: .12em .4em; border-radius: 5px; font-size: .88em; color: var(--code-fg); }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 5px; font-size: .88em; color: var(--code-fg);
+  overflow-wrap: anywhere; }   /* long symbols must not set the page width on a phone */
 pre.code { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; overflow-x: auto; }
 pre.code code { background: none; padding: 0; }
 /* Syntax highlighting (tokens emitted by docs/gen/generate.py) — warm, theme-matched.
@@ -281,7 +321,8 @@ pre.code code { background: none; padding: 0; }
   border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
 .xpile-pane pre.code { margin: 0; font-size: .82rem; line-height: 1.55; white-space: pre; }
 @media (max-width: 1000px) { .xpile { grid-template-columns: 1fr; } }
-.dtable, table.dtable { border-collapse: collapse; width: 100%; margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.dtable, table.dtable { border-collapse: collapse; width: 100%; margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+  display: block; overflow-x: auto; }   /* a wide table scrolls itself, not the document */
 .dtable th, .dtable td { padding: 8px 12px; border-bottom: 1px solid var(--border-soft); text-align: left; }
 .dtable th { background: var(--surface-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-dim); }
 .dtable tr:last-child td { border-bottom: none; }
@@ -309,12 +350,44 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 .home .cheetah-slogan { font-size: 1.3rem; text-align: center; color: var(--accent); margin: 1.5em 0; }
 .home .cheetah-colophon { text-align: center; color: var(--fg-faint); font-size: .82rem; }
 
-/* ---- responsive ---- */
-@media (max-width: 1100px) { .toc { display: none; } .layout { grid-template-columns: var(--side-w) minmax(0,1fr); } }
-@media (max-width: 1000px) { .tagline { display: none; } .pkgs { display: none; } }
+/* ---- responsive ----
+   RULE: when a breakpoint hides a column's content, that breakpoint must also drop the
+   column from BOTH grids (.layout and .topbar-inner). A fixed track left behind sets a
+   width floor the viewport cannot satisfy, and the whole document scrolls sideways.
+   scripts/docs_a11y_gate.sh asserts scrollWidth <= innerWidth down to 320px. */
+
+/* The TOC column goes first. */
+@media (max-width: 1100px) {
+  .toc { display: none; }
+  .layout, .layout.no-toc { grid-template-columns: var(--side-w) minmax(0,1fr); }
+  .topbar-inner { grid-template-columns: var(--side-w) max-content minmax(0,1fr); }
+  .bb { grid-column: 3; }
+}
+/* Then the package switcher: brand on the left, the way back to the company on the right. */
+@media (max-width: 1000px) {
+  .tagline { display: none; }
+  .pkgs { display: none; }
+  .topbar-inner { grid-template-columns: minmax(0,1fr) max-content; }
+  .bb { grid-column: 2; }
+}
+/* Phone: one column. The sidebar is CAPPED and scrolls in place instead of stacking its
+   full ~40-link height above the article — otherwise a reader meets two screens of nav
+   before the first word of documentation. A height cap (rather than a <details>
+   disclosure) because it behaves identically in Blink, Gecko and WebKit: Chrome's
+   ::details-content no longer hides content the way a CSS force-open would assume. */
 @media (max-width: 760px) {
-  .layout { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border-soft); }
+  /* minmax(0,1fr), NOT 1fr: a bare 1fr track has an auto minimum, so a wide code block or
+     signature grows the track past the viewport instead of scrolling inside itself. */
+  .layout, .layout.no-toc { grid-template-columns: minmax(0,1fr); }
+  .sidebar {
+    position: static; height: auto; max-height: 38vh; overflow-y: auto;
+    border-right: none; border-bottom: 1px solid var(--border); padding: 10px 8px;
+    overscroll-behavior: contain;                 /* don't chain scroll to the document */
+  }
   .content { padding: 24px 18px 80px; }
+  .topbar-inner { padding: 0 16px; gap: 12px; }
+  /* Primary nav on touch: 44px targets (WCAG 2.5.5). */
+  .sidebar li a, .side-sub > summary, .side-home { min-height: 44px; }
+  .side-home { display: flex; align-items: center; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

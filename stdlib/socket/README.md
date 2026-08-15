@@ -63,7 +63,7 @@ CPU is idle. Guarded so `getsockopt` proves the options on both ends
 `scripts/tls_loopback_bench.sh`):
 - On a throttled WAN link, a cheatah HTTPS GET reaches **0.90× curl** on the identical URL
   (parity — both pinned by the throttle; the download path itself is not the limiter).
-- Throttle-free over loopback vs a real `openssl s_server`, cheatah TLS sustains **~210 MB/s**
+- Throttle-free over loopback vs a real `openssl s_server`, cheatah TLS sustains <b>~210 MB/s</b>
   (byte-identity verified) — far above any real link. curl hits ~1500 MB/s there; the remaining gap
   is per-record TLS framing (copies + per-record key re-expansion), **not** the cipher: cheatah
   AES-128-GCM benches at **3.5 GiB/s, beating OpenSSL's 3.1**. Closing the framing gap only matters

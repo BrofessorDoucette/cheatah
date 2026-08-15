@@ -20,9 +20,9 @@ on *other extensions*, so adding them pulls in more than themselves.
 | Extension | `import` | Depends on |
 |---|---|---|
 | [`cheatah-gpu`](https://github.com/BrofessorDoucette/cheatah-gpu) | `import gpu.dispatch` | the **standard library only** (plus a system Vulkan/Metal userspace stack) |
-| [`cheatah-gpu-linalg`](https://github.com/BrofessorDoucette/cheatah-gpu-linalg) | `import gpulinalg` | **`cheatah-gpu`** and the standard library (`linalg`/`ndarray`) |
+| [`cheatah-gpu-linalg`](https://github.com/BrofessorDoucette/cheatah-gpu-linalg) | `import gpulinalg` | <b>`cheatah-gpu`</b> and the standard library (`linalg`/`ndarray`) |
 | [`cheatah-space`](https://github.com/BrofessorDoucette/cheatah-space) | `import space.time` | the **standard library only** (`ndarray`) |
-| [`cheatah-plot`](https://github.com/BrofessorDoucette/cheatah-plot) | `import plot` | **`cheatah-gpu`** + **`cheatah-gpu-linalg`** and the standard library — headless (no windowing dependency) |
+| [`cheatah-plot`](https://github.com/BrofessorDoucette/cheatah-plot) | `import plot` | <b>`cheatah-gpu`</b> + <b>`cheatah-gpu-linalg`</b> and the standard library — headless (no windowing dependency) |
 
 ## cheatah-gpu — the GPU layer
 
@@ -46,7 +46,7 @@ surface. `biome add cheatah-gpu-linalg`, then `import gpulinalg`; `gpulinalg.ava
 answers the "is there a GPU here?" question honestly, and everything degrades to the host
 `linalg` when there is not.
 
-**Depends on: `cheatah-gpu`** (its Metal/Vulkan surfaces and the software-emulated Metal
+<b>Depends on: `cheatah-gpu`</b> (its Metal/Vulkan surfaces and the software-emulated Metal
 test device) and the standard library.
 
 ## cheatah-space — astronomy & spatial math
@@ -67,9 +67,9 @@ bit-identical CPU reference everywhere else. Headless first (`plot.save` / `plot
 windowing is a later `plot.window` layer. `biome add cheatah-plot`, then `import plot`.
 
 **Depends on other extensions — note this one.** cheatah-plot renders through
-**`cheatah-gpu`**'s raw, 1:1 Vulkan/Metal forwarders (cheatah-gpu has no separate "easy"
+<b>`cheatah-gpu`</b>'s raw, 1:1 Vulkan/Metal forwarders (cheatah-gpu has no separate "easy"
 layer, by design — consumers own their orchestration), and its device-resident array math
-rides **`cheatah-gpu-linalg`**'s `linalg` overloads. The full chain is:
+rides <b>`cheatah-gpu-linalg`</b>'s `linalg` overloads. The full chain is:
 
 ```
 cheatah-plot  →  cheatah-gpu-linalg  →  cheatah-gpu  →  standard library

@@ -36,7 +36,7 @@ cheatah hello.so          # run it
 
 ## Why cheatah
 
-- **Python-like, with a C-style `struct` vibe.** Variables, full expressions and
+- <b>Python-like, with a C-style `struct` vibe.</b> Variables, full expressions and
   operators, `if`/`else`, `while`, `for`, functions, and `struct`s — Turing
   complete, and most Python scripts port over with light edits.
 - **Compiled, not interpreted.** A `.purr` file becomes a real `.so` loadable
@@ -152,7 +152,7 @@ slicing, …) live in [compiler/PYTHON.md](compiler/PYTHON.md).
 ### Escape hatch: raw C++
 
 By default cheatah looks like Python — but when you need the host language
-directly, a **`cpp { … }`** block drops to raw C++ (file scope at the top level
+directly, a <b>`cpp { … }`</b> block drops to raw C++ (file scope at the top level
 for `#include`s/helpers/types; inline inside a function, where it can read and
 write cheatah locals):
 
@@ -167,7 +167,7 @@ fn demo() {
 io.print(demo())                                                  # 16
 ```
 
-> ⚠️ **Memory safety is not guaranteed inside `cpp { … }`.** Ordinary cheatah code
+> ⚠️ <b>Memory safety is not guaranteed inside `cpp { … }`.</b> Ordinary cheatah code
 > is memory-safe (value types, STL containers, smart pointers — no raw
 > `new`/`delete`), but a raw-C++ block bypasses those guarantees and is **not**
 > sandboxed or checked. Raw pointers, unchecked indexing, lifetimes, and undefined
@@ -188,11 +188,11 @@ performance** below for why this stays "all native."
  dlopen("hello.so") → resolve purr_main → call it
 ```
 
-- **`purrc`** ([compiler/purrc.cpp](compiler/purrc.cpp)) drives lexer → parser
+- <b>`purrc`</b> ([compiler/purrc.cpp](compiler/purrc.cpp)) drives lexer → parser
   → codegen ([compiler/](compiler/)), then invokes the system C++ compiler to
   build a loadable module. The generated translation unit exports `purr_main` — no
   `main()`.
-- **`cheatah`** ([runtime/](runtime/)) is the fully headless host: it
+- <b>`cheatah`</b> ([runtime/](runtime/)) is the fully headless host: it
   validates the module path, `dlopen`s the module, resolves `purr_main`, and calls
   it. A compiled program is self-contained — it statically links the stdlib it
   imported — so the host needs no shared state with it.
@@ -224,8 +224,8 @@ your `.purr`.
 **Compile time over runtime — no RTTI.** Because the host is C++, cheatah resolves
 as much as it can at *compile time* and avoids runtime type machinery:
 
-- The compiler, the runtime, and the C++ it generates use **no `dynamic_cast`,
-  `typeid`, or virtual dispatch**. The AST is walked with a kind-tag `enum` +
+- The compiler, the runtime, and the C++ it generates use <b>no `dynamic_cast`,
+  `typeid`, or virtual dispatch</b>. The AST is walked with a kind-tag `enum` +
   `static_cast`, so dispatch is a branch on a tag — not a vtable lookup.
 - The standard library leans on **C++20 concepts** (`requires`) and **templates**
   rather than inheritance; untyped cheatah functions lower to **abbreviated
@@ -237,11 +237,11 @@ as much as it can at *compile time* and avoids runtime type machinery:
 The result is the same cost model as equivalent hand-written C++: value semantics,
 STL containers, no boxing, no indirection.
 
-**Near-raw C++ — the `cpp { … }` escape hatch.** Every construct already lowers
+<b>Near-raw C++ — the `cpp { … }` escape hatch.</b> Every construct already lowers
 1:1 to C++ value types (`int` → `long long` — or an opt-in width `i32` → `std::int32_t`,
 `u8` → `std::uint8_t`, … — `str` → `std::string`, `list`/`dict`
 → `std::vector`/`std::unordered_map`), so cheatah reads almost like C++. When
-Python-level syntax isn't enough, a **`cpp { … }`** block drops straight to raw
+Python-level syntax isn't enough, a <b>`cpp { … }`</b> block drops straight to raw
 C++ — file scope at the top level (for `#include`s, helpers, types), inline inside
 a function (where it can read/write cheatah locals); see **The language → Escape
 hatch** above for an example. It's an *optional* escape hatch, kept off the
@@ -285,10 +285,10 @@ parser** — it emits XML, and our own generator
 ([docs/gen/generate.py](docs/gen/generate.py)) renders the site. Every stdlib
 function carries a Javadoc/Doxygen comment with a uniform contract:
 
-- **`@param` / `@return`**, a one-line brief, **`@complexity`** (the Big-O runtime
-  cost) and **`@alloc`** (the heap behavior — `none`, or what it allocates);
+- <b>`@param` / `@return`</b>, a one-line brief, <b>`@complexity`</b> (the Big-O runtime
+  cost) and <b>`@alloc`</b> (the heap behavior — `none`, or what it allocates);
   memory behavior is a first-class part of every signature.
-- an **`@test`** link to the unit test that exercises the function.
+- an <b>`@test`</b> link to the unit test that exercises the function.
 
 The site is a bespoke, modern **cheetah-themed** design (dark with a light-mode
 toggle): a module sidebar, client-side symbol search, per-page navigation, and
@@ -339,8 +339,8 @@ whole suite under **ASan + UBSan + Valgrind**. Modules can also be **signed** (`
 
 The threat model, the standing review, and the plan for safely adding a Unix
 interface and an MCP server (host-decided trust tiers, capability gating, and an OS
-sandbox) live in [SECURITY.md](SECURITY.md). **Don't run untrusted `.purr` until the
-sandboxed mode described there exists.**
+sandbox) live in [SECURITY.md](SECURITY.md). <b>Don't run untrusted `.purr` until the
+sandboxed mode described there exists.</b>
 
 ## License
 

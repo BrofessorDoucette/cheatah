@@ -408,6 +408,23 @@ fi
 bold "Performance gate: linalg::Fixed vs GLM…"
 ./scripts/bench_gate.sh || fail "linalg::Fixed regressed against GLM"
 
+# 8b. Docs accessibility gate (WCAG 2.1 AA) --------------------------------
+#     The header grid hard-coded a 248px sidebar track and a 224px TOC track at every
+#     breakpoint; below 1000px their content was hidden but the tracks stayed, so the site
+#     was ~526px wide on every phone and scrolled sideways. It shipped for months because
+#     nothing measured the site at a phone width. This gate does: real viewport widths in
+#     a real engine down to 320px, plus computed WCAG contrast over the stylesheet tokens.
+#     Runs after the debug build (it needs purrc + the runtime) and skips loudly if
+#     docs/html has not been generated.
+if [ "${QA_GATE_SKIP_A11Y:-0}" = "1" ]; then
+    bold "Skipping docs accessibility gate (QA_GATE_SKIP_A11Y=1)."
+elif [ ! -d docs/html ]; then
+    printf '\033[33m[qa-gate] docs/html absent — accessibility gate SKIPPED (run docs/build-docs.sh).\033[0m\n'
+else
+    bold "Docs accessibility gate (reflow + contrast)…"
+    bash scripts/docs_a11y_gate.sh || fail "docs accessibility gate (WCAG 2.1)"
+fi
+
 # 9. Stage the release for review (only on a release commit) -----------------
 #    review/ then holds a copy of the latest release to inspect before pushing; it is
 #    archived (per version) when the release tag is actually pushed — see the pre-push

@@ -32,7 +32,7 @@ import it neither sees nor links it.
   **Printable** arg, not just streamable scalars.
 
 ### The `Printable` protocol
-`print`/`str` require **`Printable`**, not raw streamability: a value is printable
+`print`/`str` require <b>`Printable`</b>, not raw streamability: a value is printable
 if it streams directly (numbers, strings, bool), exposes a `str()` method (a struct
 that implements `fn str(self)`, or a built-in object like an `ndarray`), or is a
 `list`/`dict` whose elements are themselves printable (checked recursively). So you

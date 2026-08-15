@@ -7,7 +7,7 @@ is **O(n) in the input length with no backtracking**. It cannot blow up on adver
 the way `std::regex` (which hangs) and backtracking engines like Boost.Regex (which *throws* rather
 than hang) do. It is **statically typed** and **never allocates an intermediate string**: matching
 touches only your input bytes (as a `string_view`) and integer program-counters. `find` returns the
-matched bytes as an **owned `str`** (no borrow, nothing to dangle), plus offsets so you can slice your
+matched bytes as an <b>owned `str`</b> (no borrow, nothing to dangle), plus offsets so you can slice your
 own input zero-copy instead if you prefer.
 
 ## Using it from cheatah
@@ -36,7 +36,7 @@ io.print(regex.full_match(re, "x4567"))   # False — full match is anchored at 
 ### `find` — the match, with the bytes you **own**
 
 `find` returns the leftmost-longest match: `matched`, the byte offsets `begin`/`end`, and `text` — an
-**owned `str`**. The library copies the matched bytes into `text`, so it is always safe to keep, pass
+<b>owned `str`</b>. The library copies the matched bytes into `text`, so it is always safe to keep, pass
 around, or return; there is no borrowing and nothing can dangle (cheatah is C++ — *somewhere* we own
 the string, and here that owner is `text` itself).
 
@@ -263,7 +263,7 @@ if cheatah is slower than RE2 anywhere; `RXBENCH_TABLE` writes the full Markdown
 - **Single-pass unanchored search.** The compiled-in `.*?` prefix keeps every start position
   alive in one DFA state, so an absent pattern costs exactly one visit per byte — no
   per-candidate restarts, O(n) always.
-- **Reversed program for `$`.** A pattern anchored only at the end runs *backward* from the
+- <b>Reversed program for `$`.</b> A pattern anchored only at the end runs *backward* from the
   end of the input: one pass answers existence and yields the leftmost begin, and a wrong tail
   dies in a handful of bytes.
 - **Acceleration armed in the start state.** While no partial match is alive, the scan jumps:
@@ -274,10 +274,10 @@ if cheatah is slower than RE2 anywhere; `RXBENCH_TABLE` writes the full Markdown
   and skipped wholesale; and whenever *any* state maps a byte onto itself, the entire
   consecutive run of that byte is jumped with an 8-byte SWAR scan — long padding/whitespace
   runs cost almost nothing.
-- **`find` candidate budget.** Leftmost-longest is decided per candidate start (with the same
+- <b>`find` candidate budget.</b> Leftmost-longest is decided per candidate start (with the same
   skip battery between candidates); on candidate-dense absent input, a budget triggers one
   O(n) existence pass instead of quadratic scanning.
-- **Value-semantic `Pattern`** — shares a compiled program + reusable DFA cache (start states
+- <b>Value-semantic `Pattern`</b> — shares a compiled program + reusable DFA cache (start states
   included), so copying is cheap and a warm pattern's search allocates nothing.
 - **Zero intermediate-string allocation** — matching touches only the input bytes; `find`'s
   only allocation is the one owned copy of the matched bytes (skippable via the offsets).

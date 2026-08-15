@@ -26,15 +26,15 @@ signed it — it does not remove the need to trust. Everything below assumes tha
 These you get for free — the compiler and runtime enforce them so you don't have to:
 
 - **Memory-safe generated code by construction.** Codegen emits value types and STL
-  containers (`std::string`, `std::vector`, `std::unordered_map`, …) — **no raw
-  `new`/`delete`, no manual pointer arithmetic** — so use-after-free and double-free are
+  containers (`std::string`, `std::vector`, `std::unordered_map`, …) — <b>no raw
+  `new`/`delete`, no manual pointer arithmetic</b> — so use-after-free and double-free are
   off the table for compiler-written code. (The one exception is the `cpp { … }` escape
   hatch — see below.)
 - **Deterministic resource cleanup — no leaked heap memory or OS handles.** Heap objects are
   value types that free by scope, and every *stateful* resource (a file, socket, TLS or
   WebSocket connection) is handed out as an **owning guard value** whose destructor
   releases it — `io.File`, `socket.Conn`/`Listener`, `tls.Conn`, `websocket.Client`. A
-  **`with resource [as name] { … }`** block binds one for the block and closes it on
+  <b>`with resource [as name] { … }`</b> block binds one for the block and closes it on
   **every** exit path — a `return`, a `break`, or an exception. **Pure cheatah code cannot
   leak heap memory at all:** the only heap-allocating handle APIs (the flat, session-id
   forms in `tls` and `websocket`) are now **C++-only** — they live in `*_lowlevel.hpp` and
@@ -105,24 +105,24 @@ small runtime can ship its own implementation.
 
 `purrc --keygen <name>` writes the pair (and prints the public key):
 
-- **`<name>.key`** — the **secret** key, created mode `0600`. Guard it like an SSH private
+- <b>`<name>.key`</b> — the **secret** key, created mode `0600`. Guard it like an SSH private
   key; anyone who has it can sign **as you**.
-- **`<name>.pub`** — the **public** key. Hand it to whoever runs your modules; they pin it
+- <b>`<name>.pub`</b> — the **public** key. Hand it to whoever runs your modules; they pin it
   in a **trust file** so the runtime will accept signatures made by its matching secret key.
 
 ### The files at a glance
 
 Compiling `app.purr` produces the module `app.so`. Each protection you turn on writes a
 small **sidecar file** right next to it, which the runtime reads automatically if it's
-present. The naming is consistent — **`X.sig` always means "the signature of `X`"**:
+present. The naming is consistent — <b>`X.sig` always means "the signature of `X`"</b>:
 
 | File | Written by | What it is | Verified with | Catches |
 |------|-----------|-----------|---------------|---------|
 | `app.so` | `purrc … -o app.so` | the compiled module (native code) | — | — |
 | `app.so.sha512` | `--checksum` | a SHA-512 **checksum** of the module (no key) | re-hash the file | accidental corruption |
-| `app.so.sig` | `--sign code.key` | an Ed25519 **signature of `app.so`** | `code.pub` | tampering with the **code** |
+| `app.so.sig` | `--sign code.key` | an Ed25519 <b>signature of `app.so`</b> | `code.pub` | tampering with the **code** |
 | `app.so.rt` | `--runtime` | a text **manifest** of the build runtime (arch, glibc, libstdc++) | — (compared to the live host) | an **incompatible** host |
-| `app.so.rt.sig` | `--sign-runtime rt.key` | an Ed25519 **signature of `app.so.rt`** | `rt.pub` | tampering with the **manifest** |
+| `app.so.rt.sig` | `--sign-runtime rt.key` | an Ed25519 <b>signature of `app.so.rt`</b> | `rt.pub` | tampering with the **manifest** |
 
 So there are **two separate signatures** — `app.so.sig` over the code and `app.so.rt.sig`
 over the runtime manifest — made with **two different keys**. (Tier 3 explains why they're
@@ -171,11 +171,11 @@ macOS), so there's no verify-then-load race; the read is size-capped.
 ### Tier 3 — `app.so.rt` (+ `app.so.rt.sig`): build-runtime compatibility
 
 This tier answers a different question from Tiers 1–2: not *"is this the right code?"* but
-*"was it built for **this** machine?"* A module dynamically links the host's C/C++ runtime
+*"was it built for <b>this</b> machine?"* A module dynamically links the host's C/C++ runtime
 (glibc, libstdc++); built against a **newer** runtime than the host provides, `dlopen`
 fails cryptically or misbehaves. So `--runtime` records the build environment — CPU arch,
-glibc version, libstdc++ ABI — in a small **text manifest** named **`app.so.rt`** (`.rt`
-for run**t**ime), and the runtime compares it to the **live host** before loading, refusing
+glibc version, libstdc++ ABI — in a small **text manifest** named <b>`app.so.rt`</b> (`.rt`
+for run<b>t</b>ime), and the runtime compares it to the **live host** before loading, refusing
 with a readable reason.
 
 ```sh
@@ -184,7 +184,7 @@ cheatah app.so                        # refuses e.g. "needs glibc >= 2.39, host 
 ```
 
 On its own, `app.so.rt` is plain text — anyone could edit it. To vouch for it, sign it too,
-with **`app.so.rt.sig`** (literally "the `.sig` of the `.rt`"). Crucially this uses a key
+with <b>`app.so.rt.sig`</b> (literally "the `.sig` of the `.rt`"). Crucially this uses a key
 **separate from the code-signing key**, so *what the code is* and *what it was built
 against* are attested **independently**, and neither key can stand in for the other (e.g. a
 build farm can certify the runtime without holding the key that signs releases):
@@ -209,7 +209,7 @@ in strict mode when a runtime trust (`CHEATAH_RT_TRUST` / `--trust-runtime`) is 
 
 ### File permissions: what actually has to be protected
 
-This is the part that surprises people. **Signing changes *what you must guard.*** You no
+This is the part that surprises people. <b>Signing changes <em>what you must guard.</em></b> You no
 longer have to protect the module's bytes from being overwritten — a tampered `app.so`
 just fails verification and is refused. Instead the whole scheme reduces to a few files
 whose **filesystem permissions** are the real control. Get these wrong and an attacker
@@ -219,24 +219,24 @@ walks straight through; get them right and forging a module is computationally i
 |------|------------------|-------------------------|----------------------------------------|
 | `release.key` — the **secret key** | the **signer's** | **read-only to you** — `purrc` creates it `0600`; better still, keep it **offline** | reads it → **signs as you**; every downstream check then passes for *their* malware. A leaked secret key defeats Tiers 2 **and** 3 at once. |
 | the **trust file** — the `.pub` you pin (`CHEATAH_TRUST` / `CHEATAH_RT_TRUST`) | the **runner's** | **writable only by you / root** | adds **their own** public key, then signs malware with its secret half → **full bypass**. The trust file is the anchor; the runtime believes whatever keys are in it. |
-| the **`cheatah` runtime** binary + its directory | the **runner's** | **writable only by you / root** | rewrites the verifier itself → it can be patched to accept anything. Nothing below the trust anchor can defend the trust anchor. |
+| the <b>`cheatah` runtime</b> binary + its directory | the **runner's** | **writable only by you / root** | rewrites the verifier itself → it can be patched to accept anything. Nothing below the trust anchor can defend the trust anchor. |
 | `app.so` — the module | the **runner's** | the runtime **refuses to load it if it is world-writable** (`o+w`) | (refused outright) — but keep it non-world-writable so that refusal isn't your *only* line, and so a local user can't stage a swap. |
 
 And the flip side — files whose permissions you **don't** need to fret over, because they
 either can't be forged or aren't a security control:
 
-- **`app.so.sig` / `app.so.rt.sig`** — leave them world-writable if you like. A signature an
+- <b>`app.so.sig` / `app.so.rt.sig`</b> — leave them world-writable if you like. A signature an
   attacker didn't produce with a **trusted secret key** simply won't verify. The hard part
   is forgery, not file access.
-- **`app.so.sha512`** — anyone who can change the module can recompute its checksum, so the
+- <b>`app.so.sha512`</b> — anyone who can change the module can recompute its checksum, so the
   `.sha512` is only ever a **corruption** check, never a tamper defense. Permissions on it
   buy you nothing.
-- **an unsigned `app.so.rt`** — plain text anyone can edit; it only prevents a *crash*, so a
+- <b>an unsigned `app.so.rt`</b> — plain text anyone can edit; it only prevents a *crash*, so a
   doctored manifest at worst lets an incompatible module *try* to load and fail. Sign it
   (`app.so.rt.sig`) and set a runtime trust if you need it to be trustworthy.
 
-In one line: **protect the secret key on the signing side, and the trust file plus the
-`cheatah` binary on the running side.** Those are the trust anchors; everything else is
+In one line: <b>protect the secret key on the signing side, and the trust file plus the
+`cheatah` binary on the running side.</b> Those are the trust anchors; everything else is
 either unforgeable or not a security boundary, so its permissions don't change the outcome.
 
 ### What this does and does NOT guarantee
@@ -284,16 +284,16 @@ single-trust model:
 - **Running untrusted code.** There is **no sandbox**. A `.purr` program can do
   anything your user account can — treat a `.purr`/`.so` like a shell script you're
   about to `bash`: only run what you trust.
-- **The `cpp { … }` escape hatch.** It runs **arbitrary C++** with no safety net —
+- <b>The `cpp { … }` escape hatch.</b> It runs **arbitrary C++** with no safety net —
   memory safety inside the block is entirely yours. (Slated to be **refused** in the
   future sandboxed mode, which does not exist yet.)
-- **Host effects: `os.system`, filesystem, environment.** Python-parity conveniences
+- <b>Host effects: `os.system`, filesystem, environment.</b> Python-parity conveniences
   with **full host access** today. Validate any data that flows into a path, a command,
   or a file you open — cheatah won't second-guess it for you.
 - **Your own input validation and secrets.** Bounds checks stop memory corruption,
   not logic bugs. Untrusted *input* to a trusted program is still your domain:
   validate ranges, sanitize before shelling out, and keep credentials out of source.
-- **`https://` authenticates the server by default.** The from-scratch `tls` 1.3 client (and
+- <b>`https://` authenticates the server by default.</b> The from-scratch `tls` 1.3 client (and
   `requests`/`websocket` riding it) validates the server's X.509 certificate chain to a trusted
   CA, matches the requested hostname against the certificate's `subjectAltName`, and checks the
   validity dates — so it resists an active **man-in-the-middle**, not just a passive
@@ -304,7 +304,7 @@ single-trust model:
   are likewise hardened against hostile remote data: TLS records, WebSocket frames, HTTP
   responses, and JSON are bounds-checked and size-capped so a malicious peer cannot corrupt
   memory, crash the client, or exhaust its memory.
-- **`tls.accept` serves CA-trusted HTTPS with no other software.** The from-scratch TLS 1.3
+- <b>`tls.accept` serves CA-trusted HTTPS with no other software.</b> The from-scratch TLS 1.3
   **server** presents an Ed25519 or ECDSA P-256 leaf (P-256 is what public CAs issue), sends
   the full certificate chain from a `fullchain.pem`, signs CertificateVerify only with an
   algorithm the client's `signature_algorithms` offered (RFC 8446 §4.4.3), refuses a cert/key

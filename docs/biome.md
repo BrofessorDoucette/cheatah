@@ -13,12 +13,12 @@ project depends on, and builds it. Whichever tool you already know, biome maps o
 - **If you know Rust's Cargo:** biome is cheatah's Cargo. `cheatah.toml` is your `Cargo.toml`,
   `biome add <pkg>` is `cargo add`, and `biome build` is `cargo build` — the same
   *describe-it-then-build-it* loop. Two differences: the build biome drives underneath is plain
-  CMake (not a bespoke build system you have to learn), and there is **no `biome run`** — you run
+  CMake (not a bespoke build system you have to learn), and there is <b>no `biome run`</b> — you run
   the built program with the `cheatah` runtime (see [Running what you built](#running)).
 - **If you know Python's pip + venv:** biome is *both*, fused into the build. It gives you the
   **isolation a virtualenv gives** — each project builds **only** against dependencies it
   fetched into its own tree, so there is no global, mutable `site-packages` and none of the
-  "which include path won?" ambiguity — but with **no `venv` to create or activate**.
+  "which include path won?" ambiguity — but with <b>no `venv` to create or activate</b>.
   `cheatah.toml` lists your dependencies the way `requirements.txt` / `pyproject.toml` does;
   biome fetches each one **locally, into this project's own build folder**, and CMake compiles
   against exactly those copies. The isolation is the point (that's the virtual-environment part);
@@ -86,14 +86,14 @@ biome help            usage                      (also --help / -h)
 
 That is the **complete** command surface. A few things to note:
 
-- **There is no `biome run`.** biome *builds*; it never runs your program. A cheatah program
+- <b>There is no `biome run`.</b> biome *builds*; it never runs your program. A cheatah program
   is a loadable module, and you run it with the `cheatah` runtime — see
   [Running what you built](#running).
 - **Configure and build are separate** (as in plain CMake). `biome configure` runs the CMake
   configure (CPM fetches the toolchain + extensions); `biome build` compiles what was
   configured. `biome build --clean-first` maps to `cmake --build build --clean-first` (a clean
   rebuild). `--clean-first` is the one flag biome adds.
-- **`biome list` is project-scoped.** It shows the extensions of a *specific* project and does
+- <b>`biome list` is project-scoped.</b> It shows the extensions of a *specific* project and does
   nothing unless it is pointed at a directory that holds a `cheatah.toml` (default: the current
   directory) — biome is a per-project environment, not a global registry browser.
 - Everything else configurable lives in `cheatah.toml`, not on the command line. Anything
@@ -297,7 +297,7 @@ The fetch happens on the next `biome configure`, and the compile on `biome build
 
 The two steps map exactly onto CMake's own two phases:
 
-- **`biome configure`** regenerates `CMakeLists.txt` from the manifest, then runs
+- <b>`biome configure`</b> regenerates `CMakeLists.txt` from the manifest, then runs
   `cmake -S . -B build` (the CMake *configure*). During that configure, the generated
   `CMakeLists.txt`:
   1. `include(cmake/CPM.cmake)` — bootstraps CPM (downloaded once into the build tree);
@@ -306,16 +306,16 @@ The two steps map exactly onto CMake's own two phases:
   3. one `CPMAddPackage(NAME cheatah-… …)` per extension you opted into;
   4. `include(${cheatah_SOURCE_DIR}/cmake/CheatahProgram.cmake)` then
      `cheatah_add_program(hello SOURCES src/main.purr EXTENSIONS … IMPORT_ROOTS …)`.
-- **`biome build`** runs `cmake --build build` (the CMake *build*) — this is where
+- <b>`biome build`</b> runs `cmake --build build` (the CMake *build*) — this is where
   `cheatah_add_program` actually compiles. Add `--clean-first` for a from-scratch rebuild.
 
 That helper, `cheatah_add_program`, is where your program is built. It:
 
-- runs **`purrc`** on `src/main.purr` to transpile and compile it into a loadable
+- runs <b>`purrc`</b> on `src/main.purr` to transpile and compile it into a loadable
   **module** (`build/hello.so`) — purrc never emits a standalone executable;
 - points purrc at your dependencies. Each fetched **extension**'s source directory is
   put on purrc's module search path via the `CHEATAH_MODULE_PATH` environment
-  variable, and each `[dependencies]` path is passed as a **`--import-root <dir>`**
+  variable, and each `[dependencies]` path is passed as a <b>`--import-root <dir>`</b>
   flag, so every `import` in your code resolves — and, crucially, it can only resolve
   against what biome fetched into this project's tree (the hermetic, virtual-environment
   guarantee: no ambient global include paths leak in).
@@ -323,7 +323,7 @@ That helper, `cheatah_add_program`, is where your program is built. It:
 ## Running what you built {#running}
 
 **biome never runs your program.** A cheatah program is a loadable **module**, and modules
-are run by the **`cheatah` runtime** — explicitly:
+are run by the <b>`cheatah` runtime</b> — explicitly:
 
 ```sh
 cheatah build/hello.so        # this is how you run it — always
@@ -337,7 +337,7 @@ no `biome run` and no hidden launcher step to reason about — `cheatah <module>
 
 > **Where this is heading.** The version in `cheatah.toml` is meant to pin an exact,
 > backed-up cheatah release, and `biome configure` will **install that release's toolchain into
-> the project itself** — both the **`purrc` compiler** *and* the **`cheatah` runtime**, placed
+> the project itself** — both the <b>`purrc` compiler</b> *and* the <b>`cheatah` runtime</b>, placed
 > right next to `cheatah.toml`. biome would then always drive *that* co-located `purrc` to
 > build, and you would run with *that* co-located `cheatah` — never an ambient one from your
 > `PATH` — so it is unambiguous exactly which compiler and which runtime a project uses (the

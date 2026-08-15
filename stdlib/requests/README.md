@@ -74,7 +74,7 @@ connection even on an error path.
 
 ## Security notes
 
-- **`https://` authenticates the server by default.** It rides the cheatah `tls` client, which
+- <b>`https://` authenticates the server by default.</b> It rides the cheatah `tls` client, which
   validates the certificate chain to a trusted CA, matches the hostname against the certificate
   SAN, and checks expiry (see the [`tls` README](../tls/README.md)) — so an active
   man-in-the-middle is refused, not just a passive eavesdropper. For a pinned/controlled peer,
@@ -93,16 +93,16 @@ connection even on an error path.
 
 ## Deviations from Python `requests` (by design)
 
-- **`json()` takes a struct** (`r.json(out)`) and uses the accelerated schema-typed reader,
+- <b>`json()` takes a struct</b> (`r.json(out)`) and uses the accelerated schema-typed reader,
   rather than returning a dynamic object. A struct-free dynamic `json()` for ad-hoc navigation
   is planned once `parsers.json` gains `.purr`-navigable accessors.
-- **`text` and `content` are identical** — cheatah strings are byte-based, so there is no
+- <b>`text` and `content` are identical</b> — cheatah strings are byte-based, so there is no
   separate decoded-text vs bytes distinction.
-- **Redirect opt-out is `no_redirect` (not `allow_redirects`).** cheatah zero-initializes
+- <b>Redirect opt-out is `no_redirect` (not `allow_redirects`).</b> cheatah zero-initializes
   structs, so a true-by-default `allow_redirects` bool would silently become `false` on any
   hand-built `Options`. Instead redirects are followed by default (the zero value) and you set
   `.no_redirect = true` to stop at the 3xx — the same behavior as Python's `allow_redirects=False`.
-- **`params` iterate in unspecified order** (`dict<str,str>`). If you must sign an exact query
+- <b>`params` iterate in unspecified order</b> (`dict<str,str>`). If you must sign an exact query
   string (HMAC), put the query in the URL rather than in `params`.
 - **One connection per request** (`Connection: close`); no keep-alive/`Session` yet.
 

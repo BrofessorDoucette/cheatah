@@ -28,9 +28,9 @@ sandbox: a signed module still runs with full privileges, so you must trust the 
 
 Under the default (unsigned) model these are **features, not bugs**:
 
-- **`os.system`, raw filesystem access, process/env access** — Python-parity
+- <b>`os.system`, raw filesystem access, process/env access</b> — Python-parity
   conveniences for your own scripts.
-- **The `cpp { … }` escape hatch** — runs arbitrary C++. Memory safety is the
+- <b>The `cpp { … }` escape hatch</b> — runs arbitrary C++. Memory safety is the
   author's responsibility inside it (see [README](README.md#the-language)).
 - **No sandbox** — a cheatah program can do anything its user can.
 
@@ -45,7 +45,7 @@ What we still hold ourselves to *even under full trust* — because bugs are bug
   (close it yourself, as with Python's `open()` without `with`).
 - **No command injection in the toolchain.** `purrc` invokes the C++ backend with
   `fork` + `execvp` (no shell), so paths can never be reinterpreted as shell syntax.
-- **The runtime validates a module before `dlopen`** (`runtime/main.cpp`):
+- <b>The runtime validates a module before `dlopen`</b> (`runtime/main.cpp`):
   canonicalizes the path, requires a regular file, refuses world-writable modules,
   and checks the ELF magic.
 - **Optional integrity verification before load** (`runtime/integrity.cpp`): a
@@ -151,7 +151,7 @@ profile the authority on *which modules `purrc` is even allowed to link*:
   from the binary, not merely unused.
 - Granted capabilities are **scoped** (e.g. `fs:read=/srv/data`, no write, no exec).
 
-**3. The `cpp { … }` escape hatch is refused in sandboxed mode.**
+<b>3. The `cpp { … }` escape hatch is refused in sandboxed mode.</b>
 Raw C++ is arbitrary code. `purrc` already models the block as a single `RawCpp`
 AST node, so a sandbox flag (`--no-escape-hatch`) makes the compiler **reject** any
 `cpp { … }` — untrusted programs simply cannot reach raw C++.
@@ -164,7 +164,7 @@ AST node, so a sandbox flag (`--no-escape-hatch`) makes the compiler **reject** 
 - **seccomp-bpf** syscall allowlist (no `execve`, no raw `socket`, no `ptrace`, …).
 - **Landlock** / mount + pid + net **namespaces** for filesystem and network
   confinement.
-- **`rlimit`s** (CPU, address space, file size, no core dumps) and a wall-clock
+- <b>`rlimit`s</b> (CPU, address space, file size, no core dumps) and a wall-clock
   **timeout**.
 
 **5. Keep the sandbox memory-safe** (so it can't be escaped via UB): generated code

@@ -1,0 +1,318 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+# a11y_check.purr — the static half of the docs accessibility gate, in PURE CHEATAH.
+#
+# Two jobs, neither of which needs a browser:
+#   1. WCAG 1.4.3 contrast. Parse the colour tokens straight out of the stylesheet and
+#      compute the real relative-luminance ratio for every (foreground, ground) pair the
+#      theme actually draws. #8a8170 on #24201a measured 4.21:1 and shipped for months —
+#      a number nobody had computed. Both palettes (dark, and the prefers-color-scheme
+#      light one) are checked.
+#   2. Per-page structure over the generated tree: skip link, exactly one <h1>, a lang
+#      attribute, no labelled-but-empty landmark, no <script> (the serving CSP has no
+#      script-src, so a script tag is dead weight AND a broken promise), alt on every img.
+#
+# The literal-** check deliberately ignores anything inside <code>/<pre>/.srcview: `2 ** 10`
+# and `char **argv` are real source, and an earlier blanket sweep would have corrupted them.
+#
+# Run from the repo root (see scripts/docs_a11y_gate.sh, which also runs the reflow half):
+#     purrc scripts/a11y_check.purr -o /tmp/a11y_check.so && cheatah /tmp/a11y_check.so
+import io
+import os
+import string
+import math
+
+# ---- colour ----------------------------------------------------------------------------
+
+struct Rgb {
+    r: int
+    g: int
+    b: int
+}
+
+# One (foreground token, background token, minimum ratio) obligation.
+struct Pair {
+    fg: str
+    bg: str
+    minimum: float
+    why: str
+}
+
+fn hex_nibble(c: str) -> int {
+    if c >= "0" and c <= "9" { return ord(c) - ord("0") }
+    if c >= "a" and c <= "f" { return ord(c) - ord("a") + 10 }
+    if c >= "A" and c <= "F" { return ord(c) - ord("A") + 10 }
+    return -1
+}
+
+# "#24201a" -> Rgb. Returns r = -1 when the value is not a plain 6-digit hex colour
+# (rgba(), color-mix(), a var() reference — those are checked by eye, not here).
+fn parse_hex(s: str) -> Rgb {
+    let t = string.strip(s)
+    if len(t) != 7 or t[0] != "#" { return Rgb({.r = -1, .g = 0, .b = 0}) }
+    let v = [0, 0, 0]
+    let i = 0
+    while i < 3 {
+        let hi = hex_nibble(t[1 + i * 2])
+        let lo = hex_nibble(t[2 + i * 2])
+        if hi < 0 or lo < 0 { return Rgb({.r = -1, .g = 0, .b = 0}) }
+        v[i] = hi * 16 + lo
+        i = i + 1
+    }
+    return Rgb({.r = v[0], .g = v[1], .b = v[2]})
+}
+
+# WCAG 2.1 relative luminance: sRGB channel -> linear, then the Rec.709 weighting.
+fn channel(c: int) -> float {
+    let x = float(c) / 255.0
+    if x <= 0.03928 { return x / 12.92 }
+    return math.pow((x + 0.055) / 1.055, 2.4)
+}
+
+fn luminance(c: Rgb) -> float {
+    return 0.2126 * channel(c.r) + 0.7152 * channel(c.g) + 0.0722 * channel(c.b)
+}
+
+fn contrast(a: Rgb, b: Rgb) -> float {
+    let la = luminance(a)
+    let lb = luminance(b)
+    if la > lb { return (la + 0.05) / (lb + 0.05) }
+    return (lb + 0.05) / (la + 0.05)
+}
+
+# Pull `--name: #rrggbb;` declarations out of one CSS block. `start` is the byte offset of
+# the block's opening brace; scanning stops at the matching close, so the dark :root block
+# and the light prefers-color-scheme block yield separate palettes.
+fn tokens_in_block(css: str, start: int) {   # return type inferred: purrc has no dict annotation
+    let out: dict<str, str> = {}
+    let depth = 0
+    let i = start
+    while i < len(css) {
+        let ch = css[i]
+        if ch == "{" { depth = depth + 1 }
+        if ch == "}" {
+            depth = depth - 1
+            if depth <= 0 { return out }
+        }
+        if ch == "-" and i + 1 < len(css) and css[i + 1] == "-" {
+            let colon = string.find(css, ":", i)
+            let semi = string.find(css, ";", i)
+            if colon > 0 and semi > colon {
+                let name = string.strip(css[i:colon])
+                let val = string.strip(css[colon + 1:semi])
+                if string.find(val, "#", 0) == 0 { out[name] = val }
+                i = semi
+            }
+        }
+        i = i + 1
+    }
+    return out
+}
+
+# Deliberately NOT a `-> dict` helper: the palette stays a local of check_palette, which
+# returns a plain count. Keeps every dict inside one frame.
+
+# The pairs the theme actually paints. --surface is the lightest ground --fg-faint is ever
+# drawn on, so it is the binding case; checking it against --bg alone would pass a colour
+# that fails on a card.
+#
+# A sibling repo with a different palette (the storefront's --ink/--muted/--panel) reuses
+# this whole tool by setting A11Y_PAIRS instead of copying it:
+#     A11Y_PAIRS="--ink|--bg|4.5|body text;--muted|--panel|4.5|captions"
+fn parse_pairs(spec: str) -> list<Pair> {
+    let out: list<Pair> = []
+    for entry in string.split(spec, ";") {
+        let e = string.strip(entry)
+        if e == "" { continue }
+        let f = string.split(e, "|")
+        if len(f) < 3 { continue }
+        let why = ""
+        if len(f) > 3 { why = f[3] }
+        out.append(Pair({.fg = string.strip(f[0]), .bg = string.strip(f[1]),
+                         .minimum = float(string.strip(f[2])), .why = why}))
+    }
+    return out
+}
+
+fn obligations() -> list<Pair> {
+    let spec = os.getenv("A11Y_PAIRS")
+    if spec != "" { return parse_pairs(spec) }
+    return [
+        Pair({.fg = "--fg", .bg = "--bg", .minimum = 4.5, .why = "body text"}),
+        Pair({.fg = "--fg", .bg = "--surface", .minimum = 4.5, .why = "text on cards"}),
+        Pair({.fg = "--fg-dim", .bg = "--bg", .minimum = 4.5, .why = "sidebar + TOC links"}),
+        Pair({.fg = "--fg-dim", .bg = "--surface", .minimum = 4.5, .why = "dim text on cards"}),
+        Pair({.fg = "--fg-faint", .bg = "--bg", .minimum = 4.5, .why = "faint prose"}),
+        Pair({.fg = "--fg-faint", .bg = "--surface", .minimum = 4.5, .why = "faint text on cards"}),
+        Pair({.fg = "--accent", .bg = "--bg", .minimum = 4.5, .why = "links"}),
+        Pair({.fg = "--accent", .bg = "--surface", .minimum = 4.5, .why = "links on cards"}),
+        Pair({.fg = "--code-fg", .bg = "--code-bg", .minimum = 4.5, .why = "code"})
+    ]
+}
+
+fn check_palette(css: str, anchor: str, name: str) -> int {
+    let at = string.find(css, anchor, 0)
+    let brace = -1
+    if at >= 0 { brace = string.find(css, "{", at) }
+    if brace < 0 {
+        io.print("  a11y: FAIL - palette '" + name + "' not found in the stylesheet")
+        return 1
+    }
+    let pal = tokens_in_block(css, brace)
+    if len(pal) == 0 {
+        io.print("  a11y: FAIL - palette '" + name + "' defines no colour tokens")
+        return 1
+    }
+    let bad = 0
+    for p in obligations() {
+        if not (p.fg in pal) or not (p.bg in pal) { continue }
+        let fg = parse_hex(pal[p.fg])
+        let bg = parse_hex(pal[p.bg])
+        if fg.r < 0 or bg.r < 0 { continue }
+        let ratio = contrast(fg, bg)
+        if ratio < p.minimum {
+            io.print("  a11y: FAIL [" + name + "] " + p.fg + " on " + p.bg +
+                     " = " + io.format("{:.2f}", ratio) + ":1, need " +
+                     io.format("{:.1f}", p.minimum) + ":1 (" + p.why + ")")
+            bad = bad + 1
+        }
+    }
+    return bad
+}
+
+# ---- page structure --------------------------------------------------------------------
+
+fn count_of(hay: str, needle: str) -> int {
+    let n = 0
+    let i = string.find(hay, needle, 0)
+    while i >= 0 {
+        n = n + 1
+        i = string.find(hay, needle, i + len(needle))
+    }
+    return n
+}
+
+# Blank out <code>…</code>, <pre>…</pre> and the source-listing blocks so a check for
+# literal markdown never trips over real source text that legitimately contains them.
+fn strip_code(html: str) -> str {
+    let out = html
+    for tag in ["code", "pre"] {
+        let open = "<" + tag
+        let close = "</" + tag + ">"
+        let res = ""
+        let i = 0
+        while i < len(out) {
+            let a = string.find(out, open, i)
+            if a < 0 {
+                res = res + out[i:]
+                break
+            }
+            let b = string.find(out, close, a)
+            if b < 0 {
+                res = res + out[i:]
+                break
+            }
+            res = res + out[i:a]
+            i = b + len(close)
+        }
+        out = res
+    }
+    return out
+}
+
+fn check_page(path: str, html: str) -> int {
+    let bad = 0
+    let prose = strip_code(html)
+
+    if string.find(html, "<html lang=", 0) < 0 {
+        io.print("  a11y: FAIL " + path + " - <html> has no lang attribute (WCAG 3.1.1)")
+        bad = bad + 1
+    }
+    if string.find(html, "class=\"skip\"", 0) < 0 {
+        io.print("  a11y: FAIL " + path + " - no skip-to-content link (WCAG 2.4.1)")
+        bad = bad + 1
+    }
+    let h1s = count_of(html, "<h1")
+    if h1s != 1 {
+        io.print("  a11y: FAIL " + path + " - " + str(h1s) + " <h1> elements, expected 1 (WCAG 1.3.1)")
+        bad = bad + 1
+    }
+    # The zero-JS invariant. The serving CSP is `default-src 'none'; style-src 'self';
+    # img-src 'self'` — there is no script-src, so a <script> tag can only ever be dead.
+    if string.find(html, "<script", 0) >= 0 {
+        io.print("  a11y: FAIL " + path + " - ships a <script> tag; the serving CSP has no script-src")
+        bad = bad + 1
+    }
+    # A labelled landmark with nothing in it is announced and leads nowhere.
+    if string.find(html, "aria-label=\"On this page\"></aside>", 0) >= 0 {
+        io.print("  a11y: FAIL " + path + " - empty labelled 'On this page' landmark (WCAG 1.3.1)")
+        bad = bad + 1
+    }
+    if string.find(html, "<img", 0) >= 0 and count_of(html, "<img") != count_of(html, "alt=") {
+        io.print("  a11y: FAIL " + path + " - an <img> is missing alt (WCAG 1.1.1)")
+        bad = bad + 1
+    }
+    # Literal markdown emphasis that Doxygen failed to convert, in PROSE only.
+    if string.find(prose, "**", 0) >= 0 {
+        io.print("  a11y: FAIL " + path + " - literal '**' in prose (unconverted markdown bold)")
+        bad = bad + 1
+    }
+    return bad
+}
+
+fn main() {
+    let root = os.getenv("DOCS_HTML")
+    if root == "" { root = "docs/html" }
+    let css_path = os.getenv("A11Y_CSS")
+    if css_path == "" { css_path = "docs/gen/assets/cheatah-docs.css" }
+    # A repo with no light palette (the storefront ships one theme) sets A11Y_LIGHT=0
+    # rather than failing a check for a block it never intended to have.
+    let want_light = os.getenv("A11Y_LIGHT") != "0"
+    # Comma-separated path fragments to skip. The storefront's site/docs/cheatah-docs is a
+    # dev SYMLINK to cheatah's generated tree — walking it would check those pages twice,
+    # against the wrong stylesheet, and hide the storefront's own page count.
+    let excludes = string.split(os.getenv("A11Y_EXCLUDE"), ",")
+
+    io.print("[a11y] contrast (WCAG 1.4.3) over " + css_path)
+    let css = io.read_file(css_path)
+    let bad = check_palette(css, ":root {", "dark")
+    if want_light { bad = bad + check_palette(css, "prefers-color-scheme: light", "light") }
+
+    # Walk subdirectories too: the extension subsites (cheatah-gpu/, cheatah-plot/, …) are
+    # real pages readers land on, and a top-level-only scan quietly skipped every one.
+    io.print("[a11y] page structure over " + root)
+    let pages = 0
+    let queue = [""]
+    let qi = 0
+    while qi < len(queue) {
+        let rel = queue[qi]
+        qi = qi + 1
+        let dir = root
+        if rel != "" { dir = root + "/" + rel }
+        for name in os.listdir(dir) {
+            let child = name
+            if rel != "" { child = rel + "/" + name }
+            let skip = false
+            for ex in excludes {
+                let e = string.strip(ex)
+                if e != "" and string.contains(child, e) { skip = true }
+            }
+            if skip { continue }
+            if os.path.isdir(dir + "/" + name) {
+                queue.append(child)
+                continue
+            }
+            if not string.endswith(name, ".html") { continue }
+            pages = pages + 1
+            bad = bad + check_page(child, io.read_file(dir + "/" + name))
+        }
+    }
+
+    if bad > 0 {
+        # An uncaught raise is how a .purr tool fails its caller: the runtime exits non-zero.
+        raise "a11y: " + str(bad) + " problem(s) across " + str(pages) + " pages"
+    }
+    io.print("[a11y] OK - " + str(pages) + " pages checked")
+}
+
+main()

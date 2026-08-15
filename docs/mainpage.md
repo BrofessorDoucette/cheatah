@@ -15,20 +15,20 @@ it on the headless `cheatah` host. This site documents the **standard library**.
 Every standard-library function carries a Doxygen/Javadoc comment with a consistent
 contract, so you always know what a call costs:
 
-- **`@param` / `@return`** — what goes in and comes out.
-- **`@complexity`** — the **runtime complexity** (Big-O) of the call.
-- **`@alloc`** — the function's **heap behavior**: `none`, or what it allocates
+- <b>`@param` / `@return`</b> — what goes in and comes out.
+- <b>`@complexity`</b> — the **runtime complexity** (Big-O) of the call.
+- <b>`@alloc`</b> — the function's **heap behavior**: `none`, or what it allocates
   (`allocates the result`, `allocates a temporary`, scratch buffers, …). Memory
   behavior is a first-class part of the contract — cheatah exists for memory safety.
-- **`@test`** — a link to the unit test that exercises the function.
+- <b>`@test`</b> — a link to the unit test that exercises the function.
 
-> **On `@complexity`:** this is the *algorithmic* (Big-O) cost — how the work
+> <b>On `@complexity`:</b> this is the *algorithmic* (Big-O) cost — how the work
 > scales with input size. Wall-clock time is **machine-dependent**, and the
 > constant factors can shift with the **C runtime / standard library** linked at
 > run time. Treat Big-O as the contract; benchmark for absolute numbers.
 
 > **Examples in the docs:** function pages are gaining a consistent
-> **`@par Example`** block with runnable code — every `plot` function page
+> <b>`@par Example`</b> block with runnable code — every `plot` function page
 > carries one today, and the same convention is arriving across the extensions.
 
 The entire library is verified on every QA-gate run under **AddressSanitizer**
@@ -66,7 +66,7 @@ automatic string-concatenation optimization — at the cost of compile time.
 | `thread`    | Real OS threads — `thread.spawn(f, args...)` → a join-on-destroy `Thread` guard; share mutable state through `memory.Owner` ([the contract](threading.html)). |
 | `time`      | Monotonic / wall clocks and sleeping. |
 | `tls`       | A from-scratch **TLS 1.3 client** (no OpenSSL); owning `Conn` guard for `with`. |
-| `websocket` | A from-scratch **WebSocket (RFC 6455) `wss://` client** over `tls`; owning `Client` guard for `with`. |
+| `websocket` | A from-scratch <b>WebSocket (RFC 6455) `wss://` client</b> over `tls`; owning `Client` guard for `with`. |
 | `x25519`    | X25519 Diffie–Hellman key agreement (RFC 7748), from scratch. |
 
 `hashlib`, `ed25519`, `x25519`, `p256`, and `aead` are the from-scratch crypto

@@ -1296,7 +1296,19 @@ fn page_shell_in(g, pkg, title, sidebar, content, toc) {
     if is_sub { prefix = "../" }
     let body = string.replace(content, "🐾", "<span class=\"paw\">🐾</span>")
     body = apply_sidebyside(body)
-    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+    # No hardcoded data-theme: the theme button was JavaScript and the serving CSP has no
+    # script-src, so a baked-in dark attribute would make the stylesheet's light palette
+    # unreachable for every reader. Bare <html> lets prefers-color-scheme decide.
+    # An empty "On this page" rail is a labelled landmark with nothing in it (and a
+    # reserved 224px column), so pages with no headings omit the aside and say so on
+    # .layout — keep the two in lockstep.
+    let toc_el = ""
+    let layout_cls = "layout no-toc"
+    if toc != "" {
+        toc_el = "\n  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>"
+        layout_cls = "layout"
+    }
+    return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "  </div>\n</header>\n" + "<div class=\"" + layout_cls + "\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>" + toc_el + "\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
 }
 
 # Server-side sidebar active state (the site ships zero JS): within the page's
@@ -1856,18 +1868,68 @@ fn md_bold(s) {
 
 # Minimal Markdown-inline rendering for changelog text — `code` spans and **bold**
 # (the constructs the sibling CHANGELOGs use); everything else is escaped prose.
+# How many ** markers a prose run contains.
+fn count_bold(s) {
+    return len(string.split(s, "**")) - 1
+}
+
+# Minimal Markdown-inline rendering for changelog text — `code` spans and **bold**.
+#
+# Bold may WRAP a code span (`**`gpu.Buffer` and `gpu.Image`**`), so the ** markers CANNOT
+# be paired inside each backtick-delimited segment independently: the opening and closing
+# marker land in different segments and both survive as literal asterisks. So pair them
+# across the whole line, carrying the open/closed state through the code spans, which are
+# emitted verbatim and never affect it. An odd marker out stays literal, as before.
 fn md_inline(s) {
     let parts = string.split(s, "`")
-    let out = md_bold(parts[0])
+    let kinds = [""]
+    let texts = [parts[0]]
+    kinds[0] = "p"
     let i = 1
     while i < len(parts) {
         if i + 1 < len(parts) {
-            out = out + "<code>" + esc(parts[i]) + "</code>" + md_bold(parts[i + 1])
+            kinds.append("c")
+            texts.append(parts[i])
+            kinds.append("p")
+            texts.append(parts[i + 1])
             i = i + 2
         } else {
-            out = out + "`" + md_bold(parts[i])
+            kinds.append("p")            # a lone trailing backtick is literal text
+            texts.append("`" + parts[i])
             i = i + 1
         }
+    }
+    let total = 0
+    let k = 0
+    while k < len(texts) {
+        if kinds[k] == "p" { total = total + count_bold(texts[k]) }
+        k = k + 1
+    }
+    let usable = total - (total % 2)     # an unpaired trailing ** is not a marker
+    let seen = 0
+    let open = false
+    let out = ""
+    k = 0
+    while k < len(texts) {
+        if kinds[k] == "c" {
+            out = out + "<code>" + esc(texts[k]) + "</code>"
+        } else {
+            let segs = string.split(texts[k], "**")
+            out = out + esc(segs[0])
+            let j = 1
+            while j < len(segs) {
+                if seen < usable {
+                    if open { out = out + "</strong>" } else { out = out + "<strong>" }
+                    open = not open
+                    seen = seen + 1
+                } else {
+                    out = out + "**"
+                }
+                out = out + esc(segs[j])
+                j = j + 1
+            }
+        }
+        k = k + 1
     }
     return out
 }

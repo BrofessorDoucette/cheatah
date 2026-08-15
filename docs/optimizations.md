@@ -7,7 +7,7 @@ resolves at **compile time** anything it can prove is constant. The result is th
 idiomatic, readable cheatah lowers to the same code you would have hand-written in C++,
 without you thinking about it.
 
-Every "generated C++" block below is **real `purrc` output** — you can reproduce it by
+Every "generated C++" block below is <b>real `purrc` output</b> — you can reproduce it by
 running `purrc your.purr -o your.so` and reading the `your.so.gen.cpp` it writes next to
 the module. None of these transforms change observable behaviour (side effects, ordering,
 and results are preserved); they only remove cost.
@@ -107,9 +107,9 @@ updates reach the caller in place.
 `purrc` inspects the subject of every `if` and `match` and emits the cheapest form the C++
 backend will accept, trying three lowerings **in order**:
 
-**1 — Provably constant? → `if constexpr` (the branch is chosen at compile time).** When the
+<b>1 — Provably constant? → `if constexpr` (the branch is chosen at compile time).</b> When the
 condition is built from `constexpr` values (`constexpr let`, `constexpr fn`), purrc detects it
-and lowers the whole `if`/`elif`/`else` to **`if constexpr`** — no keyword needed at the call
+and lowers the whole `if`/`elif`/`else` to <b>`if constexpr`</b> — no keyword needed at the call
 site. The winning arm is selected *while compiling*, and **the dead arms are never compiled
 into the binary at all**:
 
@@ -138,7 +138,7 @@ static auto f() {
 Only the `"two"` arm survives into the object code; the `"one"` and `"other"` arms are
 discarded before codegen — zero runtime cost and zero binary weight.
 
-**2 — Not constant, but an integer `match`? → `switch` (a jump table).** An integer `match`
+<b>2 — Not constant, but an integer `match`? → `switch` (a jump table).</b> An integer `match`
 becomes a real C++ `switch` — O(1) dispatch no matter how many cases:
 
 ```cpp
@@ -152,7 +152,7 @@ static auto label(builtins::Value auto&& n) {
 }
 ```
 
-**3 — Otherwise → an `if` / `else-if` chain.** A `match` over a string/float/runtime subject
+<b>3 — Otherwise → an `if` / `else-if` chain.</b> A `match` over a string/float/runtime subject
 (or a plain runtime `if`) keeps the sequential equality-test ladder — the only form C++ accepts
 for a non-integer subject:
 
@@ -174,7 +174,7 @@ requires.
 
 ## Numeric speed: zero-cost generics + SIMD {#numeric-simd}
 
-- **`ndarray` is generic over its element type** (`basic_ndarray<T>`, constrained to a
+- <b>`ndarray` is generic over its element type</b> (`basic_ndarray<T>`, constrained to a
   `Field` concept — real or complex), monomorphized per type: an `int` array, a `double`
   array, and a `complex<double>` array are each as tight as a hand-rolled `std::vector<T>`
   loop, with no shared dynamic base.
@@ -212,7 +212,7 @@ io.print(sizeof(i16), sizeof(Cell))   # -> 2 2   (proven in-language)
   trivially copyable, SIMD-friendly, no tag and no box. In arithmetic, narrow operands **promote
   to 64-bit for free** (ordinary C++ integer promotion) and only truncate back on store — so the
   compute is exactly as fast as `int`, and only the *stored* value is small.
-- **`int` never changes.** It stays 64-bit, so standalone integers — loop counters, `++`/`--`,
+- <b>`int` never changes.</b> It stays 64-bit, so standalone integers — loop counters, `++`/`--`,
   literals — keep their speed and range. Narrowing is opt-in and never happens implicitly.
 - **Semantics, all at compile time.** Narrow storage wraps at its width and a wide result
   truncates on store (as in C / NumPy fixed-width types). A literal that does not fit its width

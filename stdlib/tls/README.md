@@ -56,19 +56,19 @@ with socket.open("example.com", 443) as sock {
 
 ## API (cheatah-facing)
 
-- **`tls.open(fd, server_name) -> Conn`** — run the **client** handshake over a connected fd,
+- <b>`tls.open(fd, server_name) -> Conn`</b> — run the **client** handshake over a connected fd,
   authenticating the server; returns an owning `Conn`. On failure `conn.is_open()` is false
   (see `tls.last_error()`).
-- **`tls.accept(fd, cert_pem, key_pem) -> Conn`** — run the **server** handshake over an accepted
+- <b>`tls.accept(fd, cert_pem, key_pem) -> Conn`</b> — run the **server** handshake over an accepted
   fd, presenting an **Ed25519 or ECDSA P-256** leaf and signing with its private `key_pem`
   (PKCS#8 Ed25519, or PKCS#8/SEC1 P-256 EC); returns an owning `Conn`. `cert_pem` may be a full
   chain (`fullchain.pem` — leaf first, then intermediates) and every block is sent, so a
   Let's Encrypt certificate works as issued and browsers get a path to their trust anchor. This
   is the "HTTPS with zero non-cheatah software" path — pair it with a `socket` accept loop.
-- **`Conn`** methods: `send(data)`, `recv(bufsize)`, `shutdown()`, `close()`, `is_open()`,
+- <b>`Conn`</b> methods: `send(data)`, `recv(bufsize)`, `shutdown()`, `close()`, `is_open()`,
   `id()`. The `Conn` sends `close_notify` and erases its session automatically at scope exit —
   held as a plain `let` or in a `with`, it cannot leak.
-- **`tls.last_error()`** — the last error message on this thread.
+- <b>`tls.last_error()`</b> — the last error message on this thread.
 
 > The underlying TCP fd is **not** owned by the TLS session — guard it with a `socket.Conn`
 > (as above) or close it yourself.

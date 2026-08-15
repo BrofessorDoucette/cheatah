@@ -33,11 +33,11 @@ one blessed gate for shared mutable state — a `memory.Owner<T>` and its leases
 - **Every value is safe per-thread.** cheatah values (ints, floats, strings, lists,
   dicts, structs, ndarrays) have no hidden shared state — two threads each working on
   their *own* values never interfere.
-- **`spawn` copies every copyable argument.** The worker owns its arguments; nothing in
+- <b>`spawn` copies every copyable argument.</b> The worker owns its arguments; nothing in
   a spawned thread points back at the caller's locals. You cannot *accidentally* share
   a plain value across threads — passing it hands the worker a copy.
-- **Every thread joins before `main` returns.** A `Thread` guard joins on destruction
-  (drop it, `with` it, or unwind past it), and there is **no `detach`**: the cheatah
+- <b>Every thread joins before `main` returns.</b> A `Thread` guard joins on destruction
+  (drop it, `with` it, or unwind past it), and there is <b>no `detach`</b>: the cheatah
   host unloads the program's module right after `main`, so a detached thread would
   crash in unloaded code — and an unjoined thread would break the deterministic-cleanup
   guarantee that everything a program creates is released when it ends.
@@ -50,7 +50,7 @@ one blessed gate for shared mutable state — a `memory.Owner<T>` and its leases
 Sharing one object across threads is undefined behavior **unless** that object is built
 for it. The rules:
 
-- **Share through a `memory.Owner<T>`.** An `Owner` is pinned and non-copyable, so
+- <b>Share through a `memory.Owner<T>`.</b> An `Owner` is pinned and non-copyable, so
   `spawn` passes it **by reference** — the one deliberate exception to copy-in. Declare
   the `Owner` *before* the threads that use it (join-on-destroy then guarantees it
   outlives them), spell the worker's parameter with its type
@@ -62,12 +62,12 @@ for it. The rules:
 - **stdout interleaves.** `io.print` from two threads at once is safe (no corruption)
   but the lines can interleave. Funnel output through one thread, or print only after
   joining the workers.
-- **`random` is per-thread.** Each thread has its own engine, self-seeded on first use;
+- <b>`random` is per-thread.</b> Each thread has its own engine, self-seeded on first use;
   `random.seed(s)` seeds the *calling* thread only. Concurrent draws never race — but a
   worker that wants a reproducible stream must seed itself.
 - **Set environment variables before spawning.** `os.setenv` mutates process-global
   state that is not thread-safe against concurrent `getenv` on most platforms.
-- **A `cpp { }` block is outside all of this.** Raw C++ can share anything; nothing
+- <b>A `cpp { }` block is outside all of this.</b> Raw C++ can share anything; nothing
   here (or anywhere) protects it.
 
 ## The shapes that work
