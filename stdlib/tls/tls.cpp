@@ -962,6 +962,8 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
     std::string cert_der;
     std::vector<std::string> cert_chain;  // the full certificate chain (leaf first) for validation
     bool verified_cert = false, server_finished = false;
+    bool cert_requested = false;          // server sent CertificateRequest (mail servers do)
+    std::string cert_request_context;     // echoed back in our (empty) Certificate reply
     std::string transcript_at_cv, transcript_at_finished;
     // Total-flight cap: the server's handshake messages accumulate into transcript / handshake_bytes /
     // cert_chain BEFORE the certificate is validated, so a hostile (or MITM) server could otherwise
@@ -1028,6 +1030,16 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
                 }
                 if (!cert_chain.empty()) cert_der = cert_chain[0];  // the leaf signs CertificateVerify
                 transcript_at_cv = transcript + msg;  // transcript THROUGH Certificate
+            }
+            if (mtype == 13 && msg.size() >= 5) {  // CertificateRequest (optional client auth)
+                // RFC 8446 §4.4.2: a client with no certificate MUST still answer with a
+                // Certificate message whose certificate_list is empty, echoing this
+                // context — smtp.gmail.com requests one and aborts (unexpected_message)
+                // on a bare Finished. We never present a certificate; we just decline
+                // correctly.
+                cert_requested = true;
+                const std::size_t ctx_len = static_cast<unsigned char>(msg[4]);
+                if (msg.size() >= 5 + ctx_len) cert_request_context = msg.substr(5, ctx_len);
             }
             if (mtype == 15) {  // CertificateVerify
                 // cppcheck-suppress stlcstrConstructor  // (ptr,len) subview of msg — not a c_str() copy
@@ -1153,6 +1165,25 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
     const std::string c_ap = derive_secret_impl(master, "c ap traffic", transcript_at_finished, sha384);
     const std::string s_ap = derive_secret_impl(master, "s ap traffic", transcript_at_finished, sha384);
 
+    // A requested-but-absent client certificate: the empty Certificate reply goes on the
+    // wire AND into the transcript BEFORE our Finished (whose MAC covers it) — RFC 8446
+    // §4.4.2/§4.4.4. No CertificateVerify follows an empty list.
+    if (cert_requested) {
+        std::string cert_body;
+        cert_body.push_back(static_cast<char>(cert_request_context.size()));
+        cert_body += cert_request_context;
+        put24(cert_body, 0);  // empty certificate_list
+        std::string cert_msg;
+        cert_msg.push_back(11);
+        put24(cert_msg, static_cast<unsigned>(cert_body.size()));
+        cert_msg += cert_body;
+        if (!seal_record(fd, client_keys, 22, cert_msg)) {
+            fail("tls: cannot send the (empty) client Certificate");
+            return -1;
+        }
+        transcript += cert_msg;
+    }
+
     const std::string c_finished_key =
         expand_label_impl(c_hs, "finished", "", sha384 ? 48 : 32, sha384);
     const std::string verify = ks_hmac(sha384, c_finished_key, ks_digest(sha384, transcript));
@@ -1271,7 +1302,12 @@ std::string recv(long long session, long long bufsize) {
         }
         if (inner_type == 23) {
             s.app_pending += content;
-        } else if (inner_type == 21) {   // alert: close_notify (or fatal) ends the stream
+        } else if (inner_type == 21) {   // alert ends the stream: close_notify is the
+            // normal clean close (surfaced as plain EOF); anything else is the peer
+            // REFUSING the session — name it, so a fatal alert never masquerades as EOF.
+            if (!(content.size() == 2 && static_cast<unsigned char>(content[1]) == 0)) {
+                fail("tls: peer alert — " + alert_text(content));
+            }
             s.closed = true;
         } else if (inner_type == 22) {
             // Post-handshake messages: NewSessionTicket(4) is ignored; a KeyUpdate(24)
