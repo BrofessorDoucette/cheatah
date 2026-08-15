@@ -8,7 +8,13 @@ two must stay byte-identical: any change here must be mirrored in gen.purr.
 
 Reads the Doxygen XML in docs/xml/ (Doxygen is used ONLY as the C++ parser) and
 renders a fully custom, modern static site into docs/html/. No Doxygen HTML, no
-doxygen-awesome — the layout, styling, navigation and search are all ours.
+doxygen-awesome — the layout, styling and navigation are all ours.
+
+The site is ZERO-JS by design: it must work under a serving CSP of
+`default-src 'none'; style-src 'self'; img-src 'self'`, which forbids script
+execution entirely. Search was removed for that reason, and the sidebar's
+active-link highlight + open dropdown chain are rendered server-side
+(mark_active) instead of by a client script.
 
     python3 docs/gen/generate.py            # docs/xml -> docs/html
 
@@ -24,7 +30,7 @@ import shutil
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-# Short content-hash query strings so browsers always fetch fresh CSS/JS on change.
+# Short content-hash query strings so browsers always fetch fresh CSS on change.
 VERS: dict[str, str] = {}
 
 def _ver(text: str) -> str:
@@ -43,9 +49,6 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 EXT_BADGES = {
     "cheatah-gpu": "cheatah-gpu v0.5.0-alpha — Biome Standard 0.1.0-alpha",
 }
-
-# The topbar search placeholder; widened in main() when extension pages are present.
-SEARCH_PLACEHOLDER = "Search the standard library…"
 
 # Per-function benchmark numbers (regenerated periodically by scripts/perf_suite.py,
 # NOT in the QA gate). The docs render a "Performance" row for any function found here,
@@ -349,7 +352,7 @@ def load_ext(ext: str) -> tuple[list[Compound], dict[str, str]]:
     """Parse one extension's Doxygen XML tree (docs/xml-ext/<ext>/): its namespaces
     become module pages in the sidebar's "Extensions" group. Loaded fully apart from
     the stdlib so the stdlib output stays byte-identical whether or not any extension
-    tree is present — extensions only ADD pages, sidebar entries and search rows."""
+    tree is present — extensions only ADD pages and sidebar entries."""
     xdir = EXT_XML / ext
     index = ET.parse(xdir / "index.xml").getroot()
     comps: list[Compound] = []
@@ -840,10 +843,6 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
-    <div class="search"><input id="q" type="search" placeholder="{SEARCH_PLACEHOLDER}" autocomplete="off" spellcheck="false">
-      <div id="results" class="results" hidden></div>
-    </div>
-    <button id="theme" class="theme-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
 </header>
 <div class="layout">
@@ -851,11 +850,72 @@ def page_shell(title: str, sidebar: str, content: str, toc: str, depth_ok=True) 
   <main id="main" class="content">{content}</main>
   <aside class="toc" aria-label="On this page">{toc}</aside>
 </div>
-<script src="search-index.js?v={VERS.get('search','')}"></script>
-<script src="cheatah-docs.js?v={VERS.get('js','')}"></script>
 <footer class="sitefoot">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>
 </body>
 </html>"""
+
+def mark_active(page: str, fname: str) -> str:
+    """Server-side sidebar active state (the site ships zero JS): within the page's
+    inlined sidebar only, mark the link whose href equals this page's own filename
+    with class="active" and render every enclosing <details> dropdown open — so the
+    current page is highlighted and its dropdown chain is expanded without any
+    client-side script. A page not present in the sidebar is left untouched."""
+    nav_open = '<nav class="sidebar" aria-label="Modules">'
+    i = page.find(nav_open)
+    if i < 0:
+        return page
+    j = page.find("</nav>", i)
+    if j < 0:
+        return page
+    side = page[i:j]
+    k = side.find('href="' + fname + '"')
+    if k < 0:
+        return page
+    a = side.rfind("<a ", 0, k)
+    if a < 0:
+        return page
+    e = side.find(">", k)
+    if e < 0:
+        return page
+    tag = side[a:e]
+    if ' class="' in tag:
+        cut = tag.find(' class="')
+        tag = tag[:cut] + ' class="active ' + tag[cut + 8:]
+    else:
+        tag = '<a class="active" ' + tag[3:]
+    # The <details> dropdowns enclosing the active link: scan the sidebar up to the
+    # link, keeping a stack of unclosed <details> opening-tag positions.
+    opens: list[int] = []
+    depth = 0
+    pos = 0
+    while pos < a:
+        o = side.find("<details", pos)
+        if o >= a:
+            o = -1
+        c = side.find("</details>", pos)
+        if c >= a:
+            c = -1
+        if o < 0 and c < 0:
+            break
+        if c < 0 or (o >= 0 and o < c):
+            if depth < len(opens):
+                opens[depth] = o
+            else:
+                opens.append(o)
+            depth += 1
+            pos = o + 8
+        else:
+            if depth > 0:
+                depth -= 1
+            pos = c + 10
+    side = side[:a] + tag + side[e:]
+    oi = depth - 1
+    while oi >= 0:                       # deepest first: earlier offsets stay valid
+        p = opens[oi]
+        q = side.find(">", p)
+        side = side[:q] + " open" + side[q:]
+        oi -= 1
+    return page[:i] + side + page[j:]
 
 def build_sidebar(compounds: dict[str, Compound], ext_comps: list[Compound]) -> str:
     parts = ['<a class="side-home" href="index.html">Overview</a>']
@@ -1161,27 +1221,7 @@ def render_transpiler_page(sidebar: str) -> str:
            if toc_items else "")
     return page_shell("Transpiler", sidebar, content, toc)
 
-def build_search_index(compounds: dict[str, Compound], ext_comps: list[Compound]) -> str:
-    entries = []
-    # Extension rows join AFTER the stdlib rows, so the stdlib part of the index is
-    # byte-identical with or without extension trees present.
-    for c in list(compounds.values()) + ext_comps:
-        if c.kind == "page":
-            continue
-        entries.append({"n": c.short, "k": c.kind, "u": f"{c.refid}.html"})
-        seen_fn: set[str] = set()   # one search hit per function name (overloads share a block)
-        for m in c.members:
-            if m.kind == "function":
-                if m.name in seen_fn:
-                    continue
-                seen_fn.add(m.name)
-            entries.append({"n": m.name, "k": m.kind, "u": f"{c.refid}.html#{m.id}",
-                            "c": c.short})
-    return "window.SEARCH=" + json.dumps(entries, separators=(",", ":")) + ";"
-
-
 def main() -> int:
-    global SEARCH_PLACEHOLDER
     if not XML.is_dir():
         print(f"generate: {XML} not found — run Doxygen with GENERATE_XML=YES first")
         return 1
@@ -1245,7 +1285,7 @@ def main() -> int:
         MOD_SHORT[s.refid] = short.replace("::", ".")
 
     # Extension trees (docs/xml-ext/<ext>/) — namespaces from sibling extension repos
-    # join the site as extra module pages, sidebar entries and search rows.
+    # join the site as extra module pages and sidebar entries.
     ext_comps: list[Compound] = []
     if EXT_XML.is_dir():
         for ext in sorted(p.name for p in EXT_XML.iterdir()
@@ -1261,49 +1301,44 @@ def main() -> int:
             for sect in xml.iter():
                 if sect.tag in ("sect1", "sect2", "sect3", "sect4", "anchor") and sect.get("id"):
                     r.valid.add(sect.get("id"))
-    if ext_comps:
-        SEARCH_PLACEHOLDER = "Search the standard library &amp; extensions…"
-
     sidebar = build_sidebar(compounds, ext_comps)
 
-    # Content hashes for cache-busting (?v=…) so browsers never serve stale assets.
-    search_js = build_search_index(compounds, ext_comps)
+    # Content hash for cache-busting (?v=…) so browsers never serve a stale stylesheet.
     VERS["css"] = _ver((ASSETS / "cheatah-docs.css").read_text())
-    VERS["js"] = _ver((ASSETS / "cheatah-docs.js").read_text())
-    VERS["search"] = _ver(search_js)
 
     pages = 0
     for rel_path, fname in src_map.items():
-        (OUT / fname).write_text(render_source_page(rel_path, sidebar))
+        (OUT / fname).write_text(mark_active(render_source_page(rel_path, sidebar), fname))
         pages += 1
     for comp in compounds.values():
         if comp.kind == "page":
             if comp.refid == "indexpage":
-                (OUT / "index.html").write_text(render_home(r, comp, sidebar))
+                (OUT / "index.html").write_text(mark_active(render_home(r, comp, sidebar), "index.html"))
                 pages += 1
             elif comp.refid not in XREF_PAGES:  # a real content/guide page (e.g. Performance)
-                (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
+                (OUT / f"{comp.refid}.html").write_text(
+                    mark_active(render_compound_page(r, comp, sidebar), f"{comp.refid}.html"))
                 pages += 1
             continue
-        (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
+        (OUT / f"{comp.refid}.html").write_text(
+            mark_active(render_compound_page(r, comp, sidebar), f"{comp.refid}.html"))
         pages += 1
     for comp in ext_comps:
-        (OUT / f"{comp.refid}.html").write_text(render_compound_page(r, comp, sidebar))
+        (OUT / f"{comp.refid}.html").write_text(
+            mark_active(render_compound_page(r, comp, sidebar), f"{comp.refid}.html"))
         pages += 1
 
     # The hand-built Transpiler guide (gen/*.purr beside their *.gen.cpp).
-    (OUT / "transpiler.html").write_text(render_transpiler_page(sidebar))
+    (OUT / "transpiler.html").write_text(mark_active(render_transpiler_page(sidebar), "transpiler.html"))
     pages += 1
 
-    (OUT / "search-index.js").write_text(search_js)
-    # Copy static assets.
-    for asset in ("cheatah-docs.css", "cheatah-docs.js"):
-        shutil.copy(ASSETS / asset, OUT / asset)
+    # Copy static assets (stylesheet + logo only: the site ships no JavaScript).
+    shutil.copy(ASSETS / "cheatah-docs.css", OUT / "cheatah-docs.css")
     logo = ROOT / "docs" / "theme" / "cheatah-logo.png"
     if logo.exists():
         shutil.copy(logo, OUT / "cheatah-logo.png")
 
-    print(f"generate: wrote {pages} pages + search index -> {OUT}")
+    print(f"generate: wrote {pages} pages -> {OUT}")
     return 0
 
 

@@ -4,6 +4,10 @@
 # (docs/gen-cheatah/gen.purr) renders the modern site into docs/html. The original
 # Python generator (docs/gen/generate.py) is kept solely as the gen_bench parity
 # benchmark — its output is byte-identical, and the benchmark keeps it that way.
+# The site is ZERO-JS by design: it works under a serving CSP of
+# `default-src 'none'; style-src 'self'; img-src 'self'` (no script execution) —
+# search was removed for that reason, and the sidebar's active state is rendered
+# server-side by the generator.
 # Serve the site with the VS Code "Open docs in browser" task, a static file server, or the
 # host's own deployment tooling — this repo GENERATES the site and does not serve it.
 set -euo pipefail
@@ -31,7 +35,7 @@ rm -rf docs/xml
 # and emitted submodule headers carry uniform doc comments, and the SITE wants the
 # full public surface (the strict per-repo doc gate is the one that excludes them).
 # The extension repo itself is never written to. Each extension renders as its own
-# SUBSITE (docs/html/<ext>/) with a landing page, releases page and search index.
+# SUBSITE (docs/html/<ext>/) with a landing page and a releases page.
 EXTENSIONS="cheatah-gpu cheatah-gpu-linalg cheatah-plot cheatah-space"
 rm -rf docs/xml-ext
 for ext in $EXTENSIONS; do

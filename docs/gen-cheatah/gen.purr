@@ -5,17 +5,21 @@
 # Began as the 1:1 port of docs/gen/generate.py (kept, frozen, for the gen_bench
 # parity benchmark — this file is the authority): reads the Doxygen XML in
 # docs/xml/ and renders the site into docs/html/. Extensions render as their own
-# SUBSITES under docs/html/<ext>/ (landing + releases + module pages + a scoped
-# search index), and docs/html/standard.html renders the Biome Standard — its
-# member table imported straight from the package manager's own in-source table
-# (pkg-manager/biome.purr, emitted as a library by docs/build-docs.sh), so the
-# standards data has exactly one home. Standing on our own stdlib:
+# SUBSITES under docs/html/<ext>/ (landing + releases + module pages), and
+# docs/html/standard.html renders the Biome Standard — its member table imported
+# straight from the package manager's own in-source table (pkg-manager/biome.purr,
+# emitted as a library by docs/build-docs.sh), so the standards data has exactly
+# one home. The site is ZERO-JS by design: it must work under a serving CSP of
+# `default-src 'none'; style-src 'self'; img-src 'self'`, which forbids script
+# execution entirely — search was removed for that reason, and the sidebar's
+# active-link highlight + open dropdown chain are rendered server-side
+# (mark_active) instead of by a client script. Standing on our own stdlib:
 #   parsers.xml  — the slab-DOM Doxygen XML reader (mixed text/element children)
 #   parsers.html — escape() (byte-identical to Python's html.escape)
 #   parsers.json — the typed reader for docs/perf_data.json (list-of-records)
-#   hashlib      — sha256 cache-busting query strings (?v=…)
+#   hashlib      — the stylesheet's sha256 cache-busting query string (?v=…)
 #   io.fixed     — printf-fixed float formatting for the perf rows
-#   requests     — parse_uint + json_escape (the search index is JSON)
+#   requests     — parse_uint for the joined-index bookkeeping
 #   biome        — known_standards()/extension_desc(): the Biome Standard table
 #
 #   bash docs/build-docs.sh          # emits the biome library + compiles + runs this
@@ -112,15 +116,11 @@ struct Gen {
     perf_numpy: str
     perf_cpython: str
     vers_css: str
-    vers_js: str
-    vers_search: str
-    search_ph: str                 # topbar search placeholder (widened when extensions exist)
     ext_names: list<str>           # extensions on the site (sorted xml-ext dirs) — one subsite each
     ext_deps: dict<str, str>       # ext -> <US>-joined extension deps from its manifest ("" = none)
     ext_toolchain: dict<str, str>  # ext -> the [cheatah] toolchain version its manifest targets
     ext_manifest: dict<str, bool>  # ext -> cheatah.toml present in the sibling checkout
     ext_classes: dict<str, str>    # ext<US>owner-short -> <US>-joined comp indices (classes/concepts)
-    vers_search_ext: dict<str, str># ext -> cache-busting hash of the subsite's own search index
     cur_module: str
     cur_func: str
     kw: dict<str, bool>            # cheatah (+ Python) keywords for the highlighter
@@ -1282,21 +1282,76 @@ fn pkg_switcher(g, pkg) {
 }
 
 # The page shell, package-aware. Core pages ("" / "standard") load the shared
-# assets same-dir; an extension's subsite pages load the shared css/js/logo from
-# the parent ("../") but their OWN search-index.js, scoped to that package.
+# assets same-dir; an extension's subsite pages load the shared css/logo from
+# the parent ("../"). No <script> anywhere: the site is zero-JS by design.
 fn page_shell_in(g, pkg, title, sidebar, content, toc) {
     let is_sub = pkg != "" and pkg != "standard"
     let prefix = ""
     if is_sub { prefix = "../" }
-    let vers_search = g.vers_search
-    let ph = g.search_ph
-    if is_sub {
-        vers_search = g.vers_search_ext[pkg]
-        ph = "Search " + pkg + "…"
-    }
     let body = string.replace(content, "🐾", "<span class=\"paw\">🐾</span>")
     body = apply_sidebyside(body)
-    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <div class=\"search\"><input id=\"q\" type=\"search\" placeholder=\"" + ph + "\" autocomplete=\"off\" spellcheck=\"false\">\n" + "      <div id=\"results\" class=\"results\" hidden></div>\n" + "    </div>\n" + "    <button id=\"theme\" class=\"theme-btn\" title=\"Toggle theme\" aria-label=\"Toggle theme\">◐</button>\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<script src=\"search-index.js?v=" + vers_search + "\"></script>\n" + "<script src=\"" + prefix + "cheatah-docs.js?v=" + g.vers_js + "\"></script>\n" + "<footer class=\"sitefoot\">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+    return "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "  </div>\n</header>\n" + "<div class=\"layout\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>\n" + "  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 BigBrain LLC — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+}
+
+# Server-side sidebar active state (the site ships zero JS): within the page's
+# inlined sidebar only, mark the link whose href equals this page's own filename
+# with class="active" and render every enclosing <details> dropdown open — so the
+# current page is highlighted and its dropdown chain is expanded without any
+# client-side script. A page not present in the sidebar is left untouched.
+fn mark_active(page, fname) {
+    let nav_open = "<nav class=\"sidebar\" aria-label=\"Modules\">"
+    let i = string.find(page, nav_open)
+    if i < 0 { return page }
+    let j = string.find(page[i:], "</nav>")
+    if j < 0 { return page }
+    j = i + j
+    let side = page[i:j]
+    let k = string.find(side, "href=\"" + fname + "\"")
+    if k < 0 { return page }
+    let a = string.rfind(side[:k], "<a ")
+    if a < 0 { return page }
+    let e = string.find(side[k:], ">")
+    if e < 0 { return page }
+    e = k + e
+    let tag = side[a:e]
+    if string.contains(tag, " class=\"") {
+        let cut = string.find(tag, " class=\"")
+        tag = tag[:cut] + " class=\"active " + tag[cut + 8:]
+    } else {
+        tag = "<a class=\"active\" " + tag[3:]
+    }
+    # The <details> dropdowns enclosing the active link: scan the sidebar up to the
+    # link, keeping a stack of unclosed <details> opening-tag positions.
+    let opens: list<int> = []
+    let depth = 0
+    let pos = 0
+    while pos < a {
+        let o = string.find(side[pos:], "<details")
+        if o >= 0 { o = pos + o }
+        if o >= a { o = -1 }
+        let c = string.find(side[pos:], "</details>")
+        if c >= 0 { c = pos + c }
+        if c >= a { c = -1 }
+        if o < 0 and c < 0 { break }
+        if c < 0 or (o >= 0 and o < c) {
+            if depth < len(opens) { opens[depth] = o }
+            else { opens.append(o) }
+            depth = depth + 1
+            pos = o + 8
+        } else {
+            if depth > 0 { depth = depth - 1 }
+            pos = c + 10
+        }
+    }
+    side = side[:a] + tag + side[e:]
+    let oi = depth - 1
+    while oi >= 0 {                      # deepest first: earlier offsets stay valid
+        let p = opens[oi]
+        let q = p + string.find(side[p:], ">")
+        side = side[:q] + " open" + side[q:]
+        oi = oi - 1
+    }
+    return page[:i] + side + page[j:]
 }
 
 fn page_shell(g, title, sidebar, content, toc) {
@@ -1451,8 +1506,8 @@ fn build_sidebar(g) {
     }
     parts = parts + "<div class=\"side-group\"><div class=\"side-h\">Modules</div><ul>" + mods + "</ul></div>"
     # Extensions — each sibling extension is its own SUBSITE (docs/html/<ext>/)
-    # with a landing page, nested module sidebar, releases page and scoped search
-    # index; the core sidebar links each subsite's front door.
+    # with a landing page, nested module sidebar and releases page; the core
+    # sidebar links each subsite's front door.
     if len(g.ext_names) > 0 {
         let elinks = ""
         for e in g.ext_names {
@@ -1712,62 +1767,11 @@ fn render_transpiler_page(g, sidebar) {
     return page_shell(g, "Transpiler", sidebar, content, toc)
 }
 
-fn jstr(s) { return "\"" + requests.json_escape(s) + "\"" }
-
-# The site-wide search index (core pages): covers the stdlib AND every extension —
-# extension rows point into the extension's subsite ("<ext>/<refid>.html").
-fn build_search_index(g) {
-    let out = "window.SEARCH=["
-    let sep = ""
-    let ci = 0
-    while ci < len(g.comps) {
-        let c = g.comps[ci]
-        ci = ci + 1
-        if c.kind == "page" { continue }
-        let base = c.refid + ".html"
-        if c.ext != "" { base = c.ext + "/" + base }
-        out = out + sep + "{\"n\":" + jstr(c.short) + ",\"k\":" + jstr(c.kind) + ",\"u\":" + jstr(base) + "}"
-        sep = ","
-        let seen: dict<str, bool> = {}
-        for m in c.members {
-            if m.kind == "function" {
-                if m.name in seen { continue }
-                seen[m.name] = true
-            }
-            out = out + sep + "{\"n\":" + jstr(m.name) + ",\"k\":" + jstr(m.kind) + ",\"u\":" + jstr(base + "#" + m.id) + ",\"c\":" + jstr(c.short) + "}"
-        }
-    }
-    return out + "];"
-}
-
-# One subsite's OWN search index, scoped to that package's pages (same-dir URLs),
-# so the search box on an extension page searches that extension.
-fn build_search_index_ext(g, extname) {
-    let out = "window.SEARCH=["
-    let sep = ""
-    let ci = 0
-    while ci < len(g.comps) {
-        let c = g.comps[ci]
-        ci = ci + 1
-        if c.ext != extname { continue }
-        out = out + sep + "{\"n\":" + jstr(c.short) + ",\"k\":" + jstr(c.kind) + ",\"u\":" + jstr(c.refid + ".html") + "}"
-        sep = ","
-        let seen: dict<str, bool> = {}
-        for m in c.members {
-            if m.kind == "function" {
-                if m.name in seen { continue }
-                seen[m.name] = true
-            }
-            out = out + sep + "{\"n\":" + jstr(m.name) + ",\"k\":" + jstr(m.kind) + ",\"u\":" + jstr(c.refid + ".html#" + m.id) + ",\"c\":" + jstr(c.short) + "}"
-        }
-    }
-    return out + "];"
-}
-
 # ---------------------------------------------------------------------------
 # Extension subsites — manifests, changelogs, landing/releases pages, and the
 # Biome Standard page. All data comes from the imported biome table and the
 # sibling repos' own manifests/changelogs — nothing hand-maintained here.
+# (Subsites carry no search index: the site is zero-JS by design.)
 # ---------------------------------------------------------------------------
 
 # Parse ../<ext>/cheatah.toml for the landing page's depends-on line and the
@@ -2608,7 +2612,7 @@ fn main() {
         io.print("generate: docs/xml not found — run Doxygen with GENERATE_XML=YES first")
         return
     }
-    let g = Gen({.cur_module = "", .search_ph = "Search the standard library…"})
+    let g = Gen({.cur_module = ""})
 
     # highlighter vocabularies (the compiler's keywords + Python's, minus literals)
     add_kw(g.kw, "and as break case constexpr continue elif else enum except false fn for from if import in interface let match not or raise return struct true try while with")
@@ -2738,8 +2742,8 @@ fn main() {
     }
 
     # extension trees (docs/xml-ext/<ext>/) — each sibling extension joins the
-    # site as its own SUBSITE (docs/html/<ext>/): module/class/concept pages, a
-    # landing + releases page, and a scoped search index
+    # site as its own SUBSITE (docs/html/<ext>/): module/class/concept pages
+    # plus a landing + releases page
     let n_stdlib = len(g.comps)
     if os.path.isdir("docs/xml-ext") {
         let ext_dirs: list<str> = []
@@ -2751,9 +2755,6 @@ fn main() {
             load_ext_tree(g, extname)
             load_ext_manifest(g, extname)
         }
-    }
-    if len(g.comps) > n_stdlib {
-        g.search_ph = "Search the standard library &amp; extensions…"
     }
     # section anchors on extension pages are valid link targets too
     ci = n_stdlib
@@ -2784,15 +2785,12 @@ fn main() {
 
     let sidebar = build_sidebar(g)
 
-    # content hashes for cache busting (?v=…)
-    let search_js = build_search_index(g)
+    # content hash for cache busting (?v=…) — the stylesheet is the only shared asset
     g.vers_css = hashlib.sha256(io.read_file("docs/gen/assets/cheatah-docs.css"))[:8]
-    g.vers_js = hashlib.sha256(io.read_file("docs/gen/assets/cheatah-docs.js"))[:8]
-    g.vers_search = hashlib.sha256(search_js)[:8]
 
     let pages = 0
     for p in src_sorted {
-        write_file("docs/html/" + g.src_map[p], render_source_page(g, p, sidebar))
+        write_file("docs/html/" + g.src_map[p], mark_active(render_source_page(g, p, sidebar), g.src_map[p]))
         pages = pages + 1
     }
     ci = 0
@@ -2804,51 +2802,46 @@ fn main() {
         }
         if c.kind == "page" {
             if c.refid == "indexpage" {
-                write_file("docs/html/index.html", render_home(g, ci, sidebar))
+                write_file("docs/html/index.html", mark_active(render_home(g, ci, sidebar), "index.html"))
                 pages = pages + 1
             } elif c.refid != "complexity" and c.refid != "alloc" and c.refid != "test" and c.refid != "crtest" and c.refid != "systest" {
-                write_file("docs/html/" + c.refid + ".html", render_compound_page(g, ci, sidebar))
+                write_file("docs/html/" + c.refid + ".html", mark_active(render_compound_page(g, ci, sidebar), c.refid + ".html"))
                 pages = pages + 1
             }
         } else {
-            write_file("docs/html/" + c.refid + ".html", render_compound_page(g, ci, sidebar))
+            write_file("docs/html/" + c.refid + ".html", mark_active(render_compound_page(g, ci, sidebar), c.refid + ".html"))
             pages = pages + 1
         }
         ci = ci + 1
     }
-    write_file("docs/html/transpiler.html", render_transpiler_page(g, sidebar))
-    write_file("docs/html/standard.html", render_standard_page(g, sidebar))
+    write_file("docs/html/transpiler.html", mark_active(render_transpiler_page(g, sidebar), "transpiler.html"))
+    write_file("docs/html/standard.html", mark_active(render_standard_page(g, sidebar), "standard.html"))
     pages = pages + 2
 
     # extension subsites: docs/html/<ext>/ — landing + releases + this
-    # extension's own pages + its scoped search index (shared css/js/logo
-    # stay in the parent; subsite pages reach them through "../")
+    # extension's own pages (the shared css/logo stay in the parent;
+    # subsite pages reach them through "../")
     for extname in g.ext_names {
-        let ext_search = build_search_index_ext(g, extname)
-        g.vers_search_ext[extname] = hashlib.sha256(ext_search)[:8]
         let esb = build_ext_sidebar(g, extname)
-        write_file("docs/html/" + extname + "/index.html", render_ext_home(g, extname, esb))
-        write_file("docs/html/" + extname + "/releases.html", render_ext_releases(g, extname, esb))
+        write_file("docs/html/" + extname + "/index.html", mark_active(render_ext_home(g, extname, esb), "index.html"))
+        write_file("docs/html/" + extname + "/releases.html", mark_active(render_ext_releases(g, extname, esb), "releases.html"))
         pages = pages + 2
         ci = 0
         while ci < len(g.comps) {
             let c = g.comps[ci]
             if c.ext == extname {
-                write_file("docs/html/" + extname + "/" + c.refid + ".html", render_compound_page(g, ci, esb))
+                write_file("docs/html/" + extname + "/" + c.refid + ".html", mark_active(render_compound_page(g, ci, esb), c.refid + ".html"))
                 pages = pages + 1
             }
             ci = ci + 1
         }
-        write_file("docs/html/" + extname + "/search-index.js", ext_search)
     }
 
-    write_file("docs/html/search-index.js", search_js)
     write_file("docs/html/cheatah-docs.css", io.read_file("docs/gen/assets/cheatah-docs.css"))
-    write_file("docs/html/cheatah-docs.js", io.read_file("docs/gen/assets/cheatah-docs.js"))
     if os.path.isfile("docs/theme/cheatah-logo.png") {
         write_file("docs/html/cheatah-logo.png", io.read_file("docs/theme/cheatah-logo.png"))
     }
-    io.print("generate: wrote " + str(pages) + " pages + search index -> " + os.path.join(os.getcwd(), "docs/html"))
+    io.print("generate: wrote " + str(pages) + " pages -> " + os.path.join(os.getcwd(), "docs/html"))
 }
 
 main()
