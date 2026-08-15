@@ -3,7 +3,29 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
-## v1.11.4-alpha (2026-08-14) — the probe reaches purr
+## v1.11.5-alpha (2026-08-14) — the docs shed their scripts
+
+Biome Standard **0.6.1-alpha** — a PATCH: the only member that changes is this
+toolchain release, and the release changes no language, library, compiler, or runtime
+surface — the documentation site and its generator are the whole diff. Every program
+written against 0.6.0-alpha compiles and behaves identically.
+
+### Docs
+
+- The generated site is **zero-JS by design**: it renders fully under the strictest
+  serving policy (`default-src 'none'; style-src 'self'; img-src 'self'`). Both
+  `<script>` tags are gone from every page, `search-index.js` (777 KB core + per-subsite
+  copies) and `cheatah-docs.js` are no longer emitted — 1.4 MB of scripts removed,
+  294 files, 14.6 MB total.
+- What the scripts did is now done at generation time: the sidebar marks the current
+  page (`class="active"`) and opens the `<details>` chain leading to it — per page,
+  server-side. The theme toggle is gone (the site ships its dark theme); search is
+  removed rather than shipped broken, since a `default-src 'none'` host can never
+  execute it.
+- A page load is now ~51 KB over 3 requests (page + stylesheet + logo), down from
+  ~815 KB with scripts that never ran.
+- The parity twin `docs/gen/generate.py` carries the same change; the generators'
+  common output remains byte-identical.
 
 Biome Standard **0.6.0-alpha** — a MINOR: cheatah-gpu-linalg v0.4.4-alpha ADDS
 `available()`/`unavailable_reason()` to its purr module surface, the probe the design tells

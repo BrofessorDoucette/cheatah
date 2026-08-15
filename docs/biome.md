@@ -138,7 +138,7 @@ manifest looks like this:
 name = "hello"
 
 [cheatah]
-standard = "0.6.0-alpha"    # the Biome Standard — ONE version pinning the whole tested set
+standard = "0.6.1-alpha"    # the Biome Standard — ONE version pinning the whole tested set
 
 [extensions]
 cheatah-gpu = "v0.5.0-alpha"      # one line per opted-in extension; the value is the
@@ -178,13 +178,13 @@ Each standard is a short, append-only definition — the canonical files live in
 
 ```toml
 [standard]
-version = "0.6.0-alpha"
-released = "2026-08-13"
+version = "0.6.1-alpha"
+released = "2026-08-14"
 status = "current"          # current | supported | deprecated (security-only)
 
 [components]
-cheatah = "v1.10.0-alpha"
-cheatah-gpu = "v0.5.0-alpha"
+cheatah = "v1.11.5-alpha"
+cheatah-gpu = "v0.5.1-alpha"
 ```
 
 ### What the standard's version means
