@@ -74,9 +74,13 @@ for t in "${UNIT_BINS[@]}"; do
         if ! wait "${pids[$i]}"; then
             echo "[valgrind] ERRORS/LEAKS (or crash) in $t shard $i/$shards:"; tail -50 "$log"; status=1
         fi
-        ran=$(grep -oE '\[=+\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
-        passed=$(grep -oE '\[ *PASSED *\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
-        failed=$(grep -cE '\[ *FAILED *\]' "$log" || true)
+        # -a on every one of these: a test that writes a stray NUL to stdout makes the whole
+        # shard log "binary" to grep, which then prints "binary file matches" and emits NOTHING.
+        # The shard's count silently becomes 0 and the run is reported as a LOST SHARD — a
+        # failure with no relation to the thing that actually happened. Treat the log as text.
+        ran=$(grep -aoE '\[=+\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
+        passed=$(grep -aoE '\[ *PASSED *\] [0-9]+ test' "$log" | tail -1 | grep -oE '[0-9]+' || true)
+        failed=$(grep -acE '\[ *FAILED *\]' "$log" || true)
         : "${ran:=0}"; : "${passed:=0}"; : "${failed:=0}"
         if [ "$passed" -ne "$ran" ] || [ "$failed" -ne 0 ]; then
             echo "[valgrind] $t shard $i/$shards: only $passed/$ran passed under Valgrind (failures: $failed)"; status=1
