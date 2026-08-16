@@ -220,6 +220,69 @@ fn strip_code(html: str) -> str {
     return out
 }
 
+# The stylesheet's own structural invariants. These are the layout regressions that reached
+# readers once already: a table taken out of table layout, and controls hidden from the
+# keyboard. Contrast is checked by check_palette; this is everything else the CSS must hold.
+fn check_stylesheet(css: str) -> int {
+    let bad = 0
+
+    # A <table> cannot be its own scroll container. `display:block` takes it OUT of table
+    # layout — the rows collapse into an anonymous shrink-to-fit box, so width:100% sizes
+    # only the frame while the cells hug the left. The .tscroll wrapper scrolls instead.
+    let d = string.find(css, ".dtable, table.dtable {", 0)
+    if d < 0 {
+        io.print("  a11y: FAIL stylesheet has no '.dtable, table.dtable' rule")
+        bad = bad + 1
+    } elif string.contains(css[d:string.find(css, "}", d)], "display: block") {
+        io.print("  a11y: FAIL .dtable declares display:block - that leaves table layout and the cells stop filling the frame; scroll the .tscroll wrapper instead")
+        bad = bad + 1
+    }
+    if string.find(css, ".tscroll {", 0) < 0 {
+        io.print("  a11y: FAIL stylesheet has no '.tscroll' rule - a wide table would widen the document (WCAG 1.4.10)")
+        bad = bad + 1
+    }
+
+    # `opacity` applies to an element's WHOLE rendering, its focus outline included, so a
+    # control revealed only on :hover is invisible to a keyboard user even while focused
+    # (WCAG 2.4.7 - hover is not a mode of operation a keyboard has). Every opacity:0
+    # control needs a :focus-within/:focus-visible companion. The count is PINNED so a third
+    # hidden control cannot be introduced without coming back here to give it one.
+    let hidden = count_of(css, "opacity: 0;")
+    if hidden != 2 {
+        io.print("  a11y: FAIL " + str(hidden) + " 'opacity: 0' declarations, expected 2 (.anchor, .overload .anchor) - a newly hidden control needs a :focus companion (WCAG 2.4.7)")
+        bad = bad + 1
+    }
+    for sel in [".member:focus-within .anchor", ".overload:focus-within .anchor", ".anchor:focus-visible"] {
+        if string.find(css, sel, 0) < 0 {
+            io.print("  a11y: FAIL stylesheet has no '" + sel + "' rule - a focused permalink would be invisible (WCAG 2.4.7)")
+            bad = bad + 1
+        }
+    }
+
+    # The sticky topbar covers whatever scrolls to the very top of the viewport. scroll-margin
+    # is what keeps a focused or :target element clear of it - WCAG 2.4.11 Focus Not Obscured
+    # (Minimum), new at AA in WCAG 2.2. On every id, not just .member: headings, overload rows
+    # and source lines are all fragment targets.
+    if string.find(css, "[id] { scroll-margin-top:", 0) < 0 {
+        io.print("  a11y: FAIL stylesheet has no '[id] { scroll-margin-top: … }' rule - a focused element can land entirely under the sticky topbar (WCAG 2.4.11)")
+        bad = bad + 1
+    }
+
+    # A FIXED height on the bar clips the brand under the text-spacing overrides WCAG 1.4.12
+    # requires the page to survive. min-height lets it grow instead. The height is a token
+    # because four rules must agree on it (the bar, the two sticky offsets, the scroll-margin).
+    for sel in [".topbar {", ".topbar-inner {"] {
+        let s = string.find(css, sel, 0)
+        let e = string.find(css, "}", s)
+        if s < 0 or not string.contains(css[s:e], "min-height: var(--topbar-h)") {
+            io.print("  a11y: FAIL '" + sel + "' does not set min-height: var(--topbar-h) - a fixed height clips the brand under the WCAG 1.4.12 text-spacing overrides")
+            bad = bad + 1
+        }
+    }
+
+    return bad
+}
+
 fn check_page(path: str, html: str) -> int {
     let bad = 0
     let prose = strip_code(html)
@@ -252,6 +315,24 @@ fn check_page(path: str, html: str) -> int {
         io.print("  a11y: FAIL " + path + " - an <img> is missing alt (WCAG 1.1.1)")
         bad = bad + 1
     }
+    # Every table is wrapped in its own scroll container. A <table> cannot be its own
+    # scroller, so the wrapper is what keeps a wide table from widening the page
+    # (WCAG 1.4.10); tabindex makes that scroller keyboard-operable (WCAG 2.1.1) - a scroll
+    # region containing no focusable element is unreachable by keyboard in Safari.
+    let tables = count_of(html, "<table class=\"dtable\"")
+    let wrapped = count_of(html, "<div class=\"tscroll\" tabindex=\"0\"><table class=\"dtable\"")
+    if wrapped != tables {
+        io.print("  a11y: FAIL " + path + " - " + str(tables - wrapped) + " of " + str(tables) + " table(s) not wrapped in '<div class=\"tscroll\" tabindex=\"0\">' (WCAG 1.4.10 / 2.1.1)")
+        bad = bad + 1
+    }
+    # Header cells must say which way they head, or the header/data relationship is not
+    # programmatically determinable (WCAG 1.3.1, technique H63). <thead> is discounted: it
+    # shares the prefix but is not a header cell.
+    let ths = count_of(html, "<th") - count_of(html, "<thead")
+    if ths != count_of(html, "<th scope=") {
+        io.print("  a11y: FAIL " + path + " - a <th> is missing scope= (WCAG 1.3.1)")
+        bad = bad + 1
+    }
     # Literal markdown emphasis that Doxygen failed to convert, in PROSE only.
     if string.find(prose, "**", 0) >= 0 {
         io.print("  a11y: FAIL " + path + " - literal '**' in prose (unconverted markdown bold)")
@@ -277,6 +358,7 @@ fn main() {
     let css = io.read_file(css_path)
     let bad = check_palette(css, ":root {", "dark")
     if want_light { bad = bad + check_palette(css, "prefers-color-scheme: light", "light") }
+    bad = bad + check_stylesheet(css)
 
     # Walk subdirectories too: the extension subsites (cheatah-gpu/, cheatah-plot/, …) are
     # real pages readers land on, and a top-level-only scan quietly skipped every one.

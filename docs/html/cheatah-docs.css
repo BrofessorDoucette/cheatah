@@ -24,6 +24,10 @@
   --maxw: 960px;
   --side-w: 248px;
   --toc-w: 224px;
+  /* The sticky topbar's height. Four rules must agree on it — the bar itself, the sticky
+     `top` of the sidebar and the TOC, and the scroll-margin that keeps a focused element
+     out from under it — so it is a token, not a literal repeated four times. */
+  --topbar-h: 58px;
   --layout-maxw: 1280px;
   --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
   --mono: ui-monospace, "JetBrains Mono", "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
@@ -81,6 +85,9 @@ body {
   /* Backstop only. A stray wide element must be FIXED, not hidden — clip keeps one
      mistake from making the whole document scroll sideways on a phone. */
   overflow-x: clip;
+  /* Tapping a link otherwise flashes the OS default blue-grey over a warm palette. Match
+     the hover state instead of disabling it — the tap needs to acknowledge itself. */
+  -webkit-tap-highlight-color: var(--accent-soft);
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
@@ -89,12 +96,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
 }
 code, pre, .sig { font-family: var(--mono); }
+/* The topbar is sticky and opaque, so anything scrolled to the very top of the viewport
+   lands underneath it. scroll-margin keeps a focused or :target element clear of the bar —
+   SC 2.4.11 Focus Not Obscured (Minimum), new at AA in WCAG 2.2. Applied to every id, not
+   just .member: headings, overload rows and source lines are all fragment targets, and Tab
+   scrolling honours scroll-margin exactly as fragment navigation does. */
+[id] { scroll-margin-top: calc(var(--topbar-h) + 14px); }
 .skip { position: absolute; left: -999px; }
 .skip:focus { left: 12px; top: 8px; background: var(--accent); color: var(--bg); padding: 6px 10px; border-radius: 6px; z-index: 200; }
 
 /* ---- top bar ---- */
+/* min-height, not height: under the text-spacing overrides SC 1.4.12 requires us to survive
+   (line-height 1.5, letter-spacing .12em, word-spacing .16em) a fixed height clips the brand
+   instead of growing. If the bar does grow, the sticky offsets below go slightly stale and
+   the nav is marginally overlapped — graceful degradation, versus losing content. */
 .topbar {
-  position: sticky; top: 0; z-index: 100; height: 58px;
+  position: sticky; top: 0; z-index: 100; min-height: var(--topbar-h);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: saturate(150%) blur(12px); -webkit-backdrop-filter: saturate(150%) blur(12px);
   border-bottom: 1px solid var(--border);
@@ -105,11 +122,13 @@ code, pre, .sig { font-family: var(--mono); }
    scrolls sideways on a phone (WCAG 1.4.10 Reflow). docs_a11y_gate.sh gates exactly that. */
 .topbar-inner {
   display: grid; grid-template-columns: var(--side-w) max-content minmax(0,1fr) var(--toc-w);
-  align-items: center; gap: 18px; height: 58px;
+  align-items: center; gap: 18px; min-height: var(--topbar-h);
   max-width: none; margin: 0; padding: 0 24px; min-width: 0;
 }
-/* Starts at the same x as the sidebar's links (24px padding vs 14px + 10px). */
-.brand { justify-self: start; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; color: var(--fg); font-size: 1.12rem; min-width: 0; }
+/* Centred over the sidebar column, matching the centred nav beneath it. The responsive
+   block re-points it to `start` at =<1000px, where the brand owns the flexible column and
+   centring would float it in open space. */
+.brand { justify-self: center; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; color: var(--fg); font-size: 1.12rem; min-width: 0; }
 .brand:hover { text-decoration: none; }
 .brand img { width: 26px; height: 26px; border-radius: 6px; }
 /* The package switcher: cheatah · gpu · gpu-linalg · … · standard, current highlighted. */
@@ -130,7 +149,8 @@ code, pre, .sig { font-family: var(--mono); }
 /* ---- member source link + permalink ---- */
 .member-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .member-actions .anchor { margin-left: 0; }
-.src-link { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-faint); white-space: nowrap; }
+.src-link { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-faint); white-space: nowrap;
+  display: inline-flex; align-items: center; min-height: 24px; }   /* 24px: WCAG 2.5.8 */
 .src-link:hover { color: var(--accent); text-decoration: none; }
 
 /* ---- source-listing pages ---- */
@@ -153,17 +173,25 @@ code, pre, .sig { font-family: var(--mono); }
    would hold it must go too. */
 .layout.no-toc { grid-template-columns: var(--side-w) minmax(0,1fr); }
 .sidebar {
-  position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto;
+  position: sticky; top: var(--topbar-h); overflow-y: auto;
+  height: calc(100vh - var(--topbar-h));
+  /* dvh, not vh: on mobile 100vh is the LARGE viewport (URL bar hidden), so while the bar
+     is showing the last links sit below the fold and cannot be reached. The vh line above
+     stays as the fallback for engines that do not know dvh. */
+  height: calc(100dvh - var(--topbar-h));
   padding: 22px 14px 40px; border-right: 1px solid var(--border-soft); font-size: 1rem;
 }
-/* Nav reads left-aligned: centred nav text wraps into ragged blocks ("biome — the package
-   manager") and is measurably harder to scan. */
-.side-home { display: block; font-weight: 600; color: var(--fg); padding: 6px 10px; border-radius: 7px; margin-bottom: 8px; }
+/* Nav labels are CENTRED, and the hit areas stay full-width. The two are separate concerns:
+   `align-items: stretch` on the ul is what satisfies SC 2.5.8 Target Size (a centred
+   shrink-to-fit li is only as wide as its label), and the label is then centred INSIDE that
+   stretched box. Nothing at AA constrains text alignment — SC 1.4.8 prohibits JUSTIFIED
+   text, not centred, and is Level AAA. */
+.side-home { display: block; font-weight: 600; color: var(--fg); padding: 6px 10px; border-radius: 7px; margin-bottom: 8px; text-align: center; }
 .side-home:hover { background: var(--accent-soft); text-decoration: none; }
 .side-group { margin: 16px 0; }
-.side-h { text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); padding: 0 10px 8px; font-size: .8rem; }
+.side-h { text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); padding: 0 10px 8px; font-size: .8rem; text-align: center; }
 .sidebar ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: stretch; }
-.sidebar li a { display: flex; align-items: center; min-height: 28px; padding: 5px 10px; border-radius: 7px; color: var(--fg-dim); font-family: var(--mono); font-size: .98rem; }
+.sidebar li a { display: flex; align-items: center; justify-content: center; min-height: 28px; padding: 5px 10px; border-radius: 7px; color: var(--fg-dim); font-family: var(--mono); font-size: .98rem; }
 .sidebar li a:hover { background: var(--accent-soft); color: var(--fg); text-decoration: none; }
 .sidebar li a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
@@ -176,7 +204,9 @@ code, pre, .sig { font-family: var(--mono); }
   margin-left: auto; transition: transform .15s ease; }
 .side-sub[open] > summary::after { transform: rotate(90deg); }
 .side-sub > summary:hover { background: var(--accent-soft); }
-.side-sub > summary > a { padding: 5px 4px; }
+/* flex:1 lets the label centre in the space left over by the caret, which stays pinned to
+   the right edge (its margin-left:auto then resolves to 0 — no free space remains). */
+.side-sub > summary > a { padding: 5px 4px; flex: 1; text-align: center; }
 .side-sub > ul { margin: 2px 0 6px; padding-bottom: 2px; padding-left: 12px; }
 .side-sub > ul a { font-size: .9rem; color: var(--fg-dim); }
 
@@ -190,10 +220,15 @@ ul.class-list li a code { color: var(--accent); }
   color: var(--fg-faint); font-size: .8rem; }
 
 .content { padding: 36px 48px 120px; min-width: 0; max-width: none; }
-.toc { position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; padding: 30px 16px; font-size: .95rem; }
-.toc-h { text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); margin-bottom: 8px; font-size: .8rem; padding: 0 10px; }
+.toc { position: sticky; top: var(--topbar-h); overflow-y: auto;
+  height: calc(100vh - var(--topbar-h)); height: calc(100dvh - var(--topbar-h));
+  padding: 30px 16px; font-size: .95rem; }
+.toc-h { text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); margin-bottom: 8px; font-size: .8rem; padding: 0 10px; text-align: center; }
 .toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: stretch; }
-.toc li a { display: flex; align-items: center; min-height: 26px; color: var(--fg-dim); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 6px; font-size: .9rem; padding: 4px 10px; }
+/* block, NOT flex: text-overflow has no effect on a flex container, so a flex entry clips
+   long headings with no ellipsis. Block keeps the ellipsis, allows text-align, and the
+   min-height still clears the 24px of SC 2.5.8. */
+.toc li a { display: block; text-align: center; min-height: 26px; color: var(--fg-dim); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 6px; font-size: .9rem; padding: 4px 10px; }
 .toc li a:hover { color: var(--accent); background: var(--accent-soft); text-decoration: none; }
 
 /* ---- page head ---- */
@@ -213,7 +248,7 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 /* ---- member cards ---- */
 .member {
   border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
-  padding: 16px 18px; margin: 16px 0; box-shadow: var(--shadow); scroll-margin-top: 72px;
+  padding: 16px 18px; margin: 16px 0; box-shadow: var(--shadow);
 }
 .member-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .badge { font-size: .64rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700;
@@ -223,8 +258,15 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .sig .mtype { color: var(--fg-dim); }
 .sig .mname { color: var(--accent); font-weight: 600; }
 .sig .kw { color: #c69; color: var(--c-alloc); }
-.anchor { margin-left: auto; color: var(--fg-faint); opacity: 0; font-weight: 700; }
-.member:hover .anchor { opacity: 1; }
+/* The permalink is a real focusable link, and `opacity` applies to an element's WHOLE
+   rendering — its outline included. Revealed on hover alone, a keyboard user tabbing here
+   gets an invisible link AND an invisible focus ring (SC 2.4.7 Focus Visible: hover is not
+   a mode of operation a keyboard has). :focus-within/:focus-visible are what make it a
+   pass. 24px square: SC 2.5.8 — a bare "#" glyph is ~10px wide, and sitting in a flex row
+   rather than a sentence it does not get the criterion's inline exception. */
+.anchor { margin-left: auto; color: var(--fg-faint); opacity: 0; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; }
+.member:hover .anchor, .member:focus-within .anchor, .anchor:focus-visible { opacity: 1; }
 .member-brief { margin: 10px 0 6px; color: var(--fg); }
 .member-body { color: var(--fg-dim); }
 .member-body p { margin: .5em 0; }
@@ -236,7 +278,7 @@ h2.group { margin: 40px 0 8px; font-size: 1.3rem; letter-spacing: -.01em; paddin
 .overload + .overload { border-top: 1px solid var(--border); }
 .overload .sig { flex: 1; }
 .overload .anchor { opacity: 0; }
-.overload:hover .anchor { opacity: 1; }
+.overload:hover .anchor, .overload:focus-within .anchor { opacity: 1; }
 
 /* ---- params / returns ---- */
 .params { margin: 12px 0; }
@@ -321,8 +363,20 @@ pre.code code { background: none; padding: 0; }
   border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
 .xpile-pane pre.code { margin: 0; font-size: .82rem; line-height: 1.55; white-space: pre; }
 @media (max-width: 1000px) { .xpile { grid-template-columns: 1fr; } }
-.dtable, table.dtable { border-collapse: collapse; width: 100%; margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
-  display: block; overflow-x: auto; }   /* a wide table scrolls itself, not the document */
+/* A wide table scrolls INSIDE this wrapper, so it can never widen the document (WCAG 2.1
+   SC 1.4.10). The WRAPPER — not the table — carries the frame and the overflow: a <table>
+   cannot be its own scroll container, because `display:block` takes it out of table layout,
+   the rows collapse into an anonymous shrink-to-fit box, and `width:100%` then sizes only
+   the frame while the cells hug the left. The generators emit tabindex="0" on this div so
+   the scroller is keyboard-operable (SC 2.1.1) — a scroll region containing no focusable
+   element cannot be reached by keyboard in Safari; the [tabindex]:focus-visible rule above
+   gives it a ring. overscroll-behavior keeps a horizontal swipe off the back gesture. */
+.tscroll { margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow-x: auto; overscroll-behavior-x: contain; }
+/* No min-width: the table squeezes to its natural min-content first (inline `code` carries
+   overflow-wrap:anywhere, so most tables never need to scroll at all) and the wrapper only
+   scrolls past that point. */
+.dtable, table.dtable { border-collapse: collapse; width: 100%; margin: 0; border: none; }
 .dtable th, .dtable td { padding: 8px 12px; border-bottom: 1px solid var(--border-soft); text-align: left; }
 .dtable th { background: var(--surface-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-dim); }
 .dtable tr:last-child td { border-bottom: none; }
@@ -369,6 +423,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
   .pkgs { display: none; }
   .topbar-inner { grid-template-columns: minmax(0,1fr) max-content; }
   .bb { grid-column: 2; }
+  /* The brand now owns the flexible column instead of the sidebar-width one — centring it
+     there would float it in open space, so it goes back to the left edge. */
+  .brand { justify-self: start; }
 }
 /* Phone: one column. The sidebar is CAPPED and scrolls in place instead of stacking its
    full ~40-link height above the article — otherwise a reader meets two screens of nav
@@ -380,14 +437,19 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
      signature grows the track past the viewport instead of scrolling inside itself. */
   .layout, .layout.no-toc { grid-template-columns: minmax(0,1fr); }
   .sidebar {
-    position: static; height: auto; max-height: 38vh; overflow-y: auto;
+    position: static; height: auto; overflow-y: auto;
+    max-height: 38vh; max-height: 38dvh;          /* dvh: the URL bar must not eat the cap */
     border-right: none; border-bottom: 1px solid var(--border); padding: 10px 8px;
     overscroll-behavior: contain;                 /* don't chain scroll to the document */
   }
   .content { padding: 24px 18px 80px; }
   .topbar-inner { padding: 0 16px; gap: 12px; }
+  /* A backdrop blur under a sticky bar makes the compositor re-blur what is behind it on
+     every scroll frame — the single biggest source of scroll jank on a mid-range phone.
+     An opaque bar costs nothing visually at this size. */
+  .topbar { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bg); }
   /* Primary nav on touch: 44px targets (WCAG 2.5.5). */
   .sidebar li a, .side-sub > summary, .side-home { min-height: 44px; }
-  .side-home { display: flex; align-items: center; }
+  .side-home { display: flex; align-items: center; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

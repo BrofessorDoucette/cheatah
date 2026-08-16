@@ -608,9 +608,15 @@ class Renderer:
                     inner = f'<a href="{self.modules[key]}.html" class="mod-link">{inner}</a>'
                 elif tag == "td":
                     inner = self._color_verdict(inner)
-                cells.append(f"<{tag}>{inner}</{tag}>")
+                # scope="col": every table here has a single leading header row, so the
+                # header/data relationship is programmatically determinable (WCAG 1.3.1, H63).
+                attr = ' scope="col"' if tag == "th" else ""
+                cells.append(f"<{tag}{attr}>{inner}</{tag}>")
             rows.append(f"<tr>{''.join(cells)}</tr>")
-        return f'<table class="dtable">{"".join(rows)}</table>'
+        # The wrapper, not the table, is the scroll container — a <table> made display:block
+        # leaves table layout and its cells stop filling the frame. tabindex makes the
+        # scroller keyboard-operable (WCAG 2.1.1). See .tscroll in cheatah-docs.css.
+        return f'<div class="tscroll" tabindex="0"><table class="dtable">{"".join(rows)}</table></div>'
 
     def _code_text(self, el) -> str:
         # Doxygen encodes EVERY space inside a code block as a <sp/> element (with an
