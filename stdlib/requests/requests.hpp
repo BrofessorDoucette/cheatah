@@ -324,17 +324,25 @@ inline auto percent_encode(builtins::Value auto&& text) {
 /**
  * Escape a string for embedding as a JSON string value.
  *
+ * EVERY control byte is escaped, not just the five with short forms. RFC 8259 §7 forbids a raw
+ * byte below 0x20 inside a string, so a value carrying one produced output that is not JSON, and a
+ * strict parser rejects the whole document rather than the one field. This escaper was correct for
+ * text somebody typed and wrong for anything that had been anywhere else — an id, a token, a header
+ * value read off a socket.
+ *
  * @param text the raw string.
- * @return the escaped string (quotes, backslash, and the common control chars).
+ * @return the escaped string.
  * @complexity O(n) over the input length.
  * @alloc allocates the result.
  * @systest RequestsSys.PostJson
  */
 inline auto json_escape(builtins::Value auto&& text) {
+    auto hexdigits = std::string("0123456789abcdef");
     auto out = std::string("");
     for (auto& ch : text) {
+        auto code = builtins::ord(ch);
         {
-            auto __match_0 = builtins::ord(ch);
+            auto __match_0 = code;
             switch (__match_0) {
                 case 34LL: {
                     out += "\\\"";
@@ -356,8 +364,20 @@ inline auto json_escape(builtins::Value auto&& text) {
                     out += "\\t";
                     break;
                 }
+                case 8LL: {
+                    out += "\\b";
+                    break;
+                }
+                case 12LL: {
+                    out += "\\f";
+                    break;
+                }
                 default: {
-                    out += ch;
+                    if ((code < 32LL)) {
+                        ((out += "\\u00") += builtins::index(hexdigits, builtins::floordiv(code, 16LL))) += builtins::index(hexdigits, builtins::mod(code, 16LL));
+                    } else {
+                        out += ch;
+                    }
                     break;
                 }
             }

@@ -7742,7 +7742,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1020,
+      "srcline": 1040,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -7759,7 +7759,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 956,
+      "srcline": 976,
       "module": "requests",
       "qualified": "requests.get"
     },
@@ -7797,7 +7797,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1036,
+      "srcline": 1056,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -7814,7 +7814,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1052,
+      "srcline": 1072,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -7831,7 +7831,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1004,
+      "srcline": 1024,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -7848,7 +7848,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 972,
+      "srcline": 992,
       "module": "requests",
       "qualified": "requests.post"
     },
@@ -7865,7 +7865,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 988,
+      "srcline": 1008,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -7886,7 +7886,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 940,
+      "srcline": 960,
       "module": "requests",
       "qualified": "requests.request"
     },
@@ -7907,7 +7907,7 @@
         "systest": "RequestsSys.PostJson"
       },
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 380,
+      "srcline": 400,
       "module": "requests",
       "qualified": "requests.to_json"
     },
@@ -9670,7 +9670,7 @@
     },
     {
       "name": "open",
-      "signature": "open(const std::string &host, long long port, const std::string &path, const std::string &server_name, bool insecure=false, const std::string &ca_file=\"\")",
+      "signature": "open(const std::string &host, long long port, const std::string &path, const std::string &server_name, bool insecure=false, const std::string &ca_file=\"\", bool secure=true)",
       "brief": "Open a secure WebSocket connection and return it as an owning Client (the RAII, with-friendly form of connect()).",
       "params": [
         {
@@ -9696,6 +9696,10 @@
         {
           "name": "ca_file",
           "desc": "a PEM CA bundle to trust instead of the system store (empty = system default)."
+        },
+        {
+          "name": "secure",
+          "desc": "whether to run the connection over TLS. Default TRUE; false selects a PLAINTEXT WebSocket and is refused unless host is loopback."
         }
       ],
       "returns": "an owning Client.",
@@ -9705,7 +9709,7 @@
         "systest": "WebSocketSys.ClientOpenAndMoveAssignClosesOpen"
       },
       "srcfile": "stdlib/websocket/websocket.hpp",
-      "srcline": 182,
+      "srcline": 190,
       "module": "websocket",
       "qualified": "websocket.open"
     },
@@ -9735,7 +9739,7 @@
         "systest": "WebSocketSys.ClientGuardRoundTrip"
       },
       "srcfile": "stdlib/websocket/websocket.hpp",
-      "srcline": 200,
+      "srcline": 209,
       "module": "websocket",
       "qualified": "websocket.open_url"
     },

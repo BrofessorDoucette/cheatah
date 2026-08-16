@@ -240,21 +240,37 @@ fn percent_encode(text) {
 
 # Escape a string for embedding as a JSON string value.
 #
+# EVERY control byte is escaped, not just the five with short forms. RFC 8259 §7 forbids a raw
+# byte below 0x20 inside a string, so a value carrying one produced output that is not JSON, and a
+# strict parser rejects the whole document rather than the one field. This escaper was correct for
+# text somebody typed and wrong for anything that had been anywhere else — an id, a token, a header
+# value read off a socket.
+#
 # @param text the raw string.
-# @return the escaped string (quotes, backslash, and the common control chars).
+# @return the escaped string.
 # @complexity O(n) over the input length.
 # @alloc allocates the result.
 # @systest RequestsSys.PostJson
 fn json_escape(text) {
+    let hexdigits = "0123456789abcdef"
     let out = ""
     for ch in text {
-        match ord(ch) {
+        let code = ord(ch)
+        match code {
             case 34 { out = out + "\\\"" }   # "
             case 92 { out = out + "\\\\" }   # backslash
             case 10 { out = out + "\\n" }    # newline
             case 13 { out = out + "\\r" }    # carriage return
             case 9 { out = out + "\\t" }     # tab
-            case _ { out = out + ch }
+            case 8 { out = out + "\\b" }     # backspace
+            case 12 { out = out + "\\f" }    # form feed
+            case _ {
+                if code < 32 {
+                    out = out + "\\u00" + hexdigits[code // 16] + hexdigits[code % 16]
+                } else {
+                    out = out + ch
+                }
+            }
         }
     }
     return out
