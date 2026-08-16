@@ -23,6 +23,14 @@ if [ -z "$BIOME" ]; then
     for c in build/release/bin/biome build/debug/bin/biome; do
         [ -x "$c" ] && { BIOME="$PWD/$c"; break; }
     done
+else
+    # An explicitly-passed path must be absolutized too. run() cds into the clean-room temp
+    # directory, so a RELATIVE path stops resolving the moment it is used — and a relative
+    # path is exactly what .github/workflows/standard-e2e.yml passes
+    # ("build/release/bin/biome"). That is why standard-e2e failed on EVERY tagged release
+    # while passing locally: locally the argument is omitted and the branch above already
+    # absolutizes. The binary built fine in CI; it was never found.
+    case "$BIOME" in /*) ;; *) BIOME="$PWD/$BIOME" ;; esac
 fi
 [ -n "$BIOME" ] && [ -x "$BIOME" ] || { echo "[e2e] no biome binary (build the toolchain first)"; exit 2; }
 
