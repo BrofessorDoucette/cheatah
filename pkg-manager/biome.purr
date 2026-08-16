@@ -232,7 +232,22 @@ fn known_standards() {
     c10.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
     c10.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c10.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.6.2-alpha", "2026-08-15", "current", c10))
+    xs.append(Standard("0.6.2-alpha", "2026-08-15", "supported", c10))
+
+    # Biome Standard 0.6.3-alpha — a PATCH: the only member change is the cheatah
+    # toolchain release. It repairs the documentation site's tables (a table given
+    # display:block leaves table layout, so its cells stopped filling the frame),
+    # finishes the accessibility pass against WCAG 2.2, removes a file-exfiltration
+    # primitive from the QA gate's browser, and unblocks a release path that could not
+    # converge. No language, library, compiler or runtime API changes shape — every
+    # program written against 0.6.2-alpha compiles and behaves identically.
+    let c11: list<StandardComponent> = []
+    c11.append(StandardComponent("cheatah", "v1.11.7-alpha"))
+    c11.append(StandardComponent("cheatah-gpu", "v0.5.1-alpha"))
+    c11.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
+    c11.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c11.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.6.3-alpha", "2026-08-16", "current", c11))
 
     return xs
 }

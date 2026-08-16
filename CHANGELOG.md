@@ -3,6 +3,111 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.7-alpha (2026-08-16) — the tables lay out, and the release path clears
+
+Biome Standard <b>0.6.3-alpha</b> — a PATCH: the only member that changes is this toolchain
+release. It repairs the documentation site's tables and finishes the accessibility pass
+against WCAG 2.2, removes a file-exfiltration primitive from the QA gate's browser, and
+unblocks the release path itself — which had been unable to converge. No language, library,
+compiler, or runtime surface changes shape; every program written against 0.6.2-alpha
+compiles and behaves identically.
+
+### Fixed — the documentation site's tables were not laid out as tables
+
+The 2.1 pass gave `.dtable` `display: block; overflow-x: auto` so a wide table could not
+widen the page. The goal was right and the mechanism was wrong: `display: block` on a
+`<table>` takes it <em>out of table layout</em>, so the rows collapse into an anonymous
+shrink-to-fit box — `width: 100%` then sized only the frame while the cells hugged the left
+and the `<th>` stripe stopped short of the right edge. A table cannot be its own scroll
+container, so each one is now wrapped in a `<div class="tscroll" tabindex="0">` that carries
+the frame and the overflow. Measured in a real engine: a 3000px table scrolls <em>inside its
+wrapper</em> while the document stays at 350px in a 360px viewport, so the property that
+motivated the original change still holds.
+
+The same pass also left-aligned the sidebar and the on-this-page rail, on the grounds that
+centred nav is harder to scan. That is a readability opinion, not a criterion — SC 1.4.8
+prohibits <em>justified</em> text, not centred, and is Level AAA. What it legitimately
+carried was <b>SC 2.5.8 Target Size</b>: a centred shrink-to-fit `<li>` is only as wide as
+its label. Alignment and target size are separable, so the `<li>` stays stretched and the
+label centres inside it. It also restored `text-overflow` on the rail, which the switch to
+flex had silently disabled — `text-overflow` has no effect on a flex container, so long
+headings had been hard-clipped with no ellipsis.
+
+### Fixed — four WCAG 2.2 AA gaps the 2.1 pass could not have known about
+
+- <b>SC 2.4.7 Focus Visible.</b> The permalink was `opacity: 0` revealed on `:hover`, and
+  `opacity` applies to an element's whole rendering — its outline included. A keyboard user
+  tabbing to a permalink got an invisible link <em>and</em> an invisible focus ring. Hover is
+  not a mode of operation a keyboard has.
+- <b>SC 2.4.11 Focus Not Obscured (Minimum)</b>, new at AA in 2.2. Only member cards carried
+  a `scroll-margin`, so headings, overload rows and source lines could land entirely beneath
+  the sticky header. Every `[id]` now clears it.
+- <b>SC 2.5.8.</b> The permalink glyph (~10px) and the source link (~19px) sit in a flex row,
+  not a sentence, so they never qualified for the criterion's inline exception. Both are 24px.
+- <b>SC 1.4.12 Text Spacing.</b> The header's fixed height clipped the brand under the
+  spacing overrides the criterion requires a page to survive; `min-height` lets it grow.
+- <b>SC 1.3.1.</b> Header cells emit `scope="col"` (technique H63).
+
+The gate grew eight checks over the stylesheet and the emitted pages, each verified to fail
+when its fix is reverted — a green check that cannot fail proves nothing.
+
+The permalink half of that block is opt-out, via <b><code>A11Y_ANCHORS=0</code></b>. `.member`
+and `.overload` are Doxygen's per-member rows and `.anchor` is their permalink; a tree with no
+per-member headings has none of them, so demanding those selectors would mean writing dead CSS
+whose only purpose is to satisfy a counter — and because the `opacity: 0` count is pinned at
+exactly 2, it would also forbid such a tree ever having a third hidden control for an unrelated
+reason. The knob has the same shape, and exists for the same reason, as the `A11Y_LIGHT=0` that
+already excuses a tree shipping one theme on purpose. It defaults to <em>on</em>, so cheatah's
+own docs still enforce the pin across all 292 pages.
+
+### Security — the accessibility gate's browser is contained
+
+The gate passed `--allow-file-access-from-files` so its harness could read the measured
+page's `contentDocument` across `file://` origins. That flag relaxes the same-origin policy
+for the <em>whole browser instance</em>: any page it loads can read other local files and
+post them out. Our docs are our own, so the practical risk was low — but a gate that one day
+measures HTML from an untrusted branch would be a file-exfiltration primitive, and that is
+not a property to leave lying in a committed script. The flow is inverted instead: the
+measured page posts its own `scrollWidth` out with `postMessage`, which is cross-origin by
+design, and the flag is gone.
+
+Browser invocation is now contained structurally rather than by convention
+(`scripts/headless_browser.sh`): a throwaway profile, and for Firefox `--no-remote` plus
+`MOZ_NO_REMOTE=1`, because `firefox <url>` hands the URL to an already-running instance and
+can ignore `--headless` entirely — during this work it opened a real tab in a developer's own
+browser.
+
+### Fixed — the coverage table oscillated, and no release could be pushed
+
+The gate regenerates README's coverage table and fails if the file changed, telling you to
+commit and push again. But regions and branches jitter in the second decimal between
+otherwise identical runs — the systest lane's timing decides which defensive branches a run
+takes — and the values oscillated between two states (95.29 ↔ 95.30, 85.56 ↔ 85.58). So
+"commit and push again" produced the other value, and the next push demanded the first one
+back. <b>The loop could not converge, and no release could be pushed at all.</b> Regions and
+branches are advisory; Lines and Functions are what the gate enforces, and both stay exact
+and unrounded. Printing the advisory pair to one decimal makes the text stable — verified
+byte-identical across three consecutive regenerations.
+
+### Fixed — `standard-e2e` failed on every tagged release
+
+The job failed on v1.11.4, v1.11.5 <em>and</em> v1.11.6 with
+`env: 'build/release/bin/biome': No such file or directory`, 14 milliseconds after its own
+build step logged `Linking CXX executable bin/biome`. `run()` cds into the clean-room temp
+directory before invoking biome, so a <em>relative</em> path stops resolving at the moment of
+use; the auto-detect branch already absolutized, the explicitly-passed argument did not — and
+a relative path is exactly what the workflow passes. Locally the argument is omitted, which
+is why the release step was green by hand and red in CI every single time.
+
+The workflow is now `workflow_dispatch` only. It ran on `release: [published]` and mailed a
+failure on every release for a check that gates nothing, which trains everyone to ignore the
+one signal that is supposed to mean something. This hides no regression: the release's real
+acceptance test is the local `scripts/test-standard-e2e.sh`, which passes against the pushed
+tags. What must be true before the trigger goes back is recorded in the file — cheatah-gpu-linalg
+discovers its GPU toolchain from a developer workstation, so a consumer that fetched the
+members by tag through CPM, which is the exact flow the job exists to prove, cannot configure
+at all.
+
 ## v1.11.6-alpha (2026-08-15) — the docs fit on a phone
 
 Biome Standard <b>0.6.2-alpha</b> — a PATCH: the only member that changes is this
