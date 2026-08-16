@@ -14,12 +14,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      # libvulkan-dev: the Vulkan HEADERS + loader. cheatah-gpu-linalg's public
-      # vulkan_context.hpp names VkBuffer/VkResult/… so anything that includes the member
-      # needs them present, GPU or no GPU. mesa-vulkan-drivers: lavapipe, a software Vulkan
-      # device, so the smoke has something to run against on a GPU-less runner.
       - name: toolchain deps
-        run: sudo apt-get update && sudo apt-get install -y ninja-build libvulkan-dev mesa-vulkan-drivers
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
       # cheatah-gpu-linalg's kernels are Slang, and its CMakeLists FATAL_ERRORs when slangc is
       # absent — a bare runner has no Vulkan SDK, so the standard could never configure here.
       # slangc alone is enough: compiling .slang -> .spv/.metal is pure codegen and needs no GPU,
