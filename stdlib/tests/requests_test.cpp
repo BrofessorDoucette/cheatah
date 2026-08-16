@@ -712,6 +712,18 @@ TEST(CheatahRequests, ToJsonAndEscape) {
     EXPECT_EQ(req::to_json(esc), "{\"k\":\"a\\\"b\\\\c\\n\\r\\td\"}");
     std::unordered_map<std::string, std::string> empty;
     EXPECT_EQ(req::to_json(empty), "{}");
+
+    // EVERY control byte, not just the five with short forms. RFC 8259 §7 forbids a raw byte below
+    // 0x20 inside a string, so anything not escaped here produces output that is not JSON and a
+    // strict parser rejects the whole document rather than the one field. Backspace and form feed
+    // have short forms; the rest become \u00XX.
+    std::unordered_map<std::string, std::string> ctrl{{"k", std::string("a\b\fb\x01\x1f", 6)}};
+    EXPECT_EQ(req::to_json(ctrl), "{\"k\":\"a\\b\\fb\\u0001\\u001f\"}");
+
+    // The boundary: 0x1F is a control character and must be escaped, 0x20 (space) is not and must
+    // survive verbatim — an off-by-one here would either mangle every space or leak a raw 0x1F.
+    std::unordered_map<std::string, std::string> edge{{"k", std::string("\x1f\x20", 2)}};
+    EXPECT_EQ(req::to_json(edge), "{\"k\":\"\\u001f \"}");
 }
 
 // Base64 for HTTP Basic auth is the single canonical hashlib.base64_encode (tested in the hashlib
