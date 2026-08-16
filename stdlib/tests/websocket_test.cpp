@@ -227,3 +227,19 @@ TEST(WebSocketPlaintext, ConnectsOverPlainTcpAndReportsTheUpgradeFailure) {
     EXPECT_FALSE(what.empty());
     EXPECT_EQ(what.find("TLS"), std::string::npos) << "plaintext must not report a TLS error: " << what;
 }
+
+// The upgrade-request SEND failure. connect() cannot reach this without racing a peer reset,
+// so it is driven through the white-box seam: an invalid descriptor makes socket::send fail
+// with EBADF every time. Pins that the failure is reported as an upgrade failure (not a TLS
+// one) and that the session is destroyed on the way out rather than leaked.
+TEST(WebSocketPlaintext, UpgradeSendFailureIsReported) {
+    try {
+        ws::testonly::send_upgrade_on_closed_fd();
+        FAIL() << "sending an upgrade on a closed descriptor must throw";
+    } catch (const std::runtime_error& e) {
+        const std::string msg = e.what();
+        EXPECT_NE(msg.find("upgrade request failed"), std::string::npos) << msg;
+        EXPECT_EQ(msg.find("TLS"), std::string::npos)
+            << "a plaintext session must not report a TLS error: " << msg;
+    }
+}

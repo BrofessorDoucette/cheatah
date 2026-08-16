@@ -176,6 +176,21 @@ bool is_loopback(const std::string& host) {
     return host == "127.0.0.1" || host == "::1" || host == "[::1]" || host == "localhost";
 }
 
+// Send the upgrade request, or destroy the session and report why.
+//
+// Extracted so the failure branch is REACHABLE from a test. It cannot be forced through
+// connect(): it needs the peer to have reset the connection between tcp_connect returning and
+// this very send, which is a race, and a test that only sometimes covers a line is a test that
+// only sometimes passes. testonly::send_upgrade_on_closed_fd drives THIS function with an
+// invalid fd, where socket::send fails with EBADF every time.
+void send_upgrade(Session* s, const std::string& req) {
+    if (sess_send(s, req) < 0) {
+        const std::string err = sess_error(s);
+        destroy(s);
+        throw std::runtime_error("websocket: upgrade request failed: " + err);
+    }
+}
+
 long long connect(const std::string& host, long long port, const std::string& path,
                   const std::string& server_name, bool insecure, const std::string& ca_file,
                   bool secure) {
@@ -205,11 +220,7 @@ long long connect(const std::string& host, long long port, const std::string& pa
     const std::string req = "GET " + path + " HTTP/1.1\r\n" + "Host: " + server_name + "\r\n" +
                             "Upgrade: websocket\r\n" + "Connection: Upgrade\r\n" +
                             "Sec-WebSocket-Key: " + key + "\r\n" + "Sec-WebSocket-Version: 13\r\n\r\n";
-    if (sess_send(s, req) < 0) {
-        const std::string err = sess_error(s);
-        destroy(s);
-        throw std::runtime_error("websocket: upgrade request failed: " + err);
-    }
+    send_upgrade(s, req);
 
     // Read the response header block (up to and including the blank line). Any
     // bytes after it are the start of the WebSocket frame stream and stay in buf.
@@ -373,6 +384,16 @@ long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
     s->max_frame = max_frame;
     s->max_message = max_message;
     return as_handle(s);
+}
+
+// Drive send_upgrade()'s failure branch deterministically: a plaintext session on an invalid
+// descriptor, so socket::send returns EBADF with no peer, no timing and no network.
+void send_upgrade_on_closed_fd() {
+    Session* s = new Session();
+    s->fd = -1;    // invalid on purpose
+    s->tls = -1;   // plaintext, so sess_send takes the socket:: branch
+    send_upgrade(s, std::string("GET / HTTP/1.1\r\n\r\n"));
+    destroy(s);    // unreachable: send_upgrade throws, having destroyed it
 }
 }  // namespace testonly
 #endif  // CHEATAH_WEBSOCKET_TESTING

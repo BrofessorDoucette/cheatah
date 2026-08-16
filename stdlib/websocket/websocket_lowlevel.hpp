@@ -153,6 +153,17 @@ namespace testonly {
  */
 long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
                              std::uint64_t max_message);
+
+/**
+ * White-box seam (test builds only): drive the upgrade-request send FAILURE branch, which
+ * connect() cannot reach without racing a peer reset. Uses an invalid descriptor, so the send
+ * fails with EBADF deterministically.
+ * @throws std::runtime_error always — "websocket: upgrade request failed: ...".
+ * @complexity O(1).
+ * @alloc one Session, destroyed on the throw path.
+ * @test WebSocketPlaintext.UpgradeSendFailureIsReported
+ */
+void send_upgrade_on_closed_fd();
 }  // namespace testonly
 #endif  // CHEATAH_WEBSOCKET_TESTING
 
