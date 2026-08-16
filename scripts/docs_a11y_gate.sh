@@ -62,13 +62,14 @@ else
 fi
 
 # ---- reflow half: real viewport widths in a real engine ---------------------------------
-CHROME="${CHROME:-}"
-for c in google-chrome google-chrome-stable chromium chromium-browser; do
-    [ -n "$CHROME" ] && break
-    command -v "$c" >/dev/null 2>&1 && CHROME="$c"
-done
-if [ -z "$CHROME" ]; then
-    skip_or_fail "reflow half: no Chrome/Chromium found (set \$CHROME)"
+# The browser runs through scripts/headless_browser.sh, which confines it to a throwaway
+# profile and — for Firefox — disables the remote protocol that hands URLs to an already
+# running instance. Read that file before changing anything here: a plain `firefox <url>`
+# once opened a real tab in a developer's own browser.
+# shellcheck source=/dev/null
+. "$SCRIPT_DIR/headless_browser.sh"
+if ! ENGINE="$(hb_engine)"; then
+    skip_or_fail "reflow half: no Chrome/Chromium or Firefox found (set \$BROWSER)"
     bold "static half passed; reflow UNVERIFIED on this machine."
     exit 0
 fi
@@ -76,25 +77,39 @@ fi
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 cat > "$WORK/probe.html" <<'HTML'
 <!DOCTYPE html><html><body><iframe id="f" style="border:0;height:700px"></iframe><script>
-// Measure the page inside a fixed-width iframe: --window-size clamps at 500px, an iframe
+// Measure each page inside a fixed-width iframe: --window-size clamps at 500px, an iframe
 // does not, and media queries resolve against the iframe's own viewport.
+//
+// The measurement is POSTED OUT by the page rather than read in from here. Reaching into
+// f.contentDocument across file:// origins needs --allow-file-access-from-files, which
+// relaxes the same-origin policy for the whole browser instance; postMessage is
+// cross-origin by design and needs no such flag. The measured copy carries the tiny
+// reporter that the gate injects.
 const q = new URLSearchParams(location.search);
 const page = q.get('p'), widths = q.get('w').split(',').map(Number);
 const f = document.getElementById('f'), out = [];
 function at(w) {
   return new Promise(res => {
+    let done = false;
+    const finish = v => { if (!done) { done = true; out.push(w + ':' + v); cleanup(); res(); } };
+    const onMsg = e => {
+      if (e.data && e.data.a11y === 'reflow') finish(e.data.scrollWidth);
+    };
+    const cleanup = () => { window.removeEventListener('message', onMsg); clearTimeout(t); };
+    window.addEventListener('message', onMsg);
+    // A page that never reports is a failure, not a hang: -1 can never be <= the width.
+    const t = setTimeout(() => finish(-1), 8000);
     f.style.width = w + 'px';
-    f.onload = () => setTimeout(() => {
-      const d = f.contentDocument;
-      out.push(w + ':' + d.documentElement.scrollWidth);
-      res();
-    }, 60);
     f.src = page + '?w=' + w;      // vary the URL so each width really reloads
   });
 }
 (async () => { for (const w of widths) await at(w); document.title = 'R ' + out.join(' '); })();
 </script></body></html>
 HTML
+
+# The reporter injected into each measured copy. It runs after layout settles and posts the
+# document's own scrollWidth to the harness.
+REPORTER='<script>(function(){function s(){parent.postMessage({a11y:"reflow",scrollWidth:document.documentElement.scrollWidth},"*")}addEventListener("load",function(){setTimeout(s,60)});if(document.readyState==="complete")setTimeout(s,60)})();</script>'
 
 # A representative page of each KIND the generator emits — a landing (no TOC), a module
 # reference, a class page, a long prose guide, a source listing, and an extension subsite.
@@ -119,14 +134,24 @@ fi
 
 ABS="$(cd "$DOCS_HTML" && pwd)"
 CSV="$(echo "$WIDTHS" | tr ' ' ',')"
+mkdir -p "$WORK/pages"
 bad=0; checked=0
 bold "reflow (WCAG 1.4.10) at ${WIDTHS// /, }px…"
 for p in $PAGES; do
     [ -f "$ABS/$p" ] || continue
     checked=$((checked + 1))
-    title="$(timeout 120 "$CHROME" --headless=new --disable-gpu --no-sandbox \
-        --allow-file-access-from-files --virtual-time-budget=20000 --dump-dom \
-        --window-size=1400,900 "file://$WORK/probe.html?w=$CSV&p=file://$ABS/$p" 2>/dev/null \
+    # Measure a COPY carrying the reporter. The copy needs a <base> pointing back at the
+    # page's real directory: without it the relative stylesheet does not resolve, the copy
+    # renders unstyled, and an unstyled page reflows fine — the gate would pass everything.
+    src_dir="$(cd "$(dirname "$ABS/$p")" && pwd)"
+    copy="$WORK/pages/$(echo "$p" | tr '/' '_')"
+    awk -v base="<base href=\"file://$src_dir/\">" -v rep="$REPORTER" '
+        !done_base && /<head[^>]*>/ { sub(/<head[^>]*>/, "&" base); done_base = 1 }
+        /<\/body>/ && !done_rep    { sub(/<\/body>/, rep "&"); done_rep = 1 }
+        { print }
+    ' "$ABS/$p" > "$copy"
+    title="$(hb_run --virtual-time-budget=20000 --dump-dom --window-size=1400,900 \
+        "file://$WORK/probe.html?w=$CSV&p=file://$copy" 2>/dev/null \
         | grep -o '<title>R [^<]*</title>' | sed 's/<[^>]*>//g; s/^R //')"
     [ -n "$title" ] || { echo "  a11y: FAIL $p - probe produced no measurement"; bad=$((bad + 1)); continue; }
     for m in $title; do
