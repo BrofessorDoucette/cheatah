@@ -155,14 +155,27 @@ print(cov, tot, pct)
         python3 - "$lcov" "$lcn" "$lt" "$fexec" "$((funcs - mfun))" "$funcs" "$rcov" "$bcov" <<'PY'
 import re, sys
 lcov, lcn, lt, fexec, fcn, ft, rcov, bcov = sys.argv[1:9]
+
+# Regions and branches jitter in the second decimal between otherwise identical runs — the
+# systest lane's timing decides which defensive branches a run happens to take. Printed to
+# two decimals they oscillated (95.29 <-> 95.30, 85.56 <-> 85.58), so the gate's "the table
+# changed, commit and push again" check could never converge and NO release could be pushed
+# at all. One decimal is stable across runs and is all these advisory numbers are worth;
+# Lines and Functions are the gated metrics and are printed exactly, unrounded.
+def coarse(pct):
+    try:
+        return "%.1f%%" % round(float(pct.rstrip("%")), 1)
+    except ValueError:
+        return pct
+
 table = (
     "<!-- coverage:start -->\n"
     "| Metric | Standard library |\n"
     "|--------|------------------|\n"
     f"| **Lines** | {lcov} ({lcn}/{lt}) |\n"
     f"| **Functions** | {fexec} ({fcn}/{ft}) |\n"
-    f"| Regions | {rcov} |\n"
-    f"| Branches | {bcov} |\n"
+    f"| Regions | {coarse(rcov)} |\n"
+    f"| Branches | {coarse(bcov)} |\n"
     "<!-- coverage:end -->"
 )
 src = open("README.md").read()
