@@ -223,7 +223,7 @@ fn strip_code(html: str) -> str {
 # The stylesheet's own structural invariants. These are the layout regressions that reached
 # readers once already: a table taken out of table layout, and controls hidden from the
 # keyboard. Contrast is checked by check_palette; this is everything else the CSS must hold.
-fn check_stylesheet(css: str) -> int {
+fn check_stylesheet(css: str, want_anchors: bool) -> int {
     let bad = 0
 
     # A <table> cannot be its own scroll container. `display:block` takes it OUT of table
@@ -247,15 +247,25 @@ fn check_stylesheet(css: str) -> int {
     # (WCAG 2.4.7 - hover is not a mode of operation a keyboard has). Every opacity:0
     # control needs a :focus-within/:focus-visible companion. The count is PINNED so a third
     # hidden control cannot be introduced without coming back here to give it one.
-    let hidden = count_of(css, "opacity: 0;")
-    if hidden != 2 {
-        io.print("  a11y: FAIL " + str(hidden) + " 'opacity: 0' declarations, expected 2 (.anchor, .overload .anchor) - a newly hidden control needs a :focus companion (WCAG 2.4.7)")
-        bad = bad + 1
-    }
-    for sel in [".member:focus-within .anchor", ".overload:focus-within .anchor", ".anchor:focus-visible"] {
-        if string.find(css, sel, 0) < 0 {
-            io.print("  a11y: FAIL stylesheet has no '" + sel + "' rule - a focused permalink would be invisible (WCAG 2.4.7)")
+    #
+    # PERMALINK ANCHORS ARE A REFERENCE-DOC CONCEPT. .member and .overload are Doxygen's
+    # per-member rows; a marketing site has no per-member headings and no permalinks, so
+    # demanding these selectors of it would mean writing dead CSS whose only purpose is to
+    # satisfy a counter - and the pin is bidirectional, so it would also forbid that site ever
+    # having a third opacity:0 for an unrelated reason. A tree with no permalinks sets
+    # A11Y_ANCHORS=0, exactly as one with no light palette sets A11Y_LIGHT=0. The docs pass
+    # leaves it on, so the pin still guards the tree it was written for.
+    if want_anchors {
+        let hidden = count_of(css, "opacity: 0;")
+        if hidden != 2 {
+            io.print("  a11y: FAIL " + str(hidden) + " 'opacity: 0' declarations, expected 2 (.anchor, .overload .anchor) - a newly hidden control needs a :focus companion (WCAG 2.4.7)")
             bad = bad + 1
+        }
+        for sel in [".member:focus-within .anchor", ".overload:focus-within .anchor", ".anchor:focus-visible"] {
+            if string.find(css, sel, 0) < 0 {
+                io.print("  a11y: FAIL stylesheet has no '" + sel + "' rule - a focused permalink would be invisible (WCAG 2.4.7)")
+                bad = bad + 1
+            }
         }
     }
 
@@ -349,6 +359,9 @@ fn main() {
     # A repo with no light palette (the storefront ships one theme) sets A11Y_LIGHT=0
     # rather than failing a check for a block it never intended to have.
     let want_light = os.getenv("A11Y_LIGHT") != "0"
+    # A tree with no permalink anchors (a marketing site has no per-member headings) sets
+    # A11Y_ANCHORS=0 - the same shape, for the same reason.
+    let want_anchors = os.getenv("A11Y_ANCHORS") != "0"
     # Comma-separated path fragments to skip. The storefront's site/docs/cheatah-docs is a
     # dev SYMLINK to cheatah's generated tree — walking it would check those pages twice,
     # against the wrong stylesheet, and hide the storefront's own page count.
@@ -358,7 +371,7 @@ fn main() {
     let css = io.read_file(css_path)
     let bad = check_palette(css, ":root {", "dark")
     if want_light { bad = bad + check_palette(css, "prefers-color-scheme: light", "light") }
-    bad = bad + check_stylesheet(css)
+    bad = bad + check_stylesheet(css, want_anchors)
 
     # Walk subdirectories too: the extension subsites (cheatah-gpu/, cheatah-plot/, …) are
     # real pages readers land on, and a top-level-only scan quietly skipped every one.
