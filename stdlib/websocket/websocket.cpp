@@ -329,20 +329,21 @@ std::string recv(long long session) {
         }
 
         switch (opcode) {
-            case 0x9: {  // ping -> pong with the same payload (control, off hot path)
+            // No braces on the control cases: neither declares anything needing the scope, and
+            // a `}` after a continue/return is unreachable by construction — it shows up
+            // forever as an uncovered line that no test can ever reach.
+            case 0x9:  // ping -> pong with the same payload (control, off hot path)
                 send_frame(s, 0xA, std::string(payload, len));
                 s->pos += header + len;
                 continue;
-            }
             case 0xA:  // pong -> ignore
                 s->pos += header + len;
                 continue;
-            case 0x8: {  // close -> echo close, mark done, signal EOF
+            case 0x8:  // close -> echo close, mark done, signal EOF
                 send_frame(s, 0x8, std::string());
                 s->pos += header + len;
                 s->closed = true;
                 return std::string();
-            }
             case 0x1:  // text
             case 0x2:  // binary
                 if (fragmenting)
