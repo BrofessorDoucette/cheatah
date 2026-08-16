@@ -36,6 +36,16 @@ WIDTHS="${A11Y_WIDTHS:-320 390 768 1280}"
 bold() { printf '\033[1m[a11y-gate] %s\033[0m\n' "$*"; }
 fail() { printf '\033[31m[a11y-gate] FAILED: %s\033[0m\n' "$*"; exit 1; }
 
+# A11Y_REQUIRE=1 turns every "skipped because the tooling is missing" into a failure.
+# The dev path may skip loudly — a contributor without Chrome still gets the static half —
+# but a DEPLOY must not: a skipped check that reads as a pass is how the broken site
+# reached production in the first place. deploy/ sets this.
+REQUIRE="${A11Y_REQUIRE:-0}"
+skip_or_fail() {
+    [ "$REQUIRE" = "1" ] && fail "$1 (A11Y_REQUIRE=1)"
+    printf '\033[33m[a11y-gate] SKIPPED %s\033[0m\n' "$1"
+}
+
 [ -d "$DOCS_HTML" ] || fail "$DOCS_HTML does not exist (run docs/build-docs.sh first)"
 
 # ---- static half: contrast + page structure, in cheatah ---------------------------------
@@ -48,7 +58,7 @@ if [ -x "$PURRC" ] && [ -x "$RUNTIME" ]; then
     DOCS_HTML="$DOCS_HTML" A11Y_CSS="$A11Y_CSS" "$RUNTIME" "$SO" || fail "static accessibility checks"
 else
     # Loud, not silent: a skipped check must never read as a passing one.
-    printf '\033[33m[a11y-gate] SKIPPED static half: %s / %s not built\033[0m\n' "$PURRC" "$RUNTIME"
+    skip_or_fail "static half: $PURRC / $RUNTIME not built"
 fi
 
 # ---- reflow half: real viewport widths in a real engine ---------------------------------
@@ -58,7 +68,7 @@ for c in google-chrome google-chrome-stable chromium chromium-browser; do
     command -v "$c" >/dev/null 2>&1 && CHROME="$c"
 done
 if [ -z "$CHROME" ]; then
-    printf '\033[33m[a11y-gate] SKIPPED reflow half: no Chrome/Chromium found (set $CHROME)\033[0m\n'
+    skip_or_fail "reflow half: no Chrome/Chromium found (set \$CHROME)"
     bold "static half passed; reflow UNVERIFIED on this machine."
     exit 0
 fi
