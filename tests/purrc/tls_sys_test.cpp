@@ -55,8 +55,13 @@ const std::string& openssl_bin() {
 // @complexity O(1) (two subprocesses)  @alloc the command strings  @test TlsSys (helper)
 class OpensslServer {
 public:
+    // request_client_cert adds `-verify 1`, which makes s_server send a CertificateRequest
+    // and ACCEPT a client that declines (unlike -Verify, which demands one). That is exactly
+    // the peer that used to break us: smtp.gmail.com asks, we do not present a certificate,
+    // and the handshake must still complete.
     explicit OpensslServer(long long port, const std::string& newkey = "ed25519",
-                           const std::string& ciphersuites = "TLS_CHACHA20_POLY1305_SHA256")
+                           const std::string& ciphersuites = "TLS_CHACHA20_POLY1305_SHA256",
+                           bool request_client_cert = false)
         // Per-port cert/key paths so concurrent TlsSys tests (ctest -j) don't clobber each other's
         // files — the client now VALIDATES the cert, so a shared path would race into failures.
         : port_(port),
@@ -72,7 +77,8 @@ public:
         if (!ok_) return;
         const std::string serve = openssl_bin() + " s_server -accept " + std::to_string(port_) +
                                   " -cert '" + cert_ + "' -key '" + key_ +
-                                  "' -tls1_3 -ciphersuites " + ciphersuites + " -www "
+                                  "' -tls1_3 -ciphersuites " + ciphersuites + " -www " +
+                                  (request_client_cert ? "-verify 1 " : "") +
                                   ">/dev/null 2>&1 &";
         ok_ = std::system(serve.c_str()) == 0;
         std::this_thread::sleep_for(std::chrono::milliseconds(700));  // let it bind
@@ -182,6 +188,21 @@ bool handshake_gets_200(long long port, const std::string& ca_file) {
 // CertificateVerify — the cheatah TLS client proving an RSA server's key possession.
 TEST(TlsSys, HandshakeRsaCertificate) {
     OpensslServer server(47941, "rsa:2048", "TLS_CHACHA20_POLY1305_SHA256");
+    ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
+    EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
+}
+
+// A server that ASKS for a client certificate. RFC 8446 §4.4.2: a client with nothing to present
+// must still answer the CertificateRequest with a Certificate message carrying an empty
+// certificate_list and echoing the request's context — a bare Finished is an unexpected_message and
+// the peer aborts. We used to send the bare Finished, so any such server was unreachable;
+// smtp.gmail.com is one, which is how this surfaced.
+//
+// `-verify 1` requests without requiring, so a correct decline still reaches the HTTP exchange:
+// a 200 here proves the client both sent the empty Certificate AND folded it into the transcript
+// (get either wrong and the server's Finished check fails instead).
+TEST(TlsSys, DeclinesCertificateRequest) {
+    OpensslServer server(47951, "ed25519", "TLS_CHACHA20_POLY1305_SHA256", true);
     ASSERT_TRUE(server.ok()) << "could not start openssl s_server (test infrastructure)";
     EXPECT_TRUE(handshake_gets_200(server.port(), server.cert_path())) << tls::last_error();
 }

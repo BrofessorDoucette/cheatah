@@ -3,6 +3,61 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## v1.11.6-alpha (2026-08-15) — the docs fit on a phone
+
+Biome Standard <b>0.6.2-alpha</b> — a PATCH: the only member that changes is this
+toolchain release. It fixes a `tls` client handshake bug and makes the documentation site
+accessible; no language, library, compiler, or runtime surface changes shape. Every program
+written against 0.6.1-alpha compiles and behaves identically — except one that previously
+could not connect to a server asking for a client certificate, which now connects.
+
+### Fixed — `tls` declines a CertificateRequest instead of hanging up
+
+A TLS 1.3 server that sends `CertificateRequest` (asking the client to authenticate) made
+the handshake fail. The client now declines it correctly — an empty `Certificate` message —
+and the connection completes.
+
+### Fixed — the documentation site was unusable on a phone
+
+The site was <b>550px wide at a 320px viewport</b> and scrolled sideways on every phone: a
+WCAG 2.1 SC 1.4.10 (Reflow) failure, on every page, that had shipped for months. The header
+grid declared a 248px sidebar track and a 224px TOC track at <em>every</em> breakpoint, so
+below 1000px — where the package switcher and the on-this-page rail are already hidden —
+their columns still forced a ~526px floor. Each breakpoint now drops the tracks whose
+content it hides, and wide content (code blocks, gtest `Suite.Case` chips, tables) is
+contained rather than allowed to set the page width. Phones get a capped, scrolling nav
+instead of ~40 links stacked above the first word of documentation.
+
+### Fixed — the rest of the WCAG 2.1 AA pass
+
+- `--fg-faint` measured <b>4.21:1</b> against `--surface`, under the 4.5:1 floor; it is now
+  4.80:1. Every foreground is checked against the lightest ground it is drawn on.
+- <b>Light mode was unreachable.</b> The theme toggle was JavaScript, the serving CSP has no
+  `script-src`, and both generators baked `data-theme="dark"` into every page — so the
+  stylesheet's light palette was dead code. The attribute is gone and a
+  `prefers-color-scheme` block honours the reader's OS setting.
+- Touch targets reach 24px (44px for the phone sidebar), and the nav reads left-aligned.
+- Pages with no headings no longer emit an empty labelled "On this page" landmark.
+- Literal `**` markers reached 54 pages, from two causes: Doxygen does not convert `**bold**`
+  wrapping a `` `code` `` span, and `md_inline` paired `**` inside each backtick-delimited
+  segment independently, so bold spanning a code span never closed. Both fixed — the first
+  in the sources, deliberately <em>not</em> by sweeping the emitted HTML, where `2 ** 10` and
+  `char **argv` are real source that a sweep would have corrupted.
+
+### Added — an accessibility gate, in cheatah
+
+`scripts/docs_a11y_gate.sh` + `scripts/a11y_check.purr`, wired into `scripts/qa_gate.sh`.
+Reflow is measured in headless Chrome at 320/390/768/1280; contrast is computed from the
+stylesheet's own tokens; page structure (skip link, one `<h1>`, `lang`, no empty labelled
+landmark, no `<script>`, `alt` on every image) is checked across all 292 pages including the
+extension subsites.
+
+`--window-size=320` does <b>not</b> give a 320px viewport — Chrome clamps its window to
+500px, so the obvious version of this gate silently measures 500px and passes while the
+phone is still broken. Pages are loaded in a fixed-width iframe instead. Verified in both
+directions: with the old stylesheet the gate reports 550px at a 320px viewport and fails;
+with the fix, 310px.
+
 ## v1.11.5-alpha (2026-08-14) — the docs shed their scripts
 
 Biome Standard **0.6.1-alpha** — a PATCH: the only member that changes is this

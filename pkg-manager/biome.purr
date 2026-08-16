@@ -217,7 +217,22 @@ fn known_standards() {
     c9.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
     c9.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c9.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.6.1-alpha", "2026-08-14", "current", c9))
+    xs.append(Standard("0.6.1-alpha", "2026-08-14", "supported", c9))
+
+    # Biome Standard 0.6.2-alpha — a PATCH: the only member change is the cheatah
+    # toolchain release. It fixes a TLS client handshake bug (a server's
+    # CertificateRequest is now declined rather than hung up on) and makes the
+    # documentation site accessible; no language, library, compiler or runtime API
+    # changes shape. Every program written against 0.6.1-alpha compiles and behaves
+    # identically — except one that previously failed to connect to a server asking
+    # for a client certificate, which now connects.
+    let c10: list<StandardComponent> = []
+    c10.append(StandardComponent("cheatah", "v1.11.6-alpha"))
+    c10.append(StandardComponent("cheatah-gpu", "v0.5.1-alpha"))
+    c10.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
+    c10.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c10.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.6.2-alpha", "2026-08-15", "current", c10))
 
     return xs
 }

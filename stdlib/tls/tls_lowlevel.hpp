@@ -38,8 +38,13 @@ namespace cheatah::tls {
  *             system CA store; a custom @p ca_file is parsed on every call).
  * @alloc the session state (plus transient handshake buffers).
  * @concurrency blocks for the handshake round trip — bound it with socket.set_timeout() on @p fd.
+ * @note A server may ask the client to authenticate (CertificateRequest). We never present a
+ *       certificate, but we decline correctly — an empty certificate_list echoing the request's
+ *       context (RFC 8446 §4.4.2) — because a bare Finished is an unexpected_message that such a
+ *       peer aborts on. smtp.gmail.com is one; it was unreachable until we answered.
  * @systest TlsSys.HandshakeAgainstOpenssl
  * @systest TlsSys.HttpsGet
+ * @systest TlsSys.DeclinesCertificateRequest
  */
 long long client_connect(long long fd, const std::string& server_name, bool insecure = false,
                          const std::string& ca_file = "");

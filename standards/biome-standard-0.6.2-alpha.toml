@@ -1,13 +1,13 @@
-# Biome Standard 0.6.1-alpha — the set of component releases tested to work together.
+# Biome Standard 0.6.2-alpha — the set of component releases tested to work together.
 # Append-only: once released, only the status line may change (security advisories).
 
 [standard]
-version = "0.6.1-alpha"
-released = "2026-08-14"
-status = "supported"
+version = "0.6.2-alpha"
+released = "2026-08-15"
+status = "current"
 
 [components]
-cheatah = "v1.11.5-alpha"
+cheatah = "v1.11.6-alpha"
 cheatah-gpu = "v0.5.1-alpha"
 cheatah-gpu-linalg = "v0.4.4-alpha"
 cheatah-plot = "v0.1.0-alpha"
