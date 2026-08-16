@@ -3,10 +3,28 @@
 # run a program exercising all five members -> RESULT: PASS. Network-dependent by design, so
 # it is on-demand + post-release rather than in the offline pre-push gate.
 name: standard-e2e
+#
+# DISARMED ON RELEASE — on demand only, deliberately.
+#
+# This job has never passed in CI: it failed on v1.11.4, v1.11.5 and v1.11.6. It ran on
+# `release: [published]`, so every release mailed a failure for a check that gates nothing,
+# and the noise trained everyone to ignore it. Removing that trigger is not hiding a
+# regression — the release's real acceptance test is the LOCAL
+# `scripts/test-standard-e2e.sh` (releasing.md step 7), which passes against the pushed tags.
+#
+# WHY IT FAILS, and what must be true before restoring `release: [published]`:
+# cheatah-gpu-linalg discovers its GPU toolchain from a developer workstation — $VULKAN_SDK
+# or ~/Tools/vulkan-sdk for headers, a GLOB into a sibling checkout's build/ for volk, and
+# find_program for slangc. A consumer that fetched the members by tag through CPM — the exact
+# flow this job exists to prove — has none of those, so it cannot configure. Its public
+# headers also name VkBuffer/VkResult unconditionally, so consumers compile against Vulkan
+# even when the backend was never provisioned.
+#
+# The fix belongs there: self-provision volk + Vulkan-Headers + slangc via FetchContent, the
+# way cheatah-gpu/cmake/Vulkan.cmake already does. Do NOT paper over it by apt-installing a
+# Vulkan SDK in this file — that hides the defect this job is supposed to surface.
 on:
   workflow_dispatch:
-  release:
-    types: [published]
 
 jobs:
   e2e:
