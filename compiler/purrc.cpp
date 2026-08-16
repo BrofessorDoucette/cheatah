@@ -13,6 +13,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <set>
@@ -800,47 +801,80 @@ int emit_library(const std::string& input, const std::string& source, std::strin
     return 0;
 }
 
-// builtins (always available) + the imported modules + their transitive deps, in link
-// order (a dependent sorts before its dependency: linalg<ndarray, ed25519<hashlib).
-std::vector<std::string> all_modules(const std::vector<std::string>& imported) {
-    std::vector<std::string> modules = {"builtins"};
-    modules.insert(modules.end(), imported.begin(), imported.end());
+// The immediate dependencies of one module: the hardcoded table for the C++-authored stdlib,
+// plus the `// cheatah-deps:` marker a purrc-emitted library records for itself (written by
+// emit_library), so .purr-authored modules pull their imports in without a hardcoded entry.
+std::vector<std::string> module_deps(const std::string& m) {
     static const std::map<std::string, std::vector<std::string>> kDeps = {
         {"linalg", {"ndarray"}},
         {"ed25519", {"hashlib"}},
         {"tls", {"x25519", "aead", "hashlib", "ed25519", "socket", "p256", "p384"}},
         {"websocket", {"tls", "socket", "os"}},
         {"p256", {"hashlib"}},
+        {"p384", {"hashlib"}},
     };
-    std::set<std::string> seen(modules.begin(), modules.end());
-    for (std::size_t i = 0; i < modules.size(); ++i) {
-        const auto it = kDeps.find(modules[i]);
-        if (it != kDeps.end()) {
-            for (const std::string& dep : it->second)
-                if (seen.insert(dep).second) modules.push_back(dep);
-        }
-        // A purrc-emitted cheatah library records its own imports in a `// cheatah-deps:`
-        // marker (written by emit_library), so .purr-authored modules — requests is the
-        // first — pull in their dependencies (socket, parsers, ...) without a hardcoded map.
-        const ResolvedModule r = resolve_module(modules[i]);
-        if (r.resolved && !r.header.empty()) {
-            // Any resolved module (signed cheatah lib OR a plain/relative header) may declare
-            // its own imports in a `// cheatah-deps:` marker, so its transitive deps are pulled
-            // in without a hardcoded map. (Dedup via `seen` keeps this overlap with kDeps safe.)
-            std::ifstream hdr(r.header);
-            std::string line;
-            for (int scanned = 0; scanned < 8 && std::getline(hdr, line); ++scanned) {
-                const std::string tag = "// cheatah-deps:";
-                if (line.compare(0, tag.size(), tag) != 0) continue;
-                std::istringstream deps(line.substr(tag.size()));
-                std::string dep;
-                while (deps >> dep)
-                    if (seen.insert(dep).second) modules.push_back(dep);
-                break;
-            }
+    std::vector<std::string> out;
+    const auto it = kDeps.find(m);
+    if (it != kDeps.end()) out = it->second;
+
+    const ResolvedModule r = resolve_module(m);
+    if (r.resolved && !r.header.empty()) {
+        std::ifstream hdr(r.header);
+        std::string line;
+        // 32, not 8: the marker sits under whatever banner comment the module carries, and a
+        // deploy header was already sitting on line 8 exactly — one added comment line from
+        // silently dropping every dependency it declares, with no diagnostic anywhere.
+        for (int scanned = 0; scanned < 32 && std::getline(hdr, line); ++scanned) {
+            const std::string tag = "// cheatah-deps:";
+            if (line.compare(0, tag.size(), tag) != 0) continue;
+            std::istringstream deps(line.substr(tag.size()));
+            std::string dep;
+            while (deps >> dep) out.push_back(dep);
+            break;
         }
     }
-    return modules;
+    return out;
+}
+
+// builtins (always available) + the imported modules + their transitive deps, in LINK order:
+// a dependent is emitted before its dependency (tls before hashlib, linalg before ndarray).
+//
+// THIS ORDER IS LOAD-BEARING, and getting it wrong fails in the worst possible way. These are
+// static archives, and a .a only contributes the members that resolve a symbol left undefined
+// by something EARLIER on the command line. Emit hashlib before tls and the linker walks past
+// hashlib's member while nothing needs it yet; tls.cpp then references
+// hashlib::hkdf_expand_sha384, and because a shared object is permitted to carry undefined
+// symbols the link SUCCEEDS — the failure is deferred all the way to dlopen, as
+// `undefined symbol` at runtime, a long way from the cause.
+//
+// That is not hypothetical: this function used to append `imported` verbatim, and `imported`
+// arrives alphabetically sorted (codegen keeps its roots in a std::set). So any program that
+// imported both hashlib and tls got them in exactly the broken order, while `import tls` alone
+// worked — because hashlib was then discovered as tls's DEPENDENCY and appended after it. See
+// PreviouslyBroken.TlsLinksWhenHashlibIsAlsoImported.
+//
+// Post-order DFS gives the invariant directly: a module is appended only once every module it
+// depends on has been visited, so it always lands ahead of them. Cycles are cut by the
+// in-progress mark rather than looping.
+std::vector<std::string> all_modules(const std::vector<std::string>& imported) {
+    std::vector<std::string> ordered;          // dependencies-last, built by the DFS
+    std::set<std::string> done;                // fully emitted
+    std::set<std::string> active;              // on the current DFS path (cycle guard)
+
+    // Emits m's dependencies first, then m — so `ordered` ends up dependency-first. The caller
+    // reverses it once, which puts every dependent ahead of what it needs.
+    const std::function<void(const std::string&)> visit = [&](const std::string& m) {
+        if (done.count(m) || !active.insert(m).second) return;
+        for (const std::string& dep : module_deps(m)) visit(dep);
+        active.erase(m);
+        if (done.insert(m).second) ordered.push_back(m);
+    };
+
+    for (const std::string& m : imported) visit(m);
+    visit("builtins");
+
+    std::reverse(ordered.begin(), ordered.end());
+    return ordered;
 }
 
 // Semantic validation of the `constexpr` surface (`constexpr let` / `constexpr fn` /
@@ -1284,9 +1318,17 @@ int main(int argc, char** argv) {
     // Build/biome-supplied passthrough flags (`--cxxflag` / CHEATAH_CXXFLAGS_EXTRA), before the source.
     for (const std::string& f : g_cxx_flags) args.push_back(f);
     args.push_back(gen_path);
+    // --start-group makes the archives order-INDEPENDENT: the linker re-scans them until no
+    // new undefined symbol is resolved. all_modules already emits them dependency-last, so
+    // this is a backstop, not the mechanism — but it is a cheap one (a handful of
+    // single-member archives) against a failure mode that hides until dlopen. A missing edge
+    // in module_deps' table would otherwise ship as `undefined symbol` at RUNTIME.
+    const bool group = !resolved.empty();
+    if (group) args.push_back("-Wl,--start-group");
     for (const ResolvedModule& rm : resolved) {
         if (!rm.archive.empty()) args.push_back(rm.archive);
     }
+    if (group) args.push_back("-Wl,--end-group");
     // Build-supplied link inputs (`--link`): archives/flags for dependencies whose compiled
     // definitions the BUILD provides (e.g. an external project's library for a module it
     // imports by relative path / --import-root, with no co-located archive). After the

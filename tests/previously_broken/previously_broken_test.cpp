@@ -441,3 +441,49 @@ main()
         << "a `const ndarray<float>` param should lower to a const reference\n"
         << gen;
 }
+
+// Bug: a program importing BOTH `hashlib` and `tls` built cleanly and then died at dlopen with
+// `undefined symbol: cheatah::hashlib::hkdf_expand_sha384`. purrc emitted the static archives in
+// the order codegen reported its imports — alphabetical, because codegen keeps roots in a
+// std::set — so libcheatah_hashlib.a was scanned BEFORE libcheatah_tls.a. A .a only contributes
+// members resolving an already-undefined symbol, so hashlib's member was passed over; tls.cpp
+// then referenced hkdf_expand_sha384, and since a shared object may carry undefined symbols the
+// LINK SUCCEEDED and the failure was deferred to load time, far from its cause.
+//
+// `import tls` alone always worked — hashlib was discovered as tls's dependency and appended
+// after it — which is why nothing caught this: no .purr under tests/ imported tls at all.
+//
+// Fixed by making all_modules a post-order DFS (dependents before dependencies) in
+// compiler/purrc.cpp, plus --start-group/--end-group as a backstop.
+//
+// The import of hashlib is what makes this a regression test rather than a smoke test: remove
+// it and the program links even with the bug present. main() must also CALL tls, or the linker
+// never needs the symbol and the test proves nothing.
+TEST(PreviouslyBroken, TlsLinksWhenHashlibIsAlsoImported) {
+    e2e::expect_e2e("prevbroken_tls_hashlib_link",
+                    "import io\n"
+                    "import hashlib\n"
+                    "import tls\n"
+                    "fn main() {\n"
+                    "    io.print(\"tls-linked\")\n"
+                    "    io.print(tls.last_error())\n"
+                    "}\n"
+                    "main()\n",
+                    "tls-linked\n\n");
+}
+
+// The same hazard one archive deeper: ed25519 also sorts before tls, and tls.cpp references
+// ed25519::public_key. Distinct from the case above — that one is fixed by hashlib landing
+// after tls, this one by ed25519 doing so.
+TEST(PreviouslyBroken, TlsLinksWhenEd25519IsAlsoImported) {
+    e2e::expect_e2e("prevbroken_tls_ed25519_link",
+                    "import io\n"
+                    "import ed25519\n"
+                    "import tls\n"
+                    "fn main() {\n"
+                    "    io.print(\"tls-linked\")\n"
+                    "    io.print(tls.last_error())\n"
+                    "}\n"
+                    "main()\n",
+                    "tls-linked\n\n");
+}

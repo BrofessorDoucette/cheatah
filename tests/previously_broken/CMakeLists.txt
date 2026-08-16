@@ -21,7 +21,17 @@ add_dependencies(cheatah_previously_broken_tests
     cheatah_ndarray_static
     cheatah_random_static
     cheatah_regex_static
-    cheatah_time_static)
+    cheatah_time_static
+    # The tls stack: TlsLinksWhen*IsAlsoImported forks purrc, which links these archives
+    # directly, so they must EXIST before the test runs.
+    cheatah_tls_static
+    cheatah_hashlib_static
+    cheatah_ed25519_static
+    cheatah_x25519_static
+    cheatah_aead_static
+    cheatah_socket_static
+    cheatah_p256_static
+    cheatah_p384_static)
 
 # LABELS lets the QA gate select this suite with `ctest -L previously_broken` and run it
 # before everything else.
