@@ -7,13 +7,16 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <thread>
 
 #include <gtest/gtest.h>
 
+#include "socket.hpp"
 #include "websocket.hpp"
 #include "websocket_lowlevel.hpp"  // recv()/close() + the CHEATAH_WEBSOCKET_TESTING frame-parser seam
 
 namespace ws = cheatah::websocket;
+namespace sk = cheatah::socket;
 
 namespace {
 
@@ -153,4 +156,74 @@ TEST(CheatahWebSocket, ClientDefaultIsClosed) {
     EXPECT_EQ(c.id(), 0);
     EXPECT_EQ(c.close(), -1);  // nothing to close
     EXPECT_THROW(ws::open_url("ws://example.com/"), std::runtime_error);
+}
+
+// ---- plaintext ws:// -------------------------------------------------------------------
+// The client is TLS-only by default and gained a PLAINTEXT mode for one reason: Chrome's
+// DevTools endpoint speaks ws:// on loopback and offers no TLS at all. These pin the two
+// properties that keep "insecure" from becoming reachable by accident.
+
+// The guard. Plaintext to anything that is not this machine is refused before a socket is
+// even opened, so no configuration turns this into a cleartext WebSocket to the internet.
+TEST(WebSocketPlaintext, RefusesNonLoopbackHost) {
+    try {
+        ws::connect(std::string("example.com"), 80, std::string("/"), std::string("example.com"),
+                    false, std::string(""), /*secure=*/false);
+        FAIL() << "plaintext to a non-loopback host must be refused";
+    } catch (const std::runtime_error& e) {
+        const std::string msg = e.what();
+        EXPECT_NE(msg.find("loopback"), std::string::npos) << msg;
+        EXPECT_NE(msg.find("wss://"), std::string::npos) << msg;  // says what to use instead
+    }
+}
+
+TEST(WebSocketPlaintext, LoopbackSpellingsAreAllAccepted) {
+    // Refused for a reason OTHER than the loopback guard: nothing is listening, so this gets
+    // as far as the TCP connect. That is the point — the guard let it through.
+    for (const char* host : {"127.0.0.1", "::1", "localhost"}) {
+        try {
+            ws::connect(std::string(host), 1, std::string("/"), std::string(host), false,
+                        std::string(""), /*secure=*/false);
+            FAIL() << "port 1 should not have accepted a connection";
+        } catch (const std::runtime_error& e) {
+            const std::string msg = e.what();
+            EXPECT_EQ(msg.find("loopback"), std::string::npos)
+                << host << " was refused by the loopback guard: " << msg;
+        }
+    }
+}
+
+// The plaintext path end to end as far as it can go without a WebSocket server: a real TCP
+// peer on loopback that accepts and closes. This is what exercises the skip-TLS branch and
+// the upgrade exchange over socket:: rather than tls::.
+TEST(WebSocketPlaintext, ConnectsOverPlainTcpAndReportsTheUpgradeFailure) {
+    const long long lfd = sk::tcp_listen("127.0.0.1", 0, 1);
+    ASSERT_GE(lfd, 0);
+    const long long port = sk::local_port(lfd);
+    ASSERT_GT(port, 0);
+
+    // Accept, read whatever arrives, then close without answering the upgrade.
+    std::thread server([&] {
+        const long long conn = sk::accept(lfd);
+        if (conn >= 0) {
+            sk::recv(conn, 4096);
+            sk::close(conn);
+        }
+    });
+
+    std::string what;
+    try {
+        ws::connect(std::string("127.0.0.1"), port, std::string("/"), std::string("127.0.0.1"),
+                    false, std::string(""), /*secure=*/false);
+        ADD_FAILURE() << "a peer that never answers the upgrade must not yield a session";
+    } catch (const std::runtime_error& e) {
+        what = e.what();
+    }
+    server.join();
+    sk::close(lfd);
+
+    // Either the request could not be sent or the peer closed mid-upgrade; both are the
+    // plaintext transport reporting a real failure rather than a TLS one.
+    EXPECT_FALSE(what.empty());
+    EXPECT_EQ(what.find("TLS"), std::string::npos) << "plaintext must not report a TLS error: " << what;
 }
