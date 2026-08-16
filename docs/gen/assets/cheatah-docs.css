@@ -401,8 +401,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 .hero-tagline { margin: 0; color: var(--fg-dim); font-style: italic; font-size: 1.05rem; }
 .home h1 { font-size: 2.3rem; letter-spacing: -.02em; }
 .home h2 { margin-top: 1.8em; }
-.home .cheetah-slogan { font-size: 1.3rem; text-align: center; color: var(--accent); margin: 1.5em 0; }
-.home .cheetah-colophon { text-align: center; color: var(--fg-faint); font-size: .82rem; }
 
 /* ---- responsive ----
    RULE: when a breakpoint hides a column's content, that breakpoint must also drop the
@@ -419,7 +417,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 }
 /* Then the package switcher: brand on the left, the way back to the company on the right. */
 @media (max-width: 1000px) {
-  .tagline { display: none; }
   .pkgs { display: none; }
   .topbar-inner { grid-template-columns: minmax(0,1fr) max-content; }
   .bb { grid-column: 2; }

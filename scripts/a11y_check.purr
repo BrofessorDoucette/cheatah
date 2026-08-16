@@ -293,6 +293,89 @@ fn check_stylesheet(css: str, want_anchors: bool) -> int {
     return bad
 }
 
+# ---- dead-class census -------------------------------------------------------------------
+# A rule that targets a class no page carries is invisible: it neither errors nor renders, it
+# just silently stops applying. The storefront's whole nav was styled by six rules scoped to
+# `header.site` after the element had been renamed to `.topbar`; the brand, the flex row, the
+# link colour, hover and aria-current all died at once and nothing complained. This is the
+# check that would have caught it in the same commit.
+
+fn is_class_char(c: str) -> bool {
+    if c >= "a" and c <= "z" { return true }
+    if c >= "A" and c <= "Z" { return true }
+    if c >= "0" and c <= "9" { return true }
+    return c == "-" or c == "_"
+}
+
+# Each collector fills a (seen, names) PAIR: the dict answers membership, the list gives a
+# stable iteration order. A dict alone would not do — purr iterates a dict as key/value pairs
+# and has no .keys(), and both comparison directions need to walk one set while testing the
+# other.
+fn note_class(name: str, seen, names: list<str>) {
+    if name == "" { return }
+    if name in seen { return }
+    seen[name] = true
+    names.append(name)
+}
+
+# Pull `.name` tokens out of one selector fragment.
+fn classes_in_selector(sel: str, seen, names: list<str>) {
+    let i = 0
+    while i < len(sel) {
+        if sel[i] == "." and i + 1 < len(sel) and is_class_char(sel[i + 1]) {
+            let j = i + 1
+            while j < len(sel) and is_class_char(sel[j]) { j = j + 1 }
+            note_class(sel[i + 1:j], seen, names)
+            i = j
+            continue
+        }
+        i = i + 1
+    }
+}
+
+# Every class the stylesheet TARGETS. Selector text is whatever precedes a '{' since the last
+# brace, which handles nested at-rules without a parser: an `@media (...)` prelude carries no
+# class, and the rules inside it are read exactly like top-level ones. Comments are blanked
+# first so a class merely NAMED in prose is not counted as styled — this file's own comments
+# mention .topbar and .anchor.
+fn css_classes_into(css: str, seen, names: list<str>) {
+    let src = ""
+    let k = 0
+    while k < len(css) {
+        let a = string.find(css, "/*", k)
+        if a < 0 { src = src + css[k:]; break }
+        let b = string.find(css, "*/", a)
+        if b < 0 { src = src + css[k:a]; break }
+        src = src + css[k:a]
+        k = b + 2
+    }
+    let i = 0
+    let start = 0
+    while i < len(src) {
+        let c = src[i]
+        if c == "{" {
+            classes_in_selector(src[start:i], seen, names)
+            start = i + 1
+        } elif c == "}" {
+            start = i + 1
+        }
+        i = i + 1
+    }
+}
+
+# Every class an HTML page USES, accumulated across a tree.
+fn html_classes_into(html: str, seen, names: list<str>) {
+    let i = string.find(html, "class=\"", 0)
+    while i >= 0 {
+        let e = string.find(html, "\"", i + 7)
+        if e < 0 { return }
+        for c in string.split(html[i + 7:e], " ") {
+            note_class(string.strip(c), seen, names)
+        }
+        i = string.find(html, "class=\"", e)
+    }
+}
+
 fn check_page(path: str, html: str) -> int {
     let bad = 0
     let prose = strip_code(html)
@@ -366,6 +449,14 @@ fn main() {
     # dev SYMLINK to cheatah's generated tree — walking it would check those pages twice,
     # against the wrong stylesheet, and hide the storefront's own page count.
     let excludes = string.split(os.getenv("A11Y_EXCLUDE"), ",")
+    # A11Y_DEADCLASS=0 turns off the dead-class census — same shape as A11Y_LIGHT/A11Y_ANCHORS.
+    let want_deadclass = os.getenv("A11Y_DEADCLASS") != "0"
+    # Colon-separated EXTRA page roots that share this stylesheet. The census must span every
+    # tree the stylesheet serves or it invents findings: the storefront checks site/ and docs/
+    # in separate passes against ONE styles.css, so a class used only in site/products/ would
+    # look dead during the docs/ pass. These roots contribute classes only — their page
+    # structure is checked by their own pass.
+    let also_trees = string.split(os.getenv("A11Y_ALSO_TREES"), ":")
 
     io.print("[a11y] contrast (WCAG 1.4.3) over " + css_path)
     let css = io.read_file(css_path)
@@ -376,6 +467,8 @@ fn main() {
     # Walk subdirectories too: the extension subsites (cheatah-gpu/, cheatah-plot/, …) are
     # real pages readers land on, and a top-level-only scan quietly skipped every one.
     io.print("[a11y] page structure over " + root)
+    let used: dict<str, bool> = {}
+    let used_names: list<str> = []
     let pages = 0
     let queue = [""]
     let qi = 0
@@ -399,8 +492,71 @@ fn main() {
             }
             if not string.endswith(name, ".html") { continue }
             pages = pages + 1
-            bad = bad + check_page(child, io.read_file(dir + "/" + name))
+            let page_html = io.read_file(dir + "/" + name)
+            html_classes_into(page_html, used, used_names)
+            bad = bad + check_page(child, page_html)
         }
+    }
+
+    # The extra roots: classes only, no structure checks and no page count.
+    for extra in also_trees {
+        let xr = string.strip(extra)
+        if xr == "" { continue }
+        let xq = [""]
+        let xi = 0
+        while xi < len(xq) {
+            let xrel = xq[xi]
+            xi = xi + 1
+            let xdir = xr
+            if xrel != "" { xdir = xr + "/" + xrel }
+            for xname in os.listdir(xdir) {
+                let xchild = xname
+                if xrel != "" { xchild = xrel + "/" + xname }
+                let xskip = false
+                for ex in excludes {
+                    let e = string.strip(ex)
+                    if e != "" and string.contains(xchild, e) { xskip = true }
+                }
+                if xskip { continue }
+                if os.path.isdir(xdir + "/" + xname) {
+                    xq.append(xchild)
+                    continue
+                }
+                if not string.endswith(xname, ".html") { continue }
+                html_classes_into(io.read_file(xdir + "/" + xname), used, used_names)
+            }
+        }
+    }
+
+    if want_deadclass {
+        let styled: dict<str, bool> = {}
+        let styled_names: list<str> = []
+        css_classes_into(css, styled, styled_names)
+        let dead = 0
+        for name in styled_names {
+            if not (name in used) {
+                io.print("  a11y: FAIL stylesheet styles '." + name + "' but no page uses it - a renamed element leaves rules that silently stop applying")
+                dead = dead + 1
+            }
+        }
+        # The other direction is INFORMATIONAL, deliberately. A class with no rule usually
+        # inherits something sensible on purpose — .badge-type and .badge-enum fall back to
+        # .badge, and several are semantic hooks Doxygen emits that we never chose to paint.
+        # A dead RULE is the real defect: it is styling that silently stopped applying, which
+        # is exactly how the storefront's whole nav went unstyled. Failing on both directions
+        # would bury that signal under a standing backlog nobody can act on.
+        let unstyled = 0
+        let unstyled_list = ""
+        for name in used_names {
+            if not (name in styled) {
+                unstyled = unstyled + 1
+                unstyled_list = unstyled_list + " ." + name
+            }
+        }
+        if unstyled > 0 {
+            io.print("  a11y: note - " + str(unstyled) + " class(es) used with no rule (inheriting):" + unstyled_list)
+        }
+        bad = bad + dead
     }
 
     if bad > 0 {
