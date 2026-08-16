@@ -7742,7 +7742,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 987,
+      "srcline": 1020,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -7759,9 +7759,30 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 923,
+      "srcline": 956,
       "module": "requests",
       "qualified": "requests.get"
+    },
+    {
+      "name": "has_control_bytes",
+      "signature": "has_control_bytes(builtins::Value auto &&text)",
+      "brief": "Does text contain a byte that would break out of the line it is written on?",
+      "params": [
+        {
+          "name": "text",
+          "desc": "a request-target or header value about to be written to the wire."
+        }
+      ],
+      "returns": "true when text carries CR or LF and must not be sent.",
+      "tags": {
+        "complexity": "O(n) over the input length.",
+        "alloc": "none.",
+        "systest": "CheatahRequests.CrlfInjectionRefused"
+      },
+      "srcfile": "stdlib/requests/requests.hpp",
+      "srcline": 292,
+      "module": "requests",
+      "qualified": "requests.has_control_bytes"
     },
     {
       "name": "head",
@@ -7776,7 +7797,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1003,
+      "srcline": 1036,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -7793,7 +7814,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1019,
+      "srcline": 1052,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -7810,7 +7831,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 971,
+      "srcline": 1004,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -7827,7 +7848,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 939,
+      "srcline": 972,
       "module": "requests",
       "qualified": "requests.post"
     },
@@ -7844,7 +7865,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 955,
+      "srcline": 988,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -7865,7 +7886,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 907,
+      "srcline": 940,
       "module": "requests",
       "qualified": "requests.request"
     },
@@ -7886,7 +7907,7 @@
         "systest": "RequestsSys.PostJson"
       },
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 359,
+      "srcline": 380,
       "module": "requests",
       "qualified": "requests.to_json"
     },
