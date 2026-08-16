@@ -296,30 +296,101 @@ TEST(Memory, ImmediateConstantIsANegativeNamedForReadability) {
     SUCCEED();
 }
 
+// THE RULE THIS TEST OBEYS, and it is the whole reason it looks like this: a preempted writer may
+// wait ONLY by polling `w.valid()`. That poll is what ACKS the preempt — `lease.hpp`: *"the first
+// observation of a stop acks and wakes the owner … polling this from the holding thread is what lets
+// a drain/preempt make progress"* — and `grant_immediate()` blocks on
+// `writer_gate_->acked` until it happens. A writer that waits on anything else while holding its
+// lease (a condition variable, a flag only the immediate-write can set) is a CIRCULAR WAIT: the
+// immediate cannot proceed until the writer acks, and the writer will not ack until the immediate
+// proceeds. That is a deadlock, not a flake, and it is how a previous attempt at this test ended.
+//
+// WHAT WAS WRONG BEFORE. The writer slept 1 ms after each of three chunks and the main thread slept
+// 1 ms once, so the writer needed ~3 ms and the preempt was aimed at a 1 ms window. `sleep_for` was
+// doing the job of a synchronisation primitive, and under load the main thread was descheduled past
+// the writer entirely: the writer finished first, set `finished_first = 2`, and the assertion below
+// failed. Roughly one run in three on a loaded machine, and it blocked every push.
+//
+// Both interleavings are LEGAL to the module — `grant_immediate()` short-circuits on `!writer_`
+// with the comment *"a non-looping writer may release during the wait"* — so the module was never
+// the bug. This test is about the preempting interleaving specifically, so it now ARRANGES that
+// interleaving instead of gambling on the scheduler for it.
 TEST(Memory, NegativePriorityImmediateWritePreemptsTheActiveWriterWhichThenResumes) {
+    using clock = std::chrono::steady_clock;
+    // Every wait below is bounded. An unbounded spin would turn a genuine preempt/resume regression
+    // into a hung CI runner, which is a strictly worse failure than the flake being fixed here.
+    constexpr auto kPatience = std::chrono::seconds(5);
+
     auto o = mem::own(std::string(""));
     std::atomic<bool> writer_holding{false};
+    std::atomic<bool> preempt_seen{false};
+    std::atomic<bool> timed_out{false};
+    std::atomic<const char*> stuck_at{nullptr};
+    std::atomic<int> chunks_at_stall{-1};
     std::atomic<int>  chunks{0}, finished_first{0};   // 1 = immediate finished first, 2 = writer
+
+    // Cooperative spin: polls (so a preempt can make progress) and gives up rather than hanging.
+    //
+    // IT BACKS OFF, and that is not a nicety. A pure `yield()` loop keeps this thread permanently
+    // runnable, and on a loaded box the scheduler will happily keep feeding it while starving the
+    // very thread it is waiting for — the writer spinning at full tilt can hold off the main thread
+    // that owes it the preempt. That showed up as this test's own 5 s deadline firing under a 12x
+    // load. Spin briefly for latency, then sleep so somebody else can run.
+    const auto spin_until = [&](const char* what, auto&& done) {
+        const auto deadline = clock::now() + kPatience;
+        for (int i = 0; !done(); ++i) {
+            if (clock::now() > deadline) {
+                stuck_at = what; chunks_at_stall = chunks.load(); timed_out = true; return false;
+            }
+            if (i < 1000) std::this_thread::yield();
+            else          std::this_thread::sleep_for(std::chrono::microseconds(100));
+        }
+        return true;
+    };
+
     // A long-running writer: appends "A" three times, yielding to an immediate-write between chunks.
     std::thread writer([&] {
         auto w = o.rwrite().acquire();                        // priority 0
         writer_holding = true;
+        // ANY observation of `!valid()` is a preempt, wherever it happens — and it must be recorded
+        // there, not only at the top of the loop. Checking only at the top was a real bug and cost a
+        // 5 s stall: the immediate-write can be absorbed ENTIRELY by the await-regrant spin below,
+        // because that spin's `valid()` call is itself the ack. The writer would then resume with
+        // `preempt_seen` still false and sit waiting for a second preempt nobody was going to send.
+        const auto lease_valid = [&] {
+            const bool v = w.valid();
+            if (!v) preempt_seen = true;
+            return v;
+        };
         for (int i = 0; i < 3; ++i) {
-            while (!w.valid()) std::this_thread::yield();      // paused by an immediate-write: await regrant
-            w.write(w.read() + "A");                                 // safe: w.valid(), write() is the CURRENT location
+            if (!spin_until("writer:await-regrant", lease_valid)) return;  // await regrant
+            w.write(w.read() + "A");                          // safe: w.valid(), write() is the CURRENT location
             ++chunks;
-            std::this_thread::sleep_for(1ms);                 // give an immediate-write a window to preempt
+            // Refuse to finish until the preemption has actually been OBSERVED. This is what makes
+            // `finished_first` a fact rather than a coin flip. Skipped when the immediate-write
+            // already came and went before the first chunk — waiting for a second preempt that
+            // nobody will send would hang.
+            if (i == 0 && !preempt_seen) {
+                if (!spin_until("writer:await-preempt", [&] { return !lease_valid(); })) return;
+                preempt_seen = true;
+            }
         }
         if (finished_first == 0) finished_first = 2;
     });
-    while (!writer_holding) std::this_thread::yield();
-    std::this_thread::sleep_for(1ms);
+
+    ASSERT_TRUE(spin_until("main:await-writer-holding", [&] { return writer_holding.load(); })) << "the writer never acquired";
     {
         auto w = o.rwrite<mem::immediate>().acquire();        // NEGATIVE priority (== -1) -> immediate-write
         w.write(w.read() + "!");                                     // emergency correction, mid-writer
         if (finished_first == 0) finished_first = 1;
     }                                                         // release -> writer's lease becomes valid() again
     writer.join();
+
+    ASSERT_FALSE(timed_out) << "a wait exceeded " << kPatience.count() << "s at ["
+                            << (stuck_at.load() ? stuck_at.load() : "?") << "] with chunks="
+                            << chunks_at_stall.load() << " preempt_seen=" << preempt_seen.load()
+                            << " finished_first=" << finished_first.load()
+                            << " — the preempt/resume handshake is not completing";
     EXPECT_EQ(finished_first, 1);                            // the immediate-write completed before the writer resumed
     EXPECT_EQ(chunks, 3);                                    // the preempted writer resumed and finished all its work
     const auto result = o.rread().acquire().read();

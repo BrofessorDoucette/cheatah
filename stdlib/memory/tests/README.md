@@ -64,3 +64,38 @@ immediate-write API is a template-arg call (`o.rwrite<memory::immediate>()`) tha
 spell — so the *heavy* tests are C++ (which also gives coverage), and the `.purr` files prove the
 language surface end-to-end (`import memory`, `memory.own`, `request → acquire → lease`, threads via
 `cpp {}`).
+
+## Which instrument finds what — measured, not assumed
+
+Two real flakes lived in this suite and both were found by *accidental* timing perturbation (machine
+load; ThreadSanitizer's slowdown). Neither was a module bug — both were tests using `sleep_for` as a
+synchronisation primitive and asserting an emergent ordering they never arranged. The lanes below
+exist so that perturbation is deliberate and repeatable instead of lucky.
+
+| lane | what it is good for | how to run |
+|---|---|---|
+| **native + load** | the scheduler you actually ship on; volume buys coverage | `--gtest_repeat=200` while the box is busy |
+| **ThreadSanitizer** | **the instrument of record here.** It models C++11 atomics, which is how this module synchronises | `cmake --preset tsan && ./build/tsan/bin/cheatah_memory_tests` |
+| **Helgrind / DRD** | **lock-order inversions and deadlocks** — the class no other lane catches | `valgrind --tool=helgrind --fair-sched=yes ./build/debug/bin/cheatah_memory_tests` |
+| **jitter** | interleavings the scheduler never picks on its own | `CHEATAH_MEMORY_JITTER=200 ./build/release/bin/cheatah_memory_tests` |
+
+**Helgrind reports data races in this module and they are FALSE POSITIVES.** It does not model
+`std::atomic`, and the preempt/resume handshake (`gate_->valid`, `gate_->acked`) is entirely atomic —
+so Helgrind cannot see the happens-before edge and flags every access to the owned object. The
+evidence that they are spurious is not an opinion: ThreadSanitizer, which *does* model atomics,
+reports **zero** races across 20 full-suite repeats, and every Helgrind context resolves to the owned
+value on the atomic-guarded path. Run Helgrind for **lock order**, where it is authoritative and where
+it currently reports nothing, and read TSan for races.
+
+Two accommodations make the valgrind lane tractable, and both announce themselves at runtime rather
+than changing results silently:
+
+- `kIters` drops to 300 under valgrind (`RUNNING_ON_VALGRIND`). At ~100x instrumentation the full
+  20,000 does not finish inside any sane timeout — measured, not guessed.
+- `MemoryConcurrency.ManyReadersCoexistThenAWriteDrains` **skips** under valgrind. Those tools
+  serialize threads, so two read leases can never be live at once and the property is unobservable.
+  It is skipped with the reason printed, never weakened to an assertion that passes by testing nothing.
+
+`CHEATAH_MEMORY_JITTER=<max_us>` injects a random 0..max_us delay at lease boundaries.
+`CHEATAH_MEMORY_SEED=<n>` replays a run; when unset a seed is drawn and printed, so a random failure
+is reproducible. A fuzzer whose failures cannot be replayed is a rumour generator.
