@@ -86,13 +86,33 @@ void destroy(Session* s) {
 // Ensure the buffer holds at least @p need unconsumed bytes (from pos), draining
 // the TLS stream in big chunks. Compacts the consumed prefix only when needed,
 // so steady-state framing does no front-erase per frame.
+// The transport, chosen per session. A Session carries `tls = -1` when it is PLAINTEXT — a
+// sentinel the struct has always declared and destroy() has always honoured. Everything above
+// the transport (masking, framing, reassembly) is identical either way, so these two are the
+// only places the difference exists.
+//
+// Pointer for the session, const reference for the payload: that is this file's convention
+// (see send_frame), because a session arrives as a handle cast straight to Session* and never
+// through a lookup, while a payload is an ordinary parameter.
+long long sess_send(Session* s, const std::string& data) {
+    return s->tls >= 0 ? tls::send(s->tls, data) : socket::send(s->fd, data);
+}
+
+std::string sess_recv(Session* s, long long n) {
+    return s->tls >= 0 ? tls::recv(s->tls, n) : socket::recv(s->fd, n);
+}
+
+std::string sess_error(Session* s) {
+    return s->tls >= 0 ? tls::last_error() : socket::last_error();
+}
+
 void ensure(Session* s, std::size_t need) {
     while (s->buf.size() - s->pos < need) {
         if (s->pos > 0 && (s->pos == s->buf.size() || s->pos >= (1u << 16))) {
             s->buf.erase(0, s->pos);
             s->pos = 0;
         }
-        std::string chunk = tls::recv(s->tls, 1 << 16);  // 64 KiB drains
+        std::string chunk = sess_recv(s, 1 << 16);  // 64 KiB drains
         if (chunk.empty()) throw std::runtime_error("websocket: connection closed by peer");
         s->buf.append(chunk);
     }
@@ -141,33 +161,52 @@ long long send_frame(Session* s, unsigned char opcode, const std::string& payloa
     const std::size_t off = frame.size();
     frame.resize(off + n);
     mask_into(frame.data() + off, payload.data(), n, k);
-    if (tls::send(s->tls, frame) < 0)
-        throw std::runtime_error("websocket: TLS send failed: " + tls::last_error());
+    if (sess_send(s, frame) < 0)
+        throw std::runtime_error("websocket: send failed: " + sess_error(s));
     return static_cast<long long>(n);
 }
 
 }  // namespace
 
 /// @cond INTERNAL — the C++-only low-level session API (websocket_lowlevel.hpp); cheatah uses the Client guard
+// Whether @p host names this machine. Plaintext is permitted ONLY here: a cleartext WebSocket
+// that cannot leave the loopback interface is a local control plane (Chrome's DevTools port is
+// the motivating one), not a network protocol.
+bool is_loopback(const std::string& host) {
+    return host == "127.0.0.1" || host == "::1" || host == "[::1]" || host == "localhost";
+}
+
 long long connect(const std::string& host, long long port, const std::string& path,
-                  const std::string& server_name, bool insecure, const std::string& ca_file) {
+                  const std::string& server_name, bool insecure, const std::string& ca_file,
+                  bool secure) {
+    // TLS is the default and the norm. Plaintext must be asked for explicitly AND can only ever
+    // reach this machine — so no amount of configuration turns this into a cleartext socket to
+    // the internet.
+    if (!secure && !is_loopback(host))
+        throw std::runtime_error(
+            "websocket: plaintext ws:// is allowed only to a loopback host (127.0.0.1, ::1, "
+            "localhost); refusing " + host + " — use wss://");
+
     const long long fd = socket::tcp_connect(host, port);
     if (fd < 0) throw std::runtime_error("websocket: TCP connect to " + host + " failed");
-    const long long tlss = tls::client_connect(fd, server_name, insecure, ca_file);
-    if (tlss < 0) {
-        socket::close(fd);
-        throw std::runtime_error("websocket: TLS handshake failed: " + tls::last_error());
+    long long tlss = -1;
+    if (secure) {
+        tlss = tls::client_connect(fd, server_name, insecure, ca_file);
+        if (tlss < 0) {
+            socket::close(fd);
+            throw std::runtime_error("websocket: TLS handshake failed: " + tls::last_error());
+        }
     }
     Session* s = new Session();
     s->fd = fd;
-    s->tls = tlss;
+    s->tls = tlss;      // -1 => plaintext; sess_send/sess_recv branch on it
 
     const std::string key = base64(os::urandom(16));
     const std::string req = "GET " + path + " HTTP/1.1\r\n" + "Host: " + server_name + "\r\n" +
                             "Upgrade: websocket\r\n" + "Connection: Upgrade\r\n" +
                             "Sec-WebSocket-Key: " + key + "\r\n" + "Sec-WebSocket-Version: 13\r\n\r\n";
-    if (tls::send(tlss, req) < 0) {
-        const std::string err = tls::last_error();
+    if (sess_send(s, req) < 0) {
+        const std::string err = sess_error(s);
         destroy(s);
         throw std::runtime_error("websocket: upgrade request failed: " + err);
     }
@@ -176,7 +215,7 @@ long long connect(const std::string& host, long long port, const std::string& pa
     // bytes after it are the start of the WebSocket frame stream and stay in buf.
     std::size_t hdr_end = std::string::npos;
     for (;;) {
-        const std::string chunk = tls::recv(tlss, 1 << 12);
+        const std::string chunk = sess_recv(s, 1 << 12);
         if (chunk.empty()) {
             destroy(s);
             throw std::runtime_error("websocket: connection closed during upgrade");
@@ -199,9 +238,16 @@ long long connect(const std::string& host, long long port, const std::string& pa
 }
 
 long long connect_url(const std::string& url, bool insecure, const std::string& ca_file) {
-    const std::string scheme = "wss://";
-    if (url.compare(0, scheme.size(), scheme) != 0)
-        throw std::runtime_error("websocket: only wss:// URLs are supported: " + url);
+    // wss:// is the default and behaves exactly as it always has. ws:// exists for a local
+    // control plane and has to be spelled out; connect() then refuses any non-loopback host.
+    bool secure = true;
+    std::string scheme = "wss://";
+    if (url.compare(0, scheme.size(), scheme) != 0) {
+        scheme = "ws://";
+        if (url.compare(0, scheme.size(), scheme) != 0)
+            throw std::runtime_error("websocket: only wss:// and ws:// URLs are supported: " + url);
+        secure = false;
+    }
     const std::size_t host_start = scheme.size();
     const std::size_t slash = url.find('/', host_start);
     const std::string authority =
@@ -210,9 +256,9 @@ long long connect_url(const std::string& url, bool insecure, const std::string& 
     const std::size_t colon = authority.find(':');
     const std::string host = authority.substr(0, colon);
     const long long port = colon == std::string::npos
-                               ? 443
+                               ? (secure ? 443 : 80)
                                : static_cast<long long>(std::stol(authority.substr(colon + 1)));
-    return connect(host, port, path, host, insecure, ca_file);
+    return connect(host, port, path, host, insecure, ca_file, secure);
 }
 
 long long send_text(long long session, const std::string& message) {
@@ -338,6 +384,7 @@ long long shutdown(long long session) {
     // reader's recv (that is exactly what ::shutdown is for).
     Session* s = as_session(session);
     if (s == nullptr || s->tls < 0) return -1;
+    if (s->tls < 0) return socket::shutdown(s->fd);
     return tls::shutdown(s->tls);
 }
 
@@ -382,8 +429,9 @@ long long Client::close() {
     return rc;
 }
 Client open(const std::string& host, long long port, const std::string& path,
-            const std::string& server_name, bool insecure, const std::string& ca_file) {
-    return Client(connect(host, port, path, server_name, insecure, ca_file));
+            const std::string& server_name, bool insecure, const std::string& ca_file,
+            bool secure) {
+    return Client(connect(host, port, path, server_name, insecure, ca_file, secure));
 }
 Client open_url(const std::string& url, bool insecure, const std::string& ca_file) {
     return Client(connect_url(url, insecure, ca_file));

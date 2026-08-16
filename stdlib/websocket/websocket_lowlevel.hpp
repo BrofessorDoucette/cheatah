@@ -34,8 +34,16 @@ namespace cheatah::websocket {
  * @param server_name the TLS SNI / Host (usually == @p host); matched against the certificate SAN.
  * @param insecure skip certificate validation (pinned/controlled peer only). Default false.
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).
+ * @param secure whether to run the connection over TLS. Default TRUE; false selects a
+ *        PLAINTEXT WebSocket and is refused unless @p host is loopback.
  * @return a session id (>= 0).
  * @throws std::runtime_error on connect/TLS/validation/upgrade failure (message names the cause).
+ * TLS IS THE DEFAULT AND STAYS THE DEFAULT. @p secure = false selects a PLAINTEXT WebSocket,
+ * and connect() then refuses any host that is not loopback (127.0.0.1, ::1, localhost). It
+ * exists for a local control plane — Chrome's DevTools endpoint speaks ws:// on loopback and
+ * offers no TLS at all — so cleartext here can never reach the network. Every existing caller
+ * is unchanged: omit the parameter and you get TLS.
+ *
  * @warning @p insecure = true drops the MITM protection: ANY peer that holds its own
  *          certificate's key is accepted. Pinned/controlled peers only.
  * @complexity one TCP + one TLS handshake + one HTTP round trip.
@@ -47,11 +55,12 @@ namespace cheatah::websocket {
  */
 long long connect(const std::string& host, long long port, const std::string& path,
                   const std::string& server_name, bool insecure = false,
-                  const std::string& ca_file = "");
+                  const std::string& ca_file = "", bool secure = true);
 
 /**
  * Connect from a `wss://host[:port]/path` URL (convenience over connect()).
- * Only the wss scheme is accepted; port defaults to 443, path to "/".
+ * wss:// (TLS, port 443) and ws:// (PLAINTEXT, port 80) are accepted; path defaults to "/".
+ * ws:// is refused unless the host is loopback — see connect()'s @p secure.
  * @param url the wss URL.
  * @param insecure skip certificate validation (pinned/controlled peer only). Default false.
  * @param ca_file a PEM CA bundle to trust instead of the system store (empty = system default).

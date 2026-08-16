@@ -1,0 +1,297 @@
+# cdp.purr — a minimal Chrome DevTools Protocol client, for driving a real browser page.
+#
+# WHY THIS EXISTS. scripts/headless_browser.sh can only --dump-dom and --screenshot: it can
+# LOOK at a page, never touch one. Anything that needs a form filled in — a checkout, a login,
+# a search box — needs the protocol, and the protocol is a WebSocket carrying JSON. cheatah
+# already ships a WebSocket client over its own TLS, so this is a hundred lines rather than a
+# dependency.
+#
+# CDP's `Runtime.evaluate` runs INSIDE the page's own context, so it is not bound by the
+# same-origin policy the way an injected <script> in a parent frame is. That is the whole
+# reason a third-party page (Stripe's hosted Checkout) can be driven at all.
+#
+# CONTAINMENT IS THE CALLER'S JOB. Launch Chrome through scripts/headless_browser.sh, which
+# pins it to a throwaway profile and — for Firefox — refuses to hand URLs to an already-running
+# instance. A remote-debugging port on a browser holding real cookies is a remote-control
+# surface for someone's actual session; point this at a disposable profile and nothing else.
+#
+#     chrome --headless=new --remote-debugging-port=9222 --user-data-dir=<throwaway> about:blank
+#     cdp.target_ws("http://127.0.0.1:9222")   -> the page's webSocketDebuggerUrl
+#     with websocket.open_url(ws) as c { cdp.navigate(c, 1, url) ... }
+import io
+import string
+import time
+import parsers.json as json
+import requests
+import websocket
+
+# One CDP reply, reduced to what a driver asks about.
+struct Reply {
+    id : int
+    ok : bool
+    result : str
+    error : str
+}
+
+# The wire shapes, as read ladders — the parsers.json convention (see tollbooth/hooks.purr):
+# one struct per shape, each json.read tried in turn, because a field the struct does not name
+# is simply skipped and a shape that does not match reads as empty rather than failing.
+struct RErrorInner { message : str }
+struct RError { id : int, error : RErrorInner }
+
+struct RValueInner { value : str }
+struct RValueMid { result : RValueInner }
+struct RValue { id : int, result : RValueMid }
+
+struct RExcDetail { text : str }
+struct RExcMid { exceptionDetails : RExcDetail }
+struct RExc { id : int, result : RExcMid }
+
+struct RId { id : int }
+
+# One entry of the browser's /json target list.
+struct Target { type : str, webSocketDebuggerUrl : str }
+
+# ---- pure: message shaping (no sockets below this line) -----------------------------------
+
+# JSON-escape a string for embedding in a CDP command. CDP carries JavaScript SOURCE as a JSON
+# string, so a selector containing a quote or a newline would otherwise end the string early
+# and produce a syntax error inside the page rather than an error here.
+# @param s the raw text.
+# @return the escaped text, without surrounding quotes.
+# @complexity O(len s).
+# @alloc the escaped copy.
+fn esc(s : str) -> str {
+    let out = ""
+    let i = 0
+    while i < len(s) {
+        # s[i] is a CHAR and will not compare against a string literal; a 1-wide slice is a str.
+        let ch = s[i:i + 1]
+        i = i + 1
+        if ch == "\\" { out = out + "\\\\" }
+        elif ch == "\"" { out = out + "\\\"" }
+        elif ch == "\n" { out = out + "\\n" }
+        elif ch == "\r" { out = out + "\\r" }
+        elif ch == "\t" { out = out + "\\t" }
+        else { out = out + ch }
+    }
+    return out
+}
+
+# A CDP command frame.
+# @param id the caller's monotonically increasing id — replies are matched to it.
+# @param method the CDP method ("Page.navigate").
+# @param params the params object, already JSON ("{\"url\":\"…\"}"), or "" for none.
+# @return the JSON text to send.
+# @complexity O(len params).
+# @alloc the frame.
+fn command(id : int, method : str, params : str) -> str {
+    let p = params
+    if p == "" { p = "{}" }
+    return "{\"id\":" + str(id) + ",\"method\":\"" + method + "\",\"params\":" + p + "}"
+}
+
+# A `Runtime.evaluate` command for one JavaScript expression.
+# @param id the command id.
+# @param expr the JavaScript to run in the page.
+# @return the JSON text to send.
+# @complexity O(len expr).
+# @alloc the frame.
+fn evaluate(id : int, expr : str) -> str {
+    return command(id, "Runtime.evaluate",
+                   "{\"expression\":\"" + esc(expr) + "\",\"returnByValue\":true,\"awaitPromise\":true}")
+}
+
+# Read one CDP reply.
+# @param text the frame received.
+# @param want the id awaited (-1 = accept any reply carrying an id).
+# @return the Reply (ok=false with error set when the page or the protocol reported one).
+# @complexity O(len text).
+# @alloc the parsed strings.
+fn parse_reply(text : str, want : int) -> Reply {
+    let r = Reply({.id = -1, .ok = false, .result = "", .error = ""})
+    # An EVENT (Page.loadEventFired and friends) carries "method" and no "id" — not our reply.
+    if string.find(text, "\"id\":", 0) < 0 { return r }
+    let head = RId({.id = -1})
+    if json.read(text, head) == false { return r }
+    r.id = head.id
+    if want >= 0 and r.id != want { return r }
+
+    let e = RError({.id = 0, .error = RErrorInner({.message = ""})})
+    if json.read(text, e) and e.error.message != "" {
+        r.error = e.error.message
+        return r
+    }
+    # A page-side exception rides IN an otherwise successful protocol reply, so a driver that
+    # only checks the protocol would call a thrown TypeError a success.
+    let x = RExc({.id = 0, .result = RExcMid({.exceptionDetails = RExcDetail({.text = ""})})})
+    if json.read(text, x) and x.result.exceptionDetails.text != "" {
+        r.error = "page exception: " + x.result.exceptionDetails.text
+        return r
+    }
+    let v = RValue({.id = 0, .result = RValueMid({.result = RValueInner({.value = ""})})})
+    if json.read(text, v) { r.result = v.result.result.value }
+    r.ok = true
+    return r
+}
+
+# ---- I/O ----------------------------------------------------------------------------------
+
+# The page target's WebSocket debugger URL, from the browser's own HTTP endpoint.
+# @param base the debugging endpoint ("http://127.0.0.1:9222").
+# @return the ws:// URL ("" = no page target, i.e. the browser is not up yet).
+# @complexity O(response size).
+# @alloc the response.
+fn target_ws(base : str) -> str {
+    let resp = requests.get(base + "/json")
+    if resp.status_code != 200 { return "" }
+    # /json is a bare ARRAY of targets, which the typed reader cannot take directly, so the
+    # objects are split out by brace and each read on its own. Take the first "page": a fresh
+    # headless Chrome has exactly one, but a stray devtools target would otherwise be driven.
+    for chunk in string.split(resp.text(), "{") {
+        if string.find(chunk, "\"type\"", 0) < 0 { continue }
+        let obj = "{" + chunk
+        let close = string.find(obj, "}", 0)
+        if close < 0 { continue }
+        let t = Target({.type = "", .webSocketDebuggerUrl = ""})
+        if json.read(obj[:close + 1], t) and t.type == "page" and t.webSocketDebuggerUrl != "" {
+            return t.webSocketDebuggerUrl
+        }
+    }
+    return ""
+}
+
+# Send one command and read until its reply arrives, discarding the events in between.
+# @param c the open websocket client (untyped: the guard is move-only — the requests.purr
+#        convention deploy.mail and deploy.imap also follow).
+# @param id the command id.
+# @param frame the command JSON (from command()/evaluate()).
+# @return the Reply.
+# @complexity O(frames until the reply).
+# @alloc the received frames.
+fn call(c, id : int, frame : str) -> Reply {
+    c.send_text(frame)
+    let tries = 0
+    while tries < 200 {
+        tries = tries + 1
+        let text = c.recv()
+        if len(text) == 0 { continue }
+        let r = parse_reply(text, id)
+        if r.id == id { return r }
+    }
+    return Reply({.id = id, .ok = false, .result = "",
+                  .error = "no reply to command " + str(id) + " after 200 frames"})
+}
+
+# Navigate, and wait for the load to settle.
+# @param c the open websocket client.
+# @param id the command id.
+# @param url where to go.
+# @return the Reply.
+# @complexity O(page load).
+# @alloc the frames.
+fn navigate(c, id : int, url : str) -> Reply {
+    return call(c, id, command(id, "Page.navigate", "{\"url\":\"" + esc(url) + "\"}"))
+}
+
+# Poll @p expr until it returns something truthy, or the budget runs out.
+#
+# Page.navigate returns when navigation is COMMITTED, not when the app has rendered — a modern
+# checkout page is empty for a second or more after that. Every interaction therefore has to
+# wait for the thing it is about to touch, or it silently acts on a page that is not there yet.
+# @param c the open websocket client.
+# @param id the command id to use (callers keep their own counter).
+# @param expr a JavaScript expression returning a truthy value when ready.
+# @param timeout_s how long to keep asking.
+# @return the truthy result, or "" if it never came.
+# @complexity O(polls).
+# @alloc the replies.
+fn wait_for(c, id : int, expr : str, timeout_s : int) -> str {
+    let waited = 0
+    while waited <= timeout_s {
+        let r = call(c, id, evaluate(id, expr))
+        if r.ok and r.result != "" and r.result != "false" and r.result != "0" { return r.result }
+        time.sleep(0.5)
+        waited = waited + 1
+    }
+    return ""
+}
+
+# Type @p text into the first element matching @p selector, the way a user does: set the value
+# and then fire the input+change events the framework listens for. Assigning .value alone
+# leaves React-style state untouched, so the field looks filled and submits empty.
+# @param c the open websocket client.
+# @param id the command id.
+# @param selector a CSS selector.
+# @param text what to type.
+# @return the Reply ("ok" in result when the element was found).
+# @complexity O(1) plus the round-trip.
+# @alloc the reply.
+fn type_into(c, id : int, selector : str, text : str) -> Reply {
+    let js = "(function(){var e=document.querySelector('" + selector + "');"
+    js = js + "if(!e) return '';"
+    js = js + "var set=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;"
+    js = js + "set.call(e, " + "'" + text + "'" + ");"
+    js = js + "e.dispatchEvent(new Event('input',{bubbles:true}));"
+    js = js + "e.dispatchEvent(new Event('change',{bubbles:true}));"
+    js = js + "return 'ok';})()"
+    return call(c, id, evaluate(id, js))
+}
+
+# Click the first element matching @p selector.
+# @param c the open websocket client.
+# @param id the command id.
+# @param selector a CSS selector.
+# @return the Reply ("ok" in result when the element was found).
+# @complexity O(1) plus the round-trip.
+# @alloc the reply.
+fn click(c, id : int, selector : str) -> Reply {
+    let js = "(function(){var e=document.querySelector('" + selector + "');"
+    js = js + "if(!e) return ''; e.click(); return 'ok';})()"
+    return call(c, id, evaluate(id, js))
+}
+
+# Click @p selector with a REAL mouse event, at the element's centre.
+#
+# element.click() dispatches an UNTRUSTED event (isTrusted === false), and a payment form is
+# entitled to ignore that — Stripe's Checkout does: the synthetic click leaves the session
+# `open` with no customer details, as if nothing happened. Input.dispatchMouseEvent is
+# generated by the browser itself, so the page cannot tell it from a person clicking.
+# @param c the open websocket client.
+# @param id the command id; TWO more are consumed (press and release).
+# @param selector a CSS selector.
+# @return "" on success, else the reason.
+# @complexity O(1) plus three round-trips.
+# @alloc the replies.
+fn click_real(c, id : int, selector : str) -> str {
+    # Scroll FIRST, in its own round-trip. Doing it in the same evaluate as the rect read
+    # returns pre-scroll coordinates — layout has not flushed yet — and the click then lands
+    # wherever those stale coordinates point, which for a button below the fold is nothing at
+    # all. That failure is silent: the event is delivered, just not to the button.
+    let sj = "(function(){var e=document.querySelector('" + selector + "');"
+    sj = sj + "if(!e) return ''; e.scrollIntoView({block:'center'}); return 'ok';})()"
+    let sc = call(c, id, evaluate(id, sj))
+    if sc.result != "ok" { return "no element matching " + selector }
+
+    let js = "(function(){var e=document.querySelector('" + selector + "');"
+    js = js + "if(!e) return '';"
+    js = js + "var r=e.getBoundingClientRect();"
+    js = js + "if(r.top < 0 || r.top > window.innerHeight) return 'offscreen';"
+    js = js + "return Math.round(r.left+r.width/2)+','+Math.round(r.top+r.height/2);})()"
+    let at = call(c, id, evaluate(id, js))
+    if at.result == "" { return "no element matching " + selector }
+    if at.result == "offscreen" { return selector + " is outside the viewport even after scrolling" }
+    let parts = string.split(at.result, ",")
+    if len(parts) != 2 { return "could not locate " + selector }
+    let x = parts[0]
+    let y = parts[1]
+
+    let common = "\"x\":" + x + ",\"y\":" + y + ",\"button\":\"left\",\"clickCount\":1"
+    let down = call(c, id + 1, command(id + 1, "Input.dispatchMouseEvent",
+                                       "{\"type\":\"mousePressed\"," + common + "}"))
+    if down.error != "" { return down.error }
+    let up = call(c, id + 2, command(id + 2, "Input.dispatchMouseEvent",
+                                     "{\"type\":\"mouseReleased\"," + common + "}"))
+    if up.error != "" { return up.error }
+    return ""
+}
