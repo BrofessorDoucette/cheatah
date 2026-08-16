@@ -180,6 +180,51 @@ TEST(CheatahRequests, QueryParamsPercentEncoded) {
     EXPECT_EQ(r.body, "ok");
 }
 
+// CRLF INJECTION: a request is a CRLF-framed message built by concatenation, so a CR or LF reaching the
+// request-target or a header value lets whoever supplied it forge headers or split the request outright.
+// That is not hypothetical for a caller that fetches URLs found in documents rather than written in
+// source — a scraper following a `Location` header or an API's `thumb_url` is handed attacker data.
+// The request must be REFUSED before a byte reaches the socket, not sanitised into something plausible.
+TEST(CheatahRequests, CrlfInjectionRefused) {
+    LoopbackServer s({"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok"});
+
+    // In the target: the classic smuggled second request line.
+    {
+        auto r = req::get(s.url("/a\r\nX-Injected: 1"), defaults());
+        EXPECT_FALSE(r.ok());
+        EXPECT_NE(r.error.find("control bytes"), std::string::npos) << r.error;
+    }
+    // A bare LF is enough on a lenient peer.
+    {
+        auto r = req::get(s.url("/a\nX-Injected: 1"), defaults());
+        EXPECT_FALSE(r.ok());
+    }
+    // In a header VALUE.
+    {
+        auto o = defaults();
+        o.headers["X-Test"] = "1\r\nX-Injected: 1";
+        auto r = req::get(s.url("/"), o);
+        EXPECT_FALSE(r.ok());
+        EXPECT_NE(r.error.find("control bytes"), std::string::npos) << r.error;
+    }
+    // In a header NAME.
+    {
+        auto o = defaults();
+        o.headers["X-Test\r\nX-Injected"] = "1";
+        auto r = req::get(s.url("/"), o);
+        EXPECT_FALSE(r.ok());
+    }
+}
+
+// ...and the guard must not cost an honest request: a percent-ENCODED CRLF is the correct way to put
+// those bytes in a URL and must still be sent.
+TEST(CheatahRequests, PercentEncodedCrlfIsStillSent) {
+    LoopbackServer s({"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok"});
+    const auto r = req::get(s.url("/a%0D%0Ab"), defaults());
+    EXPECT_TRUE(r.ok()) << r.error;
+    EXPECT_EQ(r.body, "ok");
+}
+
 // Custom headers are sent; a caller-supplied User-Agent suppresses the default.
 TEST(CheatahRequests, CustomHeaders) {
     LoopbackServer s({"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi"});

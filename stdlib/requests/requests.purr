@@ -196,6 +196,24 @@ struct Response {
     }
 }
 
+# Does `text` contain a byte that would break out of the line it is written on?
+#
+# The request is built by concatenating a request-target and header values into a CRLF-framed
+# message, so a CR or LF reaching either one lets a caller inject headers or split the request
+# entirely. That matters most when the value is not the caller's own: a URL taken from a fetched
+# document or a `Location` header is attacker-controlled data, and nothing else on the path
+# re-checks it. Refusing here means no consumer of this module can be made to emit a forged
+# request, whatever it was handed.
+#
+# @param text a request-target or header value about to be written to the wire.
+# @return true when `text` carries CR or LF and must not be sent.
+# @complexity O(n) over the input length.
+# @alloc none.
+# @systest CheatahRequests.CrlfInjectionRefused
+fn has_control_bytes(text) {
+    return string.find(text, "\r") >= 0 or string.find(text, "\n") >= 0
+}
+
 # Percent-encode `text` for a query string or form body.
 #
 # RFC 3986 unreserved characters pass through; everything else (including space)
@@ -614,8 +632,25 @@ fn request_once(method, u: Url, o: Options, r: Response) {
         sep = "&"
     }
 
+    # Refuse to build a request whose target or Host could break the CRLF framing. `target` is the
+    # dangerous one: it comes from the URL, which for a scraper or crawler is routinely a string
+    # lifted out of a fetched document rather than a literal in the caller's source.
+    if has_control_bytes(target) or has_control_bytes(u.host) {
+        conn.close()
+        socket.close(fd)
+        r.error = "refused: control bytes in the request target"
+        return r
+    }
+
     let req = method + " " + target + " HTTP/1.1\r\nHost: " + u.host + ":" + str(u.port) + "\r\n"
     for kv in o.headers {
+        # A caller-supplied header must not be able to smuggle extra headers either.
+        if has_control_bytes(kv.first) or has_control_bytes(kv.second) {
+            conn.close()
+            socket.close(fd)
+            r.error = "refused: control bytes in a request header"
+            return r
+        }
         req = req + kv.first + ": " + kv.second + "\r\n"
     }
     if not has_header(o.headers, "User-Agent") {

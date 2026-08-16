@@ -274,6 +274,27 @@ template <> inline constexpr auto schema<::cheatah::requests::Response> = object
 namespace cheatah::requests {
 
 /**
+ * Does `text` contain a byte that would break out of the line it is written on?
+ *
+ * The request is built by concatenating a request-target and header values into a CRLF-framed
+ * message, so a CR or LF reaching either one lets a caller inject headers or split the request
+ * entirely. That matters most when the value is not the caller's own: a URL taken from a fetched
+ * document or a `Location` header is attacker-controlled data, and nothing else on the path
+ * re-checks it. Refusing here means no consumer of this module can be made to emit a forged
+ * request, whatever it was handed.
+ *
+ * @param text a request-target or header value about to be written to the wire.
+ * @return true when `text` carries CR or LF and must not be sent.
+ * @complexity O(n) over the input length.
+ * @alloc none.
+ * @systest CheatahRequests.CrlfInjectionRefused
+ */
+inline auto has_control_bytes(builtins::Value auto&& text) {
+    return ((string::find(text, std::string("\r")) >= 0LL) || (string::find(text, std::string("\n")) >= 0LL));
+}
+
+
+/**
  * Percent-encode `text` for a query string or form body.
  *
  * RFC 3986 unreserved characters pass through; everything else (including space)
@@ -718,8 +739,20 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
         (((target += sep) += percent_encode(kv.first)) += "=") += percent_encode(kv.second);
         sep = std::string("&");
     }
+    if ((has_control_bytes(target) || has_control_bytes(u.host))) {
+        conn.close();
+        socket::close(fd);
+        r.error = std::string("refused: control bytes in the request target");
+        return r;
+    }
     auto req = (((((((builtins::str(method) + std::string(" ")) + builtins::str(target)) + std::string(" HTTP/1.1\r\nHost: ")) + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string("\r\n"));
     for (auto& kv : o.headers) {
+        if ((has_control_bytes(kv.first) || has_control_bytes(kv.second))) {
+            conn.close();
+            socket::close(fd);
+            r.error = std::string("refused: control bytes in a request header");
+            return r;
+        }
         (((req += kv.first) += ": ") += kv.second) += "\r\n";
     }
     if ((!has_header(o.headers, std::string("User-Agent")))) {
