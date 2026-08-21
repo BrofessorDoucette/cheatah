@@ -223,7 +223,11 @@ def write_md(path, suite_name):
     this harness measured, and the Eigen comparison is its own generated table from its own
     harness (docs/bench/linalg-vs-eigen.md)."""
     commit = _capture("git rev-parse --short HEAD") or "unknown"
-    if subprocess.run("git diff --quiet", shell=True).returncode != 0:
+    # SOURCE dirtiness, excluding docs/bench: a publish run rewrites the tracked artifact in
+    # that directory, and rewriting an output does not change the source the stamp is claiming.
+    # The refresh clears stale stat info, which alone makes --quiet report a phantom difference.
+    subprocess.run("git update-index --refresh", shell=True, capture_output=True)
+    if subprocess.run("git diff --quiet -- . ':!docs/bench'", shell=True).returncode != 0:
         commit += " (dirty)"
     host = _capture("awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo") or platform.machine()
     gov = _capture("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor")
