@@ -3080,7 +3080,7 @@ fn main() {
             if c.refid == "indexpage" {
                 write_file("docs/html/index.html",
                            with_seo(mark_active(render_home(g, ci, sidebar), "index.html"), g, "index.html",
-                                    "cheatah is a small, Python-like programming language that compiles to native machine code. This is the standard library reference.", false))
+                                    "cheatah — pronounced cheetah, misspelled on purpose — is a small, Python-like programming language that compiles to native machine code. This is the standard library reference.", false))
                 pages = pages + 1
             } elif c.refid != "complexity" and c.refid != "alloc" and c.refid != "test" and c.refid != "crtest" and c.refid != "systest" {
                 write_file("docs/html/" + c.refid + ".html",

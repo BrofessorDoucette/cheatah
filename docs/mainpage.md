@@ -2,6 +2,9 @@
 
 <div class="cheetah-slogan">🐱 <em>Programs so fast they purrrrrrrrrrrrr like a kitten.</em> 🐆</div>
 
+Say it **"cheetah."** Spelled *cheatah* on purpose, because it feels like cheating: you write
+Python-like code and it runs at C++ speed.
+
 **cheatah** is Python for people who care about performance: you write `.purr`
 source, compile it with `purrc` (lexer → parser → codegen → C++ → `.so`), and run
 it on the headless `cheatah` host. This site documents the **standard library**.
