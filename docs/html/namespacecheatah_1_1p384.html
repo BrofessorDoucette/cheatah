@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="cheatah">
-<title>p384 · cheatah</title>
+<title>p384 — cheatah standard library</title>
 <link rel="icon" href="cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="cheatah-docs.css?v=8f527086">
+<link rel="stylesheet" href="cheatah-docs.css?v=dead5f24">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/namespacecheatah_1_1p384">
+<meta name="description" content="p384 — the p384 module of the cheatah standard library: every function, type and constant, with signatures and examples.">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -14,7 +16,10 @@
   <div class="topbar-inner">
     <a class="brand" href="index.html"><img src="cheatah-logo.png" alt=""><span>cheatah</span></a>
     <nav class="pkgs" aria-label="Packages"><a href="index.html" class="current" aria-current="page">cheatah</a><span class="pkgs-sep">·</span><a href="cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="cheatah-space/index.html">space</a><span class="pkgs-sep">·</span><a href="standard.html">standard</a></nav>
-    <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
   </div>
 </header>
 <div class="layout">
@@ -29,9 +34,9 @@
 <span class="tok-kw">import</span> p384
 
 <span class="tok-kw">let</span> h = hashlib.<span class="tok-fn">sha384_digest</span>(<span class="tok-str">&quot;the message&quot;</span>)
-io.<span class="tok-fn">print</span>(p384.<span class="tok-fn">verify_raw</span>(pubkey_xy, h, sig))   <span class="tok-com"># true</span></code></pre><h2 id="md_stdlib_2p384_2README_1autotoc_md64">What&#x27;s inside</h2><ul><li><p>The <strong>width-generic Weierstrass core</strong> shared with <a href="namespacecheatah_1_1p256.html"><code>p256</code></a> (<code>p256/ec_core.hpp</code>): Montgomery field/scalar arithmetic with startup-derived constants, Jacobian points (<code>a = -<span class="tok-num">3</span></code>), and <strong>Strauss-Shamir</strong> verification — the same battle-tested code p256 runs, instantiated at 6×64-bit limbs.</p>
+io.<span class="tok-fn">print</span>(p384.<span class="tok-fn">verify_raw</span>(pubkey_xy, h, sig))   <span class="tok-com"># true</span></code></pre><h2 id="md_stdlib_2p384_2README_1autotoc_md66">What&#x27;s inside</h2><ul><li><p>The <strong>width-generic Weierstrass core</strong> shared with <a href="namespacecheatah_1_1p256.html"><code>p256</code></a> (<code>p256/ec_core.hpp</code>): Montgomery field/scalar arithmetic with startup-derived constants, Jacobian points (<code>a = -<span class="tok-num">3</span></code>), and <strong>Strauss-Shamir</strong> verification — the same battle-tested code p256 runs, instantiated at 6×64-bit limbs.</p>
 </li><li><p><strong>Parsing:</strong> DER <code>SEQUENCE{r,s}</code> (the TLS/X.509 form), raw <code>r||s</code> (the JWT ES384 form), and the uncompressed EC point out of a certificate&#x27;s SPKI.</p>
-</li></ul><p>Byte conventions: scalars/coordinates are 48 big-endian bytes; a public key point is the 96 bytes <code>X||Y</code>; a raw signature is the 96 bytes <code>r||s</code>.</p><h2 id="md_stdlib_2p384_2README_1autotoc_md65">Correctness &amp; security</h2><p>Verified against the <strong>RFC 6979 Appendix A.2.6</strong> P-384 test vectors (SHA-384 and SHA-256, pinning both hash-truncation semantics) and cross-checked through the X.509 suite against real OpenSSL-minted certificates (<code>stdlib/tests/p384_test.cpp</code>, <code>stdlib/tests/x509_test.cpp</code>).</p><p><strong>Verify-only by design</strong>: certificate validation handles PUBLIC data, which is all TLS needs from this curve — there is no private key here to protect, so the straightforward (not constant-time) scalar routines are the right trade. cheatah&#x27;s own TLS server signs with Ed25519, and JWT signing uses P-256/ES256.</p></div>
+</li></ul><p>Byte conventions: scalars/coordinates are 48 big-endian bytes; a public key point is the 96 bytes <code>X||Y</code>; a raw signature is the 96 bytes <code>r||s</code>.</p><h2 id="md_stdlib_2p384_2README_1autotoc_md67">Correctness &amp; security</h2><p>Verified against the <strong>RFC 6979 Appendix A.2.6</strong> P-384 test vectors (SHA-384 and SHA-256, pinning both hash-truncation semantics) and cross-checked through the X.509 suite against real OpenSSL-minted certificates (<code>stdlib/tests/p384_test.cpp</code>, <code>stdlib/tests/x509_test.cpp</code>).</p><p><strong>Verify-only by design</strong>: certificate validation handles PUBLIC data, which is all TLS needs from this curve — there is no private key here to protect, so the straightforward (not constant-time) scalar routines are the right trade. cheatah&#x27;s own TLS server signs with Ed25519, and JWT signing uses P-256/ES256.</p></div>
 
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1p384_1ae07b72e3adf040dfbe67e827110bd4db">
   <div class="member-head">
