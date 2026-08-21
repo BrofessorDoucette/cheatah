@@ -4,6 +4,13 @@
 # (run scripts/setup_hooks.sh once). Bypass (discouraged): `git push --no-verify`
 # or `QA_GATE_SKIP=1 git push`.
 #
+# DOCS-ONLY FAST PATH: when every commit being pushed touches only docs/ and *.md —
+# no source, no scripts, no build files — the FULL gate is skipped and the push runs
+# the doc lint + (on main) the docs build instead. Compiling and testing the compiler
+# to publish a prose fix made doc updates slower, which made documentation QA worse,
+# not better. The fast path never applies to a release: pushing any refs/tags/v* runs
+# the full gate, always.
+#
 # After a PASSING gate, and ONLY when pushing `main`, it regenerates the docs site
 # (Doxygen XML -> docs/gen generator -> docs/html). When a version TAG (refs/tags/v*) is
 # pushed — i.e. a release actually goes to GitHub — it archives that version's review
@@ -43,7 +50,33 @@ for _range in ${push_ranges+"${push_ranges[@]}"}; do
 done
 
 # 1. QA gate — blocks the push on failure.
-bash "$repo_root/scripts/qa_gate.sh" || exit 1
+#
+#    Unless this push is DOCS-ONLY: every changed file across every pushed range under
+#    docs/ or ending in .md, and no version tag in the push. Then the doc lint stands in
+#    for the full gate — the docs build in step 2 is the real validation for the change,
+#    and it still runs. An empty or unresolvable change list runs the full gate: when in
+#    doubt, gate.
+docs_only=""
+if [ -z "$pushed_tag" ] && [ "${#push_ranges[@]}" -gt 0 ]; then
+    changed="$(for _range in "${push_ranges[@]}"; do git log --format= --name-only $_range; done \
+               | sed '/^$/d' | sort -u)"
+    if [ -n "$changed" ]; then
+        docs_only=1
+        while IFS= read -r _f; do
+            case "$_f" in
+                docs/*|*.md) ;;
+                *) docs_only=""; break ;;
+            esac
+        done <<<"$changed"
+    fi
+fi
+if [ -n "$docs_only" ]; then
+    printf '\033[1m[pre-push] docs-only push (%s files, all docs/ or *.md) — skipping the full QA gate; doc lint + docs build gate this one.\033[0m\n' \
+        "$(wc -l <<<"$changed")"
+    bash "$repo_root/scripts/doc_tag_lint.sh" || exit 1
+else
+    bash "$repo_root/scripts/qa_gate.sh" || exit 1
+fi
 
 # 2. Gate passed. Refresh the docs site only for a real main push (not when the
 #    gate was bypassed with QA_GATE_SKIP).
