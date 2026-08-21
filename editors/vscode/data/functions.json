@@ -2391,7 +2391,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1020,
+      "srcline": 1021,
       "module": "fixarray",
       "qualified": "fixarray.abs"
     },
@@ -2420,7 +2420,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1144,
+      "srcline": 1145,
       "module": "fixarray",
       "qualified": "fixarray.clamp"
     },
@@ -2445,7 +2445,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1302,
+      "srcline": 1303,
       "module": "fixarray",
       "qualified": "fixarray.column"
     },
@@ -2470,7 +2470,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 592,
+      "srcline": 593,
       "module": "fixarray",
       "qualified": "fixarray.cross"
     },
@@ -2491,7 +2491,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 795,
+      "srcline": 796,
       "module": "fixarray",
       "qualified": "fixarray.determinant"
     },
@@ -2516,7 +2516,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 933,
+      "srcline": 934,
       "module": "fixarray",
       "qualified": "fixarray.distance"
     },
@@ -2541,7 +2541,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 947,
+      "srcline": 948,
       "module": "fixarray",
       "qualified": "fixarray.distance_squared"
     },
@@ -2566,7 +2566,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 562,
+      "srcline": 563,
       "module": "fixarray",
       "qualified": "fixarray.dot"
     },
@@ -2595,7 +2595,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 999,
+      "srcline": 1000,
       "module": "fixarray",
       "qualified": "fixarray.faceforward"
     },
@@ -2616,7 +2616,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 876,
+      "srcline": 877,
       "module": "fixarray",
       "qualified": "fixarray.inverse"
     },
@@ -2637,7 +2637,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1264,
+      "srcline": 1265,
       "module": "fixarray",
       "qualified": "fixarray.inverse_transpose"
     },
@@ -2662,7 +2662,7 @@
         "test": "Fixarray.Matmul"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 697,
+      "srcline": 698,
       "module": "fixarray",
       "qualified": "fixarray.matmul"
     },
@@ -2687,7 +2687,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1232,
+      "srcline": 1233,
       "module": "fixarray",
       "qualified": "fixarray.matrix_comp_mult"
     },
@@ -2712,7 +2712,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1107,
+      "srcline": 1108,
       "module": "fixarray",
       "qualified": "fixarray.max"
     },
@@ -2737,7 +2737,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1072,
+      "srcline": 1073,
       "module": "fixarray",
       "qualified": "fixarray.min"
     },
@@ -2766,7 +2766,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1180,
+      "srcline": 1181,
       "module": "fixarray",
       "qualified": "fixarray.mix"
     },
@@ -2787,7 +2787,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 626,
+      "srcline": 627,
       "module": "fixarray",
       "qualified": "fixarray.norm"
     },
@@ -2808,7 +2808,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 642,
+      "srcline": 643,
       "module": "fixarray",
       "qualified": "fixarray.normalize"
     },
@@ -2833,7 +2833,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1247,
+      "srcline": 1248,
       "module": "fixarray",
       "qualified": "fixarray.outer_product"
     },
@@ -2858,7 +2858,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 962,
+      "srcline": 963,
       "module": "fixarray",
       "qualified": "fixarray.reflect"
     },
@@ -2887,7 +2887,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 980,
+      "srcline": 981,
       "module": "fixarray",
       "qualified": "fixarray.refract"
     },
@@ -2912,7 +2912,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1284,
+      "srcline": 1285,
       "module": "fixarray",
       "qualified": "fixarray.row"
     },
@@ -2933,7 +2933,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1037,
+      "srcline": 1038,
       "module": "fixarray",
       "qualified": "fixarray.sign"
     },
@@ -2962,7 +2962,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1212,
+      "srcline": 1213,
       "module": "fixarray",
       "qualified": "fixarray.smoothstep"
     },
@@ -2983,7 +2983,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 611,
+      "srcline": 612,
       "module": "fixarray",
       "qualified": "fixarray.squared_norm"
     },
@@ -3008,7 +3008,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1196,
+      "srcline": 1197,
       "module": "fixarray",
       "qualified": "fixarray.step"
     },
@@ -3029,7 +3029,7 @@
         "test": "Fixarray.ToStringMatchesTheNDArrayRendering"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1321,
+      "srcline": 1322,
       "module": "fixarray",
       "qualified": "fixarray.to_string"
     },
@@ -3050,7 +3050,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 679,
+      "srcline": 680,
       "module": "fixarray",
       "qualified": "fixarray.trace"
     },
@@ -3071,7 +3071,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 661,
+      "srcline": 662,
       "module": "fixarray",
       "qualified": "fixarray.transpose"
     },
@@ -9827,10 +9827,13 @@
     "x25519"
   ],
   "perf_meta": {
-    "cheatah_commit": "6fa07ac",
+    "cheatah_commit": "b97c491",
     "cpython": "3.12.3",
-    "generated": "2026-07-17",
-    "machine": "x86_64",
-    "numpy": "1.26.4"
+    "generated": "2026-08-20",
+    "machine": "12th Gen Intel(R) Core(TM) i7-12700H (governor=powersave), 20 CPUs, Linux 7.0.11-76070011-generic",
+    "numpy": "1.26.4",
+    "rounds": 7,
+    "statistic": "median of paired per-round ratios; spread = IQR over rounds",
+    "striated": true
   }
 }
