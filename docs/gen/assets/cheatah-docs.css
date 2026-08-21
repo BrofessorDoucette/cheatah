@@ -458,3 +458,13 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
   .side-home { display: flex; align-items: center; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* The donate button in the site footer — every page carries it. It links to the storefront's
+   /cheatah/donate explainer (a voluntary pay-what-you-want purchase from BigBrain LLC, never
+   framed as a charitable donation — the landing page carries the plain-words legal part). */
+.sitefoot .donate {
+  display: inline-block; margin-left: 10px; padding: 3px 12px;
+  border: 1px solid var(--accent); border-radius: 999px;
+  color: var(--accent); text-decoration: none; font-weight: 600; white-space: nowrap;
+}
+.sitefoot .donate:hover { background: var(--accent-soft); color: var(--accent-2); }
