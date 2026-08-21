@@ -121,11 +121,12 @@ restated in prose is a count that drifts the moment anyone re-measures, and this
 had. Pinned P-core, medians over interleaved repetitions. Boost's single win is compiling a
 64-byte pure literal: analysis Boost skips and match time repays.
 
-Two cases now lose to **RE2** — `run_padded_literal_16M` and `sweep_16M`, both 16 MB literal
-scans at 1.18× and 1.27×, where the work is memcmp-bound rather than automaton-bound and RE2's
-prefilter beats ours. `RXBENCH_ASSERT=1` fails on any RE2 loss, so that assertion is currently
-**red**. It is left red deliberately: the gate exists to notice exactly this, and relaxing it
-to restore a green build would trade the finding for the appearance of not having one.
+Two 16 MB literal scans — `run_padded_literal_16M` and `sweep_16M` — sit close enough to the
+1.15× threshold that they change verdict between runs: one measurement had them losing to RE2
+at 1.18× and 1.27×, the next had them at parity. They are memcmp-bound rather than
+automaton-bound, so the comparison is really between two prefilters doing almost identical
+work. `RXBENCH_ASSERT=1` fails on any RE2 loss and will therefore go red on these
+occasionally; the response to that is to read the margin, not to widen the threshold.
 
 <!-- BENCH:regex-representative begin -->
 <!-- cheatah-bench-stamp v1

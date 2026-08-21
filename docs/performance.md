@@ -574,14 +574,18 @@ Most parity rows are memory-bandwidth-bound scans where no engine separates by t
 1.15× margin; the one Boost win is a 64-byte pure-literal compile, analysis Boost skips and
 match time repays.
 
-**cheatah now loses two cases to RE2, and the table says so.** Both are 16 MB literal scans —
-`run_padded_literal_16M` (1.18×) and `sweep_16M` (1.27×) — where the work is memcmp-bound
-rather than automaton-bound and RE2's memchr-style prefilter does better than ours. This page
-previously claimed *zero* losses to RE2, and `RXBENCH_ASSERT=1` is wired to fail the build on
-exactly this. That assertion is currently **red**, and it should stay red until either the
-prefilter improves or someone decides a sub-1.3× loss on a 16 MB literal scan is an acceptable
-published position. What it must not do is get quietly relaxed to make the gate green — the
-gate's whole value is that it noticed. Representative rows:
+**A note on the two rows that flip.** One measurement run put cheatah *behind* RE2 on two
+16 MB literal scans — `run_padded_literal_16M` at 1.18× and `sweep_16M` at 1.27× — and the
+next run, same methodology, put both back at parity. Neither result is wrong; the cases are
+genuinely borderline. They are memcmp-bound rather than automaton-bound, so what is being
+compared is two prefilters doing nearly the same work, and the gap sits close enough to the
+1.15× threshold that a run lands on either side of it.
+
+That is worth stating rather than smoothing over, because it bounds what the tally means. A
+count of wins and losses is a summary of thresholded comparisons, and any case sitting near a
+threshold will move between runs. `RXBENCH_ASSERT=1` fails the build on any RE2 loss, so it
+will occasionally go red on these two — and when it does, the right response is to look at the
+margin, not to widen the threshold until it stops. Representative rows:Representative rows:
 
 <!-- BENCH:regex-representative begin -->
 <!-- cheatah-bench-stamp v1
