@@ -24,7 +24,9 @@ The site is ZERO-JS by design: it must work under a serving CSP of
 `default-src 'none'; style-src 'self'; img-src 'self'`, which forbids script
 execution entirely. Search was removed for that reason, and the sidebar's
 active-link highlight + open dropdown chain are rendered server-side
-(mark_active) instead of by a client script.
+(mark_active) instead of by a client script. gen.purr additionally emits a
+`<script type="application/ld+json">` structured-data block, which is an inert
+data block rather than executable script; this file predates it (see above).
 
     python3 docs/gen/generate.py            # docs/xml -> docs/html
 

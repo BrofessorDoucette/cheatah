@@ -16,7 +16,12 @@
 # `default-src 'none'; style-src 'self'; img-src 'self'`, which forbids script
 # execution entirely — search was removed for that reason, and the sidebar's
 # active-link highlight + open dropdown chain are rendered server-side
-# (mark_active) instead of by a client script. Standing on our own stdlib:
+# (mark_active) instead of by a client script. The ONE thing that looks like an
+# exception and is not: `<script type="application/ld+json">`, the JSON-LD block
+# page_shell_in emits. A non-JS `type` makes it a data block per the HTML spec —
+# never compiled, never run, fetching nothing — so zero-JS still holds literally.
+# scripts/a11y_check.purr exempts it by that exact name and fails every other
+# <script>. Standing on our own stdlib:
 #   parsers.xml  — the slab-DOM Doxygen XML reader (mixed text/element children)
 #   parsers.html — escape() (byte-identical to Python's html.escape)
 #   parsers.json — the typed reader for docs/perf_data.json (list-of-records)
@@ -131,6 +136,7 @@ struct Gen {
     cpp_kw: dict<str, bool>
     cpp_consts: dict<str, bool>
     block_tags: dict<str, bool>    # children of <para> that render block-level
+    site_base: str                 # absolute origin+path the site is served at (see seo_head)
 }
 
 # ---------------------------------------------------------------------------
@@ -142,6 +148,144 @@ struct Gen {
 fn us() { return chr(31) }
 
 fn esc(s) { return parsers.html.escape(s) }
+
+# ---------------------------------------------------------------------------
+# The SEO head: canonical, description, robots
+# ---------------------------------------------------------------------------
+# These tags are injected at WRITE time rather than inside page_shell_in, because the only
+# thing they need that the shell does not have is the page's own output path — and every
+# write site already holds it, since mark_active takes the same filename. Threading a path
+# and a description through nine render_* signatures to reach one string concatenation would
+# be the worse trade.
+#
+# WHY A CANONICAL AT ALL. The serving host registers each page at two or three routes
+# (`why.html` and `why`; `index.html`, `index` and `./`) so that no spelling ever 404s. That
+# is right for readers and wrong for crawlers, which would otherwise count one page as three
+# and divide whatever ranking it earns between them. The canonical names the one spelling
+# that counts, and it must be ABSOLUTE — a relative canonical cannot express "the copy on
+# the other host is the same page", which is the case it exists to handle.
+#
+# This is the one place the generator knows where it is served. Everything else is
+# deliberately base-path-agnostic (every internal href is bare-relative), so the base lives
+# in g.site_base, is set once in main(), and is overridable with DOCS_BASE_URL for a tree
+# served somewhere else.
+
+# Plain text from a rendered HTML fragment: drop the tags, unescape the entities, and squash
+# runs of whitespace to single spaces. A description carrying markup is not merely ugly — the
+# attribute would terminate at the first quote in the markup and spill the rest into the tag.
+# @param s the HTML fragment.
+# @return its text content, whitespace-normalised.
+fn strip_tags(s) {
+    let out = ""
+    let depth = 0
+    let i = 0
+    while i < len(s) {
+        let c = s[i:i + 1]
+        if c == "<" {
+            depth = depth + 1
+        } elif c == ">" {
+            if depth > 0 { depth = depth - 1 }
+            out = out + " "
+        } elif depth == 0 {
+            out = out + c
+        }
+        i = i + 1
+    }
+    out = parsers.html.unescape(out)
+    # Squash whitespace. Newlines and tabs inside a content="" attribute are legal but make
+    # the generated HTML unreadable in a diff, which is how this file is reviewed.
+    let flat = ""
+    let sp = false
+    i = 0
+    while i < len(out) {
+        let c = out[i:i + 1]
+        if c == " " or c == "\n" or c == "\t" or c == "\r" {
+            sp = true
+        } else {
+            if sp and len(flat) > 0 { flat = flat + " " }
+            sp = false
+            flat = flat + c
+        }
+        i = i + 1
+    }
+    return flat
+}
+
+# Clamp a description to `n` characters, cutting at a word boundary and adding an ellipsis.
+# Search engines truncate around 155-160 characters; cutting here means WE choose where the
+# sentence breaks instead of it being severed mid-word in the result listing.
+# @param s the description text.
+# @param n the budget.
+# @return s, or a clamped copy ending in "…".
+fn clamp_desc(s, n) {
+    if len(s) <= n { return s }
+    let cut = n
+    let i = n
+    while i > 0 {
+        if s[i - 1:i] == " " { cut = i - 1; break }
+        i = i - 1
+    }
+    if cut <= 0 { cut = n }
+    return s[0:cut] + "…"
+}
+
+# The canonical URL for a page written to `rel` under `base`.
+#
+# The rule mirrors the serving host's: the `.html` suffix comes off (the pretty route is what
+# the sitemap advertises), and a trailing `index` comes off too, because a directory's
+# canonical form is the directory itself — the generated pages address every asset relatively,
+# so only the slashed form resolves correctly anyway.
+# @param base the site base, slash-terminated.
+# @param rel the output path relative to docs/html ("why.html", "cheatah-plot/index.html").
+# @return the absolute canonical URL.
+fn canon_url(base, rel) {
+    let path = rel
+    if string.endswith(path, ".html") { path = path[0:len(path) - 5] }
+    if path == "index" {
+        path = ""
+    } elif string.endswith(path, "/index") {
+        path = path[0:len(path) - 5]
+    }
+    return base + path
+}
+
+# The head fragment: canonical, description, and optionally robots.
+# @param g the generator state (for site_base).
+# @param rel the output path relative to docs/html.
+# @param desc the meta description, as plain text.
+# @param noindex true to keep the page out of search results (it still passes links on).
+# @return the tags, newline-terminated.
+fn seo_head(g, rel, desc, noindex) {
+    let out = "<link rel=\"canonical\" href=\"" + esc(canon_url(g.site_base, rel)) + "\">\n"
+    if desc != "" {
+        out = out + "<meta name=\"description\" content=\"" + esc(clamp_desc(desc, 155)) + "\">\n"
+    }
+    if noindex { out = out + "<meta name=\"robots\" content=\"noindex, follow\">\n" }
+    return out
+}
+
+# Splice seo_head into a rendered page, immediately before </head>.
+# @param page the rendered page.
+# @param g the generator state.
+# @param rel the output path relative to docs/html.
+# @param desc the meta description, as plain text.
+# @param noindex true to keep the page out of search results.
+# @return the page with the tags inserted, or unchanged if it has no </head>.
+fn with_seo(page, g, rel, desc, noindex) {
+    let at = string.find(page, "</head>", 0)
+    if at < 0 { return page }
+    return page[0:at] + seo_head(g, rel, desc, noindex) + page[at:]
+}
+
+# A page description from its rendered brief, falling back when Doxygen gave us nothing.
+# @param brief_html the rendered brief (may be "").
+# @param fallback the description to use when the brief is empty.
+# @return plain-text description text.
+fn desc_or(brief_html, fallback) {
+    let t = strip_tags(brief_html)
+    if t == "" { return fallback }
+    return t
+}
 
 fn spaces(n) {
     let out = ""
@@ -1327,7 +1471,13 @@ fn page_shell_in(g, pkg, title, sidebar, content, toc) {
         toc_el = "\n  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>"
         layout_cls = "layout"
     }
-    return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <div class=\"topbar-right\">\n" + "      <a class=\"repo\" href=\"https://github.com/BrofessorDoucette/cheatah\">Source <span aria-hidden=\"true\">↗</span></a>\n" + "      <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "    </div>\n" + "  </div>\n</header>\n" + "<div class=\"" + layout_cls + "\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>" + toc_el + "\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+    # The " · cheatah" suffix exists so a bare identifier ("math", "io::File") is identifiable
+    # in a browser tab or a search result. A title that already SAYS cheatah does not need it,
+    # and "cheatah-plot · cheatah" reads like a stutter — so the suffix is conditional, which
+    # also lets a call site opt out simply by writing a fuller title.
+    let head_title = esc(title) + " · cheatah"
+    if string.contains(string.lower(title), "cheatah") { head_title = esc(title) }
+    return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + head_title + "</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <div class=\"topbar-right\">\n" + "      <a class=\"repo\" href=\"https://github.com/BrofessorDoucette/cheatah\">Source <span aria-hidden=\"true\">↗</span></a>\n" + "      <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "    </div>\n" + "  </div>\n</header>\n" + "<div class=\"" + layout_cls + "\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>" + toc_el + "\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
 }
 
 # Server-side sidebar active state (the site ships zero JS): within the page's
@@ -1614,6 +1764,35 @@ fn ext_badge_of(extname) {
     return extname + " — joins the next standard"
 }
 
+# The meta description for compound `ci`.
+#
+# Doxygen's own brief is the best sentence we have — it is what the author wrote to describe
+# the thing, and it is already on the page — so it is the first choice, reduced to plain text.
+# The fallback is templated by KIND rather than one generic string: "cheatah standard library
+# reference" under every one of 292 pages would be a duplicate-description warning in Search
+# Console and, worse, gives a searcher no reason to prefer one result over another.
+# @param g the generator state.
+# @param ci the compound index.
+# @return plain-text description.
+fn page_desc(g, ci) {
+    let c = g.comps[ci]
+    let brief = render_brief(g, doc_of(xdir_of(c), c.refid), c.brief_id)
+    let name = string.replace(c.short, "::", ".")
+    let where = "the cheatah standard library"
+    if c.ext != "" { where = "the cheatah " + c.ext + " package" }
+    let fallback = name + " — reference documentation in " + where + "."
+    if c.kind == "namespace" {
+        fallback = name + " — the " + name + " module of " + where + ": every function, type and constant, with signatures and examples."
+    } elif c.kind == "page" {
+        fallback = c.title + " — cheatah documentation."
+    } elif c.kind == "concept" {
+        fallback = name + " — a concept in " + where + ", and what a type must provide to satisfy it."
+    } elif c.kind == "class" or c.kind == "struct" {
+        fallback = name + " — a type in " + where + ": its members, methods and ownership rules."
+    }
+    return desc_or(brief, fallback)
+}
+
 fn render_compound_page(g, ci, sidebar) {
     let c = g.comps[ci]
     let doc_key = c.refid
@@ -1726,7 +1905,11 @@ fn render_compound_page(g, ci, sidebar) {
     let brief_html = ""
     if brief != "" { brief_html = "<p class=\"lede\">" + brief + "</p>" }
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">" + kind_label + "</div>\n" + "  <h1>" + title_html + "</h1>\n" + "  " + badge_html + brief_html + "\n" + "</div>\n" + "<div class=\"overview\">" + detail + "</div>\n" + class_section + "\n" + sections
-    let page_title = c.short
+    # A bare identifier ("math", "io::File") is a weak title: it says nothing about what
+    # site it belongs to, which is all a search result has to go on. Guide pages keep their
+    # own titles — they are already sentences.
+    let page_title = c.short + " — cheatah standard library"
+    if c.ext != "" { page_title = c.short + " — " + c.ext }
     if is_page { page_title = c.title }
     return page_shell_in(g, c.ext, page_title, sidebar, content, build_toc(c.members))
 }
@@ -1736,7 +1919,7 @@ fn render_home(g, ci, sidebar) {
     let hdoc = doc_of(xdir_of(c), c.refid)
     let detail = render_desc(g, hdoc, c.detail_id)
     let content = "<div class=\"home\">\n" + "  <div class=\"hero\">\n" + "    <img class=\"hero-logo\" src=\"cheatah-logo.png\" alt=\"\">\n" + "    <div class=\"hero-text\">\n" + "      <h1 class=\"hero-title\">cheatah</h1>\n" + "      <p class=\"hero-tagline\">Programs so fast they purrrrrrrrrrrrr like a kitten.</p>\n" + "    </div>\n" + "  </div>\n" + "  " + detail + "</div>"
-    return page_shell(g, "cheatah standard library", sidebar, content, "")
+    return page_shell(g, "cheatah — the Python-like language that compiles to native code", sidebar, content, "")
 }
 
 fn render_source_page(g, rel_path, sidebar) {
@@ -1801,7 +1984,7 @@ fn render_transpiler_page(g, sidebar) {
     let content = "<div class=\"page-head\"><div class=\"eyebrow\">Guide</div>" + "<h1>Transpiler</h1>" + "<p class=\"lede\">What <code>purrc</code> emits — every <code>gen/</code> " + "example, <code>.purr</code> beside its generated C++.</p></div>" + "<div class=\"overview\">" + intro + "</div>" + sections
     let toc = ""
     if toc_items != "" { toc = "<div class=\"toc-h\">On this page</div><ul>" + toc_items + "</ul>" }
-    return page_shell(g, "Transpiler", sidebar, content, toc)
+    return page_shell(g, "Transpiler — how cheatah becomes C++", sidebar, content, toc)
 }
 
 # ---------------------------------------------------------------------------
@@ -2700,6 +2883,10 @@ fn main() {
         return
     }
     let g = Gen({.cur_module = ""})
+    # Where this tree is served. The ONLY absolute-URL knob in the generator — everything
+    # else is bare-relative on purpose — and it exists so the pages can carry an absolute
+    # rel="canonical" (see seo_head). Slash-terminated; canon_url appends to it directly.
+    g.site_base = os.getenv("DOCS_BASE_URL", "https://bigbrain-technology.com/docs/cheatah-docs/")
 
     # highlighter vocabularies (the compiler's keywords + Python's, minus literals)
     add_kw(g.kw, "and as break case constexpr continue elif else enum except false fn for from if import in interface let match not or raise return struct true try while with")
@@ -2877,7 +3064,9 @@ fn main() {
 
     let pages = 0
     for p in src_sorted {
-        write_file("docs/html/" + g.src_map[p], mark_active(render_source_page(g, p, sidebar), g.src_map[p]))
+        write_file("docs/html/" + g.src_map[p],
+                   with_seo(mark_active(render_source_page(g, p, sidebar), g.src_map[p]), g,
+                            g.src_map[p], "Source listing: " + p + " in the cheatah toolchain.", true))
         pages = pages + 1
     }
     ci = 0
@@ -2889,20 +3078,30 @@ fn main() {
         }
         if c.kind == "page" {
             if c.refid == "indexpage" {
-                write_file("docs/html/index.html", mark_active(render_home(g, ci, sidebar), "index.html"))
+                write_file("docs/html/index.html",
+                           with_seo(mark_active(render_home(g, ci, sidebar), "index.html"), g, "index.html",
+                                    "cheatah is a small, Python-like programming language that compiles to native machine code. This is the standard library reference.", false))
                 pages = pages + 1
             } elif c.refid != "complexity" and c.refid != "alloc" and c.refid != "test" and c.refid != "crtest" and c.refid != "systest" {
-                write_file("docs/html/" + c.refid + ".html", mark_active(render_compound_page(g, ci, sidebar), c.refid + ".html"))
+                write_file("docs/html/" + c.refid + ".html",
+                           with_seo(mark_active(render_compound_page(g, ci, sidebar), c.refid + ".html"), g,
+                                    c.refid + ".html", page_desc(g, ci), false))
                 pages = pages + 1
             }
         } else {
-            write_file("docs/html/" + c.refid + ".html", mark_active(render_compound_page(g, ci, sidebar), c.refid + ".html"))
+            write_file("docs/html/" + c.refid + ".html",
+                       with_seo(mark_active(render_compound_page(g, ci, sidebar), c.refid + ".html"), g,
+                                c.refid + ".html", page_desc(g, ci), false))
             pages = pages + 1
         }
         ci = ci + 1
     }
-    write_file("docs/html/transpiler.html", mark_active(render_transpiler_page(g, sidebar), "transpiler.html"))
-    write_file("docs/html/standard.html", mark_active(render_standard_page(g, sidebar), "standard.html"))
+    write_file("docs/html/transpiler.html",
+               with_seo(mark_active(render_transpiler_page(g, sidebar), "transpiler.html"), g, "transpiler.html",
+                        "How the cheatah compiler turns a .purr source file into modern C++, and from there into native machine code.", false))
+    write_file("docs/html/standard.html",
+               with_seo(mark_active(render_standard_page(g, sidebar), "standard.html"), g, "standard.html",
+                        "The Biome Standard: one semantic version naming the set of cheatah toolchain and package releases that are known to work together.", false))
     pages = pages + 2
 
     # extension subsites: docs/html/<ext>/ — landing + releases + this
@@ -2910,14 +3109,20 @@ fn main() {
     # subsite pages reach them through "../")
     for extname in g.ext_names {
         let esb = build_ext_sidebar(g, extname)
-        write_file("docs/html/" + extname + "/index.html", mark_active(render_ext_home(g, extname, esb), "index.html"))
-        write_file("docs/html/" + extname + "/releases.html", mark_active(render_ext_releases(g, extname, esb), "releases.html"))
+        write_file("docs/html/" + extname + "/index.html",
+                   with_seo(mark_active(render_ext_home(g, extname, esb), "index.html"), g, extname + "/index.html",
+                            extname + " — an extension package for the cheatah programming language: what it provides and how to depend on it.", false))
+        write_file("docs/html/" + extname + "/releases.html",
+                   with_seo(mark_active(render_ext_releases(g, extname, esb), "releases.html"), g, extname + "/releases.html",
+                            extname + " release history: every published version, what changed, and the Biome Standard it targets.", false))
         pages = pages + 2
         ci = 0
         while ci < len(g.comps) {
             let c = g.comps[ci]
             if c.ext == extname {
-                write_file("docs/html/" + extname + "/" + c.refid + ".html", mark_active(render_compound_page(g, ci, esb), c.refid + ".html"))
+                write_file("docs/html/" + extname + "/" + c.refid + ".html",
+                           with_seo(mark_active(render_compound_page(g, ci, esb), c.refid + ".html"), g,
+                                    extname + "/" + c.refid + ".html", page_desc(g, ci), false))
                 pages = pages + 1
             }
             ci = ci + 1

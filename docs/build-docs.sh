@@ -12,7 +12,9 @@
 # The site is ZERO-JS by design: it works under a serving CSP of
 # `default-src 'none'; style-src 'self'; img-src 'self'` (no script execution) —
 # search was removed for that reason, and the sidebar's active state is rendered
-# server-side by the generator.
+# server-side by the generator. The generator's `<script type="application/ld+json">`
+# structured-data block is not an exception: a non-JS type is an inert data block,
+# never executed, and scripts/a11y_check.purr exempts that exact name and no other.
 # Serve the site with the VS Code "Open docs in browser" task, a static file server, or the
 # host's own deployment tooling — this repo GENERATES the site and does not serve it.
 set -euo pipefail
