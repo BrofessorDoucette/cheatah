@@ -394,10 +394,22 @@ fn check_page(path: str, html: str) -> int {
         bad = bad + 1
     }
     # The zero-JS invariant. The serving CSP is `default-src 'none'; style-src 'self';
-    # img-src 'self'` — there is no script-src, so a <script> tag can only ever be dead.
-    if string.find(html, "<script", 0) >= 0 {
-        io.print("  a11y: FAIL " + path + " - ships a <script> tag; the serving CSP has no script-src")
-        bad = bad + 1
+    # img-src 'self'` — there is no script-src, so an EXECUTABLE <script> can only ever be dead.
+    #
+    # The one exemption is `<script type="application/ld+json">`: a JSON-LD data block is not
+    # a script. The HTML spec classes any non-JS `type` as a data block — the parser never
+    # compiles it, no engine ever runs it, and it fetches nothing, so it cannot violate the
+    # policy the CSP exists to enforce. It carries schema.org structured data, which is how a
+    # search engine learns that "BigBrain LLC" is an organisation rather than a phrase. Exempt
+    # it by NAME, not by pattern: anything else calling itself a script still fails here.
+    let sc = string.find(html, "<script", 0)
+    while sc >= 0 {
+        if not string.startswith(html[sc:], "<script type=\"application/ld+json\">") {
+            io.print("  a11y: FAIL " + path + " - ships a <script> tag; the serving CSP has no script-src")
+            bad = bad + 1
+            break
+        }
+        sc = string.find(html, "<script", sc + 7)
     }
     # A labelled landmark with nothing in it is announced and leads nowhere.
     if string.find(html, "aria-label=\"On this page\"></aside>", 0) >= 0 {

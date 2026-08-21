@@ -123,8 +123,13 @@ fn path_args(paths : list<str>) -> str {
 }
 
 # The newest commit that touched anything the suite depends on.
+#
+# MARKDOWN IS EXCLUDED, and that exclusion carries the weight here. A watch path is a
+# directory — `stdlib/regex/` — and directories contain their own README. Without the
+# exclusion, editing prose about an engine marks the engine's measurements stale, which is
+# both wrong and self-inflicted: writing up a result would invalidate the result.
 fn last_commit_touching(paths : list<str>) -> str {
-    return sh_capture("git log -1 --format=%H --" + path_args(paths))
+    return sh_capture("git log -1 --format=%H --" + path_args(paths) + " ':!*.md'")
 }
 
 # `a` is contained in `b` — the freshness predicate. Deliberately an ancestry test rather than
@@ -135,13 +140,14 @@ fn is_ancestor(a : str, b : str) -> bool {
 }
 
 fn commits_since(measured : str, paths : list<str>) -> int {
-    let out = sh_capture("git rev-list --count " + shq(measured) + "..HEAD --" + path_args(paths))
+    let out = sh_capture("git rev-list --count " + shq(measured) + "..HEAD --" + path_args(paths) +
+                         " ':!*.md'")
     if out == "" { return 0 }
     return int(out)
 }
 
 fn worktree_dirty(paths : list<str>) -> bool {
-    return sh_capture("git status --porcelain --" + path_args(paths)) != ""
+    return sh_capture("git status --porcelain --" + path_args(paths) + " ':!*.md'") != ""
 }
 
 # ---- region scanning ------------------------------------------------------------------

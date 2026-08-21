@@ -54,14 +54,29 @@ fi
 # worse than one admitting it does not know. `dirty` is recorded, and the doc lint refuses
 # to publish a table stamped from a dirty tree.
 COMMIT="$(git rev-parse --short HEAD)"
-# Dirtiness of the SOURCES, not of docs/bench. Regenerating an artifact necessarily rewrites
-# docs/bench/<suite>.md, so a plain `git diff --quiet` marks every suite after the first as
-# dirty — measuring twice would make the second measurement look untraceable. What the stamp
-# claims is that THIS COMMIT's source produced the number, and rewriting an output does not
-# change the source. `update-index --refresh` first: stale stat info alone makes --quiet
-# report a difference that is not there.
+# Dirtiness is judged against THIS SUITE'S OWN WATCHED SOURCES, not the whole tree.
+#
+# A whole-tree check is what a first attempt reaches for and it is wrong in a way that costs
+# real time: editing any file anywhere — a README, an unrelated script — marks every later
+# measurement untraceable, so you re-measure to clear it, and the next edit dirties it again.
+# What the stamp actually claims is "this commit's source produced this number", and the
+# source of a number is exactly what `watch:` already names. Markdown is excluded outright:
+# a document cannot change what code measures, so it must never invalidate a measurement.
+# (`stdlib/regex/` contains a README; without this, editing it marks the regex ENGINE stale.)
+#
+# `update-index --refresh` first — stale stat info alone makes --quiet report a phantom diff.
 git update-index --refresh >/dev/null 2>&1 || true
-git diff --quiet -- . ':!docs/bench' || COMMIT="$COMMIT (dirty)"
+dirty_check() {   # dirty_check <comma-separated watch paths> -> 0 clean, 1 dirty
+    local spec=() p
+    if [ -z "${1:-}" ]; then return 0; fi   # no watch paths: nothing to judge against
+    local IFS=,
+    for p in $1; do
+        p="$(printf '%s' "$p" | sed 's/^ *//;s/ *$//')"
+        [ -n "$p" ] && spec+=("$p")
+    done
+    [ "${#spec[@]}" -gt 0 ] || return 0
+    git diff --quiet -- "${spec[@]}" ':!*.md' ':!docs/bench' && return 0 || return 1
+}
 export CHEATAH_BENCH_COMMIT="$COMMIT"
 
 case "$PROFILE" in
@@ -136,6 +151,8 @@ publish)
         ;;
     esac
     export CHEATAH_BENCH_LAYOUT CHEATAH_BENCH_WATCH CHEATAH_BENCH_ROWS
+    dirty_check "$CHEATAH_BENCH_WATCH" || CHEATAH_BENCH_COMMIT="$COMMIT (dirty)"
+    export CHEATAH_BENCH_COMMIT
 
     FILTER="${3:-$SUITE_FILTER}"
     ROUNDS="${4:-9}"

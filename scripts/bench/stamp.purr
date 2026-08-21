@@ -32,13 +32,23 @@ fn capture(cmd : str) -> str {
 # The commit the measurement describes. `(dirty)` is recorded rather than hidden: a number
 # taken from an uncommitted tree cannot be traced back to source, and bench_table.purr refuses
 # to publish one.
-fn commit() -> str {
+# Dirtiness is judged against the suite's OWN watched sources, not the whole tree — see the
+# long note in scripts/bench_run.sh. Markdown is excluded outright: a document cannot change
+# what code measures, so editing one must never invalidate a measurement.
+fn commit(watch : str) -> str {
     let c = capture("git rev-parse --short HEAD")
     if c == "" { return "unknown" }
-    # SOURCE dirtiness, excluding docs/bench: regenerating an artifact rewrites a tracked file
-    # there, and that must not make the measurement look untraceable. See scripts/bench_run.sh.
     os.system("git update-index --refresh >/dev/null 2>&1")
-    if os.system("git diff --quiet -- . ':!docs/bench'") != 0 { return c + " (dirty)" }
+    if watch == "" { return c }          # nothing named to judge against
+    let spec = ""
+    for p in string.split(watch, ",") {
+        let t = string.strip(p)
+        if t != "" { spec = spec + " '" + t + "'" }
+    }
+    if spec == "" { return c }
+    if os.system("git diff --quiet --" + spec + " ':!*.md' ':!docs/bench'") != 0 {
+        return c + " (dirty)"
+    }
     return c
 }
 
@@ -66,7 +76,7 @@ fn build(suite : str, watch : str, competitors : str, rounds : int, statistic : 
     let s = "<!-- cheatah-bench-stamp v1\n"
     s = s + "     suite:        " + suite + "\n"
     s = s + "     generated:    " + today() + "\n"
-    s = s + "     commit:       " + commit() + "\n"
+    s = s + "     commit:       " + commit(watch) + "\n"
     s = s + "     host:         " + host() + "\n"
     s = s + "     cpu-scaling:  enabled\n"
     s = s + "     build:        purrc -> -O3 -march=native\n"

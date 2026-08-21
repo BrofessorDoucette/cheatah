@@ -222,20 +222,22 @@ def write_md(path, suite_name):
     across. A warning is a worse fix than a structure: this table carries only the columns
     this harness measured, and the Eigen comparison is its own generated table from its own
     harness (docs/bench/linalg-vs-eigen.md)."""
+    watch = ("stdlib/linalg/, stdlib/ndarray/, scripts/numpy_compare.py"
+             if suite_name.startswith("linalg")
+             else "stdlib/ndarray/, scripts/numpy_compare.py")
     commit = _capture("git rev-parse --short HEAD") or "unknown"
-    # SOURCE dirtiness, excluding docs/bench: a publish run rewrites the tracked artifact in
-    # that directory, and rewriting an output does not change the source the stamp is claiming.
-    # The refresh clears stale stat info, which alone makes --quiet report a phantom difference.
+    # Judged against THIS suite's watched sources only, with Markdown excluded — see the long
+    # note in scripts/bench_run.sh. A whole-tree check means any edit anywhere invalidates
+    # every later measurement, which turns one prose fix into a full re-measure.
     subprocess.run("git update-index --refresh", shell=True, capture_output=True)
-    if subprocess.run("git diff --quiet -- . ':!docs/bench'", shell=True).returncode != 0:
+    spec = " ".join(f"'{p.strip()}'" for p in watch.split(",") if p.strip())
+    if spec and subprocess.run(f"git diff --quiet -- {spec} ':!*.md' ':!docs/bench'",
+                               shell=True).returncode != 0:
         commit += " (dirty)"
     host = _capture("awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo") or platform.machine()
     gov = _capture("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor")
     if gov:
         host += f" (governor={gov})"
-    watch = ("stdlib/linalg/, stdlib/ndarray/, scripts/numpy_compare.py"
-             if suite_name.startswith("linalg")
-             else "stdlib/ndarray/, scripts/numpy_compare.py")
     lines = [
         "<!-- cheatah-bench-stamp v1",
         f"     suite:        {suite_name}",
