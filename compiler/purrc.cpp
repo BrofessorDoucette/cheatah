@@ -70,6 +70,25 @@
 #    define CHEATAH_MATHLINK "-lm"
 #  endif
 #endif
+// Archive-group flags for THIS linker. GNU ld gets the backstop; ld64 REJECTS the option
+// ("ld: unknown options: --start-group --end-group") and link.exe has no equivalent -- both
+// re-scan archives instead of making one ordered pass, so they need no grouping. The
+// dependency-last ORDERING purrc already emits is the mechanism and is portable; this is only
+// the belt on top of it. Empty strings emit nothing.
+#ifndef CHEATAH_GROUP_BEGIN
+#  if defined(_WIN32) || defined(__APPLE__)
+#    define CHEATAH_GROUP_BEGIN ""
+#  else
+#    define CHEATAH_GROUP_BEGIN "-Wl,--start-group"
+#  endif
+#endif
+#ifndef CHEATAH_GROUP_END
+#  if defined(_WIN32) || defined(__APPLE__)
+#    define CHEATAH_GROUP_END ""
+#  else
+#    define CHEATAH_GROUP_END "-Wl,--end-group"
+#  endif
+#endif
 #ifndef CHEATAH_MODULE_EXT
 #  if defined(_WIN32)
 #    define CHEATAH_MODULE_EXT ".dll"
@@ -1323,12 +1342,18 @@ int main(int argc, char** argv) {
     // this is a backstop, not the mechanism — but it is a cheap one (a handful of
     // single-member archives) against a failure mode that hides until dlopen. A missing edge
     // in module_deps' table would otherwise ship as `undefined symbol` at RUNTIME.
+    // The flags come from the platform seam, never a literal: this file states at the top that
+    // it is "platform-clean -- Linux/macOS/Windows differ only in what CMake computed", and a
+    // hardcoded GNU option here was the one place that was untrue. It broke every macOS link
+    // that resolved an archive-bearing module.
     const bool group = !resolved.empty();
-    if (group) args.push_back("-Wl,--start-group");
+    const std::string group_begin = CHEATAH_GROUP_BEGIN;
+    const std::string group_end = CHEATAH_GROUP_END;
+    if (group && !group_begin.empty()) args.push_back(group_begin);
     for (const ResolvedModule& rm : resolved) {
         if (!rm.archive.empty()) args.push_back(rm.archive);
     }
-    if (group) args.push_back("-Wl,--end-group");
+    if (group && !group_end.empty()) args.push_back(group_end);
     // Build-supplied link inputs (`--link`): archives/flags for dependencies whose compiled
     // definitions the BUILD provides (e.g. an external project's library for a module it
     // imports by relative path / --import-root, with no co-located archive). After the

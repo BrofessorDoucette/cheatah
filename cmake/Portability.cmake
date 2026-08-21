@@ -12,6 +12,7 @@
 #   CHEATAH_VECLIB_FLAG      -fveclib=… for the ndarray SIMD ufunc kernels (or "" -> scalar)
 #   CHEATAH_PURRC_CXXFLAGS   list of flags purrc passes to the compiler (compile+link)
 #   CHEATAH_PURRC_MATHLINK   list of link args appended AFTER the module archives
+#   CHEATAH_PURRC_GROUP_*    archive-group flags for THIS linker (GNU ld only; empty elsewhere)
 include(CheckCXXCompilerFlag)
 
 # --- "optimize for this machine" -------------------------------------------------------
@@ -34,6 +35,27 @@ elseif(APPLE)
     set(CHEATAH_MODULE_EXT ".dylib")
 else()
     set(CHEATAH_MODULE_EXT ".so")
+endif()
+
+# --- archive grouping ------------------------------------------------------------------
+# purrc emits the module archives dependency-last, which is a COMPLETE ordering for an acyclic
+# graph -- that is the mechanism, and it is portable. --start-group is a GNU-ld-only backstop on
+# top of it, for the two cases ordering alone cannot cover: a missing edge in a `cheatah-deps:`
+# marker, and a future dependency CYCLE.
+#
+# It must not be emitted where the linker does not know it. Apple's ld64 rejects the option
+# outright ("ld: unknown options: --start-group --end-group") and does not need it -- it re-scans
+# archives rather than making one ordered pass. link.exe likewise re-scans. So the backstop is
+# free on GNU ld and simply absent elsewhere, with no loss of correctness on either.
+#
+# This cost a downstream macOS editor build: the flag went in unconditionally on 2026-08-16 and
+# every macOS link that resolved an archive-bearing module failed from then on.
+if(APPLE OR WIN32)
+    set(CHEATAH_PURRC_GROUP_BEGIN "")
+    set(CHEATAH_PURRC_GROUP_END "")
+else()
+    set(CHEATAH_PURRC_GROUP_BEGIN "-Wl,--start-group")
+    set(CHEATAH_PURRC_GROUP_END "-Wl,--end-group")
 endif()
 
 # --- SIMD acceleration of the transcendentals ------------------------------------------
@@ -142,4 +164,5 @@ if(CHEATAH_VECLIB_FLAG)
 endif()
 
 message(STATUS "cheatah portability: ext=${CHEATAH_MODULE_EXT} arch='${CHEATAH_ARCH_FLAG}' "
-               "veclib='${CHEATAH_VECLIB_FLAG}' mathlink='${_cheatah_math_link}'")
+               "veclib='${CHEATAH_VECLIB_FLAG}' mathlink='${_cheatah_math_link}' "
+               "group='${CHEATAH_PURRC_GROUP_BEGIN}'")

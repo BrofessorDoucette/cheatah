@@ -454,7 +454,16 @@ main()
 // after it — which is why nothing caught this: no .purr under tests/ imported tls at all.
 //
 // Fixed by making all_modules a post-order DFS (dependents before dependencies) in
-// compiler/purrc.cpp, plus --start-group/--end-group as a backstop.
+// compiler/purrc.cpp. --start-group/--end-group rode along as a backstop, and on 2026-08-16 it
+// was emitted UNCONDITIONALLY -- which broke every macOS link that resolved an archive-bearing
+// module, because ld64 rejects the option outright. It is now supplied by the platform seam
+// (cmake/Portability.cmake) and is EMPTY on macOS and Windows, whose linkers re-scan archives
+// instead of making one ordered pass.
+//
+// So on those platforms this test is carried by the ORDERING alone -- which is the point: the
+// DFS is the mechanism, the group was only ever a belt for a missing cheatah-deps edge or a
+// future cycle. Verified by building purrc with the group forced empty and re-running this
+// exact case; it links and runs.
 //
 // The import of hashlib is what makes this a regression test rather than a smoke test: remove
 // it and the program links even with the bug present. main() must also CALL tls, or the linker

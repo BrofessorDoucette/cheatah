@@ -52,7 +52,9 @@ target_compile_definitions(purrc PRIVATE
     CHEATAH_AR="${CMAKE_AR}"
     CHEATAH_CXXFLAGS="${_cheatah_cxxflags_str}"
     CHEATAH_MATHLINK="${_cheatah_mathlink_str}"
-    CHEATAH_MODULE_EXT="${CHEATAH_MODULE_EXT}")
+    CHEATAH_MODULE_EXT="${CHEATAH_MODULE_EXT}"
+    CHEATAH_GROUP_BEGIN="${CHEATAH_PURRC_GROUP_BEGIN}"
+    CHEATAH_GROUP_END="${CHEATAH_PURRC_GROUP_END}")
 
 # purrc links the stdlib module archives into the programs it compiles, so those
 # must be built whenever purrc is. The module targets live in stdlib/ (added after
