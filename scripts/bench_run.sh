@@ -54,7 +54,14 @@ fi
 # worse than one admitting it does not know. `dirty` is recorded, and the doc lint refuses
 # to publish a table stamped from a dirty tree.
 COMMIT="$(git rev-parse --short HEAD)"
-git diff --quiet || COMMIT="$COMMIT (dirty)"
+# Dirtiness of the SOURCES, not of docs/bench. Regenerating an artifact necessarily rewrites
+# docs/bench/<suite>.md, so a plain `git diff --quiet` marks every suite after the first as
+# dirty — measuring twice would make the second measurement look untraceable. What the stamp
+# claims is that THIS COMMIT's source produced the number, and rewriting an output does not
+# change the source. `update-index --refresh` first: stale stat info alone makes --quiet
+# report a difference that is not there.
+git update-index --refresh >/dev/null 2>&1 || true
+git diff --quiet -- . ':!docs/bench' || COMMIT="$COMMIT (dirty)"
 export CHEATAH_BENCH_COMMIT="$COMMIT"
 
 case "$PROFILE" in

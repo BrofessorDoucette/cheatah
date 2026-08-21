@@ -35,7 +35,10 @@ fn capture(cmd : str) -> str {
 fn commit() -> str {
     let c = capture("git rev-parse --short HEAD")
     if c == "" { return "unknown" }
-    if os.system("git diff --quiet") != 0 { return c + " (dirty)" }
+    # SOURCE dirtiness, excluding docs/bench: regenerating an artifact rewrites a tracked file
+    # there, and that must not make the measurement look untraceable. See scripts/bench_run.sh.
+    os.system("git update-index --refresh >/dev/null 2>&1")
+    if os.system("git diff --quiet -- . ':!docs/bench'") != 0 { return c + " (dirty)" }
     return c
 }
 
