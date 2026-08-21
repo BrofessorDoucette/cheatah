@@ -1,7 +1,7 @@
 <!-- cheatah-bench-stamp v1
      suite:        fixarray-vs-glm-highlights
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -24,9 +24,9 @@
 
 | operation | `Fixed` | GLM | | |
 |-----------|--------:|----:|---|---|
-| `mat4f::identity()` | **0.68 ns** ±0.01 | 1.79 ns ±0.02 | 2.63× | faster |
-| `mat4f * mat4f` | **3.39 ns** ±0.09 | 5.80 ns ±0.10 | 1.71× | faster |
-| `mat4f + mat4f` | **0.70 ns** ±0.16 | 1.38 ns ±0.22 | 1.99× | faster |
-| `inverse(mat4d)` | **12.37 ns** ±0.17 | 17.12 ns ±0.36 | 1.38× | faster |
-| `abs(vec4f)` | **0.45 ns** ±0.00 | 0.83 ns ±0.02 | 1.85× | faster |
-| `dot(vec4f, vec4f)` | 0.87 ns ±0.01 | 1.02 ns ±0.01 | 1.17× | parity — gap 0.15 ns |
+| `mat4f::identity()` | **0.66 ns** ±0.01 | 1.78 ns ±0.05 | 2.69× | faster |
+| `mat4f * mat4f` | **3.38 ns** ±0.04 | 5.75 ns ±0.14 | 1.70× | faster |
+| `mat4f + mat4f` | **0.67 ns** ±0.01 | 1.36 ns ±0.06 | 2.03× | faster |
+| `inverse(mat4d)` | **12.15 ns** ±0.31 | 16.83 ns ±0.36 | 1.38× | faster |
+| `abs(vec4f)` | **0.44 ns** ±0.01 | 0.82 ns ±0.01 | 1.85× | faster |
+| `dot(vec4f, vec4f)` | 0.85 ns ±0.02 | 0.99 ns ±0.02 | 1.17× | parity — gap 0.14 ns |

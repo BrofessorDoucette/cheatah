@@ -1,7 +1,7 @@
 <!-- cheatah-bench-stamp v1
      suite:        whole-programs
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       f78c5e8
      host:         12th Gen Intel(R) Core(TM) i7-12700H, 20 CPUs, Linux 7.0.11-76070011-generic (governor=powersave)
      cpu-scaling:  enabled
      build:        purrc -> -O3 -march=native
@@ -17,7 +17,7 @@
 
 | program | what it does | cheatah | CPython | speedup |
 |---------|--------------|--------:|--------:|--------:|
-| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 61 ms | 4451 ms | **74×** [66–77] |
-| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 175 ms | 2482 ms | **14×** [13–18] |
-| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 44 ms | 2663 ms | **61×** [45–63] |
-| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 32 ms | 2963 ms | **89×** [78–106] |
+| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 64 ms | 4597 ms | **72×** [69–88] |
+| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 193 ms | 2773 ms | **14×** [14–26] |
+| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 44 ms | 2852 ms | **65×** [55–67] |
+| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 36 ms | 3069 ms | **86×** [69–101] |

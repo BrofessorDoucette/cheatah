@@ -1,7 +1,7 @@
 <!-- cheatah-bench-stamp v1
      suite:        linalg-vs-eigen
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -17,14 +17,14 @@
 
 | case | cheatah | spread | vs | rival | spread | ratio | verdict |
 |---|--:|--:|---|--:|--:|--:|---|
-| BM_dot/16384 | 1.76 µs | ±62.87 ns IQR | eigen | 2.66 µs | ±194.54 ns IQR | 1.51x | faster |
-| BM_dot/64 | 10.33 ns | ±0.40 ns IQR | eigen | 6.90 ns | ±0.24 ns IQR | 0.67x | **slower** |
-| BM_inv/32 | 6.85 µs | ±1.14 µs IQR | eigen | 11.50 µs | ±304.44 ns IQR | 1.68x | faster |
-| BM_inv/64 | 41.85 µs | ±2.91 µs IQR | eigen | 68.89 µs | ±1.07 µs IQR | 1.65x | faster |
-| BM_matmul/32 | 3.25 µs | ±1.15 µs IQR | eigen | 3.96 µs | ±81.54 ns IQR | 1.22x | faster |
-| BM_matmul/96 | 91.05 µs | ±33.39 µs IQR | eigen | 97.69 µs | ±2.00 µs IQR | 1.07x | parity |
-| BM_solve/32 | 3.65 µs | ±59.79 ns IQR | eigen | 4.23 µs | ±225.91 ns IQR | 1.16x | faster |
-| BM_solve/64 | 16.89 µs | ±335.60 ns IQR | eigen | 21.08 µs | ±492.88 ns IQR | 1.25x | faster |
+| BM_dot/16384 | 1.76 µs | ±140.45 ns IQR | eigen | 2.54 µs | ±29.23 ns IQR | 1.44x | faster |
+| BM_dot/64 | 10.18 ns | ±0.71 ns IQR | eigen | 6.69 ns | ±0.17 ns IQR | 0.66x | **slower** |
+| BM_inv/32 | 6.76 µs | ±1.35 µs IQR | eigen | 11.21 µs | ±438.60 ns IQR | 1.66x | faster |
+| BM_inv/64 | 38.55 µs | ±8.55 µs IQR | eigen | 67.44 µs | ±2.07 µs IQR | 1.75x | faster |
+| BM_matmul/32 | 3.17 µs | ±137.63 ns IQR | eigen | 3.80 µs | ±49.86 ns IQR | 1.20x | faster |
+| BM_matmul/96 | 87.96 µs | ±879.72 ns IQR | eigen | 94.93 µs | ±3.32 µs IQR | 1.08x | parity |
+| BM_solve/32 | 3.56 µs | ±118.70 ns IQR | eigen | 4.17 µs | ±151.63 ns IQR | 1.17x | faster |
+| BM_solve/64 | 16.47 µs | ±372.73 ns IQR | eigen | 19.97 µs | ±426.11 ns IQR | 1.21x | faster |
 
 **Tally** (a difference counts only above 1.15x AND 0.25 ns) — vs eigen: **6 faster / 1 parity / 1 slower**.
-- Loss vs eigen: `BM_dot/64` — cheatah 10.33 ns vs 6.90 ns (1.50x slower)
+- Loss vs eigen: `BM_dot/64` — cheatah 10.18 ns vs 6.69 ns (1.52x slower)

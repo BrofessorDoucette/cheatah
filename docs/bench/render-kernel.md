@@ -1,7 +1,7 @@
 <!-- cheatah-bench-stamp v1
      suite:        render-kernel
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         12th Gen Intel(R) Core(TM) i7-12700H, 20 CPUs, Linux 7.0.11-76070011-generic (governor=powersave)
      cpu-scaling:  enabled
      build:        purrc -> -O3 -march=native
@@ -17,6 +17,6 @@
 
 | generator | median | spread (σ) | vs CPython |
 |-----------|-------:|-----------:|-----------:|
-| CPython (`xml.etree`, native `expat`) | 24.4 ms | ±0.4 ms | 1.0× |
-| cheatah, single-threaded (`gen_bench.purr`) | 12.5 ms | ±1.1 ms | **1.94×** |
-| cheatah, 4 threads over a shared `memory.Owner` (`gen_bench_parallel.purr`) | 5.9 ms | ±0.2 ms | **4.14×** |
+| CPython (`xml.etree`, native `expat`) | 23.8 ms | ±2.9 ms | 1.0× |
+| cheatah, single-threaded (`gen_bench.purr`) | 12.2 ms | ±1.9 ms | **2.03×** |
+| cheatah, 4 threads over a shared `memory.Owner` (`gen_bench_parallel.purr`) | 6.2 ms | ±0.4 ms | **3.86×** |

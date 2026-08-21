@@ -1,7 +1,7 @@
 <!-- cheatah-bench-stamp v1
      suite:        regex-representative
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      competitors:  std::regex, Boost.Regex, Google RE2
      statistic:    median real time per case; `vs RE2` = re2/cheatah
      harness:      medians of repeated runs, random-interleaved
@@ -17,11 +17,11 @@
 
 | case | cheatah | std::regex | Boost | RE2 | vs RE2 |
 |---|--:|--:|--:|--:|--:|
-| `status=200` on a 4 MB log |      27.4 ns |     686.0 ns |      96.3 ns |      46.6 ns | 1.7× |
-| `[0-9]+` (search) |       6.8 ns |      74.2 ns |      44.7 ns |      29.2 ns | 4.3× |
-| `1274$` (end-anchored, 4 MB) |       5.9 ns |    35.913 ms |     107.1 ns |      30.0 ns | 5.1× |
-| find-all `[0-9]+` (256 KB) |    419.80 us |     3.599 ms |     3.556 ms |     1.781 ms | 4.2× |
-| 64 MB absent-pattern scan |     3.427 ms |   530.583 ms |    34.977 ms |     5.203 ms | 1.5× |
-| compile `[a-z]+@[a-z.]+` |     230.6 ns |     22.87 us |     986.1 ns |      1.93 us | 8.4× |
-| **ReDoS** `(a|aa)+$`, N=28 |       3.4 ns | — | — |      28.7 ns | 8.4× |
-| **ReDoS at 16 MB** `(a|a)*c` |     3.863 ms | — | — |    19.462 ms | 5.0× |
+| `status=200` on a 4 MB log |      26.5 ns |     649.9 ns |      95.0 ns |      46.6 ns | 1.8× |
+| `[0-9]+` (search) |       6.8 ns |      74.1 ns |      44.5 ns |      28.7 ns | 4.3× |
+| `1274$` (end-anchored, 4 MB) |       6.0 ns |    35.713 ms |     107.9 ns |      30.0 ns | 5.0× |
+| find-all `[0-9]+` (256 KB) |    428.83 us |     3.512 ms |     3.304 ms |     1.748 ms | 4.1× |
+| 64 MB absent-pattern scan |     3.391 ms |   526.047 ms |    35.253 ms |     5.144 ms | 1.5× |
+| compile `[a-z]+@[a-z.]+` |     218.8 ns |     22.30 us |      1.02 us |      1.96 us | 9.0× |
+| **ReDoS** `(a|aa)+$`, N=28 |       3.4 ns | — | — |      28.1 ns | 8.2× |
+| **ReDoS at 16 MB** `(a|a)*c` |     3.927 ms | — | — |    19.393 ms | 4.9× |

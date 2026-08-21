@@ -45,7 +45,7 @@ deterministic signature matches bit-for-bit, and verification round-trips it
 <!-- cheatah-bench-stamp v1
      suite:        p256
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -67,8 +67,8 @@ deterministic signature matches bit-for-bit, and verification round-trips it
 
 | Op | median | spread | throughput |
 |---|--:|--:|--:|
-| `BM_P256_Sign` | 60.46 µs | ±1.43 µs IQR | 16.5 k/s |
-| `BM_P256_Verify` | 92.32 µs | ±1.45 µs IQR | 10.8 k/s |
+| `BM_P256_Sign` | 58.34 µs | ±770.07 ns IQR | 17.1 k/s |
+| `BM_P256_Verify` | 88.69 µs | ±588.83 ns IQR | 11.3 k/s |
 <!-- BENCH:p256 end -->
 
 Verification runs once per TLS handshake (negligible next to a network round

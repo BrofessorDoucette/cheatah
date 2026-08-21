@@ -70,7 +70,7 @@ repeated — so drift over the session cannot favour one side. Every row reports
 <!-- cheatah-bench-stamp v1
      suite:        whole-programs
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       f78c5e8
      host:         12th Gen Intel(R) Core(TM) i7-12700H, 20 CPUs, Linux 7.0.11-76070011-generic (governor=powersave)
      cpu-scaling:  enabled
      build:        purrc -> -O3 -march=native
@@ -86,10 +86,10 @@ repeated — so drift over the session cannot favour one side. Every row reports
 
 | program | what it does | cheatah | CPython | speedup |
 |---------|--------------|--------:|--------:|--------:|
-| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 61 ms | 4451 ms | **74×** [66–77] |
-| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 175 ms | 2482 ms | **14×** [13–18] |
-| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 44 ms | 2663 ms | **61×** [45–63] |
-| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 32 ms | 2963 ms | **89×** [78–106] |
+| **Mandelbrot** | escape-time over an 800×600 grid (≤256 iters) | 64 ms | 4597 ms | **72×** [69–88] |
+| **Numerical integral** | trapezoid ∫ sin(x)·e^(−x/100), 20M points | 193 ms | 2773 ms | **14×** [14–26] |
+| **RK4 ODE** | 4th-order Runge–Kutta, 4 000 000 steps | 44 ms | 2852 ms | **65×** [55–67] |
+| **N-body** | direct O(N²) gravity, 256 bodies × 200 leapfrog steps | 36 ms | 3069 ms | **86×** [69–101] |
 <!-- BENCH:whole-programs end -->
 
 Read the brackets, not just the bold number. The N-body ratio moves between 67× and 97×
@@ -150,7 +150,7 @@ consecutive block:
 <!-- cheatah-bench-stamp v1
      suite:        render-kernel
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         12th Gen Intel(R) Core(TM) i7-12700H, 20 CPUs, Linux 7.0.11-76070011-generic (governor=powersave)
      cpu-scaling:  enabled
      build:        purrc -> -O3 -march=native
@@ -166,9 +166,9 @@ consecutive block:
 
 | generator | median | spread (σ) | vs CPython |
 |-----------|-------:|-----------:|-----------:|
-| CPython (`xml.etree`, native `expat`) | 24.4 ms | ±0.4 ms | 1.0× |
-| cheatah, single-threaded (`gen_bench.purr`) | 12.5 ms | ±1.1 ms | **1.94×** |
-| cheatah, 4 threads over a shared `memory.Owner` (`gen_bench_parallel.purr`) | 5.9 ms | ±0.2 ms | **4.14×** |
+| CPython (`xml.etree`, native `expat`) | 23.8 ms | ±2.9 ms | 1.0× |
+| cheatah, single-threaded (`gen_bench.purr`) | 12.2 ms | ±1.9 ms | **2.03×** |
+| cheatah, 4 threads over a shared `memory.Owner` (`gen_bench_parallel.purr`) | 6.2 ms | ±0.4 ms | **3.86×** |
 <!-- BENCH:render-kernel end -->
 
 These absolute times are roughly double what this table used to show (13.4 / 5.7 / 3.1 ms),
@@ -338,7 +338,7 @@ none slower.</b> It wins where structure pays:
 <!-- cheatah-bench-stamp v1
      suite:        fixarray-vs-glm-highlights
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -361,12 +361,12 @@ none slower.</b> It wins where structure pays:
 
 | operation | `Fixed` | GLM | | |
 |-----------|--------:|----:|---|---|
-| `mat4f::identity()` | **0.68 ns** ±0.01 | 1.79 ns ±0.02 | 2.63× | faster |
-| `mat4f * mat4f` | **3.39 ns** ±0.09 | 5.80 ns ±0.10 | 1.71× | faster |
-| `mat4f + mat4f` | **0.70 ns** ±0.16 | 1.38 ns ±0.22 | 1.99× | faster |
-| `inverse(mat4d)` | **12.37 ns** ±0.17 | 17.12 ns ±0.36 | 1.38× | faster |
-| `abs(vec4f)` | **0.45 ns** ±0.00 | 0.83 ns ±0.02 | 1.85× | faster |
-| `dot(vec4f, vec4f)` | 0.87 ns ±0.01 | 1.02 ns ±0.01 | 1.17× | parity — gap 0.15 ns |
+| `mat4f::identity()` | **0.66 ns** ±0.01 | 1.78 ns ±0.05 | 2.69× | faster |
+| `mat4f * mat4f` | **3.38 ns** ±0.04 | 5.75 ns ±0.14 | 1.70× | faster |
+| `mat4f + mat4f` | **0.67 ns** ±0.01 | 1.36 ns ±0.06 | 2.03× | faster |
+| `inverse(mat4d)` | **12.15 ns** ±0.31 | 16.83 ns ±0.36 | 1.38× | faster |
+| `abs(vec4f)` | **0.44 ns** ±0.01 | 0.82 ns ±0.01 | 1.85× | faster |
+| `dot(vec4f, vec4f)` | 0.85 ns ±0.02 | 0.99 ns ±0.02 | 1.17× | parity — gap 0.14 ns |
 <!-- BENCH:fixarray-vs-glm-highlights end -->
 
 The last two rows are the interesting ones, and the reason this tally moved. `abs(vec4f)`
@@ -405,7 +405,7 @@ never inside the hot loop):
 <!-- cheatah-bench-stamp v1
      suite:        thread-scaling
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         12th Gen Intel(R) Core(TM) i7-12700H, 20 CPUs, Linux 7.0.11-76070011-generic (governor=powersave)
      cpu-scaling:  enabled
      build:        purrc -> -O3 -march=native
@@ -421,10 +421,10 @@ never inside the hot loop):
 
 | workers | wall time (median) | spread | speedup | integral |
 |--------:|-------------------:|-------:|--------:|----------|
-| 1 | 173 ms | ±1 ms | — | 0.416268 |
-| 2 | 94 ms | ±5 ms | **1.84×** | 0.416268 |
-| 4 | 57 ms | ±7 ms | **3.04×** | 0.416268 |
-| 8 | 41 ms | ±3 ms | **4.18×** | 0.416268 |
+| 1 | 176 ms | ±5 ms | — | 0.416268 |
+| 2 | 93 ms | ±4 ms | **1.88×** | 0.416268 |
+| 4 | 56 ms | ±3 ms | **3.16×** | 0.416268 |
+| 8 | 39 ms | ±3 ms | **4.46×** | 0.416268 |
 <!-- BENCH:thread-scaling end -->
 
 (The benchmark is [`scripts/bench/integral_threads.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/bench/integral_threads.purr).
@@ -471,7 +471,7 @@ both are validated to produce bit-identical output. On a 4 KiB record
 <!-- cheatah-bench-stamp v1
      suite:        crypto-vs-openssl
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -493,11 +493,11 @@ both are validated to produce bit-identical output. On a 4 KiB record
 
 | Primitive | cheatah | OpenSSL | gap |
 |-----------|--------:|--------:|----:|
-| AES-128-GCM (AES-NI + PCLMULQDQ) | **3.67 GiB/s** | 3.48 GiB/s | **parity** (1.05×) |
-| SHA-512 | 0.46 GiB/s | 0.82 GiB/s | 1.79× slower |
-| ChaCha20-Poly1305 | 0.41 GiB/s | 1.71 GiB/s | 4.14× slower |
-| HMAC-SHA256 | 0.31 GiB/s | 1.34 GiB/s | 4.28× slower |
-| SHA-256 | 0.33 GiB/s | 1.77 GiB/s | 5.37× slower |
+| AES-128-GCM (AES-NI + PCLMULQDQ) | **3.66 GiB/s** | 3.45 GiB/s | **parity** (1.06×) |
+| SHA-512 | 0.46 GiB/s | 0.82 GiB/s | 1.78× slower |
+| ChaCha20-Poly1305 | 0.42 GiB/s | 1.70 GiB/s | 4.04× slower |
+| HMAC-SHA256 | 0.32 GiB/s | 1.37 GiB/s | 4.30× slower |
+| SHA-256 | 0.33 GiB/s | 1.78 GiB/s | 5.43× slower |
 <!-- BENCH:crypto-vs-openssl end -->
 
 A correction worth stating plainly, because this page got it wrong in both directions. The
@@ -591,7 +591,7 @@ margin, not to widen the threshold until it stops. Representative rows:Represent
 <!-- cheatah-bench-stamp v1
      suite:        regex-representative
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      competitors:  std::regex, Boost.Regex, Google RE2
      statistic:    median real time per case; `vs RE2` = re2/cheatah
      harness:      medians of repeated runs, random-interleaved
@@ -607,14 +607,14 @@ margin, not to widen the threshold until it stops. Representative rows:Represent
 
 | case | cheatah | std::regex | Boost | RE2 | vs RE2 |
 |---|--:|--:|--:|--:|--:|
-| `status=200` on a 4 MB log |      27.4 ns |     686.0 ns |      96.3 ns |      46.6 ns | 1.7× |
-| `[0-9]+` (search) |       6.8 ns |      74.2 ns |      44.7 ns |      29.2 ns | 4.3× |
-| `1274$` (end-anchored, 4 MB) |       5.9 ns |    35.913 ms |     107.1 ns |      30.0 ns | 5.1× |
-| find-all `[0-9]+` (256 KB) |    419.80 us |     3.599 ms |     3.556 ms |     1.781 ms | 4.2× |
-| 64 MB absent-pattern scan |     3.427 ms |   530.583 ms |    34.977 ms |     5.203 ms | 1.5× |
-| compile `[a-z]+@[a-z.]+` |     230.6 ns |     22.87 us |     986.1 ns |      1.93 us | 8.4× |
-| **ReDoS** `(a|aa)+$`, N=28 |       3.4 ns | — | — |      28.7 ns | 8.4× |
-| **ReDoS at 16 MB** `(a|a)*c` |     3.863 ms | — | — |    19.462 ms | 5.0× |
+| `status=200` on a 4 MB log |      26.5 ns |     649.9 ns |      95.0 ns |      46.6 ns | 1.8× |
+| `[0-9]+` (search) |       6.8 ns |      74.1 ns |      44.5 ns |      28.7 ns | 4.3× |
+| `1274$` (end-anchored, 4 MB) |       6.0 ns |    35.713 ms |     107.9 ns |      30.0 ns | 5.0× |
+| find-all `[0-9]+` (256 KB) |    428.83 us |     3.512 ms |     3.304 ms |     1.748 ms | 4.1× |
+| 64 MB absent-pattern scan |     3.391 ms |   526.047 ms |    35.253 ms |     5.144 ms | 1.5× |
+| compile `[a-z]+@[a-z.]+` |     218.8 ns |     22.30 us |      1.02 us |      1.96 us | 9.0× |
+| **ReDoS** `(a|aa)+$`, N=28 |       3.4 ns | — | — |      28.1 ns | 8.2× |
+| **ReDoS at 16 MB** `(a|a)*c` |     3.927 ms | — | — |    19.393 ms | 4.9× |
 <!-- BENCH:regex-representative end -->
 
 The complete per-case table (all four engines, every benchmarked case) lives in

@@ -1,7 +1,7 @@
 <!-- cheatah-bench-stamp v1
      suite:        crypto-vs-openssl
      generated:    2026-08-20
-     commit:       b97c491 (dirty)
+     commit:       2b3a0b8
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -23,8 +23,8 @@
 
 | Primitive | cheatah | OpenSSL | gap |
 |-----------|--------:|--------:|----:|
-| AES-128-GCM (AES-NI + PCLMULQDQ) | **3.67 GiB/s** | 3.48 GiB/s | **parity** (1.05×) |
-| SHA-512 | 0.46 GiB/s | 0.82 GiB/s | 1.79× slower |
-| ChaCha20-Poly1305 | 0.41 GiB/s | 1.71 GiB/s | 4.14× slower |
-| HMAC-SHA256 | 0.31 GiB/s | 1.34 GiB/s | 4.28× slower |
-| SHA-256 | 0.33 GiB/s | 1.77 GiB/s | 5.37× slower |
+| AES-128-GCM (AES-NI + PCLMULQDQ) | **3.66 GiB/s** | 3.45 GiB/s | **parity** (1.06×) |
+| SHA-512 | 0.46 GiB/s | 0.82 GiB/s | 1.78× slower |
+| ChaCha20-Poly1305 | 0.42 GiB/s | 1.70 GiB/s | 4.04× slower |
+| HMAC-SHA256 | 0.32 GiB/s | 1.37 GiB/s | 4.30× slower |
+| SHA-256 | 0.33 GiB/s | 1.78 GiB/s | 5.43× slower |
