@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "bench_labels.hpp"
+
 #include "aead.hpp"
 #include "hashlib.hpp"
 
@@ -59,21 +61,18 @@ static void BM_CryptoSha256_Cheatah(benchmark::State& s) {
     for (auto _ : s) benchmark::DoNotOptimize(cheatah::hashlib::sha256_digest(kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoSha256_Cheatah);
 
 // ---------------- SHA-512 ----------------
 static void BM_CryptoSha512_Cheatah(benchmark::State& s) {
     for (auto _ : s) benchmark::DoNotOptimize(cheatah::hashlib::sha512_digest(kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoSha512_Cheatah);
 
 // ---------------- HMAC-SHA256 ----------------
 static void BM_CryptoHmacSha256_Cheatah(benchmark::State& s) {
     for (auto _ : s) benchmark::DoNotOptimize(cheatah::hashlib::hmac_sha256(kKey, kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoHmacSha256_Cheatah);
 
 // ---------------- ChaCha20-Poly1305 ----------------
 static void BM_CryptoChaCha20Poly1305_Cheatah(benchmark::State& s) {
@@ -82,7 +81,6 @@ static void BM_CryptoChaCha20Poly1305_Cheatah(benchmark::State& s) {
             cheatah::aead::chacha20poly1305_encrypt(kKey32Hex, kNonceHex, kAad, kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoChaCha20Poly1305_Cheatah);
 
 // The allocation-free form, measured against the row above. Same algorithm and the same code
 // paths — the only difference is that this one neither allocates its result nor assembles a
@@ -99,7 +97,6 @@ static void BM_CryptoChaCha20Poly1305_Cheatah_Into(benchmark::State& s) {
     }
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoChaCha20Poly1305_Cheatah_Into);
 
 // ---------------- AES-128-GCM ----------------
 static void BM_CryptoAes128Gcm_Cheatah(benchmark::State& s) {
@@ -108,7 +105,6 @@ static void BM_CryptoAes128Gcm_Cheatah(benchmark::State& s) {
             cheatah::aead::aes128gcm_encrypt(kKey16Hex, kNonceHex, kAad, kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoAes128Gcm_Cheatah);
 
 #ifdef CHEATAH_HAVE_OPENSSL
 namespace {
@@ -144,7 +140,6 @@ static void BM_CryptoSha256_OpenSSL(benchmark::State& s) {
     }
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoSha256_OpenSSL);
 
 static void BM_CryptoSha512_OpenSSL(benchmark::State& s) {
     unsigned char md[64];
@@ -155,7 +150,6 @@ static void BM_CryptoSha512_OpenSSL(benchmark::State& s) {
     }
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoSha512_OpenSSL);
 
 static void BM_CryptoHmacSha256_OpenSSL(benchmark::State& s) {
     unsigned char md[32];
@@ -167,19 +161,61 @@ static void BM_CryptoHmacSha256_OpenSSL(benchmark::State& s) {
     }
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoHmacSha256_OpenSSL);
 
 static void BM_CryptoChaCha20Poly1305_OpenSSL(benchmark::State& s) {
     for (auto _ : s)
         benchmark::DoNotOptimize(ossl_aead(EVP_chacha20_poly1305(), kKey32, kNonce, kAad, kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoChaCha20Poly1305_OpenSSL);
 
 static void BM_CryptoAes128Gcm_OpenSSL(benchmark::State& s) {
     for (auto _ : s)
         benchmark::DoNotOptimize(ossl_aead(EVP_aes_128_gcm(), kKey16, kNonce, kAad, kData));
     s.SetBytesProcessed(static_cast<int64_t>(s.iterations()) * kData.size());
 }
-BENCHMARK(BM_CryptoAes128Gcm_OpenSSL);
 #endif  // CHEATAH_HAVE_OPENSSL
+
+// ---- registration: each pair back-to-back ------------------------------------------
+//
+// Order matters, and it is the whole reason these registrations are not next to their
+// functions. Google Benchmark runs registrations in order, so when all six cheatah rows
+// were registered first and all five OpenSSL rows after, a row and its twin were measured
+// minutes apart under the gate profile (15 repetitions x 0.5 s). Any clock or thermal
+// drift over that window lands entirely on one side of the ratio — which is exactly the
+// bias the comparison exists to avoid. Registering each pair adjacently puts the two sides
+// seconds apart instead. (--benchmark_enable_random_interleaving then scatters the
+// repetitions, turning what remains into zero-mean noise.)
+CHEATAH_BENCH_LABEL("BM_CryptoSha256", "SHA-256");
+BENCHMARK(BM_CryptoSha256_Cheatah);
+#ifdef CHEATAH_HAVE_OPENSSL
+BENCHMARK(BM_CryptoSha256_OpenSSL);
+#endif
+
+CHEATAH_BENCH_LABEL("BM_CryptoSha512", "SHA-512");
+BENCHMARK(BM_CryptoSha512_Cheatah);
+#ifdef CHEATAH_HAVE_OPENSSL
+BENCHMARK(BM_CryptoSha512_OpenSSL);
+#endif
+
+CHEATAH_BENCH_LABEL("BM_CryptoHmacSha256", "HMAC-SHA256");
+BENCHMARK(BM_CryptoHmacSha256_Cheatah);
+#ifdef CHEATAH_HAVE_OPENSSL
+BENCHMARK(BM_CryptoHmacSha256_OpenSSL);
+#endif
+
+CHEATAH_BENCH_LABEL("BM_CryptoChaCha20Poly1305", "ChaCha20-Poly1305");
+BENCHMARK(BM_CryptoChaCha20Poly1305_Cheatah);
+#ifdef CHEATAH_HAVE_OPENSSL
+BENCHMARK(BM_CryptoChaCha20Poly1305_OpenSSL);
+#endif
+
+// The allocation-free variant: OURS, not a rival (bench_pairs.hpp reads the side token
+// before the `_Into` variant tag). It has no OpenSSL twin, so it reports on its own.
+CHEATAH_BENCH_LABEL("BM_CryptoChaCha20Poly1305_Into", "ChaCha20-Poly1305 (allocation-free)");
+BENCHMARK(BM_CryptoChaCha20Poly1305_Cheatah_Into);
+
+CHEATAH_BENCH_LABEL("BM_CryptoAes128Gcm", "AES-128-GCM (AES-NI + PCLMULQDQ)");
+BENCHMARK(BM_CryptoAes128Gcm_Cheatah);
+#ifdef CHEATAH_HAVE_OPENSSL
+BENCHMARK(BM_CryptoAes128Gcm_OpenSSL);
+#endif

@@ -1,0 +1,87 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+# stamp — the provenance block for tables produced by .purr benchmark harnesses.
+#
+# tests/benchmarks/bench_main.cpp emits this same block for the Google Benchmark suites. The
+# three cheatah-language harnesses (app_compare, integral_threads, gen_bench_compare) compute
+# their own numbers and so must emit their own stamp; this module is the one place its shape
+# is defined, so the two producers cannot drift into disagreeing about what a stamp looks like.
+#
+# The fields scripts/bench_table.purr actually reads are `suite:` (which region this belongs
+# to), `commit:` and `watch:` (together: has the measured code moved since?) and
+# `publishable:`. Everything else is for the human who has to decide whether to believe the
+# number.
+#
+# Used as a library module: purrc --import-root scripts . See docs/imports.md.
+import io
+import os
+import string
+
+# Shell out and read the result back. `os.system` returns only an exit status — there is no
+# popen in the stdlib — so capturing means redirecting to a file, the idiom every .purr tool
+# in this repo uses.
+fn capture(cmd : str) -> str {
+    let tmp = "/tmp/cheatah_stamp_capture.out"
+    let rc = os.system(cmd + " > " + tmp + " 2>/dev/null")
+    if rc != 0 { return "" }
+    let out = string.strip(io.read_file(tmp))
+    os.remove(tmp)
+    return out
+}
+
+# The commit the measurement describes. `(dirty)` is recorded rather than hidden: a number
+# taken from an uncommitted tree cannot be traced back to source, and bench_table.purr refuses
+# to publish one.
+fn commit() -> str {
+    let c = capture("git rev-parse --short HEAD")
+    if c == "" { return "unknown" }
+    if os.system("git diff --quiet") != 0 { return c + " (dirty)" }
+    return c
+}
+
+# A machine string someone could reproduce on. `uname -m` alone says "x86_64", which
+# identifies nothing; the model name and the frequency governor are what actually explain a
+# laptop part's numbers.
+fn host() -> str {
+    let model = capture("awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo")
+    if model == "" { model = capture("uname -m") }
+    let cpus = capture("nproc")
+    let kernel = capture("uname -sr")
+    let gov = capture("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor")
+    let s = model + ", " + cpus + " CPUs, " + kernel
+    if gov != "" { s = s + " (governor=" + gov + ")" }
+    return s
+}
+
+fn today() -> str { return capture("date +%Y-%m-%d") }
+
+# Build the stamp. `rounds`/`statistic` describe how the number was arrived at; `watch` lists
+# the sources whose change makes this table stale; `produced_by` is the command that
+# regenerates it, so a published table carries its own reproduction recipe.
+fn build(suite : str, watch : str, competitors : str, rounds : int, statistic : str,
+         produced_by : str) -> str {
+    let s = "<!-- cheatah-bench-stamp v1\n"
+    s = s + "     suite:        " + suite + "\n"
+    s = s + "     generated:    " + today() + "\n"
+    s = s + "     commit:       " + commit() + "\n"
+    s = s + "     host:         " + host() + "\n"
+    s = s + "     cpu-scaling:  enabled\n"
+    s = s + "     build:        purrc -> -O3 -march=native\n"
+    s = s + "     competitors:  " + competitors + "\n"
+    s = s + "     harness:      rounds=" + io.str(rounds) + ", striated (every configuration "
+    s = s + "runs once per round)\n"
+    s = s + "     statistic:    " + statistic + "\n"
+    s = s + "     watch:        " + watch + "\n"
+    s = s + "     publishable:  true\n"
+    s = s + "\n     PRODUCED BY:\n       " + produced_by + "\n"
+    s = s + "-->\n\n"
+    return s
+}
+
+# Write a complete region body (stamp + table) where scripts/bench_table.purr expects it.
+fn write_region(path : str, stamp : str, table : str) {
+    with io.open(path, "w") as f {
+        f.write(stamp + table)
+    }
+    io.print("wrote", path)
+}

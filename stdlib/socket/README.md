@@ -66,8 +66,11 @@ CPU is idle. Guarded so `getsockopt` proves the options on both ends
 - Throttle-free over loopback vs a real `openssl s_server`, cheatah TLS sustains <b>~210 MB/s</b>
   (byte-identity verified) — far above any real link. curl hits ~1500 MB/s there; the remaining gap
   is per-record TLS framing (copies + per-record key re-expansion), **not** the cipher: cheatah
-  AES-128-GCM benches at **3.5 GiB/s, beating OpenSSL's 3.1**. Closing the framing gap only matters
-  above ~200 MB/s links and is tracked as evidence-gated follow-up.
+  AES-128-GCM benches at **3.56 GiB/s against OpenSSL's 3.41 — a tie**, not a win (1.04× is well
+  inside the 1.15× band we require before calling anything faster; see
+  [the crypto table](../../docs/performance.md#vs-openssl), re-measured 2026-08-19 over 9
+  interleaved repetitions). Closing the framing gap only matters above ~200 MB/s links and is
+  tracked as evidence-gated follow-up.
 
 > Secure clients are built on this: the from-scratch [`tls`](../tls/) 1.3 client rides a
 > connected socket, and [`requests`](../requests/) (pure cheatah) and

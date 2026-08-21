@@ -13,7 +13,9 @@ consumed, best of several trials.
 Run after a `release` build. Slow (it compiles a .purr per function×size) — this is a
 periodic/manual tool, not part of the QA gate.
 """
+import atexit
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,7 +25,8 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PURRC = os.path.join(ROOT, "build", "release", "bin", "purrc")
 CHEATAH = os.path.join(ROOT, "build", "release", "bin", "cheatah")
-TRIALS = 4
+# 7 striated rounds replacing 4 best-of-N trials per side — see scripts/perf_suite.py.
+ROUNDS = 7
 rng = np.random.default_rng(0)
 
 MAT_SIZES = [2, 4, 8, 16, 32, 64, 128]
@@ -46,37 +49,38 @@ def parse_last(stdout):
         return None
 
 
-def time_cheatah(setup, expr, iters, extract):
+_TEMPDIRS = []
+atexit.register(lambda: [shutil.rmtree(d, ignore_errors=True) for d in _TEMPDIRS])
+
+
+def build_cheatah(setup, expr, iters, extract):
     consume = expr if extract == "" else f"ndarray.get({expr}, {extract})"
     src = ("import io\nimport time\nimport ndarray\nimport linalg\n" + setup + "\n"
            "let acc = 0.0\nlet t0 = time.monotonic()\n"
            f"for i in range(0, {iters}) {{\n    acc = acc + {consume}\n}}\n"
            "let t1 = time.monotonic()\nio.print(acc)\nio.print(t1 - t0)\n")
-    with tempfile.TemporaryDirectory() as d:
-        purr, so = os.path.join(d, "b.purr"), os.path.join(d, "b.so")
-        open(purr, "w").write(src)
-        if run([PURRC, purr, "-o", so]).returncode != 0:
-            return None
-        best = None
-        for _ in range(TRIALS):
-            t = parse_last(run([CHEATAH, so]).stdout)
-            if t is not None and (best is None or t < best):
-                best = t
-        return best
+    # Compile ONCE; the .so must outlive this call so the striated rounds can re-run it
+    # without paying purrc between the two sides of a pair.
+    d = tempfile.mkdtemp(prefix="linalg_sweep.")
+    _TEMPDIRS.append(d)
+    purr, so = os.path.join(d, "b.purr"), os.path.join(d, "b.so")
+    open(purr, "w").write(src)
+    return so if run([PURRC, purr, "-o", so]).returncode == 0 else None
 
 
-def time_numpy(op, iters):
+def _median(xs):
+    ys = sorted(xs)
+    n = len(ys)
+    return ys[n // 2] if n % 2 else 0.5 * (ys[n // 2 - 1] + ys[n // 2])
+
+
+def np_once(op, iters):
     import time as _t
-    best = None
-    for _ in range(TRIALS):
-        a = 0.0
-        t0 = _t.monotonic()
-        for _ in range(iters):
-            a += op()
-        t1 = _t.monotonic()
-        if best is None or (t1 - t0) < best:
-            best = t1 - t0
-    return best
+    a = 0.0
+    t0 = _t.monotonic()
+    for _ in range(iters):
+        a += op()
+    return _t.monotonic() - t0
 
 
 # ---- per-function specs. Each builds operands for size n and returns
@@ -157,13 +161,27 @@ def sweep_function(name, size_specs, cubic=True):
     rows = []
     for n, (setup, expr, extract, npop) in size_specs:
         it = iters_for(n, cubic)
-        ct = time_cheatah(setup, expr, it, extract)
-        if ct is None:
+        so = build_cheatah(setup, expr, it, extract)
+        if so is None:
             rows.append((n, None, None, None))
             continue
-        nt = time_numpy(npop, it)
-        cu, nu = ct / it * 1e6, nt / it * 1e6
-        rows.append((n, cu, nu, nt / ct))
+        # Striated: cheatah then NumPy inside each round, so a crossover point is never an
+        # artefact of one side having been measured while the machine was cooler.
+        ch_ts, np_ts, ratios = [], [], []
+        for _ in range(ROUNDS):
+            ct = parse_last(run([CHEATAH, so]).stdout)
+            if ct is None:
+                break
+            nt = np_once(npop, it)
+            ch_ts.append(ct)
+            np_ts.append(nt)
+            ratios.append(nt / ct)
+        if not ratios:
+            rows.append((n, None, None, None))
+            continue
+        cu = _median(ch_ts) / it * 1e6
+        nu = _median(np_ts) / it * 1e6
+        rows.append((n, cu, nu, _median(ratios)))   # median of PAIRED ratios
     return rows
 
 

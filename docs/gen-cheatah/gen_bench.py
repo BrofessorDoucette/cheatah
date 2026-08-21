@@ -1,6 +1,6 @@
 # gen_bench.py — the SAME task as gen_bench.purr, in Python (xml.etree, the C-accelerated
 # stdlib XML parser). Parse every Doxygen namespace XML + build each module's member HTML.
-import os, time
+import os, sys, time
 import xml.etree.ElementTree as ET
 
 def child_text(el, tag):
@@ -28,11 +28,16 @@ for f in sorted(os.listdir("docs/xml")):
     if f.startswith("namespacecheatah_") and f.endswith(".xml"):
         srcs.append(open(os.path.join("docs/xml", f), encoding="utf-8").read())
 
-best = 1e9
-for _ in range(25):
+# ONE timed pass per invocation by default. The driver (gen_bench_compare.purr) alternates
+# this process with the cheatah one round by round, so the two sides are measured adjacently
+# instead of as two consecutive blocks of 25. Pass a count to run several passes in-process
+# (useful for eyeballing variance directly, not for the published comparison).
+passes = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+b = 0
+for _ in range(passes):
     t0 = time.perf_counter()
     b = 0
     for s in srcs:
         b += len(render(s))
-    best = min(best, time.perf_counter() - t0)
-print(f"python   files={len(srcs)} out_bytes={b} best_ms={best*1000:.3f}")
+    print(f"sample_ms={(time.perf_counter() - t0) * 1000:.4f}")
+print(f"python   files={len(srcs)} out_bytes={b}")

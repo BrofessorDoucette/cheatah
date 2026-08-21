@@ -13,6 +13,9 @@
 #     cheatah /tmp/app_compare.so
 
 import io
+import stamp
+import statistics
+import sys
 import os
 import string
 
@@ -22,23 +25,27 @@ struct Timing {
     result: str
 }
 
-fn time_runs(runcmd, outpath) {
-    let best = -1.0
-    let result = ""
-    for t in range(0, 3) {
-        os.system(runcmd + " > " + outpath + " 2>/dev/null")
-        let out = string.strip(io.read_file(outpath))
-        let lines = string.splitlines(out)
-        let n = len(lines)
-        if n >= 2 {
-            result = lines[n - 2]
-            let elapsed = float(lines[n - 1])
-            if best < 0.0 or elapsed < best {
-                best = elapsed
-            }
-        }
+# ONE timed run. The round loop below calls this alternately for the two languages, so a
+# language's samples are never taken as one consecutive block.
+fn time_once(runcmd, outpath) {
+    os.system(runcmd + " > " + outpath + " 2>/dev/null")
+    let out = string.strip(io.read_file(outpath))
+    let lines = string.splitlines(out)
+    let n = len(lines)
+    if n >= 2 {
+        return Timing(float(lines[n - 1]), lines[n - 2])
     }
-    return Timing(best, result)
+    return Timing(-1.0, "")
+}
+
+fn spread_of(samples : list<float>) -> float {
+    let lo = samples[0]
+    let hi = samples[0]
+    for v in samples {
+        if v < lo { lo = v }
+        if v > hi { hi = v }
+    }
+    return hi - lo
 }
 
 # |a - b| <= 1e-4 * max(1, |b|)  — cheatah's io.print emits ~6 significant figures.
@@ -58,9 +65,37 @@ let PURRC = "build/release/bin/purrc"
 let CHEATAH = "build/release/bin/cheatah"
 let apps = ["mandelbrot", "integral", "oscillator", "nbody"]
 
+# The published table names these for a reader, not for the filesystem. Kept next to `apps`
+# so adding a workload without a description is visible here rather than silently blank.
+fn describe(a : str) -> str {
+    if a == "mandelbrot" { return "Mandelbrot" }
+    if a == "integral" { return "Numerical integral" }
+    if a == "oscillator" { return "RK4 ODE" }
+    if a == "nbody" { return "N-body" }
+    return a
+}
+
+fn what(a : str) -> str {
+    if a == "mandelbrot" { return "escape-time over an 800×600 grid (≤256 iters)" }
+    if a == "integral" { return "trapezoid ∫ sin(x)·e^(−x/100), 20M points" }
+    if a == "oscillator" { return "4th-order Runge–Kutta, 4 000 000 steps" }
+    if a == "nbody" { return "direct O(N²) gravity, 256 bodies × 200 leapfrog steps" }
+    return ""
+}
+# 7 rounds. The old harness took 3 and reported the MINIMUM of each side independently —
+# an optimistic estimator with no dispersion, and one that pairs a lucky cheatah run with an
+# unlucky CPython one. Here each round produces one PAIRED ratio, and the headline is the
+# median of those ratios, which stays unbiased when the machine drifts under both sides.
+let ROUNDS = 7
+
 io.print("# cheatah (compiled) vs CPython — whole-program workloads")
-io.print("# pure-cheatah harness; compute time only (best of 3); results cross-checked")
+io.print("# pure-cheatah harness; compute time only; results cross-checked")
+io.print("# " + io.str(ROUNDS) + " striated rounds: each round times cheatah then CPython before")
+io.print("# either is repeated, so drift across the session cannot favour one side.")
+io.print("# Reported: MEDIAN of per-round ratios (not the ratio of two medians) + [min,max].")
 io.print("")
+let table = "| program | what it does | cheatah | CPython | speedup |\n"
+table = table + "|---------|--------------|--------:|--------:|--------:|\n"
 for a in apps {
     let purr = "scripts/bench/" + a + ".purr"
     let so = "/tmp/bench_" + a + ".so"
@@ -68,18 +103,56 @@ for a in apps {
     if crc != 0 {
         io.print(a + " - cheatah compile FAILED")
     } else {
-        let ch = time_runs(CHEATAH + " " + so, "/tmp/bench_ch.out")
-        let py = time_runs("python3 scripts/bench/" + a + ".py", "/tmp/bench_py.out")
+        let chs: list<float> = []
+        let pys: list<float> = []
+        let ratios: list<float> = []
         let chk = "ok"
-        if ch.result != py.result and not close_enough(ch.result, py.result) {
-            chk = "DIFFER " + ch.result + " vs " + py.result
+        for r in range(0, ROUNDS) {
+            let ch = time_once(CHEATAH + " " + so, "/tmp/bench_ch.out")
+            let py = time_once("python3 scripts/bench/" + a + ".py", "/tmp/bench_py.out")
+            if ch.result != py.result and not close_enough(ch.result, py.result) {
+                chk = "DIFFER " + ch.result + " vs " + py.result
+            }
+            chs.append(ch.secs)
+            pys.append(py.secs)
+            ratios.append(py.secs / ch.secs)
         }
-        let speedup = py.secs / ch.secs
-        let line = a + " | " + io.str(ch.secs * 1000.0) + " ms cheatah | "
-        line = line + io.str(py.secs * 1000.0) + " ms cpython | "
-        line = line + io.str(speedup) + "x faster | " + chk
+        let lo = ratios[0]
+        let hi = ratios[0]
+        for v in ratios {
+            if v < lo { lo = v }
+            if v > hi { hi = v }
+        }
+        let line = a + " | " + io.str(statistics.median(chs) * 1000.0) + " ms cheatah (range "
+        line = line + io.str(spread_of(chs) * 1000.0) + ") | "
+        line = line + io.str(statistics.median(pys) * 1000.0) + " ms cpython (range "
+        line = line + io.str(spread_of(pys) * 1000.0) + ") | "
+        line = line + io.str(statistics.median(ratios)) + "x faster [" + io.str(lo) + ", "
+        line = line + io.str(hi) + "] | " + chk
         io.print(line)
+
+        # The published row. The bracketed band is the SPREAD OF THE PER-ROUND RATIOS, and it
+        # earns its place: on this workload CPython's own variance is large enough that a bare
+        # headline number hides which side of its range you are being shown.
+        let r = "| **" + describe(a) + "** | " + what(a) + " | "
+        r = r + io.fixed(statistics.median(chs) * 1000.0, 0) + " ms | "
+        r = r + io.fixed(statistics.median(pys) * 1000.0, 0) + " ms | **"
+        r = r + io.fixed(statistics.median(ratios), 0) + "×** [" + io.fixed(lo, 0) + "–"
+        r = r + io.fixed(hi, 0) + "] |\n"
+        table = table + r
     }
 }
 io.print("")
 io.print("Same algorithm both sides; cheatah compiles to native, no GC pauses.")
+
+# A published table is GENERATED or it is not published: sys.argv[1] is where
+# scripts/bench_table.purr expects the artifact (docs/bench/whole-programs.md).
+if len(sys.argv) > 1 {
+    let st = stamp.build("whole-programs",
+                         "compiler/, runtime/, scripts/bench/, scripts/app_compare.purr",
+                         "CPython 3.12",
+                         ROUNDS,
+                         "median of per-round PAIRED ratios; [lo–hi] is the range of those ratios",
+                         "bash scripts/bench/build-harness.sh scripts/app_compare.purr /tmp/ac.so && cheatah /tmp/ac.so docs/bench/whole-programs.md")
+    stamp.write_region(sys.argv[1], st, table)
+}

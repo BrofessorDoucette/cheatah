@@ -70,13 +70,14 @@ fn main() {
     let n = len(srcs)
     let srcs_o = memory.own(srcs)
 
-    let iters = 25
-    let best = 1000000.0
+    # ONE timed pass per invocation, matching gen_bench.purr and gen_bench.py so
+    # gen_bench_compare.purr can interleave all three. Every sample is printed; a best-of-N
+    # minimum hides exactly the dispersion a threading claim most needs to show.
     let bytes = 0
     let fns = 0
     let q = n / 4
     let k = 0
-    while k < iters {
+    while k < 1 {
         let bytes_o = memory.own(0)
         let fns_o = memory.own(0)
         let t0 = time.perf_counter()
@@ -89,12 +90,12 @@ fn main() {
             }
         }
         let dt = time.perf_counter() - t0
-        if dt < best { best = dt }
+        io.print("sample_ms=" + io.str(dt * 1000.0))
         with bytes_o.rread().acquire() as r { bytes = r.read() }
         with fns_o.rread().acquire() as r { fns = r.read() }
         k = k + 1
     }
-    io.print("cheatah-parallel files=" + io.str(n) + " out_bytes=" + io.str(bytes) + " fns=" + io.str(fns) + " best_ms=" + io.str(best * 1000.0))
+    io.print("cheatah-parallel files=" + io.str(n) + " out_bytes=" + io.str(bytes) + " fns=" + io.str(fns))
 }
 
 main()

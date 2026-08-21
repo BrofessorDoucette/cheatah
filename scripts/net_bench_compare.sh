@@ -7,6 +7,21 @@
 #   scripts/net_bench_compare.sh <https-url> [rounds] [max_mib]
 #
 # Prints per-round MB/s for curl / wget / cheatah, then medians and the cheatah/curl ratio.
+#
+# PROVENANCE. This script is the one measurement in the tree whose absolute numbers can never
+# be reproduced, and that is a property of the thing measured, not a defect in the harness: the
+# MB/s figure is a property of the LINK on the day, not of cheatah. So its stamp carries a
+# `network:` field where every other suite carries `host:`, and only the RATIO is quotable.
+# Anything that publishes a figure from this script must say which of the two it is quoting.
+#
+#     <!-- cheatah-bench-stamp v1
+#          suite:        net-vs-curl
+#          network:      <link, throttle, time of day — fill in by hand, it cannot be detected>
+#          host:         n/a — the link, not the machine, sets the ceiling
+#          harness:      rounds=<n>, interleaved (curl, wget and cheatah inside each round)
+#          statistic:    median MB/s per client; the QUOTABLE figure is the cheatah/curl RATIO
+#          publishable:  ratio-only — absolute MB/s is not reproducible by construction
+#     -->
 set -uo pipefail
 
 URL="${1:?usage: net_bench_compare.sh <https-url> [rounds] [max_mib]}"

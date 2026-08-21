@@ -1,0 +1,492 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+# bench_table.purr — published benchmark tables are GENERATED, and go stale loudly.
+#
+# The problem this exists to solve, stated plainly: a Markdown table cannot tell you when it
+# was measured or whether the code it describes still exists. This repo has been bitten by
+# every version of that — a table that claimed to be "generated" by a generator that never
+# existed, a thread-scaling table describing itself as a "median of repeated runs" produced by
+# a harness with no repeat loop, and two documents asserting opposite winners for the same AES
+# benchmark. An earlier pass added provenance stamps, and that was not enough either: the
+# stamps were hand-typed beside hand-typed tables, so a lint that only checked "is there a
+# stamp?" passed all of them.
+#
+# So a published table is wrapped:
+#
+#     <!-- BENCH:<suite> begin -->
+#     <!-- cheatah-bench-stamp v1
+#          suite: … generated: … commit: … watch: … publishable: …
+#     -->
+#     | … the table … |
+#     <!-- BENCH:<suite> end -->
+#
+# and this program enforces two separate things. They are easy to conflate and they are not
+# the same check:
+#
+#   ARTIFACT MATCH — the region must equal docs/bench/<suite>.md, the file a benchmark program
+#   wrote. This says nothing about the numbers; it says a human did not type them. Numbers are
+#   expected to change on every run — they change by re-measuring and re-injecting, never by
+#   editing the document.
+#
+#   STALENESS — each stamp names the sources it depends on (`watch:`) and the commit it was
+#   measured at. The table is stale when the last commit touching a watched path is NOT an
+#   ancestor of the measured commit: the code moved and the table did not follow. This is the
+#   check that answers "are any of these entries outdated?", and it is about the CODE, not the
+#   numbers.
+#
+# Staleness is a WARNING by default and fatal under --strict (the release path), plus fatal
+# once a table drifts more than kStaleFailAfter commits behind. Hard-failing every commit that
+# touches stdlib/fixarray/ until someone re-runs a multi-minute benchmark has exactly one
+# outcome — people narrow `watch:` until it stops firing — and a gate that gets routed around
+# is worse than none, because it also manufactures confidence.
+#
+#     bench_table.so                      # check (warnings for staleness)
+#     bench_table.so check --strict       # staleness is fatal — use on the release path
+#     bench_table.so inject <artifact.md> <doc.md>
+#
+# Run from the repo root.
+import io
+import os
+import string
+import sys
+
+# How far a table may drift before a warning becomes an error. Ordinary work stays unblocked;
+# a table cannot quietly fall a hundred commits behind the code it describes.
+fn stale_fail_after() -> int { return 20 }
+
+fn artifact_dir() -> str { return "docs/bench" }
+
+# purrc needs a type for an empty list literal, and a bare `x = []` reassignment carries none.
+fn no_strings() -> list<str> {
+    let e: list<str> = []
+    return e
+}
+
+# Markdown files that may contain BENCH regions.
+#
+# CHEATAH_BENCH_DOCS overrides the list (comma-separated), which is how the sibling extension
+# repos reuse this same gate against their own documents — cheatah-gpu-linalg's PERFORMANCE.md
+# is checked by exactly this program, not by a second implementation that could disagree with
+# it about what a stamp means.
+fn doc_files() -> list<str> {
+    let override_list = os.getenv("CHEATAH_BENCH_DOCS", "")
+    if override_list != "" {
+        let out: list<str> = []
+        for p in string.split(override_list, ",") {
+            let t = string.strip(p)
+            if t != "" { out.append(t) }
+        }
+        return out
+    }
+    return ["docs/performance.md",
+            "stdlib/fixarray/README.md",
+            "stdlib/linalg/README.md",
+            "stdlib/ndarray/README.md",
+            "stdlib/regex/README.md",
+            "stdlib/socket/README.md",
+            "stdlib/p256/README.md"]
+}
+
+struct Region {
+    suite: str
+    body: str
+    line: int
+}
+
+# ---- shelling out ---------------------------------------------------------------------
+# `os.system` returns an exit status and nothing else — there is no popen or subprocess in the
+# stdlib. Capturing output therefore means redirecting to a file and reading it back, the same
+# idiom scripts/app_compare.purr and docs/gen-cheatah/gen_bench_compare.purr already use.
+fn shq(s : str) -> str { return "'" + string.replace(s, "'", "'\\''") + "'" }
+
+fn sh_status(cmd : str) -> int { return os.system(cmd + " >/dev/null 2>&1") }
+
+fn sh_capture(cmd : str) -> str {
+    let tmp = "/tmp/cheatah_bench_table_capture.out"
+    let rc = os.system(cmd + " > " + tmp + " 2>/dev/null")
+    if rc != 0 { return "" }
+    let out = string.strip(io.read_file(tmp))
+    os.remove(tmp)
+    return out
+}
+
+fn in_git_repo() -> bool { return sh_status("git rev-parse --git-dir") == 0 }
+
+fn commit_exists(c : str) -> bool {
+    return sh_status("git cat-file -e " + shq(c) + "^{commit}") == 0
+}
+
+fn path_args(paths : list<str>) -> str {
+    let s = ""
+    for p in paths { s = s + " " + shq(p) }
+    return s
+}
+
+# The newest commit that touched anything the suite depends on.
+fn last_commit_touching(paths : list<str>) -> str {
+    return sh_capture("git log -1 --format=%H --" + path_args(paths))
+}
+
+# `a` is contained in `b` — the freshness predicate. Deliberately an ancestry test rather than
+# a date or a commit count: it stays correct across merges, rebases and cherry-picks, where
+# comparing timestamps quietly does not.
+fn is_ancestor(a : str, b : str) -> bool {
+    return sh_status("git merge-base --is-ancestor " + shq(a) + " " + shq(b)) == 0
+}
+
+fn commits_since(measured : str, paths : list<str>) -> int {
+    let out = sh_capture("git rev-list --count " + shq(measured) + "..HEAD --" + path_args(paths))
+    if out == "" { return 0 }
+    return int(out)
+}
+
+fn worktree_dirty(paths : list<str>) -> bool {
+    return sh_capture("git status --porcelain --" + path_args(paths)) != ""
+}
+
+# ---- region scanning ------------------------------------------------------------------
+fn is_begin(t : str) -> bool {
+    return string.startswith(t, "<!-- BENCH:") and string.endswith(t, "begin -->")
+}
+
+fn is_end(t : str) -> bool {
+    return string.startswith(t, "<!-- BENCH:") and string.endswith(t, "end -->")
+}
+
+fn suite_of_marker(t : str) -> str {
+    let mid = string.replace(t, "<!-- BENCH:", "")
+    mid = string.replace(mid, "begin -->", "")
+    mid = string.replace(mid, "end -->", "")
+    return string.strip(mid)
+}
+
+# Pull every BENCH region out of one file. An unterminated region is itself a failure: it would
+# silently swallow the rest of the document.
+fn regions_of(text : str, errors : list<str>, path : str) -> list<Region> {
+    let out: list<Region> = []
+    let open_suite = ""
+    let open_line = 0
+    let buf = ""
+    let n = 0
+    for line in string.splitlines(text) {
+        n = n + 1
+        let t = string.strip(line)
+        if is_begin(t) {
+            if open_suite != "" {
+                errors.append(path + ":" + io.str(n) + ": BENCH:" + open_suite +
+                              " was never closed before a new region opened here")
+            }
+            open_suite = suite_of_marker(t)
+            open_line = n
+            buf = ""
+        } else {
+            if is_end(t) {
+                if open_suite == "" {
+                    errors.append(path + ":" + io.str(n) + ": BENCH end with no matching begin")
+                } else {
+                    out.append(Region(open_suite, buf, open_line))
+                    open_suite = ""
+                }
+            } else {
+                if open_suite != "" { buf = buf + line + "\n" }
+            }
+        }
+    }
+    if open_suite != "" {
+        errors.append(path + ":" + io.str(open_line) + ": BENCH:" + open_suite + " is never closed")
+    }
+    return out
+}
+
+# First line index (1-based, within the region) where two bodies diverge; 0 when identical.
+fn first_diff_line(a : str, b : str) -> int {
+    let la = string.splitlines(a)
+    let lb = string.splitlines(b)
+    let n = len(la)
+    if len(lb) < n { n = len(lb) }
+    let i = 0
+    while i < n {
+        if la[i] != lb[i] { return i + 1 }
+        i = i + 1
+    }
+    if len(la) != len(lb) { return n + 1 }
+    return 0
+}
+
+fn stamp_field(body : str, name : str) -> str {
+    for line in string.splitlines(body) {
+        let t = string.strip(line)
+        if string.startswith(t, name + ":") {
+            return string.strip(string.replace(t, name + ":", ""))
+        }
+    }
+    return ""
+}
+
+fn split_paths(watch : str) -> list<str> {
+    let out: list<str> = []
+    for p in string.split(watch, ",") {
+        let t = string.strip(p)
+        if t != "" { out.append(t) }
+    }
+    return out
+}
+
+fn has_table(body : str) -> bool {
+    for line in string.splitlines(body) {
+        let t = string.strip(line)
+        if string.startswith(t, "|") and string.endswith(t, "|") { return true }
+    }
+    return false
+}
+
+# ---- per-region checks ----------------------------------------------------------------
+fn check_region(r : Region, path : str, errors : list<str>, warns : list<str>, strict : bool) {
+    let where = path + ":" + io.str(r.line) + " [BENCH:" + r.suite + "]"
+
+    if not string.contains(r.body, "cheatah-bench-stamp") {
+        errors.append(where + ": no cheatah-bench-stamp")
+        return
+    }
+    if string.contains(r.body, "(dirty)") {
+        errors.append(where + ": stamped from a DIRTY working tree — the source that produced " +
+                      "these numbers is not recoverable from the commit named beside them")
+    }
+    if (string.contains(r.body, "publishable:  false") or
+        string.contains(r.body, "publishable: false")) {
+        errors.append(where + ": stamp says `publishable: false` — too few repetitions, or no " +
+                      "interleaving, to back a published table")
+    }
+
+    # A historical table records what a past change did at the time. It is not a current-state
+    # measurement, so re-running cannot reproduce it and staleness does not apply.
+    let kind = stamp_field(r.body, "kind")
+    if kind == "historical" { return }
+
+    # ---- artifact match: a human did not type this -------------------------------------
+    let art = artifact_dir() + "/" + r.suite + ".md"
+    if not os.path.exists(art) {
+        errors.append(where + ": no artifact at " + art + " — this table was not produced by " +
+                      "a program. Run: scripts/bench_run.sh publish " + r.suite)
+        return
+    }
+    let want = io.read_file(art)
+    let d = first_diff_line(string.strip(want), string.strip(r.body))
+    if d != 0 {
+        errors.append(where + ": region differs from " + art + " at region line " + io.str(d) +
+                      " — a published table was hand-edited. Re-inject instead: " +
+                      "bench_table.so inject " + art + " " + path)
+    }
+
+    # ---- staleness: did the measured code move? ----------------------------------------
+    let watch = stamp_field(r.body, "watch")
+    if watch == "" {
+        errors.append(where + ": stamp has no `watch:` — nothing can tell this table when it " +
+                      "goes stale. Add it to the suite registry in scripts/bench_run.sh.")
+        return
+    }
+    let paths = split_paths(watch)
+    for p in paths {
+        if not os.path.exists(p) {
+            errors.append(where + ": watch path does not exist: " + p)
+        }
+    }
+    if not in_git_repo() { return }   # a release tarball is not a defect
+
+    let measured = string.strip(string.replace(stamp_field(r.body, "commit"), "(dirty)", ""))
+    if measured == "" or measured == "unknown" {
+        errors.append(where + ": stamp names no commit, so staleness cannot be judged")
+        return
+    }
+    if not commit_exists(measured) {
+        warns.append(where + ": measured commit " + measured + " is not in this clone " +
+                     "(shallow?) — staleness unchecked")
+        return
+    }
+    let newest = last_commit_touching(paths)
+    if newest == "" {
+        errors.append(where + ": git knows of no commit touching " + watch)
+        return
+    }
+    if not is_ancestor(newest, measured) {
+        let n = commits_since(measured, paths)
+        let msg = where + ": STALE - " + watch + " changed in " + io.str(n)
+        msg = msg + " commit(s) since " + measured
+        msg = msg + ". Re-run: scripts/bench_run.sh publish " + r.suite
+        # Past the drift bound the warning has clearly stopped working; escalate.
+        if strict or n > stale_fail_after() { errors.append(msg) } else { warns.append(msg) }
+    }
+    if worktree_dirty(paths) {
+        warns.append(where + ": watched source is modified in the working tree — this table " +
+                     "describes committed code, not what is checked out")
+    }
+}
+
+# ---- unstamped benchmark tables --------------------------------------------------------
+# The recurrence path: someone adds a new table OUTSIDE any BENCH region and nothing notices.
+# That is how the regex, linalg, ndarray and p256 tables escaped checking entirely.
+#
+# The heuristic demands a measured MAGNITUDE on a data row, not merely benchmark-ish words in
+# a header. That is what keeps the false-positive rate at zero — a syntax or API table has the
+# vocabulary but never a `12.3 ns` in its body.
+fn looks_measured(t : str) -> bool {
+    for unit in [" ns", " µs", " us", " ms", " GiB/s", " MiB/s", "/s", "×", "x |"] {
+        if string.contains(t, unit) { return true }
+    }
+    return false
+}
+
+fn header_is_benchy(t : str) -> bool {
+    let low = string.lower(t)
+    for w in ["cheatah", "glm", "eigen", "openssl", "numpy", "cpython", "python", "re2",
+              "boost", "median", "spread", "speedup", "throughput", "ratio", "winner",
+              "gap", "vs "] {
+        if string.contains(low, w) { return true }
+    }
+    return false
+}
+
+fn check_unstamped(path : str, text : str, errors : list<str>) {
+    let inside = false
+    let run: list<str> = []
+    let start = 0
+    let n = 0
+    for line in string.splitlines(text) {
+        n = n + 1
+        let t = string.strip(line)
+        if is_begin(t) { inside = true }
+        if is_end(t) { inside = false }
+        let is_row = string.startswith(t, "|") and string.endswith(t, "|")
+        if is_row and not inside {
+            if len(run) == 0 { start = n }
+            run.append(t)
+        } else {
+            if len(run) >= 3 {
+                # run[0] header, run[1] the |---| rule, the rest are data.
+                let benchy = header_is_benchy(run[0])
+                let measured = false
+                let i = 2
+                while i < len(run) {
+                    if looks_measured(run[i]) { measured = true }
+                    i = i + 1
+                }
+                if benchy and measured {
+                    errors.append(path + ":" + io.str(start) + ": a benchmark table outside any " +
+                                  "BENCH region — it is unstamped, ungenerated, and nothing " +
+                                  "can tell when it went stale")
+                }
+            }
+            run = no_strings()
+        }
+    }
+}
+
+# ---- inject ----------------------------------------------------------------------------
+fn cmd_inject(artifact : str, doc : str) -> int {
+    if not os.path.exists(artifact) { io.print("inject: no such artifact:", artifact); return 1 }
+    if not os.path.exists(doc) { io.print("inject: no such document:", doc); return 1 }
+    let body = io.read_file(artifact)
+    let suite = stamp_field(body, "suite")
+    if suite == "" { io.print("inject: artifact has no `suite:` in its stamp:", artifact); return 1 }
+
+    let out = ""
+    let seen = 0
+    let skipping = false
+    for line in string.splitlines(io.read_file(doc)) {
+        let t = string.strip(line)
+        if is_begin(t) and suite_of_marker(t) == suite {
+            out = out + line + "\n" + string.strip(body) + "\n"
+            skipping = true
+            seen = seen + 1
+        } else {
+            if skipping and is_end(t) and suite_of_marker(t) == suite {
+                out = out + line + "\n"
+                skipping = false
+            } else {
+                if not skipping { out = out + line + "\n" }
+            }
+        }
+    }
+    if seen == 0 { io.print("inject: no BENCH:" + suite + " region in " + doc); return 1 }
+    if seen > 1 { io.print("inject: BENCH:" + suite + " appears " + io.str(seen) + " times in " + doc); return 1 }
+
+    if out == io.read_file(doc) {
+        io.print("inject: unchanged  " + doc + "  [BENCH:" + suite + "]")
+        return 0
+    }
+    with io.open(doc, "w") as f { f.write(out) }
+    io.print("inject: updated    " + doc + "  [BENCH:" + suite + "]")
+    return 0
+}
+
+# ---- check ------------------------------------------------------------------------------
+fn cmd_check(strict : bool) -> int {
+    let errors: list<str> = []
+    let warns: list<str> = []
+    let checked = 0
+    let regions = 0
+
+    for path in doc_files() {
+        if not os.path.exists(path) {
+            io.print("bench-table: skipping missing", path)
+        } else {
+            checked = checked + 1
+            let text = io.read_file(path)
+            let rs = regions_of(text, errors, path)
+            for r in rs {
+                regions = regions + 1
+                check_region(r, path, errors, warns, strict)
+            }
+            check_unstamped(path, text, errors)
+        }
+    }
+
+    if len(warns) > 0 {
+        io.print("")
+        io.print("[bench-table] WARNINGS -", len(warns) )
+        for w in warns { io.print("  " + w) }
+    }
+    if len(errors) > 0 {
+        io.print("")
+        io.print("[bench-table] FAILED -", len(errors), "problem(s):")
+        for e in errors { io.print("  " + e) }
+        # An uncaught raise is how a .purr tool fails its caller: the runtime exits non-zero.
+        raise "bench-table: " + io.str(len(errors)) + " problem(s)"
+    }
+    io.print("[bench-table] OK -", regions, "generated table region(s) across", checked, "file(s)")
+    return 0
+}
+
+fn main() {
+    let args: list<str> = []
+    let i = 1
+    while i < len(sys.argv) { args.append(sys.argv[i]); i = i + 1 }
+
+    let strict = false
+    let positional: list<str> = []
+    for a in args {
+        if a == "--strict" { strict = true } else { positional.append(a) }
+    }
+    if os.getenv("CHEATAH_BENCH_STRICT", "") != "" { strict = true }
+
+    let mode = "check"
+    if len(positional) > 0 { mode = positional[0] }
+
+    if mode == "inject" {
+        if len(positional) < 3 {
+            io.print("usage: bench_table.so inject <artifact.md> <doc.md>")
+            raise "bench-table: inject needs an artifact and a document"
+        }
+        if cmd_inject(positional[1], positional[2]) != 0 {
+            raise "bench-table: inject failed"
+        }
+    } else {
+        if mode != "check" {
+            io.print("unknown mode:", mode, "- expected `check` or `inject`")
+            raise "bench-table: unknown mode"
+        }
+        cmd_check(strict)
+    }
+}
+
+main()

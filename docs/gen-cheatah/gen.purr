@@ -2,8 +2,11 @@
 # Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 # gen.purr — the cheatah docs site generator, in pure cheatah. 🐆
 #
-# Began as the 1:1 port of docs/gen/generate.py (kept, frozen, for the gen_bench
-# parity benchmark — this file is the authority): reads the Doxygen XML in
+# Began as the 1:1 port of docs/gen/generate.py. That file is now a historical
+# reference only — it has diverged (no package switcher, no Biome Standard page,
+# no extension subsites; 252 pages to this file's 292, every shared page different)
+# and nothing checks the two against each other. THIS file is the authority, and
+# the only generator anything runs. Reads the Doxygen XML in
 # docs/xml/ and renders the site into docs/html/. Extensions render as their own
 # SUBSITES under docs/html/<ext>/ (landing + releases + module pages), and
 # docs/html/standard.html renders the Biome Standard — its member table imported
@@ -1297,6 +1300,15 @@ fn pkg_switcher(g, pkg) {
 # copyright — on every page of every subsite. cheatah is free, and the products sold
 # there are what pay for it, so the docs carry the way back. They are absolute URLs,
 # so `prefix` does not apply to them.
+#
+# The topbar one is paired with a "Source" link to the repository, to its LEFT. Both sit
+# inside a single .topbar-right flex cell rather than becoming a fifth grid column: the
+# responsive rule in cheatah-docs.css is that every fixed track must be dropped at the
+# breakpoint that hides its content, and a new track would need re-pointing in all three
+# media blocks. One cell holding both links inherits the placement .bb already had, so the
+# layout math — and docs_a11y_gate.sh's no-horizontal-scroll assertion — is untouched.
+# The Source href is the cheatah repo on EVERY subsite, including the extension subsites:
+# it is the way back to the language itself, not to the package being read.
 fn page_shell_in(g, pkg, title, sidebar, content, toc) {
     let is_sub = pkg != "" and pkg != "standard"
     let prefix = ""
@@ -1315,7 +1327,7 @@ fn page_shell_in(g, pkg, title, sidebar, content, toc) {
         toc_el = "\n  <aside class=\"toc\" aria-label=\"On this page\">" + toc + "</aside>"
         layout_cls = "layout"
     }
-    return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "  </div>\n</header>\n" + "<div class=\"" + layout_cls + "\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>" + toc_el + "\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
+    return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n" + "<meta charset=\"utf-8\">\n" + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + "<meta name=\"generator\" content=\"cheatah\">\n" + "<title>" + esc(title) + " · cheatah</title>\n" + "<link rel=\"icon\" href=\"" + prefix + "cheatah-logo.png\" type=\"image/png\">\n" + "<link rel=\"stylesheet\" href=\"" + prefix + "cheatah-docs.css?v=" + g.vers_css + "\">\n" + "</head>\n<body>\n" + "<a class=\"skip\" href=\"#main\">Skip to content</a>\n" + "<header class=\"topbar\">\n  <div class=\"topbar-inner\">\n" + "    <a class=\"brand\" href=\"" + prefix + "index.html\"><img src=\"" + prefix + "cheatah-logo.png\" alt=\"\"><span>cheatah</span></a>\n" + "    " + pkg_switcher(g, pkg) + "\n" + "    <div class=\"topbar-right\">\n" + "      <a class=\"repo\" href=\"https://github.com/BrofessorDoucette/cheatah\">Source <span aria-hidden=\"true\">↗</span></a>\n" + "      <a class=\"bb\" href=\"https://bigbrain-technology.com\">BigBrain <span aria-hidden=\"true\">↗</span></a>\n" + "    </div>\n" + "  </div>\n</header>\n" + "<div class=\"" + layout_cls + "\">\n" + "  <nav class=\"sidebar\" aria-label=\"Modules\">" + sidebar + "</nav>\n" + "  <main id=\"main\" class=\"content\">" + body + "</main>" + toc_el + "\n" + "</div>\n" + "<footer class=\"sitefoot\">© 2026 <a href=\"https://bigbrain-technology.com\">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC.</footer>\n" + "</body>\n</html>"
 }
 
 # Server-side sidebar active state (the site ships zero JS): within the page's

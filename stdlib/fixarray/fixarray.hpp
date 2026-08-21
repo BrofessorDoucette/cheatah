@@ -52,8 +52,9 @@
  * **Performance.** Benchmarked against [GLM](https://github.com/g-truc/glm) over the complete overlap
  * of the two APIs — 160 pairs, every operation, sizes 2/3/4, `float` and `double`, with the outputs
  * verified identical before either is timed — `Fixed` is **faster than or at parity with GLM on every
- * one** (37 faster, 123 at parity, none slower). It wins where structure pays: `mat4f::identity()`
- * 2.7×, `mat4f * mat4f` 1.7×, `inverse(mat4d)` 1.4×, `abs(vec4f)` 1.6×. No intrinsics — the code is
+ * one** (19 faster, 141 at parity, none slower; medians over 9 interleaved repetitions, a win counting
+ * only above both 1.15x and 0.25 ns). It wins where structure pays: `mat4f::identity()`
+ * 2.67×, `mat4f * mat4f` 1.72×, `mat4f + mat4f` 1.96×, `inverse(mat4d)` 1.38×. No intrinsics — the code is
  * shaped so the compiler vectorizes it. A regression gate (`scripts/bench_gate.sh`) keeps it true.
  * See the @ref performance "Small fixed-size math vs GLM" section for the how and the numbers.
  */

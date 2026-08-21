@@ -18,18 +18,26 @@ empty-loop guard); the NumPy side loops the op in CPython. Build `release` first
 
     python3 scripts/numpy_compare.py
 """
+import atexit
+import glob
 import os
+import platform
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PURRC = os.path.join(ROOT, "build", "release", "bin", "purrc")
 CHEATAH = os.path.join(ROOT, "build", "release", "bin", "cheatah")
-TRIALS = 5
+# 7 striated rounds replacing 5 best-of-N trials per side. See scripts/perf_suite.py for
+# the reasoning: a minimum has no dispersion, and taking each side's minimum independently
+# pairs one side's luckiest run against the other's.
+ROUNDS = 7
 rng = np.random.default_rng(0)
 
 
@@ -65,7 +73,11 @@ def parse(stdout):
         return None, None
 
 
-def time_cheatah(setup, expr, iters, extract="[0]"):
+_TEMPDIRS = []
+atexit.register(lambda: [shutil.rmtree(d, ignore_errors=True) for d in _TEMPDIRS])
+
+
+def build_cheatah(setup, expr, iters, extract="[0]"):
     """setup builds the operands; `expr` is the op; we accumulate a scalar from it
     (the bare scalar when extract=='', else element extract like [0] or [0, 0]) so the
     opaque library call is genuinely consumed and can't be optimized away."""
@@ -79,62 +91,214 @@ def time_cheatah(setup, expr, iters, extract="[0]"):
         "let t1 = time.monotonic()\n"
         "io.print(acc)\nio.print(t1 - t0)\n"
     )
-    with tempfile.TemporaryDirectory() as d:
-        purr, so = os.path.join(d, "b.purr"), os.path.join(d, "b.so")
-        open(purr, "w").write(src)
-        if run([PURRC, purr, "-o", so]).returncode != 0:
-            return None, None
-        best, acc = None, None
-        for _ in range(TRIALS):
-            t, a = parse(run([CHEATAH, so]).stdout)
-            if t is not None and (best is None or t < best):
-                best, acc = t, a
-        return best, acc
+    # mkdtemp, not TemporaryDirectory: the .so must outlive this call so the rounds below can
+    # re-run it without recompiling. Registered for cleanup at exit rather than leaked.
+    d = tempfile.mkdtemp(prefix="numpy_compare.")
+    _TEMPDIRS.append(d)
+    purr, so = os.path.join(d, "b.purr"), os.path.join(d, "b.so")
+    open(purr, "w").write(src)
+    if run([PURRC, purr, "-o", so]).returncode != 0:
+        return None
+    return so
 
 
-def time_numpy(build, op, iters):
-    """build returns the operands; op(operands, i) -> scalar contribution. `i` lets a
-    case vary its input per iteration (to match a cheatah loop that does the same)."""
+def _median(xs):
+    ys = sorted(xs)
+    n = len(ys)
+    return ys[n // 2] if n % 2 else 0.5 * (ys[n // 2 - 1] + ys[n // 2])
+
+
+def np_once(operands, op, iters):
+    """One timed NumPy pass. op(operands, i) -> scalar contribution; `i` lets a case vary
+    its input per iteration (to match a cheatah loop that does the same)."""
     import time as _t
-    operands = build()
-    best, acc = None, None
-    for _ in range(TRIALS):
-        a = 0.0
-        t0 = _t.monotonic()
-        for i in range(iters):
-            a += op(operands, i)
-        t1 = _t.monotonic()
-        if best is None or (t1 - t0) < best:
-            best, acc = t1 - t0, a
-    return best, repr(acc)
+    a = 0.0
+    t0 = _t.monotonic()
+    for i in range(iters):
+        a += op(operands, i)
+    return _t.monotonic() - t0, repr(a)
+
+
+ROWS = []   # (label, n, cheatah_us, numpy_us, ratio, lo, hi) for the generated table
 
 
 def bench(label, n, iters, ch_setup, ch_expr, np_build, np_op, extract="[0]"):
-    ct, c_acc = time_cheatah(ch_setup, ch_expr, iters, extract)
-    nt, n_acc = time_numpy(np_build, np_op, iters)
-    if ct is None:
+    # Compile ONCE, outside the rounds: compilation is not the thing being measured, and
+    # re-running purrc between rounds would put seconds between the two sides of a pair.
+    so = build_cheatah(ch_setup, ch_expr, iters, extract)
+    if so is None:
         print(f"{label:<22}{n:>5}  (cheatah compile/run failed)")
         return
-    cu, nu = ct / iters * 1e6, nt / iters * 1e6  # µs per op
-    winner = "cheatah" if ct < nt else "numpy"
-    ratio = (nt / ct) if ct < nt else (ct / nt)
+    operands = np_build()
+
+    # ROUNDS striated rounds: cheatah then NumPy, adjacently, before either repeats. The
+    # headline is the median of the per-round PAIRED ratios — not the ratio of two medians,
+    # which the two only agree on when the machine holds perfectly still.
+    ch_ts, np_ts, ratios = [], [], []
+    c_acc = n_acc = None
+    for _ in range(ROUNDS):
+        ct, ca = parse(run([CHEATAH, so]).stdout)
+        if ct is None:
+            print(f"{label:<22}{n:>5}  (cheatah run failed)")
+            return
+        nt, na = np_once(operands, np_op, iters)
+        ch_ts.append(ct)
+        np_ts.append(nt)
+        ratios.append(nt / ct)
+        c_acc, n_acc = ca, na
+
+    ct, nt = _median(ch_ts), _median(np_ts)
+    cu, nu = ct / iters * 1e6, nt / iters * 1e6            # µs per op
+    r = _median(ratios)                                     # >1 = cheatah faster
+    winner = "cheatah" if r > 1.0 else "numpy"
+    ratio = r if r > 1.0 else 1.0 / r
+    lo, hi = min(ratios), max(ratios)
     agree = ""
     try:
         if abs(float(c_acc) - float(n_acc)) > 1e-3 * max(1.0, abs(float(n_acc))):
             agree = f"  ⚠ disagree (cheatah {c_acc} vs numpy {n_acc})"
     except ValueError:
         pass
-    print(f"{label:<22}{n:>5}{cu:>11.2f}{nu:>11.2f}   {winner:>7} {ratio:>5.1f}×{agree}")
+    # The raw band is numpy/cheatah in both directions, so a reader can see the swing without
+    # it being folded through the winner flip.
+    band = f" [{lo:.2f}–{hi:.2f} raw]"
+    ROWS.append((label, n, cu, nu, r, lo, hi))
+    print(f"{label:<22}{n:>5}{cu:>11.2f}{nu:>11.2f}   {winner:>7} {ratio:>5.1f}×{band}{agree}")
+
+
+
+def _capture(cmd):
+    try:
+        return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout.strip()
+    except Exception:
+        return ""
+
+
+def _blas():
+    """WHICH BLAS, and how many threads. Where the crossovers land depends far more on the
+    linked BLAS (reference vs OpenBLAS vs MKL) and its thread count than on the NumPy version,
+    so a stamp naming only the version cannot be reproduced from.
+
+    np.show_config() is consulted first but on a system BLAS it honestly answers
+    "blas / unknown", which identifies nothing. In that case resolve the shared object NumPy
+    actually links, which does."""
+    name = ""
+    try:
+        blas = np.show_config(mode="dicts").get("Build Dependencies", {}).get("blas", {})
+        n, v = blas.get("name", ""), blas.get("version", "")
+        if n and n != "blas" and v and v != "unknown":
+            name = f"{n} {v}"
+    except Exception:
+        pass
+    if not name:
+        # ldd the extension module that carries the BLAS dependency. The subdirectory moved
+        # between NumPy versions (core/ -> _core/), so glob rather than hardcode it.
+        cands = glob.glob(os.path.join(os.path.dirname(np.__file__), "**",
+                                       "_multiarray_umath*.so"), recursive=True)
+        if cands:
+            libs = _capture(f"ldd {cands[0]} 2>/dev/null | grep -iE 'blas|mkl' | head -2")
+            resolved = []
+            for line in libs.splitlines():
+                soname = line.split("=>")[0].strip()
+                path = line.split("=>")[1].split("(")[0].strip() if "=>" in line else ""
+                # On Debian libblas.so.3 is an alternatives symlink; the target is the thing
+                # that actually determines the numbers, so report what it points at.
+                real = _capture(f"readlink -f {path}") if path else ""
+                resolved.append(f"{soname} -> {os.path.basename(real)}" if real else soname)
+            if resolved:
+                name = "; ".join(resolved)
+    if not name:
+        name = "unidentified system BLAS"
+    threads = (os.environ.get("OPENBLAS_NUM_THREADS") or os.environ.get("OMP_NUM_THREADS")
+               or "unset (BLAS default)")
+    return f"{name}, threads={threads}"
+
+
+def write_md(path, suite_name):
+    """Emit the generated region body scripts/bench_table.purr expects.
+
+    ONE HARNESS, ONE TABLE. The linalg README used to place a cheatah column measured here
+    beside an Eigen column measured by Google Benchmark, with a prose warning not to read
+    across. A warning is a worse fix than a structure: this table carries only the columns
+    this harness measured, and the Eigen comparison is its own generated table from its own
+    harness (docs/bench/linalg-vs-eigen.md)."""
+    commit = _capture("git rev-parse --short HEAD") or "unknown"
+    if subprocess.run("git diff --quiet", shell=True).returncode != 0:
+        commit += " (dirty)"
+    host = _capture("awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo") or platform.machine()
+    gov = _capture("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor")
+    if gov:
+        host += f" (governor={gov})"
+    watch = ("stdlib/linalg/, stdlib/ndarray/, scripts/numpy_compare.py"
+             if suite_name.startswith("linalg")
+             else "stdlib/ndarray/, scripts/numpy_compare.py")
+    lines = [
+        "<!-- cheatah-bench-stamp v1",
+        f"     suite:        {suite_name}",
+        f"     generated:    {time.strftime('%Y-%m-%d')}",
+        f"     commit:       {commit}",
+        f"     host:         {host}, {os.cpu_count()} CPUs",
+        "     cpu-scaling:  enabled",
+        "     build:        purrc -> -O3 -march=native",
+        f"     competitors:  NumPy {np.__version__} on {_blas()}, CPython "
+        f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+        f"     harness:      rounds={ROUNDS}, striated (cheatah and NumPy adjacent in each round)",
+        "     statistic:    median of per-round PAIRED ratios; [lo-hi] is the range of those",
+        f"     watch:        {watch}",
+        "     publishable:  true",
+        "",
+        "     PRODUCED BY:",
+        f"       python3 scripts/numpy_compare.py --suite "
+        f"{suite_name.replace('-vs-numpy', '')} --md {path}",
+        "-->",
+        "",
+        "| op | operand dimensions | cheatah | NumPy | winner | band |",
+        "|----|--------------------|--------:|------:|--------|------|",
+    ]
+    for label, n, cu, nu, r, lo, hi in ROWS:
+        win = f"**cheatah {r:.1f}x**" if r > 1.0 else f"NumPy {1 / r:.1f}x"
+        lines.append(f"| `{label}` | {n} | {cu:.2f} | {nu:.2f} | {win} | {lo:.2f}-{hi:.2f} |")
+    with open(path, "w") as f:
+        f.write("\n".join(lines) + "\n")
+    print(f"\nwrote {path}")
 
 
 def main():
     if not (os.path.exists(PURRC) and os.path.exists(CHEATAH)):
         sys.exit("numpy_compare: build the `release` preset first (need purrc + cheatah).")
+    suite = "linalg"
+    if "--suite" in sys.argv:
+        i = sys.argv.index("--suite")
+        if i + 1 >= len(sys.argv):
+            sys.exit("numpy_compare: --suite needs a name (linalg|ndarray)")
+        suite = sys.argv[i + 1]
+        if suite not in ("linalg", "ndarray"):
+            sys.exit(f"numpy_compare: unknown suite {suite!r} — expected linalg or ndarray")
+    md_out = None
+    if "--md" in sys.argv:
+        i = sys.argv.index("--md")
+        if i + 1 >= len(sys.argv):
+            sys.exit("numpy_compare: --md needs an output path")
+        md_out = sys.argv[i + 1]
     print(f"# cheatah linalg vs NumPy {np.__version__} (BLAS/LAPACK) — µs per op, "
           f"same matrix, result consumed\n")
     print(f"{'operation':<22}{'n':>5}{'cheatah':>11}{'numpy':>11}   {'winner':>13}")
     print("-" * 70)
 
+    if suite == "ndarray":
+        run_ndarray()
+    else:
+        run_linalg()
+
+    print("\nNote: NumPy calls BLAS/LAPACK (often threaded). cheatah's kernels are "
+          "single-threaded\nauto-vectorized C++. Small n favors cheatah (no Python/"
+          "dispatch overhead); large n favors BLAS / vectorized ufuncs.")
+
+    if md_out is not None:
+        write_md(md_out, f"{suite}-vs-numpy")
+
+
+def run_linalg():
     # ---- matmul A·B (both n×n) ----
     for n, iters in [(4, 200000), (16, 50000), (32, 20000), (64, 5000), (96, 2000)]:
         A, B = spd(n), spd(n)
@@ -321,9 +485,33 @@ def main():
               lambda A=A, B=B: (A, B), lambda o, i: float(np.kron(o[0], o[1])[0, 0]),
               extract="[0, 0]")
 
-    print("\nNote: NumPy calls BLAS/LAPACK (often threaded). cheatah's kernels are "
-          "single-threaded\nauto-vectorized C++. Small n favors cheatah (no Python/"
-          "dispatch overhead); large n favors BLAS / vectorized ufuncs.")
+
+
+def run_ndarray():
+    """The elementwise ufuncs the ndarray README publishes. Kept separate from the linalg
+    cases because they are a different claim on different operands — one table holding both
+    would sit a 64-element sqrt beside a 96x96 matmul as though they were comparable."""
+    for n, iters, fn in [(64, 200000, "sqrt"), (16384, 3000, "sqrt"),
+                         (16384, 3000, "exp"), (16384, 3000, "sin")]:
+        x = np.abs(rng.standard_normal(n)) + 0.5
+        setup = f"let X = ndarray.array({lit(x)})"
+        bench(f"ndarray.{fn}", n, iters, setup, f"ndarray.{fn}(X)",
+              lambda x=x: (x,), lambda o, i, fn=fn: float(getattr(np, fn)(o[0])[0]))
+
+    # Array + scalar is the OPERATOR, not add(): ndarray.add takes two arrays (ndarray.hpp:993),
+    # while the scalar broadcast is operator+ (ndarray.hpp:1365). The ndarray README billed this
+    # row as "16384-element array + scalar" against `ndarray.add`, which is not a form that
+    # exists — measure what the code actually provides and name it accordingly.
+    x = rng.standard_normal(16384)
+    setup = f"let X = ndarray.array({lit(x)})"
+    bench("X + scalar", 16384, 3000, setup, "X + 1.5",
+          lambda x=x: (x,), lambda o, i: float((o[0] + 1.5)[0]))
+
+    # And the two-array form, which is what ndarray.add really is.
+    y = rng.standard_normal(16384)
+    setup2 = f"let X = ndarray.array({lit(x)})\nlet Y = ndarray.array({lit(y)})"
+    bench("ndarray.add", 16384, 3000, setup2, "ndarray.add(X, Y)",
+          lambda x=x, y=y: (x, y), lambda o, i: float((o[0] + o[1])[0]))
 
 
 if __name__ == "__main__":

@@ -54,10 +54,19 @@ jobs:
           cmake --build --preset release --target cheatah_tests
           ./build/release/bin/cheatah_tests --gtest_filter='CryptoPlatform.*' 2>&1 | tee /tmp/platform.txt
 
+      # Repetitions + interleaving, same as the Linux gate: a single sample on a SHARED
+      # runner is worth very little, and interleaving at least keeps a noisy neighbour from
+      # landing entirely on one side of a cheatah-vs-OpenSSL pair. These numbers still cannot
+      # be `publishable` — bench_main.cpp will say so on stderr, and the job summary repeats
+      # it — because a shared runner has no stable clock. They are a TREND, and that is all
+      # this job has ever claimed. It exists so AArch64 is measured at all; deleting it to
+      # tidy a doc would be the wrong trade.
       - name: Crypto throughput
         run: |
           ./build/release/bin/cheatah_benchmarks \
             --benchmark_filter='BM_Crypto' --benchmark_min_time=0.5s \
+            --benchmark_repetitions=5 --benchmark_enable_random_interleaving=true \
+            --benchmark_report_aggregates_only=true \
             --benchmark_format=console 2>&1 | tee /tmp/crypto.txt
 
       - name: Math and linear algebra
@@ -65,6 +74,8 @@ jobs:
         run: |
           ./build/release/bin/cheatah_benchmarks \
             --benchmark_filter='ndarray|linalg|Fixed' --benchmark_min_time=0.5s \
+            --benchmark_repetitions=5 --benchmark_enable_random_interleaving=true \
+            --benchmark_report_aggregates_only=true \
             --benchmark_format=console 2>&1 | tee /tmp/math.txt
 
       - name: Publish the numbers
@@ -77,6 +88,17 @@ jobs:
             echo
             echo "Measured on a shared GitHub-hosted runner, so treat these as a trend rather than"
             echo "a precise figure. Nothing here gates; the Linux bench gate does that on a quiet machine."
+            echo
+            echo '<!-- cheatah-bench-stamp v1'
+            echo "     suite:        aarch64-trend (macos-bench.yml)"
+            echo "     generated:    $(date -u +%Y-%m-%d)"
+            echo "     commit:       ${GITHUB_SHA:0:7}"
+            echo "     host:         SHARED GitHub-hosted runner — $(uname -m)"
+            echo "     cpu-scaling:  unknown (not ours to control)"
+            echo "     harness:      reps=5, min_time=0.5s, random-interleaving=on"
+            echo "     statistic:    median over repetitions"
+            echo "     publishable:  trend-only — a shared runner cannot give a stable absolute"
+            echo '-->' 
             echo
             echo "## Which crypto path ran"
             echo '```'; cat /tmp/platform.txt 2>/dev/null | head -30; echo '```'

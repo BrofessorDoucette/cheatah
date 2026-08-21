@@ -1,12 +1,14 @@
 # Micro-benchmarks (Google Benchmark) for the same code paths the unit tests
-# exercise. One executable; benchmark::benchmark_main supplies main(). Links the
-# STATIC library, matching the unit tests.
+# exercise. One executable; bench_main.cpp supplies main() (NOT benchmark_main —
+# we need provenance, a publishability verdict, and paired-table emission that the
+# stock main cannot give us). Links the STATIC library, matching the unit tests.
 #
 # Build with the `release` preset for meaningful numbers (the default Debug build
 # is unoptimized). Run: ./build/release/bin/cheatah_benchmarks
 #
 # As more primitives land, add a *_bench.cpp here next to its tests.
 add_executable(cheatah_benchmarks
+    bench_main.cpp            # main(): provenance stamp, publishability verdict, paired tables
     linalg_bench.cpp
     ndarray_bench.cpp
     # Native C++ comparisons: cheatah's numeric core vs the reference libraries.
@@ -33,7 +35,7 @@ target_link_libraries(cheatah_benchmarks PRIVATE
     cheatah::aead_static
     cheatah::hashlib_static
     cheatah::regex_static
-    benchmark::benchmark_main
+    benchmark::benchmark        # not benchmark_main — bench_main.cpp supplies main()
 )
 target_include_directories(cheatah_benchmarks PRIVATE
     ${PROJECT_SOURCE_DIR}/runtime      # integrity.hpp

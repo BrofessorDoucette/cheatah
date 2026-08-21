@@ -52,7 +52,10 @@ pids=(); logs=()
 for ((i = 0; i < shards; i++)); do
     log="/tmp/cheatah_bench_smoke_shard${i}.log"; logs+=("$log")
     : >"$log"   # truncate first: a crashed shard must yield 0 counted cases, not a stale log's
-    "$BIN" --benchmark_filter="^(${FILTER[i]})"'$' --benchmark_min_time="$MIN_TIME" >"$log" 2>&1 &
+    # CHEATAH_BENCH_SMOKE tells bench_main.cpp to skip its "not publishable" banner: this pass
+    # discards its timings on purpose, so the warning would be noise on every QA run.
+    CHEATAH_BENCH_SMOKE=1 \
+        "$BIN" --benchmark_filter="^(${FILTER[i]})"'$' --benchmark_min_time="$MIN_TIME" >"$log" 2>&1 &
     pids+=($!)
 done
 

@@ -48,7 +48,15 @@ fi
 [ -x "$BIN" ] || skip "no benchmark binary"
 
 run_pairs() {  # run_pairs <filter> <reps> <min_time> -> csv on stdout
+    # --benchmark_enable_random_interleaving shuffles the flat list of repetition slots across
+    # every filtered case (benchmark.cc RunBenchmarks), so a pair's _fixed and _glm repetitions
+    # are scattered through the run instead of being measured as two consecutive blocks. Without
+    # it, any clock or thermal drift over the block lands entirely on one side and shows up as
+    # a ratio change; with it, the same drift is zero-mean noise that the median absorbs. The
+    # iteration count is calibrated on the first repetition and reused for the rest
+    # (benchmark_runner.cc), so scattering the reps does not change what each one measures.
     "$BIN" --benchmark_filter="$1" --benchmark_repetitions="$2" --benchmark_min_time="$3" \
+        --benchmark_enable_random_interleaving=true \
         --benchmark_report_aggregates_only=true --benchmark_format=csv 2>/dev/null
 }
 
@@ -98,7 +106,10 @@ done
 pass1_pids=()
 for ((i = 0; i < shards; i++)); do
     : > "/tmp/cheatah_bench_pass1_shard$i.csv"   # truncate: a lost shard must yield 0 rows
-    run_pairs "^(${SHARD_FILTER[i]})"'$' 5 0.2s > "/tmp/cheatah_bench_pass1_shard$i.csv" &
+    # 7 reps, not 5: interleaving raises the per-repetition variance of the sub-nanosecond
+    # cases (each rep now starts cold rather than warm behind its own predecessor), and pass 1
+    # is only a screen. Two extra reps keep the suspect rate near zero so pass 2 stays cheap.
+    run_pairs "^(${SHARD_FILTER[i]})"'$' 7 0.2s > "/tmp/cheatah_bench_pass1_shard$i.csv" &
     pass1_pids+=($!)
 done
 for p in "${pass1_pids[@]}"; do wait "$p" || fail "benchmark run"; done

@@ -33,6 +33,18 @@ BASELINE="${BASELINE:-tests/benchmarks/compiler_bench_baseline.csv}"
 FILTER='^BM_(tokenize|parse|codegen|frontend)/'
 
 bold() { printf '\n\033[1m[compiler-bench-gate] %s\033[0m\n' "$*"; }
+
+# The header comment above admits a committed baseline is inherently cross-machine. That was
+# true and unenforced: a baseline captured on someone else's laptop compared silently against
+# yours, and every ratio it produced was noise dressed as a verdict. Stamp the machine into
+# the baseline and compare it, so the mismatch is announced rather than absorbed.
+machine_stamp() {
+    local cpu="unknown"
+    [ -r /proc/cpuinfo ] && cpu="$(awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo)"
+    [ -n "$cpu" ] || cpu="unknown"
+    printf '%s | %s cpus | %s %s' "$cpu" "$(nproc 2>/dev/null || echo '?')" \
+        "$(uname -s)" "$(uname -r)"
+}
 skip() { printf '\033[33m[compiler-bench-gate] SKIP: %s\033[0m\n' "$*"; exit 0; }
 fail() { printf '\033[31m[compiler-bench-gate] FAILED: %s\033[0m\n' "$*"; exit 1; }
 
@@ -47,7 +59,11 @@ fi
 [ -x "$BIN" ] || skip "no benchmark binary"
 
 run() {  # run <reps> <min_time> -> median CSV on stdout
+    # Interleaved for the same reason as scripts/bench_gate.sh: the repetitions of each stage
+    # are scattered across the run, so drift over the measurement window becomes zero-mean
+    # noise the median absorbs rather than a systematic shift on whichever stage ran last.
     "$BIN" --benchmark_filter="$FILTER" --benchmark_repetitions="$1" --benchmark_min_time="$2" \
+        --benchmark_enable_random_interleaving=true \
         --benchmark_report_aggregates_only=true --benchmark_format=csv 2>/dev/null
 }
 
@@ -61,11 +77,32 @@ for row in csv.reader(open(sys.argv[1])):
 PY
 }
 
+# ---- machine check: a cross-machine baseline is a warning, never a silent comparison ----------
+check_machine() {
+    local recorded
+    recorded="$(awk -F'machine: *' '/^#   machine:/{print $2; exit}' "$BASELINE" 2>/dev/null)"
+    if [ -z "$recorded" ]; then
+        printf '\033[33m[compiler-bench-gate] NOTE: baseline predates machine stamping — it may '
+        printf 'have been captured elsewhere. Re-run `update` on this machine to be sure.\033[0m\n'
+    elif [ "$recorded" != "$(machine_stamp)" ]; then
+        printf '\033[33m[compiler-bench-gate] WARNING: baseline was captured on a DIFFERENT machine.\033[0m\n'
+        printf '  baseline: %s\n  current:  %s\n' "$recorded" "$(machine_stamp)"
+        printf '  Ratios below compare two machines and mean very little. Run `update` here first.\n'
+    fi
+}
+
 # ---- update: capture the baseline and exit ----------------------------------------------------
 if [ "$MODE" = "update" ]; then
     bold "capturing the compiler-bench baseline (5 reps)…"
     run 5 0.05s > /tmp/cheatah_cbench_update.csv || fail "benchmark run"
     { echo "# cheatah frontend speed baseline — regenerate with: scripts/compiler_bench_gate.sh update"
+      echo "# cheatah-bench-stamp v1"
+      echo "#   generated:   $(date -u +%Y-%m-%d)"
+      echo "#   commit:      $(git rev-parse --short HEAD)$(git diff --quiet || echo ' (dirty)')"
+      echo "#   machine:     $(machine_stamp)"
+      echo "#   harness:     reps=5, min_time=0.05s, random-interleaving=on"
+      echo "#   statistic:   median over repetitions"
+      echo "#   publishable: comparison-only — a ratchet baseline, not a figure to quote"
       echo "# name,median_ns"
       medians /tmp/cheatah_cbench_update.csv | awk '{print $1","$2}' | sort
     } > "$BASELINE" || fail "could not write $BASELINE"
@@ -76,6 +113,7 @@ fi
 
 [ -f "$BASELINE" ] || skip "no baseline yet ($BASELINE) — capture it with: scripts/compiler_bench_gate.sh update"
 
+check_machine
 bold "measuring the frontend stages…"
 run 5 0.05s > /tmp/cheatah_cbench_pass1.csv || fail "benchmark run"
 

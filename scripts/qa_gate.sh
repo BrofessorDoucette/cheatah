@@ -235,8 +235,13 @@ fi
 # 8b. cppcheck (pure source analysis, already -j nproc internally) + the private-reference
 #     scan (sibling-project names must not reach the public tree — see
 #     scripts/check_no_private_refs.sh; the commit-msg / pre-push hooks cover messages).
-bold "Running cppcheck + private-reference scan (background lane)…"
-bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh'
+bold "Running cppcheck + private-reference scan + benchmark-stamp lint (background lane)…"
+# The benchmark-stamp lint rides along here because it is pure text work — it reads Markdown
+# and measures nothing, so it costs the gate nothing and belongs with the other doc lints.
+# It is what stops a published table from drifting back to being unattributed: every
+# <!-- BENCH:… --> region must carry a stamp saying when it was measured, on what, and
+# whether the run was rigorous enough to publish.
+bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh && bash scripts/bench_table_lint.sh'
 
 # 2. Configure ---------------------------------------------------------------
 bold "Configuring (debug + release)…"

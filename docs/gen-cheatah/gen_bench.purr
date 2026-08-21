@@ -42,20 +42,16 @@ fn main() {
             srcs.append(io.read_file(os.path.join(dir, f)))
         }
     }
-    let iters = 25
-    let best = 1000000.0
+    # ONE timed pass per invocation. gen_bench_compare.purr alternates this process with the
+    # CPython one round by round, so neither side is measured as a consecutive block while the
+    # machine drifts. It also prints every sample rather than a best-of-N minimum: a minimum
+    # has no dispersion, so a steady case and a wildly variable one look identical.
+    let t0 = time.perf_counter()
     let bytes = 0
-    let k = 0
-    while k < iters {
-        let t0 = time.perf_counter()
-        let b = 0
-        for s in srcs { b = b + len(render(s)) }
-        let dt = time.perf_counter() - t0
-        if dt < best { best = dt }
-        bytes = b
-        k = k + 1
-    }
-    io.print("cheatah  files=" + io.str(len(srcs)) + " out_bytes=" + io.str(bytes) + " best_ms=" + io.str(best * 1000.0))
+    for s in srcs { bytes = bytes + len(render(s)) }
+    let dt = time.perf_counter() - t0
+    io.print("sample_ms=" + io.str(dt * 1000.0))
+    io.print("cheatah  files=" + io.str(len(srcs)) + " out_bytes=" + io.str(bytes))
 }
 
 main()

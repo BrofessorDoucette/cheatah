@@ -5,11 +5,35 @@
 # lease write into a shared memory.Owner<float> — coordination at the edges, never in the hot
 # loop. Prints, for 1/2/4/8 workers: the integral (must match the single-thread value) and the
 # wall-clock seconds. The single-file baseline lives in integral.py / integral.purr.
+#
+# STATISTICS AND STRIATION. This used to run each worker count exactly once, in the order
+# 1, 2, 4, 8 — and docs/performance.md then described the resulting table as the "median of
+# repeated runs", which it could not have been. Two things are wrong with one shot per
+# configuration. There is no dispersion, so a single descheduled run is indistinguishable
+# from a real effect; and running the four configurations as consecutive blocks means the
+# 8-worker row is measured last, on the hottest silicon, which biases exactly the number the
+# table is about.
+#
+# So: ROUNDS passes, and each pass runs all four configurations back to back. Any thermal
+# drift across the session now moves all four rows together instead of tilting the scaling
+# curve, and each row reports a median with its spread rather than one sample.
 import io
 import math
 import memory
+import statistics
+import stamp
+import sys
 import thread
 import time
+
+# One pass runs all four configurations; ROUNDS passes are taken. 7 is the smallest count
+# that gives a median a real middle and still leaves a visible [min, max] range.
+fn rounds() { return 7 }
+
+struct Sample {
+    integral: float
+    secs: float
+}
 
 fn points() { return 20000000 }
 fn width() { return 50.0 / points() }
@@ -34,8 +58,34 @@ fn edges() -> float {
     return 0.5 * (math.sin(0.0) * math.exp(0.0) + math.sin(b) * math.exp(-0.01 * b))
 }
 
-fn report(tag : str, total : float, seconds : float) {
-    io.print(tag, (total + edges()) * width(), seconds)
+fn integral_of(total : float) -> float { return (total + edges()) * width() }
+
+# median, spread and range for one configuration's samples. `statistics` has no quantiles(),
+# and there is no sort builtin to compute an IQR by hand, so the spread reported is the
+# standard deviation plus the observed [min, max] — enough for a reader to see whether a
+# gap between two rows is larger than the noise that produced it.
+fn report(tag : str, integral : float, samples : list<float>) {
+    let lo = samples[0]
+    let hi = samples[0]
+    for v in samples {
+        if v < lo { lo = v }
+        if v > hi { hi = v }
+    }
+    io.print(tag, integral, statistics.median(samples), statistics.stdev(samples), lo, hi)
+}
+
+fn ms(v : float) -> str { return io.fixed(v * 1000.0, 0) + " ms" }
+
+# One row of the published table. `speedup` is against the single-worker median; the spread is
+# the standard deviation, because `statistics` has no quantiles() and there is no sort builtin
+# to compute an IQR by hand — reported as `σ` so the reader knows which it is.
+fn row(workers : str, samples : list<float>, base : float, integral : float) -> str {
+    let med = statistics.median(samples)
+    let sp = "—"
+    if base > 0.0 and workers != "1" { sp = "**" + io.fixed(base / med, 2) + "×**" }
+    let out = "| " + workers + " | " + ms(med) + " | ±" + ms(statistics.stdev(samples))
+    out = out + " | " + sp + " | " + io.str(integral) + " |\n"
+    return out
 }
 
 fn run_1() {
@@ -43,7 +93,7 @@ fn run_1() {
     let t0 = time.monotonic()
     chunk(o, 1, points())
     let t1 = time.monotonic()
-    report("1:", o.rread().acquire().read(), t1 - t0)
+    return Sample(integral_of(o.rread().acquire().read()), t1 - t0)
 }
 
 fn run_2() {
@@ -55,7 +105,7 @@ fn run_2() {
         }
     }
     let t1 = time.monotonic()
-    report("2:", o.rread().acquire().read(), t1 - t0)
+    return Sample(integral_of(o.rread().acquire().read()), t1 - t0)
 }
 
 fn run_4() {
@@ -72,7 +122,7 @@ fn run_4() {
         }
     }
     let t1 = time.monotonic()
-    report("4:", o.rread().acquire().read(), t1 - t0)
+    return Sample(integral_of(o.rread().acquire().read()), t1 - t0)
 }
 
 fn run_8() {
@@ -97,14 +147,57 @@ fn run_8() {
         }
     }
     let t1 = time.monotonic()
-    report("8:", o.rread().acquire().read(), t1 - t0)
+    return Sample(integral_of(o.rread().acquire().read()), t1 - t0)
 }
 
 fn main() {
-    run_1()
-    run_2()
-    run_4()
-    run_8()
+    let s1: list<float> = []
+    let s2: list<float> = []
+    let s4: list<float> = []
+    let s8: list<float> = []
+    let i1 = 0.0
+    let i2 = 0.0
+    let i4 = 0.0
+    let i8 = 0.0
+    # Striated: one round touches every configuration before any configuration is repeated.
+    for r in range(0, rounds()) {
+        let a = run_1()
+        let b = run_2()
+        let c = run_4()
+        let d = run_8()
+        s1.append(a.secs)
+        s2.append(b.secs)
+        s4.append(c.secs)
+        s8.append(d.secs)
+        i1 = a.integral
+        i2 = b.integral
+        i4 = c.integral
+        i8 = d.integral
+    }
+    io.print("workers integral median_s stdev_s min_s max_s")
+    report("1:", i1, s1)
+    report("2:", i2, s2)
+    report("4:", i4, s4)
+    report("8:", i8, s8)
+
+    # A published table is GENERATED or it is not published. sys.argv[1] is where
+    # scripts/bench_table.purr expects the artifact: docs/bench/thread-scaling.md.
+    if len(sys.argv) > 1 {
+        let base = statistics.median(s1)
+        let t = "| workers | wall time (median) | spread | speedup | integral |\n"
+        t = t + "|--------:|-------------------:|-------:|--------:|----------|\n"
+        t = t + row("1", s1, base, i1)
+        t = t + row("2", s2, base, i2)
+        t = t + row("4", s4, base, i4)
+        t = t + row("8", s8, base, i8)
+        let st = stamp.build("thread-scaling",
+                             "stdlib/thread/, stdlib/memory/, scripts/bench/integral_threads.purr",
+                             "none — cheatah against itself at 1/2/4/8 workers",
+                             rounds(),
+                             "median wall clock; ± is the sample standard deviation",
+                             "purrc scripts/bench/integral_threads.purr -o /tmp/it.so --import-root scripts && cheatah /tmp/it.so docs/bench/thread-scaling.md")
+        stamp.write_region(sys.argv[1], st, t)
+    }
 }
 
 main()

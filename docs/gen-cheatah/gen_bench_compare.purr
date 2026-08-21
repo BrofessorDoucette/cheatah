@@ -1,0 +1,136 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+# gen_bench_compare.purr — the STRIATED driver for the doc-render comparison.
+#
+# The three programs it drives do the same work three ways: gen_bench.py (CPython with the
+# C-accelerated xml.etree), gen_bench.purr (single-threaded, from-scratch parsers.xml), and
+# gen_bench_parallel.purr (the same work over four threads sharing one memory.Owner). Each
+# now performs exactly ONE timed pass per invocation and prints `sample_ms=`.
+#
+# Why a driver rather than a loop inside each program. Previously each program ran 25 passes
+# internally and printed the MINIMUM, and the three were run one after another. That gives a
+# number with no dispersion — a rock-steady case and one that swings 40% print the same
+# thing — and it measures each program in its own block, so any clock or thermal drift over
+# the session lands on whichever ran last rather than cancelling out. Here one ROUND invokes
+# all three back to back, and the ratios are formed WITHIN a round before being aggregated,
+# which is the only estimator that stays unbiased while the machine moves under all three.
+#
+#     purrc docs/gen-cheatah/gen_bench_compare.purr -o /tmp/genbc.so
+#     cheatah /tmp/genbc.so          # run from the repo root; needs docs/xml
+import io
+import os
+import stamp
+import statistics
+import string
+import sys
+
+fn rounds() { return 9 }
+
+# Pull every `sample_ms=<x>` line out of a run's stdout. Returns -1.0 when the program
+# produced none, which the caller reports rather than silently averaging away.
+fn sample_of(path : str) -> float {
+    let text = io.read_file(path)
+    for line in string.splitlines(text) {
+        if string.startswith(line, "sample_ms=") {
+            return float(string.strip(string.replace(line, "sample_ms=", "")))
+        }
+    }
+    return -1.0
+}
+
+fn run_once(cmd : str, out : str) -> float {
+    os.system(cmd + " > " + out + " 2>/dev/null")
+    return sample_of(out)
+}
+
+fn spread(xs : list<float>) -> float {
+    let lo = xs[0]
+    let hi = xs[0]
+    for v in xs {
+        if v < lo { lo = v }
+        if v > hi { hi = v }
+    }
+    return hi - lo
+}
+
+# One published row. `ratio` of 0 marks the baseline itself, which shows 1.0x.
+fn trow(label : str, xs : list<float>, ratio : float) -> str {
+    let r = "1.0×"
+    if ratio > 0.0 { r = "**" + io.fixed(ratio, 2) + "×**" }
+    let out = "| " + label + " | " + io.fixed(statistics.median(xs), 1) + " ms | ±"
+    out = out + io.fixed(statistics.stdev(xs), 1) + " ms | " + r + " |\n"
+    return out
+}
+
+fn report(tag : str, xs : list<float>) {
+    io.print(tag, statistics.median(xs), statistics.stdev(xs), spread(xs))
+}
+
+fn main() {
+    let purrc = "build/release/bin/purrc"
+    let cheatah = "build/release/bin/cheatah"
+
+    # Compile both cheatah sides ONCE. Compilation is not what is being measured, and doing
+    # it between rounds would put a multi-second gap between the sides of a comparison.
+    if os.system(purrc + " docs/gen-cheatah/gen_bench.purr -o /tmp/gb_single.so > /tmp/gb_c1.log 2>&1") != 0 {
+        io.print("gen_bench.purr failed to compile - see /tmp/gb_c1.log")
+        return
+    }
+    if os.system(purrc + " docs/gen-cheatah/gen_bench_parallel.purr -o /tmp/gb_par.so > /tmp/gb_c2.log 2>&1") != 0 {
+        io.print("gen_bench_parallel.purr failed to compile - see /tmp/gb_c2.log")
+        return
+    }
+
+    let py: list<float> = []
+    let single: list<float> = []
+    let par: list<float> = []
+    let r_single: list<float> = []
+    let r_par: list<float> = []
+
+    for k in range(0, rounds()) {
+        # One round touches all three before any is repeated.
+        let p = run_once("python3 docs/gen-cheatah/gen_bench.py", "/tmp/gb_py.out")
+        let s = run_once(cheatah + " /tmp/gb_single.so", "/tmp/gb_s.out")
+        let q = run_once(cheatah + " /tmp/gb_par.so", "/tmp/gb_p.out")
+        if p < 0.0 or s < 0.0 or q < 0.0 {
+            io.print("round", k, "produced no sample - aborting")
+            return
+        }
+        py.append(p)
+        single.append(s)
+        par.append(q)
+        r_single.append(p / s)   # PAIRED within the round, not a ratio of two medians
+        r_par.append(p / q)
+    }
+
+    io.print("# doc-render kernel, " + io.str(rounds()) + " striated rounds")
+    io.print("# columns: median_ms stdev_ms range_ms")
+    report("cpython          ", py)
+    report("cheatah-single   ", single)
+    report("cheatah-parallel ", par)
+    io.print("# speedup = median of per-round PAIRED ratios, with [min,max]")
+    io.print("single vs cpython  ", statistics.median(r_single), spread(r_single))
+    io.print("parallel vs cpython", statistics.median(r_par), spread(r_par))
+    io.print("parallel vs single ", statistics.median(single) / statistics.median(par))
+
+    # A published table is GENERATED or it is not published: sys.argv[1] is where
+    # scripts/bench_table.purr expects the artifact (docs/bench/render-kernel.md).
+    if len(sys.argv) > 1 {
+        let t = "| generator | median | spread (σ) | vs CPython |\n"
+        t = t + "|-----------|-------:|-----------:|-----------:|\n"
+        t = t + trow("CPython (`xml.etree`, native `expat`)", py, 0.0)
+        t = t + trow("cheatah, single-threaded (`gen_bench.purr`)", single,
+                     statistics.median(r_single))
+        t = t + trow("cheatah, 4 threads over a shared `memory.Owner` (`gen_bench_parallel.purr`)",
+                     par, statistics.median(r_par))
+        let st = stamp.build("render-kernel",
+                             "stdlib/parsers/xml/, docs/gen-cheatah/gen_bench.purr, docs/gen-cheatah/gen_bench_parallel.purr, docs/gen-cheatah/gen_bench_compare.purr",
+                             "CPython 3.12 (xml.etree / expat)",
+                             rounds(),
+                             "median wall clock; speedup = median of per-round PAIRED ratios",
+                             "bash scripts/bench/build-harness.sh docs/gen-cheatah/gen_bench_compare.purr /tmp/gbc.so && cheatah /tmp/gbc.so docs/bench/render-kernel.md")
+        stamp.write_region(sys.argv[1], st, t)
+    }
+}
+
+main()

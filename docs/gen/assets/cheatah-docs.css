@@ -138,13 +138,17 @@ code, pre, .sig { font-family: var(--mono); }
 .pkgs a:hover { color: var(--fg); background: var(--accent-soft); text-decoration: none; }
 .pkgs a.current { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 .pkgs .pkgs-sep { color: var(--fg-faint); opacity: .55; user-select: none; }
-/* The way back to the company storefront. Spans to the last column so it lands on the true
-   right edge whether or not the toc column is showing — the responsive block re-points it
-   as columns are dropped. Unlike .pkgs it survives every breakpoint below: mobile readers
-   are still readers who might buy something. */
-.bb { grid-column: 3 / -1; justify-self: end; color: var(--fg-dim); font-size: .82rem; white-space: nowrap;
-  display: inline-flex; align-items: center; min-height: 24px; padding: 0 2px; }
-.bb:hover { color: var(--accent); text-decoration: none; }
+/* The two outbound links — Source (the repository) and BigBrain (the storefront) — share ONE
+   grid cell instead of taking a column each. Spans to the last column so the pair lands on the
+   true right edge whether or not the toc column is showing; the responsive block re-points this
+   wrapper as columns are dropped. Keeping them in one cell is what lets a second link be added
+   without touching the track counts in the three media blocks below — and without the width
+   floor a fourth fixed track would set on a phone. Unlike .pkgs the pair survives every
+   breakpoint: mobile readers are still readers who might read the source, or buy something. */
+.topbar-right { grid-column: 3 / -1; justify-self: end; display: flex; align-items: center; gap: 14px; min-width: 0; }
+.repo, .bb { color: var(--fg-dim); font-size: .82rem; white-space: nowrap;
+  display: inline-flex; align-items: center; min-height: 24px; padding: 0 2px; }   /* 24px: WCAG 2.5.8 */
+.repo:hover, .bb:hover { color: var(--accent); text-decoration: none; }
 
 /* ---- member source link + permalink ---- */
 .member-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
@@ -413,13 +417,13 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
   .toc { display: none; }
   .layout, .layout.no-toc { grid-template-columns: var(--side-w) minmax(0,1fr); }
   .topbar-inner { grid-template-columns: var(--side-w) max-content minmax(0,1fr); }
-  .bb { grid-column: 3; }
+  .topbar-right { grid-column: 3; }
 }
 /* Then the package switcher: brand on the left, the way back to the company on the right. */
 @media (max-width: 1000px) {
   .pkgs { display: none; }
   .topbar-inner { grid-template-columns: minmax(0,1fr) max-content; }
-  .bb { grid-column: 2; }
+  .topbar-right { grid-column: 2; }
   /* The brand now owns the flexible column instead of the sidebar-width one — centring it
      there would float it in open space, so it goes back to the left edge. */
   .brand { justify-self: start; }
@@ -441,6 +445,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
   }
   .content { padding: 24px 18px 80px; }
   .topbar-inner { padding: 0 16px; gap: 12px; }
+  /* At 320px the brand plus both outbound links is the tightest row on the site. Tighten the
+     pair's own gap rather than hiding one: a dropped link is a dead end, a closer pair is not.
+     docs_a11y_gate.sh is what proves this still clears the viewport. */
+  .topbar-right { gap: 10px; }
   /* A backdrop blur under a sticky bar makes the compositor re-blur what is behind it on
      every scroll frame — the single biggest source of scroll jank on a mid-range phone.
      An opaque bar costs nothing visually at this size. */

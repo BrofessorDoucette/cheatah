@@ -15,6 +15,20 @@ the body (an empty-loop guard flags any case that slips through). Functions with
 honest Python twin get a cheatah-only row; numpy-backed numeric ops point at the
 dedicated NumPy comparison on the performance page.
 
+STRIATED, WITH STATISTICS. This suite used to time each side as its own consecutive
+block of TRIALS runs and report the MINIMUM of each. That is two separate problems.
+A minimum has no dispersion, so a case that swung 40% between runs was indistinguishable
+from one that was rock steady; and taking the two minima independently pairs cheatah's
+luckiest run against CPython's, which is not a measurement of anything. Worse, running
+all of one language's trials and then all of the other's means any thermal or clock
+drift over the window lands entirely on one side of the ratio.
+
+So a case is now measured in ROUNDS passes, and each pass runs the cheatah side and the
+CPython side ADJACENTLY. Each pass yields one PAIRED ratio, and the headline speedup is
+the median of those ratios — the estimator that stays unbiased when the machine drifts
+under both sides at once. Each side additionally reports its own median and IQR, and the
+range of the per-round ratios is kept so a reader can see how stable the number is.
+
     python3 scripts/perf_suite.py            # run everything, rewrite perf_data.json
     python3 scripts/perf_suite.py math io    # only the named modules (faster iteration)
 """
@@ -30,7 +44,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PURRC = os.path.join(ROOT, "build", "release", "bin", "purrc")
 CHEATAH = os.path.join(ROOT, "build", "release", "bin", "cheatah")
 OUT = os.path.join(ROOT, "docs", "perf_data.json")
-TRIALS = 3
+# 7 rounds, not 3 trials: enough for a median with a real middle and a meaningful IQR,
+# while keeping a full sweep of the suite to a sitting.
+ROUNDS = 7
 
 
 def C(body, py=None, imp="", setup="", py_setup=None, acc="0.0", iters=10_000_000,
@@ -305,46 +321,120 @@ def _imports(imp):
     return "".join(f"import {m}\n" for m in imp.split()) if imp else ""
 
 
-def time_cheatah(case, body):
-    src = ("import io\nimport time\n" + _imports(case["imp"]) + case["setup"] + "\n"
-           f"let acc = {case['acc']}\n"
-           "let t0 = time.monotonic()\n"
-           f"for i in range(0, {case['iters']}) {{\n    {body}\n}}\n"
-           "let t1 = time.monotonic()\n"
-           "io.print(acc)\nio.print(t1 - t0)\n")
-    with tempfile.TemporaryDirectory() as d:
-        purr, so = os.path.join(d, "b.purr"), os.path.join(d, "b.so")
-        open(purr, "w").write(src)
-        if _run([PURRC, purr, "-o", so]).returncode != 0:
-            return None
-        best = None
-        for _ in range(TRIALS):
-            out = _run([CHEATAH, so]).stdout.strip().splitlines()
-            try:
-                t = float(out[-1])
-            except (IndexError, ValueError):
-                return None
-            best = t if best is None or t < best else best
-        return best
+def _machine_string():
+    """A machine string someone could actually reproduce on. platform.processor() returns
+    bare "x86_64" on Linux, which identifies nothing — read the real model name out of
+    /proc/cpuinfo and note whether frequency scaling was left on, since that is the single
+    biggest source of run-to-run drift on a laptop part."""
+    model = platform.processor() or platform.machine()
+    try:
+        for line in open("/proc/cpuinfo"):
+            if line.startswith("model name"):
+                model = line.split(":", 1)[1].strip()
+                break
+    except OSError:
+        pass
+    try:
+        gov = open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor").read().strip()
+        model += f" (governor={gov})"
+    except OSError:
+        pass
+    return f"{model}, {os.cpu_count()} CPUs, {platform.system()} {platform.release()}"
 
 
-def time_python(case):
+def _median(xs):
+    ys = sorted(xs)
+    n = len(ys)
+    return ys[n // 2] if n % 2 else 0.5 * (ys[n // 2 - 1] + ys[n // 2])
+
+
+def _iqr(xs):
+    """Inter-quartile range. Preferred over stddev because a timing sample is not normal:
+    one descheduled run moves a standard deviation far more than it moves the middle 50%."""
+    if len(xs) < 4:
+        return 0.0
+    ys = sorted(xs)
+
+    def q(p):
+        pos = p * (len(ys) - 1)
+        lo = int(pos)
+        hi = min(lo + 1, len(ys) - 1)
+        return ys[lo] + (pos - lo) * (ys[hi] - ys[lo])
+
+    return q(0.75) - q(0.25)
+
+
+def cheatah_src(case, body):
+    return ("import io\nimport time\n" + _imports(case["imp"]) + case["setup"] + "\n"
+            f"let acc = {case['acc']}\n"
+            "let t0 = time.monotonic()\n"
+            f"for i in range(0, {case['iters']}) {{\n    {body}\n}}\n"
+            "let t1 = time.monotonic()\n"
+            "io.print(acc)\nio.print(t1 - t0)\n")
+
+
+def python_src(case):
     setup = case["py_setup"] if case["py_setup"] is not None else \
         "".join(f"import {m}\n" for m in case["imp"].split() if m != "io")
-    src = ("import time\n" + setup + "\n"
-           + f"acc = {case['acc']}\n"
-           "t0 = time.monotonic()\n"
-           f"for i in range({case['iters']}):\n    {case['py']}\n"
-           "t1 = time.monotonic()\nprint(acc)\nprint(t1 - t0)\n")
-    best = None
-    for _ in range(TRIALS):
-        out = _run([sys.executable, "-c", src]).stdout.strip().splitlines()
-        try:
-            t = float(out[-1])
-        except (IndexError, ValueError):
+    return ("import time\n" + setup + "\n"
+            + f"acc = {case['acc']}\n"
+            "t0 = time.monotonic()\n"
+            f"for i in range({case['iters']}):\n    {case['py']}\n"
+            "t1 = time.monotonic()\nprint(acc)\nprint(t1 - t0)\n")
+
+
+def build_cheatah(case, body, d, stem):
+    """Compile ONCE, outside the timing loop. Compilation is not what we are measuring, and
+    re-running purrc between rounds would put a multi-second gap between the two sides."""
+    purr, so = os.path.join(d, stem + ".purr"), os.path.join(d, stem + ".so")
+    open(purr, "w").write(cheatah_src(case, body))
+    return so if _run([PURRC, purr, "-o", so]).returncode == 0 else None
+
+
+def _elapsed(argv):
+    out = _run(argv).stdout.strip().splitlines()
+    try:
+        return float(out[-1])
+    except (IndexError, ValueError):
+        return None
+
+
+def measure(case):
+    """One case, ROUNDS striated rounds. Returns None if the cheatah side cannot be built
+    or run; the CPython side may legitimately be absent (cheatah-only rows)."""
+    compared = case["kind"] == "compared"
+    with tempfile.TemporaryDirectory() as d:
+        so = build_cheatah(case, case["body"], d, "b")
+        if so is None:
             return None
-        best = t if best is None or t < best else best
-    return best
+        # The elision guard: an empty loop built from the same scaffolding. Timed in the
+        # same rounds so it sees the same machine conditions as the body it is judging.
+        so_empty = build_cheatah(case, "acc = acc", d, "e")
+        py = python_src(case) if compared else None
+
+        ch, cp, empty, ratios = [], [], [], []
+        for _ in range(ROUNDS):
+            # cheatah and CPython back to back — the whole point of the round.
+            t = _elapsed([CHEATAH, so])
+            if t is None:
+                return None
+            ch.append(t)
+            if py is not None:
+                p = _elapsed([sys.executable, "-c", py])
+                if p is not None:
+                    cp.append(p)
+                    ratios.append(p / t)          # PAIRED: same round, same conditions
+            if so_empty is not None:
+                e = _elapsed([CHEATAH, so_empty])
+                if e is not None:
+                    empty.append(e)
+
+    out = {"cheatah": _median(ch), "cheatah_iqr": _iqr(ch),
+           "empty": _median(empty) if empty else None}
+    if cp:
+        out.update(compare=_median(cp), compare_iqr=_iqr(cp),
+                   speedup=_median(ratios), speedup_lo=min(ratios), speedup_hi=max(ratios))
+    return out
 
 
 def main():
@@ -366,42 +456,73 @@ def main():
             results[key] = case
             print(f"{key:<26} {kind}")
             continue
-        empty = time_cheatah(case, "acc = acc")
-        ct = time_cheatah(case, case["body"])
-        if ct is None:
+        m = measure(case)
+        if m is None:
             print(f"{key:<26} ⚠ cheatah failed")
             continue
-        ch_ns = ct / case["iters"] * 1e9
-        elided = empty is not None and ct < empty * 1.3
-        row = {"kind": kind, "cheatah_ns": round(ch_ns, 2)}
+        per_iter = 1e9 / case["iters"]
+        ch_ns = m["cheatah"] * per_iter
+        elided = m["empty"] is not None and m["cheatah"] < m["empty"] * 1.3
+        row = {"kind": kind, "cheatah_ns": round(ch_ns, 2),
+               "cheatah_ns_iqr": round(m["cheatah_iqr"] * per_iter, 2),
+               "rounds": ROUNDS, "statistic": "median; spread = IQR over rounds"}
         if elided:
             row["warn"] = "elided"
         if kind == "compared":
             row["vs"] = case.get("vs", "cpython")   # comparison target: cpython | numpy
-            pt = time_python(case)
-            if pt is not None:
-                row["compare_ns"] = round(pt / case["iters"] * 1e9, 2)
-                row["speedup"] = round(pt / ct, 1)
+            if "compare" in m:
+                row["compare_ns"] = round(m["compare"] * per_iter, 2)
+                row["compare_ns_iqr"] = round(m["compare_iqr"] * per_iter, 2)
+                # The headline is the MEDIAN OF THE PAIRED RATIOS, not the ratio of the two
+                # medians — the two differ whenever the machine drifts, and only the former
+                # stays unbiased. lo/hi bound how much the ratio moved across rounds.
+                row["speedup"] = round(m["speedup"], 1)
+                row["speedup_lo"] = round(m["speedup_lo"], 1)
+                row["speedup_hi"] = round(m["speedup_hi"], 1)
         results[key] = row
-        extra = f"  ⚠ELIDED" if elided else ""
-        sp = f"  {row.get('speedup','—')}× vs {row.get('vs','')}" if kind == "compared" else "  (cheatah-only)"
-        print(f"{key:<26} {ch_ns:>8.2f} ns{sp}{extra}")
+        extra = "  ⚠ELIDED" if elided else ""
+        if kind == "compared" and "speedup" in row:
+            sp = (f"  {row['speedup']}× vs {row['vs']}"
+                  f" [{row['speedup_lo']}–{row['speedup_hi']}]")
+        elif kind == "compared":
+            sp = f"  —× vs {row.get('vs','')}"
+        else:
+            sp = "  (cheatah-only)"
+        print(f"{key:<26} {ch_ns:>8.2f} ns ±{row['cheatah_ns_iqr']:<6.2f}{sp}{extra}")
 
     try:
         import numpy as _np
         npv = _np.__version__
     except Exception:
         npv = "?"
-    meta = {"machine": platform.processor() or platform.machine(),
+    meta = {"machine": _machine_string(),
             "cheatah_commit": commit,
             "cpython": f"{sys.version_info.major}.{sys.version_info.minor}."
                        f"{sys.version_info.micro}",
             "numpy": npv,
-            "generated": time.strftime("%Y-%m-%d")}
+            "generated": time.strftime("%Y-%m-%d"),
+            "rounds": ROUNDS,
+            "statistic": "median of paired per-round ratios; spread = IQR over rounds",
+            "striated": True}
+    # A partial run (`perf_suite.py math io`) keeps every other module's PREVIOUS row while
+    # stamping a fresh date/commit over the whole file — which would quietly claim the untouched
+    # rows were measured today, on this commit, under this methodology. Name the modules that
+    # actually ran so the stamp cannot overstate its own coverage.
+    if only:
+        meta["partial"] = sorted(only)
+        meta["generated_note"] = ("PARTIAL RUN — only the listed modules were re-measured; "
+                                  "every other row is carried over from the previous file")
     # A LIST of full records (every field present + has_compare), sorted by name — the
     # shape parsers.json's typed reader consumes in the pure-cheatah docs generator.
     FIELDS = {"kind": "", "note": "", "cheatah_ns": 0.0, "compare_ns": 0.0, "speedup": 0.0,
-              "vs": "", "cheatah_us": 0.0, "numpy_us": 0.0, "dims": "", "warn": ""}
+              "vs": "", "cheatah_us": 0.0, "numpy_us": 0.0, "dims": "", "warn": "",
+              # Added with the striated/median rewrite. ADDITIVE ONLY: the four keys above
+              # keep their names so docs/gen/generate.py and docs/gen-cheatah/gen.purr —
+              # the latter reading through a FIXED typed field list — keep working. Any
+              # future removal has to change all three files in one commit.
+              "cheatah_ns_iqr": 0.0, "compare_ns_iqr": 0.0,
+              "speedup_lo": 0.0, "speedup_hi": 0.0,
+              "rounds": 0, "statistic": ""}
     recs = []
     for name in sorted(results):
         e = results[name]
