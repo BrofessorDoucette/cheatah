@@ -197,7 +197,7 @@ TEST(CheatahCodegen, EmitsStructDefinition) {
     ASSERT_TRUE(cg.ok());
     EXPECT_TRUE(contains(cg.source, "struct Bar {"));
     EXPECT_TRUE(contains(cg.source, "std::string date;"));
-    EXPECT_TRUE(contains(cg.source, "double close;"));
+    EXPECT_TRUE(contains(cg.source, "double close{};"));
 }
 
 TEST(CheatahCodegen, EmitsScopedEnumClass) {
@@ -205,7 +205,7 @@ TEST(CheatahCodegen, EmitsScopedEnumClass) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "enum class Color {"));  // scoped, not a plain enum
+    EXPECT_TRUE(contains(cg.source, "enum class Color : std::uint8_t {"));  // scoped, byte-sized (implicit values)
     EXPECT_TRUE(contains(cg.source, "RED,"));
     EXPECT_TRUE(contains(cg.source, "BLUE,"));
     // A streamable debug form so io.print(Color.RED) shows "Color.RED".
@@ -244,9 +244,9 @@ TEST(CheatahCodegen, EmitsControlFlow) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program);
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "while ((n < 3LL)) {"));
+    EXPECT_TRUE(contains(cg.source, "while (n < 3LL) {"));
     EXPECT_TRUE(contains(cg.source, "for (long long i = 0LL; i < 2LL; ++i) {"));
-    EXPECT_TRUE(contains(cg.source, "if ((n > 0LL)) {"));
+    EXPECT_TRUE(contains(cg.source, "if (n > 0LL) {"));
     EXPECT_TRUE(contains(cg.source, "} else {"));
 }
 
@@ -265,7 +265,7 @@ TEST(CheatahCodegen, StructMethodBecomesMemberFunction) {
     ASSERT_TRUE(pr.ok());
     const CodegenResult cg = codegen(pr.program, "", false);  // keep unused a to see the member call
     ASSERT_TRUE(cg.ok());
-    EXPECT_TRUE(contains(cg.source, "double r;"));
+    EXPECT_TRUE(contains(cg.source, "double r{};"));
     EXPECT_TRUE(contains(cg.source, "auto area() const {"));     // non-mutating -> const; self is (*this)
     EXPECT_TRUE(contains(cg.source, "return ((*this).r * (*this).r);"));
     EXPECT_TRUE(contains(cg.source, "auto a = c.area();"));      // call is a direct member call

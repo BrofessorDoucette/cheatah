@@ -9,7 +9,7 @@ namespace io = ::cheatah::io;
 
 namespace {
 
-static auto response(builtins::Value auto&& status, builtins::Value auto&& ctype, builtins::Value auto&& body) {
+auto response(builtins::Value auto&& status, builtins::Value auto&& ctype, builtins::Value auto&& body) {
     auto nl = std::string("\n");
     auto head = ((std::string("HTTP/1.1 ") + builtins::str(status)) + builtins::str(nl));
     ((head += "Content-Type: ") += ctype) += nl;

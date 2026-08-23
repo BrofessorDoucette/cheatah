@@ -6,7 +6,6 @@
 
 namespace cheatah_program {
 
-namespace builtins = ::cheatah::builtins;
 namespace io = ::cheatah::io;
 namespace linalg = ::cheatah::linalg;
 namespace ndarray = ::cheatah::ndarray;

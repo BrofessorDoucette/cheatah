@@ -4,7 +4,6 @@
 
 namespace cheatah_program {
 
-namespace builtins = ::cheatah::builtins;
 namespace io = ::cheatah::io;
 
 template <typename Self>
@@ -53,7 +52,7 @@ inline std::ostream& operator<<(std::ostream& os_, const Rect& v_) {
 
 namespace {
 
-static auto report(Shape auto&& s) {
+auto report(Shape auto&& s) {
     io::print("area =", s.area());
 }
 

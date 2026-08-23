@@ -3,6 +3,7 @@
 #include "codegen.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <array>
 #include <map>
 #include <optional>
@@ -543,7 +544,8 @@ public:
         // match a libc function — shortens cleanly with no global pollution. The exported
         // entry point is a tiny extern-"C" trampoline at file scope (below).
         os << "namespace cheatah_program {\n\n";
-        emit_aliases(os, alias_builtins);
+        os << "/*PURR_ALIASES*/";  // filled in once the body is known (see the return below)
+        fn_linkage_ = "";
         emit_types(os, prog);
         emit_json_schemas(os, prog, "cheatah_program");
         // Program functions live in an anonymous namespace: internal linkage like `static`, in
@@ -584,6 +586,16 @@ public:
 
         CodegenResult r;
         r.source = os.str();
+        {
+            // The module aliases go where the placeholder is, now that the body is known: the
+            // synthesized `builtins` alias is emitted only if the program actually spells
+            // `builtins::` somewhere (misc-unused-alias-decls on the emitted C++).
+            std::ostringstream aliases;
+            const std::string::size_type at = r.source.find("/*PURR_ALIASES*/");
+            const std::string rest = at == std::string::npos ? std::string{} : r.source.substr(at);
+            emit_aliases(aliases, alias_builtins && rest.find("builtins::") != std::string::npos);
+            if (at != std::string::npos) r.source.replace(at, std::strlen("/*PURR_ALIASES*/"), aliases.str());
+        }
         for (const std::string& root : roots_) r.modules.push_back(root);
         r.diagnostics = std::move(diags_);
         return r;
@@ -742,7 +754,7 @@ private:
             if (fd.doc.find("@return") != std::string::npos)
                 ov_doc += "\n@return as the primary overload.";
             emit_doc(os, ov_doc);
-            os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
+            os << fn_linkage_ << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
            << " " << cpp_ident(fd.name) << "(";
             for (std::size_t i = 0; i < cut; ++i) {
                 os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
@@ -1236,7 +1248,7 @@ private:
         // param becomes a concept-constrained `auto` (static dispatch). A `-> Type` hint
         // pins the return type (the C++ backend then checks every `return` against it);
         // absent, the return stays `auto`.
-        os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
+        os << fn_linkage_ << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
            << " " << cpp_ident(fd.name) << "(";
         for (std::size_t i = 0; i < fd.params.size(); ++i) {
             os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
@@ -1265,7 +1277,7 @@ private:
             if (fd.doc.find("@return") != std::string::npos)
                 ov_doc += "\n@return as the primary overload.";
             emit_doc(os, ov_doc);
-            os << "static " << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
+            os << fn_linkage_ << (fd.is_constexpr ? "constexpr " : "") << return_type_cpp(fd.return_type)
            << " " << cpp_ident(fd.name) << "(";
             for (std::size_t i = 0; i < cut; ++i) {
                 os << (i != 0 ? ", " : "") << param_prefix(method_param_type(fd, i)) << cpp_ident(fd.params[i]);
@@ -2306,6 +2318,9 @@ private:
     // The namespace prefix for built-in calls: the short alias `builtins::` normally,
     // or the explicit `cheatah::builtins::` if the program itself defines `builtins`.
     std::string builtins_ns_ = "builtins::";
+    // Linkage keyword for free functions: "static " in a library header (one per including TU);
+    // empty in program mode, where the anonymous namespace already gives internal linkage.
+    std::string fn_linkage_ = "static ";
 
     // Walk the whole program collecting names it introduces (recurses into every block).
     void collect_defined(const Block& body) {
