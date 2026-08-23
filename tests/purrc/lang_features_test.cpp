@@ -532,3 +532,24 @@ try { raise "boom" } except typename { io.print(typename) }
     // A field's printed label keeps the ORIGINAL spelling (string literal, not an identifier).
     EXPECT_NE(gen.find("\"new"), std::string::npos) << "field label should keep raw name:\n" << gen;
 }
+
+// A program function may call one defined AFTER it, passing a program struct: the call
+// resolves by ADL on the argument type at instantiation. The emitted functions must
+// therefore live in the same namespace as the program's types — an anonymous namespace
+// around them (tried once for misc-use-anonymous-namespace) made this stop compiling in
+// a downstream app, and nothing in the corpus had exercised it.
+TEST(LangFeatures, ForwardReferenceThroughStructArgument) {
+    e2e::expect_e2e("lang_forward_reference", R"PURR(import io
+struct Token {
+    value: int
+}
+fn render(t: Token) {
+    return describe(t)
+}
+fn describe(t: Token) {
+    return "token " + str(t.value)
+}
+io.print(render(Token({.value = 7})))
+)PURR",
+                    "token 7\n");
+}

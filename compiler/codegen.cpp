@@ -545,17 +545,16 @@ public:
         // entry point is a tiny extern-"C" trampoline at file scope (below).
         os << "namespace cheatah_program {\n\n";
         os << "/*PURR_ALIASES*/";  // filled in once the body is known (see the return below)
-        fn_linkage_ = "";
         emit_types(os, prog);
         emit_json_schemas(os, prog, "cheatah_program");
-        // Program functions live in an anonymous namespace: internal linkage like `static`, in
-        // the form the C++ Core Guidelines ask for (misc-use-anonymous-namespace).
-        const bool has_fns = std::ranges::any_of(prog.body, [](const StmtPtr& s) { return s->kind == StmtKind::FnDef; });
-        if (has_fns) os << "namespace {\n\n";
+        // Program functions stay `static` at namespace scope, NOT in an anonymous namespace: a
+        // program function that calls one defined later resolves it by ADL at instantiation, and
+        // ADL searches the namespace of the ARGUMENT type (cheatah_program) — a nested anonymous
+        // namespace would be invisible to it and forward references would stop compiling (this
+        // broke a downstream app). gen/.clang-tidy excuses misc-use-anonymous-namespace for that.
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::FnDef) gen_fn(os, static_cast<const FnDef&>(*s));
         }
-        if (has_fns) os << "}  // namespace\n\n";
 
         // The program body, as an internal function the exported trampoline calls. Its
         // name must not collide with a program function the user defined (e.g. a

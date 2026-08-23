@@ -17,6 +17,11 @@
 #   -modernize-use-std-numbers                      a numeric literal in emitted code is the
 #                                                     USER's literal, verbatim; the transpiler
 #                                                     never rewrites constants
+#   -misc-use-anonymous-namespace                   program functions are `static` in the
+#                                                     program namespace ON PURPOSE: a forward
+#                                                     reference between them resolves by ADL on
+#                                                     the argument type, which never looks into a
+#                                                     nested anonymous namespace
 # cert (rest), bugprone, clang-analyzer, concurrency, performance stay FULLY on — they are
 # exactly the "is the emitted C++ sound and lean" checks. Bloat-flavored readability checks
 # (redundant casts/inits, container-size-empty) deliberately stay on: findings there are
@@ -28,4 +33,5 @@ Checks: >
   -readability-else-after-return,
   -modernize-concat-nested-namespaces,
   -cert-err58-cpp,
-  -modernize-use-std-numbers
+  -modernize-use-std-numbers,
+  -misc-use-anonymous-namespace

@@ -50,14 +50,10 @@ inline std::ostream& operator<<(std::ostream& os_, const Rect& v_) {
     return os_ << "Rect(" << "w=" << v_.w << ", h=" << v_.h << ")";
 }
 
-namespace {
-
-auto report(Shape auto&& s) {
+static auto report(Shape auto&& s) {
     io::print("area =", s.area());
 }
 
-
-}  // namespace
 
 void purr_main() {
     auto c = Circle{.r = 2.0};

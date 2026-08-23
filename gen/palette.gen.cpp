@@ -20,9 +20,7 @@ inline std::ostream& operator<<(std::ostream& os_, Color v_) {
     return os_ << "Color(" << static_cast<long long>(v_) << ")";
 }
 
-namespace {
-
-auto to_hex(builtins::Value auto&& c) {
+static auto to_hex(builtins::Value auto&& c) {
     {
         auto _purr_match_0 = c;
         if (_purr_match_0 == Color::RED) {
@@ -38,8 +36,6 @@ auto to_hex(builtins::Value auto&& c) {
     return std::string("#000000");
 }
 
-
-}  // namespace
 
 void purr_main() {
     for (auto& c : std::vector{Color::RED, Color::GREEN, Color::BLUE}) {
