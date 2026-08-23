@@ -68,15 +68,15 @@ s = ((s + p) + <span class="tok-str">&quot;\n&quot;</span>);   <span class="tok-
         <span class="tok-ns">io</span>::<span class="tok-fn">print</span>(<span class="tok-str">&quot;other&quot;</span>);
     }
 }</code></pre><p>Only the <code><span class="tok-str">&quot;two&quot;</span></code> arm survives into the object code; the <code><span class="tok-str">&quot;one&quot;</span></code> and <code><span class="tok-str">&quot;other&quot;</span></code> arms are discarded before codegen — zero runtime cost and zero binary weight.</p><p><strong>2 — Not constant, but an integer <code><span class="tok-kw">match</span></code>? → <code>switch</code> (a jump table).</strong> An integer <code><span class="tok-kw">match</span></code> becomes a real C++ <code>switch</code> — O(1) dispatch no matter how many cases:</p><pre class="code"><code><span class="tok-kw">static</span> <span class="tok-kw">auto</span> <span class="tok-fn">label</span>(<span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; n) {
-    <span class="tok-kw">auto</span> __match_0 = n;
-    <span class="tok-kw">switch</span> (__match_0) {
+    <span class="tok-kw">auto</span> _purr_match_0 = n;
+    <span class="tok-kw">switch</span> (_purr_match_0) {
         <span class="tok-kw">case</span> <span class="tok-num">1LL</span>: { <span class="tok-kw">return</span> <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;one&quot;</span>); }
         <span class="tok-kw">case</span> <span class="tok-num">2LL</span>: { <span class="tok-kw">return</span> <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;two&quot;</span>); }
         <span class="tok-kw">default</span>:  { <span class="tok-kw">return</span> <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;many&quot;</span>); }
     }
 }</code></pre><p><strong>3 — Otherwise → an <code><span class="tok-kw">if</span></code> / <code><span class="tok-kw">else</span>-<span class="tok-kw">if</span></code> chain.</strong> A <code><span class="tok-kw">match</span></code> over a string/float/runtime subject (or a plain runtime <code><span class="tok-kw">if</span></code>) keeps the sequential equality-test ladder — the only form C++ accepts for a non-integer subject:</p><pre class="code"><code><span class="tok-kw">static</span> <span class="tok-kw">auto</span> <span class="tok-fn">kind</span>(<span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; s) {
-    <span class="tok-kw">auto</span> __match_0 = s;
-    <span class="tok-kw">if</span> (__match_0 == <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;a&quot;</span>)) {
+    <span class="tok-kw">auto</span> _purr_match_0 = s;
+    <span class="tok-kw">if</span> (_purr_match_0 == <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;a&quot;</span>)) {
         <span class="tok-kw">return</span> <span class="tok-num">1LL</span>;
     } <span class="tok-kw">else</span> {
         <span class="tok-kw">return</span> <span class="tok-num">0LL</span>;

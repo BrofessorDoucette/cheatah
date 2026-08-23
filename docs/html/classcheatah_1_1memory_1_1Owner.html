@@ -38,7 +38,7 @@
   </div>
   <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"></span> <span class="mname">Owner</span>(T &amp;&amp;value, policy pol=policy::interleave)</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L61" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Owner_1ad58debdc75f4b76af9d9e744a4c70e28"><code class="sig"><span class="mtype"></span> <span class="mname">Owner</span>(const Owner &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L63" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ad58debdc75f4b76af9d9e744a4c70e28" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Owner_1afe26d3af1ef87aaabbdb2e8ad4823405"><code class="sig"><span class="mtype"></span> <span class="mname">Owner</span>(Owner &amp;&amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L65" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1afe26d3af1ef87aaabbdb2e8ad4823405" aria-label="permalink">#</a></span></div></div>
   <p class="member-brief">Take sole ownership by MOVING <code>value</code> in — the object is consumed (its resources move into the <a href="classcheatah_1_1memory_1_1Owner.html">Owner</a>), never copied. </p>
-  <div class="member-body"><p>An lvalue won&#x27;t bind here (bind an rvalue: <code><span class="tok-fn">own</span>(std::<span class="tok-fn">move</span>(x))</code>).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the object to take ownership of (moved in).</p></td></tr><tr><td class="pname"><code>pol</code></td><td class="pdesc"><p>the scheduling policy (interleave / writes_first).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus moving <code>value</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one read-generation gate (<code>std::make_shared</code>); the value&#x27;s own storage just moves.</p></span></div><div class="tag tag-xref"><span class="tag-k">Concurrency</span><span class="tag-v"><p>construct before sharing; the pinned <a href="classcheatah_1_1memory_1_1Owner.html">Owner</a> must outlive every lease and every thread that uses it.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_memory_tests_memory_test_cpp.html#L99"><code><span class="tn-suite">Memory</span>.<span class="tn-case">OwnerConsumesAndMovesTheObjectInNeverCopies</span></code></a></span></div></div>
+  <div class="member-body"><p>An lvalue won&#x27;t bind here (bind an rvalue: <code><span class="tok-fn">own</span>(std::<span class="tok-fn">move</span>(x))</code>).</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the object to take ownership of (moved in).</p></td></tr><tr><td class="pname"><code>pol</code></td><td class="pdesc"><p>the scheduling policy (interleave / writes_first).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) plus moving <code>value</code>.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one read-generation gate (<code>std::make_shared</code>); the value&#x27;s own storage just moves.</p></span></div><div class="tag tag-xref"><span class="tag-k">Concurrency</span><span class="tag-v"><p>construct before sharing; the pinned <a href="classcheatah_1_1memory_1_1Owner.html">Owner</a> must outlive every lease and every thread that uses it.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_memory_tests_memory_test_cpp.html#L102"><code><span class="tn-suite">Memory</span>.<span class="tn-case">OwnerConsumesAndMovesTheObjectInNeverCopies</span></code></a></span></div></div>
 </section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
@@ -47,27 +47,35 @@
   <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Owner.html#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a> &amp;</span> <span class="mname">operator=</span>(const Owner &amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L64" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1memory_1_1Owner_1aecfc13023578c435aeed0f59fafe67f6"><code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Owner.html#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a> &amp;</span> <span class="mname">operator=</span>(Owner &amp;&amp;)=delete</code><span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L66" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1aecfc13023578c435aeed0f59fafe67f6" aria-label="permalink">#</a></span></div></div>
   
   <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a8d270d4762f1f99b5e00af11b51463fd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">~Owner</span>()=default</code>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L67" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a8d270d4762f1f99b5e00af11b51463fd" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
 </section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, read &gt; &gt;</span> <span class="mname">rread</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L79" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L80" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief"><a href="classcheatah_1_1memory_1_1Request.html">Request</a> a shared READ lease. </p>
-  <div class="member-body"><p>Blocks — in THIS call: the grant is synchronous, so the returned request is already fulfilled — only while a write is pending/active or queued; otherwise many read leases coexist.</p><div class="ret"><span class="ret-h">Returns</span> <p>a request for a read lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) amortized.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the request&#x27;s promise/future.</p></span></div><div class="tag tag-xref"><span class="tag-k">Concurrency</span><span class="tag-v"><p>callable from any thread; readers share. Writer-preference: this waits while any write is active, suspended, or queued, so writers cannot starve.</p></span></div><div class="admon warning"><div class="admon-h">Warning</div><div class="admon-b"><p>requesting while the SAME thread still holds a lease on this owner can deadlock (a queued write makes the grant wait on that very lease) — renewal is release, then re-request.</p></div></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_memory_tests_memory_test_cpp.html#L167"><code><span class="tn-suite">Memory</span>.<span class="tn-case">ReadLeasesCoexist</span></code></a> <a href="src_stdlib_memory_tests_memory_concurrency_test_cpp.html#L295"><code><span class="tn-suite">MemoryConcurrency</span>.<span class="tn-case">ManyReadersCoexistThenAWriteDrains</span></code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_memory_cheatah_e2e_test_cpp.html#L29"><code><span class="tn-suite">MemoryCheatah</span>.<span class="tn-case">ReadLeaseValidState</span></code></a></span></div></div>
+  <div class="member-body"><p>Blocks — in THIS call: the grant is synchronous, so the returned request is already fulfilled — only while a write is pending/active or queued; otherwise many read leases coexist.</p><div class="ret"><span class="ret-h">Returns</span> <p>a request for a read lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) amortized.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the request&#x27;s promise/future.</p></span></div><div class="tag tag-xref"><span class="tag-k">Concurrency</span><span class="tag-v"><p>callable from any thread; readers share. Writer-preference: this waits while any write is active, suspended, or queued, so writers cannot starve.</p></span></div><div class="admon warning"><div class="admon-h">Warning</div><div class="admon-b"><p>requesting while the SAME thread still holds a lease on this owner can deadlock (a queued write makes the grant wait on that very lease) — renewal is release, then re-request.</p></div></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_memory_tests_memory_test_cpp.html#L171"><code><span class="tn-suite">Memory</span>.<span class="tn-case">ReadLeasesCoexist</span></code></a> <a href="src_stdlib_memory_tests_memory_concurrency_test_cpp.html#L297"><code><span class="tn-suite">MemoryConcurrency</span>.<span class="tn-case">ManyReadersCoexistThenAWriteDrains</span></code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_memory_cheatah_e2e_test_cpp.html#L29"><code><span class="tn-suite">MemoryCheatah</span>.<span class="tn-case">ReadLeaseValidState</span></code></a></span></div></div>
 </section><section class="member" id="classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, write &gt; &gt;</span> <span class="mname">rwrite</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L111" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L112" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief"><a href="classcheatah_1_1memory_1_1Request.html">Request</a> an exclusive WRITE lease at compile-time <code>priority</code> (a plain int or the caller&#x27;s enum; higher = served first, ties FIFO). </p>
-  <div class="member-body"><p><code>priority &lt; <span class="tok-num">0</span></code> (spell it <code><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429">memory::immediate</a></code>) is an immediate-write. Blocks in THIS call — the grant is synchronous, so the returned request is already fulfilled — until the readers drain and this write wins the queue.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>priority</code></td><td class="pdesc"><p>the compile-time write priority.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a request for a write lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(log k) to enqueue among k waiters (O(1) immediate), plus the blocking wait.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the request&#x27;s promise/future, two fresh gates (<code>std::make_shared</code>: this write&#x27;s own + the next read generation&#x27;s), plus one queue-ticket slot (amortized) for a non-immediate write.</p></span></div><div class="tag tag-xref"><span class="tag-k">Concurrency</span><span class="tag-v"><p>callable from any thread. Drain-before-write: flips the current read generation&#x27;s gate and waits until every reader has released and no other write is active; an immediate-write skips the queue and additionally preempts a cooperating active writer (which resumes after).</p></span></div><div class="admon warning"><div class="admon-h">Warning</div><div class="admon-b"><p>requesting while the SAME thread still holds a lease on this owner deadlocks (the drain waits on that very lease) — release first, then re-request.</p></div></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_memory_tests_memory_test_cpp.html#L211"><code><span class="tn-suite">Memory</span>.<span class="tn-case">WriteWaitsForReadersToDrain</span></code></a> <a href="src_stdlib_memory_tests_memory_test_cpp.html#L272"><code><span class="tn-suite">Memory</span>.<span class="tn-case">HigherPriorityWriteServedFirst</span></code></a> <a href="src_stdlib_memory_tests_memory_test_cpp.html#L318"><code><span class="tn-suite">Memory</span>.<span class="tn-case">NegativePriorityImmediateWritePreemptsTheActiveWriterWhichThenResumes</span></code></a> <a href="src_stdlib_memory_tests_memory_concurrency_test_cpp.html#L139"><code><span class="tn-suite">MemoryConcurrency</span>.<span class="tn-case">ManyWritersDeterministicSum</span></code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_memory_cheatah_e2e_test_cpp.html#L34"><code><span class="tn-suite">MemoryCheatah</span>.<span class="tn-case">ConcurrentSumOverSharedOwner</span></code></a></span></div></div>
+  <div class="member-body"><p><code>priority &lt; <span class="tok-num">0</span></code> (spell it <code><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a43a8f778a467a9d858c7386b30450429">memory::immediate</a></code>) is an immediate-write. Blocks in THIS call — the grant is synchronous, so the returned request is already fulfilled — until the readers drain and this write wins the queue.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>priority</code></td><td class="pdesc"><p>the compile-time write priority.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a request for a write lease.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(log k) to enqueue among k waiters (O(1) immediate), plus the blocking wait.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the request&#x27;s promise/future, two fresh gates (<code>std::make_shared</code>: this write&#x27;s own + the next read generation&#x27;s), plus one queue-ticket slot (amortized) for a non-immediate write.</p></span></div><div class="tag tag-xref"><span class="tag-k">Concurrency</span><span class="tag-v"><p>callable from any thread. Drain-before-write: flips the current read generation&#x27;s gate and waits until every reader has released and no other write is active; an immediate-write skips the queue and additionally preempts a cooperating active writer (which resumes after).</p></span></div><div class="admon warning"><div class="admon-h">Warning</div><div class="admon-b"><p>requesting while the SAME thread still holds a lease on this owner deadlocks (the drain waits on that very lease) — release first, then re-request.</p></div></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_memory_tests_memory_test_cpp.html#L215"><code><span class="tn-suite">Memory</span>.<span class="tn-case">WriteWaitsForReadersToDrain</span></code></a> <a href="src_stdlib_memory_tests_memory_test_cpp.html#L276"><code><span class="tn-suite">Memory</span>.<span class="tn-case">HigherPriorityWriteServedFirst</span></code></a> <a href="src_stdlib_memory_tests_memory_test_cpp.html#L322"><code><span class="tn-suite">Memory</span>.<span class="tn-case">NegativePriorityImmediateWritePreemptsTheActiveWriterWhichThenResumes</span></code></a> <a href="src_stdlib_memory_tests_memory_concurrency_test_cpp.html#L140"><code><span class="tn-suite">MemoryConcurrency</span>.<span class="tn-case">ManyWritersDeterministicSum</span></code></a></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><a href="src_tests_purrc_memory_cheatah_e2e_test_cpp.html#L34"><code><span class="tn-suite">MemoryCheatah</span>.<span class="tn-case">ConcurrentSumOverSharedOwner</span></code></a></span></div></div>
 </section><section class="member" id="classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">can_read</span>() const</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L151" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L152" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -75,7 +83,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Gate &gt;</span> <span class="mname">make_gate</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L159" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L160" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -83,7 +91,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, write &gt; &gt;</span> <span class="mname">grant_write</span>(long long prio)</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L168" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L169" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -91,7 +99,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype"><a href="classcheatah_1_1memory_1_1Request.html">Request</a>&lt; <a href="classcheatah_1_1memory_1_1Lease.html">Lease</a>&lt; T, write &gt; &gt;</span> <span class="mname">grant_immediate</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L190" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L191" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -99,7 +107,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">void</span> <span class="mname">release_read</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L215" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L216" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -107,7 +115,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">void</span> <span class="mname">release_write</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L220" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L221" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -115,7 +123,7 @@
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">void</span> <span class="mname">release_immediate</span>()</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L226" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L227" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -123,7 +131,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">T</span> <span class="mname">value_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L119" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L120" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -131,7 +139,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1memory.html#namespacecheatah_1_1memory_1a77b94b0122408c69ea1011ba84dc20d7">policy</a></span> <span class="mname">policy_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L120" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L121" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -139,7 +147,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::mutex</span> <span class="mname">mtx_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L121" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L122" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -147,7 +155,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::condition_variable</span> <span class="mname">cv_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L122" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L123" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -155,7 +163,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">long long</span> <span class="mname">readers_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L123" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L124" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">active read leases. </p>
   <div class="member-body"></div>
@@ -163,7 +171,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">writer_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L124" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L125" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">an active (non-suspended) write lease. </p>
   <div class="member-body"></div>
@@ -171,7 +179,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">writer_suspended_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L125" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L126" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">active writer paused for an immediate-write. </p>
   <div class="member-body"></div>
@@ -179,7 +187,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">bool</span> <span class="mname">immediate_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L126" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L127" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">an immediate-write holds exclusive access. </p>
   <div class="member-body"></div>
@@ -187,7 +195,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Gate &gt;</span> <span class="mname">read_gate_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L127" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L128" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">current read generation&#x27;s yield gate. </p>
   <div class="member-body"></div>
@@ -195,7 +203,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::shared_ptr&lt; detail::Gate &gt;</span> <span class="mname">writer_gate_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L128" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L129" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">the active writer&#x27;s gate (for preempt/resume). </p>
   <div class="member-body"></div>
@@ -203,7 +211,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::priority_queue&lt; Ticket, std::vector&lt; Ticket &gt;, ServedLater &gt;</span> <span class="mname">wq_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L146" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L147" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">waiting non-immediate writes. </p>
   <div class="member-body"></div>
@@ -211,12 +219,12 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">seq_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L147" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_memory_owner_hpp.html#L148" title="View source">source</a><a class="anchor" href="#classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
 </section></main>
-  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d">operator=</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c">rread</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b">rwrite</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0">can_read</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725">make_gate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27">grant_write</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846">grant_immediate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae">release_read</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2">release_write</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6">release_immediate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66">value_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6">policy_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa">mtx_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8">cv_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1">readers_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb">writer_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2">writer_suspended_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f">immediate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f">read_gate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa">writer_gate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26">wq_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7">seq_</a></li></ul></aside>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1memory_1_1Owner_1a04d4d7892672d517fe6bdd781bbc7b16">Owner</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a618edc0688518d4ef25f5bed21d44c3d">operator=</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a8d270d4762f1f99b5e00af11b51463fd">~Owner</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ac72ff350e80f45caa0822ce9829dd68c">rread</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ade68162b93db70cf2d2edcad60b2499b">rwrite</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a576542601d67d0fda60d7588a077b4f0">can_read</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1abec4bb9a22f507d4ba136387e64c2725">make_gate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1aa8a06a1cedb6ecbae7633413f4cb2f27">grant_write</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1acbfa1cac3de78c6f605c6ea49a0ee846">grant_immediate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ac287902ec631579d3683ade974a56fae">release_read</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a229e22a52c780bb1243705d0017298e2">release_write</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a4e938957f6016c2474893f7d879dedf6">release_immediate</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af3582ac43b52a42f950428bf0d31dc66">value_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a2a1ba47329cacf48dc1189e60d6eb7e6">policy_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a2a0f77359f5e95c57137f3c3f3c003fa">mtx_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a6d6e28ec792a3437fd6350fa247481a8">cv_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ad909eef446d052b0c345809fcec743d1">readers_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af2529ae51721ceb2efab922fd96c54eb">writer_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1adf08445bf920f4ecead97a2155b86db2">writer_suspended_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a31b853af5d718d3b67b926ba5e71181f">immediate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ab9b66ca63d06d6bf35d5d3736ff7562f">read_gate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1ae861ec92fd3ebb8c546217fc5bd034aa">writer_gate_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1a844eba6ffea35dd0ce5de0289bc21c26">wq_</a></li><li><a href="#classcheatah_1_1memory_1_1Owner_1af22c2d75d736306e172fb1a9eaf640d7">seq_</a></li></ul></aside>
 </div>
 <footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
 </body>

@@ -39,19 +39,11 @@
   </div>
   <p class="member-brief">Construct from the backing storage. </p>
   <div class="member-body"><p>Owning S=std::string moves the rvalue in; viewing S=std::string_view just stores the (cheap) view — the characters are never copied here.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the string storage (moved in).</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) — a std::string move or a std::string_view copy; characters are never copied.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_test_cpp.html#L127"><code><span class="tn-suite">CheatahParsersJson</span>.<span class="tn-case">ContainerTokenLifecycle</span></code></a></span></div></div>
-</section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1String_1abdf4007208dd42830b5b7768a9881ba9">
-  <div class="member-head">
-    <span class="badge badge-fn">fn</span>
-    <code class="sig"><span class="mtype"></span> <span class="mname">~String</span>()=default</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L50" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1String_1abdf4007208dd42830b5b7768a9881ba9" aria-label="permalink">#</a></span>
-  </div>
-  
-  <div class="member-body"></div>
 </section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1String_1a1ce54cc9aa7ed733a8916ba04c9a3a73">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
     <code class="sig"><span class="mtype">std::string_view</span> <span class="mname">value</span>() const noexcept</code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L59" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1String_1a1ce54cc9aa7ed733a8916ba04c9a3a73" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_string_hpp.html#L58" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1String_1a1ce54cc9aa7ed733a8916ba04c9a3a73" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Read the characters uniformly as a view, whether owning or viewing (no setter). </p>
   <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a std::string_view over the stored characters.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_test_cpp.html#L127"><code><span class="tn-suite">CheatahParsersJson</span>.<span class="tn-case">ContainerTokenLifecycle</span></code></a></span></div></div>
@@ -64,7 +56,7 @@
   
   <div class="member-body"></div>
 </section></main>
-  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1a371d713704b542f7ecb27a1dfd2df1d2">String</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1abdf4007208dd42830b5b7768a9881ba9">~String</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1a1ce54cc9aa7ed733a8916ba04c9a3a73">value</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1abe7201a446cb8d4539ab800f4db827ae">value_</a></li></ul></aside>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1a371d713704b542f7ecb27a1dfd2df1d2">String</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1a1ce54cc9aa7ed733a8916ba04c9a3a73">value</a></li><li><a href="#classcheatah_1_1parsers_1_1json_1_1String_1abe7201a446cb8d4539ab800f4db827ae">value_</a></li></ul></aside>
 </div>
 <footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
 </body>
