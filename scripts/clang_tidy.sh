@@ -120,7 +120,9 @@ DB="$BUILD_DIR/compile_commands.json"
 SOURCE_RE="${TIDY_SOURCE_RE:-/(${REPO}|src|include|tests)/}"
 HEADER_RE="${TIDY_HEADER_RE:-$SOURCE_RE}"
 
-# Anchor the allowlists at the REPO ROOT. Unanchored, a pattern like /(atomizer|tests)/
+# Anchor the allowlists at the REPO ROOT. Unanchored, a pattern like /(foo|tests)/
+# matches every path in a repo whose DIRECTORY is itself named foo —
+# /…/Dev/foo/third_party/x.hpp contains "/foo/" — silently re-admitting|tests)/
 # matches every path in the repo, because the repo DIRECTORY itself is named atomizer —
 # /…/Dev/atomizer/third_party/x.hpp contains "/atomizer/" — silently re-admitting
 # third_party/ and build/_deps/. A pattern that already starts with ^ is used verbatim.
