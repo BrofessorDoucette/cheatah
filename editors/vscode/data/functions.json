@@ -2445,7 +2445,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1304,
+      "srcline": 1303,
       "module": "fixarray",
       "qualified": "fixarray.column"
     },
@@ -2637,7 +2637,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1266,
+      "srcline": 1265,
       "module": "fixarray",
       "qualified": "fixarray.inverse_transpose"
     },
@@ -2687,7 +2687,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1234,
+      "srcline": 1233,
       "module": "fixarray",
       "qualified": "fixarray.matrix_comp_mult"
     },
@@ -2833,7 +2833,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1249,
+      "srcline": 1248,
       "module": "fixarray",
       "qualified": "fixarray.outer_product"
     },
@@ -2912,7 +2912,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1286,
+      "srcline": 1285,
       "module": "fixarray",
       "qualified": "fixarray.row"
     },
@@ -3029,7 +3029,7 @@
         "test": "Fixarray.ToStringMatchesTheNDArrayRendering"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1323,
+      "srcline": 1322,
       "module": "fixarray",
       "qualified": "fixarray.to_string"
     },
