@@ -1231,7 +1231,7 @@ private:
     // `if (x == y)`, not `if ((x == y))`: a binary expression renders parenthesized, and the
     // statement adds its own pair — drop the redundant one when it wraps the whole condition
     // (clang -Wparentheses-equality on the emitted C++).
-    static std::string bare_cond(std::string s) {
+    static std::string bare_cond(const std::string& s) {
         if (s.size() < 2 || s.front() != '(' || s.back() != ')') return s;
         int depth = 0;
         for (std::size_t i = 0; i < s.size(); ++i) {
