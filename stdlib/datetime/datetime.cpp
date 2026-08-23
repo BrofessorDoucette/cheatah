@@ -9,7 +9,7 @@ namespace cheatah::datetime {
 
 namespace {
 std::tm local_tm(double epoch) {
-    const std::time_t t = static_cast<std::time_t>(epoch);
+    const auto t = static_cast<std::time_t>(epoch);
     std::tm out{};
     localtime_r(&t, &out);
     return out;
@@ -17,7 +17,7 @@ std::tm local_tm(double epoch) {
 std::string strf(const std::tm& tm, const char* fmt) {
     char buf[128];
     const std::size_t n = std::strftime(buf, sizeof(buf), fmt, &tm);
-    return std::string(buf, n);
+    return {buf, n};
 }
 } // namespace
 
@@ -27,7 +27,7 @@ double timestamp() {
 }
 std::string now() { return strf(local_tm(timestamp()), "%Y-%m-%d %H:%M:%S"); }
 std::string utcnow() {
-    const std::time_t t = static_cast<std::time_t>(timestamp());
+    const auto t = static_cast<std::time_t>(timestamp());
     std::tm out{};
     gmtime_r(&t, &out);
     return strf(out, "%Y-%m-%dT%H:%M:%SZ");

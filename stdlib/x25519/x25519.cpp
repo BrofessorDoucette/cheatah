@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "x25519.hpp"
 
+#include <cstddef>
 #include <cstdint>
 
 // X25519 (RFC 7748) from scratch. Field elements of GF(2^255 - 19) are 16 limbs of 16 bits
@@ -20,10 +21,10 @@ using Fe = i64[16];  // one field element: 16 little-endian 16-bit limbs
 // multiplied by 38 (= 2 * 19, because 2^256 = 38 mod p). @complexity O(1) @alloc none
 // @test CheatahX25519.Rfc7748Vector1
 void carry(Fe o) {
-    for (int i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         o[i] += (1LL << 16);
         const i64 c = o[i] >> 16;
-        o[(i + 1) * (i < 15)] += c - 1 + 37 * (c - 1) * (i == 15);
+        o[(i + 1) * static_cast<std::size_t>(i < 15)] += c - 1 + 37 * (c - 1) * static_cast<i64>(i == 15);
         o[i] -= c << 16;
     }
 }
@@ -99,7 +100,7 @@ void pack(unsigned char out[32], const Fe n) {
         m[14] &= 0xffff;
         cswap(t, m, 1 - borrow);
     }
-    for (int i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         out[2 * i] = static_cast<unsigned char>(t[i] & 0xff);
         out[2 * i + 1] = static_cast<unsigned char>(t[i] >> 8);
     }
@@ -108,7 +109,7 @@ void pack(unsigned char out[32], const Fe n) {
 // Parse 32 little-endian bytes into limbs; the top bit is MASKED OFF per RFC 7748.
 // @complexity O(1) @alloc none @test CheatahX25519.Rfc7748Vector1
 void unpack(Fe o, const unsigned char in[32]) {
-    for (int i = 0; i < 16; ++i) o[i] = in[2 * i] + (static_cast<i64>(in[2 * i + 1]) << 8);
+    for (std::size_t i = 0; i < 16; ++i) o[i] = in[2 * i] + (static_cast<i64>(in[2 * i + 1]) << 8);
     o[15] &= 0x7fff;
 }
 
@@ -188,7 +189,7 @@ std::string hex_of(const unsigned char in[32]) {
     static constexpr char kHex[] = "0123456789abcdef";
     std::string out;
     out.resize(64);
-    for (int i = 0; i < 32; ++i) {
+    for (std::size_t i = 0; i < 32; ++i) {
         out[2 * i] = kHex[in[i] >> 4];
         out[2 * i + 1] = kHex[in[i] & 0xF];
     }
@@ -202,7 +203,7 @@ std::string x25519(std::string_view scalar_hex, std::string_view point_hex) {
     if (!hex32(scalar_hex, scalar) || !hex32(point_hex, point)) return "";
     scalarmult(out, scalar, point);
     unsigned char acc = 0;  // contributory check: an all-zero shared secret is rejected
-    for (int i = 0; i < 32; ++i) acc |= out[i];
+    for (unsigned char i : out) acc |= i;
     if (acc == 0) return "";
     return hex_of(out);
 }

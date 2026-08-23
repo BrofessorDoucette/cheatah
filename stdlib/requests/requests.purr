@@ -304,12 +304,14 @@ fn to_json(fields) {
 # @systest RequestsSys.CustomHeaders
 fn has_header(headers, name) {
     let target = string.lower(name)
+    let found = false
     for kv in headers {
         if string.lower(kv.first) == target {
-            return true
+            found = true
+            break
         }
     }
-    return false
+    return found
 }
 
 # Parse one hex chunk-size token (e.g. "1aF").

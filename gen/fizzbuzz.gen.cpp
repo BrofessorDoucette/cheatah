@@ -10,13 +10,13 @@ namespace io = ::cheatah::io;
 void purr_main() {
     for (long long i = 1LL; i < 21LL; ++i) {
         auto out = std::string("");
-        if (((builtins::floordiv(i, 3LL) * 3LL) == i)) {
+        if ((builtins::floordiv(i, 3LL) * 3LL) == i) {
             out += "Fizz";
         }
-        if (((builtins::floordiv(i, 5LL) * 5LL) == i)) {
+        if ((builtins::floordiv(i, 5LL) * 5LL) == i) {
             out += "Buzz";
         }
-        if ((out == std::string(""))) {
+        if (out == std::string("")) {
             out = io::str(i);
         }
         io::print(out);

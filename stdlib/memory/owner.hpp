@@ -59,11 +59,12 @@ public:
     /// thread that uses it.
     /// @test Memory.OwnerConsumesAndMovesTheObjectInNeverCopies
     explicit Owner(T&& value, policy pol = policy::interleave)
-        : value_(std::move(value)), policy_(pol) { read_gate_ = make_gate(); }
+        : value_(std::move(value)), policy_(pol), read_gate_(make_gate()) {}  // declaration order: policy_ precedes read_gate_, so make_gate() sees it
     Owner(const Owner&) = delete;                // copying an owner is forbidden — there is one owner.
     Owner& operator=(const Owner&) = delete;     // sole ownership; pinned (mutex is non-movable).
     Owner(Owner&&) = delete;                      // pinned: &value_ must stay stable for live leases.
     Owner& operator=(Owner&&) = delete;
+    ~Owner() = default;                          // the value and the coordinator state unwind in declaration order.
 
     /// Request a shared READ lease. Blocks — in THIS call: the grant is synchronous, so the returned
     /// request is already fulfilled — only while a write is pending/active or queued; otherwise many
@@ -109,7 +110,7 @@ public:
     /// @systest MemoryCheatah.ConcurrentSumOverSharedOwner
     template <auto priority = 0>
     Request<Lease<T, write>> rwrite() {
-        constexpr long long P = static_cast<long long>(priority);
+        constexpr auto P = static_cast<long long>(priority);
         if constexpr (P < 0) return grant_immediate();
         else                 return grant_write(P);
     }

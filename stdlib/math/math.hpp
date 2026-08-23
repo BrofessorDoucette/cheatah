@@ -19,6 +19,7 @@
 #include <cmath>
 #include <concepts>
 #include <limits>
+#include <numbers>
 #include <type_traits>
 
 namespace cheatah::math {
@@ -35,8 +36,8 @@ concept Ordered = requires(const T& a, const T& b) {
 };
 
 // ---- constants ----
-inline constexpr double pi = 3.14159265358979323846;   ///< π.
-inline constexpr double e = 2.71828182845904523536;    ///< Euler's number e.
+inline constexpr double pi = std::numbers::pi;   ///< π.
+inline constexpr double e = std::numbers::e;    ///< Euler's number e.
 inline constexpr double tau = 2.0 * pi;                ///< τ = 2π.
 inline constexpr double inf = std::numeric_limits<double>::infinity();    ///< +∞.
 inline constexpr double nan = std::numeric_limits<double>::quiet_NaN();   ///< quiet NaN.

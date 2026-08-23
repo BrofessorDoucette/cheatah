@@ -152,7 +152,7 @@ TEST(ParsersJsonDom, ValidatingParseRejectsMalformed) {
         "{\"a\" 1}",           // missing ':' between key and value
         "{\"a\":}",            // missing value
         "{\"ab",               // unterminated key string
-        "{\"\\uZZ\":1}",       // key with a malformed \u escape
+        R"({"\uZZ":1})",       // key with a malformed \u escape
         "[",                   // unterminated right after '['
         "{",                   // unterminated right after '{'
         "[1",                  // value then end-of-input (no ',' or ']')
@@ -164,7 +164,7 @@ TEST(ParsersJsonDom, ValidatingParseRejectsMalformed) {
         "fals",                // truncated literal false
         "nul",                 // truncated literal null
         "x",                   // not a value at all
-        "[\"\\uZZZZ\"]",       // string value with a malformed escape
+        R"(["\uZZZZ"])",       // string value with a malformed escape
         "\"no end",            // unterminated string value
         "1 x",                 // trailing junk after a complete value
         "[]]",                 // trailing junk after a complete container

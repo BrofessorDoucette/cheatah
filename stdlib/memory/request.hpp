@@ -39,6 +39,8 @@ public:
     /// @test Memory.EveryAccessorReturnsARequestNotABareLease
     Request& operator=(Request&&) noexcept = default;
     Request(const Request&) = delete;
+    Request& operator=(const Request&) = delete;
+    ~Request() = default;
 
     /**
      * Redeem the request: wait for the owner's grant, then return the lease. (Today's owner grants

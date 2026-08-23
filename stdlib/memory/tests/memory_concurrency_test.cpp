@@ -88,8 +88,8 @@ namespace {
             return static_cast<unsigned>(std::strtoul(e, nullptr, 10));
         const auto drawn = static_cast<unsigned>(std::random_device{}());
         if (jitter_max_us() != 0)
-            std::fprintf(stderr, "[memory-jitter] seed=%u (replay: CHEATAH_MEMORY_SEED=%u)\n",
-                         drawn, drawn);
+            static_cast<void>(std::fprintf(stderr,
+                "[memory-jitter] seed=%u (replay: CHEATAH_MEMORY_SEED=%u)\n", drawn, drawn));
         return drawn;
     }();
     return s;
@@ -130,7 +130,8 @@ constexpr int kWriters = 8;
 const int kIters = [] {
     const int n = running_under_valgrind() ? 300 : 20'000;
     if (running_under_valgrind())
-        std::fprintf(stderr, "[memory] valgrind detected: kIters reduced to %d for tractability\n", n);
+        static_cast<void>(std::fprintf(stderr,
+            "[memory] valgrind detected: kIters reduced to %d for tractability\n", n));
     return n;
 }();
 }  // namespace
@@ -161,6 +162,7 @@ TEST(MemoryConcurrency, OwnerOfNdArrayStaysUniformAndSumsExactly) {
 
     // 4 reader threads: continuously assert the array is uniform.
     std::vector<std::thread> readers;
+    readers.reserve(4);
     for (int r = 0; r < 4; ++r) {
         readers.emplace_back([&] {
             while (!stop.load()) {

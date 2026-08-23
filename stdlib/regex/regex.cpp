@@ -30,7 +30,7 @@ struct Inst {
 
 // ---- 256-bit byte class helpers ------------------------------------------------------
 void set_bit(std::uint64_t cls[4], unsigned char b) { cls[b >> 6] |= (std::uint64_t{1} << (b & 63)); }
-bool has_bit(const std::uint64_t cls[4], unsigned char b) { return (cls[b >> 6] >> (b & 63)) & 1u; }
+bool has_bit(const std::uint64_t cls[4], unsigned char b) { return ((cls[b >> 6] >> (b & 63)) & 1u) != 0u; }
 void set_range(std::uint64_t cls[4], unsigned lo, unsigned hi) {
     for (unsigned c = lo; c <= hi; ++c) set_bit(cls, static_cast<unsigned char>(c));
 }
@@ -38,7 +38,7 @@ void negate(std::uint64_t cls[4]) { for (int i = 0; i < 4; ++i) cls[i] = ~cls[i]
 
 // ---- the compiler: regex source -> NFA program (Thompson construction) ----------------
 struct Hole { int inst; int field; };          // a dangling exit: (instruction, 0=x|1=y)
-struct Frag { int start; std::vector<Hole> holes; };
+struct Frag { int start{}; std::vector<Hole> holes; };
 
 // Maximum group-nesting depth accepted by the recursive-descent parser. `(((…` recurses one
 // parse_atom→parse_alt cycle per '(', so an unbounded pattern would overflow the C++ stack before
@@ -51,7 +51,7 @@ inline constexpr int kMaxParseDepth = 1000;
 // program per pattern byte — so an unbounded hostile pattern is a ~40x memory-amplification
 // DoS that the nesting cap above does not cover (it bounds depth, not breadth). 64 KiB is
 // orders of magnitude beyond any real pattern; longer input is rejected as malformed.
-inline constexpr std::size_t kMaxPatternLength = 64 * 1024;
+inline constexpr std::size_t kMaxPatternLength = std::size_t{64} * 1024;
 
 struct Compiler {
     std::string_view src;
@@ -404,7 +404,7 @@ Pattern compile(std::string_view pattern) {
     // position with no per-position work: 0: Split(body, 1); 1: Byte(any) -> 0.
     c.emit(Inst{});
     Inst anybyte; anybyte.op = Inst::Byte;
-    for (int k = 0; k < 4; ++k) anybyte.cls[k] = ~std::uint64_t{0};
+    for (unsigned long & cl : anybyte.cls) cl = ~std::uint64_t{0};
     anybyte.x = 0;
     c.emit(anybyte);
     c.src = pattern;
@@ -436,7 +436,7 @@ Pattern compile(std::string_view pattern) {
             if (in.op == Inst::Match) dfa->matches_empty = true;  // accepts the empty string
         }
         int cnt = 0;
-        for (int w = 0; w < 4; ++w) cnt += std::popcount(dfa->first[w]);
+        for (unsigned long w : dfa->first) cnt += std::popcount(w);
         dfa->first_count = cnt;
         if (cnt == 1)  // locate the single set bit; the byte-indexed LUT is built lazily on use
             for (int w = 0; w < 4; ++w)
@@ -520,10 +520,10 @@ inline bool accepting(const int* tf, int state) {
 // jumped in one SWAR scan (8 bytes per compare) instead of stepped byte-by-byte. Long
 // same-byte runs are a real input shape: padding, whitespace, repeated data.
 std::size_t skip_run_forward(const char* base, std::size_t p, std::size_t n, char c) {
-    std::uint64_t pat;
+    std::uint64_t pat = 0;
     std::memset(&pat, static_cast<unsigned char>(c), sizeof pat);
     while (p + 8 <= n) {
-        std::uint64_t w;
+        std::uint64_t w = 0;
         std::memcpy(&w, base + p, 8);
         if (w != pat) break;
         p += 8;
@@ -534,10 +534,10 @@ std::size_t skip_run_forward(const char* base, std::size_t p, std::size_t n, cha
 
 // The backward twin: returns the smallest q <= p with bytes [q, p) all equal to `c`.
 std::size_t skip_run_backward(const char* base, std::size_t p, char c) {
-    std::uint64_t pat;
+    std::uint64_t pat = 0;
     std::memset(&pat, static_cast<unsigned char>(c), sizeof pat);
     while (p >= 8) {
-        std::uint64_t w;
+        std::uint64_t w = 0;
         std::memcpy(&w, base + p - 8, 8);
         if (w != pat) break;
         p -= 8;
@@ -589,7 +589,7 @@ bool skip_to_candidate(Dfa& d, std::string_view text, std::size_t& i) {
         while (i + k + 31 <= n) {  // 32 candidate positions per iteration, branch-free
             bool any = false;
             for (unsigned j = 0; j < 32; ++j)
-                any |= (base[i + j] == front) & (base[i + j + k - 1] == back);
+                any |= static_cast<int>(base[i + j] == front) & static_cast<int>(base[i + j + k - 1] == back);
             if (!any) { i += 32; continue; }
             const std::size_t block_end = i + 32;
             for (; i < block_end; ++i)
@@ -652,9 +652,9 @@ bool run_unanchored(Dfa& d, std::string_view text) {
             if (p == n) return false;
             if (can_skip && !skip_to_candidate(d, text, p)) return false;
         }
-        do {
+        for (;;) {  // always steps at least once (p < n here), then runs until the text ends or the start state recurs
             const int prev = state;
-            const unsigned char b = static_cast<unsigned char>(base[p]);
+            const auto b = static_cast<unsigned char>(base[p]);
             state = step_fast(d, tf, state, b);
             ++p;
             if (accepting(tf, state)) return true;
@@ -662,7 +662,8 @@ bool run_unanchored(Dfa& d, std::string_view text) {
                 if (state == ustart) d.ustart_self[b] = 1;  // learn the start self-loop
                 else p = skip_run_forward(base, p, n, static_cast<char>(b));  // S--b-->S run
             }
-        } while (p < n && state != ustart);
+            if (p >= n || state == ustart) break;
+        }
     }
     return false;
 }
@@ -677,7 +678,7 @@ bool run_reverse(Dfa& rd, std::string_view text) {
     std::size_t p = text.size();
     while (p > 0) {
         const int prev = state;
-        const unsigned char b = static_cast<unsigned char>(base[--p]);
+        const auto b = static_cast<unsigned char>(base[--p]);
         state = step_fast(rd, tf, state, b);
         if (accepting(tf, state)) return true;
         if (state == 0) return false;  // dead — no longer suffix can match either
@@ -724,7 +725,7 @@ Match find(const Pattern& re, std::string_view text) {
         std::size_t p = n;
         while (p > 0) {
             const int prev = state;
-            const unsigned char b = static_cast<unsigned char>(base[--p]);
+            const auto b = static_cast<unsigned char>(base[--p]);
             state = step_fast(rd, tf, state, b);
             if (accepting(tf, state)) best = static_cast<long>(p);
             if (state == 0) break;  // dead — no earlier begin can reach the end

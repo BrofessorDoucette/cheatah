@@ -18,7 +18,7 @@ std::string fixed(double value, long long places) {
     const int p = static_cast<int>(std::clamp<long long>(places, 0, 17));
     const int n = std::snprintf(nullptr, 0, "%.*f", p, value);
     std::string out(static_cast<std::size_t>(n), '\0');
-    std::snprintf(out.data(), out.size() + 1, "%.*f", p, value);
+    static_cast<void>(std::snprintf(out.data(), out.size() + 1, "%.*f", p, value));  // length n already measured above
     return out;
 }
 
@@ -84,11 +84,11 @@ std::ios::openmode File::translate_mode(std::string_view mode) {
     return m;
 }
 
-File open(const std::string& path, std::string_view mode) { return File(path, mode); }
+File open(const std::string& path, std::string_view mode) { return {path, mode}; }
 
 std::string read_file(const std::string& path) {
     std::ifstream in(path, std::ios::binary);
-    if (!in) return std::string();
+    if (!in) return {};
     std::ostringstream ss;
     ss << in.rdbuf();
     return ss.str();

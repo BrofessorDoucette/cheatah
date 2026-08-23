@@ -42,12 +42,13 @@ void Thread::settle() noexcept {
         state_->observed = true;
         // A destructor must not throw, so an exception nobody joined for is REPORTED, not lost —
         // the analogue of Python's default excepthook for a thread.
-        std::string what = "unknown error";
+        std::string what;
         try {
             std::rethrow_exception(state_->error);
         } catch (const std::exception& e) {
             what = e.what();
         } catch (...) {
+            what = "unknown error";  // a non-std::exception payload carries no message
         }
         std::cerr << "cheatah thread: unhandled exception in thread: " << what << "\n";
     }

@@ -9,6 +9,7 @@
 // throw. The engine's semantics are additionally cross-checked against Google RE2 by the
 // standalone differential suite (stdlib/regex/bench/rxdiff.cpp).
 
+#include <cstddef>
 #include <gtest/gtest.h>
 
 #include <stdexcept>
@@ -72,8 +73,8 @@ TEST(Regex, CompileErrorStrings) {
 TEST(Regex, PatternLengthCapAtBoundary) {
     // compile() spends ~40 bytes of program per pattern byte, so length is capped (64 KiB)
     // the same way nesting depth is: a crafted huge pattern is rejected, not allocated.
-    EXPECT_TRUE(rx::compile(std::string(64 * 1024, 'a')).ok);
-    rx::Pattern p = rx::compile(std::string(64 * 1024 + 1, 'a'));
+    EXPECT_TRUE(rx::compile(std::string(std::size_t{64} * 1024, 'a')).ok);
+    rx::Pattern p = rx::compile(std::string(std::size_t{64} * 1024 + 1, 'a'));
     EXPECT_FALSE(p.ok);
     EXPECT_EQ(p.error, "pattern too long");
 }
@@ -347,7 +348,7 @@ TEST(Regex, PatternIsReusableAndCheapToCopy) {
     ASSERT_TRUE(p.ok);
     EXPECT_TRUE(rx::search(p, "k=1"));
     EXPECT_TRUE(rx::search(p, "key=42"));      // warm cache, same object
-    rx::Pattern copy = p;                       // shares the compiled program + DFA cache
+    const rx::Pattern& copy = p;                       // shares the compiled program + DFA cache
     EXPECT_TRUE(rx::search(copy, "x=9"));
     EXPECT_FALSE(rx::search(copy, "no pairs"));
 }
@@ -412,7 +413,7 @@ TEST(Regex, StateBudgetThrowsInsteadOfExhaustingMemory) {
     pat += "c";
     rx::Pattern p = rx::compile(pat);
     ASSERT_TRUE(p.ok);
-    std::string hay(512 * 1024, 'a');
+    std::string hay(std::size_t{512} * 1024, 'a');
     std::uint32_t lcg = 12345;
     for (char& c : hay) {
         lcg = lcg * 1664525u + 1013904223u;

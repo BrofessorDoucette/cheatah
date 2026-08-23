@@ -150,8 +150,8 @@ std::string fixed(double value, long long places);
 // their elements; the definitions live further down.
 template <Streamable T>
 std::string repr(const T& value);
-std::string repr(const std::string& value);
-std::string repr(const char* value);
+std::string repr(const std::string& value);  // NOLINT(readability-redundant-declaration): must precede the container templates that call it (ADL cannot find it for std::string)
+std::string repr(const char* value);         // NOLINT(readability-redundant-declaration): same — the documented declaration below is the API-doc anchor
 template <typename T>
     requires(HasStr<T> && !Streamable<T>)
 std::string repr(const T& value);
@@ -343,7 +343,7 @@ std::string repr(const std::complex<T>& z) { return str(z); }
  * @crtest IoCompileRun.Repr
  * @systest StdlibE2E.Io
  */
-std::string repr(const std::string& value);
+std::string repr(const std::string& value);  // NOLINT(readability-redundant-declaration): the API-doc anchor; the early forward declaration above is load-bearing
 /**
  * `repr()` for a C string — quoted (Python repr).
  *
@@ -357,7 +357,7 @@ std::string repr(const std::string& value);
  * @crtest IoCompileRun.Repr
  * @systest StdlibE2E.Io
  */
-std::string repr(const char* value);
+std::string repr(const char* value);  // NOLINT(readability-redundant-declaration): same
 /**
  * repr() of a `str()`-having object is its `str()` (like Python, repr defers to the
  * type's own rendering).
@@ -503,12 +503,12 @@ public:
     File(const File&) = delete;
     File& operator=(const File&) = delete;
     /** Move-construct, taking over the other handle (the moved-from File becomes closed). */
-    File(File&&) = default;
+    File(File&&) noexcept = default;
     /**
      * Move-assign, taking over the other handle (the moved-from File becomes closed).
      * @return reference to this File.
      */
-    File& operator=(File&&) = default;
+    File& operator=(File&&) noexcept = default;
     /**
      * Close the stream if still open.
      * @complexity O(1).

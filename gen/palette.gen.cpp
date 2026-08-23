@@ -8,7 +8,7 @@ namespace cheatah_program {
 namespace builtins = ::cheatah::builtins;
 namespace io = ::cheatah::io;
 
-enum class Color {
+enum class Color : std::uint8_t {
     RED,
     GREEN,
     BLUE,
@@ -20,22 +20,26 @@ inline std::ostream& operator<<(std::ostream& os_, Color v_) {
     return os_ << "Color(" << static_cast<long long>(v_) << ")";
 }
 
+namespace {
+
 static auto to_hex(builtins::Value auto&& c) {
     {
-        auto __match_0 = c;
-        if (__match_0 == Color::RED) {
+        auto _purr_match_0 = c;
+        if (_purr_match_0 == Color::RED) {
             return std::string("#ff0000");
         }
-        else if (__match_0 == Color::GREEN) {
+        else if (_purr_match_0 == Color::GREEN) {
             return std::string("#00ff00");
         }
-        else if (__match_0 == Color::BLUE) {
+        else if (_purr_match_0 == Color::BLUE) {
             return std::string("#0000ff");
         }
     }
     return std::string("#000000");
 }
 
+
+}  // namespace
 
 void purr_main() {
     for (auto& c : std::vector{Color::RED, Color::GREEN, Color::BLUE}) {

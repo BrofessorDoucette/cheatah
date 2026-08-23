@@ -24,7 +24,7 @@ std::string unhex(std::string_view h) {
 
 // The signed message, and the RSA public key (SPKI DER) + PSS-SHA256 signature over it (OpenSSL).
 const std::string kMsg = "cheatah rsa_verify unit-test vector v1";
-const char* kSpkiHex =
+const char* const kSpkiHex =
     "30820122300d06092a864886f70d01010105000382010f003082010a0282010100eb51a46279727366ec85978ee7a2a3"
     "92105d10e045740ac257af7bcd9b36c20a9dc045dd02aabcd275d2b924eadaf00bfe58565a6630bb443f2ed0cdebd77ad"
     "a85fa665679b4ce7868945b59badf5076d74cb28ed73f59b63f4056ff898bb3f6aae1a28e445254af15239cbcfef453af"
@@ -32,7 +32,7 @@ const char* kSpkiHex =
     "81ba3130983d4ae80ddcf980b3409e189fb3f1ee3802044bf31fb18f6dfe37ff823523be6f6af27824d49ff4949f60d1b"
     "e534b4b9671deab950693a86f6b7ad60ad30b57c83f061f561a6597ad822d1068d36d30721034fddd0ac5578210991020"
     "3010001";
-const char* kSigHex =
+const char* const kSigHex =
     "887ff2cc3ae18615c3764ffb165fc9ef726669fd870fa773bfdec5d4e86af05051024f5eda1a7d944e353f5258c195699"
     "46d3d3181820569fab9dafbd770224e602984dea308188c3f1cf7c2dcfa59acf203c708dbb5e68e4569b3afe7825c5376"
     "cadff287b9e4fdb49aafec27329bfede8aebf5117993f36e0e43bc8c52561b1b23122c1189c34f2c25210b9697f6c201b"

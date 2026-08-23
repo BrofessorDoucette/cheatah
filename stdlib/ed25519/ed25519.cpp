@@ -5,6 +5,7 @@
 #include "hashlib.hpp"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <stdexcept>
 
@@ -51,11 +52,11 @@ constexpr i64 LCONST[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58,
 void set25519(gf& r, const gf& a) { r = a; }
 
 void car25519(gf& o) {
-    for (int i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         o[i] += (1LL << 16);
         const i64 c = o[i] >> 16;
         // i<15: carry into the next limb; i==15: carry wraps as 38*(c-1) (since 2^256≡38).
-        o[(i + 1) * (i < 15)] += c - 1 + 37 * (c - 1) * (i == 15);
+        o[(i + 1) * static_cast<std::size_t>(i < 15)] += c - 1 + 37 * (c - 1) * static_cast<i64>(i == 15);
         o[i] -= c << 16;
     }
 }
@@ -81,11 +82,11 @@ void pack25519(u8* o, const gf& n) {
             m[i - 1] &= 0xffff;
         }
         m[15] = t[15] - 0x7fff - ((m[14] >> 16) & 1);
-        const int b = (m[15] >> 16) & 1;
+        const int b = static_cast<int>((m[15] >> 16) & 1);
         m[14] &= 0xffff;
         sel25519(t, m, 1 - b);
     }
-    for (int i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         o[2 * i] = static_cast<u8>(t[i] & 0xff);
         o[2 * i + 1] = static_cast<u8>(t[i] >> 8);
     }
@@ -98,7 +99,7 @@ int neq25519(const gf& a, const gf& b) {
     // crypto_verify_32 (constant-time): 0 if equal.
     unsigned diff = 0;
     for (int i = 0; i < 32; ++i) diff |= static_cast<unsigned>(c[i] ^ d[i]);
-    return (1 & ((diff - 1) >> 8)) - 1;  // 0 if equal, -1 otherwise
+    return static_cast<int>(1 & ((diff - 1) >> 8)) - 1;  // 0 if equal, -1 otherwise
 }
 
 u8 par25519(const gf& a) {
@@ -108,7 +109,7 @@ u8 par25519(const gf& a) {
 }
 
 void unpack25519(gf& o, const u8* n) {
-    for (int i = 0; i < 16; ++i) o[i] = n[2 * i] + (static_cast<i64>(n[2 * i + 1]) << 8);
+    for (std::size_t i = 0; i < 16; ++i) o[i] = n[2 * i] + (static_cast<i64>(n[2 * i + 1]) << 8);
     o[15] &= 0x7fff;
 }
 
@@ -233,7 +234,7 @@ void modL(u8* r, i64 x[64]) {
 
 void reduce(u8* r) {
     i64 x[64];
-    for (int i = 0; i < 64; ++i) x[i] = static_cast<u64>(r[i]);
+    for (int i = 0; i < 64; ++i) x[i] = static_cast<i64>(r[i]);
     for (int i = 0; i < 64; ++i) r[i] = 0;
     modL(r, x);
 }
@@ -377,7 +378,7 @@ std::string sign(std::string_view secret_hex, std::string_view message) {
 
     // S = (r + k*a) mod L
     i64 x[64] = {0};
-    for (int i = 0; i < 32; ++i) x[i] = static_cast<u64>(r[i]);
+    for (int i = 0; i < 32; ++i) x[i] = static_cast<i64>(r[i]);
     for (int i = 0; i < 32; ++i)
         for (int j = 0; j < 32; ++j) x[i + j] += static_cast<i64>(h[i]) * static_cast<i64>(d[j]);
     u8 Sout[32];

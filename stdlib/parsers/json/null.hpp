@@ -12,7 +12,6 @@ class Null {
 public:
 
     Null() = default;
-    ~Null() = default;
 
     /**
      * The value of `null` (there is no data; provided for a uniform value() interface).
@@ -21,7 +20,7 @@ public:
      * @alloc none.
      * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
-    [[nodiscard]] int* value() const noexcept { return nullptr; }
+    [[nodiscard]] static int* value() noexcept { return nullptr; }
 
 };
 

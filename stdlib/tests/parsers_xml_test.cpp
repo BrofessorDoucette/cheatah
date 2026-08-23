@@ -89,7 +89,7 @@ TEST(ParsersXml, FindFindallIterChildren) {
     auto d = xml::parse("<r><x/><x/><y><x/></y>text</r>");
     const int r = doc_elem(d, "r");
     EXPECT_EQ(xml::findall(d, r, "x").size(), 2u);   // direct children only
-    EXPECT_EQ(xml::find(d, r, "y"), *(&xml::findall(d, r, "y")[0]));
+    EXPECT_EQ(xml::find(d, r, "y"), *(xml::findall(d, r, "y").data()));
     EXPECT_EQ(xml::find(d, r, "nope"), -1);
     EXPECT_TRUE(xml::findall(d, r, "nope").empty());
     // iter() walks the whole subtree, in document order, including a self match

@@ -40,7 +40,7 @@ bool remove(const std::string& path) { return fs::remove(path); }
 void rename(const std::string& src, const std::string& dst) { fs::rename(src, dst); }
 
 std::string getenv(const std::string& name, const std::string& fallback) {
-    const char* v = std::getenv(name.c_str());
+    const char* v = std::getenv(name.c_str());  // NOLINT(concurrency-mt-unsafe): os.getenv IS the documented API; the same caveat as POSIX getenv applies
     return (v != nullptr) ? std::string(v) : fallback;
 }
 void setenv(const std::string& name, const std::string& value, bool overwrite) {
@@ -48,7 +48,7 @@ void setenv(const std::string& name, const std::string& value, bool overwrite) {
     if (!overwrite && std::getenv(name.c_str()) != nullptr) return;  // _putenv_s always overwrites
     ::_putenv_s(name.c_str(), value.c_str());
 #else
-    ::setenv(name.c_str(), value.c_str(), overwrite ? 1 : 0);
+    ::setenv(name.c_str(), value.c_str(), overwrite ? 1 : 0);  // NOLINT(concurrency-mt-unsafe): os.setenv IS the documented API; the same caveat as POSIX setenv applies
 #endif
 }
 
@@ -58,7 +58,9 @@ int getpid() { return static_cast<int>(::_getpid()); }
 int getpid() { return static_cast<int>(::getpid()); }
 #endif
 unsigned cpu_count() { return std::thread::hardware_concurrency(); }
-int system(const std::string& command) { return std::system(command.c_str()); }
+// NOLINT below: os.system IS the exposed shell-out API — the command processor is the
+// documented contract here, and the caller owns what they pass it (single-trust model).
+int system(const std::string& command) { return std::system(command.c_str()); }  // NOLINT(cert-env33-c,concurrency-mt-unsafe)
 
 std::string urandom(int n) {
     if (n < 0) throw std::invalid_argument("os.urandom: negative byte count");

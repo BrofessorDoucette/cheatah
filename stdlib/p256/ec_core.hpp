@@ -312,7 +312,7 @@ inline u64 inv64(u64 a) {  // starts correct to 3 bits, doubles per step
  */
 template <WeierstrassCurve C>
 Mont<C> make_mont(const fe<C>& m) {
-    Mont<C> M;
+    Mont<C> M{};
     M.m = m;
     M.n0 = 0 - inv64(m[0]);
     // rr = 2^(2*kBits) mod m, by 2*kBits doublings of 1 with conditional subtract.
@@ -579,7 +579,7 @@ void jac_double_mul(Jac<C>& r, const fe<C>& u1, const Jac<C>& A, const fe<C>& u2
 
     Jac<C> acc = jac_infinity<C>();
     for (int i = static_cast<int>(kBits<C>) - 2; i >= 0; i -= 2) {  // kBits is even
-        Jac<C> t;
+        Jac<C> t{};
         jac_double<C>(t, acc);
         acc = t;
         jac_double<C>(t, acc);
@@ -628,7 +628,7 @@ fe<C> jac_affine_x(const Jac<C>& q) {
 template <WeierstrassCurve C>
 Jac<C> affine_to_jac(const fe<C>& x, const fe<C>& y) {
     const Mont<C>& F = Fp<C>();
-    Jac<C> p;
+    Jac<C> p{};
     to_mont<C>(p.X, x, F);
     to_mont<C>(p.Y, y, F);
     p.Z = F.one;
@@ -669,19 +669,19 @@ const std::array<Jac<C>, (1u << C::kLimbs)>& g_comb() {
         for (std::size_t i = 1; i < L; ++i) {
             Jac<C> acc = gi[i - 1];
             for (int b = 0; b < 64; ++b) {  // gi[i] = 2^64 * gi[i-1]
-                Jac<C> t;
+                Jac<C> t{};
                 jac_double<C>(t, acc);
                 acc = t;
             }
             gi[i] = acc;
         }
-        std::array<Jac<C>, (1u << L)> t;
+        std::array<Jac<C>, (1u << L)> t{};
         t[0] = jac_infinity<C>();
         for (unsigned s = 1; s < (1u << L); ++s) {
             Jac<C> acc = jac_infinity<C>();
             for (std::size_t i = 0; i < L; ++i)
                 if (s & (1u << i)) {
-                    Jac<C> r;
+                    Jac<C> r{};
                     jac_add<C>(r, acc, gi[i]);
                     acc = r;
                 }
@@ -842,7 +842,7 @@ void jac_add_ct(Jac<C>& r, const Jac<C>& a, const Jac<C>& b) {
     const u64 mb = ct_mask(is_zero<C>(b.Z));   // b is infinity
     const u64 hz = ct_mask(is_zero<C>(H));
     const u64 rz = ct_mask(is_zero<C>(Rr));
-    Jac<C> dbl;
+    Jac<C> dbl{};
     jac_double_ct<C>(dbl, a);
     const Jac<C> infp = jac_infinity<C>();
     jac_cmov<C>(r, dbl, hz & rz);    // a == b        -> 2a
@@ -888,12 +888,12 @@ void jac_mul_base(Jac<C>& r, const fe<C>& k) {
     const auto& T = g_comb<C>();
     Jac<C> acc = jac_infinity<C>();
     for (int j = 63; j >= 0; --j) {
-        Jac<C> t;
+        Jac<C> t{};
         jac_double_ct<C>(t, acc);
         acc = t;
         unsigned sel = 0;
         for (std::size_t i = 0; i < C::kLimbs; ++i) sel |= static_cast<unsigned>((k[i] >> j) & 1u) << i;
-        Jac<C> add;
+        Jac<C> add{};
         ct_select<C>(add, T, sel);
         jac_add_ct<C>(t, acc, add);
         acc = t;
@@ -936,7 +936,7 @@ bool ct_add_selfcheck() {
     };
     // Reference points via the branchy ops: P = 3G, Q = 5G, and -P.
     const Jac<C>& G = base_point<C>();
-    Jac<C> P, Q, tmp;
+    Jac<C> P{}, Q{}, tmp{};
     jac_double<C>(tmp, G);      // 2G
     jac_add<C>(P, tmp, G);      // 3G
     jac_double<C>(tmp, tmp);    // 4G
@@ -946,7 +946,7 @@ bool ct_add_selfcheck() {
     mont_sub<C>(negP.Y, zero, P.Y, F);  // -P = (X, -Y, Z)
     const Jac<C> inf = jac_infinity<C>();
 
-    Jac<C> ct, ref;
+    Jac<C> ct{}, ref{};
     bool ok = true;
     jac_add_ct<C>(ct, P, Q);   jac_add<C>(ref, P, Q);   ok &= affine_eq(ct, ref);   // general
     jac_add_ct<C>(ct, P, P);   jac_double<C>(ref, P);   ok &= affine_eq(ct, ref);   // a == b
@@ -998,7 +998,7 @@ fe<C> hash_to_scalar(const std::string& h) {
     if (h.size() >= kBytes<C>)
         std::memcpy(buf, h.data(), kBytes<C>);
     else
-        std::memcpy(buf + (kBytes<C> - h.size()), h.data(), h.size());
+        std::memcpy(buf + (kBytes<C> - h.size()), h.data(), h.size());  // NOLINT(bugprone-not-null-terminated-result): raw big-endian bytes, not a C string
     return reduce_mod_n<C>(be_to_fe<C>(buf));
 }
 
@@ -1018,10 +1018,12 @@ fe<C> hash_to_scalar(const std::string& h) {
  */
 template <WeierstrassCurve C>
 bool der_to_rs(const std::string& der, unsigned char* r, unsigned char* s) {
-    const unsigned char* p = (const unsigned char*)der.data();
+    const auto* p = reinterpret_cast<const unsigned char*>(der.data());
     std::size_t n = der.size(), i = 0;
     auto read_int = [&](unsigned char* out) -> bool {
-        if (i >= n || p[i++] != 0x02) return false;
+        if (i >= n) return false;
+        const unsigned char int_tag = p[i++];
+        if (int_tag != 0x02) return false;
         if (i >= n) return false;
         std::size_t len = p[i++];
         if (len & 0x80) return false;  // curve-order ints are short-form
@@ -1038,7 +1040,9 @@ bool der_to_rs(const std::string& der, unsigned char* r, unsigned char* s) {
         i += (std::size_t)(v - (p + i)) + len;  // advance past the original field
         return true;
     };
-    if (i >= n || p[i++] != 0x30) return false;
+    if (i >= n) return false;
+    const unsigned char seq_tag = p[i++];
+    if (seq_tag != 0x30) return false;
     if (i >= n) return false;
     std::size_t seqlen = p[i++];
     if (seqlen & 0x80) return false;
@@ -1092,8 +1096,8 @@ template <WeierstrassCurve C>
 bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
                 const std::string& sig_raw) {
     if (pubkey_xy.size() != 2 * kBytes<C> || sig_raw.size() != 2 * kBytes<C>) return false;
-    fe<C> r = be_to_fe<C>((const unsigned char*)sig_raw.data());
-    fe<C> s = be_to_fe<C>((const unsigned char*)sig_raw.data() + kBytes<C>);
+    fe<C> r = be_to_fe<C>(reinterpret_cast<const unsigned char*>(sig_raw.data()));
+    fe<C> s = be_to_fe<C>(reinterpret_cast<const unsigned char*>(sig_raw.data()) + kBytes<C>);
     if (is_zero<C>(r) || is_zero<C>(s) || geq<C>(r, C::N) || geq<C>(s, C::N)) return false;
 
     const Mont<C>& Fnn = Fn<C>();
@@ -1109,13 +1113,13 @@ bool verify_raw(const std::string& pubkey_xy, const std::string& msg_hash,
     from_mont<C>(u1, u1m, Fnn);
     from_mont<C>(u2, u2m, Fnn);
 
-    fe<C> qx = be_to_fe<C>((const unsigned char*)pubkey_xy.data());
-    fe<C> qy = be_to_fe<C>((const unsigned char*)pubkey_xy.data() + kBytes<C>);
+    fe<C> qx = be_to_fe<C>(reinterpret_cast<const unsigned char*>(pubkey_xy.data()));
+    fe<C> qy = be_to_fe<C>(reinterpret_cast<const unsigned char*>(pubkey_xy.data()) + kBytes<C>);
     if (geq<C>(qx, C::P) || geq<C>(qy, C::P)) return false;
     if (!on_curve<C>(qx, qy)) return false;  // reject off-curve / invalid-curve public keys
     Jac<C> Q = affine_to_jac<C>(qx, qy);
 
-    Jac<C> R;
+    Jac<C> R{};
     jac_double_mul<C>(R, u1, base_point<C>(), u2, Q);  // u1*G + u2*Q, one doubling chain
     if (R.inf || is_zero<C>(R.Z)) return false;
     fe<C> x = reduce_mod_n<C>(jac_affine_x<C>(R));
@@ -1176,8 +1180,8 @@ std::string rs_to_der(const std::string& sig_raw) {
         out.append(reinterpret_cast<const char*>(v + i), kBytes<C> - i);
         return out;
     };
-    const std::string r = encode_int((const unsigned char*)sig_raw.data());
-    const std::string s = encode_int((const unsigned char*)sig_raw.data() + kBytes<C>);
+    const std::string r = encode_int(reinterpret_cast<const unsigned char*>(sig_raw.data()));
+    const std::string s = encode_int(reinterpret_cast<const unsigned char*>(sig_raw.data()) + kBytes<C>);
     if (r.empty() || s.empty()) return "";
     std::string der;
     der.push_back(0x30);

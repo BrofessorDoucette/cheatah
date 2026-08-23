@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "socket.hpp"
 
+#include <cstddef>
 #include <chrono>
 #include <string>
 #include <thread>
@@ -130,7 +131,7 @@ TEST(CheatahSocket, BulkTransferIsCorrectAndPrompt) {
     const long long port = sk::local_port(lfd);
 
     // 8 MiB with a position-dependent pattern so any misorder/truncation is caught.
-    std::string payload(8 * 1024 * 1024, '\0');
+    std::string payload(std::size_t{8} * 1024 * 1024, '\0');
     for (std::size_t i = 0; i < payload.size(); ++i) {
         payload[i] = static_cast<char>((i * 1103515245u + 12345u) >> 16);
     }
@@ -276,13 +277,13 @@ TEST(CheatahSocket, ConnMoveTransfersOwnership) {
     ASSERT_TRUE(a.is_open());
     const long long fd = a.fd();
     sk::Conn b(std::move(a));   // move-construct
-    EXPECT_FALSE(a.is_open());
+    EXPECT_FALSE(a.is_open());  // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move): moved-from state is the assertion
     EXPECT_EQ(b.fd(), fd);
     // Move-assign onto an already-open guard closes the overwritten fd first.
     sk::Conn d = sk::open("127.0.0.1", server.local_port());
     ASSERT_TRUE(d.is_open());
     d = std::move(b);
-    EXPECT_FALSE(b.is_open());
+    EXPECT_FALSE(b.is_open());  // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move): moved-from state is the assertion
     EXPECT_EQ(d.fd(), fd);
     EXPECT_EQ(d.close(), 0);
 }
@@ -333,11 +334,11 @@ TEST(CheatahSocket, ListenerLoopback) {
     const long long port = a.local_port();
     ASSERT_GT(port, 0);
     sk::Listener b(std::move(a));  // move-construct
-    EXPECT_FALSE(a.is_open());
+    EXPECT_FALSE(a.is_open());  // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move): moved-from state is the assertion
     EXPECT_EQ(b.local_port(), port);
     sk::Listener c;
     c = std::move(b);              // move-assign onto a closed listener
-    EXPECT_FALSE(b.is_open());
+    EXPECT_FALSE(b.is_open());  // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move): moved-from state is the assertion
     EXPECT_GE(c.fd(), 0);
     EXPECT_EQ(c.close(), 0);
     EXPECT_EQ(c.close(), -1);      // idempotent

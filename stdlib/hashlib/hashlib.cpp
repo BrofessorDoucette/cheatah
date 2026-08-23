@@ -73,7 +73,7 @@ std::array<std::uint8_t, 32> sha256_raw(std::string_view data) {
 
     for (std::size_t off = 0; off < msg.size(); off += 64) {
         std::uint32_t w[64];
-        for (int i = 0; i < 16; ++i) {
+        for (std::size_t i = 0; i < 16; ++i) {
             w[i] = (static_cast<std::uint32_t>(msg[off + i * 4]) << 24) |
                    (static_cast<std::uint32_t>(msg[off + i * 4 + 1]) << 16) |
                    (static_cast<std::uint32_t>(msg[off + i * 4 + 2]) << 8) |
@@ -125,7 +125,7 @@ std::array<std::uint8_t, 64> sha512_core(std::string_view data, const std::uint6
 
     for (std::size_t off = 0; off < msg.size(); off += 128) {
         std::uint64_t w[80];
-        for (int i = 0; i < 16; ++i) {
+        for (std::size_t i = 0; i < 16; ++i) {
             w[i] = 0;
             for (int j = 0; j < 8; ++j)
                 w[i] = (w[i] << 8) | msg[off + i * 8 + j];
@@ -197,17 +197,17 @@ std::string sha512(std::string_view data) {
 
 std::string sha256_digest(std::string_view data) {
     const auto d = sha256_raw(data);
-    return std::string(reinterpret_cast<const char*>(d.data()), d.size());
+    return {reinterpret_cast<const char*>(d.data()), d.size()};
 }
 
 std::string sha384_digest(std::string_view data) {
     const auto d = sha384_raw(data);
-    return std::string(reinterpret_cast<const char*>(d.data()), d.size());
+    return {reinterpret_cast<const char*>(d.data()), d.size()};
 }
 
 std::string sha512_digest(std::string_view data) {
     const auto d = sha512_raw(data);
-    return std::string(reinterpret_cast<const char*>(d.data()), d.size());
+    return {reinterpret_cast<const char*>(d.data()), d.size()};
 }
 
 // ---- HMAC + HKDF (RFC 2104 / RFC 5869) over the SHA-256 above ----------------------
@@ -327,7 +327,7 @@ std::string base64_encode(std::string_view data) {
 }
 
 std::string base64_decode(std::string_view text, bool strict) {
-    std::array<int, 256> rev;
+    std::array<int, 256> rev{};
     rev.fill(-1);
     for (int i = 0; i < 64; ++i) rev[static_cast<unsigned char>(kB64[i])] = i;
     std::string out;
@@ -341,7 +341,7 @@ std::string base64_decode(std::string_view text, bool strict) {
             // Whitespace is always skipped. Any OTHER non-alphabet byte is silently ignored in the
             // default (lenient) mode, but REJECTED — empty result — in strict mode. X.509 PEM parsing
             // uses strict so a malformed body fails closed instead of decoding to garbage.
-            if (strict && c != ' ' && c != '\n' && c != '\r' && c != '\t') return std::string();
+            if (strict && c != ' ' && c != '\n' && c != '\r' && c != '\t') return {};
             continue;                    // skip whitespace / (lenient) non-alphabet bytes
         }
         buf = (buf << 6) | d;
@@ -365,7 +365,10 @@ std::string hkdf_expand_impl(std::string_view prk, std::string_view info, long l
     std::string okm;
     std::string t;  // T(0) = empty
     for (unsigned char counter = 1; static_cast<long long>(okm.size()) < length; ++counter) {
-        t = hmac(prk, t + std::string(info) + static_cast<char>(counter));
+        std::string block = t;  // T(i) = HMAC(PRK, T(i-1) | info | i)
+        block.append(info);
+        block.push_back(static_cast<char>(counter));
+        t = hmac(prk, block);
         okm += t;
     }
     okm.resize(static_cast<std::size_t>(length));

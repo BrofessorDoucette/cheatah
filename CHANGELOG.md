@@ -3,6 +3,25 @@
 All notable changes to cheatah. This project is **alpha** — expect breaking
 changes between releases.
 
+## Unreleased
+
+### Added — clang-tidy joins the QA gate
+
+`scripts/clang_tidy.sh` runs clang-tidy over every first-party translation unit with the broad
+check set committed in `.clang-tidy` (bugprone, cert, clang-analyzer, concurrency,
+cppcoreguidelines, misc, modernize, performance, portability, readability — only pure style
+opinions disabled, each with its reason in the file). `cert-*` is fatal unconditionally; the gate
+runs the rest at warnings-as-errors too, so the tree is clean under the whole set. A second lane
+lints the transpiler's own output (`gen/*.gen.cpp`, regenerated first): a finding there is a
+codegen defect and is fixed in `compiler/codegen.cpp`, never in the fixture. The config is the
+canonical copy for the whole toolchain family; `scripts/clang_tidy.sh` is the canonical driver.
+
+### Changed — the emitted C++ no longer uses reserved identifiers
+
+`match` lowering named its scratch `__match_N`; a double underscore is reserved in every
+consumer TU ([lex.name], cert-dcl51-cpp). It is now `_purr_match_N`, in line with
+`_purr_with_N` / `_purr_err`. Byte-for-byte otherwise identical output.
+
 ## v1.11.7-alpha (2026-08-16) — the tables lay out, and the release path clears
 
 Biome Standard <b>0.6.3-alpha</b> — a PATCH: the only member that changes is this toolchain

@@ -1,0 +1,31 @@
+# gen/.clang-tidy — scoped override for purrc-GENERATED C++ (the *.gen.cpp fixtures).
+# Canonical copy: cheatah/gen/.clang-tidy.
+#
+# Generated code is a first-class lint target: findings here are CODEGEN defects. The fix
+# is never a hand-edit of a .gen.cpp — fix the .purr source or compiler/codegen.cpp, then
+# `bash gen/generate.sh` regenerates; the fixture diff in the commit is the proof the
+# codegen improved.
+#
+# Disabled: only cosmetics a code generator legitimately violates —
+#   -readability-identifier-naming                  mangled/uniqued emitted identifiers
+#   -readability-convert-member-functions-to-static emitted methods keep uniform shape
+#   -readability-else-after-return                  mechanical if/return chains from lowering
+#   -modernize-concat-nested-namespaces             flat namespace emission is deliberate
+#   -cert-err58-cpp                                 emitted module-level program state is
+#                                                     initialized by the generated prologue
+#                                                     (same exemption class as TEST())
+#   -modernize-use-std-numbers                      a numeric literal in emitted code is the
+#                                                     USER's literal, verbatim; the transpiler
+#                                                     never rewrites constants
+# cert (rest), bugprone, clang-analyzer, concurrency, performance stay FULLY on — they are
+# exactly the "is the emitted C++ sound and lean" checks. Bloat-flavored readability checks
+# (redundant casts/inits, container-size-empty) deliberately stay on: findings there are
+# codegen improvements.
+InheritParentConfig: true
+Checks: >
+  -readability-identifier-naming,
+  -readability-convert-member-functions-to-static,
+  -readability-else-after-return,
+  -modernize-concat-nested-namespaces,
+  -cert-err58-cpp,
+  -modernize-use-std-numbers

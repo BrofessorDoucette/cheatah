@@ -22,7 +22,7 @@ namespace {
 std::vector<char*> make_argv(std::initializer_list<const char*> args) {
     std::vector<char*> v;
     v.reserve(args.size());
-    for (const char* a : args) v.push_back(const_cast<char*>(a));
+    for (const char* a : args) v.push_back(const_cast<char*>(a));  // NOLINT(cppcoreguidelines-pro-type-const-cast): argv is char** by POSIX contract
     return v;
 }
 

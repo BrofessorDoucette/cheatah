@@ -27,11 +27,12 @@
 // binary or the trusted-key file themselves.
 
 #include <string>
+#include <cstdint>
 #include <vector>
 
 namespace cheatah::integrity {
 
-enum class Policy {
+enum class Policy : std::uint8_t {
     Off,     // default: only the basic .sha512 checksum is enforced (when present).
     Strict,  // additionally REQUIRE a valid .sig from a trusted key (fail-closed).
 };

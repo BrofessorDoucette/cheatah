@@ -88,9 +88,9 @@ std::string sanitize_module_path(const std::string& raw) {
 #endif
     std::array<unsigned char, 4> magic{};
     std::FILE* f = std::fopen(canonical.string().c_str(), "rb");
-    const bool ok = f && std::fread(magic.data(), 1, magic.size(), f) == magic.size() &&
+    const bool ok = (f != nullptr) && std::fread(magic.data(), 1, magic.size(), f) == magic.size() &&
                     has_module_magic(magic);
-    if (f) std::fclose(f);
+    if (f) static_cast<void>(std::fclose(f));  // read-only stream; nothing to flush, nothing to act on
     if (!ok) {
         std::cerr << "cheatah: refusing to load '" << canonical.string()
                   << "': not a " << module_format_name() << "\n";
@@ -113,12 +113,12 @@ using ModuleHandle = void*;
 ModuleHandle module_open(const std::string& p) { return ::dlopen(p.c_str(), RTLD_NOW | RTLD_LOCAL); }
 void* module_sym(ModuleHandle h, const char* n) { return ::dlsym(h, n); }
 void module_close(ModuleHandle h) { ::dlclose(h); }
-std::string module_error() { const char* e = ::dlerror(); return e ? e : "unknown error"; }
+std::string module_error() { const char* e = ::dlerror(); return e ? e : "unknown error"; }  // NOLINT(concurrency-mt-unsafe): dlerror is the dlopen API's only error channel; the loader is single-threaded
 #endif
 
 // --- integrity configuration (env + flags) ---------------------------------------------
 std::string env_or_empty(const char* name) {
-    const char* v = std::getenv(name);
+    const char* v = std::getenv(name);  // NOLINT(concurrency-mt-unsafe): the runtime reads its env once at startup, before any thread exists
     return v ? std::string(v) : std::string();
 }
 
@@ -127,7 +127,7 @@ std::string env_or_empty(const char* name) {
 // code-signing trust ($CHEATAH_TRUST / trusted.pub) and the SEPARATE runtime trust
 // ($CHEATAH_RT_TRUST / trusted-runtime.pub).
 std::string default_trust_path(const char* var, const char* leaf) {
-    const std::string fromenv = env_or_empty(var);
+    std::string fromenv = env_or_empty(var);
     if (!fromenv.empty()) return fromenv;
     const std::string xdg = env_or_empty("XDG_CONFIG_HOME");
     if (!xdg.empty()) return xdg + "/cheatah/" + leaf;
@@ -198,14 +198,14 @@ int main(int argc, char** argv) {
             policy = Policy::Strict;  // policy only ESCALATES — there is no flag to turn
                                       // verification OFF, so a strict deployment (env or
                                       // wrapper) cannot be silently downgraded by argv.
-        } else if (a.rfind("--trust=", 0) == 0) {
+        } else if (a.starts_with("--trust=")) {
             if (reject_argv_trust("--trust")) return 2;
             trust_path = a.substr(8);
         } else if (a == "--trust") {
             if (reject_argv_trust("--trust")) return 2;
             if (i + 1 >= argc) { std::cerr << "cheatah: --trust needs a file path\n"; return 2; }
             trust_path = argv[++i];
-        } else if (a.rfind("--trust-runtime=", 0) == 0) {
+        } else if (a.starts_with("--trust-runtime=")) {
             if (reject_argv_trust("--trust-runtime")) return 2;
             rt_trust_path = a.substr(16);
         } else if (a == "--trust-runtime") {

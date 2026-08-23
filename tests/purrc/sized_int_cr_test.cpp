@@ -125,7 +125,7 @@ fn main() {
 }
 main()
 )PURR", "Cell(\n    x = 3,\n    y = 7\n)\n2\n");   // two u8 pack to 2 bytes (vs 16 as long long)
-    EXPECT_NE(src.find("std::uint8_t x;"), std::string::npos) << src;
+    EXPECT_NE(src.find("std::uint8_t x{};"), std::string::npos) << src;
     EXPECT_NE(src.find("+this->x"), std::string::npos) << src;  // promoted so it prints as a number
 }
 

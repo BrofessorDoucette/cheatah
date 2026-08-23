@@ -44,7 +44,7 @@ public:
      * @alloc the component strings in @p out
      * @test UrlParser.Components
      */
-    [[nodiscard]] bool parse(std::string_view text, Url& out) const {
+    [[nodiscard]] bool parse(std::string_view text, Url& out) const {  // NOLINT(readability-convert-member-functions-to-static): callers hold a Parser instance (the .purr API shape)
         const std::size_t scheme_end = text.find("://");
         if (scheme_end == std::string_view::npos || scheme_end == 0) {
             return false;

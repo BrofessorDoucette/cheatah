@@ -41,7 +41,7 @@ void pack_corder(const ndarray::basic_ndarray<T>& a, T* out) {
     const auto& shp = a.shape();
     const auto& st = a.strides();
     const std::size_t nd = shp.size();
-    const std::ptrdiff_t off0 = static_cast<std::ptrdiff_t>(a.offset());
+    const auto off0 = static_cast<std::ptrdiff_t>(a.offset());
     std::vector<std::size_t> idx(nd, 0);
     const std::size_t total = a.size();
     for (std::size_t lin = 0; lin < total; ++lin) {
@@ -203,7 +203,7 @@ void lu_solve(const LU& lu, std::vector<double>& b) {
 // square real workspace and factor it. `LU::n` carries the dimension, so callers need only the tail.
 template <ndarray::Field T, template <typename> class Array>
 LU lu_prepare(const Array<T>& a) {
-    std::size_t n, c;
+    std::size_t n = 0, c = 0;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     return lu_decompose(std::move(A), n);
@@ -212,7 +212,7 @@ LU lu_prepare(const Array<T>& a) {
 // ---- Golub–Reinsch SVD: A(m×n) = U(m×n) diag(w) V(n×n)ᵀ, requires m ≥ n ----
 struct SVDc {
     std::vector<double> u, w, v;
-    std::size_t m, n;
+    std::size_t m{}, n{};
 };
 // Overflow-safe √(a²+b²) for the QR sweeps. std::hypot is correctly-rounded and several
 // times slower; called once per Givens rotation (O(n²) of them) it dominated the
@@ -306,46 +306,48 @@ SVDc svd_golub_reinsch(std::vector<double> a_rm, std::size_t m, std::size_t n,
     }
 
     // --- accumulate the right-hand transformations into V (column-major vc) ---
-    if (want_uv)
-    for (std::size_t i = n; i-- > 0;) {
-        const std::size_t l = i + 1;
-        if (l < n) {
-            if (g != 0.0) {
-                for (std::size_t j = l; j < n; ++j)            // V(j,i); double division guards overflow
-                    vc[i * n + j] = (uc[j * m + i] / uc[l * m + i]) / g;
-                for (std::size_t j = l; j < n; ++j) {
-                    double sum = 0.0;
-                    for (std::size_t k = l; k < n; ++k) sum += uc[k * m + i] * vc[j * n + k];
-                    for (std::size_t k = l; k < n; ++k) vc[j * n + k] += sum * vc[i * n + k];
+    if (want_uv) {
+        for (std::size_t i = n; i-- > 0;) {
+            const std::size_t l = i + 1;
+            if (l < n) {
+                if (g != 0.0) {
+                    for (std::size_t j = l; j < n; ++j)            // V(j,i); double division guards overflow
+                        vc[i * n + j] = (uc[j * m + i] / uc[l * m + i]) / g;
+                    for (std::size_t j = l; j < n; ++j) {
+                        double sum = 0.0;
+                        for (std::size_t k = l; k < n; ++k) sum += uc[k * m + i] * vc[j * n + k];
+                        for (std::size_t k = l; k < n; ++k) vc[j * n + k] += sum * vc[i * n + k];
+                    }
                 }
+                for (std::size_t j = l; j < n; ++j) { vc[j * n + i] = 0.0; vc[i * n + j] = 0.0; }
             }
-            for (std::size_t j = l; j < n; ++j) { vc[j * n + i] = 0.0; vc[i * n + j] = 0.0; }
+            vc[i * n + i] = 1.0;
+            g = rv1[i];
         }
-        vc[i * n + i] = 1.0;
-        g = rv1[i];
     }
 
     // --- accumulate the left-hand transformations into U (held in uc) ---
-    if (want_uv)
-    for (std::size_t i = n; i-- > 0;) {   // min(m,n) == n since m >= n
-        const std::size_t l = i + 1;
-        g = w[i];
-        for (std::size_t j = l; j < n; ++j) uc[j * m + i] = 0.0;
-        double* Ui = &uc[i * m];
-        if (g != 0.0) {
-            g = 1.0 / g;
-            for (std::size_t j = l; j < n; ++j) {
-                double* Uj = &uc[j * m];
-                double sum = 0.0;
-                for (std::size_t k = l; k < m; ++k) sum += Ui[k] * Uj[k];   // contiguous → SIMD
-                const double f = (sum / Ui[i]) * g;
-                for (std::size_t k = i; k < m; ++k) Uj[k] += f * Ui[k];      // contiguous → SIMD
+    if (want_uv) {
+        for (std::size_t i = n; i-- > 0;) {   // min(m,n) == n since m >= n
+            const std::size_t l = i + 1;
+            g = w[i];
+            for (std::size_t j = l; j < n; ++j) uc[j * m + i] = 0.0;
+            double* Ui = &uc[i * m];
+            if (g != 0.0) {
+                g = 1.0 / g;
+                for (std::size_t j = l; j < n; ++j) {
+                    double* Uj = &uc[j * m];
+                    double sum = 0.0;
+                    for (std::size_t k = l; k < m; ++k) sum += Ui[k] * Uj[k];   // contiguous → SIMD
+                    const double f = (sum / Ui[i]) * g;
+                    for (std::size_t k = i; k < m; ++k) Uj[k] += f * Ui[k];      // contiguous → SIMD
+                }
+                for (std::size_t k = i; k < m; ++k) Ui[k] *= g;
+            } else {
+                for (std::size_t k = i; k < m; ++k) Ui[k] = 0.0;
             }
-            for (std::size_t k = i; k < m; ++k) Ui[k] *= g;
-        } else {
-            for (std::size_t k = i; k < m; ++k) Ui[k] = 0.0;
+            Ui[i] += 1.0;
         }
-        Ui[i] += 1.0;
     }
 
     // U (uc) and V (vc) are already column-major, so the QR sweep's whole-column
@@ -550,8 +552,8 @@ void symmetric_eig(std::vector<double> z, std::size_t n, std::vector<double>& va
     e[n - 1] = 0.0;
     for (std::size_t l = 0; l < n; ++l) {
         int iter = 0;
-        std::size_t m;
-        do {
+        std::size_t m = 0;
+        for (;;) {  // sweep until the off-diagonal at l deflates (m == l)
             for (m = l; m + 1 < n; ++m) {
                 const double dd = std::fabs(d[m]) + std::fabs(d[m + 1]);
                 if (std::fabs(e[m]) <= 2.2e-16 * dd) break;
@@ -586,7 +588,8 @@ void symmetric_eig(std::vector<double> z, std::size_t n, std::vector<double>& va
                 }
                 if (!zeroed) { d[l] -= p; e[l] = g; e[m] = 0.0; }
             }
-        } while (m != l);
+            if (m == l) break;
+        }
     }
 
     // sort DESCENDING, carrying the matching eigenvector columns.
@@ -781,7 +784,7 @@ std::vector<Cplx> eigvals_general(std::vector<double> a, std::size_t n) {
             --hi;
             iter = 0;
         } else if (l == hi - 1) {               // 2×2 block
-            const std::size_t p = static_cast<std::size_t>(hi - 1), q = static_cast<std::size_t>(hi);
+            const auto p = static_cast<std::size_t>(hi - 1), q = static_cast<std::size_t>(hi);
             const double app = a[p * n + p], aqq = a[q * n + q];
             const double apq = a[p * n + q], aqp = a[q * n + p];
             const double tr = app + aqq, det = app * aqq - apq * aqp;
@@ -1034,7 +1037,7 @@ void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b) {
             matmul_kernel<T>(C + z * M * N, A + z * M * K, Bp + z * K * N, M, K, N);
         return;
     }
-    std::size_t ar, ac, bc;
+    std::size_t ar = 0, ac = 0, bc = 0;
     check_matmul(a, b, ar, ac, bc);
     reject_alias(out, a);
     reject_alias(out, b);
@@ -1085,7 +1088,7 @@ template NDArray conj_transpose<double, ndarray::basic_ndarray>(const NDArray&);
 
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void matrix_power(Array<T>& out, const Array<T>& a, long long p) {
+void matrix_power(Array<T>& out, const Array<T>& a, long long n) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
     const std::size_t r = a.shape()[0], c = a.shape()[1];  // dims only — no copy
     require_square(r, c);
@@ -1095,8 +1098,8 @@ void matrix_power(Array<T>& out, const Array<T>& a, long long p) {
     std::vector<double> result(ndarray::detail::product({r, r}), 0.0);
     for (std::size_t i = 0; i < r; ++i) result[i * r + i] = 1.0;  // identity
     NDArray acc = make_matrix(r, r, std::move(result));
-    NDArray base = (p < 0) ? inv(a) : a;
-    long long e = p < 0 ? -p : p;
+    NDArray base = (n < 0) ? inv(a) : a;
+    long long e = n < 0 ? -n : n;
     while (e > 0) {
         if (e & 1) acc = matmul(acc, base);
         base = matmul(base, base);
@@ -1133,7 +1136,7 @@ void kron_dims(const Array<T>& a, const Array<T>& b, std::size_t& ar, std::size_
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
 void kron(Array<T>& out, const Array<T>& a, const Array<T>& b) {
-    std::size_t ar, ac, br, bc;
+    std::size_t ar = 0, ac = 0, br = 0, bc = 0;
     kron_dims(a, b, ar, ac, br, bc);
     reject_alias(out, a);
     reject_alias(out, b);
@@ -1156,7 +1159,7 @@ template <ndarray::Field T, template <typename> class Array>
 void trace(T& out, const Array<T>& a) {
     const std::size_t r = a.shape()[0], c = a.shape()[1];
     const T* base = a.buffer()->data();
-    const std::ptrdiff_t off = static_cast<std::ptrdiff_t>(a.offset());
+    const auto off = static_cast<std::ptrdiff_t>(a.offset());
     const std::ptrdiff_t step = a.strides()[0] + a.strides()[1];  // (i,i) advances by s0+s1
     // Diagonal sum through the shared multi-accumulator reduction — the term is a strided read.
     out = ndarray::detail::reduce_lanes<T>(std::min(r, c), [base, off, step](std::size_t i) {
@@ -1196,7 +1199,7 @@ template <ndarray::Field T, template <typename> class Array>
 void solve(Array<T>& out, const Array<T>& a, const Array<T>& b) {
     const LU lu = lu_prepare(a);
     const std::size_t n = lu.n;
-    std::size_t bn;
+    std::size_t bn = 0;
     std::vector<T> x = as_vector(b, bn);
     if (bn != n) throw std::runtime_error("linalg: solve dimension mismatch");
     lu_solve(lu, x);
@@ -1316,7 +1319,7 @@ void cholesky(Array<T>& out, const Array<T>& a) {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void qr(Array<T>& q, Array<T>& r, const Array<T>& a) {
-    std::size_t m, n;
+    std::size_t m = 0, n = 0;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: qr requires rows >= cols");
     // Work on the TRANSPOSE At (n×m, row-major). A Householder QR repeatedly reads and
@@ -1332,7 +1335,7 @@ void qr(Array<T>& q, Array<T>& r, const Array<T>& a) {
     // Reflect: s = u · row over [k, m) via the shared multi-accumulator reduction, then
     // row -= (2 s / ‖u‖²) u — contiguous.
     auto reflect = [&u](double* row, std::size_t k, std::size_t m, double inv) {
-        double s = ndarray::detail::reduce_lanes<double>(
+        auto s = ndarray::detail::reduce_lanes<double>(
             m - k, [&u, row, k](std::size_t i) { return u[k + i] * row[k + i]; });
         s *= inv;
         for (std::size_t i = k; i < m; ++i) row[i] -= s * u[i];
@@ -1366,7 +1369,7 @@ void qr(Array<T>& q, Array<T>& r, const Array<T>& a) {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void svd(Array<T>& u, Array<T>& sv, Array<T>& vhh, const Array<T>& a) {
-    std::size_t m, n;
+    std::size_t m = 0, n = 0;
     std::vector<double> A = as_matrix(a, m, n);
     if (m < n) throw std::runtime_error("linalg: svd requires rows >= cols (transpose otherwise)");
     const SVDc s = svd_golub_reinsch(std::move(A), m, n);
@@ -1382,7 +1385,7 @@ void svd(Array<T>& u, Array<T>& sv, Array<T>& vhh, const Array<T>& a) {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void svdvals(Array<T>& out, const Array<T>& a) {  // singular values only — skips the U/V work entirely
-    std::size_t m, n;
+    std::size_t m = 0, n = 0;
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
     if (m >= n) {
@@ -1399,7 +1402,7 @@ void svdvals(Array<T>& out, const Array<T>& a) {  // singular values only — sk
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void pinv(Array<T>& out, const Array<T>& a) {
-    std::size_t m, n;
+    std::size_t m = 0, n = 0;
     std::vector<double> A = as_matrix(a, m, n);
     if (m >= n) {
         const SVDc s = svd_golub_reinsch(std::move(A), m, n);  // A = U(m×n) diag(w) V(n×n)ᵀ
@@ -1435,7 +1438,7 @@ void pinv(Array<T>& out, const Array<T>& a) {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void cond(T& out, const Array<T>& a) {
-    std::size_t m, n;
+    std::size_t m = 0, n = 0;
     std::vector<double> A = as_matrix(a, m, n);
     SVDc s;
     if (m >= n) {
@@ -1453,7 +1456,7 @@ void cond(T& out, const Array<T>& a) {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void matrix_rank(long long& out, const Array<T>& a) {
-    std::size_t m, n;
+    std::size_t m = 0, n = 0;
     std::vector<double> A = as_matrix(a, m, n);
     const bool tr = m < n;
     SVDc s;
@@ -1480,7 +1483,7 @@ void matrix_rank(long long& out, const Array<T>& a) {
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
 void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array<T>& a) {
-    std::size_t n, c;
+    std::size_t n = 0, c = 0;
     std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<ndarray::real_base_t<T>> vals;
@@ -1497,7 +1500,7 @@ void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
 void eigvalsh(Array<ndarray::real_base_t<T>>& out, const Array<T>& a) {
-    std::size_t n, c;
+    std::size_t n = 0, c = 0;
     std::vector<T> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<ndarray::real_base_t<T>> vals;
@@ -1524,7 +1527,7 @@ template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>>& vectors,
          const Array<T>& a) {
-    std::size_t n, c;
+    std::size_t n = 0, c = 0;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     if (is_symmetric(A, n)) {                // symmetric -> real spectrum + eigenvectors
@@ -1551,7 +1554,7 @@ void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a) {
-    std::size_t n, c;
+    std::size_t n = 0, c = 0;
     std::vector<double> A = as_matrix(a, n, c);
     require_square(n, c);
     std::vector<Cplx> vals;

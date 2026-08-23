@@ -125,7 +125,7 @@ public:
      *              two threads at once (see the file-level threading note).
      * @systest WebSocketSys.ClientGuardRoundTrip
      */
-    long long send_text(const std::string& message);
+    long long send_text(const std::string& message) const;
     /**
      * Receive the next application message (see the free recv()).
      * @return the message payload; "" once the peer has closed.
@@ -136,7 +136,7 @@ public:
      *              shutdown() is the cross-thread wake-up.
      * @systest WebSocketSys.ClientGuardRoundTrip
      */
-    std::string recv();
+    std::string recv() const;
     /**
      * Wake a reader blocked in recv() WITHOUT freeing the session (see the free shutdown()).
      * @return 0 on success, -1 on error.
@@ -146,7 +146,7 @@ public:
      *              that wake-up is its purpose; then join the reader before close().
      * @systest WebSocketSys.ClientGuardRoundTrip
      */
-    long long shutdown();
+    long long shutdown() const;
     /**
      * Close the connection now (idempotent — the destructor will not close it again).
      * @return 0 on success, -1 if already closed.

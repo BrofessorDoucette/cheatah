@@ -383,7 +383,7 @@ public:
      * @alloc none.
      * @test CheatahSocket.ConnLoopback
      */
-    long long send(const std::string& data);
+    long long send(const std::string& data) const;
     /**
      * Send @p data in full, looping until every byte is written (see the free sendall()).
      * @param data bytes to send.
@@ -392,7 +392,7 @@ public:
      * @alloc none.
      * @test CheatahSocket.ConnLoopback
      */
-    long long sendall(const std::string& data);
+    long long sendall(const std::string& data) const;
     /**
      * Receive up to @p bufsize bytes (see the free recv()).
      * @param bufsize maximum bytes to read.
@@ -403,7 +403,7 @@ public:
      * @concurrency blocks until data, EOF, or the set_timeout() deadline.
      * @test CheatahSocket.ConnLoopback
      */
-    std::string recv(long long bufsize);
+    std::string recv(long long bufsize) const;
     /**
      * Bound both blocking directions by @p timeout_ms (see the free set_timeout()).
      * @param timeout_ms per-operation bound in milliseconds (<= 0 clears it).
@@ -412,7 +412,7 @@ public:
      * @alloc none.
      * @test CheatahSocket.ConnLoopback
      */
-    long long set_timeout(long long timeout_ms);
+    long long set_timeout(long long timeout_ms) const;
     /**
      * The local TCP port this fd is bound to (see the free local_port()).
      * @return the port, or -1 on error.
@@ -429,7 +429,7 @@ public:
      * @alloc none.
      * @test CheatahSocket.ConnLoopback
      */
-    long long shutdown();
+    long long shutdown() const;
     /**
      * Close the fd now (idempotent — the destructor will not close it again).
      * @return 0 on success, -1 if already closed.
@@ -518,7 +518,7 @@ public:
      * @concurrency blocks the calling thread until a client connects.
      * @test CheatahSocket.ListenerLoopback
      */
-    Conn accept();
+    Conn accept() const;
     /**
      * The local TCP port this listener is bound to (useful after binding to port 0).
      * @return the port, or -1 on error.

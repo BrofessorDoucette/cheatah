@@ -110,7 +110,7 @@ TEST(CryptoPlatform, Report) {
     std::printf("[crypto-platform] arch=%s os=%s | AES-GCM hardware path active: %s\n", arch(),
                 os_name(),
                 ae::crypto_hardware_active() ? hw : "no (portable scalar reference)");
-    std::fflush(stdout);
+    static_cast<void>(std::fflush(stdout));  // diagnostic line; nothing to do if the flush fails
     // A build on a platform with guaranteed crypto instructions MUST take the hardware path,
     // else CPU detection / the target-attributed SIMD path / the self-test is broken and we
     // quietly fell back to scalar crypto. x86 here means AES-NI+PCLMULQDQ; Apple Silicon means

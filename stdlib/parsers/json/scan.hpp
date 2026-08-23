@@ -316,7 +316,7 @@ inline bool parse_double_fast(Cursor& c, double& out) {
     // The exactness window: <=19 digits means the mantissa accumulated without u64 overflow, the
     // 2^53 test means it is an exact double, and |exp10| <= 22 means the scale is an exact double.
     if (digit_count <= 19 && mantissa < (1ull << 53) && -22 <= exp10 && exp10 <= 22) {
-        double value = static_cast<double>(mantissa);
+        auto value = static_cast<double>(mantissa);
         value = (exp10 >= 0) ? value * kPow10[exp10] : value / kPow10[-exp10];
         out = negative ? -value : value;
         c.it = p;
@@ -354,10 +354,9 @@ inline bool parse_arithmetic(Cursor& c, T& out) {
         }
         const char* const digit_start = p;
         std::make_unsigned_t<T> magnitude = 0;
-        do {
+        for (; p != c.end && *p >= '0' && *p <= '9'; ++p) {  // the first digit was checked above
             magnitude = magnitude * 10 + static_cast<unsigned>(*p - '0');
-            ++p;
-        } while (p != c.end && *p >= '0' && *p <= '9');
+        }
         if (p - digit_start > std::numeric_limits<T>::digits10) {
             // More digits than T holds exactly: the accumulation above may have wrapped. Rare —
             // re-parse with std::from_chars, which detects overflow exactly (and rejects it).
@@ -392,7 +391,7 @@ inline bool parse_arithmetic(Cursor& c, T& out) {
 // @complexity O(skipped bytes)  @alloc none  @test JsonRead.UnknownKeys
 inline bool skip_value(Cursor& c) {
     std::size_t depth = 0;
-    do {
+    for (;;) {  // one full value: a scalar is one step; a container runs until its depth returns to 0
         skip_ws(c);
         if (c.it == c.end) {
             return false;
@@ -443,7 +442,8 @@ inline bool skip_value(Cursor& c) {
                 break;
             }
         }
-    } while (depth > 0);
+        if (depth == 0) break;
+    }
     return true;
 }
 

@@ -335,8 +335,8 @@ TEST(CheatahX509, LoadTrustFilesTriesPathsInOrder) {
     // nonexistent -> continue; empty -> read but no cert (no break); good -> loaded.
     const x::TrustStore store = x::load_trust_files({dir + "/does_not_exist.pem", empty, good});
     EXPECT_FALSE(store.empty());
-    std::remove(good.c_str());
-    std::remove(empty.c_str());
+    static_cast<void>(std::remove(good.c_str()));   // best-effort tmp cleanup
+    static_cast<void>(std::remove(empty.c_str()));
     // No readable bundle at all -> empty store.
     EXPECT_TRUE(x::load_trust_files({dir + "/nope1.pem"}).empty());
     EXPECT_TRUE(x::load_trust("/nonexistent/cheatah/ca.pem").empty());

@@ -16,6 +16,7 @@
 #include "fixarray.hpp"
 
 #include <cmath>
+#include <cstdint>
 #include <sstream>
 #include <stdexcept>
 #include <type_traits>
@@ -36,8 +37,8 @@ namespace {
 template <class M>
 ::testing::AssertionResult Close(const M& a, const M& b, double eps = 1e-5) {
     for (std::size_t i = 0; i < M::size; ++i) {
-        const double lhs = static_cast<double>(a.data()[i]);
-        const double rhs = static_cast<double>(b.data()[i]);
+        const auto lhs = static_cast<double>(a.data()[i]);
+        const auto rhs = static_cast<double>(b.data()[i]);
         if (std::fabs(lhs - rhs) > eps) {
             return ::testing::AssertionFailure()
                    << "element " << i << ": " << lhs << " vs " << rhs;
@@ -546,8 +547,8 @@ TEST(Fixarray, MatrixExtras) {
 namespace {
 /// A caller's scoped enum. It stays strongly typed everywhere except at a subscript, which is the
 /// whole point of ndarray::Subscript.
-enum class Axis : std::size_t { X = 0, Y = 1, Z = 2 };
-enum class Basis : std::size_t { Right = 0, Up = 1, Forward = 2 };
+enum class Axis : std::uint8_t { X = 0, Y = 1, Z = 2 };
+enum class Basis : std::uint8_t { Right = 0, Up = 1, Forward = 2 };
 }  // namespace
 
 TEST(Fixarray, EnumIndexingOnVectorsAndMatrices) {

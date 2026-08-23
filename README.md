@@ -263,7 +263,11 @@ ctest --preset debug          # run the test suite
 
 For optimized stdlib symbols, configure the `release` preset instead. The
 `scripts/qa_gate.sh` script runs the full configure → build → test → benchmark
-gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`).
+gate (it is also wired to the pre-push hook via `scripts/setup_hooks.sh`). Static
+analysis is part of it: `scripts/cppcheck.sh` and `scripts/clang_tidy.sh` — the latter runs the
+broad check set in the committed `.clang-tidy` (cert-* always fatal) over every first-party
+translation unit, and separately over the transpiler's own generated C++ (`gen/*.gen.cpp`), so a
+finding there is a codegen defect.
 
 ## Test coverage
 

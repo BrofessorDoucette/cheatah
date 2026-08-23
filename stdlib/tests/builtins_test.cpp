@@ -267,11 +267,15 @@ TEST(CheatahBuiltins, FinallyRunsOnEveryExitPath) {
     EXPECT_EQ(ran, 1) << "early return";
 
     ran = 0;
+    bool caught = false;
     try {
-        auto g = b::make_finally([&] { ++ran; });
+        const auto g = b::make_finally([&] { ++ran; });
+        static_cast<void>(g);  // held only for its scope-exit effect
         throw b::Error("x", "unwind");
     } catch (const b::Error&) {
+        caught = true;  // the throw exists only to unwind through g's scope
     }
+    EXPECT_TRUE(caught);
     EXPECT_EQ(ran, 1) << "an exception unwinding through the scope";
 }
 

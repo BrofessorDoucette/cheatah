@@ -59,16 +59,16 @@ std::string spki_ec_point(std::string_view der) {
     // Find the uncompressed-point marker: BIT STRING (03) <len> 00 04 <X(48)><Y(48)>.
     // The OID id-ecPublicKey + secp384r1 precedes it; we anchor on the 0x04 point and
     // the P-384 BIT STRING length 98 (0x62) — mutually exclusive with p256's 66.
-    const unsigned char* p = (const unsigned char*)der.data();
+    const auto* p = reinterpret_cast<const unsigned char*>(der.data());
     const std::size_t n = der.size();
     for (std::size_t i = 0; i + 2 + 97 <= n; ++i) {
         // BIT STRING tag, then a length, then 00 (unused bits), then 04 (uncompressed)
         if (p[i] == 0x03 && p[i + 2] == 0x00 && p[i + 3] == 0x04) {
             const std::size_t len = p[i + 1];
-            if (len == 98 && i + 4 + 96 <= n) return std::string((const char*)p + i + 4, 96);
+            if (len == 98 && i + 4 + 96 <= n) return {reinterpret_cast<const char*>(p) + i + 4, 96};
         }
     }
-    return std::string();
+    return {};
 }
 
 }  // namespace cheatah::p384

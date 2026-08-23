@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -29,7 +30,7 @@ struct TypeRef {
 };
 
 // ---- Expressions ----
-enum class ExprKind {
+enum class ExprKind : std::uint8_t {
     StringLit, NumberLit, BoolLit, Ident, Member, Index, Slice, Call, Unary, Binary,
     ListLit, DictLit, StructInit,
 };
@@ -37,6 +38,10 @@ enum class ExprKind {
 struct Expr {
     ExprKind kind;
     explicit Expr(ExprKind k) : kind(k) {}
+    Expr(const Expr&) = delete;  // nodes live behind ExprPtr; no copies, no slicing
+    Expr& operator=(const Expr&) = delete;
+    Expr(Expr&&) = delete;
+    Expr& operator=(Expr&&) = delete;
     virtual ~Expr() = default;
 };
 using ExprPtr = std::unique_ptr<Expr>;
@@ -139,7 +144,7 @@ struct Field {
 };
 
 // ---- Statements ----
-enum class StmtKind {
+enum class StmtKind : std::uint8_t {
     Import, ExprStmt, Let, Assign, If, While, For, Return, Try, Raise, StructDef, FnDef, RawCpp,
     Break, Continue, Match, InterfaceDef, EnumDef, With,
 };
@@ -155,6 +160,10 @@ struct Stmt {
                         // it as the declaration's Javadoc so generated headers carry the same
                         // documentation convention as the hand-written stdlib headers.
     explicit Stmt(StmtKind k) : kind(k) {}
+    Stmt(const Stmt&) = delete;  // nodes live behind StmtPtr; no copies, no slicing
+    Stmt& operator=(const Stmt&) = delete;
+    Stmt(Stmt&&) = delete;
+    Stmt& operator=(Stmt&&) = delete;
     virtual ~Stmt() = default;
 };
 using StmtPtr = std::unique_ptr<Stmt>;

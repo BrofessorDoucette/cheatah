@@ -231,7 +231,7 @@ template <typename U> inline constexpr bool is_std_vector_v<std::vector<U>> = tr
 
 /// Flatten a scalar leaf into the C-order buffer (recursion base case).
 template <Element T>
-void nested_collect(T x, std::vector<T>& flat, std::vector<std::size_t>&, std::size_t) {
+void nested_collect(T x, std::vector<T>& flat, std::vector<std::size_t>& /*unused*/, std::size_t /*unused*/) {
     flat.push_back(std::move(x));
 }
 /// Walk a nested list: record each axis length the first time it is seen, reject a
@@ -397,18 +397,23 @@ public:
     template <typename... Ix>
         requires((Subscript<Ix> && ...) && sizeof...(Ix) > 0)
     T& item_ref(Ix... ixs) {
-        const std::array<long long, sizeof...(Ix)> raw{subscript_index(ixs)...};
-        if (raw.size() != shape_.size())
-            throw std::out_of_range("ndarray subscript: wrong number of indices");
-        std::size_t pos = offset_;
-        for (std::size_t d = 0; d < raw.size(); ++d) {
-            long long i = raw[d];
-            const long long n = static_cast<long long>(shape_[d]);
-            if (i < 0) i += n;
-            if (i < 0 || i >= n) throw std::out_of_range("ndarray subscript out of range");
-            pos += static_cast<std::size_t>(i) * strides_[d];
-        }
-        return (*data_)[pos];
+        return (*data_)[item_pos(ixs...)];
+    }
+
+    /**
+     * READ-ONLY element reference by multi-index — the same rank/bounds-checked position math as
+     * the mutable overload, for a const array (the read path behind `x[i, j]` on a const value).
+     * @param ixs one (possibly negative) coordinate per dimension.
+     * @return a const reference into the backing buffer.
+     * @complexity O(ndim). @alloc none.
+     * @test CheatahNDArray.SubscriptReadWrite
+     * @crtest LangFeatures.NdarraySubscript
+     * @systest StdlibE2E.Ndarray
+     */
+    template <typename... Ix>
+        requires((Subscript<Ix> && ...) && sizeof...(Ix) > 0)
+    const T& item_ref(Ix... ixs) const {
+        return (*data_)[item_pos(ixs...)];
     }
 
     /// 1-D subscript: `mask[i] = v` assignment and raw element writes. Accepts an integer or a scoped
@@ -420,6 +425,25 @@ public:
     template <Subscript Ix>
     T& operator[](Ix i) {
         return item_ref(subscript_index(i));
+    }
+
+    /// The buffer position of a (possibly negative) multi-index — rank and bounds are checked here,
+    /// once, for both `item_ref` overloads. @complexity O(ndim). @alloc none.
+    template <typename... Ix>
+        requires((Subscript<Ix> && ...) && sizeof...(Ix) > 0)
+    [[nodiscard]] std::size_t item_pos(Ix... ixs) const {
+        const std::array<long long, sizeof...(Ix)> raw{subscript_index(ixs)...};
+        if (raw.size() != shape_.size())
+            throw std::out_of_range("ndarray subscript: wrong number of indices");
+        std::size_t pos = offset_;
+        for (std::size_t d = 0; d < raw.size(); ++d) {
+            long long i = raw[d];
+            const auto n = static_cast<long long>(shape_[d]);
+            if (i < 0) i += n;
+            if (i < 0 || i >= n) throw std::out_of_range("ndarray subscript out of range");
+            pos += static_cast<std::size_t>(i) * strides_[d];
+        }
+        return pos;
     }
 
     /**
@@ -442,7 +466,7 @@ public:
         if (index.size() != shape_.size()) {
             throw std::runtime_error("ndarray: index has the wrong number of dimensions");
         }
-        std::ptrdiff_t off = static_cast<std::ptrdiff_t>(offset_);
+        auto off = static_cast<std::ptrdiff_t>(offset_);
         for (std::size_t i = 0; i < index.size(); ++i) {
             if (index[i] >= shape_[i]) throw std::runtime_error("ndarray: index out of range");
             off += static_cast<std::ptrdiff_t>(index[i]) * strides_[i];
@@ -622,7 +646,8 @@ template <Element T>
     requires (!detail::is_std_vector_v<T>)  // a vector-of-vectors is a NESTED list (overload below)
 basic_ndarray<T> array(std::vector<T>&& values) {
     basic_ndarray<T> a = basic_ndarray<T>::uninitialized({values.size()});
-    std::move(values.begin(), values.end(), a.buffer()->begin());
+    std::vector<T> src = std::move(values);  // consume the caller's vector; its elements move into the buffer
+    std::move(src.begin(), src.end(), a.buffer()->begin());
     return a;
 }
 /**
@@ -781,7 +806,22 @@ template <Numeric T>
 basic_ndarray<T> arange(T start, T stop, T step) {
     if (step == T{}) throw std::runtime_error("ndarray: arange step must be non-zero");
     std::vector<T> v;
-    for (T x = start; (step > T{}) ? (x < stop) : (x > stop); x += step) v.push_back(x);
+    if constexpr (std::floating_point<T>) {
+        // Integer induction with x = start + i*step — numpy computes arange the same way.
+        // A floating-point loop counter (cert-flp30-c) accumulates rounding error every
+        // pass; the multiply form keeps each element one rounding away from exact. The
+        // bound check per element preserves the exclusive-stop semantics at the boundary.
+        const double span = (static_cast<double>(stop) - static_cast<double>(start)) /
+                            static_cast<double>(step);
+        const std::size_t count = span > 0.0 ? static_cast<std::size_t>(std::ceil(span)) : 0;
+        v.reserve(count);
+        for (std::size_t i = 0; i < count; ++i) {
+            const T x = start + static_cast<T>(i) * step;
+            if ((step > T{}) ? (x < stop) : (x > stop)) v.push_back(x);
+        }
+    } else {
+        for (T x = start; (step > T{}) ? (x < stop) : (x > stop); x += step) v.push_back(x);
+    }
     return array(v);
 }
 /**
@@ -814,9 +854,10 @@ basic_ndarray<T> reshape(const basic_ndarray<T>& a, const std::vector<long long>
     }
     std::vector<std::size_t> idx(a.ndim(), 0);
     std::size_t flat = 0;
-    do {
+    for (;;) {  // a 0-d array still yields its one element
         buf[flat++] = a.at(idx);
-    } while (a.ndim() != 0 && detail::next_index(idx, a.shape()));
+        if (a.ndim() == 0 || !detail::next_index(idx, a.shape())) break;
+    }
     return out;
 }
 /**
@@ -843,14 +884,17 @@ basic_ndarray<U> astype(const basic_ndarray<T>& a) {
     auto& buf = *out.buffer();
     if (is_contiguous(a)) {  // contiguous source: one straight cast pass, no odometer
         const T* src = a.buffer()->data() + a.offset();
-        for (std::size_t i = 0; i < a.size(); ++i) buf[i] = static_cast<U>(src[i]);
+        // NOLINT below: an i8→wider astype must sign-extend (numpy dtype semantics) — these
+        // are small integers, not characters, so the signed-char-misuse hazard does not apply.
+        for (std::size_t i = 0; i < a.size(); ++i) buf[i] = static_cast<U>(src[i]);  // NOLINT(bugprone-signed-char-misuse,cert-str34-c)
         return out;
     }
     std::vector<std::size_t> idx(a.ndim(), 0);
     std::size_t flat = 0;
-    do {
-        buf[flat++] = static_cast<U>(a.at(idx));
-    } while (a.ndim() != 0 && detail::next_index(idx, a.shape()));
+    for (;;) {  // a 0-d array still yields its one element
+        buf[flat++] = static_cast<U>(a.at(idx));  // NOLINT(bugprone-signed-char-misuse,cert-str34-c): same sign-extension intent as above
+        if (a.ndim() == 0 || !detail::next_index(idx, a.shape())) break;
+    }
     return out;
 }
 
@@ -905,9 +949,10 @@ basic_ndarray<T> binary_op(const basic_ndarray<T>& a, const basic_ndarray<T>& b,
     }
     std::vector<std::size_t> idx(rshape.size(), 0);
     std::size_t flat = 0;
-    do {
+    for (;;) {  // a 0-d result still has its one element
         obuf[flat++] = op(av.at(idx), bv.at(idx));
-    } while (!rshape.empty() && detail::next_index(idx, rshape));
+        if (rshape.empty() || !detail::next_index(idx, rshape)) break;
+    }
     return out;
 }
 
@@ -957,9 +1002,10 @@ void binary_op_into(basic_ndarray<T>& out, const basic_ndarray<T>& a, const basi
     }
     std::vector<std::size_t> idx(rshape.size(), 0);  // strided operand fallback (still no alloc for out)
     std::size_t flat = 0;
-    do {
+    for (;;) {  // a 0-d result still has its one element
         odst[static_cast<std::ptrdiff_t>(flat++)] = op(av.at(idx), bv.at(idx));
-    } while (!rshape.empty() && detail::next_index(idx, rshape));
+        if (rshape.empty() || !detail::next_index(idx, rshape)) break;
+    }
 }
 /// @endcond
 
@@ -1249,7 +1295,7 @@ basic_ndarray<T> divide(const basic_ndarray<T>& a, basic_ndarray<T>&& b) {
  * @complexity O(size of @p a). @alloc none on the contiguous fast path.
  */
 template <Field T>
-basic_ndarray<T> add(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return add(std::move(a), b); }
+basic_ndarray<T> add(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return add(std::move(a), b); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved): b is deliberately NOT consumed — the left buffer is reused; this overload exists only to disambiguate (&&, &&)
 /**
  * Element-wise `a - b` when both operands are expiring; reuses the left buffer @p a (no allocation).
  * @param a the expiring left operand; reused for the result.
@@ -1258,7 +1304,7 @@ basic_ndarray<T> add(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return add(st
  * @complexity O(size of @p a). @alloc none on the contiguous fast path.
  */
 template <Field T>
-basic_ndarray<T> sub(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return sub(std::move(a), b); }
+basic_ndarray<T> sub(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return sub(std::move(a), b); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved): b is deliberately NOT consumed — the left buffer is reused; this overload exists only to disambiguate (&&, &&)
 /**
  * Element-wise `a * b` when both operands are expiring; reuses the left buffer @p a (no allocation).
  * @param a the expiring left operand; reused for the result.
@@ -1267,7 +1313,7 @@ basic_ndarray<T> sub(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return sub(st
  * @complexity O(size of @p a). @alloc none on the contiguous fast path.
  */
 template <Field T>
-basic_ndarray<T> mul(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return mul(std::move(a), b); }
+basic_ndarray<T> mul(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return mul(std::move(a), b); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved): b is deliberately NOT consumed — the left buffer is reused; this overload exists only to disambiguate (&&, &&)
 /**
  * Element-wise `a / b` when both operands are expiring; reuses the left buffer @p a (no allocation).
  * @param a the expiring numerator; reused for the result.
@@ -1276,7 +1322,7 @@ basic_ndarray<T> mul(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return mul(st
  * @complexity O(size of @p a). @alloc none on the contiguous fast path.
  */
 template <Field T>
-basic_ndarray<T> divide(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return divide(std::move(a), b); }
+basic_ndarray<T> divide(basic_ndarray<T>&& a, basic_ndarray<T>&& b) { return divide(std::move(a), b); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved): b is deliberately NOT consumed — the left buffer is reused; this overload exists only to disambiguate (&&, &&)
 /// @endcond
 
 /// Elementwise infix forms: `a + b`, `a - b`, `a * b`, `a / b` (broadcasting).
@@ -1499,9 +1545,10 @@ basic_ndarray<U> map_array(const basic_ndarray<T>& a, F f) {
     }
     std::vector<std::size_t> idx(a.ndim(), 0);
     std::size_t flat = 0;
-    do {
+    for (;;) {  // a 0-d array still yields its one element
         obuf[flat++] = f(a.at(idx));
-    } while (a.ndim() != 0 && next_index(idx, a.shape()));
+        if (a.ndim() == 0 || !next_index(idx, a.shape())) break;
+    }
     return out;
 }
 
@@ -1556,9 +1603,10 @@ basic_ndarray<std::complex<T>> complex(const basic_ndarray<T>& re, const basic_n
     auto& obuf = *out.buffer();
     std::vector<std::size_t> idx(rshape.size(), 0);
     std::size_t flat = 0;
-    do {
+    for (;;) {  // a 0-d result still has its one element
         obuf[flat++] = C(rv.at(idx), iv.at(idx));
-    } while (!rshape.empty() && detail::next_index(idx, rshape));
+        if (rshape.empty() || !detail::next_index(idx, rshape)) break;
+    }
     return out;
 }
 /**
@@ -1779,9 +1827,10 @@ T sum(const basic_ndarray<T>& a) {
     }
     T s{};
     std::vector<std::size_t> idx(a.ndim(), 0);
-    do {
+    for (;;) {  // a 0-d array still contributes its one element
         s += a.at(idx);
-    } while (a.ndim() != 0 && detail::next_index(idx, a.shape()));
+        if (a.ndim() == 0 || !detail::next_index(idx, a.shape())) break;
+    }
     return s;
 }
 /**
@@ -1982,7 +2031,7 @@ std::ostream& operator<<(std::ostream& os, const basic_ndarray<T>& a) {
 }
 
 template <Element T>
-inline void basic_ndarray<T>::cheatah_pretty_print(std::ostream& os, long long) const {
+inline void basic_ndarray<T>::cheatah_pretty_print(std::ostream& os, long long /*unused*/) const {
     os << detail::to_string_pretty(*this);
 }
 
@@ -2006,9 +2055,9 @@ namespace cheatah::builtins {
  */
 template <typename T, ::cheatah::ndarray::Subscript First, ::cheatah::ndarray::Subscript... Ix>
 T index(const ::cheatah::ndarray::basic_ndarray<T>& a, First first, Ix... rest) {
-    // const_cast is sound: item_ref only computes a position; we copy the value out. Any index may be
-    // a scoped enum column label — item_ref performs the one sanctioned conversion (ndarray::Subscript).
-    return const_cast<::cheatah::ndarray::basic_ndarray<T>&>(a).item_ref(first, rest...);
+    // Any index may be a scoped enum column label — item_ref performs the one sanctioned conversion
+    // (ndarray::Subscript); the const overload reads, and the value is copied out.
+    return a.item_ref(first, rest...);
 }
 
 }  // namespace cheatah::builtins

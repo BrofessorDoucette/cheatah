@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
@@ -87,8 +88,10 @@ TEST(Memory, ObjectDiesWithOwner) {
     static int live = 0;
     // std::movable (own<T> constrains on it): ctors count, assignments are no-ops for the count.
     struct T {
-        T(){++live;} T(const T&){++live;} T(T&&){++live;}
-        T& operator=(const T&){return *this;} T& operator=(T&&){return *this;}
+        T(){++live;} T(const T& /*unused*/){++live;} T(T&& /*unused*/) noexcept {++live;}
+        // NOLINT below: this probe's operator= is DELIBERATELY a no-op either way — only
+        // construction/destruction move the live count, so self-assignment is trivially safe.
+        T& operator=(const T& /*unused*/)= default; T& operator=(T&& /*unused*/) noexcept {return *this;}  // NOLINT(cert-oop54-cpp)
         ~T(){--live;}
     };
     { auto o = mem::own(T{}); EXPECT_EQ(live, 1); }
@@ -109,6 +112,7 @@ TEST(Memory, OwnerConsumesAndMovesTheObjectInNeverCopies) {
             : moves(o.moves + 1), copies(o.copies), resource(std::move(o.resource)) {}
         Tracker& operator=(const Tracker&) = default;
         Tracker& operator=(Tracker&&) noexcept = default;
+        ~Tracker() = default;
     };
 
     Tracker src;                          // an lvalue we hand over
@@ -117,7 +121,7 @@ TEST(Memory, OwnerConsumesAndMovesTheObjectInNeverCopies) {
     EXPECT_EQ(r.read().copies, 0) << "the object must be MOVED into the Owner, never copied";
     EXPECT_GE(r.read().moves, 1) << "the object must be moved in";
     EXPECT_EQ(*r.read().resource, 7);     // the Owner holds the resource
-    EXPECT_EQ(src.resource, nullptr) << "the source was consumed — its resource moved out";
+    EXPECT_EQ(src.resource, nullptr) << "the source was consumed — its resource moved out";  // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move): moved-from state is the assertion
 }
 
 // For complex objects, each write form reaches the RIGHT item: index → the right element, key → the
@@ -267,7 +271,7 @@ TEST(Memory, AReaderCanBecomeAWriterWithoutSelfDeadlock) {
 
 // ── scheduling: priority is a compile-time argument on rwrite; higher is served first ────
 
-namespace { enum class Job { normal = 0, high = 10 }; }   // arbitrary names; higher = higher priority
+namespace { enum class Job : std::uint8_t { normal = 0, high = 10 }; }   // arbitrary names; higher = higher priority
 
 TEST(Memory, HigherPriorityWriteServedFirst) {
     auto o = mem::own(std::string(""));

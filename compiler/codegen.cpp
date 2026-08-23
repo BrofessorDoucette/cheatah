@@ -161,18 +161,16 @@ bool stmt_mutates_self(const Stmt& s) {
         }
         case StmtKind::Match: {
             const auto& m = static_cast<const Match&>(s);
-            for (const MatchCase& c : m.cases)
-                if (block_mutates_self(c.body)) return true;
-            return false;
+            return std::ranges::any_of(m.cases, [](const MatchCase& c) {
+                return block_mutates_self(c.body);
+            });
         }
         default:
             return false;
     }
 }
 bool block_mutates_self(const Block& body) {
-    for (const StmtPtr& s : body)
-        if (stmt_mutates_self(*s)) return true;
-    return false;
+    return std::ranges::any_of(body, [](const StmtPtr& s) { return stmt_mutates_self(*s); });
 }
 
 // Flatten a left-associated `+` chain (`((a + b) + c)`) into its operands in
@@ -207,9 +205,7 @@ bool refers_to(const Expr& e, const std::string& name) {
         case ExprKind::Call: {
             const auto& c = static_cast<const Call&>(e);
             if (refers_to(*c.callee, name)) return true;
-            for (const ExprPtr& a : c.args)
-                if (refers_to(*a, name)) return true;
-            return false;
+            return std::ranges::any_of(c.args, [&](const ExprPtr& a) { return refers_to(*a, name); });
         }
         case ExprKind::Unary:
             return refers_to(*static_cast<const Unary&>(e).operand, name);
@@ -218,22 +214,17 @@ bool refers_to(const Expr& e, const std::string& name) {
             return refers_to(*b.lhs, name) || refers_to(*b.rhs, name);
         }
         case ExprKind::ListLit: {
-            for (const ExprPtr& el : static_cast<const ListLit&>(e).elements)
-                if (refers_to(*el, name)) return true;
-            return false;
+            const auto refers = [&](const ExprPtr& el) { return refers_to(*el, name); };
+            return std::ranges::any_of(static_cast<const ListLit&>(e).elements, refers);
         }
         case ExprKind::DictLit: {
             const auto& d = static_cast<const DictLit&>(e);
-            for (const ExprPtr& k : d.keys)
-                if (refers_to(*k, name)) return true;
-            for (const ExprPtr& v : d.values)
-                if (refers_to(*v, name)) return true;
-            return false;
+            const auto refers = [&](const ExprPtr& x) { return refers_to(*x, name); };
+            return std::ranges::any_of(d.keys, refers) || std::ranges::any_of(d.values, refers);
         }
         case ExprKind::StructInit: {
-            for (const ExprPtr& v : static_cast<const StructInit&>(e).values)
-                if (refers_to(*v, name)) return true;
-            return false;
+            const auto refers = [&](const ExprPtr& v) { return refers_to(*v, name); };
+            return std::ranges::any_of(static_cast<const StructInit&>(e).values, refers);
         }
         default:
             return false;
@@ -307,8 +298,7 @@ std::string map_type_arg(const TypeRef& t) {
 // codegen churns. See the contextual-typing branch in gen_expr's ListLit/DictLit.
 bool type_uses_width(const TypeRef& t) {
     if (width_cpp_type(t.name)) return true;
-    for (const TypeRef& a : t.args) if (type_uses_width(a)) return true;
-    return false;
+    return std::ranges::any_of(t.args, [](const TypeRef& a) { return type_uses_width(a); });
 }
 
 // The same test on a flat type SPELLING (a `-> list<i8>` return hint reaches codegen as a
@@ -394,9 +384,9 @@ public:
         // (e.g. a `struct os`); then we stay explicit (`::cheatah::<module>::…`).
         collect_defined(prog.body);
         for (const std::string& root : roots_) {
-            if (!defined_names_.count(root)) aliased_roots_.insert(root);
+            if (!defined_names_.contains(root)) aliased_roots_.insert(root);
         }
-        const bool alias_builtins = !defined_names_.count("builtins");
+        const bool alias_builtins = !defined_names_.contains("builtins");
         builtins_ns_ = alias_builtins ? "builtins::" : "::cheatah::builtins::";
         return alias_builtins;
     }
@@ -426,7 +416,7 @@ public:
     void emit_aliases(std::ostringstream& os, bool alias_builtins) {
         if (alias_builtins) os << "namespace builtins = ::cheatah::builtins;\n";
         for (const std::string& root : roots_) {
-            if (aliased_roots_.count(root))
+            if (aliased_roots_.contains(root))
                 os << "namespace " << root << " = ::cheatah::" << root << ";\n";
         }
         // From-imports: a using-DECLARATION `using ::cheatah::<module>::Sym;` brings the bare symbol
@@ -460,7 +450,7 @@ public:
     // Specializations must live in the parsers namespace, so the enclosing program/library
     // namespace (@p ns) is closed around them and reopened after.
     void emit_json_schemas(std::ostringstream& os, const Program& prog, const std::string& ns) {
-        if (!roots_.count("parsers")) return;  // reader not imported: nothing to synthesize
+        if (!roots_.contains("parsers")) return;  // reader not imported: nothing to synthesize
         bool any = false;
         for (const StmtPtr& s : prog.body) {
             if (s->kind != StmtKind::StructDef) continue;
@@ -494,7 +484,7 @@ public:
     // a .purr-declared enum does. Without this, a module cannot move its enums into its sibling header
     // and still reference them from its own .purr. Scanned as text — purrc has no C++ front end.
     void scan_base_enums(const std::string& base) {
-        auto word = [](char c) { return std::isalnum(static_cast<unsigned char>(c)) || c == '_'; };
+        auto word = [](char c) { return (std::isalnum(static_cast<unsigned char>(c)) != 0) || c == '_'; };
         std::size_t p = 0;
         while ((p = base.find("enum", p)) != std::string::npos) {
             const bool left_ok = (p == 0) || !word(base[p - 1]);
@@ -556,16 +546,21 @@ public:
         emit_aliases(os, alias_builtins);
         emit_types(os, prog);
         emit_json_schemas(os, prog, "cheatah_program");
+        // Program functions live in an anonymous namespace: internal linkage like `static`, in
+        // the form the C++ Core Guidelines ask for (misc-use-anonymous-namespace).
+        const bool has_fns = std::ranges::any_of(prog.body, [](const StmtPtr& s) { return s->kind == StmtKind::FnDef; });
+        if (has_fns) os << "namespace {\n\n";
         for (const StmtPtr& s : prog.body) {
             if (s->kind == StmtKind::FnDef) gen_fn(os, static_cast<const FnDef&>(*s));
         }
+        if (has_fns) os << "}  // namespace\n\n";
 
         // The program body, as an internal function the exported trampoline calls. Its
         // name must not collide with a program function the user defined (e.g. a
         // `fn run`/`fn purr_main`), so pick the first `purr_main`/`purr_main_`/… free of
         // defined_names_.
         std::string entry = "purr_main";
-        while (defined_names_.count(entry)) entry += "_";
+        while (defined_names_.contains(entry)) entry += "_";
         os << "void " << entry << "() {\n";
         deferred_lets_.clear(); const_vars_.clear();  // no-value lets in the top-level body are scoped to it
         for (std::size_t i = 0; i < prog.body.size(); ++i) {
@@ -689,7 +684,7 @@ private:
     // hover DB, and must carry the same documentation convention as the hand-written
     // stdlib headers. The block is verbatim — @param/@return/@complexity/@alloc/@test
     // tags written in the .purr comment pass straight through to Doxygen.
-    void emit_doc(std::ostringstream& os, const std::string& doc, const char* indent = "") {
+    void emit_doc(std::ostringstream& os, const std::string& doc, const char* indent = "") const {
         if (!emit_docs_ || doc.empty()) return;
         os << indent << "/**\n";
         for (std::size_t start = 0; start <= doc.size();) {
@@ -860,10 +855,10 @@ private:
     std::string param_prefix(const std::string& type_name) const {
         // A `const`-qualified param (encoded "const T" by the parser) -> a const reference: map the
         // underlying type to its concrete reference and prepend const (so it binds a `const Array&`).
-        if (type_name.rfind("const ", 0) == 0) {
+        if (type_name.starts_with("const ")) {
             return "const " + param_prefix(type_name.substr(6));
         }
-        if (!type_name.empty() && interface_names_.count(type_name)) {
+        if (!type_name.empty() && interface_names_.contains(type_name)) {
             return type_name + " auto&& ";
         }
         // A module-qualified struct/class (`state.State`) -> a concrete mutable reference (so a bot's
@@ -875,7 +870,7 @@ private:
         // a concrete mutable reference (in-place updates reach the caller's array; a wrong element
         // type fails to compile). Any element width flows through map_type_string, so `ndarray<i16>`
         // and `list<ndarray<u8>>` bind correctly alongside the int/float defaults.
-        if (type_name.rfind("ndarray<", 0) == 0 || type_name.rfind("list<ndarray<", 0) == 0)
+        if (type_name.starts_with("ndarray<") || type_name.starts_with("list<ndarray<"))
             return map_type_string(type_name) + "& ";
         return builtins_ns_ + kValueConcept;
     }
@@ -885,9 +880,9 @@ private:
     std::string return_type_cpp(const std::string& type_name) const {
         if (type_name.empty()) return "auto";
         // ndarray[T] value return (any element width) — delegate to the shared spelling mapper.
-        if (type_name.rfind("ndarray<", 0) == 0) return map_type_string(type_name);
+        if (type_name.starts_with("ndarray<")) return map_type_string(type_name);
         // `list<T>` — recurse on the element so `list<Material>` / `list<int>` / `list<i8>` map correctly.
-        if (type_name.rfind("list<", 0) == 0 && type_name.back() == '>')
+        if (type_name.starts_with("list<") && type_name.back() == '>')
             return "std::vector<" + return_type_cpp(type_name.substr(5, type_name.size() - 6)) + ">";
         if (type_name == "int") return "long long";
         if (type_name == "float") return "double";
@@ -901,11 +896,11 @@ private:
     // The C++ type for a typed PARAMETER in a concrete forwarding lambda (ndarrays by
     // mutable reference so in-place updates reach the caller; scalars/structs by value).
     std::string lambda_param_cpp(const std::string& type_name) const {
-        if (type_name.rfind("const ", 0) == 0) {
+        if (type_name.starts_with("const ")) {
             return "const " + lambda_param_cpp(type_name.substr(6));
         }
         // `ndarray<T>` / `list<ndarray<T>>` by mutable reference (any element width via map_type_string).
-        if (type_name.rfind("ndarray<", 0) == 0 || type_name.rfind("list<ndarray<", 0) == 0)
+        if (type_name.starts_with("ndarray<") || type_name.starts_with("list<ndarray<"))
             return map_type_string(type_name) + "&";
         // A module-qualified struct/class (`state.State`) binds by reference (the brain's callbacks
         // mutate the caller's State/Memory in place; matches the param_prefix spelling for CTAD).
@@ -933,7 +928,14 @@ private:
     // Member case in gen_expr.
     void gen_enum(std::ostringstream& os, const EnumDef& ed) {
         emit_doc(os, ed.doc);
-        os << "enum class " << ed.name << " {\n";
+        // Implicitly-valued enumerators are 0..n-1, so the underlying type is sized to n: a
+        // byte for up to 256 members (performance-enum-size; smaller structs). An explicit
+        // value is an arbitrary constant expression we do not evaluate here, so those keep
+        // the C++ default (int).
+        const bool implicit_values = std::ranges::none_of(ed.enumerators, [](const Enumerator& en) { return static_cast<bool>(en.value); });
+        os << "enum class " << ed.name;
+        if (implicit_values && ed.enumerators.size() <= 256) os << " : std::uint8_t";
+        os << " {\n";
         for (const Enumerator& en : ed.enumerators) {
             os << "    " << cpp_ident(en.name);
             if (en.value) os << " = " << gen_expr(*en.value);
@@ -992,7 +994,14 @@ private:
         os << "struct " << sd.name << " {\n";
         for (const Field& f : sd.fields) {
             emit_doc(os, f.doc, "    ");  // library mode: the field's `#` doc -> its Javadoc
-            os << "    " << map_declared_type(f.type) << " " << cpp_ident(f.name) << ";\n";
+            // A scalar field gets `{}`: a default-constructed record is zeroed rather than
+            // indeterminate (pro-type-member-init); designated-init construction is unaffected.
+            // Class-typed fields (string, containers, records) already default-construct, so an
+            // initializer there would be redundant (readability-redundant-member-init).
+            const std::string ftype = map_declared_type(f.type);
+            const bool scalar = ftype == "long long" || ftype == "double" || ftype == "bool" || ftype == "float" ||
+                                ftype.starts_with("std::int") || ftype.starts_with("std::uint");
+            os << "    " << ftype << " " << cpp_ident(f.name) << (scalar ? "{};\n" : ";\n");
         }
         // Methods become member functions. A leading `self` param is implicit (it
         // is `*this`); the struct stays a C++ aggregate (member functions are
@@ -1011,7 +1020,7 @@ private:
             for (std::size_t i = 0; i < sd.fields.size(); ++i) {
                 const Field& f = sd.fields[i];
                 os << "        os_ << std::string(indent_ + 4, ' ') << \"" << f.name << " = \";\n";
-                if (struct_fields_.count(f.type.name))  // a (streamable) struct field -> recurse
+                if (struct_fields_.contains(f.type.name))  // a (streamable) struct field -> recurse
                     os << "        this->" << cpp_ident(f.name) << ".cheatah_pretty_print(os_, indent_ + 4);\n";
                 else if (is_char_width(f.type.name))  // i8/u8 -> promote so it prints as a number
                     os << "        os_ << +this->" << cpp_ident(f.name) << ";\n";
@@ -1106,13 +1115,25 @@ private:
                 diags_.push_back("codegen: struct '" + name + "' has no field '" + si.fields[i] +
                                  "'");
                 entry += val;
+            } else if (si.values[i]->kind == ExprKind::NumberLit &&
+                       ((ftype == "long long" && val.ends_with("LL")) ||
+                        (ftype == "double" && !val.ends_with("LL")))) {
+                entry += val;  // a literal already of the field type: no cast to itself (readability-redundant-casting)
             } else {
-                entry += "static_cast<" + ftype + ">(" + val + ")";
+                entry += "static_cast<";
+                entry += ftype;
+                entry += ">(";
+                entry += val;
+                entry += ")";
             }
             if (ml) {
-                out += "\n" + inner + entry + (i + 1 < si.fields.size() ? "," : "");
+                out += "\n";
+                out += inner;
+                out += entry;
+                if (i + 1 < si.fields.size()) out += ",";
             } else {
-                out += (i == 0 ? "" : ", ") + entry;
+                if (i != 0) out += ", ";
+                out += entry;
             }
         }
         if (ml) out += "\n" + indent;
@@ -1121,7 +1142,7 @@ private:
 
     // The type declared for a method param (parallel to params; the implicit `self`
     // at index 0 has none), or "" when untyped.
-    std::string method_param_type(const FnDef& fd, std::size_t i) const {
+    static std::string method_param_type(const FnDef& fd, std::size_t i) {
         return i < fd.param_types.size() ? fd.param_types[i] : std::string();
     }
 
@@ -1150,8 +1171,8 @@ private:
     // default. Only program-defined functions are addressable by keyword (the compiler knows
     // their signatures); module functions and methods need positional arguments.
     std::string gen_kwargs_call(const Call& c, const std::string& indent) {
-        if (c.callee->kind != ExprKind::Ident || !fn_defs_.count(static_cast<const Ident&>(*c.callee).name)) {
-            diags_.push_back("codegen: keyword arguments require a program-defined function");
+        if (c.callee->kind != ExprKind::Ident || !fn_defs_.contains(static_cast<const Ident&>(*c.callee).name)) {
+            diags_.emplace_back("codegen: keyword arguments require a program-defined function");
             return "/*kwargs error*/";
         }
         const FnDef& fd = *fn_defs_.at(static_cast<const Ident&>(*c.callee).name);
@@ -1193,6 +1214,19 @@ private:
         std::string out = fd.name + "(";
         for (std::size_t j = 0; j < slot.size(); ++j) out += (j ? ", " : "") + slot[j];
         return out + ")";
+    }
+
+    // `if (x == y)`, not `if ((x == y))`: a binary expression renders parenthesized, and the
+    // statement adds its own pair — drop the redundant one when it wraps the whole condition
+    // (clang -Wparentheses-equality on the emitted C++).
+    static std::string bare_cond(std::string s) {
+        if (s.size() < 2 || s.front() != '(' || s.back() != ')') return s;
+        int depth = 0;
+        for (std::size_t i = 0; i < s.size(); ++i) {
+            if (s[i] == '(') ++depth;
+            else if (s[i] == ')' && --depth == 0 && i + 1 != s.size()) return s;  // closes early: not one outer pair
+        }
+        return s.substr(1, s.size() - 2);
     }
 
     void gen_fn(std::ostringstream& os, const FnDef& fd) {
@@ -1257,9 +1291,7 @@ private:
             case ExprKind::Index: {
                 const auto& ix = static_cast<const Index&>(e);
                 if (has_call(*ix.object) || has_call(*ix.index)) return true;
-                for (const ExprPtr& more : ix.extra)
-                    if (has_call(*more)) return true;
-                return false;
+                return std::ranges::any_of(ix.extra, [&](const ExprPtr& more) { return has_call(*more); });
             }
             case ExprKind::Slice: {
                 const auto& sl = static_cast<const Slice&>(e);
@@ -1271,20 +1303,18 @@ private:
                 const auto& b = static_cast<const Binary&>(e);
                 return has_call(*b.lhs) || has_call(*b.rhs);
             }
-            case ExprKind::ListLit:
-                for (const ExprPtr& el : static_cast<const ListLit&>(e).elements)
-                    if (has_call(*el)) return true;
-                return false;
+            case ExprKind::ListLit: {
+                const auto calls = [&](const ExprPtr& el) { return has_call(*el); };
+                return std::ranges::any_of(static_cast<const ListLit&>(e).elements, calls);
+            }
             case ExprKind::DictLit: {
                 const auto& d = static_cast<const DictLit&>(e);
-                for (const ExprPtr& k : d.keys) if (has_call(*k)) return true;
-                for (const ExprPtr& v : d.values) if (has_call(*v)) return true;
-                return false;
+                const auto calls = [&](const ExprPtr& x) { return has_call(*x); };
+                return std::ranges::any_of(d.keys, calls) || std::ranges::any_of(d.values, calls);
             }
             case ExprKind::StructInit: {
-                for (const ExprPtr& v : static_cast<const StructInit&>(e).values)
-                    if (has_call(*v)) return true;
-                return false;
+                const auto calls = [&](const ExprPtr& v) { return has_call(*v); };
+                return std::ranges::any_of(static_cast<const StructInit&>(e).values, calls);
             }
             default: return false;  // literals, identifiers
         }
@@ -1339,12 +1369,10 @@ private:
             case StmtKind::Match: {
                 const auto& m = static_cast<const Match&>(s);
                 if (refers_to(*m.subject, name)) return true;
-                for (const MatchCase& c : m.cases) {
+                return std::ranges::any_of(m.cases, [&](const MatchCase& c) {
                     // A wildcard case (`case _`) carries no pattern expression.
-                    if (c.pattern && refers_to(*c.pattern, name)) return true;
-                    if (block_reads_var(c.body, name)) return true;
-                }
-                return false;
+                    return (c.pattern && refers_to(*c.pattern, name)) || block_reads_var(c.body, name);
+                });
             }
             case StmtKind::Raise: {
                 const auto& r = static_cast<const Raise&>(s);
@@ -1355,9 +1383,7 @@ private:
         }
     }
     bool block_reads_var(const Block& b, const std::string& name) const {
-        for (const StmtPtr& s : b)
-            if (stmt_reads_var(*s, name)) return true;
-        return false;
+        return std::ranges::any_of(b, [&](const StmtPtr& s) { return stmt_reads_var(*s, name); });
     }
 
     // If @p s is a `let name = init` whose variable is never read in @p block at/after
@@ -1513,8 +1539,14 @@ private:
                                 ops[i]->kind == ExprKind::StringLit
                                     ? cpp_string_literal(static_cast<const StringLit&>(*ops[i]).value)
                                     : gen_expr(*ops[i]);
-                            expr = (i == 1) ? cpp_ident(name) + " += " + operand
-                                            : "(" + expr + ") += " + operand;
+                            if (i == 1) {
+                                expr = cpp_ident(name);
+                                expr += " += ";
+                            } else {
+                                expr.insert(0, "(");
+                                expr += ") += ";
+                            }
+                            expr += operand;
                         }
                         os << indent << expr << ";\n";
                         return;
@@ -1530,7 +1562,7 @@ private:
                 // constant (literals / `constexpr let` names) lowers to `if constexpr` too.
                 const bool cx = n.is_constexpr || expr_is_const(*n.cond);
                 os << indent << (cx ? "if constexpr (" : "if (")
-                   << gen_expr(*n.cond) << ") {\n";
+                   << bare_cond(gen_expr(*n.cond)) << ") {\n";
                 gen_block(os, n.then_body, indent + "    ");
                 os << indent << "}";
                 if (!n.else_body.empty()) {
@@ -1543,7 +1575,7 @@ private:
             }
             case StmtKind::While: {
                 const auto& w = static_cast<const While&>(s);
-                os << indent << "while (" << gen_expr(*w.cond) << ") {\n";
+                os << indent << "while (" << bare_cond(gen_expr(*w.cond)) << ") {\n";
                 gen_block(os, w.body, indent + "    ");
                 os << indent << "}\n";
                 return;
@@ -1674,7 +1706,7 @@ private:
             case ExprKind::BoolLit:
                 return true;
             case ExprKind::Ident:
-                return const_vars_.count(static_cast<const Ident&>(e).name) != 0;
+                return const_vars_.contains(static_cast<const Ident&>(e).name);
             case ExprKind::Unary: {
                 const auto& u = static_cast<const Unary&>(e);
                 return (u.op == "-" || u.op == "+" || u.op == "!") && expr_is_const(*u.operand);
@@ -1683,7 +1715,7 @@ private:
                 const auto& b = static_cast<const Binary&>(e);
                 static const std::set<std::string> kConstOps = {
                     "+", "-", "*", "==", "!=", "<", "<=", ">", ">=", "&&", "||"};
-                return kConstOps.count(b.op) != 0 && expr_is_const(*b.lhs) && expr_is_const(*b.rhs);
+                return kConstOps.contains(b.op) && expr_is_const(*b.lhs) && expr_is_const(*b.rhs);
             }
             default:
                 return false;
@@ -1692,9 +1724,9 @@ private:
     // Every non-wildcard case pattern of @p m is a compile-time constant (so the whole match
     // can lower to an `if constexpr` chain over a constant subject).
     bool match_patterns_all_const(const Match& m) const {
-        for (const MatchCase& c : m.cases)
-            if (!c.wildcard && !expr_is_const(*c.pattern)) return false;
-        return true;
+        return std::ranges::all_of(m.cases, [&](const MatchCase& c) {
+            return c.wildcard || expr_is_const(*c.pattern);
+        });
     }
 
     // A case pattern that's a valid C++ `switch` label: an integer (not float) literal,
@@ -1747,7 +1779,10 @@ private:
     //   • plain match on anything else (strings, floats, runtime values) -> evaluate the
     //     subject once, then an `if / else-if` chain comparing with `==`; `_` is the else.
     void gen_match(std::ostringstream& os, const Match& m, const std::string& indent) {
-        const std::string var = "__match_" + std::to_string(match_id_++);
+        // `_purr_match_N`, like `_purr_with_N`/`_purr_err`: block-scope, so a leading
+        // underscore + lowercase is legal — a double underscore would be RESERVED
+        // ([lex.name]; clang-tidy cert-dcl51-cpp), in every consumer of the emitted C++.
+        const std::string var = "_purr_match_" + std::to_string(match_id_++);
         const std::string in = indent + "    ";
         os << indent << "{\n";
 
@@ -1780,13 +1815,26 @@ private:
             os << in << "switch (" << var << ") {\n";
             const std::string cin = in + "    ";
             const MatchCase* wildcard = nullptr;
+            // Consecutive arms with byte-identical bodies share one case label group
+            // (`case A: case B: { … }`) instead of two clone branches (bugprone-branch-clone).
+            std::string pending_labels;
+            std::string pending_body;
+            const auto flush = [&] {
+                if (pending_labels.empty()) return;
+                os << pending_labels << "{\n" << pending_body << cin << "}\n";
+                pending_labels.clear();
+                pending_body.clear();
+            };
             for (const MatchCase& c : m.cases) {
                 if (c.wildcard) { wildcard = &c; continue; }
-                os << cin << "case " << gen_expr(*c.pattern) << ": {\n";
-                gen_block(os, c.body, cin + "    ");
-                if (block_falls_through(c.body)) os << cin << "    break;\n";
-                os << cin << "}\n";
+                std::ostringstream body;
+                gen_block(body, c.body, cin + "    ");
+                if (block_falls_through(c.body)) body << cin << "    break;\n";
+                if (!pending_labels.empty() && body.str() != pending_body) flush();
+                pending_labels += cin + "case " + gen_expr(*c.pattern) + ": ";
+                pending_body = body.str();
             }
+            flush();
             if (wildcard != nullptr) {
                 os << cin << "default: {\n";
                 gen_block(os, wildcard->body, cin + "    ");
@@ -1836,7 +1884,7 @@ private:
                     start = gen_expr(*call->args[0]);
                     stop = gen_expr(*call->args[1]);
                 } else {
-                    diags_.push_back("codegen: range() takes 1 or 2 arguments");
+                    diags_.emplace_back("codegen: range() takes 1 or 2 arguments");
                     return;
                 }
                 os << indent << "for (long long " << cpp_ident(f.var) << " = " << start << "; " << cpp_ident(f.var)
@@ -1859,7 +1907,7 @@ private:
         // namespace.
         std::string ns;
         std::size_t start = 0;
-        if (!segs.empty() && aliased_roots_.count(segs[0])) {
+        if (!segs.empty() && aliased_roots_.contains(segs[0])) {
             ns = cpp_ident(segs[0]);
             start = 1;
         } else {
@@ -1897,7 +1945,7 @@ private:
                 const auto& c = static_cast<const Call&>(e);
                 return c.callee->kind == ExprKind::Ident &&
                        static_cast<const Ident&>(*c.callee).name == "str" &&
-                       !defined_names_.count("str") && c.args.size() == 1;
+                       !defined_names_.contains("str") && c.args.size() == 1;
             }
             case ExprKind::Binary: {
                 const auto& b = static_cast<const Binary&>(e);
@@ -1941,7 +1989,7 @@ private:
                 // shadowed by a locally-defined name (a var/param/fn/struct/…). A module
                 // name on its own can't be a value, so a same-named local always wins —
                 // emit it bare. (Member access `math.sqrt` resolves separately.)
-                if (!defined_names_.count(name)) {
+                if (!defined_names_.contains(name)) {
                     const auto it = aliases_.find(name);
                     if (it != aliases_.end()) return module_namespace(it->second);
                 }
@@ -1951,7 +1999,7 @@ private:
                 const auto& m = static_cast<const Member&>(e);
                 // A scoped enum member: EnumName.MEMBER -> EnumName::MEMBER.
                 if (m.object->kind == ExprKind::Ident &&
-                    enum_names_.count(static_cast<const Ident&>(*m.object).name)) {
+                    enum_names_.contains(static_cast<const Ident&>(*m.object).name)) {
                     return static_cast<const Ident&>(*m.object).name + "::" + cpp_ident(m.name);
                 }
                 if (auto path = resolve_module_path(m)) return module_namespace(*path);
@@ -2013,11 +2061,11 @@ private:
                 // Construct the literal AS the declared vector type: constant literals narrow
                 // cleanly ([dcl.init.list]'s constant-expression rule), and an out-of-range literal
                 // (300 into i8) becomes a COMPILE ERROR — a free, zero-cost bounds check.
-                const bool typed = expected_cpp_type && !expected_cpp_type->empty();
+                const bool typed = (expected_cpp_type != nullptr) && !expected_cpp_type->empty();
                 const std::string ctor = typed ? *expected_cpp_type : "std::vector";
                 if (lst.elements.empty()) {
                     if (typed) return ctor + "{}";
-                    diags_.push_back("codegen: empty list literal needs a type annotation");
+                    diags_.emplace_back("codegen: empty list literal needs a type annotation");
                     return "std::vector<long long>{}";
                 }
                 // A source list that spanned multiple lines stays multi-line, with each
@@ -2040,7 +2088,7 @@ private:
                 // As ListLit: a declared width-typed key/value drives the map type. Typed entries are
                 // plain braced pairs `{k, v}` (so a constant value narrows into the declared type);
                 // untyped entries keep `std::pair{…}` + CTAD.
-                const bool typed = expected_cpp_type && !expected_cpp_type->empty();
+                const bool typed = (expected_cpp_type != nullptr) && !expected_cpp_type->empty();
                 auto entry = [&](std::size_t i, const std::string& ind) {
                     return typed ? "{" + gen_expr(*d.keys[i], ind) + ", " + gen_expr(*d.values[i], ind) + "}"
                                  : "std::pair{" + gen_expr(*d.keys[i], ind) + ", " + gen_expr(*d.values[i], ind) + "}";
@@ -2048,7 +2096,7 @@ private:
                 const std::string ctor = typed ? *expected_cpp_type : "std::unordered_map";
                 if (d.keys.empty()) {
                     if (typed) return ctor + "{}";
-                    diags_.push_back("codegen: empty dict literal needs a type annotation");
+                    diags_.emplace_back("codegen: empty dict literal needs a type annotation");
                     return "std::unordered_map<long long, long long>{}";
                 }
                 if (d.multiline) {
@@ -2091,7 +2139,7 @@ private:
                 }
                 if (c.callee->kind == ExprKind::Ident) {
                     const auto& id = static_cast<const Ident&>(*c.callee);
-                    if (struct_names_.count(id.name)) {
+                    if (struct_names_.contains(id.name)) {
                         // `Type({.f = v, …})` -> a C++20 designated initializer; fields not
                         // listed default-initialize (never garbage — an unset value is a bug).
                         if (c.args.size() == 1 && c.args[0]->kind == ExprKind::StructInit) {
@@ -2103,14 +2151,14 @@ private:
                     // str() of something already a string is identity — drop it. So
                     // `str(str(a))` reduces to `str(a)` and `str("x")` to `"x"`: minimal C++,
                     // no redundant intermediary.
-                    if (id.name == "str" && !defined_names_.count("str") && c.args.size() == 1 &&
+                    if (id.name == "str" && !defined_names_.contains("str") && c.args.size() == 1 &&
                         is_stringy(*c.args[0])) {
                         return gen_expr(*c.args[0], indent);
                     }
                     // `sizeof(f32)`, `sizeof(int)`, `sizeof(expr)` — the compile-time size
                     // builtin, lowered to a real C++ sizeof (see sizeof_type_spelling above).
                     // A user-defined `sizeof` function shadows it, like `str`.
-                    if (id.name == "sizeof" && !defined_names_.count("sizeof") &&
+                    if (id.name == "sizeof" && !defined_names_.contains("sizeof") &&
                         c.args.size() == 1) {
                         if (c.args[0]->kind == ExprKind::Ident) {
                             const auto& t = static_cast<const Ident&>(*c.args[0]);
@@ -2175,7 +2223,7 @@ private:
                 return callee + targs + "(" + gen_args(c.args, bare, indent) + ")";
             }
         }
-        diags_.push_back("codegen: unsupported expression node");
+        diags_.emplace_back("codegen: unsupported expression node");
         return "/* unsupported */";
     }
 
@@ -2190,7 +2238,7 @@ private:
             if (bare_string_literals && args[i]->kind == ExprKind::StringLit) {
                 out += cpp_string_literal(static_cast<const StringLit&>(*args[i]).value);
             } else if (args[i]->kind == ExprKind::Ident &&
-                       fn_defs_.count(static_cast<const Ident&>(*args[i]).name)) {
+                       fn_defs_.contains(static_cast<const Ident&>(*args[i]).name)) {
                 // A bare user-function NAME passed as a VALUE (a callback). cheatah `fn`s
                 // emit as abbreviated-template overload sets with no single address, so a
                 // bare name cannot bind to a `std::function<...>` parameter (C++ reports an
@@ -2213,8 +2261,15 @@ private:
                         params += lambda_param_cpp(fd.param_types[k]) + " " + fd.params[k];
                         fwd += (k != 0 ? ", " : "") + fd.params[k];
                     }
-                    out += "+[](" + params + ") -> " + return_type_cpp(fd.return_type) +
-                           " { return " + fname + "(" + fwd + "); }";
+                    out += "+[](";
+                    out += params;
+                    out += ") -> ";
+                    out += return_type_cpp(fd.return_type);
+                    out += " { return ";
+                    out += fname;
+                    out += "(";
+                    out += fwd;
+                    out += "); }";
                 } else {
                     out += "[](auto&&... _a){ return " + fname + "(_a...); }";
                 }

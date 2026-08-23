@@ -28,13 +28,13 @@ namespace {
 
 // Read a small text sidecar by path (empty if absent/unreadable). Capped — sidecars are
 // tiny (a digest, a signature, a short key list); never read an unbounded file here.
-constexpr std::size_t kMaxSidecarBytes = 1024u * 1024u;  // 1 MiB
+constexpr std::size_t kMaxSidecarBytes = std::size_t{1024} * 1024;  // 1 MiB
 std::string read_text_file(const std::string& path) {
     std::ifstream f(path, std::ios::binary);
     if (!f) return {};
     std::string out(kMaxSidecarBytes + 1, '\0');
     f.read(out.data(), static_cast<std::streamsize>(out.size()));
-    const std::size_t got = static_cast<std::size_t>(f.gcount());
+    const auto got = static_cast<std::size_t>(f.gcount());
     if (got > kMaxSidecarBytes) return {};  // oversized — treat as unreadable
     out.resize(got);
     return out;
@@ -54,9 +54,7 @@ std::string hex_of(const std::string& raw) {
 
 bool is_hex(const std::string& s) {
     if (s.empty()) return false;
-    for (char c : s)
-        if (!std::isxdigit(static_cast<unsigned char>(c))) return false;
-    return true;
+    return std::ranges::all_of(s, [](char c) { return std::isxdigit(static_cast<unsigned char>(c)) != 0; });
 }
 
 // The first whitespace-delimited token (sha512sum format is "<hex>  <name>"); also
@@ -97,7 +95,7 @@ bool parse_sig(const std::string& text, std::string& pubkey, std::string& sig) {
 
 // A module larger than this is refused before reading — an integrity check should never
 // be tricked into an unbounded allocation. Real loadable modules are far smaller.
-constexpr std::size_t kMaxModuleBytes = 1024u * 1024u * 1024u;  // 1 GiB
+constexpr std::size_t kMaxModuleBytes = std::size_t{1024} * 1024 * 1024;  // 1 GiB
 
 // Parse a `<module>.rt` manifest (cheatah-rt v1; arch/libc/libcxx lines). Returns true and
 // fills the fields on success.
@@ -117,11 +115,18 @@ bool parse_rt(const std::string& text, std::string& arch, std::string& libc, std
     return header && !arch.empty() && !libc.empty() && !libcxx.empty();
 }
 
-// Compare dotted "major.minor" versions: <0 if a<b, 0 if equal, >0 if a>b.
+// Compare dotted "major.minor" versions: <0 if a<b, 0 if equal, >0 if a>b. A field that
+// does not parse reads as 0, so a malformed version compares as the conservative "0.0"
+// floor (strtol reports where parsing stopped; sscanf/atoi could not — cert-err34-c).
 int cmp_ver(const std::string& a, const std::string& b) {
-    int amaj = 0, amin = 0, bmaj = 0, bmin = 0;
-    std::sscanf(a.c_str(), "%d.%d", &amaj, &amin);
-    std::sscanf(b.c_str(), "%d.%d", &bmaj, &bmin);
+    const auto parse = [](const std::string& v, long& maj, long& min) {
+        char* end = nullptr;
+        maj = std::strtol(v.c_str(), &end, 10);
+        min = (end != nullptr && *end == '.') ? std::strtol(end + 1, nullptr, 10) : 0;
+    };
+    long amaj = 0, amin = 0, bmaj = 0, bmin = 0;
+    parse(a, amaj, amin);
+    parse(b, bmaj, bmin);
     if (amaj != bmaj) return amaj < bmaj ? -1 : 1;
     if (amin != bmin) return amin < bmin ? -1 : 1;
     return 0;
@@ -146,9 +151,9 @@ std::string runtime_incompatibility(const std::string& rt_text) {
     // libstdc++ is backward-compatible (newer runs older-built code), so the host's
     // release must be at least the module's.
     const std::string host_cxx = cheatah::build_libcxx();
-    if (libcxx.rfind("libstdc++-", 0) == 0 && host_cxx.rfind("libstdc++-", 0) == 0) {
-        const int mod_rel = std::atoi(libcxx.c_str() + 10);
-        const int host_rel = std::atoi(host_cxx.c_str() + 10);
+    if (libcxx.starts_with("libstdc++-") && host_cxx.starts_with("libstdc++-")) {
+        const long mod_rel = std::strtol(libcxx.c_str() + 10, nullptr, 10);
+        const long host_rel = std::strtol(host_cxx.c_str() + 10, nullptr, 10);
         if (mod_rel > host_rel)
             return "module needs libstdc++ release >= " + std::to_string(mod_rel) +
                    ", but this host has " + std::to_string(host_rel);
@@ -183,7 +188,7 @@ Opened open_and_read(const std::string& path) {
     }
     std::string buf;
     char tmp[65536];
-    ssize_t n;
+    ssize_t n = 0;
     while ((n = ::read(fd, tmp, sizeof tmp)) > 0) {
         buf.append(tmp, static_cast<std::size_t>(n));
         if (buf.size() > kMaxModuleBytes) { ::close(fd); return o; }

@@ -70,16 +70,16 @@ struct Options {
     /**
      * Per-request timeout in milliseconds; <= 0 uses the 30000 ms default.
      */
-    long long timeout_ms;
+    long long timeout_ms{};
     /**
      * Maximum number of 3xx redirects to follow; <= 0 uses the default of 5.
      */
-    long long max_redirects;
+    long long max_redirects{};
     /**
      * Opt OUT of following 3xx redirects (cheatah's spelling of Python's `allow_redirects=False`).
      * Redirects are followed BY DEFAULT (the zero value is "follow"); set true to stop at the 3xx.
      */
-    bool no_redirect;
+    bool no_redirect{};
     /**
      * A raw request body sent verbatim (lowest precedence; used when json_body/data are empty).
      */
@@ -105,12 +105,12 @@ struct Options {
      * streams more (or declares a larger Content-Length) fails with an error instead of letting
      * the client exhaust memory — a hard cap against a malicious/compromised peer.
      */
-    long long max_bytes;
+    long long max_bytes{};
     /**
      * For https: skip TLS certificate validation (chain/hostname/expiry). Default false = verify,
      * so an active man-in-the-middle is refused. Set true ONLY for a pinned/controlled peer.
      */
-    bool insecure;
+    bool insecure{};
     /**
      * For https: a PEM CA bundle to trust instead of the system store (empty = system default).
      */
@@ -132,7 +132,7 @@ struct Response {
     /**
      * HTTP status code (e.g. 200, 404); 0 when the request never completed (see `error`).
      */
-    long long status_code;
+    long long status_code{};
     /**
      * HTTP reason phrase from the status line (e.g. "OK", "Not Found"); "" when absent.
      */
@@ -236,7 +236,7 @@ struct Response {
      * @systest RequestsSys.RaiseForStatus
      */
     auto raise_for_status() const {
-        if ((((*this).status_code >= 400LL) && ((*this).status_code < 600LL))) {
+        if (((*this).status_code >= 400LL) && ((*this).status_code < 600LL)) {
             throw ::cheatah::builtins::Error(((((builtins::str((*this).status_code) + std::string(" ")) + builtins::str((*this).reason)) + std::string(" for url: ")) + builtins::str((*this).url)));
         }
     }
@@ -342,8 +342,8 @@ inline auto json_escape(builtins::Value auto&& text) {
     for (auto& ch : text) {
         auto code = builtins::ord(ch);
         {
-            auto __match_0 = code;
-            switch (__match_0) {
+            auto _purr_match_0 = code;
+            switch (_purr_match_0) {
                 case 34LL: {
                     out += "\\\"";
                     break;
@@ -373,7 +373,7 @@ inline auto json_escape(builtins::Value auto&& text) {
                     break;
                 }
                 default: {
-                    if ((code < 32LL)) {
+                    if (code < 32LL) {
                         ((out += "\\u00") += builtins::index(hexdigits, builtins::floordiv(code, 16LL))) += builtins::index(hexdigits, builtins::mod(code, 16LL));
                     } else {
                         out += ch;
@@ -420,12 +420,14 @@ inline auto to_json(builtins::Value auto&& fields) {
  */
 inline auto has_header(builtins::Value auto&& headers, builtins::Value auto&& name) {
     auto target = string::lower(name);
+    auto found = false;
     for (auto& kv : headers) {
-        if ((string::lower(kv.first) == target)) {
-            return true;
+        if (string::lower(kv.first) == target) {
+            found = true;
+            break;
         }
     }
-    return false;
+    return found;
 }
 
 
@@ -442,17 +444,17 @@ inline auto has_header(builtins::Value auto&& headers, builtins::Value auto&& na
 inline auto parse_hex(builtins::Value auto&& text) {
     auto n = 0LL;
     for (auto& ch : text) {
-        if ((n > 1099511627776LL)) {
+        if (n > 1099511627776LL) {
             return (-1LL);
         }
         auto v = builtins::ord(ch);
-        if (((v >= 48LL) && (v <= 57LL))) {
+        if ((v >= 48LL) && (v <= 57LL)) {
             n = ((n * 16LL) + (v - 48LL));
         } else {
-            if (((v >= 97LL) && (v <= 102LL))) {
+            if ((v >= 97LL) && (v <= 102LL)) {
                 n = ((n * 16LL) + (v - 87LL));
             } else {
-                if (((v >= 65LL) && (v <= 70LL))) {
+                if ((v >= 65LL) && (v <= 70LL)) {
                     n = ((n * 16LL) + (v - 55LL));
                 } else {
                     return (-1LL);
@@ -482,11 +484,11 @@ inline auto parse_uint(builtins::Value auto&& text) {
     auto n = 0LL;
     for (auto& ch : text) {
         auto v = builtins::ord(ch);
-        if (((v < 48LL) || (v > 57LL))) {
+        if ((v < 48LL) || (v > 57LL)) {
             return (-1LL);
         }
         n = ((n * 10LL) + (v - 48LL));
-        if ((n > 1099511627776LL)) {
+        if (n > 1099511627776LL) {
             return (-1LL);
         }
     }
@@ -511,26 +513,26 @@ inline auto dechunk(builtins::Value auto&& raw, builtins::Value auto&& r) {
     auto pos = 0LL;
     while (true) {
         auto crlf = string::find(raw, std::string("\r\n"), pos);
-        if ((crlf < 0LL)) {
+        if (crlf < 0LL) {
             r.error = std::string("connection closed inside chunked body");
             return std::string("");
         }
         auto line_end = (crlf - pos);
         auto size_token = builtins::slice(raw, pos, (pos + line_end));
         auto semi = string::find(size_token, std::string(";"));
-        if ((semi >= 0LL)) {
+        if (semi >= 0LL) {
             size_token = builtins::slice(size_token, 0LL, semi);
         }
         auto size = parse_hex(string::strip(size_token));
-        if ((size < 0LL)) {
+        if (size < 0LL) {
             r.error = std::string("malformed chunk size");
             return std::string("");
         }
         (pos += line_end) += 2LL;
-        if ((size == 0LL)) {
+        if (size == 0LL) {
             return body;
         }
-        if ((builtins::len(raw) < ((pos + size) + 2LL))) {
+        if (builtins::len(raw) < ((pos + size) + 2LL)) {
             r.error = std::string("connection closed inside chunked body");
             return std::string("");
         }
@@ -567,11 +569,11 @@ inline auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn, bui
         } else {
             chunk = socket::recv(fd, 65536LL);
         }
-        if ((builtins::len(chunk) == 0LL)) {
+        if (builtins::len(chunk) == 0LL) {
             break;
         }
         raw += chunk;
-        if ((builtins::len(raw) > limit)) {
+        if (builtins::len(raw) > limit) {
             break;
         }
     }
@@ -602,84 +604,84 @@ inline auto read_all(builtins::Value auto&& fd, builtins::Value auto&& conn, bui
  */
 inline auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r, builtins::Value auto&& method, builtins::Value auto&& limit) {
     auto head_end = string::find(raw, std::string("\r\n\r\n"));
-    if ((head_end < 0LL)) {
+    if (head_end < 0LL) {
         r.error = std::string("connection closed before a complete response head");
         return r;
     }
-    if ((string::find(raw, std::string("HTTP/")) != 0LL)) {
+    if (string::find(raw, std::string("HTTP/")) != 0LL) {
         r.error = std::string("malformed response head");
         return r;
     }
     auto head_block = builtins::slice(raw, 0LL, head_end);
     auto line_end = string::find(head_block, std::string("\r\n"));
-    if ((line_end < 0LL)) {
+    if (line_end < 0LL) {
         line_end = builtins::len(head_block);
     }
     auto space = string::find(head_block, std::string(" "));
-    if (((space < 0LL) || ((space + 4LL) > line_end))) {
+    if ((space < 0LL) || ((space + 4LL) > line_end)) {
         r.error = std::string("malformed status line");
         return r;
     }
     auto code = parse_uint(builtins::slice(head_block, (space + 1LL), (space + 4LL)));
-    if ((code < 0LL)) {
+    if (code < 0LL) {
         r.error = std::string("malformed status code");
         return r;
     }
     r.status_code = code;
-    if (((space + 5LL) <= line_end)) {
+    if ((space + 5LL) <= line_end) {
         r.reason = string::strip(builtins::slice(head_block, (space + 5LL), line_end));
     }
     auto hend = builtins::len(head_block);
     auto hpos = (line_end + 2LL);
-    while ((hpos < hend)) {
+    while (hpos < hend) {
         auto eol = string::find(head_block, std::string("\r\n"), hpos);
-        if ((eol < 0LL)) {
+        if (eol < 0LL) {
             eol = hend;
         }
         auto line = builtins::slice(head_block, hpos, eol);
         auto colon = string::find(line, std::string(":"));
-        if ((colon > 0LL)) {
+        if (colon > 0LL) {
             auto name = string::lower(string::strip(builtins::slice(line, 0LL, colon)));
             auto value = string::strip(builtins::slice(line, (colon + 1LL), builtins::slice_end));
             r.headers[name] = value;
-            if ((name == std::string("set-cookie"))) {
+            if (name == std::string("set-cookie")) {
                 auto semi = string::find(value, std::string(";"));
                 auto pair = value;
-                if ((semi >= 0LL)) {
+                if (semi >= 0LL) {
                     pair = builtins::slice(value, 0LL, semi);
                 }
                 auto eq = string::find(pair, std::string("="));
-                if ((eq > 0LL)) {
+                if (eq > 0LL) {
                     r.cookies[string::strip(builtins::slice(pair, 0LL, eq))] = string::strip(builtins::slice(pair, (eq + 1LL), builtins::slice_end));
                 }
             }
         }
-        if ((eol == hend)) {
+        if (eol == hend) {
             break;
         }
         hpos = (eol + 2LL);
     }
-    if ((method == std::string("HEAD"))) {
+    if (method == std::string("HEAD")) {
         r.body = std::string("");
         return r;
     }
     auto body = builtins::slice(raw, (head_end + 4LL), builtins::slice_end);
-    if ((r.header(std::string("transfer-encoding")) == std::string("chunked"))) {
+    if (r.header(std::string("transfer-encoding")) == std::string("chunked")) {
         r.body = dechunk(body, r);
         return r;
     }
     auto cl = r.header(std::string("content-length"));
-    if ((cl != std::string(""))) {
+    if (cl != std::string("")) {
         auto n = parse_uint(cl);
-        if ((n < 0LL)) {
+        if (n < 0LL) {
             r.error = std::string("invalid Content-Length");
             return r;
         }
-        if ((n > limit)) {
+        if (n > limit) {
             r.error = std::string("Content-Length exceeds max_bytes");
             return r;
         }
-        if ((builtins::len(body) < n)) {
+        if (builtins::len(body) < n) {
             r.error = std::string("connection closed before the complete body arrived");
             return r;
         }
@@ -711,19 +713,19 @@ inline auto parse_response(builtins::Value auto&& raw, builtins::Value auto&& r,
  */
 inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u, builtins::Value auto&& o, builtins::Value auto&& r) {
     auto fd = socket::tcp_connect(u.host, u.port);
-    if ((fd < 0LL)) {
+    if (fd < 0LL) {
         r.error = (((((std::string("connect to ") + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string(" failed: ")) + builtins::str(socket::last_error()));
         return r;
     }
     auto timeout = o.timeout_ms;
-    if ((timeout <= 0LL)) {
+    if (timeout <= 0LL) {
         timeout = 30000LL;
     }
     socket::set_timeout(fd, timeout);
     auto conn = tls::Conn();
-    if ((u.scheme == std::string("https"))) {
+    if (u.scheme == std::string("https")) {
         conn = tls::open(fd, u.host, o.insecure, o.ca_file);
-        if ((!conn.is_open())) {
+        if (!conn.is_open()) {
             socket::close(fd);
             r.error = (std::string("tls: ") + builtins::str(tls::last_error()));
             return r;
@@ -731,12 +733,12 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
     }
     auto body = std::string("");
     auto ctype = std::string("");
-    if (((method != std::string("GET")) && (method != std::string("HEAD")))) {
-        if ((o.json_body != std::string(""))) {
+    if ((method != std::string("GET")) && (method != std::string("HEAD"))) {
+        if (o.json_body != std::string("")) {
             body = o.json_body;
             ctype = std::string("application/json");
         } else {
-            if ((builtins::len(o.data) > 0LL)) {
+            if (builtins::len(o.data) > 0LL) {
                 auto sep = std::string("");
                 for (auto& kv : o.data) {
                     (((body += sep) += percent_encode(kv.first)) += "=") += percent_encode(kv.second);
@@ -744,7 +746,7 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
                 }
                 ctype = std::string("application/x-www-form-urlencoded");
             } else {
-                if ((o.body != std::string(""))) {
+                if (o.body != std::string("")) {
                     body = o.body;
                 }
             }
@@ -752,14 +754,14 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
     }
     auto target = u.target;
     auto sep = std::string("?");
-    if ((string::find(target, std::string("?")) >= 0LL)) {
+    if (string::find(target, std::string("?")) >= 0LL) {
         sep = std::string("&");
     }
     for (auto& kv : o.params) {
         (((target += sep) += percent_encode(kv.first)) += "=") += percent_encode(kv.second);
         sep = std::string("&");
     }
-    if ((has_control_bytes(target) || has_control_bytes(u.host))) {
+    if (has_control_bytes(target) || has_control_bytes(u.host)) {
         conn.close();
         socket::close(fd);
         r.error = std::string("refused: control bytes in the request target");
@@ -767,7 +769,7 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
     }
     auto req = (((((((builtins::str(method) + std::string(" ")) + builtins::str(target)) + std::string(" HTTP/1.1\r\nHost: ")) + builtins::str(u.host)) + std::string(":")) + builtins::str(u.port)) + std::string("\r\n"));
     for (auto& kv : o.headers) {
-        if ((has_control_bytes(kv.first) || has_control_bytes(kv.second))) {
+        if (has_control_bytes(kv.first) || has_control_bytes(kv.second)) {
             conn.close();
             socket::close(fd);
             r.error = std::string("refused: control bytes in a request header");
@@ -775,17 +777,17 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
         }
         (((req += kv.first) += ": ") += kv.second) += "\r\n";
     }
-    if ((!has_header(o.headers, std::string("User-Agent")))) {
+    if (!has_header(o.headers, std::string("User-Agent"))) {
         req += "User-Agent: cheatah-requests/1.2\r\n";
     }
-    if (((o.auth_user != std::string("")) && (!has_header(o.headers, std::string("Authorization"))))) {
+    if ((o.auth_user != std::string("")) && (!has_header(o.headers, std::string("Authorization")))) {
         ((req += "Authorization: Basic ") += hashlib::base64_encode(((builtins::str(o.auth_user) + std::string(":")) + builtins::str(o.auth_pass)))) += "\r\n";
     }
-    if (((ctype != std::string("")) && (!has_header(o.headers, std::string("Content-Type"))))) {
+    if ((ctype != std::string("")) && (!has_header(o.headers, std::string("Content-Type")))) {
         ((req += "Content-Type: ") += ctype) += "\r\n";
     }
-    if ((!has_header(o.headers, std::string("Content-Length")))) {
-        if (((((builtins::len(body) > 0LL) || (method == std::string("POST"))) || (method == std::string("PUT"))) || (method == std::string("PATCH")))) {
+    if (!has_header(o.headers, std::string("Content-Length"))) {
+        if ((((builtins::len(body) > 0LL) || (method == std::string("POST"))) || (method == std::string("PUT"))) || (method == std::string("PATCH"))) {
             ((req += "Content-Length: ") += builtins::str(builtins::len(body))) += "\r\n";
         }
     }
@@ -796,20 +798,20 @@ inline auto request_once(builtins::Value auto&& method, builtins::Value auto&& u
     } else {
         sent = socket::sendall(fd, req);
     }
-    if ((sent != 0LL)) {
+    if (sent != 0LL) {
         conn.close();
         socket::close(fd);
         r.error = std::string("send failed");
         return r;
     }
     auto limit = o.max_bytes;
-    if ((limit <= 0LL)) {
+    if (limit <= 0LL) {
         limit = 104857600LL;
     }
     auto raw = read_all(fd, conn, limit);
     conn.close();
     socket::close(fd);
-    if ((builtins::len(raw) > limit)) {
+    if (builtins::len(raw) > limit) {
         r.error = ((std::string("response body exceeds max_bytes (") + builtins::str(limit)) + std::string(")"));
         return r;
     }
@@ -835,7 +837,7 @@ inline auto strip_sensitive(builtins::Value auto&& o) {
     std::unordered_map<std::string, std::string> clean;
     for (auto& kv : o.headers) {
         auto lname = string::lower(kv.first);
-        if (((lname != std::string("authorization")) && (lname != std::string("cookie")))) {
+        if ((lname != std::string("authorization")) && (lname != std::string("cookie"))) {
             clean[kv.first] = kv.second;
         }
     }
@@ -869,7 +871,7 @@ inline auto strip_sensitive(builtins::Value auto&& o) {
 inline auto request(builtins::Value auto&& method, builtins::Value auto&& url, builtins::Value auto&& o) {
     auto opts = o;
     auto max_hops = opts.max_redirects;
-    if ((max_hops <= 0LL)) {
+    if (max_hops <= 0LL) {
         max_hops = 5LL;
     }
     auto current = url;
@@ -877,36 +879,36 @@ inline auto request(builtins::Value auto&& method, builtins::Value auto&& url, b
     auto hop = 0LL;
     auto origin_host = std::string("");
     std::vector<Response> hist;
-    while ((hop <= max_hops)) {
+    while (hop <= max_hops) {
         auto r = Response{.url = static_cast<std::string>(current)};
         auto parser = parsers::url::Parser();
         auto u = parsers::url::Url();
-        if ((!parser.parse(current, u))) {
+        if (!parser.parse(current, u)) {
             r.error = (std::string("malformed URL: ") + builtins::str(current));
             r.history = hist;
             return r;
         }
-        if ((origin_host == std::string(""))) {
+        if (origin_host == std::string("")) {
             origin_host = u.host;
         } else {
-            if ((u.host != origin_host)) {
+            if (u.host != origin_host) {
                 strip_sensitive(opts);
             }
         }
         r = request_once(cur_method, u, opts, r);
         auto redirect = ((r.error == std::string("")) && (((((r.status_code == 301LL) || (r.status_code == 302LL)) || (r.status_code == 303LL)) || (r.status_code == 307LL)) || (r.status_code == 308LL)));
-        if ((opts.no_redirect || (!redirect))) {
+        if (opts.no_redirect || (!redirect)) {
             r.history = hist;
             return r;
         }
         auto loc = r.header(std::string("location"));
-        if ((loc == std::string(""))) {
+        if (loc == std::string("")) {
             r.error = ((std::string("redirect (") + builtins::str(r.status_code)) + std::string(") without a Location header"));
             r.history = hist;
             return r;
         }
         auto next = std::string("");
-        if ((string::startswith(loc, std::string("http://")) || string::startswith(loc, std::string("https://")))) {
+        if (string::startswith(loc, std::string("http://")) || string::startswith(loc, std::string("https://"))) {
             next = loc;
         } else {
             if (string::startswith(loc, std::string("/"))) {
@@ -919,20 +921,14 @@ inline auto request(builtins::Value auto&& method, builtins::Value auto&& url, b
         }
         builtins::append(hist, r);
         {
-            auto __match_1 = r.status_code;
-            switch (__match_1) {
+            auto _purr_match_1 = r.status_code;
+            switch (_purr_match_1) {
                 case 303LL: {
                     cur_method = std::string("GET");
                     break;
                 }
-                case 301LL: {
-                    if ((cur_method == std::string("POST"))) {
-                        cur_method = std::string("GET");
-                    }
-                    break;
-                }
-                case 302LL: {
-                    if ((cur_method == std::string("POST"))) {
+                case 301LL:                 case 302LL: {
+                    if (cur_method == std::string("POST")) {
                         cur_method = std::string("GET");
                     }
                     break;
@@ -957,7 +953,7 @@ inline auto request(builtins::Value auto&& method, builtins::Value auto&& url, b
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto request(builtins::Value auto&& method, builtins::Value auto&& url) { return request(method, url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto request(builtins::Value auto&& method, builtins::Value auto&& url) { return request(method, url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP GET. @param url the URL. @param o per-request options.
@@ -973,7 +969,7 @@ inline auto get(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto get(builtins::Value auto&& url) { return get(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto get(builtins::Value auto&& url) { return get(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP POST. @param url the URL. @param o per-request options (body via json_body/data/body).
@@ -989,7 +985,7 @@ inline auto post(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto post(builtins::Value auto&& url) { return post(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto post(builtins::Value auto&& url) { return post(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP PUT. @param url the URL. @param o per-request options (body via json_body/data/body).
@@ -1005,7 +1001,7 @@ inline auto put(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto put(builtins::Value auto&& url) { return put(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto put(builtins::Value auto&& url) { return put(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP PATCH. @param url the URL. @param o per-request options (body via json_body/data/body).
@@ -1021,7 +1017,7 @@ inline auto patch(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto patch(builtins::Value auto&& url) { return patch(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto patch(builtins::Value auto&& url) { return patch(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP DELETE. @param url the URL. @param o per-request options.
@@ -1037,7 +1033,7 @@ inline auto delete_(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto delete_(builtins::Value auto&& url) { return delete_(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto delete_(builtins::Value auto&& url) { return delete_(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP HEAD (headers only, no body). @param url the URL. @param o per-request options.
@@ -1053,7 +1049,7 @@ inline auto head(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto head(builtins::Value auto&& url) { return head(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto head(builtins::Value auto&& url) { return head(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
  * HTTP OPTIONS. @param url the URL. @param o per-request options.
@@ -1069,7 +1065,7 @@ inline auto options(builtins::Value auto&& url, builtins::Value auto&& o) {
  * @param url as documented on the primary overload.
  * @return as the primary overload.
  */
-static auto options(builtins::Value auto&& url) { return options(url, Options{.timeout_ms = static_cast<long long>(30000LL), .max_redirects = static_cast<long long>(5LL)}); }
+static auto options(builtins::Value auto&& url) { return options(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /// ABI/identity marker for the `requests` cheatah module: returns the module name.
 ///

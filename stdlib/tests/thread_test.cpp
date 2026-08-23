@@ -100,7 +100,7 @@ TEST(CheatahThread, MoveTransfersOwnership) {
     std::atomic<long long> out{0};
     auto a = thr::spawn([](std::atomic<long long>& o) { o = 1; }, out);
     thr::Thread b = std::move(a);
-    EXPECT_FALSE(a.joinable());  // NOLINT(bugprone-use-after-move) — moved-from state is the test
+    EXPECT_FALSE(a.joinable());  // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move): moved-from state is the assertion
     EXPECT_TRUE(b.joinable());
     b.join();
     EXPECT_EQ(out.load(), 1);
@@ -158,6 +158,9 @@ TEST(CheatahThread, ConceptsRejectUnholdableArguments) {
         Pinned() = default;
         Pinned(const Pinned&) = delete;
         Pinned& operator=(const Pinned&) = delete;
+        Pinned(Pinned&&) = delete;
+        Pinned& operator=(Pinned&&) = delete;
+        ~Pinned() = default;
     };
     static_assert(thr::SpawnArg<Pinned&>, "a pinned lvalue travels by reference");
     static_assert(!thr::SpawnArg<Pinned>, "a pinned TEMPORARY would dangle — must not compile");

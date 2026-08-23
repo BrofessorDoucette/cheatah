@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "string.hpp"
 
+#include <algorithm>
 #include <cctype>
 
 namespace cheatah::string {
@@ -43,7 +44,7 @@ std::string title(std::string_view s) {
 std::string swapcase(std::string_view s) {
     std::string r(s);
     for (char& c : r) {
-        const unsigned char u = static_cast<unsigned char>(c);
+        const auto u = static_cast<unsigned char>(c);
         if (std::islower(u)) c = up(c);
         else if (std::isupper(u)) c = lo(c);
     }
@@ -100,7 +101,7 @@ long count(std::string_view s, std::string_view sub) {
 std::string replace(std::string_view s, std::string_view from, std::string_view to) {
     if (from.empty()) return std::string(s);
     std::string r;
-    std::size_t prev = 0, pos;
+    std::size_t prev = 0, pos = 0;
     while ((pos = s.find(from, prev)) != std::string_view::npos) {
         r.append(s.substr(prev, pos - prev));
         r.append(to);
@@ -116,7 +117,7 @@ std::vector<std::string> split(std::string_view s, std::string_view sep) {
         out.emplace_back(s);
         return out;
     }
-    std::size_t prev = 0, pos;
+    std::size_t prev = 0, pos = 0;
     while ((pos = s.find(sep, prev)) != std::string_view::npos) {
         out.emplace_back(s.substr(prev, pos - prev));
         prev = pos + sep.size();
@@ -191,10 +192,7 @@ namespace {
 template <typename Pred>
 bool all_of_nonempty(std::string_view s, Pred p) {
     if (s.empty()) return false;
-    for (char c : s) {
-        if (!p(static_cast<unsigned char>(c))) return false;
-    }
-    return true;
+    return std::ranges::all_of(s, [&p](char c) { return p(static_cast<unsigned char>(c)); });
 }
 } // namespace
 
@@ -206,7 +204,7 @@ bool isspace(std::string_view s) { return all_of_nonempty(s, [](unsigned char c)
 bool isupper(std::string_view s) {
     bool has = false;
     for (char c : s) {
-        const unsigned char u = static_cast<unsigned char>(c);
+        const auto u = static_cast<unsigned char>(c);
         if (std::islower(u)) return false;
         if (std::isupper(u)) has = true;
     }
@@ -215,7 +213,7 @@ bool isupper(std::string_view s) {
 bool islower(std::string_view s) {
     bool has = false;
     for (char c : s) {
-        const unsigned char u = static_cast<unsigned char>(c);
+        const auto u = static_cast<unsigned char>(c);
         if (std::isupper(u)) return false;
         if (std::islower(u)) has = true;
     }

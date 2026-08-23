@@ -13,12 +13,14 @@
  * instantiation.
  */
 
+#include <cstdint>
+
 namespace cheatah::linalg {
 
 /// Whether a reduction conjugates its first operand. `dot`/`inner` are bilinear (`Conj::None`,
 /// Σ aᵢbᵢ); `vdot` is the conjugate-linear Hermitian inner product (`Conj::Conjugate`,
 /// Σ conj(aᵢ)·bᵢ). For a REAL element the conjugate is the identity, so both fold to the same
 /// code via `if constexpr (is_complex_v<T> && mode == Conj::Conjugate)`.
-enum class Conj { None, Conjugate };
+enum class Conj : std::uint8_t { None, Conjugate };
 
 }  // namespace cheatah::linalg

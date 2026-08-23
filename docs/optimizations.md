@@ -143,8 +143,8 @@ becomes a real C++ `switch` — O(1) dispatch no matter how many cases:
 
 ```cpp
 static auto label(builtins::Value auto&& n) {
-    auto __match_0 = n;
-    switch (__match_0) {
+    auto _purr_match_0 = n;
+    switch (_purr_match_0) {
         case 1LL: { return std::string("one"); }
         case 2LL: { return std::string("two"); }
         default:  { return std::string("many"); }
@@ -158,8 +158,8 @@ for a non-integer subject:
 
 ```cpp
 static auto kind(builtins::Value auto&& s) {
-    auto __match_0 = s;
-    if (__match_0 == std::string("a")) {
+    auto _purr_match_0 = s;
+    if (_purr_match_0 == std::string("a")) {
         return 1LL;
     } else {
         return 0LL;

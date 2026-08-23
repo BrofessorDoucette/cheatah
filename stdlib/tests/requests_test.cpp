@@ -9,6 +9,7 @@
 // The one implementation, one real socket: the "server" here is just a C++ thread on a
 // loopback cheatah::socket replaying scripted HTTP/1.1 bytes — not a second HTTP client.
 
+#include <cstddef>
 #include <atomic>
 #include <string>
 #include <thread>
@@ -32,12 +33,16 @@ class LoopbackServer {
     explicit LoopbackServer(std::vector<std::string> responses)
         : responses_(std::move(responses)) {
         fd_ = sk::tcp_listen("127.0.0.1", 0, 8);
-        port_ = sk::local_port(fd_);
+        port_ = sk::local_port(fd_);  // NOLINT(cppcoreguidelines-prefer-member-initializer): after bind — an init-list hoist would read fd_ before it exists
         thread_ = std::thread([this] { run(); });
     }
     ~LoopbackServer() {
         stop();
     }
+    LoopbackServer(const LoopbackServer&) = delete;
+    LoopbackServer& operator=(const LoopbackServer&) = delete;
+    LoopbackServer(LoopbackServer&&) = delete;
+    LoopbackServer& operator=(LoopbackServer&&) = delete;
     long long port() const { return port_; }
     std::string url(const std::string& path) const {
         return "http://127.0.0.1:" + std::to_string(port_) + path;
@@ -79,7 +84,7 @@ class LoopbackServer {
             if (head_end != std::string::npos) {
                 const std::size_t clp = request.find("Content-Length:");
                 if (clp != std::string::npos && clp < head_end) {
-                    const long long want = std::atoll(request.c_str() + clp + 15);
+                    const long long want = std::strtoll(request.c_str() + clp + 15, nullptr, 10);
                     const std::size_t body_start = head_end + 4;
                     while (want > 0 &&
                            static_cast<long long>(request.size() - body_start) < want) {
@@ -295,8 +300,9 @@ TEST(CheatahRequests, RedirectMissingLocation) {
 TEST(CheatahRequests, RedirectLoopExhausts) {
     // A server that always redirects to itself; max_redirects = 1 caps it quickly.
     std::vector<std::string> loop;
+    loop.reserve(6);
     for (int i = 0; i < 6; ++i)
-        loop.push_back("HTTP/1.1 302 Found\r\nLocation: /loop\r\nContent-Length: 0\r\n\r\n");
+        loop.emplace_back("HTTP/1.1 302 Found\r\nLocation: /loop\r\nContent-Length: 0\r\n\r\n");
     LoopbackServer srv(std::move(loop));
     auto o = defaults();
     o.max_redirects = 1;
@@ -381,7 +387,7 @@ TEST(CheatahRequests, SendFailsToClosedPeer) {
     // A large custom header forces a big write, so if the peer has gone the send fails.
     auto o = defaults();
     o.timeout_ms = 3000;
-    o.headers["X-Big"] = std::string(4 * 1024 * 1024, 'A');
+    o.headers["X-Big"] = std::string(std::size_t{4} * 1024 * 1024, 'A');
     const auto r = req::get("http://127.0.0.1:" + std::to_string(port) + "/", o);
     // Either the send failed or the read saw an immediate EOF — both are non-ok errors,
     // never a 2xx success against a peer that never answered.
@@ -418,16 +424,18 @@ TEST(CheatahRequests, HttpsRefusedByNonTlsPeer) {
 // ---------------------------------------------------------------------------
 
 // A tiny 200-with-body response the body-carrying verb tests reuse.
-static std::string ok_body(const std::string& b) {
+namespace {
+std::string ok_body(const std::string& b) {
     return "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(b.size()) + "\r\n\r\n" + b;
 }
+}  // namespace
 
 // POST with json_body sets the method, application/json Content-Type, and Content-Length,
 // and sends the body verbatim.
 TEST(CheatahRequests, PostJsonBody) {
     LoopbackServer s({ok_body("done")});
     auto o = defaults();
-    o.json_body = "{\"side\":\"buy\"}";
+    o.json_body = R"({"side":"buy"})";
     const auto r = req::post(s.url("/order"), o);
     s.stop();
     EXPECT_TRUE(r.ok());
@@ -691,7 +699,7 @@ inline constexpr auto schema<testjson::Quote> =
 }  // namespace cheatah::parsers::json
 
 TEST(CheatahRequests, JsonTyped) {
-    LoopbackServer s({ok_body("{\"symbol\":\"SPX\",\"price\":7386.65}")});
+    LoopbackServer s({ok_body(R"({"symbol":"SPX","price":7386.65})")});
     const auto r = req::get(s.url("/q"));
     testjson::Quote q{};
     ASSERT_TRUE(r.json(q));

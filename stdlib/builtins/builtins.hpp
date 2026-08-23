@@ -189,13 +189,13 @@ inline Error current_error() {
     } catch (const Error& e) {
         return e;
     } catch (const std::out_of_range& e) {
-        return Error(kErrorKindIndex, e.what());
+        return {kErrorKindIndex, e.what()};
     } catch (const std::domain_error& e) {
-        return Error(kErrorKindArithmetic, e.what());
+        return {kErrorKindArithmetic, e.what()};
     } catch (const std::exception& e) {
-        return Error(kErrorKindError, e.what());
+        return {kErrorKindError, e.what()};
     } catch (...) {
-        return Error(kErrorKindUnknown, "unknown error");
+        return {kErrorKindUnknown, "unknown error"};
     }
 }
 
@@ -213,6 +213,8 @@ public:
     explicit Finally(F f) : f_(std::move(f)) {}
     Finally(const Finally&) = delete;
     Finally& operator=(const Finally&) = delete;
+    Finally(Finally&&) = delete;             // a guard is pinned to its scope — never transferred.
+    Finally& operator=(Finally&&) = delete;
 
     /**
      * @brief Run the action. Reached on every exit path — normal fall-through, `return`, `break`, or an
@@ -823,10 +825,11 @@ inline long long norm_index(long long i, long long n) { return i < 0 ? i + n : i
  * @systest StdlibE2E.Builtins
  */
 inline std::string index(const std::string& s, long long i) {
-    const long long n = static_cast<long long>(s.size());
+    const auto n = static_cast<long long>(s.size());
     i = detail::norm_index(i, n);
     if (i < 0 || i >= n) throw std::out_of_range("string index out of range");
-    return std::string(1, s[static_cast<std::size_t>(i)]);
+    std::string out(1, s[static_cast<std::size_t>(i)]);  // (1, c) must not become a braced list: {1, c} is two chars
+    return out;
 }
 
 /**
@@ -855,7 +858,7 @@ inline std::string index(const std::string& s, long long i) {
 template <typename C>
     requires requires(const C& c) { c.data(); c.size(); }  // contiguous seq (vector/array), not a map
 auto index(const C& c, long long i) -> const std::decay_t<decltype(c[0])>& {
-    const long long n = static_cast<long long>(c.size());
+    const auto n = static_cast<long long>(c.size());
     i = detail::norm_index(i, n);
     if (i < 0 || i >= n) throw std::out_of_range("index out of range");
     return c[static_cast<std::size_t>(i)];
@@ -876,7 +879,7 @@ auto index(const C& c, long long i) -> const std::decay_t<decltype(c[0])>& {
  * @systest StdlibE2E.Builtins
  */
 inline bool index(const std::vector<bool>& c, long long i) {
-    const long long n = static_cast<long long>(c.size());
+    const auto n = static_cast<long long>(c.size());
     i = detail::norm_index(i, n);
     if (i < 0 || i >= n) throw std::out_of_range("index out of range");
     return c[static_cast<std::size_t>(i)];
@@ -918,12 +921,12 @@ const V& index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
  * @systest StdlibE2E.Builtins
  */
 inline std::string slice(const std::string& s, long long lo, long long hi) {
-    const long long n = static_cast<long long>(s.size());
+    const auto n = static_cast<long long>(s.size());
     lo = detail::norm_index(lo, n);
     hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
     if (lo < 0) lo = 0;
     if (hi > n) hi = n;
-    if (lo >= hi) return std::string();
+    if (lo >= hi) return {};
     return s.substr(static_cast<std::size_t>(lo), static_cast<std::size_t>(hi - lo));
 }
 
@@ -942,7 +945,7 @@ inline std::string slice(const std::string& s, long long lo, long long hi) {
 template <typename C>
     requires requires(const C& c) { c.data(); c.size(); }  // contiguous seq, not a map
 auto slice(const C& c, long long lo, long long hi) -> std::vector<std::decay_t<decltype(c[0])>> {
-    const long long n = static_cast<long long>(c.size());
+    const auto n = static_cast<long long>(c.size());
     lo = detail::norm_index(lo, n);
     hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
     if (lo < 0) lo = 0;

@@ -225,7 +225,7 @@ TEST(CheatahParsersJson, ScanNumbersAndEscapes) {
     {
         // Build the escape text explicitly (each backslash is a real byte, not a C escape).
         const std::string raw =
-            "a\\tb\\nA\\u0041\\u00e9\\u20ac\\ud83d\\ude00\\b\\f\\r\\/\\\\\\\"z";
+            R"(a\tb\nA\u0041\u00e9\u20ac\ud83d\ude00\b\f\r\/\\\"z)";
         std::string decoded;
         ASSERT_TRUE(jdet::decode_escapes(raw, decoded));
         EXPECT_EQ(decoded,
@@ -393,7 +393,7 @@ TEST(CheatahParsersJson, TypedReadOptionalAndReject) {
     Trade t{};
     ASSERT_TRUE(json::read(R"({"qty":1,"price":2,"sym":"x","lot":7,"tags":[]})", t));
     ASSERT_TRUE(t.lot.has_value());
-    EXPECT_EQ(*t.lot, 7);
+    EXPECT_EQ(t.lot.value_or(-1), 7);
 
     Trade bad{};
     EXPECT_FALSE(json::read(R"({"qty":1,"price":2,"sym":"x","lot":null,"tags":[1)", bad));
@@ -405,7 +405,7 @@ TEST(CheatahParsersJson, TypedReadEscapesAndKeyOrder) {
     Trade t{};
     // "tags" first, then "sym" with a \t escape, then the escaped key "qty" (== "qty").
     const bool ok = json::read(
-        "{\"tags\":[1,2],\"sym\":\"a\\tb\",\"price\":1.5,\"\\u0071ty\":9,\"lot\":null}", t);
+        R"({"tags":[1,2],"sym":"a\tb","price":1.5,"\u0071ty":9,"lot":null})", t);
     ASSERT_TRUE(ok);
     EXPECT_EQ(t.qty, 9);                       // matched via the escaped key
     EXPECT_EQ(t.sym, std::string("a\tb"));     // value decoded through decode_escapes

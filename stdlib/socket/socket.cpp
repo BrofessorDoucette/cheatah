@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cstring>
 #include <string>
+#include <system_error>
 #include <vector>
 
 #if defined(_WIN32)
@@ -61,7 +62,7 @@ bool resolve(const std::string& host, long long port, sockaddr_storage& out, soc
         return false;
     }
     std::memcpy(&out, res->ai_addr, res->ai_addrlen);
-    len = static_cast<socklen_t>(res->ai_addrlen);
+    len = res->ai_addrlen;
     ::freeaddrinfo(res);
     return true;
 }
@@ -193,7 +194,7 @@ long long sendall(long long fd, const std::string& data) {
 }
 
 std::string recv(long long fd, long long bufsize) {
-    if (bufsize <= 0) return std::string();
+    if (bufsize <= 0) return {};
     // Read into a REUSED per-thread scratch buffer so we don't allocate + zero-fill a fresh
     // `bufsize` string on every call (a 64 KiB memset per recv on the download hot path). Only the
     // n bytes actually received are copied into the returned string.
@@ -202,7 +203,7 @@ std::string recv(long long fd, long long bufsize) {
         scratch.resize(static_cast<std::size_t>(bufsize));
     }
     const long long n = ::recv(as_fd(fd), scratch.data(), static_cast<int>(bufsize), 0);
-    if (n <= 0) return std::string();
+    if (n <= 0) return {};
     std::string buf(scratch.data(), static_cast<std::size_t>(n));
 #if !defined(_WIN32) && defined(TCP_QUICKACK)
     // Re-arm quick-ACK: Linux clears it after each read, so without this the delayed-ACK stall
@@ -277,7 +278,7 @@ std::string last_error() {
 #if defined(_WIN32)
     return "Winsock error " + std::to_string(::WSAGetLastError());
 #else
-    return std::strerror(errno);
+    return std::generic_category().message(errno);  // thread-safe strerror
 #endif
 }
 
@@ -296,14 +297,14 @@ Conn& Conn::operator=(Conn&& other) noexcept {
 Conn::~Conn() {
     if (fd_ >= 0) cheatah::socket::close(fd_);
 }
-long long Conn::send(const std::string& data) { return cheatah::socket::send(fd_, data); }
-long long Conn::sendall(const std::string& data) { return cheatah::socket::sendall(fd_, data); }
-std::string Conn::recv(long long bufsize) { return cheatah::socket::recv(fd_, bufsize); }
-long long Conn::set_timeout(long long timeout_ms) {
+long long Conn::send(const std::string& data) const { return cheatah::socket::send(fd_, data); }
+long long Conn::sendall(const std::string& data) const { return cheatah::socket::sendall(fd_, data); }
+std::string Conn::recv(long long bufsize) const { return cheatah::socket::recv(fd_, bufsize); }
+long long Conn::set_timeout(long long timeout_ms) const {
     return cheatah::socket::set_timeout(fd_, timeout_ms);
 }
 long long Conn::local_port() const { return cheatah::socket::local_port(fd_); }
-long long Conn::shutdown() { return cheatah::socket::shutdown(fd_); }
+long long Conn::shutdown() const { return cheatah::socket::shutdown(fd_); }
 long long Conn::close() {
     if (fd_ < 0) return -1;
     const long long rc = cheatah::socket::close(fd_);
@@ -322,7 +323,7 @@ Listener& Listener::operator=(Listener&& other) noexcept {
 Listener::~Listener() {
     if (fd_ >= 0) cheatah::socket::close(fd_);
 }
-Conn Listener::accept() { return Conn(cheatah::socket::accept(fd_)); }
+Conn Listener::accept() const { return Conn(cheatah::socket::accept(fd_)); }
 long long Listener::local_port() const { return cheatah::socket::local_port(fd_); }
 long long Listener::close() {
     if (fd_ < 0) return -1;

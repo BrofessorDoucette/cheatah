@@ -17,7 +17,7 @@ namespace {
 const std::string kKey = "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f";
 const std::string kNonce = "070000004041424344454647";
 const std::string kAad = std::string("\x50\x51\x52\x53\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7", 12);
-const char* kPlain =
+const char* const kPlain =
     "Ladies and Gentlemen of the class of '99: If I could offer you "
     "only one tip for the future, sunscreen would be it.";
 // RFC 8439 §2.8.2 expected tag (the ciphertext bytes are checked via round-trip + length).

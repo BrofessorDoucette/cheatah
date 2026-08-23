@@ -217,7 +217,7 @@ TEST(ParsersHtml, MalformedMarkupIsLenient) {
     EXPECT_EQ(sig(junk[0]), "endtag|div|");
     EXPECT_EQ(sig(junk[1]), "data||x");
     // Unterminated start tag: attributes parsed, tag emitted, nothing after.
-    const auto us = html::parse("<div class=\"x\" id=\"y");
+    const auto us = html::parse(R"(<div class="x" id="y)");
     ASSERT_EQ(us.size(), 1u);
     EXPECT_EQ(us[0].kind, "starttag");
     EXPECT_EQ(html::get_attr(us[0], "id"), "y");

@@ -85,44 +85,182 @@ using CNDArray = ndarray::basic_ndarray<Cplx>;
 /// (or scalar-out) kernel UNQUALIFIED — so these HostArray kernels (defined + instantiated in
 /// routines.cpp) serve host arrays, and a device extension's `requires DeviceArray` overloads are
 /// found by ADL. Declared here, before the fronts, so the fronts' unqualified calls see them.
-/// Each kernel's full documentation sits with its declaration further down this header.
+/// Each kernel's full documentation sits with its declaration here; the allocating front that
+/// calls it is documented further down this header.
+/**
+ * Matrix power into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref matrix_power (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
+ * @param out destination; a contiguous n×n matrix, overwritten with Aⁿ.
+ * @param a square matrix.
+ * @param n exponent.
+ * @complexity O(n³·log|n|).
+ * @alloc reuses @p out; the binary-exponentiation products allocate their own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void matrix_power(Array<T>& out, const Array<T>& a, long long n);
+/**
+ * Cholesky factor into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref cholesky (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
+ * @param out destination; a contiguous n×n matrix, overwritten with the lower-triangular L.
+ * @param a square SPD matrix.
+ * @complexity O(n³).
+ * @alloc reuses @p out (the factor is computed into private scratch, then copied in).
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void cholesky(Array<T>& out, const Array<T>& a);
+/**
+ * Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref qr,
+ * filling @p q and @p r instead of allocating a @ref QR (the HOST kernel of the seam pattern; a
+ * device extension supplies its own `requires DeviceArray` overload, found by ADL).
+ * @param q destination for the orthonormal factor; a contiguous m×n matrix, overwritten.
+ * @param r destination for the upper-triangular factor; a contiguous n×n matrix, overwritten.
+ * @param a m×n matrix.
+ * @complexity O(n³).
+ * @alloc reuses @p q and @p r (the factors are computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void qr(Array<T>& q, Array<T>& r, const Array<T>& a);
+/**
+ * Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref svd,
+ * filling @p u, @p s and @p vh instead of allocating an @ref SVD (the HOST kernel of the seam
+ * pattern; a device extension supplies its own `requires DeviceArray` overload, found by ADL).
+ * @param u destination for the left singular vectors; a contiguous m×n matrix, overwritten.
+ * @param s destination for the singular values; a contiguous length-n vector, overwritten.
+ * @param vh destination for Vᵀ; a contiguous n×n matrix, overwritten.
+ * @param a m×n matrix (rows ≥ cols).
+ * @complexity iterative O(n³).
+ * @alloc reuses @p u, @p s, @p vh (the factors are computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void svd(Array<T>& u, Array<T>& s, Array<T>& vh, const Array<T>& a);
+/**
+ * Singular values into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref svdvals (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
+ * @param out destination; a contiguous length-min(m,n) vector, overwritten with the descending values.
+ * @param a m×n matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the Golub–Reinsch reduction allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void svdvals(Array<T>& out, const Array<T>& a);
+/**
+ * General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of
+ * @ref eig, filling @p values and @p vectors instead of allocating an @ref EigC (the HOST kernel
+ * of the seam pattern; a device extension supplies its own `requires DeviceArray` overload).
+ * @param values destination for the complex eigenvalues; a contiguous length-n vector, overwritten.
+ * @param vectors destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten.
+ * @param a square matrix.
+ * @complexity iterative O(n³) for the eigenvalues; general (non-symmetric) eigenvectors
+ *        add O(n⁴) (inverse iteration per eigenvalue — see @ref eig).
+ * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>>& vectors,
          const Array<T>& a);
+/**
+ * General eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref eigvals (the HOST kernel of the seam pattern; a device extension supplies its own
+ * `requires DeviceArray` overload, found by ADL).
+ * @param out destination; a contiguous length-n complex vector, overwritten with the descending spectrum.
+ * @param a square matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the Hessenberg + shifted-QR iteration allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a);
+/**
+ * Symmetric/Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
+ * overload of @ref eigh, filling @p values and @p vectors instead of allocating a result struct
+ * (the HOST kernel of the seam pattern; a device extension supplies its own `requires DeviceArray`
+ * overload). ONE two-layer kernel serving the real symmetric AND complex Hermitian paths: values
+ * are always the real spectrum, vectors match the input element.
+ * @param values destination for the real eigenvalues; a contiguous length-n vector, overwritten.
+ * @param vectors destination for the eigenvectors (columns); a contiguous n×n matrix, overwritten.
+ * @param a square symmetric (real) / Hermitian (complex) matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
+ * @test LinalgRoutines.DecompositionOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
 void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array<T>& a);
+/**
+ * Symmetric/Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
+ * overload of @ref eigvalsh (the HOST kernel of the seam pattern; a device extension supplies its
+ * own `requires DeviceArray` overload). One two-layer kernel: the complex Hermitian path is the
+ * same template at T = std::complex<double>, still writing the REAL spectrum.
+ * @param out destination; a contiguous length-n vector, overwritten with the descending eigenvalues.
+ * @param a square symmetric (real) / Hermitian (complex) matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the tridiagonal-QL solver allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
 void eigvalsh(Array<ndarray::real_base_t<T>>& out, const Array<T>& a);
+/**
+ * Solve into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref solve.
+ * @param out destination; a contiguous length-n vector, overwritten with the solution x.
+ * @param a square coefficient matrix.
+ * @param b right-hand-side vector.
+ * @complexity O(n³).
+ * @alloc reuses @p out; the LU factorization allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void solve(Array<T>& out, const Array<T>& a, const Array<T>& b);
+/**
+ * Least-squares solution into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref lstsq. Routes through the @ref matmul out-param so the final product is written into @p out
+ * with no allocation.
+ * @param out destination; a contiguous array of the solution's shape, overwritten.
+ * @param a m×n matrix.
+ * @param b right-hand side.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; allocates the intermediate n×m pseudo-inverse and its SVD scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void lstsq(Array<T>& out, const Array<T>& a, const Array<T>& b);
+/**
+ * Inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref inv.
+ * @param out destination; a contiguous n×n matrix, overwritten with A⁻¹.
+ * @param a square matrix.
+ * @complexity O(n³).
+ * @alloc reuses @p out; the LU factorization allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void inv(Array<T>& out, const Array<T>& a);
+/**
+ * Pseudo-inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
+ * @ref pinv.
+ * @param out destination; a contiguous n×m matrix (for an m×n input), overwritten with the pseudo-inverse.
+ * @param a m×n matrix.
+ * @complexity iterative O(n³).
+ * @alloc reuses @p out; the Golub–Reinsch SVD allocates its own scratch.
+ * @test LinalgRoutines.FactorizationOutReusesBuffer
+ */
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
 void pinv(Array<T>& out, const Array<T>& a);
@@ -164,57 +302,6 @@ template <ndarray::Field T, template <typename> class Array>
     matrix_power(out, a, n);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Matrix power into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref matrix_power (the HOST kernel of the seam pattern; a device extension supplies its own
- * `requires DeviceArray` overload, found by ADL).
- * @param out destination; a contiguous n×n matrix, overwritten with Aⁿ.
- * @param a square matrix.
- * @param n exponent.
- * @complexity O(n³·log|n|).
- * @alloc reuses @p out; the binary-exponentiation products allocate their own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void matrix_power(Array<T>& out, const Array<T>& a, long long n);
-/// @endcond
-/**
- * Kronecker product.
- *
- * Requires both operands to be 2-D (throws otherwise) and replaces each entry of
- * @p a with that scalar times the whole of @p b, giving the (m·p)×(k·q) block
- * matrix; no dimension matching is needed.
- * @param a m×k matrix.
- * @param b p×q matrix.
- * @return (m·p)×(k·q) block product.
- * @complexity O(n⁴) in the output area.
- * @alloc allocates a new NDArray result; a non-contiguous operand is packed once into scratch.
- * @test LinalgRoutines.VdotInnerOuterKron
- * @crtest LinalgCompileRun.Kron
- * @systest StdlibE2E.Linalg
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires NumericArray<Array<T>>
-[[nodiscard]] Array<T> kron(const Array<T>& a, const Array<T>& b);
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Kronecker product into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref kron, writing the block product straight into @p out with no allocation.
- * @param out destination; a contiguous (m·p)×(k·q) matrix, overwritten. Must NOT alias @p a or @p b.
- * @param a m×k matrix.
- * @param b p×q matrix.
- * @complexity O(n⁴) in the output area.
- * @alloc none for contiguous operands (block product written straight into @p out); a
- *        non-contiguous operand is packed once into scratch.
- * @test LinalgRoutines.KronIntoReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>>
-void kron(Array<T>& out, const Array<T>& a, const Array<T>& b);
-/// @endcond
-
 // ---- Decompositions ----
 /**
  * Cholesky factor of a symmetric positive-definite matrix (throws otherwise).
@@ -241,21 +328,6 @@ template <ndarray::Field T, template <typename> class Array>
     cholesky(out, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Cholesky factor into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref cholesky (the HOST kernel of the seam pattern; a device extension supplies its own
- * `requires DeviceArray` overload, found by ADL).
- * @param out destination; a contiguous n×n matrix, overwritten with the lower-triangular L.
- * @param a square SPD matrix.
- * @complexity O(n³).
- * @alloc reuses @p out (the factor is computed into private scratch, then copied in).
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void cholesky(Array<T>& out, const Array<T>& a);
-/// @endcond
 /** Result of qr(): A = q·r with orthonormal q and upper-triangular r. */
 /// The factors of a QR decomposition. Templated over the container type so a host `qr` yields
 /// `QR<NDArray>` and a device `qr` yields `QR<device_array<T>>`; `ArrT` defaults to `NDArray`
@@ -291,22 +363,6 @@ template <ndarray::Field T, template <typename> class Array>
     qr(out.q, out.r, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Reduced QR into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref qr,
- * filling @p q and @p r instead of allocating a @ref QR (the HOST kernel of the seam pattern; a
- * device extension supplies its own `requires DeviceArray` overload, found by ADL).
- * @param q destination for the orthonormal factor; a contiguous m×n matrix, overwritten.
- * @param r destination for the upper-triangular factor; a contiguous n×n matrix, overwritten.
- * @param a m×n matrix.
- * @complexity O(n³).
- * @alloc reuses @p q and @p r (the factors are computed into private scratch, then copied in).
- * @test LinalgRoutines.DecompositionOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void qr(Array<T>& q, Array<T>& r, const Array<T>& a);
-/// @endcond
 /** Result of svd(): A = u·diag(s)·vh. */
 /// The factors of a singular value decomposition, templated over the container type (`ArrT`
 /// defaults to `NDArray`, the host double result, so plain `SVD` names the common host type).
@@ -343,23 +399,6 @@ template <ndarray::Field T, template <typename> class Array>
     svd(out.u, out.s, out.vh, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Full SVD into the caller's buffers (outs FIRST) — the buffer-reuse overload of @ref svd,
- * filling @p u, @p s and @p vh instead of allocating an @ref SVD (the HOST kernel of the seam
- * pattern; a device extension supplies its own `requires DeviceArray` overload, found by ADL).
- * @param u destination for the left singular vectors; a contiguous m×n matrix, overwritten.
- * @param s destination for the singular values; a contiguous length-n vector, overwritten.
- * @param vh destination for Vᵀ; a contiguous n×n matrix, overwritten.
- * @param a m×n matrix (rows ≥ cols).
- * @complexity iterative O(n³).
- * @alloc reuses @p u, @p s, @p vh (the factors are computed into private scratch, then copied in).
- * @test LinalgRoutines.DecompositionOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void svd(Array<T>& u, Array<T>& s, Array<T>& vh, const Array<T>& a);
-/// @endcond
 /**
  * Singular values only (≈ `numpy.linalg.svd(a, compute_uv=False)` / `svdvals`).
  *
@@ -386,21 +425,6 @@ template <ndarray::Field T, template <typename> class Array>
     svdvals(out, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Singular values into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref svdvals (the HOST kernel of the seam pattern; a device extension supplies its own
- * `requires DeviceArray` overload, found by ADL).
- * @param out destination; a contiguous length-min(m,n) vector, overwritten with the descending values.
- * @param a m×n matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p out; the Golub–Reinsch reduction allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void svdvals(Array<T>& out, const Array<T>& a);
-/// @endcond
 
 // ---- Matrix eigenvalues ----
 /** Result of eigh(): a real spectrum — column j of vectors is the eigenvector for values[j]. */
@@ -467,24 +491,6 @@ template <ndarray::Field T, template <typename> class Array>
     eig(out.values, out.vectors, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * General eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse overload of
- * @ref eig, filling @p values and @p vectors instead of allocating an @ref EigC (the HOST kernel
- * of the seam pattern; a device extension supplies its own `requires DeviceArray` overload).
- * @param values destination for the complex eigenvalues; a contiguous length-n vector, overwritten.
- * @param vectors destination for the complex eigenvectors (columns); a contiguous n×n matrix, overwritten.
- * @param a square matrix.
- * @complexity iterative O(n³) for the eigenvalues; general (non-symmetric) eigenvectors
- *        add O(n⁴) (inverse iteration per eigenvalue — see @ref eig).
- * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
- * @test LinalgRoutines.DecompositionOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void eig(Array<ndarray::complex_of_t<T>>& values, Array<ndarray::complex_of_t<T>>& vectors,
-         const Array<T>& a);
-/// @endcond
 /**
  * Eigenvalues of a general square matrix (**complex**), descending.
  *
@@ -511,21 +517,6 @@ template <ndarray::Field T, template <typename> class Array>
     eigvals(out, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * General eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref eigvals (the HOST kernel of the seam pattern; a device extension supplies its own
- * `requires DeviceArray` overload, found by ADL).
- * @param out destination; a contiguous length-n complex vector, overwritten with the descending spectrum.
- * @param a square matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p out; the Hessenberg + shifted-QR iteration allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void eigvals(Array<ndarray::complex_of_t<T>>& out, const Array<T>& a);
-/// @endcond
 /**
  * Eigen-decomposition of a symmetric matrix (Householder tridiagonalization + QL).
  *
@@ -557,24 +548,6 @@ template <ndarray::Field T, template <typename> class Array>
     eigh(out.values, out.vectors, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Symmetric/Hermitian eigendecomposition into the caller's buffers (outs FIRST) — the buffer-reuse
- * overload of @ref eigh, filling @p values and @p vectors instead of allocating a result struct
- * (the HOST kernel of the seam pattern; a device extension supplies its own `requires DeviceArray`
- * overload). ONE two-layer kernel serving the real symmetric AND complex Hermitian paths: values
- * are always the real spectrum, vectors match the input element.
- * @param values destination for the real eigenvalues; a contiguous length-n vector, overwritten.
- * @param vectors destination for the eigenvectors (columns); a contiguous n×n matrix, overwritten.
- * @param a square symmetric (real) / Hermitian (complex) matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p values and @p vectors (computed into private scratch, then copied in).
- * @test LinalgRoutines.DecompositionOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
-void eigh(Array<ndarray::real_base_t<T>>& values, Array<T>& vectors, const Array<T>& a);
-/// @endcond
 /**
  * Eigenvalues of a symmetric matrix, descending (tridiagonal QL).
  *
@@ -607,22 +580,6 @@ template <ndarray::Field T, template <typename> class Array>
     eigvalsh(out, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Symmetric/Hermitian eigenvalues into the caller's buffer @p out (out FIRST) — the buffer-reuse
- * overload of @ref eigvalsh (the HOST kernel of the seam pattern; a device extension supplies its
- * own `requires DeviceArray` overload). One two-layer kernel: the complex Hermitian path is the
- * same template at T = std::complex<double>, still writing the REAL spectrum.
- * @param out destination; a contiguous length-n vector, overwritten with the descending eigenvalues.
- * @param a square symmetric (real) / Hermitian (complex) matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p out; the tridiagonal-QL solver allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<ndarray::real_base_t<T>>
-void eigvalsh(Array<ndarray::real_base_t<T>>& out, const Array<T>& a);
-/// @endcond
 // EighC (real values + complex vectors) and the unified two-layer `eigh` are declared above with
 // the other eig-family structs; the complex Hermitian eigh is that template at T = complex<double>,
 // returning EighC<NDArray, CNDArray> via the if-constexpr Hermitian branch — and its buffer-reuse
@@ -715,7 +672,7 @@ template <ndarray::Field T, template <typename> class Array>
     requires NumericArray<Array<T>> && ndarray::FloatingPoint<T>
 [[nodiscard]] long long matrix_rank(const Array<T>& a) {
     if (a.ndim() != 2) throw std::runtime_error("linalg: expected a 2-D matrix");
-    long long out;
+    long long out = 0;
     matrix_rank(out, a);
     return out;
 }
@@ -786,20 +743,6 @@ template <ndarray::Field T, template <typename> class Array>
     solve(out, a, b);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Solve into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref solve.
- * @param out destination; a contiguous length-n vector, overwritten with the solution x.
- * @param a square coefficient matrix.
- * @param b right-hand-side vector.
- * @complexity O(n³).
- * @alloc reuses @p out; the LU factorization allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void solve(Array<T>& out, const Array<T>& a, const Array<T>& b);
-/// @endcond
 /**
  * Least-squares solution min‖A·x − b‖ (computed as @ref pinv (a)·b).
  *
@@ -828,22 +771,6 @@ template <ndarray::Field T, template <typename> class Array>
     lstsq(out, a, b);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Least-squares solution into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref lstsq. Routes through the @ref matmul out-param so the final product is written into @p out
- * with no allocation.
- * @param out destination; a contiguous array of the solution's shape, overwritten.
- * @param a m×n matrix.
- * @param b right-hand side.
- * @complexity iterative O(n³).
- * @alloc reuses @p out; allocates the intermediate n×m pseudo-inverse and its SVD scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void lstsq(Array<T>& out, const Array<T>& a, const Array<T>& b);
-/// @endcond
 /**
  * Matrix inverse via LU with partial pivoting.
  *
@@ -868,19 +795,6 @@ template <ndarray::Field T, template <typename> class Array>
     inv(out, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of @ref inv.
- * @param out destination; a contiguous n×n matrix, overwritten with A⁻¹.
- * @param a square matrix.
- * @complexity O(n³).
- * @alloc reuses @p out; the LU factorization allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void inv(Array<T>& out, const Array<T>& a);
-/// @endcond
 /**
  * Moore–Penrose pseudo-inverse via SVD (any shape).
  *
@@ -905,19 +819,5 @@ template <ndarray::Field T, template <typename> class Array>
     pinv(out, a);
     return out;
 }
-/// @cond INTERNAL — the allocation-free out-parameter variant (see README: buffer reuse)
-/**
- * Pseudo-inverse into the caller's buffer @p out (out FIRST) — the buffer-reuse overload of
- * @ref pinv.
- * @param out destination; a contiguous n×m matrix (for an m×n input), overwritten with the pseudo-inverse.
- * @param a m×n matrix.
- * @complexity iterative O(n³).
- * @alloc reuses @p out; the Golub–Reinsch SVD allocates its own scratch.
- * @test LinalgRoutines.FactorizationOutReusesBuffer
- */
-template <ndarray::Field T, template <typename> class Array>
-    requires HostArray<Array<T>> && ndarray::FloatingPoint<T>
-void pinv(Array<T>& out, const Array<T>& a);
-/// @endcond
 
 } // namespace cheatah::linalg

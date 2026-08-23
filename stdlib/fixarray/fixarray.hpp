@@ -454,7 +454,7 @@ class Fixed {
     /// @tparam I the flat indices 0 … size-1.
     /// @return the identity matrix.
     template <std::size_t... I>
-    static constexpr Fixed identity_impl(std::index_sequence<I...>)
+    static constexpr Fixed identity_impl(std::index_sequence<I...> /*unused*/)
         requires(rank == 2 && rows == cols)
     {
         return Fixed(std::array<T, size>{(I % (rows + 1) == 0 ? T{1} : T{0})...});
@@ -467,8 +467,8 @@ class Fixed {
     /// @param f produces each element from its flat index.
     /// @return the array of `f(i)`.
     template <class F, std::size_t... I>
-    static constexpr Fixed from_indices_impl(F&& f, std::index_sequence<I...>) {
-        return Fixed(std::array<T, size>{static_cast<T>(f(I))...});
+    static constexpr Fixed from_indices_impl(F&& f, std::index_sequence<I...> /*unused*/) {
+        return Fixed(std::array<T, size>{static_cast<T>(std::forward<F>(f)(I))...});
     }
 
     /// The elements, inline: a vector in order, a matrix column by column. Zero by default.
@@ -1213,7 +1213,8 @@ template <ndarray::FloatingPoint T, std::size_t... Dims>
 constexpr Fixed<T, Dims...> smoothstep(T edge0, T edge1, const Fixed<T, Dims...>& x) {
     return Fixed<T, Dims...>::from_indices([&](std::size_t i) {
         T t = (x.data()[i] - edge0) / (edge1 - edge0);
-        t = t < T{0} ? T{0} : (T{1} < t ? T{1} : t);
+        if (t < T{0}) t = T{0};
+        else if (T{1} < t) t = T{1};
         return t * t * (T{3} - T{2} * t);
     });
 }

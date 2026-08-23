@@ -65,7 +65,8 @@ long long randint(long long a, long long b) {
     while (draw > limit) {  // discard the biased tail and redraw
         draw = engine()();
     }
-    return static_cast<long long>(static_cast<std::uint64_t>(a) + (draw % span));
+    const std::uint64_t picked = static_cast<std::uint64_t>(a) + (draw % span);  // wraps back into [a, b]
+    return static_cast<long long>(picked);
 }
 
 double gauss(double mu, double sigma) {

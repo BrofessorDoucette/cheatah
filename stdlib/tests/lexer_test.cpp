@@ -6,7 +6,6 @@
 
 #include <gtest/gtest.h>
 
-using cheatah::Diagnostic;
 using cheatah::LexResult;
 using cheatah::TokenKind;
 using cheatah::tokenize;

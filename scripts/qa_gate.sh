@@ -16,8 +16,10 @@
 #                  drift → golden-master → previously-broken → unit ctest →
 #                  ASan build+tests (TSan build in bg) → TSan tests → Valgrind
 #   join barrier:  coverage verdict · docs · extension · cppcheck · bench build
-#   tail:          editor refresh (bg, non-fatal) → benchmark smoke (sharded) →
-#                  join editor → Fixed-vs-GLM perf gate → release staging → PASS
+#   tail:          clang-tidy lane (8c, launched once build/release is fully built) ·
+#                  editor refresh (bg, non-fatal) → benchmark smoke (sharded) →
+#                  join editor → join clang-tidy → Fixed-vs-GLM perf gate →
+#                  release staging → PASS
 #
 # Stage inventory (numbering preserved from the sequential gate):
 #   1. Coverage: regenerate the README coverage table from clang source-based
@@ -35,8 +37,10 @@
 #   6. Valgrind memcheck (sharded) — 100% unit-test coverage, no errors/leaks.
 #   7. Benchmarks: smoke pass (sharded; timings discarded) then the Fixed-vs-GLM
 #      performance gate (scripts/bench_gate.sh — the measured authority).
-#   8. Editor refresh (best-effort) · 8b cppcheck + private-reference scan · 9 release
-#      staging.
+#   8. Editor refresh (best-effort) · 8b cppcheck + private-reference scan ·
+#   8c. clang-tidy (.clang-tidy: broad checks, cert-* fatal, TIDY_WERROR ratchet) over
+#       the release compile DB, plus the generated-code lane (gen/*.gen.cpp regenerated
+#       and linted — a finding there is a codegen defect) · 9 release staging.
 #
 # Env:  QA_GATE_SKIP=1            bypass the gate entirely (discouraged)
 #       QA_GATE_SKIP_COVERAGE=1   skip only the coverage/README-table/100% stage
@@ -94,7 +98,7 @@ fi
 # immediately, so its failure surfaces within seconds instead of at the barrier.
 # The EXIT trap kills still-running lanes when the gate dies early, so a failed run
 # never leaves a stray coverage.sh mid-rewrite of README.md (or an orphan doxygen).
-PID_COV=""; PID_COVFIN=""; PID_DOCS=""; PID_EXT=""; PID_CPPCHECK=""; PID_BENCHBUILD=""; PID_TSANBUILD=""; PID_EDITOR=""
+PID_COV=""; PID_COVFIN=""; PID_DOCS=""; PID_EXT=""; PID_CPPCHECK=""; PID_BENCHBUILD=""; PID_TSANBUILD=""; PID_EDITOR=""; PID_TIDY=""
 LOG_COV=/tmp/cheatah_coverage.log
 LOG_COVFIN=/tmp/cheatah_coverage_finish.log
 LOG_DOCS=/tmp/cheatah_docs.log
@@ -103,6 +107,7 @@ LOG_CPPCHECK=/tmp/cheatah_cppcheck.log
 LOG_BENCHBUILD=/tmp/cheatah_build_bench.log
 LOG_TSANBUILD=/tmp/cheatah_build_tsan.log
 LOG_EDITOR=/tmp/cheatah_editor.log
+LOG_TIDY=/tmp/cheatah_tidy.log
 
 bg_join() {  # bg_join <pid-var-name> <log> <label>  — blocking; fail (with log tail) on nonzero
     local _var="$1" _log="$2" _label="$3" _pid
@@ -120,7 +125,8 @@ bg_poll() {  # reap any lane that has already exited (fail fast); running lanes 
         "PID_EXT:$LOG_EXT:VS Code extension hover-DB check" \
         "PID_CPPCHECK:$LOG_CPPCHECK:cppcheck findings, or a private-project reference in the public tree" \
         "PID_BENCHBUILD:$LOG_BENCHBUILD:release benchmark build" \
-        "PID_TSANBUILD:$LOG_TSANBUILD:tsan build"; do
+        "PID_TSANBUILD:$LOG_TSANBUILD:tsan build" \
+        "PID_TIDY:$LOG_TIDY:clang-tidy (fatal findings, config drift, or stale gen/ fixtures)"; do
         _v="${_spec%%:*}"; _t="${_spec##*:}"; _l="${_spec#*:}"; _l="${_l%:*}"
         eval "_pid=\"\$$_v\""
         [ -n "$_pid" ] || continue
@@ -131,7 +137,7 @@ bg_poll() {  # reap any lane that has already exited (fail fast); running lanes 
 
 cleanup() {
     local _pid
-    for _pid in "$PID_COV" "$PID_COVFIN" "$PID_DOCS" "$PID_EXT" "$PID_CPPCHECK" "$PID_BENCHBUILD" "$PID_TSANBUILD" "$PID_EDITOR"; do
+    for _pid in "$PID_COV" "$PID_COVFIN" "$PID_DOCS" "$PID_EXT" "$PID_CPPCHECK" "$PID_BENCHBUILD" "$PID_TSANBUILD" "$PID_EDITOR" "$PID_TIDY"; do
         [ -n "$_pid" ] || continue
         kill -- "-$_pid" 2>/dev/null || kill "$_pid" 2>/dev/null
     done
@@ -365,6 +371,18 @@ bg_join PID_CPPCHECK "$LOG_CPPCHECK" "cppcheck (performance/security findings)"
 bold "cppcheck lane: OK."
 bg_join PID_BENCHBUILD "$LOG_BENCHBUILD" "release benchmark build"
 
+# 8c. clang-tidy: the broad first-party check set (.clang-tidy; cert-* fatal, ratchet via
+#     TIDY_WERROR, at "*" here: every check in .clang-tidy is fatal, the tree is clean under
+#     the whole set) over the release compile DB, then the GENERATED-code lane — the
+#     gen/*.gen.cpp fixtures are regenerated and linted, so a finding there is a CODEGEN
+#     defect (fix compiler/codegen.cpp or the .purr, never the .gen.cpp). Launched only
+#     now because both need the fully-built release tree: the gen lane rebuilds purrc
+#     incrementally, which must not race the bench-build lane's cmake in build/release.
+#     Joined before the measured perf gate below, so 7b still gets a quiet machine.
+bold "Running clang-tidy: main pass + generated-code lane (background lane)…"
+bg_launch PID_TIDY "$LOG_TIDY" bash -c \
+    'TIDY_WERROR="*" TIDY_SOURCE_RE="/(compiler|runtime|stdlib)/" bash scripts/clang_tidy.sh && TIDY_WERROR="*" bash scripts/clang_tidy.sh --gen'
+
 # 8. Refresh the editor (best-effort, NOT a gate) ----------------------------
 #    Launched AFTER the extension-check join (they share docs/xml + the hover DB) and
 #    joined before the measured perf gate below. Never fails the gate: it no-ops if
@@ -410,6 +428,10 @@ fi
 #     quietly de-vectorizes a hot path fails here rather than in a consumer's frame budget. Tolerant
 #     by ratio AND absolute gap, with a confirmation re-run, so sub-nanosecond noise never flakes it.
 #     Runs LAST, with every lane joined — the measured passes get a quiet machine.
+# 8c (join). clang-tidy must be green — and done, so the measured gate below runs quiet.
+bg_join PID_TIDY "$LOG_TIDY" "clang-tidy (fatal findings, config drift, or stale gen/ fixtures)"
+bold "clang-tidy lane: OK."
+
 bold "Performance gate: linalg::Fixed vs GLM…"
 ./scripts/bench_gate.sh || fail "linalg::Fixed regressed against GLM"
 

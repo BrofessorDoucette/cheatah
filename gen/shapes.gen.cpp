@@ -12,7 +12,7 @@ concept Shape =
     requires(Self& self) { self.area(); };
 
 struct Circle {
-    double r;
+    double r{};
     auto area() const {
         return ((3.14159 * (*this).r) * (*this).r);
     }
@@ -30,8 +30,8 @@ inline std::ostream& operator<<(std::ostream& os_, const Circle& v_) {
 }
 
 struct Rect {
-    double w;
-    double h;
+    double w{};
+    double h{};
     auto area() const {
         return ((*this).w * (*this).h);
     }
@@ -51,14 +51,18 @@ inline std::ostream& operator<<(std::ostream& os_, const Rect& v_) {
     return os_ << "Rect(" << "w=" << v_.w << ", h=" << v_.h << ")";
 }
 
+namespace {
+
 static auto report(Shape auto&& s) {
     io::print("area =", s.area());
 }
 
 
+}  // namespace
+
 void purr_main() {
-    auto c = Circle{.r = static_cast<double>(2.0)};
-    auto r = Rect{.w = static_cast<double>(3.0), .h = static_cast<double>(4.0)};
+    auto c = Circle{.r = 2.0};
+    auto r = Rect{.w = 3.0, .h = 4.0};
     report(c);
     report(r);
 }

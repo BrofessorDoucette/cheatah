@@ -131,7 +131,7 @@ public:
      *              are independent.
      * @systest TlsSys.ConnGuardRoundTrip
      */
-    long long send(const std::string& data);
+    long long send(const std::string& data) const;
     /**
      * Receive and decrypt up to @p bufsize bytes of application data (see the free recv()).
      * @param bufsize maximum plaintext bytes to return.
@@ -142,7 +142,7 @@ public:
      *              ready; a session has ONE reader — shutdown() is the cross-thread wake-up.
      * @systest TlsSys.ConnGuardRoundTrip
      */
-    std::string recv(long long bufsize);
+    std::string recv(long long bufsize) const;
     /**
      * Wake a reader blocked in recv() WITHOUT closing the session (see the free shutdown()).
      * @return 0 on success, -1 on error.
@@ -152,7 +152,7 @@ public:
      *              that wake-up is its purpose; then join the reader before close().
      * @systest TlsSys.ConnGuardRoundTrip
      */
-    long long shutdown();
+    long long shutdown() const;
     /**
      * Close the session now (idempotent — the destructor will not close it again).
      * @return 0 on success, -1 if already closed / unknown.

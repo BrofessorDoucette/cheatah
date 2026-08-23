@@ -20,7 +20,6 @@ public:
      * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     Number(double value) : value_(value) {}
-    ~Number() = default;
 
 
     /**

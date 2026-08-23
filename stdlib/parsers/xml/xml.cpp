@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "xml.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -48,7 +49,7 @@ bool decode_reference(std::string_view body, std::string& out) {
         if (i >= body.size()) return false;
         for (; i < body.size(); ++i) {
             const char c = body[i];
-            std::uint32_t d;
+            std::uint32_t d = 0;
             if (c >= '0' && c <= '9') d = static_cast<std::uint32_t>(c - '0');
             else if (hex && c >= 'a' && c <= 'f') d = static_cast<std::uint32_t>(c - 'a' + 10);
             else if (hex && c >= 'A' && c <= 'F') d = static_cast<std::uint32_t>(c - 'A' + 10);
@@ -262,7 +263,7 @@ int root(const Document& doc) { return doc.root; }
 
 bool is_element(const Document& doc, int id) {
     const Node* n = node_at(doc, id);
-    return n && n->is_element;
+    return (n != nullptr) && n->is_element;
 }
 
 std::string tag(const Document& doc, int id) {
@@ -280,8 +281,7 @@ std::string attr(const Document& doc, int id, std::string_view name) {
 bool has_attr(const Document& doc, int id, std::string_view name) {
     const Node* n = node_at(doc, id);
     if (!n) return false;
-    for (const Attr& a : n->attrs) if (a.name == name) return true;
-    return false;
+    return std::ranges::any_of(n->attrs, [name](const Attr& a) { return a.name == name; });
 }
 
 std::string text(const Document& doc, int id) {

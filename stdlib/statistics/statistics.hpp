@@ -191,6 +191,7 @@ double stdev(const R& data) { return std::sqrt(variance(data)); }
 template <NumericRange R>
 double median(const R& data) {
     std::vector<double> v;
+    v.reserve(data.size());
     for (const auto& x : data) v.push_back(static_cast<double>(x));
     if (v.empty()) return 0.0;
     std::sort(v.begin(), v.end());

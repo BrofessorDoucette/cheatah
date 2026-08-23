@@ -10,7 +10,7 @@
 // parser. See README.md for the language's lexical structure.
 namespace cheatah {
 
-enum class TokenKind {
+enum class TokenKind : std::uint8_t {
     // Literals.
     Number,      // 1, 3.14, 1e-3
     String,      // "text" (Token::text holds the DECODED value, escapes resolved)

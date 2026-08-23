@@ -1,0 +1,18 @@
+# tests/.clang-tidy — scoped override for TEST code; canonical copy: cheatah/tests/.clang-tidy
+# (replicated verbatim into every tests/ dir fleet-wide — in cheatah also stdlib/tests/ and
+# stdlib/memory/tests/ — drift-checked like the root config).
+#
+# Only checks whose hazard does not exist in test code are excused; cert stays fully fatal
+# for library and product code, and everything else (unchecked returns, self-assignment,
+# float loops, …) must be FIXED in tests too.
+#
+#   -cert-err58-cpp    throwing dynamic init of globals: in a test TU that is every
+#                        GoogleTest TEST()/TEST_P() registration object plus the
+#                        kFixture-style file-scope constants — framework/fixture-owned
+#   -cert-msc32-c      constant RNG seeds: tests seed DETERMINISTICALLY on purpose —
+#   -cert-msc51-cpp      reproducibility is the requirement, unpredictability the defect
+#   -cert-env33-c      system()/popen(): tests validate against real CLI peers (openssl,
+#   -concurrency-mt-unsafe  node, …); shelling out IS the fixture, and suites are
+#                        single-process at that point
+InheritParentConfig: true
+Checks: '-cert-err58-cpp,-cert-msc32-c,-cert-msc51-cpp,-cert-env33-c,-concurrency-mt-unsafe'

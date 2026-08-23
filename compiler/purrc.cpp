@@ -16,6 +16,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <ranges>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -132,7 +133,7 @@ namespace {
 int run_process(const std::vector<std::string>& args) {
     std::vector<char*> argv;
     argv.reserve(args.size() + 1);
-    for (const std::string& a : args) argv.push_back(const_cast<char*>(a.c_str()));
+    for (const std::string& a : args) argv.push_back(const_cast<char*>(a.c_str()));  // NOLINT(cppcoreguidelines-pro-type-const-cast): execvp/_spawnvp take char* const[] and never write through it
     argv.push_back(nullptr);
 #if defined(_WIN32)
     const intptr_t rc = _spawnvp(_P_WAIT, argv[0], argv.data());
@@ -282,7 +283,7 @@ BaseFold fold_base(const std::string& text) {
             if (t.compare(0, 2, "/*") == 0 && t.find("*/") == std::string::npos) in_block_comment = true;
             else if (in_block_comment && t.find("*/") != std::string::npos) in_block_comment = false;
             // Drop the base's own `#pragma once`; keep every other hoistable line.
-            if (!(directive && t.find("pragma") != std::string::npos && t.find("once") != std::string::npos)) {
+            if (!directive || t.find("pragma") == std::string::npos || t.find("once") == std::string::npos) {
                 out.hoist += line;
                 out.hoist += "\n";
             }
@@ -389,13 +390,13 @@ bool file_exists(const std::string& p) { return std::ifstream(p, std::ios::binar
 // package manager from a project's dependencies) plus the directory of the file being
 // compiled (so a module sitting next to the source resolves with no configuration — like
 // Python importing a sibling). Searched BEFORE the env path and the baked stdlib root.
-std::vector<std::string> g_import_roots;
+// (Held in BuildInputs::import_roots.)
 
 // Extra inputs for the FINAL link, supplied by `--link <arg>` (repeatable): a compiled
 // archive (or a `-l` flag) for a dependency whose definitions the build provides rather than
 // the compiler — e.g. an external project's own static library for a module it `import`s by
 // relative path / --import-root. Appended after the program object so its references resolve.
-std::vector<std::string> g_link_inputs;
+// (Held in BuildInputs::link_inputs.)
 
 // Extra C++ compile flags passed straight through to the backend compile (`--cxxflag <flag>`,
 // repeatable; also the env var CHEATAH_CXXFLAGS_EXTRA, whitespace-separated). This is how a build /
@@ -403,26 +404,37 @@ std::vector<std::string> g_link_inputs;
 // that needs `-fblocks`, `-DCHEATAH_GPU_BACKEND_METAL`, or an `-I<sdk>/include`. Injected ahead of the
 // generated source so `-include` / `-I` / `-D` take effect, and applied to the program build, the
 // `--emit-library` object build, and `--check`.
-std::vector<std::string> g_cxx_flags;
+// (Held in BuildInputs::cxx_flags.)
+struct BuildInputs {
+    std::vector<std::string> import_roots;
+    std::vector<std::string> link_inputs;
+    std::vector<std::string> cxx_flags;
+};
+// The process-wide build inputs: filled from argv (and the env) in main, read by the resolver
+// and the backend invocations.
+BuildInputs& build_inputs() {
+    static BuildInputs inputs;
+    return inputs;
+}
 
-// Append the whitespace-separated flags in CHEATAH_CXXFLAGS_EXTRA to g_cxx_flags (biome / a CMake
+// Append the whitespace-separated flags in CHEATAH_CXXFLAGS_EXTRA to the cxx flags (biome / a CMake
 // build sets this in the environment for a whole build tree).
 void load_env_cxx_flags() {
-    const char* e = std::getenv("CHEATAH_CXXFLAGS_EXTRA");
+    const char* e = std::getenv("CHEATAH_CXXFLAGS_EXTRA");  // NOLINT(concurrency-mt-unsafe): purrc is single-threaded; read once at startup
     if (!e) return;
     std::istringstream toks{std::string(e)};
     std::string t;
-    while (toks >> t) g_cxx_flags.push_back(t);
+    while (toks >> t) build_inputs().cxx_flags.push_back(t);
 }
 
 std::vector<std::string> module_search_paths() {
     std::vector<std::string> roots;
-    if (const char* mp = std::getenv("CHEATAH_MODULE_PATH")) {
+    if (const char* mp = std::getenv("CHEATAH_MODULE_PATH")) {  // NOLINT(concurrency-mt-unsafe): purrc is single-threaded; read once at startup
         std::string cur;
         std::istringstream ss(mp);
         while (std::getline(ss, cur, ':')) if (!cur.empty()) roots.push_back(cur);
     }
-    roots.push_back(CHEATAH_ROOT);
+    roots.emplace_back(CHEATAH_ROOT);
     return roots;
 }
 
@@ -439,7 +451,7 @@ std::string read_checksum_hex(const std::string& path) {
 bool read_sig(const std::string& path, std::string& pub, std::string& sig) {
     std::ifstream f(path);
     std::string line;
-    if (!std::getline(f, line) || line.rfind("cheatah-sig", 0) != 0) return false;
+    if (!std::getline(f, line) || !line.starts_with("cheatah-sig")) return false;
     pub.clear();
     sig.clear();
     while (std::getline(f, line)) {
@@ -457,7 +469,7 @@ bool read_sig(const std::string& path, std::string& pub, std::string& sig) {
 // (the default) => checksum-only: a change/corruption is STILL always caught.
 std::vector<std::string> load_trust() {
     std::vector<std::string> keys;
-    const char* tp = std::getenv("CHEATAH_TRUST");
+    const char* tp = std::getenv("CHEATAH_TRUST");  // NOLINT(concurrency-mt-unsafe): purrc is single-threaded; read once at startup
     if (!tp) return keys;
     std::ifstream f(tp);
     std::string line;
@@ -511,35 +523,59 @@ ResolvedModule resolve_module(const std::string& m) {
     //    (<root>/<m>/<m>.hpp) or a sibling file (<root>/<m>.hpp), Python-style. Its compiled
     //    definitions, if any, are the build's job; a co-located archive is linked if present
     //    but not required. This is the path an external project / package manager uses.
-    for (const std::string& root : g_import_roots) {
-        for (const std::string& inc : {root + "/" + m, root}) {
-            // Prefer <m>.gen.hpp (a module with folded hand-written C++) over a plain <m>.hpp.
-            for (const std::string& fname : {m + ".gen.hpp", m + ".hpp"}) {
-                const std::string hdr = inc + "/" + fname;
+    // Prefer <m>.gen.hpp (a module with folded hand-written C++) over a plain <m>.hpp.
+    std::string gen_name = m;
+    gen_name += ".gen.hpp";
+    std::string plain_name = m;
+    plain_name += ".hpp";
+    std::string archive_name = "libcheatah_";
+    archive_name += m;
+    archive_name += ".a";
+    for (const std::string& root : build_inputs().import_roots) {
+        std::string package_dir = root;
+        package_dir += "/";
+        package_dir += m;
+        for (const std::string& inc : {package_dir, root}) {
+            for (const std::string& fname : {gen_name, plain_name}) {
+                std::string hdr = inc;
+                hdr += "/";
+                hdr += fname;
                 if (!file_exists(hdr)) continue;
                 ResolvedModule r;
                 r.include_dir = inc;
-                r.header = hdr;
                 r.resolved = true;
-                r.cheatah_lib = file_exists(hdr + ".sha512");
-                const std::string ar = inc + "/libcheatah_" + m + ".a";
-                if (file_exists(ar)) r.archive = ar;
+                std::string sidecar = hdr;
+                sidecar += ".sha512";
+                r.cheatah_lib = file_exists(sidecar);
+                r.header = std::move(hdr);
+                std::string ar = inc;
+                ar += "/";
+                ar += archive_name;
+                if (file_exists(ar)) r.archive = std::move(ar);
                 return r;
             }
         }
     }
     // 2) Signed cheatah library modules on the env path / baked root (unchanged behavior).
     for (const std::string& root : module_search_paths()) {
-        const std::string dir = root + "/" + m;
-        const std::string hdr = dir + "/" + m + ".hpp";
-        if (file_exists(hdr + ".sha512")) {
+        std::string dir = root;
+        dir += "/";
+        dir += m;
+        std::string hdr = dir;
+        hdr += "/";
+        hdr += plain_name;
+        std::string sidecar = hdr;
+        sidecar += ".sha512";
+        if (file_exists(sidecar)) {
             ResolvedModule r;
             r.cheatah_lib = true;
-            r.include_dir = dir;
-            r.header = hdr;
             r.resolved = true;
-            const std::string ar = dir + "/libcheatah_" + m + ".a";
-            if (file_exists(ar)) r.archive = ar;  // opaque module: link its hidden defs
+            std::string ar = dir;
+            ar += "/";
+            ar += archive_name;
+            if (file_exists(ar)) r.archive = std::move(ar);  // opaque module: link its hidden defs
+            r.include_dir = std::move(dir);
+            r.header = std::move(hdr);
             return r;
         }
     }
@@ -601,8 +637,8 @@ bool all_modules_resolved(const std::vector<std::string>& modules, const std::st
 // `-pthread` driver flag (used by the memory/thread modules). Everything else is dropped.
 bool is_safe_link_flag(const std::string& t) {
     if (t == "-pthread") return true;
-    if (t.rfind("-l", 0) == 0 && t.size() > 2) return true;  // -lcurl, -lvulkan, -lpthread
-    if (t.rfind("-L", 0) == 0 && t.size() > 2) return true;  // -L<dir>
+    if (t.starts_with("-l") && t.size() > 2) return true;  // -lcurl, -lvulkan, -lpthread
+    if (t.starts_with("-L") && t.size() > 2) return true;  // -L<dir>
     return false;
 }
 
@@ -774,14 +810,14 @@ int emit_library(const std::string& input, const std::string& source, std::strin
         std::vector<std::string> cc = {CHEATAH_CXX};
         for (const std::string& f : split_flags(CHEATAH_CXXFLAGS))
             if (f != "-shared") cc.push_back(f);
-        cc.push_back("-c");
-        for (const std::string& f : g_cxx_flags) cc.push_back(f);      // build/biome passthrough
+        cc.emplace_back("-c");
+        for (const std::string& f : build_inputs().cxx_flags) cc.push_back(f);      // build/biome passthrough
         cc.push_back(std::string("-I") + CHEATAH_ROOT + "/builtins");  // the cheatah prelude
         cc.push_back(std::string("-I") + dir_name(output));            // <m>.hpp
         for (const std::string& dep : cg.modules)
             cc.push_back(std::string("-I") + CHEATAH_ROOT + "/" + dep);
         cc.push_back(impl_path);
-        cc.push_back("-o");
+        cc.emplace_back("-o");
         cc.push_back(obj_path);
         if (run_process(cc) != 0) {
             std::cerr << "purrc: C++ backend failed building '" << name << "' implementation\n";
@@ -795,8 +831,8 @@ int emit_library(const std::string& input, const std::string& source, std::strin
         // Delete the intermediate impl TU + object: keeping the generated `.cpp` would
         // LEAK the very source an opaque build exists to hide. The signed archive is the
         // only shipped artifact carrying the definitions.
-        std::remove(impl_path.c_str());
-        std::remove(obj_path.c_str());
+        static_cast<void>(std::remove(impl_path.c_str()));  // best-effort cleanup; the leak
+        static_cast<void>(std::remove(obj_path.c_str()));   // check below is the real gate
         if (!sign_key.empty()) {
             if (const int rc = sign_output(archive, sign_key); rc != 0) return rc;
         } else if (!write_checksum(archive)) {
@@ -883,7 +919,7 @@ std::vector<std::string> all_modules(const std::vector<std::string>& imported) {
     // Emits m's dependencies first, then m — so `ordered` ends up dependency-first. The caller
     // reverses it once, which puts every dependent ahead of what it needs.
     const std::function<void(const std::string&)> visit = [&](const std::string& m) {
-        if (done.count(m) || !active.insert(m).second) return;
+        if (done.contains(m) || !active.insert(m).second) return;
         for (const std::string& dep : module_deps(m)) visit(dep);
         active.erase(m);
         if (done.insert(m).second) ordered.push_back(m);
@@ -903,8 +939,8 @@ std::vector<std::string> all_modules(const std::vector<std::string>& imported) {
 // `let` of the same name in an inner scope, and only the nearest binding decides.
 class ConstexprChecker {
 public:
-    ConstexprChecker(const std::string& file, std::vector<std::string>& errors)
-        : file_(file), errors_(errors) {}
+    ConstexprChecker(std::string file, std::vector<std::string>& errors)
+        : file_(std::move(file)), errors_(&errors) {}
 
     // Returns true iff no constexpr misuse was found.
     bool check(const Program& prog) {
@@ -912,25 +948,25 @@ public:
         for (const StmtPtr& s : prog.body)
             if (s) check_stmt(*s);
         scopes_.pop_back();
-        return errors_.empty();
+        return errors_->empty();
     }
 
 private:
-    const std::string& file_;
-    std::vector<std::string>& errors_;
+    std::string file_;
+    std::vector<std::string>* errors_;  // the caller's error sink (outlives the checker)
     std::vector<std::map<std::string, bool>> scopes_;  // name -> bound by `constexpr let`?
 
     void bind(const std::string& n, bool is_constexpr) { scopes_.back()[n] = is_constexpr; }
     // 1 = nearest binding is constexpr, 0 = runtime, -1 = unbound (param/global/unknown).
     int nearest(const std::string& n) const {
-        for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
-            const auto f = it->find(n);
-            if (f != it->end()) return f->second ? 1 : 0;
+        for (const auto & scope : std::ranges::reverse_view(scopes_)) {
+            const auto f = scope.find(n);
+            if (f != scope.end()) return f->second ? 1 : 0;
         }
         return -1;
     }
     void err(unsigned line, const std::string& msg) {
-        errors_.push_back(file_ + ":" + std::to_string(line) + ": error: " + msg);
+        errors_->push_back(file_ + ":" + std::to_string(line) + ": error: " + msg);
     }
     void check_scope(const Block& body) {
         scopes_.emplace_back();
@@ -1030,19 +1066,19 @@ int run_check(const std::string& input, const std::string& source, bool remove_u
     }
     const std::vector<std::string> mods = all_modules(cg.modules);
     if (!all_modules_resolved(mods, input)) {
-        std::remove(gen_path.c_str());
+        static_cast<void>(std::remove(gen_path.c_str()));  // best-effort transient cleanup
         return 1;
     }
     std::vector<std::string> args = {CHEATAH_CXX};
     for (const std::string& f : split_flags(CHEATAH_CXXFLAGS))
         if (f != "-shared") args.push_back(f);  // type-check only — don't try to link a module
-    args.push_back("-fsyntax-only");
+    args.emplace_back("-fsyntax-only");
     for (const std::string& m : mods)
         args.push_back(std::string("-I") + resolve_module(m).include_dir);
-    for (const std::string& f : g_cxx_flags) args.push_back(f);  // same flags as the real build
+    for (const std::string& f : build_inputs().cxx_flags) args.push_back(f);  // same flags as the real build
     args.push_back(gen_path);
     const int rc = run_process(args);
-    std::remove(gen_path.c_str());  // a transient TU; the .purr is the source of truth
+    static_cast<void>(std::remove(gen_path.c_str()));  // a transient TU; the .purr is the source of truth
     return rc == 0 ? 0 : 1;
 }
 
@@ -1122,10 +1158,12 @@ int main(int argc, char** argv) {
         if (a == "--version" || a == "-v") {
             std::cout << "cheatah purrc " << version() << "\n";
             return 0;
-        } else if (a == "--help" || a == "-h") {
+        }
+        if (a == "--help" || a == "-h") {
             print_usage(std::cout);
             return 0;
-        } else if (a == "-o" && i + 1 < argc) {
+        }
+        if (a == "-o" && i + 1 < argc) {
             output = argv[++i];
         } else if (a == "--sign" && i + 1 < argc) {
             sign_key = argv[++i];
@@ -1164,21 +1202,20 @@ int main(int argc, char** argv) {
         } else if (a == "--import-root" && i + 1 < argc) {
             // A directory to resolve `import`s from (repeatable) — e.g. a package manager
             // points the compiler at each declared dependency. Searched before the env path.
-            g_import_roots.push_back(argv[++i]);
+            build_inputs().import_roots.emplace_back(argv[++i]);
         } else if (a == "--link" && i + 1 < argc) {
             // An extra archive (or -l flag) for the final link (repeatable) — the build
             // provides a dependency's compiled definitions; the compiler just resolves headers.
-            g_link_inputs.push_back(argv[++i]);
+            build_inputs().link_inputs.emplace_back(argv[++i]);
         } else if (a == "--cxxflag" && i + 1 < argc) {
             // An extra C++ COMPILE flag (repeatable) forwarded verbatim to the backend — e.g.
             // `-fblocks`, `-DCHEATAH_GPU_BACKEND_METAL`, `-I<sdk>/include`. The build/biome supplies
             // an extension's required compile options this way (also CHEATAH_CXXFLAGS_EXTRA).
-            g_cxx_flags.push_back(argv[++i]);
-        } else if (a == "--no-remove-variables") {
-            no_remove_vars = true;
-        } else if (a == "--no-optimize-cpp") {
-            // Umbrella that disables ALL generated-C++ optimizations. Currently that is just
-            // dead-variable removal; future optimization opt-outs are added here too.
+            build_inputs().cxx_flags.emplace_back(argv[++i]);
+        } else if (a == "--no-remove-variables" || a == "--no-optimize-cpp") {
+            // `--no-optimize-cpp` is the umbrella that disables ALL generated-C++ optimizations.
+            // Currently that is just dead-variable removal; future optimization opt-outs are
+            // added here too.
             no_remove_vars = true;
         } else if (a == "--no-crypto-selftest") {
             no_crypto_selftest = true;
@@ -1206,7 +1243,8 @@ int main(int argc, char** argv) {
 
     // Resolve `import`s relative to the file being compiled FIRST (Python-style: a module
     // next to the source, or in a subfolder, just works). Declared --import-root dirs follow.
-    g_import_roots.insert(g_import_roots.begin(), dir_name(input));
+    std::vector<std::string>& import_roots = build_inputs().import_roots;
+    import_roots.insert(import_roots.begin(), dir_name(input));
 
     // The magic: a same-stem sibling foo.hpp/foo.cpp beside foo.purr is folded into this module,
     // AS IF it were written inside foo.purr. It is literally the explicit --base-header/--base-source
@@ -1330,12 +1368,12 @@ int main(int argc, char** argv) {
     for (const std::string& f : split_flags(CHEATAH_CXXFLAGS)) args.push_back(f);
     // Opt out of the runtime hardware-crypto power-on self-test (on by default). When set, a
     // capable CPU's SIMD crypto path is trusted from CPUID alone, with no known-answer check.
-    if (no_crypto_selftest) args.push_back("-DCHEATAH_NO_CRYPTO_SELFTEST");
+    if (no_crypto_selftest) args.emplace_back("-DCHEATAH_NO_CRYPTO_SELFTEST");
     for (const ResolvedModule& rm : resolved) {
         args.push_back(std::string("-I") + rm.include_dir);
     }
     // Build/biome-supplied passthrough flags (`--cxxflag` / CHEATAH_CXXFLAGS_EXTRA), before the source.
-    for (const std::string& f : g_cxx_flags) args.push_back(f);
+    for (const std::string& f : build_inputs().cxx_flags) args.push_back(f);
     args.push_back(gen_path);
     // --start-group makes the archives order-INDEPENDENT: the linker re-scans them until no
     // new undefined symbol is resolved. all_modules already emits them dependency-last, so
@@ -1358,7 +1396,7 @@ int main(int argc, char** argv) {
     // definitions the BUILD provides (e.g. an external project's library for a module it
     // imports by relative path / --import-root, with no co-located archive). After the
     // program object so their members resolve its undefined references.
-    for (const std::string& a : g_link_inputs) args.push_back(a);
+    for (const std::string& a : build_inputs().link_inputs) args.push_back(a);
     // External libraries a module's header declares (`// cheatah-link:`) — the system
     // dependencies of a native library a module statically bundles. Honoured for ANY resolved
     // module (not just signed cheatah libs), so a relative/--import-root module's native deps
@@ -1372,7 +1410,7 @@ int main(int argc, char** argv) {
     // (glibc libmvec via -lm on Linux, the Accelerate framework on macOS) carries the
     // SIMD symbols ndarray's ufunc kernels call.
     for (const std::string& f : split_flags(CHEATAH_MATHLINK)) args.push_back(f);
-    args.push_back("-o");
+    args.emplace_back("-o");
     args.push_back(output);
 
     const int rc = run_process(args);

@@ -388,6 +388,7 @@ bool Parser::parse_value(Cursor& c, Node& out, Builder& b) {
             } else {
                 b.add_element(std::move(value));
             }
+            value = Node{};  // re-arm: the next child (or the closing container) fills it afresh
             skip_ws(c);
             if constexpr (Validate) {
                 if (c.it == c.end) {

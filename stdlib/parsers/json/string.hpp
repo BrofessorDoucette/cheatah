@@ -47,7 +47,6 @@ public:
      * @test CheatahParsersJson.ContainerTokenLifecycle
      */
     String(S value) : value_(std::move(value)) {}
-    ~String() = default;
 
     /**
      * Read the characters uniformly as a view, whether owning or viewing (no setter).

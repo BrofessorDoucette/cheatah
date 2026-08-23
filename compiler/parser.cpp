@@ -3,6 +3,7 @@
 #include "parser.hpp"
 
 #include <map>
+#include <span>
 
 namespace cheatah {
 
@@ -10,7 +11,7 @@ namespace {
 
 class Parser {
 public:
-    explicit Parser(const std::vector<Token>& toks) : toks_(toks) {}
+    explicit Parser(const std::vector<Token>& toks) : toks_(toks) {}  // view: the caller keeps the tokens alive
 
     ParseResult run() {
         ParseResult r;
@@ -392,7 +393,7 @@ private:
                     }
                 }
                 // Encode `const` into the type spelling so codegen emits a const reference.
-                if (param_const && !ptype.empty()) ptype = "const " + ptype;
+                if (param_const && !ptype.empty()) ptype.insert(0, "const ");
                 f->param_types.push_back(ptype);
                 // Optional `= <expr>` — a default value. Once one parameter has a default,
                 // every later one must too (they lower to trailing forwarding overloads).
@@ -1336,7 +1337,7 @@ private:
         return d;
     }
 
-    const std::vector<Token>& toks_;
+    std::span<const Token> toks_;
     std::size_t pos_ = 0;
     std::vector<Diagnostic> diags_;
 };

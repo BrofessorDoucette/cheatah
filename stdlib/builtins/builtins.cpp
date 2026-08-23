@@ -11,7 +11,10 @@ namespace cheatah::builtins {
 std::size_t len(std::string_view s) { return s.size(); }
 
 int ord(std::string_view s) { return s.empty() ? 0 : static_cast<unsigned char>(s[0]); }
-std::string chr(int codepoint) { return std::string(1, static_cast<char>(codepoint)); }
+std::string chr(int codepoint) {
+    std::string out(1, static_cast<char>(codepoint));  // (1, c) must not become a braced list: {1, c} is two chars
+    return out;
+}
 
 namespace {
 std::string with_base(long long value, unsigned base, const char* prefix) {

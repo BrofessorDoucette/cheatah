@@ -44,7 +44,7 @@ static_assert(!io::Streamable<std::vector<int>>);
 // print() requires Printable, NOT Streamable: a value is printable if it streams
 // directly, has a `str()`, or is a list/dict of printable elements.
 namespace {
-struct WithStr { std::string str() const { return "W"; } };
+struct WithStr { static std::string str() { return "W"; } };
 struct NotPrintable { int z; };  // not streamable, no str()
 }  // namespace
 static_assert(io::Printable<int>);
@@ -75,8 +75,8 @@ namespace {
 // A stand-in for a cheatah struct: it both streams (operator<<, the compact form rprint/str
 // use) and exposes a cheatah_pretty_print member (the pretty form print uses).
 struct PrettyStub {
-    friend std::ostream& operator<<(std::ostream& os, const PrettyStub&) { return os << "P(compact)"; }
-    void cheatah_pretty_print(std::ostream& os, long long indent) const {
+    friend std::ostream& operator<<(std::ostream& os, const PrettyStub& /*unused*/) { return os << "P(compact)"; }
+    static void cheatah_pretty_print(std::ostream& os, long long indent) {
         os << std::string(static_cast<std::size_t>(indent), ' ') << "P(\n    x = 1\n)";
     }
 };

@@ -44,7 +44,7 @@ constexpr std::uint64_t kMaxMessageBytes = 64ull << 20;  // 64 MiB reassembled t
 constexpr std::uint64_t kMaxControlPayload = 125;        // RFC 6455 §5.5
 
 [[nodiscard]] Session* as_session(long long h) {
-    return reinterpret_cast<Session*>(static_cast<std::uintptr_t>(h));
+    return reinterpret_cast<Session*>(static_cast<std::uintptr_t>(h));  // NOLINT(performance-no-int-to-ptr): the integer handle IS the session address by contract (see as_handle)
 }
 [[nodiscard]] long long as_handle(Session* s) {
     return static_cast<long long>(reinterpret_cast<std::uintptr_t>(s));
@@ -136,12 +136,12 @@ void put_header(std::string& frame, unsigned char opcode, std::size_t n) {
 // XOR-mask @p n bytes of @p src into @p dst with the 4-byte @p key, eight bytes
 // per step (the key tiled into a 64-bit word) — the fast masking path.
 void mask_into(char* dst, const char* src, std::size_t n, const unsigned char key[4]) {
-    std::uint64_t k64;
+    std::uint64_t k64 = 0;
     unsigned char tile[8] = {key[0], key[1], key[2], key[3], key[0], key[1], key[2], key[3]};
     std::memcpy(&k64, tile, 8);
     std::size_t i = 0;
     for (; i + 8 <= n; i += 8) {
-        std::uint64_t w;
+        std::uint64_t w = 0;
         std::memcpy(&w, src + i, 8);
         w ^= k64;
         std::memcpy(dst + i, &w, 8);
@@ -212,7 +212,7 @@ long long connect(const std::string& host, long long port, const std::string& pa
             throw std::runtime_error("websocket: TLS handshake failed: " + tls::last_error());
         }
     }
-    Session* s = new Session();
+    auto* s = new Session();
     s->fd = fd;
     s->tls = tlss;      // -1 => plaintext; sess_send/sess_recv branch on it
 
@@ -266,9 +266,8 @@ long long connect_url(const std::string& url, bool insecure, const std::string& 
     const std::string path = slash == std::string::npos ? "/" : url.substr(slash);
     const std::size_t colon = authority.find(':');
     const std::string host = authority.substr(0, colon);
-    const long long port = colon == std::string::npos
-                               ? (secure ? 443 : 80)
-                               : static_cast<long long>(std::stol(authority.substr(colon + 1)));
+    long long port = secure ? 443 : 80;  // the scheme's default port unless the authority names one
+    if (colon != std::string::npos) port = static_cast<long long>(std::stol(authority.substr(colon + 1)));
     return connect(host, port, path, host, insecure, ca_file, secure);
 }
 
@@ -278,15 +277,15 @@ long long send_text(long long session, const std::string& message) {
 
 std::string recv(long long session) {
     Session* s = as_session(session);
-    if (s->closed) return std::string();
+    if (s->closed) return {};
     const std::uint64_t max_frame = s->max_frame != 0 ? s->max_frame : kMaxFramePayload;
     const std::uint64_t max_message = s->max_message != 0 ? s->max_message : kMaxMessageBytes;
     std::string message;       // reassembly buffer for fragmented messages
     bool fragmenting = false;  // mid multi-frame message
     for (;;) {
         ensure(s, 2);
-        const unsigned char b0 = static_cast<unsigned char>(s->buf[s->pos]);
-        const unsigned char b1 = static_cast<unsigned char>(s->buf[s->pos + 1]);
+        const auto b0 = static_cast<unsigned char>(s->buf[s->pos]);
+        const auto b1 = static_cast<unsigned char>(s->buf[s->pos + 1]);
         const bool fin = (b0 & 0x80) != 0;
         const int opcode = b0 & 0x0F;
         const bool masked = (b1 & 0x80) != 0;  // server frames are unmasked
@@ -343,7 +342,7 @@ std::string recv(long long session) {
                 send_frame(s, 0x8, std::string());
                 s->pos += header + len;
                 s->closed = true;
-                return std::string();
+                return {};
             case 0x1:  // text
             case 0x2:  // binary
                 if (fragmenting)
@@ -380,7 +379,7 @@ namespace testonly {
 // Free it with close(). Compiled ONLY into cheatah_tests; absent from the shipped library.
 long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
                              std::uint64_t max_message) {
-    Session* s = new Session();
+    auto* s = new Session();
     s->buf = frames;
     s->max_frame = max_frame;
     s->max_message = max_message;
@@ -390,7 +389,7 @@ long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
 // Drive send_upgrade()'s failure branch deterministically: a plaintext session on an invalid
 // descriptor, so socket::send returns EBADF with no peer, no timing and no network.
 void send_upgrade_on_closed_fd() {
-    Session* s = new Session();
+    auto* s = new Session();
     s->fd = -1;    // invalid on purpose
     s->tls = -1;   // plaintext, so sess_send takes the socket:: branch
     send_upgrade(s, std::string("GET / HTTP/1.1\r\n\r\n"));
@@ -416,8 +415,7 @@ long long close(long long session) {
     if (!s->closed && s->tls >= 0) {
         try {
             send_frame(s, 0x8, std::string());
-        } catch (...) {
-        }
+        } catch (...) {}  // NOLINT(bugprone-empty-catch): a best-effort close frame — the peer may already be gone, and the session is torn down regardless
     }
     destroy(s);
     return 0;
@@ -439,11 +437,11 @@ Client& Client::operator=(Client&& other) noexcept {
 Client::~Client() {
     if (session_ != 0) cheatah::websocket::close(session_);
 }
-long long Client::send_text(const std::string& message) {
+long long Client::send_text(const std::string& message) const {
     return cheatah::websocket::send_text(session_, message);
 }
-std::string Client::recv() { return cheatah::websocket::recv(session_); }
-long long Client::shutdown() { return cheatah::websocket::shutdown(session_); }
+std::string Client::recv() const { return cheatah::websocket::recv(session_); }
+long long Client::shutdown() const { return cheatah::websocket::shutdown(session_); }
 long long Client::close() {
     if (session_ == 0) return -1;
     const long long rc = cheatah::websocket::close(session_);

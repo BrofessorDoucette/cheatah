@@ -18,6 +18,7 @@
 // FAILS CLOSED — the connection is refused, never accepted unverified. Everything runs on cheatah's
 // own crypto (rsa_verify, p256, p384, ed25519, hashlib) and the from-scratch DER walker below.
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -52,9 +53,9 @@ inline std::string lower(const std::string& s) {
 // Days since the Unix epoch for a civil (proleptic Gregorian) date — Howard Hinnant's algorithm,
 // so no libc timegm/timezone dependency (deterministic, testable).
 inline long long days_from_civil(long long y, unsigned m, unsigned d) {
-    y -= m <= 2;
+    y -= static_cast<long long>(m <= 2);
     const long long era = (y >= 0 ? y : y - 399) / 400;
-    const unsigned yoe = static_cast<unsigned>(y - era * 400);
+    const auto yoe = static_cast<unsigned>(y - era * 400);
     const unsigned doy = (153u * (m + (m > 2 ? -3u : 9u)) + 2u) / 5u + d - 1u;
     const unsigned doe = yoe * 365u + yoe / 4u - yoe / 100u + doy;
     return era * 146097LL + static_cast<long long>(doe) - 719468LL;
@@ -69,8 +70,8 @@ inline bool tlv(const std::string& d, std::size_t& pos, std::size_t end, unsigne
     if (pos >= end) return false;
     tag = static_cast<unsigned char>(d[pos++]);
     if (pos >= end) return false;
-    const unsigned char lb = static_cast<unsigned char>(d[pos++]);
-    std::size_t len;
+    const auto lb = static_cast<unsigned char>(d[pos++]);
+    std::size_t len = 0;
     if (!(lb & 0x80)) {
         len = lb;
     } else {
@@ -147,19 +148,19 @@ inline bool parse_time(const std::string& s, unsigned char tag, long long& out) 
         i += 2;
         return true;
     };
-    long long year;
+    long long year = 0;
     if (tag == 0x17) {  // UTCTime: 2-digit year (RFC 5280: <50 -> 20xx, else 19xx)
-        int yy;
+        int yy = 0;
         if (!two(yy)) return false;
         year = yy < 50 ? 2000 + yy : 1900 + yy;
     } else if (tag == 0x18) {  // GeneralizedTime: 4-digit year
-        int hi, lo;
+        int hi = 0, lo = 0;
         if (!two(hi) || !two(lo)) return false;
         year = hi * 100 + lo;
     } else {
         return false;
     }
-    int mon, day, hh, mm, ss;
+    int mon = 0, day = 0, hh = 0, mm = 0, ss = 0;
     if (!two(mon) || !two(day) || !two(hh) || !two(mm) || !two(ss)) return false;
     if (i >= s.size() || s[i] != 'Z') return false;  // require UTC ('Z')
     if (mon < 1 || mon > 12 || day < 1 || day > 31 || hh > 23 || mm > 59 || ss > 60) return false;
@@ -170,8 +171,8 @@ inline bool parse_time(const std::string& s, unsigned char tag, long long& out) 
 
 inline void parse_san(const std::string& d, std::size_t ob, std::size_t oe, Cert& c) {
     std::size_t p = ob;
-    unsigned char tag;
-    std::size_t b, e;
+    unsigned char tag = 0;
+    std::size_t b = 0, e = 0;
     if (!tlv(d, p, oe, tag, b, e) || tag != 0x30) return;  // SEQUENCE OF GeneralName
     // The loop bound must be the SEQUENCE's own end, held apart from `e` (each element's
     // content end) — sharing one variable stopped the walk after the FIRST GeneralName,
@@ -185,8 +186,8 @@ inline void parse_san(const std::string& d, std::size_t ob, std::size_t oe, Cert
 
 inline void parse_basic_constraints(const std::string& d, std::size_t ob, std::size_t oe, Cert& c) {
     std::size_t p = ob;
-    unsigned char tag;
-    std::size_t b, e;
+    unsigned char tag = 0;
+    std::size_t b = 0, e = 0;
     if (!tlv(d, p, oe, tag, b, e) || tag != 0x30) return;  // SEQUENCE
     std::size_t sp = b;
     if (sp < e && tlv(d, sp, e, tag, b, e) && tag == 0x01 && e > b &&
@@ -196,21 +197,19 @@ inline void parse_basic_constraints(const std::string& d, std::size_t ob, std::s
 
 inline void parse_extensions(const std::string& d, std::size_t cb, std::size_t ce, Cert& c) {
     std::size_t p = cb;
-    unsigned char tag;
-    std::size_t b, e;
+    unsigned char tag = 0;
+    std::size_t b = 0, e = 0;
     if (!tlv(d, p, ce, tag, b, e) || tag != 0x30) return;  // the wrapped SEQUENCE OF Extension
     std::size_t sp = b, se = e;
     while (sp < se) {
         if (!tlv(d, sp, se, tag, b, e) || tag != 0x30) return;  // Extension SEQUENCE
         std::size_t xp = b, xe = e;
-        unsigned char t;
-        std::size_t ob, oe;
+        unsigned char t = 0;
+        std::size_t ob = 0, oe = 0;
         if (!tlv(d, xp, xe, t, ob, oe) || t != 0x06) continue;  // extnID OID
         const std::string oid = d.substr(ob, oe - ob);
-        std::size_t save = xp;
         if (!tlv(d, xp, xe, t, ob, oe)) return;
-        if (t != 0x01) xp = save;                              // optional critical BOOLEAN
-        else if (!tlv(d, xp, xe, t, ob, oe)) return;
+        if (t == 0x01 && !tlv(d, xp, xe, t, ob, oe)) return;  // skip the optional critical BOOLEAN
         if (t != 0x04) continue;                               // extnValue OCTET STRING
         if (oid == oid_san()) parse_san(d, ob, oe, c);
         else if (oid == oid_bc()) parse_basic_constraints(d, ob, oe, c);
@@ -220,8 +219,8 @@ inline void parse_extensions(const std::string& d, std::size_t cb, std::size_t c
 // Parse a full DER Certificate. Returns false on any structural error (fail closed).
 inline bool parse_cert(const std::string& der, Cert& c) {
     std::size_t pos = 0;
-    unsigned char tag;
-    std::size_t cb, ce;
+    unsigned char tag = 0;
+    std::size_t cb = 0, ce = 0;
     if (!tlv(der, pos, der.size(), tag, cb, ce) || tag != 0x30) return false;  // Certificate SEQUENCE
     std::size_t ip = cb, ie = ce;
 
@@ -243,8 +242,8 @@ inline bool parse_cert(const std::string& der, Cert& c) {
     if (!tlv(der, tp, te, tag, cb, ce) || tag != 0x30) return false;           // validity SEQUENCE
     {
         std::size_t vp = cb, ve = ce;
-        unsigned char vt;
-        std::size_t vb, vce;
+        unsigned char vt = 0;
+        std::size_t vb = 0, vce = 0;
         if (!tlv(der, vp, ve, vt, vb, vce) || !parse_time(der.substr(vb, vce - vb), vt, c.not_before))
             return false;
         if (!tlv(der, vp, ve, vt, vb, vce) || !parse_time(der.substr(vb, vce - vb), vt, c.not_after))
@@ -267,8 +266,8 @@ inline bool parse_cert(const std::string& der, Cert& c) {
     if (!tlv(der, ip, ie, tag, cb, ce) || tag != 0x30) return false;           // signatureAlgorithm
     {
         std::size_t ap = cb, ae = ce;
-        unsigned char at;
-        std::size_t ab, ace;
+        unsigned char at = 0;
+        std::size_t ab = 0, ace = 0;
         if (!tlv(der, ap, ae, at, ab, ace) || at != 0x06) return false;        // OID
         c.sig_oid = der.substr(ab, ace - ab);
     }
@@ -281,15 +280,15 @@ inline bool parse_cert(const std::string& der, Cert& c) {
 // Extract a raw Ed25519 public key (32 bytes) from a SubjectPublicKeyInfo, or "" if not Ed25519.
 inline std::string ed25519_key(const std::string& spki) {
     std::size_t p = 0;
-    unsigned char tag;
-    std::size_t cb, ce;
+    unsigned char tag = 0;
+    std::size_t cb = 0, ce = 0;
     if (!tlv(spki, p, spki.size(), tag, cb, ce) || tag != 0x30) return "";     // SPKI SEQUENCE
     std::size_t sp = cb, se = ce;
     if (!tlv(spki, sp, se, tag, cb, ce) || tag != 0x30) return "";             // AlgorithmIdentifier
     {
         std::size_t ap = cb, ae = ce;
-        unsigned char at;
-        std::size_t ob, oe;
+        unsigned char at = 0;
+        std::size_t ob = 0, oe = 0;
         if (!tlv(spki, ap, ae, at, ob, oe) || at != 0x06) return "";
         if (spki.compare(ob, oe - ob, oid_ed25519()) != 0) return "";
     }
@@ -302,8 +301,8 @@ inline std::string ed25519_key(const std::string& spki) {
 // AlgorithmIdentifier's second OID — or "" when the SPKI is not an EC key with a named curve.
 inline std::string ec_named_curve(const std::string& spki) {
     std::size_t p = 0;
-    unsigned char tag;
-    std::size_t cb, ce;
+    unsigned char tag = 0;
+    std::size_t cb = 0, ce = 0;
     if (!tlv(spki, p, spki.size(), tag, cb, ce) || tag != 0x30) return "";  // SPKI SEQUENCE
     std::size_t sp = cb, se = ce;
     if (!tlv(spki, sp, se, tag, cb, ce) || tag != 0x30) return "";          // AlgorithmIdentifier
@@ -367,9 +366,8 @@ inline bool match_dns(const std::string& pat, const std::string& host) {
 
 inline bool host_matches(const Cert& leaf, const std::string& host) {
     const std::string h = lower(host);
-    for (const std::string& pat : leaf.san_dns)
-        if (match_dns(lower(pat), h)) return true;
-    return false;  // require a SAN match — the deprecated subject-CN fallback is intentionally absent
+    // require a SAN match — the deprecated subject-CN fallback is intentionally absent
+    return std::ranges::any_of(leaf.san_dns, [&h](const std::string& pat) { return match_dns(lower(pat), h); });
 }
 
 // ---- trust store ------------------------------------------------------------------------------
@@ -404,10 +402,10 @@ inline std::vector<std::string> default_ca_paths(const std::string& cafile) {
         paths.push_back(cafile);
         return paths;
     }
-    if (const char* env = std::getenv("SSL_CERT_FILE")) paths.push_back(env);
-    paths.push_back("/etc/ssl/certs/ca-certificates.crt");  // Debian/Ubuntu
-    paths.push_back("/etc/pki/tls/certs/ca-bundle.crt");    // RHEL/Fedora
-    paths.push_back("/etc/ssl/cert.pem");                   // Alpine/BSD/macOS
+    if (const char* env = std::getenv("SSL_CERT_FILE")) paths.emplace_back(env);  // NOLINT(concurrency-mt-unsafe): documented trust-store knob, read once per lookup; nothing in this module calls setenv
+    paths.emplace_back("/etc/ssl/certs/ca-certificates.crt");  // Debian/Ubuntu
+    paths.emplace_back("/etc/pki/tls/certs/ca-bundle.crt");    // RHEL/Fedora
+    paths.emplace_back("/etc/ssl/cert.pem");                   // Alpine/BSD/macOS
     return paths;
 }
 

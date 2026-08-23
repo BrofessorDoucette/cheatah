@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "aead.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 
@@ -78,7 +79,7 @@ void chacha_block(const u32 key[8], u32 counter, const u32 nonce[3], unsigned ch
         quarter(w[2], w[7], w[8], w[13]);
         quarter(w[3], w[4], w[9], w[14]);
     }
-    for (int i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         const u32 v = w[i] + s[i];
         out[4 * i] = static_cast<unsigned char>(v);
         out[4 * i + 1] = static_cast<unsigned char>(v >> 8);
@@ -110,10 +111,10 @@ std::string chacha_xor(const u32 key[8], const u32 nonce[3], u32 counter0, std::
 // 26-bit limbs in u64 lanes — the standard portable shape. @complexity O(n) @alloc none
 // @test CheatahAead.Rfc8439Encrypt / CheatahAead.IntoFormsMatchStringForms
 struct Poly1305 {
-    u32 r0, r1, r2, r3, r4;
-    u32 s1, s2, s3, s4;
+    u32 r0{}, r1{}, r2{}, r3{}, r4{};
+    u32 s1{}, s2{}, s3{}, s4{};
     u32 h0 = 0, h1 = 0, h2 = 0, h3 = 0, h4 = 0;
-    unsigned char rs_copy[32];
+    unsigned char rs_copy[32]{};
 
     // Load and clamp r (RFC 8439 §2.5) and keep s for the final addition.
     void init(const unsigned char rs[32]) {
@@ -223,7 +224,7 @@ void poly1305_state_finish(Poly1305& state, unsigned char tag[16]) {
     std::memcpy(s_part, rs + 16, 16);
     const u64 f[4] = {f0, f1, f2, f3};
     u64 carry_word = 0;
-    for (int i = 0; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         const u64 sum = f[i] + s_part[i] + carry_word;  // 32-bit lanes with carry between them
         carry_word = sum >> 32;
         tag[4 * i] = static_cast<unsigned char>(sum);
@@ -373,7 +374,7 @@ void aes256_key_expand(const unsigned char key[32], unsigned char rk[240]) {
             t[2] = kSbox[t[3]];
             t[3] = kSbox[a0];
         } else if (i % 32 == 16) {  // SubWord only (AES-256-specific)
-            for (int j = 0; j < 4; ++j) t[j] = kSbox[t[j]];
+            for (unsigned char & j : t) j = kSbox[j];
         }
         for (int j = 0; j < 4; ++j) rk[i + j] = static_cast<unsigned char>(rk[i - 32 + j] ^ t[j]);
     }
@@ -390,14 +391,14 @@ void aes_encrypt_block(const unsigned char* rk, int nr, const unsigned char in[1
     unsigned char s[16];
     for (int i = 0; i < 16; ++i) s[i] = static_cast<unsigned char>(in[i] ^ rk[i]);  // round 0
     for (int round = 1; round <= nr; ++round) {
-        for (int i = 0; i < 16; ++i) s[i] = kSbox[s[i]];  // SubBytes
-        unsigned char t;                                   // ShiftRows
+        for (unsigned char & i : s) i = kSbox[i];  // SubBytes
+        unsigned char t = 0;                                   // ShiftRows
         t = s[1]; s[1] = s[5]; s[5] = s[9]; s[9] = s[13]; s[13] = t;
         t = s[2]; s[2] = s[10]; s[10] = t; t = s[6]; s[6] = s[14]; s[14] = t;
         t = s[15]; s[15] = s[11]; s[11] = s[7]; s[7] = s[3]; s[3] = t;
         if (round != nr) {  // MixColumns
             for (int c = 0; c < 4; ++c) {
-                unsigned char* col = s + 4 * c;
+                unsigned char* col = s + 4 * static_cast<std::ptrdiff_t>(c);
                 const unsigned char a0 = col[0], a1 = col[1], a2 = col[2], a3 = col[3];
                 col[0] = static_cast<unsigned char>(xtime(a0) ^ (xtime(a1) ^ a1) ^ a2 ^ a3);
                 col[1] = static_cast<unsigned char>(a0 ^ xtime(a1) ^ (xtime(a2) ^ a2) ^ a3);
@@ -405,7 +406,7 @@ void aes_encrypt_block(const unsigned char* rk, int nr, const unsigned char in[1
                 col[3] = static_cast<unsigned char>((xtime(a0) ^ a0) ^ a1 ^ a2 ^ xtime(a3));
             }
         }
-        const unsigned char* r_k = rk + 16 * round;       // AddRoundKey
+        const unsigned char* r_k = rk + 16 * static_cast<std::ptrdiff_t>(round);  // AddRoundKey
         for (int i = 0; i < 16; ++i) s[i] = static_cast<unsigned char>(s[i] ^ r_k[i]);
     }
     std::memcpy(out, s, 16);
@@ -479,7 +480,7 @@ void gctr(const unsigned char* rk, int nr, unsigned char ctr[16], std::string& d
 
 // Force the portable (non-AES-NI) AES-GCM path — a testing/determinism hook so the scalar
 // reference is exercised even on CPUs where the hardware path is the default.
-bool g_force_portable = false;
+bool g_force_portable = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables): documented process-wide test knob set via set_force_portable_crypto()
 
 } // namespace
 

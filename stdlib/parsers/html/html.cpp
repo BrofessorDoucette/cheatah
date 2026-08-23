@@ -2,6 +2,7 @@
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
 #include "html.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <string>
@@ -65,7 +66,7 @@ bool decode_reference(std::string_view body, std::string& out) {
         if (i >= body.size()) return false;
         for (; i < body.size(); ++i) {
             const char c = body[i];
-            std::uint32_t digit;
+            std::uint32_t digit = 0;
             if (c >= '0' && c <= '9') {
                 digit = static_cast<std::uint32_t>(c - '0');
             } else if (hex && c >= 'a' && c <= 'f') {
@@ -201,7 +202,7 @@ std::vector<Token> parse(std::string_view html) {
             const std::size_t name_start = i + 2;
             std::size_t j = name_start;
             while (j < n && is_name_char(html[j])) ++j;
-            if (j == name_start && !(j < n && is_name_start(html[j]))) {
+            if (j == name_start && (j >= n || !is_name_start(html[j]))) {
                 // not a real name (e.g. "</ "): only a tag if name present
             }
             if (j > name_start) {
@@ -305,10 +306,7 @@ std::string get_attr(const Token& t, std::string_view name) {
 
 bool has_attr(const Token& t, std::string_view name) {
     const std::string key = lower_str(name);
-    for (const Attr& a : t.attrs) {
-        if (a.name == key) return true;
-    }
-    return false;
+    return std::ranges::any_of(t.attrs, [&key](const Attr& a) { return a.name == key; });
 }
 
 }  // namespace cheatah::parsers::html

@@ -42,7 +42,7 @@ namespace cheatah::sys {
  * @crtest SysCompileRun.ArgvIsIterable
  * @systest StdlibE2E.Sys
  */
-extern std::vector<std::string> argv;
+extern std::vector<std::string> argv;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables): `sys.argv` IS a process-wide variable by contract — programs read it directly
 
 /// @cond INTERNAL — a runtime hook, not cheatah surface (programs read `sys.argv`)
 /**

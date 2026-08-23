@@ -8,7 +8,7 @@ namespace cheatah::sys {
 
 // Definition of the storage declared `extern` in the header. Empty until the
 // cheatah runtime forwards the program's arguments via cheatah_set_argv().
-std::vector<std::string> argv;
+std::vector<std::string> argv;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables): `sys.argv` IS a process-wide variable by contract — programs read it directly
 
 /// @cond INTERNAL — the runtime hook's definition; programs read `sys.argv`
 void set_argv(int argc, char** argv_) {

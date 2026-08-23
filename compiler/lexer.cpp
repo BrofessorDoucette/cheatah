@@ -198,7 +198,7 @@ private:
             }
             if (c == '/' && peek_next() == '*') {
                 advance(); advance();
-                while (!at_end() && !(peek() == '*' && peek_next() == '/')) advance();
+                while (!at_end() && (peek() != '*' || peek_next() != '/')) advance();
                 if (!at_end()) { advance(); advance(); }
                 continue;
             }

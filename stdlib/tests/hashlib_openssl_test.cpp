@@ -78,7 +78,7 @@ std::string write_tmp(const std::string& data) {
         }
         ::close(fd);
     }
-    return std::string(path);
+    return {path};
 }
 
 // The shared input corpus: empty, short, long-repeat, a sentence, and every byte 0x00..0xFF.
@@ -99,7 +99,7 @@ TEST(HashlibVsOpenssl, Sha256) {
     for (const auto& in : inputs()) {
         const std::string f = write_tmp(in);
         const std::string ref = first_token(capture("openssl dgst -sha256 -r '" + f + "'"));
-        std::remove(f.c_str());
+        static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
         ASSERT_EQ(ref.size(), 64u) << "openssl output unexpected for input of size " << in.size();
         EXPECT_EQ(hl::sha256(in), ref) << "sha256 mismatch for input of size " << in.size();
     }
@@ -110,7 +110,7 @@ TEST(HashlibVsOpenssl, Sha384) {
     for (const auto& in : inputs()) {
         const std::string f = write_tmp(in);
         const std::string ref = first_token(capture("openssl dgst -sha384 -r '" + f + "'"));
-        std::remove(f.c_str());
+        static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
         ASSERT_EQ(ref.size(), 96u);
         EXPECT_EQ(hl::sha384(in), ref) << "sha384 mismatch for input of size " << in.size();
     }
@@ -121,7 +121,7 @@ TEST(HashlibVsOpenssl, Sha512) {
     for (const auto& in : inputs()) {
         const std::string f = write_tmp(in);
         const std::string ref = first_token(capture("openssl dgst -sha512 -r '" + f + "'"));
-        std::remove(f.c_str());
+        static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
         ASSERT_EQ(ref.size(), 128u);
         EXPECT_EQ(hl::sha512(in), ref) << "sha512 mismatch for input of size " << in.size();
     }
@@ -129,13 +129,13 @@ TEST(HashlibVsOpenssl, Sha512) {
 
 TEST(HashlibVsOpenssl, HmacSha256) {
     if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
-    for (const std::string key : {std::string("k"), std::string("secretkey"),
+    for (const std::string& key : {std::string("k"), std::string("secretkey"),
                                   std::string(40, 'K')}) {
         for (const auto& in : inputs()) {
             const std::string f = write_tmp(in);
             const std::string ref = first_token(
-                capture("openssl dgst -sha256 -hmac '" + key + "' -r '" + f + "'"));
-            std::remove(f.c_str());
+                capture(std::string("openssl dgst -sha256 -hmac '").append(key).append("' -r '").append(f).append("'")));
+            static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
             ASSERT_EQ(ref.size(), 64u);
             EXPECT_EQ(to_hex(hl::hmac_sha256(key, in)), ref)
                 << "hmac-sha256 mismatch (key '" << key << "', input size " << in.size() << ")";
@@ -145,13 +145,13 @@ TEST(HashlibVsOpenssl, HmacSha256) {
 
 TEST(HashlibVsOpenssl, HmacSha384) {
     if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
-    for (const std::string key : {std::string("k"), std::string("secretkey"),
+    for (const std::string& key : {std::string("k"), std::string("secretkey"),
                                   std::string(40, 'K')}) {
         for (const auto& in : inputs()) {
             const std::string f = write_tmp(in);
             const std::string ref = first_token(
-                capture("openssl dgst -sha384 -hmac '" + key + "' -r '" + f + "'"));
-            std::remove(f.c_str());
+                capture(std::string("openssl dgst -sha384 -hmac '").append(key).append("' -r '").append(f).append("'")));
+            static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
             ASSERT_EQ(ref.size(), 96u);
             EXPECT_EQ(to_hex(hl::hmac_sha384(key, in)), ref)
                 << "hmac-sha384 mismatch (key '" << key << "', input size " << in.size() << ")";
@@ -161,12 +161,12 @@ TEST(HashlibVsOpenssl, HmacSha384) {
 
 TEST(HashlibVsOpenssl, HmacSha512) {
     if (!has_openssl()) GTEST_SKIP() << "openssl CLI not available";
-    for (const std::string key : {std::string("k"), std::string("secretkey")}) {
+    for (const std::string& key : {std::string("k"), std::string("secretkey")}) {
         for (const auto& in : inputs()) {
             const std::string f = write_tmp(in);
             const std::string ref = first_token(
-                capture("openssl dgst -sha512 -hmac '" + key + "' -r '" + f + "'"));
-            std::remove(f.c_str());
+                capture(std::string("openssl dgst -sha512 -hmac '").append(key).append("' -r '").append(f).append("'")));
+            static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
             ASSERT_EQ(ref.size(), 128u);
             EXPECT_EQ(to_hex(hl::hmac_sha512(key, in)), ref)
                 << "hmac-sha512 mismatch (key '" << key << "', input size " << in.size() << ")";
@@ -179,7 +179,7 @@ TEST(HashlibVsOpenssl, Base64Encode) {
     for (const auto& in : inputs()) {
         const std::string f = write_tmp(in);
         const std::string ref = chomp(capture("openssl base64 -A -in '" + f + "'"));
-        std::remove(f.c_str());
+        static_cast<void>(std::remove(f.c_str()));  // best-effort tmp cleanup
         EXPECT_EQ(hl::base64_encode(in), ref) << "base64 mismatch for input of size " << in.size();
     }
 }

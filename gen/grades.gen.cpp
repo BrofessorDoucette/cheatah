@@ -9,12 +9,12 @@ namespace io = ::cheatah::io;
 
 struct Student {
     std::string name;
-    double score;
+    double score{};
     auto grade() const {
-        if (((*this).score >= 90.0)) {
+        if ((*this).score >= 90.0) {
             return std::string("A");
         }
-        if (((*this).score >= 80.0)) {
+        if ((*this).score >= 80.0) {
             return std::string("B");
         }
         return std::string("C");

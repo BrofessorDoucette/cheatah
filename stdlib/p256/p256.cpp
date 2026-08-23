@@ -53,10 +53,10 @@ namespace testonly {
 // ~2^-128-measure event on real curve x-coordinates, so it is not reachable through
 // verify_raw/sign_raw with real inputs; this drives it directly on the real code.
 std::string reduce_mod_n_be(const std::string& be32) {
-    fe v = ec::be_to_fe<P256Curve>((const unsigned char*)be32.data());
+    fe v = ec::be_to_fe<P256Curve>(reinterpret_cast<const unsigned char*>(be32.data()));
     fe r = ec::reduce_mod_n<P256Curve>(v);
     std::string out(32, '\0');
-    ec::fe_to_be<P256Curve>((unsigned char*)out.data(), r);
+    ec::fe_to_be<P256Curve>(reinterpret_cast<unsigned char*>(out.data()), r);
     return out;
 }
 // Test seam: run the constant-time point-op differential self-check (jac_add_ct/jac_double_ct vs the
@@ -90,15 +90,15 @@ std::string sign_raw_impl(const std::string& privkey, const std::string& msg_has
 #else
 std::string sign_raw(const std::string& privkey, const std::string& msg_hash) {
 #endif
-    if (privkey.size() != 32) return std::string();
+    if (privkey.size() != 32) return {};
     const ec::Mont<P256Curve>& Fnn = ec::Fn<P256Curve>();
-    fe d = ec::be_to_fe<P256Curve>((const unsigned char*)privkey.data());
-    if (ec::is_zero<P256Curve>(d) || ec::geq<P256Curve>(d, P256Curve::N)) return std::string();
+    fe d = ec::be_to_fe<P256Curve>(reinterpret_cast<const unsigned char*>(privkey.data()));
+    if (ec::is_zero<P256Curve>(d) || ec::geq<P256Curve>(d, P256Curve::N)) return {};
     fe e = ec::hash_to_scalar<P256Curve>(msg_hash);
 
     // RFC 6979 deterministic nonce generation (HMAC-SHA256).
     unsigned char h1[32] = {0};
-    std::memcpy(h1, msg_hash.data(), msg_hash.size() < 32 ? msg_hash.size() : 32);
+    std::memcpy(h1, msg_hash.data(), msg_hash.size() < 32 ? msg_hash.size() : 32);  // NOLINT(bugprone-not-null-terminated-result): raw digest bytes, not a C string
     unsigned char x[32];
     ec::fe_to_be<P256Curve>(x, d);
     std::string V(32, '\x01'), K(32, '\x00');
@@ -108,10 +108,10 @@ std::string sign_raw(const std::string& privkey, const std::string& msg_hash) {
     // K = HMAC(K, V || 0x00 || int2octets(x) || bits2octets(h1))
     auto step = [&](unsigned char tag) {
         std::string in = V;
-        if (tag != 0xFF) in.push_back((char)tag);
+        if (tag != 0xFF) in.push_back(static_cast<char>(tag));
         if (tag != 0xFF) {
-            in.append((const char*)x, 32);
-            in.append((const char*)h1, 32);
+            in.append(reinterpret_cast<const char*>(x), 32);
+            in.append(reinterpret_cast<const char*>(h1), 32);
         }
         K = hmac(K, in);
         V = hmac(K, V);
@@ -120,7 +120,7 @@ std::string sign_raw(const std::string& privkey, const std::string& msg_hash) {
     step(0x01);
     for (int attempt = 0; attempt < 64; ++attempt) {
         V = hmac(K, V);
-        fe k = ec::be_to_fe<P256Curve>((const unsigned char*)V.data());
+        fe k = ec::be_to_fe<P256Curve>(reinterpret_cast<const unsigned char*>(V.data()));
         if (!ec::is_zero<P256Curve>(k) && !ec::geq<P256Curve>(k, P256Curve::N)) {
             Jac R;
             ec::jac_mul_base<P256Curve>(R, k);  // fixed-base comb
@@ -147,8 +147,8 @@ std::string sign_raw(const std::string& privkey, const std::string& msg_hash) {
                     ec::from_mont<P256Curve>(sfinal, sm, Fnn);
                     if (!ec::is_zero<P256Curve>(sfinal)) {
                         std::string out(64, '\0');
-                        ec::fe_to_be<P256Curve>((unsigned char*)out.data(), rx);
-                        ec::fe_to_be<P256Curve>((unsigned char*)out.data() + 32, sfinal);
+                        ec::fe_to_be<P256Curve>(reinterpret_cast<unsigned char*>(out.data()), rx);
+                        ec::fe_to_be<P256Curve>(reinterpret_cast<unsigned char*>(out.data()) + 32, sfinal);
                         return out;
                     }
                 }
@@ -160,7 +160,7 @@ std::string sign_raw(const std::string& privkey, const std::string& msg_hash) {
         K = hmac(K, in);
         V = hmac(K, V);
     }
-    return std::string();
+    return {};
 }
 
 #ifdef CHEATAH_P256_TESTING
@@ -179,12 +179,12 @@ std::string sign_raw_skip(const std::string& privkey, const std::string& msg_has
 #endif
 
 std::string public_from_private(const std::string& privkey) {
-    if (privkey.size() != 32) return std::string();
-    fe d = ec::be_to_fe<P256Curve>((const unsigned char*)privkey.data());
-    if (ec::is_zero<P256Curve>(d) || ec::geq<P256Curve>(d, P256Curve::N)) return std::string();
+    if (privkey.size() != 32) return {};
+    fe d = ec::be_to_fe<P256Curve>(reinterpret_cast<const unsigned char*>(privkey.data()));
+    if (ec::is_zero<P256Curve>(d) || ec::geq<P256Curve>(d, P256Curve::N)) return {};
     Jac Q;
     ec::jac_mul_base<P256Curve>(Q, d);  // d*G via the fixed-base comb
-    if (Q.inf || ec::is_zero<P256Curve>(Q.Z)) return std::string();
+    if (Q.inf || ec::is_zero<P256Curve>(Q.Z)) return {};
     // affine x and y (normal form)
     const ec::Mont<P256Curve>& F = ec::Fp<P256Curve>();
     fe zinv, zinv2, zinv3, x, y;
@@ -197,24 +197,24 @@ std::string public_from_private(const std::string& privkey) {
     ec::from_mont<P256Curve>(xo, x, F);
     ec::from_mont<P256Curve>(yo, y, F);
     std::string out(64, '\0');
-    ec::fe_to_be<P256Curve>((unsigned char*)out.data(), xo);
-    ec::fe_to_be<P256Curve>((unsigned char*)out.data() + 32, yo);
+    ec::fe_to_be<P256Curve>(reinterpret_cast<unsigned char*>(out.data()), xo);
+    ec::fe_to_be<P256Curve>(reinterpret_cast<unsigned char*>(out.data()) + 32, yo);
     return out;
 }
 
 std::string spki_ec_point(std::string_view der) {
     // Find the uncompressed-point marker: BIT STRING (03) <len> 00 04 <X(32)><Y(32)>.
     // The OID id-ecPublicKey + prime256v1 precedes it; we anchor on the 0x04 point.
-    const unsigned char* p = (const unsigned char*)der.data();
+    const auto* p = reinterpret_cast<const unsigned char*>(der.data());
     const std::size_t n = der.size();
     for (std::size_t i = 0; i + 2 + 65 <= n; ++i) {
         // BIT STRING tag, then a length, then 00 (unused bits), then 04 (uncompressed)
         if (p[i] == 0x03 && p[i + 2] == 0x00 && p[i + 3] == 0x04) {
             const std::size_t len = p[i + 1];
-            if (len == 66 && i + 4 + 64 <= n) return std::string((const char*)p + i + 4, 64);
+            if (len == 66 && i + 4 + 64 <= n) return {reinterpret_cast<const char*>(p) + i + 4, 64};
         }
     }
-    return std::string();
+    return {};
 }
 
 }  // namespace cheatah::p256

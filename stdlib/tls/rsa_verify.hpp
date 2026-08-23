@@ -173,7 +173,7 @@ inline Big modexp(Big base, const Big& e, const Big& m) {
 // ---- DER: read a length octet sequence at `p` (advances p); SIZE_MAX on error ----
 inline std::size_t der_len(const std::string& d, std::size_t& p) {
     if (p >= d.size()) return static_cast<std::size_t>(-1);
-    const unsigned char b = static_cast<unsigned char>(d[p++]);
+    const auto b = static_cast<unsigned char>(d[p++]);
     if (!(b & 0x80)) return b;  // short form
     const int n = b & 0x7f;
     if (n == 0 || n > 4 || p + static_cast<std::size_t>(n) > d.size()) return static_cast<std::size_t>(-1);
@@ -188,7 +188,7 @@ inline std::size_t der_len(const std::string& d, std::size_t& p) {
 inline bool parse_rsa_pubkey(const std::string& der, std::string& n, std::string& e) {
     static const unsigned char kOid[] = {0x06, 0x09, 0x2A, 0x86, 0x48, 0x86,
                                          0xF7, 0x0D, 0x01, 0x01, 0x01};
-    std::size_t pos = static_cast<std::size_t>(-1);
+    auto pos = static_cast<std::size_t>(-1);
     for (std::size_t i = 0; i + sizeof kOid <= der.size(); ++i)
         if (std::memcmp(der.data() + i, kOid, sizeof kOid) == 0) {
             pos = i;
@@ -257,7 +257,7 @@ inline bool pss_verify(const std::string& m_hash, const std::string& em, std::si
     const std::string H = em.substr(db_len, hlen);
     const std::size_t top_bits = 8 * em_len - em_bits;
     if (top_bits > 0) {
-        const unsigned char mask = static_cast<unsigned char>(0xFF << (8 - top_bits));
+        const auto mask = static_cast<unsigned char>(0xFF << (8 - top_bits));
         if (static_cast<unsigned char>(masked_db[0]) & mask) return false;
     }
     const std::string db_mask = mgf1_sha256(H, db_len);
@@ -308,7 +308,7 @@ inline bool verify_pss_sha256(const std::string& cert_der, const std::string& me
 inline std::string digestinfo_prefix_sha256() {
     static const unsigned char p[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
                                       0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
-    return std::string(reinterpret_cast<const char*>(p), sizeof p);
+    return {reinterpret_cast<const char*>(p), sizeof p};
 }
 
 // The SHA-384 DigestInfo prefix (RFC 8017 §9.2), followed by the raw 48-byte digest — for
@@ -316,7 +316,7 @@ inline std::string digestinfo_prefix_sha256() {
 inline std::string digestinfo_prefix_sha384() {
     static const unsigned char p[] = {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
                                       0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30};
-    return std::string(reinterpret_cast<const char*>(p), sizeof p);
+    return {reinterpret_cast<const char*>(p), sizeof p};
 }
 
 // Verify an RSASSA-PKCS1-v1_5 signature (RFC 8017 §8.2.2) against a caller-supplied RSA public key

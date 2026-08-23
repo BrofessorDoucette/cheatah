@@ -61,16 +61,16 @@ namespace cheatah::aead::accel {
 /// bit 1 = PCLMULQDQ, bit 9 = SSSE3. (The public gate is available(), defined below — it also
 /// runs a known-answer self-test before trusting the path.)
 inline bool cpu_has_crypto() {
-    unsigned ecx;
+    unsigned ecx = 0;
 #if defined(_MSC_VER)
     int info[4];
     __cpuid(info, 1);
     ecx = static_cast<unsigned>(info[2]);
 #else
-    unsigned eax, ebx, edx;
+    unsigned eax = 0, ebx = 0, edx = 0;
     if (!__get_cpuid(1, &eax, &ebx, &ecx, &edx)) return false;
 #endif
-    const bool aesni = (ecx >> 25) & 1u, pclmul = (ecx >> 1) & 1u, ssse3 = (ecx >> 9) & 1u;
+    const bool aesni = ((ecx >> 25) & 1u) != 0u, pclmul = ((ecx >> 1) & 1u) != 0u, ssse3 = ((ecx >> 9) & 1u) != 0u;
     return aesni && pclmul && ssse3;
 }
 
@@ -195,7 +195,7 @@ ghash_buf(__m128i Y, const __m128i Hp[8], const unsigned char* p, std::size_t n)
     for (; off + 128 <= n; off += 128) {  // 8 blocks per reduction: Y8 = Σ b_i · H^(8-i)
         __m128i b[8];
         for (int i = 0; i < 8; ++i)
-            b[i] = bswap(_mm_loadu_si128(reinterpret_cast<const __m128i*>(p + off + 16 * i)));
+            b[i] = bswap(_mm_loadu_si128(reinterpret_cast<const __m128i*>(p + off + 16 * static_cast<std::size_t>(i))));
         __m128i lo = _mm_setzero_si128(), hi = _mm_setzero_si128(), mid = _mm_setzero_si128();
         clmul_acc(_mm_xor_si128(Y, b[0]), Hp[7], lo, hi, mid);     // (Y ^ b0)·H^8
         for (int i = 1; i < 8; ++i) clmul_acc(b[i], Hp[7 - i], lo, hi, mid);  // b_i·H^(8-i)
@@ -268,7 +268,7 @@ ctr_ghash_stitch(const __m128i* rk, int nr, const __m128i Hp[8], __m128i ctr, __
         alignas(16) unsigned char gb[16] = {0};
         for (std::size_t i = 0; i < m; ++i) {
             const unsigned char cin = buf[off + i];
-            const unsigned char cout = static_cast<unsigned char>(cin ^ ksb[i]);
+            const auto cout = static_cast<unsigned char>(cin ^ ksb[i]);
             gb[i] = encrypt ? cout : cin;
             buf[off + i] = cout;
         }
@@ -301,7 +301,7 @@ finalize_tag(const __m128i* rk, int nr, const __m128i Hp[4], __m128i J0, __m128i
 CHEATAH_TARGET("aes,pclmul,ssse3,sse2") inline int
 setup(const unsigned char* key, std::size_t keylen, const unsigned char nonce[12], __m128i* rk,
       __m128i Hp[8], __m128i& J0) {
-    int nr;
+    int nr = 0;
     if (keylen == 32) { expand256(key, rk); nr = 14; }
     else { expand(key, rk); nr = 10; }
     const __m128i H = bswap(enc_block(rk, nr, _mm_setzero_si128()));
@@ -324,7 +324,7 @@ gcm_encrypt(const unsigned char* key, std::size_t keylen, const unsigned char no
     // GHASH the AAD, then stitch CTR-encryption with GHASH over the ciphertext in one pass.
     __m128i Y = ghash_buf(_mm_setzero_si128(), Hp,
                           reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
-    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&ct[0]),
+    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(ct.data()),
                          ct.size(), /*encrypt=*/true);
     unsigned char tag[16];
     finalize_tag(rk, nr, Hp, J0, Y, aad.size(), ct.size(), tag);
@@ -345,7 +345,7 @@ gcm_decrypt(const unsigned char* key, std::size_t keylen, const unsigned char no
     std::string pt(ct);
     __m128i Y = ghash_buf(_mm_setzero_si128(), Hp,
                           reinterpret_cast<const unsigned char*>(aad.data()), aad.size());
-    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(&pt[0]),
+    Y = ctr_ghash_stitch(rk, nr, Hp, ctr_inc(J0), Y, reinterpret_cast<unsigned char*>(pt.data()),
                          pt.size(), /*encrypt=*/false);
     unsigned char tag[16];
     finalize_tag(rk, nr, Hp, J0, Y, aad.size(), ct.size(), tag);

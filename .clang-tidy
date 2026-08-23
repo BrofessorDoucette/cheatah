@@ -1,0 +1,99 @@
+# .clang-tidy — THE canonical fleet config. This file (cheatah/.clang-tidy) is the master;
+# every repo in the estate carries a VERBATIM copy, byte-compared by scripts/clang_tidy.sh
+# and deploy/scripts/tidy_fleet.sh — edit it HERE, then re-sync the copies, never fork it.
+#
+# Policy: every first-party check category is ON (bugprone, cert, clang-analyzer,
+# concurrency, cppcoreguidelines, misc, modernize, performance, portability, readability).
+# Vendor style bundles (llvm-*, google-*, fuchsia-*, altera-*, android-*, abseil-*, hicpp-*
+# [~95% aliases of checks already on — enabling it double-reports every finding], …) are
+# never enabled, so they need no disable lines.
+#
+# Every disabled check carries its reason. The bar for adding one: the check must be a
+# style opinion or structurally incompatible with this estate — never "it found too much".
+#
+#   -modernize-use-trailing-return-type        pure style churn; vetoed
+#   -readability-identifier-length             i / it / x are idiomatic; vetoed
+#   -readability-magic-numbers                 math/graphics/compiler tables are full of
+#   -cppcoreguidelines-avoid-magic-numbers       legitimate literals (alias of the above)
+#   -readability-braces-around-statements      style-only; single-line guard clauses are house idiom
+#   -readability-function-cognitive-complexity threshold metric; flags legitimately dense
+#                                                compiler/GPU code
+#   -bugprone-easily-swappable-parameters      noisiest check in the suite; only "fix" is API redesign
+#   -cppcoreguidelines-pro-bounds-*            fire on every pointer walk and every assert()
+#                                                (array-to-pointer-decay); unusable in a
+#                                                compiler/runtime/GPU estate
+#   -cppcoreguidelines-pro-type-reinterpret-cast  deliberate GPU buffer/serialization work
+#   -cppcoreguidelines-pro-type-vararg         flags printf-style logging/diagnostics
+#   -cppcoreguidelines-owning-memory           requires adopting gsl::owner<>; no GSL here
+#   -cppcoreguidelines-macro-usage             flags every macro incl. test/gate tooling; the
+#                                                bugprone macro checks still cover real hazards
+#   -cppcoreguidelines-non-private-member-variables-in-classes
+#                                              alias; the misc- primary stays on with the
+#                                                plain-struct CheckOption below
+#   -misc-no-recursion                         purrc is a recursive-descent compiler;
+#                                                recursion is the design
+#   -misc-include-cleaner                      IWYU-style; drowns in noise with umbrella
+#                                                headers (cheatah.hpp) and no mapping files
+#   -misc-const-correctness                    high-churn, autofix-unsafe on templates;
+#                                                revisit after the fleet burn-down
+#   -modernize-use-nodiscard                   spams every accessor; attribute churn, not
+#                                                correctness
+#   -cppcoreguidelines-pro-type-static-cast-downcast
+#                                              purrc's AST is kind-tagged (switch on ExprKind,
+#                                                then static_cast) — the LLVM isa/cast idiom;
+#                                                dynamic_cast is a compiler slowdown for no gain
+#   -cppcoreguidelines-avoid-c-arrays          fixed-size byte/word working buffers in the
+#   -modernize-avoid-c-arrays                    audited constant-time crypto kernels, fed to
+#                                                memcpy/SIMD intrinsics; std::array there is
+#                                                zero-gain churn in security-reviewed code
+#   -readability-uppercase-literal-suffix      1u vs 1U; pure style
+#   -readability-isolate-declaration           `int i = 0, j = 0;`; pure style
+#
+# WarningsAsErrors here is the FLOOR (cert-*). The QA-gate driver widens it per repo via
+# TIDY_WERROR as that repo's burn-down ratchet advances — it can only ever widen; the
+# driver re-asserts the cert floor unconditionally.
+#
+# Inline NOLINT(check-name) requires a same-line reason comment, mirroring the
+# `// cppcheck-suppress` convention. tidy_fleet.sh lists every NOLINT(cert-…) fleet-wide.
+Checks: >
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-braces-around-statements,
+  -readability-function-cognitive-complexity,
+  -bugprone-easily-swappable-parameters,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-macro-usage,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  -misc-include-cleaner,
+  -misc-const-correctness,
+  -modernize-use-nodiscard,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -cppcoreguidelines-avoid-c-arrays,
+  -modernize-avoid-c-arrays,
+  -readability-uppercase-literal-suffix,
+  -readability-isolate-declaration
+WarningsAsErrors: 'cert-*'
+HeaderFilterRegex: ''
+FormatStyle: none
+CheckOptions:
+  readability-implicit-bool-conversion.AllowPointerConditions: true
+  readability-implicit-bool-conversion.AllowIntegerConditions: true
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true

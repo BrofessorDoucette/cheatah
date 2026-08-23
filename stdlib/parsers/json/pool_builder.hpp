@@ -112,7 +112,7 @@ private:
             node_pool_.push_back(std::move(node_scratch_[i]));
         }
         node_scratch_.resize(base);
-        return std::span<const Node>(node_pool_.data() + offset, count);
+        return {node_pool_.data() + offset, count};
     }
     std::span<const Member> commit_members(std::size_t base) {
         const std::size_t count = member_scratch_.size() - base;
@@ -121,7 +121,7 @@ private:
             member_pool_.push_back(std::move(member_scratch_[i]));
         }
         member_scratch_.resize(base);
-        return std::span<const Member>(member_pool_.data() + offset, count);
+        return {member_pool_.data() + offset, count};
     }
 
     std::vector<Node> node_pool_;          // array elements (stable; ArrayView spans point here)

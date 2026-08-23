@@ -244,7 +244,7 @@ private:
  */
 template <class F, class... Args>
     requires SpawnCallable<F, Args...> && (SpawnArg<Args> && ...)
-Thread spawn(F f, Args&&... args) {
+Thread spawn(F f, Args&&... args) {  // NOLINT(cppcoreguidelines-missing-std-forward): args ARE forwarded, inside the init-capture pack expansion below
     auto state = std::make_shared<detail::State>();
     std::thread t(
         [state, fn = std::move(f),
@@ -258,7 +258,7 @@ Thread spawn(F f, Args&&... args) {
                 state->error = std::current_exception();
             }
         });
-    return Thread(std::move(t), std::move(state));
+    return {std::move(t), std::move(state)};
 }
 
 }  // namespace cheatah::thread

@@ -3,6 +3,7 @@
 #include "ndarray.hpp"
 #include "routines.hpp"
 
+#include <cstddef>
 #include <algorithm>
 #include <cmath>
 #include <complex>
@@ -21,8 +22,8 @@ nd::NDArray mat(std::size_t r, std::size_t c, std::vector<double> data) {
 bool close(double a, double b, double tol = 1e-9) { return std::fabs(a - b) < tol; }
 // The general eig()/eigvals() return a complex spectrum; these read one element and
 // compare against a complex (or, implicitly, a real) expectation.
-std::complex<double> cget(const la::CNDArray& v, std::vector<long long> idx) {
-    return nd::get(v, std::move(idx));
+std::complex<double> cget(const la::CNDArray& v, const std::vector<long long>& idx) {
+    return nd::get(v, idx);
 }
 bool cclose(std::complex<double> a, std::complex<double> b, double tol = 1e-6) {
     return std::abs(a - b) < tol;
@@ -63,13 +64,13 @@ TEST(LinalgRoutines, MatmulIntoReusesBuffer) {
     EXPECT_DOUBLE_EQ(nd::get(out, {1, 1}), nd::get(c, {1, 1}));
     // a wrong-shaped out, and an out that aliases an input (matmul is not in-place), are rejected.
     nd::NDArray wrong = nd::zeros({3, 3});
-    EXPECT_THROW(la::matmul(wrong, a, b), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::matmul(wrong, a, b)), std::runtime_error);
     nd::NDArray sq = mat(2, 2, {1, 2, 3, 4});
-    EXPECT_THROW(la::matmul(sq, sq, sq), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::matmul(sq, sq, sq)), std::runtime_error);
     // a non-2-D operand to the out-form is rejected up front ("expects 2-D matrices").
     nd::NDArray vec = nd::array({1.0, 2.0, 3.0});  // 1-D
     nd::NDArray out2 = nd::zeros({2, 2});
-    EXPECT_THROW(la::matmul(out2, vec, b), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::matmul(out2, vec, b)), std::runtime_error);
 }
 
 // Every product/least-squares front validates its operand dimensions and throws on a mismatch —
@@ -79,17 +80,17 @@ TEST(LinalgRoutines, MatmulIntoReusesBuffer) {
 TEST(LinalgRoutines, DimensionMismatchThrows) {
     const nd::NDArray v2 = nd::array({1.0, 2.0});
     const nd::NDArray v3 = nd::array({1.0, 2.0, 3.0});
-    EXPECT_THROW(la::dot(v2, v3), std::runtime_error);
-    EXPECT_THROW(la::vdot(v2, v3), std::runtime_error);
-    EXPECT_THROW(la::inner(v2, v3), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::dot(v2, v3)), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::vdot(v2, v3)), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::inner(v2, v3)), std::runtime_error);
     // Batched [B,M,K] @ [B,K,N]: equal batch counts but a mismatched inner dim (K vs K').
-    const nd::NDArray a3 = nd::reshape(nd::array(std::vector<double>(2 * 3 * 4, 1.0)), {2, 3, 4});
-    const nd::NDArray b3 = nd::reshape(nd::array(std::vector<double>(2 * 5 * 6, 1.0)), {2, 5, 6});
-    EXPECT_THROW(la::matmul(a3, b3), std::runtime_error);  // K=4 != K'=5
+    const nd::NDArray a3 = nd::reshape(nd::array(std::vector<double>(std::size_t{2} * 3 * 4, 1.0)), {2, 3, 4});
+    const nd::NDArray b3 = nd::reshape(nd::array(std::vector<double>(std::size_t{2} * 5 * 6, 1.0)), {2, 5, 6});
+    EXPECT_THROW(static_cast<void>(la::matmul(a3, b3)), std::runtime_error);  // K=4 != K'=5
     // lstsq: A (m×n) and b (m×k) must share the row count m.
     const nd::NDArray A = mat(3, 2, {1, 2, 3, 4, 5, 6});
     const nd::NDArray rhs = mat(2, 1, {1, 2});  // 2 rows != A's 3
-    EXPECT_THROW(la::lstsq(A, rhs), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::lstsq(A, rhs)), std::runtime_error);
 }
 
 // The memory-bound products / transposes have GENUINELY zero-allocation out-param overloads: they
@@ -106,7 +107,7 @@ TEST(LinalgRoutines, OuterIntoReusesBuffer) {
     EXPECT_DOUBLE_EQ(nd::get(out, {0, 0}), 4.0);                       // 1*4
     EXPECT_DOUBLE_EQ(nd::get(out, {2, 1}), nd::get(ref, {2, 1}));      // 3*5, matches allocating form
     nd::NDArray wrong = nd::zeros({2, 2});
-    EXPECT_THROW(la::outer(wrong, a, b), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::outer(wrong, a, b)), std::runtime_error);
 }
 
 TEST(LinalgRoutines, KronIntoReusesBuffer) {
@@ -121,10 +122,10 @@ TEST(LinalgRoutines, KronIntoReusesBuffer) {
     EXPECT_DOUBLE_EQ(nd::get(out, {3, 3}), nd::get(ref, {3, 3}));
     // A non-2-D operand is rejected up front ("kron expects 2-D matrices").
     nd::NDArray vec = nd::array({1.0, 2.0});  // 1-D
-    EXPECT_THROW(la::kron(out, vec, b), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::kron(out, vec, b)), std::runtime_error);
     // An out that ALIASES an input is rejected by reject_alias (kron is not computed in place).
     nd::NDArray alias = mat(2, 2, {1, 0, 0, 1});
-    EXPECT_THROW(la::kron(alias, alias, b), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::kron(alias, alias, b)), std::runtime_error);
 }
 
 TEST(LinalgRoutines, ConjTransposeIntoReusesBuffer) {
@@ -373,7 +374,7 @@ TEST(LinalgRoutines, ComplexProducts) {
     const la::CNDArray col = cmat(2, 1, {C(1, 0), C(0, 1)});
     EXPECT_TRUE(cclose(la::dot(col, col), C(0, 0)));  // 1·1 + i·i = 1 − 1 = 0
     // …and rejects a genuine 2-D matrix where a vector is required.
-    EXPECT_THROW(la::vdot(M, M), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::vdot(M, M)), std::runtime_error);
 }
 
 TEST(LinalgRoutines, GeneralEigVectors) {
@@ -383,7 +384,8 @@ TEST(LinalgRoutines, GeneralEigVectors) {
     const auto check = [](const std::vector<double>& data, std::size_t n) {
         const nd::NDArray A = mat(n, n, data);
         std::vector<C> cdata;
-        for (double x : data) cdata.push_back(C(x, 0.0));
+        cdata.reserve(data.size());
+        for (double x : data) cdata.emplace_back(x, 0.0);
         const la::CNDArray Ac = cmat(n, n, cdata);
         const la::EigC e = la::eig(A);
         const la::CNDArray AV = la::matmul(Ac, e.vectors);
@@ -572,7 +574,7 @@ TEST(LinalgRoutines, ComplexEigenvaluesOfRotation) {
 }
 
 TEST(LinalgRoutines, VdotRejectsNonVector) {
-    EXPECT_THROW(la::vdot(mat(2, 2, {1, 2, 3, 4}), mat(2, 2, {1, 2, 3, 4})), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::vdot(mat(2, 2, {1, 2, 3, 4}), mat(2, 2, {1, 2, 3, 4}))), std::runtime_error);
 }
 
 TEST(LinalgRoutines, NormOfMatrixIsFrobenius) {
@@ -622,12 +624,12 @@ TEST(LinalgRoutines, ComplexDotFourPlusElements) {
 
 TEST(LinalgRoutines, ShapeAndConvergenceGuards) {
     const nd::NDArray v = nd::array({1.0, 2.0});
-    EXPECT_THROW(la::matmul(v, v), std::runtime_error);                    // real matmul non-2D
-    EXPECT_THROW(la::matmul(mat(2, 3, {1, 2, 3, 4, 5, 6}), mat(2, 2, {1, 2, 3, 4})),
+    EXPECT_THROW(static_cast<void>(la::matmul(v, v)), std::runtime_error);                    // real matmul non-2D
+    EXPECT_THROW(static_cast<void>(la::matmul(mat(2, 3, {1, 2, 3, 4, 5, 6}), mat(2, 2, {1, 2, 3, 4}))),
                  std::runtime_error);                                      // matmul front inner-dim mismatch (3 != 2)
-    EXPECT_THROW(la::kron(v, v), std::runtime_error);                      // kron non-2D
+    EXPECT_THROW(static_cast<void>(la::kron(v, v)), std::runtime_error);                      // kron non-2D
     const la::CNDArray cv = cvec({C(1, 0), C(2, 0)});
-    EXPECT_THROW(la::matmul(cv, cv), std::runtime_error);                  // complex matmul non-2D
+    EXPECT_THROW(static_cast<void>(la::matmul(cv, cv)), std::runtime_error);                  // complex matmul non-2D
     // inv that requires a row pivot (zero leading pivot)
     const nd::NDArray inv = la::inv(mat(2, 2, {0, 1, 1, 0}));
     EXPECT_TRUE(close(nd::get(inv, {0, 1}), 1.0, 1e-9));
@@ -635,8 +637,8 @@ TEST(LinalgRoutines, ShapeAndConvergenceGuards) {
     EXPECT_TRUE(close(nd::get(la::svdvals(mat(2, 3, {1, 0, 0, 0, 1, 0})), {0}), 1.0, 1e-9));
     // NaN input never converges -> the defensive "did not converge" throws fire
     const double nan = std::numeric_limits<double>::quiet_NaN();
-    EXPECT_THROW(la::eigvalsh(mat(2, 2, {nan, 0, 0, 1})), std::runtime_error);   // symmetric QL
-    EXPECT_THROW(la::svdvals(mat(2, 2, {nan, 0, 0, 1})), std::runtime_error);    // SVD QR
+    EXPECT_THROW(static_cast<void>(la::eigvalsh(mat(2, 2, {nan, 0, 0, 1}))), std::runtime_error);   // symmetric QL
+    EXPECT_THROW(static_cast<void>(la::svdvals(mat(2, 2, {nan, 0, 0, 1}))), std::runtime_error);    // SVD QR
 }
 
 TEST(LinalgRoutines, RankDeficientAndDiagonalPaths) {
@@ -746,8 +748,8 @@ TEST(LinalgRoutines, BatchedMatmul) {
     EXPECT_DOUBLE_EQ(nd::get(out, {1, 0, 1}), 2 * 64.0);
 
     // Strictness: mixed rank and batch-count mismatch throw.
-    EXPECT_THROW(la::matmul(A, nd::zeros({3, 2})), std::runtime_error);
-    EXPECT_THROW(la::matmul(A, nd::zeros({3, 3, 2})), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::matmul(A, nd::zeros({3, 2}))), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::matmul(A, nd::zeros({3, 3, 2}))), std::runtime_error);
 }
 
 // The REAL instantiation of the (conjugate-)transpose kernel. The complex path is covered by
@@ -782,5 +784,5 @@ TEST(LinalgRoutines, OutParamRejectsWrongShapeOnTheCopyPath) {
     EXPECT_NO_THROW(la::cholesky(good, spd));
 
     nd::NDArray wrong = nd::NDArray::uninitialized({3, 3});
-    EXPECT_THROW(la::cholesky(wrong, spd), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(la::cholesky(wrong, spd)), std::runtime_error);
 }

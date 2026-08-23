@@ -35,7 +35,7 @@ namespace {
 
 namespace sock = cheatah::socket;
 
-thread_local std::string t_error;  // last_error() text for this thread
+thread_local std::string t_error;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables): the per-thread last_error() slot IS the documented error channel
 
 void fail(std::string_view what) { t_error = std::string(what); }
 
@@ -115,7 +115,7 @@ std::string derive_secret_impl(std::string_view secret, std::string_view label,
 namespace {  // resume the file-local helpers
 
 // The negotiated record cipher: ChaCha20-Poly1305 (0x1303), AES-128-GCM (0x1301), or AES-256-GCM (0x1302).
-enum class Aead { Chacha20, Aes128, Aes256 };
+enum class Aead : std::uint8_t { Chacha20, Aes128, Aes256 };
 
 // Key-schedule hash dispatch: the SHA-256 schedule by default, the SHA-384 schedule for the
 // TLS_AES_256_GCM_SHA384 suite. (RFC 8446 §7.1: the schedule's Hash is the cipher suite's hash.)
@@ -168,9 +168,16 @@ struct Session {
     bool closed = false;       // close_notify seen (either direction)
 };
 
-std::mutex g_mutex;
-std::map<long long, Session> g_sessions;
-long long g_next_handle = 1;
+// The process-wide session table: handle → Session, behind one mutex.
+struct Registry {
+    std::mutex mutex;
+    std::map<long long, Session> sessions;
+    long long next_handle = 1;
+};
+Registry& registry() {
+    static Registry r;
+    return r;
+}
 
 // ---- record I/O ---------------------------------------------------------------
 
@@ -230,10 +237,10 @@ bool seal_record(long long fd, Keys& k, unsigned inner_type, std::string_view co
     aad.push_back(23);
     put16(aad, 0x0303);
     put16(aad, static_cast<unsigned>(inner.size() + 16));
-    const std::string ct =
-        k.aead == Aead::Aes256 ? aead::aes256gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner)
-        : k.aead == Aead::Aes128 ? aead::aes128gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner)
-                                 : aead::chacha20poly1305_encrypt(k.key_hex, nonce_hex(k), aad, inner);
+    std::string ct;
+    if (k.aead == Aead::Aes256) ct = aead::aes256gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner);
+    else if (k.aead == Aead::Aes128) ct = aead::aes128gcm_encrypt(k.key_hex, nonce_hex(k), aad, inner);
+    else ct = aead::chacha20poly1305_encrypt(k.key_hex, nonce_hex(k), aad, inner);
     ++k.seq;
     if (ct.empty()) return false;
     return sock::sendall(fd, aad + ct) == 0;
@@ -245,10 +252,10 @@ bool open_record(Keys& k, std::string_view payload, unsigned& inner_type, std::s
     aad.push_back(23);
     put16(aad, 0x0303);
     put16(aad, static_cast<unsigned>(payload.size()));
-    std::string inner =
-        k.aead == Aead::Aes256 ? aead::aes256gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload)
-        : k.aead == Aead::Aes128 ? aead::aes128gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload)
-                                 : aead::chacha20poly1305_decrypt(k.key_hex, nonce_hex(k), aad, payload);
+    std::string inner;
+    if (k.aead == Aead::Aes256) inner = aead::aes256gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload);
+    else if (k.aead == Aead::Aes128) inner = aead::aes128gcm_decrypt(k.key_hex, nonce_hex(k), aad, payload);
+    else inner = aead::chacha20poly1305_decrypt(k.key_hex, nonce_hex(k), aad, payload);
     ++k.seq;
     if (inner.empty() && payload.size() > 16) return false;  // tag mismatch (or empty record)
     while (!inner.empty() && inner.back() == '\0') inner.pop_back();  // strip padding
@@ -873,9 +880,9 @@ long long server_handshake(long long fd, const std::string& cert_pem, const std:
     s.client_keys = traffic_keys(s_ap, aead, false);  // our sending direction (server app secret)
     s.server_keys = traffic_keys(c_ap, aead, false);  // the peer's direction (client app secret)
     s.read_buffer = std::move(buffer);
-    const std::lock_guard<std::mutex> lock(g_mutex);
-    const long long handle = g_next_handle++;
-    g_sessions[handle] = std::move(s);
+    const std::lock_guard<std::mutex> lock(registry().mutex);
+    const long long handle = registry().next_handle++;
+    registry().sessions[handle] = std::move(s);
     return handle;
 }
 
@@ -937,9 +944,9 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
     }
     // The negotiated suite fixes both the record AEAD and the key-schedule hash.
     const bool sha384 = (chosen_suite == 0x1302);  // TLS_AES_256_GCM_SHA384 → SHA-384 schedule
-    const Aead aead = chosen_suite == 0x1302   ? Aead::Aes256
-                      : chosen_suite == 0x1301 ? Aead::Aes128
-                                               : Aead::Chacha20;
+    Aead aead = Aead::Chacha20;  // TLS_CHACHA20_POLY1305_SHA256 (0x1303)
+    if (chosen_suite == 0x1302) aead = Aead::Aes256;
+    else if (chosen_suite == 0x1301) aead = Aead::Aes128;
     transcript += payload;
 
     // Key schedule through the handshake secrets.
@@ -969,7 +976,7 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
     // cert_chain BEFORE the certificate is validated, so a hostile (or MITM) server could otherwise
     // stream unbounded records and exhaust memory pre-auth. A real TLS 1.3 flight — even a long cert
     // chain of RSA-4096 leaves — is well under 256 KiB; cap there and fail closed beyond it.
-    constexpr std::size_t kMaxHandshakeFlight = 256 * 1024;
+    constexpr std::size_t kMaxHandshakeFlight = std::size_t{256} * 1024;
     std::size_t flight_bytes = 0;
     while (!server_finished) {
         if (!read_record(fd, buffer, rtype, payload)) {
@@ -1202,9 +1209,9 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
     s.server_keys = traffic_keys(s_ap, aead, sha384);
     s.read_buffer = std::move(buffer);  // bytes already pulled off the socket stay with us
 
-    const std::lock_guard<std::mutex> lock(g_mutex);
-    const long long handle = g_next_handle++;
-    g_sessions[handle] = std::move(s);
+    const std::lock_guard<std::mutex> lock(registry().mutex);
+    const long long handle = registry().next_handle++;
+    registry().sessions[handle] = std::move(s);
     return handle;
 }
 
@@ -1226,9 +1233,9 @@ long long send(long long session, const std::string& data) {
     // the global lock so concurrent sessions don't serialize on each other.
     Session* sp = nullptr;
     {
-        const std::lock_guard<std::mutex> lock(g_mutex);
-        const auto it = g_sessions.find(session);
-        if (it == g_sessions.end() || it->second.closed) {
+        const std::lock_guard<std::mutex> lock(registry().mutex);
+        const auto it = registry().sessions.find(session);
+        if (it == registry().sessions.end() || it->second.closed) {
             fail("tls: unknown or closed session");
             return -1;
         }
@@ -1257,12 +1264,12 @@ std::string recv(long long session, long long bufsize) {
     // blocking recv would serialize (and at shutdown, starve) every other session's
     // recv/send. A std::map node address is stable until that node is erased, and a
     // session is erased only by its own owner (after this loop), so the pointer is
-    // valid for this call. (g_mutex still serializes find/insert/erase on the map.)
+    // valid for this call. (registry().mutex still serializes find/insert/erase on the map.)
     Session* sp = nullptr;
     {
-        const std::lock_guard<std::mutex> lock(g_mutex);
-        const auto it = g_sessions.find(session);
-        if (it == g_sessions.end()) {
+        const std::lock_guard<std::mutex> lock(registry().mutex);
+        const auto it = registry().sessions.find(session);
+        if (it == registry().sessions.end()) {
             fail("tls: unknown session");
             return "";
         }
@@ -1305,7 +1312,7 @@ std::string recv(long long session, long long bufsize) {
         } else if (inner_type == 21) {   // alert ends the stream: close_notify is the
             // normal clean close (surfaced as plain EOF); anything else is the peer
             // REFUSING the session — name it, so a fatal alert never masquerades as EOF.
-            if (!(content.size() == 2 && static_cast<unsigned char>(content[1]) == 0)) {
+            if (content.size() != 2 || static_cast<unsigned char>(content[1]) != 0) {
                 fail("tls: peer alert — " + alert_text(content));
             }
             s.closed = true;
@@ -1333,22 +1340,22 @@ std::string recv(long long session, long long bufsize) {
 
 long long close(long long session) {
     t_error.clear();
-    const std::lock_guard<std::mutex> lock(g_mutex);
-    const auto it = g_sessions.find(session);
-    if (it == g_sessions.end()) return -1;
+    const std::lock_guard<std::mutex> lock(registry().mutex);
+    const auto it = registry().sessions.find(session);
+    if (it == registry().sessions.end()) return -1;
     if (!it->second.closed) {
         const std::string close_notify = {1, 0};  // warning, close_notify
         seal_record(it->second.fd, it->second.client_keys, 21, close_notify);
     }
-    g_sessions.erase(it);
+    registry().sessions.erase(it);
     return 0;
 }
 
 long long shutdown(long long session) {
     t_error.clear();
-    const std::lock_guard<std::mutex> lock(g_mutex);
-    const auto it = g_sessions.find(session);
-    if (it == g_sessions.end()) return -1;
+    const std::lock_guard<std::mutex> lock(registry().mutex);
+    const auto it = registry().sessions.find(session);
+    if (it == registry().sessions.end()) return -1;
     // Wake a reader blocked in recv() WITHOUT erasing the session (that stays the
     // owner's job via close(), after it has joined the reader). Just half-close the
     // socket so the blocking recv returns EOF.
@@ -1373,9 +1380,9 @@ Conn& Conn::operator=(Conn&& other) noexcept {
 Conn::~Conn() {
     if (session_ > 0) cheatah::tls::close(session_);
 }
-long long Conn::send(const std::string& data) { return cheatah::tls::send(session_, data); }
-std::string Conn::recv(long long bufsize) { return cheatah::tls::recv(session_, bufsize); }
-long long Conn::shutdown() { return cheatah::tls::shutdown(session_); }
+long long Conn::send(const std::string& data) const { return cheatah::tls::send(session_, data); }
+std::string Conn::recv(long long bufsize) const { return cheatah::tls::recv(session_, bufsize); }
+long long Conn::shutdown() const { return cheatah::tls::shutdown(session_); }
 long long Conn::close() {
     if (session_ <= 0) return -1;
     const long long rc = cheatah::tls::close(session_);
