@@ -88,9 +88,7 @@ io.<span class="tok-fn">print</span>(<span class="tok-fn">response</span>(<span 
 <span class="tok-kw">namespace</span> builtins = ::<span class="tok-ns">cheatah</span>::builtins;
 <span class="tok-kw">namespace</span> io = ::<span class="tok-ns">cheatah</span>::io;
 
-<span class="tok-kw">namespace</span> {
-
-<span class="tok-kw">auto</span> <span class="tok-fn">response</span>(<span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; status, <span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; ctype, <span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; body) {
+<span class="tok-kw">static</span> <span class="tok-kw">auto</span> <span class="tok-fn">response</span>(<span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; status, <span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; ctype, <span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; body) {
     <span class="tok-kw">auto</span> nl = <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;\n&quot;</span>);
     <span class="tok-kw">auto</span> head = ((<span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;HTTP/1.1 &quot;</span>) + <span class="tok-ns">builtins</span>::<span class="tok-fn">str</span>(status)) + <span class="tok-ns">builtins</span>::<span class="tok-fn">str</span>(nl));
     ((head += <span class="tok-str">&quot;Content-Type: &quot;</span>) += ctype) += nl;
@@ -99,8 +97,6 @@ io.<span class="tok-fn">print</span>(<span class="tok-fn">response</span>(<span 
     <span class="tok-kw">return</span> (head + body);
 }
 
-
-}  <span class="tok-com">// namespace</span>
 
 <span class="tok-kw">void</span> <span class="tok-fn">purr_main</span>() {
     <span class="tok-ns">io</span>::<span class="tok-fn">print</span>(<span class="tok-fn">response</span>(<span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;200 OK&quot;</span>), <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;text/plain&quot;</span>), <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;hello, cheatah&quot;</span>)));
@@ -220,9 +216,7 @@ PURR_EXPORT <span class="tok-kw">void</span> <span class="tok-fn">purr_main</spa
     <span class="tok-kw">return</span> os_ &lt;&lt; <span class="tok-str">&quot;Color(&quot;</span> &lt;&lt; static_cast&lt;<span class="tok-kw">long</span> <span class="tok-kw">long</span>&gt;(v_) &lt;&lt; <span class="tok-str">&quot;)&quot;</span>;
 }
 
-<span class="tok-kw">namespace</span> {
-
-<span class="tok-kw">auto</span> <span class="tok-fn">to_hex</span>(<span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; c) {
+<span class="tok-kw">static</span> <span class="tok-kw">auto</span> <span class="tok-fn">to_hex</span>(<span class="tok-ns">builtins</span>::Value <span class="tok-kw">auto</span>&amp;&amp; c) {
     {
         <span class="tok-kw">auto</span> _purr_match_0 = c;
         <span class="tok-kw">if</span> (_purr_match_0 == <span class="tok-ns">Color</span>::RED) {
@@ -238,8 +232,6 @@ PURR_EXPORT <span class="tok-kw">void</span> <span class="tok-fn">purr_main</spa
     <span class="tok-kw">return</span> <span class="tok-ns">std</span>::<span class="tok-fn">string</span>(<span class="tok-str">&quot;#000000&quot;</span>);
 }
 
-
-}  <span class="tok-com">// namespace</span>
 
 <span class="tok-kw">void</span> <span class="tok-fn">purr_main</span>() {
     <span class="tok-kw">for</span> (<span class="tok-kw">auto</span>&amp; c : <span class="tok-ns">std</span>::vector{<span class="tok-ns">Color</span>::RED, <span class="tok-ns">Color</span>::GREEN, <span class="tok-ns">Color</span>::BLUE}) {
@@ -417,14 +409,10 @@ PURR_EXPORT <span class="tok-kw">void</span> <span class="tok-fn">purr_main</spa
     <span class="tok-kw">return</span> os_ &lt;&lt; <span class="tok-str">&quot;Rect(&quot;</span> &lt;&lt; <span class="tok-str">&quot;w=&quot;</span> &lt;&lt; v_.w &lt;&lt; <span class="tok-str">&quot;, h=&quot;</span> &lt;&lt; v_.h &lt;&lt; <span class="tok-str">&quot;)&quot;</span>;
 }
 
-<span class="tok-kw">namespace</span> {
-
-<span class="tok-kw">auto</span> <span class="tok-fn">report</span>(Shape <span class="tok-kw">auto</span>&amp;&amp; s) {
+<span class="tok-kw">static</span> <span class="tok-kw">auto</span> <span class="tok-fn">report</span>(Shape <span class="tok-kw">auto</span>&amp;&amp; s) {
     <span class="tok-ns">io</span>::<span class="tok-fn">print</span>(<span class="tok-str">&quot;area =&quot;</span>, s.<span class="tok-fn">area</span>());
 }
 
-
-}  <span class="tok-com">// namespace</span>
 
 <span class="tok-kw">void</span> <span class="tok-fn">purr_main</span>() {
     <span class="tok-kw">auto</span> c = Circle{.r = <span class="tok-num">2.0</span>};
