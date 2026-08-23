@@ -428,7 +428,10 @@ public:
     }
 
     /// The buffer position of a (possibly negative) multi-index — rank and bounds are checked here,
-    /// once, for both `item_ref` overloads. @complexity O(ndim). @alloc none.
+    /// once, for both `item_ref` overloads.
+    /// @param ixs one index per dimension (negative counts from the end, Python-style).
+    /// @return the flat position in the buffer of that element.
+    /// @complexity O(ndim). @alloc none.
     template <typename... Ix>
         requires((Subscript<Ix> && ...) && sizeof...(Ix) > 0)
     [[nodiscard]] std::size_t item_pos(Ix... ixs) const {

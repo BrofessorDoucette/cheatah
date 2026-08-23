@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 676,
+      "srcline": 678,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 381,
+      "srcline": 383,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 365,
+      "srcline": 367,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 409,
+      "srcline": 411,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 322,
+      "srcline": 324,
       "module": "",
       "qualified": "chr"
     },
@@ -140,7 +140,7 @@
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 750,
+      "srcline": 752,
       "module": "",
       "qualified": "contains"
     },
@@ -184,7 +184,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 706,
+      "srcline": 708,
       "module": "",
       "qualified": "endswith"
     },
@@ -207,7 +207,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 475,
+      "srcline": 477,
       "module": "",
       "qualified": "float"
     },
@@ -234,7 +234,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 615,
+      "srcline": 617,
       "module": "",
       "qualified": "floordiv"
     },
@@ -257,7 +257,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 652,
+      "srcline": 654,
       "module": "",
       "qualified": "hash"
     },
@@ -280,7 +280,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 337,
+      "srcline": 339,
       "module": "",
       "qualified": "hex"
     },
@@ -311,7 +311,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 2008,
+      "srcline": 2057,
       "module": "",
       "qualified": "index"
     },
@@ -334,7 +334,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 440,
+      "srcline": 442,
       "module": "",
       "qualified": "int"
     },
@@ -357,7 +357,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 268,
+      "srcline": 270,
       "module": "",
       "qualified": "len"
     },
@@ -378,7 +378,7 @@
         "test": "CheatahBuiltins.FinallyRunsOnEveryExitPath"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 250,
+      "srcline": 252,
       "module": "",
       "qualified": "make_finally"
     },
@@ -404,7 +404,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 793,
+      "srcline": 795,
       "module": "",
       "qualified": "mod"
     },
@@ -427,7 +427,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 351,
+      "srcline": 353,
       "module": "",
       "qualified": "oct"
     },
@@ -449,7 +449,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 307,
+      "srcline": 309,
       "module": "",
       "qualified": "ord"
     },
@@ -498,7 +498,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 944,
+      "srcline": 947,
       "module": "",
       "qualified": "slice"
     },
@@ -525,7 +525,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 691,
+      "srcline": 693,
       "module": "",
       "qualified": "startswith"
     },
@@ -546,7 +546,7 @@
         "test": "CheatahBuiltins.StrByteWidthIntsAreNumbers"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 554,
+      "srcline": 556,
       "module": "",
       "qualified": "str"
     },
@@ -569,7 +569,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 409,
+      "srcline": 411,
       "module": "",
       "qualified": "to_bool"
     },
@@ -592,7 +592,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 475,
+      "srcline": 477,
       "module": "",
       "qualified": "to_float"
     },
@@ -615,7 +615,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 440,
+      "srcline": 442,
       "module": "",
       "qualified": "to_int"
     },
@@ -642,7 +642,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 571,
+      "srcline": 573,
       "module": "",
       "qualified": "truediv"
     },
@@ -663,7 +663,7 @@
         "test": "CheatahAead.Rfc8439Encrypt"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 518,
+      "srcline": 519,
       "module": "aead",
       "qualified": "aead.aead_len_ok"
     },
@@ -992,7 +992,7 @@
         "test": "CheatahAead.AesGcmPortableMatchesHardware"
       },
       "srcfile": "stdlib/aead/aead.cpp",
-      "srcline": 494,
+      "srcline": 495,
       "module": "aead",
       "qualified": "aead.set_force_portable_crypto"
     },
@@ -2067,7 +2067,7 @@
         "test": "CheatahP256.RejectsOffCurvePublicKey CheatahP384.RejectsOffCurvePublicKey"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1063,
+      "srcline": 1067,
       "module": "ec",
       "qualified": "ec.on_curve"
     },
@@ -2109,7 +2109,7 @@
         "test": "CheatahP256.RsToDerRoundTripsAndRejects"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1165,
+      "srcline": 1169,
       "module": "ec",
       "qualified": "ec.rs_to_der"
     },
@@ -2196,7 +2196,7 @@
         "test": "CheatahP256.VerifyDerWithLeadingZeroIntegers CheatahP384.VerifyDerWithLeadingZeroIntegers"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1138,
+      "srcline": 1142,
       "module": "ec",
       "qualified": "ec.verify_der"
     },
@@ -2225,7 +2225,7 @@
         "test": "CheatahP256.VerifyKnownVector CheatahP384.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1092,
+      "srcline": 1096,
       "module": "ec",
       "qualified": "ec.verify_raw"
     },
@@ -2246,7 +2246,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/ed25519/ed25519.cpp",
-      "srcline": 290,
+      "srcline": 291,
       "module": "ed25519",
       "qualified": "ed25519.from_hex"
     },
@@ -2339,7 +2339,7 @@
         "test": "CheatahHashlib.HexRoundTrip"
       },
       "srcfile": "stdlib/ed25519/ed25519.cpp",
-      "srcline": 291,
+      "srcline": 292,
       "module": "ed25519",
       "qualified": "ed25519.to_hex"
     },
@@ -2445,7 +2445,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1303,
+      "srcline": 1304,
       "module": "fixarray",
       "qualified": "fixarray.column"
     },
@@ -2637,7 +2637,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1265,
+      "srcline": 1266,
       "module": "fixarray",
       "qualified": "fixarray.inverse_transpose"
     },
@@ -2687,7 +2687,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1233,
+      "srcline": 1234,
       "module": "fixarray",
       "qualified": "fixarray.matrix_comp_mult"
     },
@@ -2833,7 +2833,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1248,
+      "srcline": 1249,
       "module": "fixarray",
       "qualified": "fixarray.outer_product"
     },
@@ -2912,7 +2912,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1285,
+      "srcline": 1286,
       "module": "fixarray",
       "qualified": "fixarray.row"
     },
@@ -3029,7 +3029,7 @@
         "test": "Fixarray.ToStringMatchesTheNDArrayRendering"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1322,
+      "srcline": 1323,
       "module": "fixarray",
       "qualified": "fixarray.to_string"
     },
@@ -3726,7 +3726,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 237,
+      "srcline": 324,
       "module": "linalg",
       "qualified": "linalg.cholesky"
     },
@@ -3749,7 +3749,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 671,
+      "srcline": 628,
       "module": "linalg",
       "qualified": "linalg.cond"
     },
@@ -3795,7 +3795,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 693,
+      "srcline": 650,
       "module": "linalg",
       "qualified": "linalg.det"
     },
@@ -3845,7 +3845,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 461,
+      "srcline": 485,
       "module": "linalg",
       "qualified": "linalg.eig"
     },
@@ -3868,7 +3868,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 551,
+      "srcline": 542,
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
@@ -3891,7 +3891,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 506,
+      "srcline": 512,
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
@@ -3914,7 +3914,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 602,
+      "srcline": 575,
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
@@ -3964,7 +3964,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 864,
+      "srcline": 791,
       "module": "linalg",
       "qualified": "linalg.inv"
     },
@@ -3973,14 +3973,6 @@
       "signature": "kron(const Array< T > &a, const Array< T > &b)",
       "brief": "Kronecker product.",
       "params": [
-        {
-          "name": "a",
-          "desc": "m×k matrix."
-        },
-        {
-          "name": "b",
-          "desc": "p×q matrix."
-        },
         {
           "name": "a",
           "desc": "m×k matrix."
@@ -3998,8 +3990,8 @@
         "crtest": "LinalgCompileRun.Kron",
         "systest": "StdlibE2E.Linalg"
       },
-      "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 200,
+      "srcfile": "stdlib/linalg/backend.hpp",
+      "srcline": 372,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
@@ -4026,7 +4018,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 822,
+      "srcline": 765,
       "module": "linalg",
       "qualified": "linalg.lstsq"
     },
@@ -4080,7 +4072,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 160,
+      "srcline": 298,
       "module": "linalg",
       "qualified": "linalg.matrix_power"
     },
@@ -4103,7 +4095,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 716,
+      "srcline": 673,
       "module": "linalg",
       "qualified": "linalg.matrix_rank"
     },
@@ -4126,7 +4118,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 650,
+      "srcline": 607,
       "module": "linalg",
       "qualified": "linalg.norm"
     },
@@ -4176,7 +4168,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 902,
+      "srcline": 816,
       "module": "linalg",
       "qualified": "linalg.pinv"
     },
@@ -4199,7 +4191,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 286,
+      "srcline": 358,
       "module": "linalg",
       "qualified": "linalg.qr"
     },
@@ -4254,7 +4246,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 751,
+      "srcline": 708,
       "module": "linalg",
       "qualified": "linalg.slogdet"
     },
@@ -4281,7 +4273,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 781,
+      "srcline": 738,
       "module": "linalg",
       "qualified": "linalg.solve"
     },
@@ -4304,7 +4296,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 337,
+      "srcline": 393,
       "module": "linalg",
       "qualified": "linalg.svd"
     },
@@ -4327,7 +4319,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 382,
+      "srcline": 421,
       "module": "linalg",
       "qualified": "linalg.svdvals"
     },
@@ -4421,7 +4413,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 59,
+      "srcline": 60,
       "module": "math",
       "qualified": "math.abs"
     },
@@ -4444,7 +4436,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 370,
+      "srcline": 371,
       "module": "math",
       "qualified": "math.acos"
     },
@@ -4467,7 +4459,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 356,
+      "srcline": 357,
       "module": "math",
       "qualified": "math.asin"
     },
@@ -4490,7 +4482,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 384,
+      "srcline": 385,
       "module": "math",
       "qualified": "math.atan"
     },
@@ -4517,7 +4509,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 399,
+      "srcline": 400,
       "module": "math",
       "qualified": "math.atan2"
     },
@@ -4540,7 +4532,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 172,
+      "srcline": 173,
       "module": "math",
       "qualified": "math.cbrt"
     },
@@ -4563,7 +4555,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 213,
+      "srcline": 214,
       "module": "math",
       "qualified": "math.ceil"
     },
@@ -4590,7 +4582,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 445,
+      "srcline": 446,
       "module": "math",
       "qualified": "math.copysign"
     },
@@ -4613,7 +4605,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 327,
+      "srcline": 328,
       "module": "math",
       "qualified": "math.cos"
     },
@@ -4636,7 +4628,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 456,
+      "srcline": 457,
       "module": "math",
       "qualified": "math.degrees"
     },
@@ -4659,7 +4651,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 257,
+      "srcline": 258,
       "module": "math",
       "qualified": "math.exp"
     },
@@ -4682,7 +4674,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 183,
+      "srcline": 184,
       "module": "math",
       "qualified": "math.fabs"
     },
@@ -4705,7 +4697,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 537,
+      "srcline": 538,
       "module": "math",
       "qualified": "math.factorial"
     },
@@ -4728,7 +4720,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 198,
+      "srcline": 199,
       "module": "math",
       "qualified": "math.floor"
     },
@@ -4755,7 +4747,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 429,
+      "srcline": 430,
       "module": "math",
       "qualified": "math.fmod"
     },
@@ -4782,7 +4774,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 522,
+      "srcline": 523,
       "module": "math",
       "qualified": "math.gcd"
     },
@@ -4809,7 +4801,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 414,
+      "srcline": 415,
       "module": "math",
       "qualified": "math.hypot"
     },
@@ -4832,7 +4824,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 506,
+      "srcline": 507,
       "module": "math",
       "qualified": "math.isfinite"
     },
@@ -4855,7 +4847,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 495,
+      "srcline": 496,
       "module": "math",
       "qualified": "math.isinf"
     },
@@ -4878,7 +4870,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 481,
+      "srcline": 482,
       "module": "math",
       "qualified": "math.isnan"
     },
@@ -4901,7 +4893,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 271,
+      "srcline": 272,
       "module": "math",
       "qualified": "math.log"
     },
@@ -4924,7 +4916,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 299,
+      "srcline": 300,
       "module": "math",
       "qualified": "math.log10"
     },
@@ -4947,7 +4939,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 285,
+      "srcline": 286,
       "module": "math",
       "qualified": "math.log2"
     },
@@ -4978,7 +4970,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 119,
+      "srcline": 120,
       "module": "math",
       "qualified": "math.max"
     },
@@ -5009,7 +5001,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 89,
+      "srcline": 90,
       "module": "math",
       "qualified": "math.min"
     },
@@ -5036,7 +5028,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 138,
+      "srcline": 139,
       "module": "math",
       "qualified": "math.pow"
     },
@@ -5059,7 +5051,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 467,
+      "srcline": 468,
       "module": "math",
       "qualified": "math.radians"
     },
@@ -5082,7 +5074,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 243,
+      "srcline": 244,
       "module": "math",
       "qualified": "math.round"
     },
@@ -5105,7 +5097,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 313,
+      "srcline": 314,
       "module": "math",
       "qualified": "math.sin"
     },
@@ -5128,7 +5120,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 158,
+      "srcline": 159,
       "module": "math",
       "qualified": "math.sqrt"
     },
@@ -5151,7 +5143,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 342,
+      "srcline": 343,
       "module": "math",
       "qualified": "math.tan"
     },
@@ -5174,7 +5166,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/math/math.hpp",
-      "srcline": 228,
+      "srcline": 229,
       "module": "math",
       "qualified": "math.trunc"
     },
@@ -5199,7 +5191,7 @@
         "test": "Memory.ObjectDiesWithOwner"
       },
       "srcfile": "stdlib/memory/owner.hpp",
-      "srcline": 246,
+      "srcline": 247,
       "module": "memory",
       "qualified": "memory.own"
     },
@@ -5221,7 +5213,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1734,
+      "srcline": 1782,
       "module": "ndarray",
       "qualified": "ndarray.abs"
     },
@@ -5248,7 +5240,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 993,
+      "srcline": 1039,
       "module": "ndarray",
       "qualified": "ndarray.add"
     },
@@ -5279,7 +5271,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 781,
+      "srcline": 806,
       "module": "ndarray",
       "qualified": "ndarray.arange"
     },
@@ -5301,7 +5293,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 668,
+      "srcline": 693,
       "module": "ndarray",
       "qualified": "ndarray.array"
     },
@@ -5324,7 +5316,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 841,
+      "srcline": 882,
       "module": "ndarray",
       "qualified": "ndarray.astype"
     },
@@ -5350,7 +5342,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 524,
+      "srcline": 548,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes"
     },
@@ -5376,7 +5368,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 574,
+      "srcline": 598,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to"
     },
@@ -5398,7 +5390,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1660,
+      "srcline": 1708,
       "module": "ndarray",
       "qualified": "ndarray.cbrt"
     },
@@ -5425,7 +5417,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1550,
+      "srcline": 1597,
       "module": "ndarray",
       "qualified": "ndarray.complex"
     },
@@ -5448,7 +5440,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1577,
+      "srcline": 1625,
       "module": "ndarray",
       "qualified": "ndarray.conj"
     },
@@ -5470,7 +5462,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1710,
+      "srcline": 1758,
       "module": "ndarray",
       "qualified": "ndarray.cos"
     },
@@ -5497,7 +5489,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1035,
+      "srcline": 1081,
       "module": "ndarray",
       "qualified": "ndarray.divide"
     },
@@ -5520,7 +5512,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1673,
+      "srcline": 1721,
       "module": "ndarray",
       "qualified": "ndarray.exp"
     },
@@ -5547,7 +5539,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 725,
+      "srcline": 750,
       "module": "ndarray",
       "qualified": "ndarray.full"
     },
@@ -5572,7 +5564,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 739,
+      "srcline": 764,
       "module": "ndarray",
       "qualified": "ndarray.full_like"
     },
@@ -5599,7 +5591,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1815,
+      "srcline": 1864,
       "module": "ndarray",
       "qualified": "ndarray.get"
     },
@@ -5622,7 +5614,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1620,
+      "srcline": 1668,
       "module": "ndarray",
       "qualified": "ndarray.imag"
     },
@@ -5644,7 +5636,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 546,
+      "srcline": 570,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous"
     },
@@ -5666,7 +5658,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1685,
+      "srcline": 1733,
       "module": "ndarray",
       "qualified": "ndarray.log"
     },
@@ -5689,7 +5681,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1798,
+      "srcline": 1847,
       "module": "ndarray",
       "qualified": "ndarray.mean"
     },
@@ -5716,7 +5708,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1021,
+      "srcline": 1067,
       "module": "ndarray",
       "qualified": "ndarray.mul"
     },
@@ -5739,7 +5731,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 710,
+      "srcline": 735,
       "module": "ndarray",
       "qualified": "ndarray.ones"
     },
@@ -5760,7 +5752,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 764,
+      "srcline": 789,
       "module": "ndarray",
       "qualified": "ndarray.ones_like"
     },
@@ -5783,7 +5775,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1598,
+      "srcline": 1646,
       "module": "ndarray",
       "qualified": "ndarray.real"
     },
@@ -5810,7 +5802,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 800,
+      "srcline": 840,
       "module": "ndarray",
       "qualified": "ndarray.reshape"
     },
@@ -5833,7 +5825,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 682,
+      "srcline": 707,
       "module": "ndarray",
       "qualified": "ndarray.scalar"
     },
@@ -5856,7 +5848,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1829,
+      "srcline": 1878,
       "module": "ndarray",
       "qualified": "ndarray.shape_of"
     },
@@ -5879,7 +5871,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1698,
+      "srcline": 1746,
       "module": "ndarray",
       "qualified": "ndarray.sin"
     },
@@ -5902,7 +5894,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1845,
+      "srcline": 1894,
       "module": "ndarray",
       "qualified": "ndarray.size_of"
     },
@@ -5925,7 +5917,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1648,
+      "srcline": 1696,
       "module": "ndarray",
       "qualified": "ndarray.sqrt"
     },
@@ -5952,7 +5944,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1007,
+      "srcline": 1053,
       "module": "ndarray",
       "qualified": "ndarray.sub"
     },
@@ -5996,7 +5988,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1774,
+      "srcline": 1822,
       "module": "ndarray",
       "qualified": "ndarray.sum"
     },
@@ -6018,7 +6010,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1722,
+      "srcline": 1770,
       "module": "ndarray",
       "qualified": "ndarray.tan"
     },
@@ -6041,7 +6033,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1951,
+      "srcline": 2000,
       "module": "ndarray",
       "qualified": "ndarray.to_string"
     },
@@ -6064,7 +6056,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 697,
+      "srcline": 722,
       "module": "ndarray",
       "qualified": "ndarray.zeros"
     },
@@ -6085,7 +6077,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 752,
+      "srcline": 777,
       "module": "ndarray",
       "qualified": "ndarray.zeros_like"
     },
@@ -7023,7 +7015,7 @@
         "test": "CheatahParsersJson.ContainerTokenLifecycle"
       },
       "srcfile": "stdlib/parsers/json/string.hpp",
-      "srcline": 75,
+      "srcline": 74,
       "module": "parsers.json",
       "qualified": "parsers.json.String"
     },
@@ -7742,7 +7734,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1040,
+      "srcline": 1036,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -7759,7 +7751,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 976,
+      "srcline": 972,
       "module": "requests",
       "qualified": "requests.get"
     },
@@ -7797,7 +7789,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1056,
+      "srcline": 1052,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -7814,7 +7806,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1072,
+      "srcline": 1068,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -7831,7 +7823,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1024,
+      "srcline": 1020,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -7848,7 +7840,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 992,
+      "srcline": 988,
       "module": "requests",
       "qualified": "requests.post"
     },
@@ -7865,7 +7857,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1008,
+      "srcline": 1004,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -7886,7 +7878,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 960,
+      "srcline": 956,
       "module": "requests",
       "qualified": "requests.request"
     },
