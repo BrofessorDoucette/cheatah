@@ -32,7 +32,7 @@
 <div class="overview"><p>Cryptographic hashing and keyed primitives — self-contained SHA-256/SHA-512, HMAC, HKDF, and Base64, with no external crypto dependency. Each hash comes in a hex form and a raw-bytes form (like a digest vs hexdigest). These primitives back the <code>tls</code> and <code>ed25519</code> modules and are equally usable directly.</p><pre class="code"><code><span class="tok-kw">import</span> hashlib
 
 hashlib.<span class="tok-fn">sha256</span>(<span class="tok-str">&quot;abc&quot;</span>)
-<span class="tok-com"># &quot;ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad&quot;</span></code></pre><h2 id="md_stdlib_2hashlib_2README_1autotoc_md16">Functions</h2><ul><li><p><code><span class="tok-fn">sha256</span>(data)</code> — SHA-256 of <code>data</code> as a 64-character lowercase hex digest.</p>
+<span class="tok-com"># &quot;ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad&quot;</span></code></pre><h2 id="md_stdlib_2hashlib_2README_1autotoc_md19">Functions</h2><ul><li><p><code><span class="tok-fn">sha256</span>(data)</code> — SHA-256 of <code>data</code> as a 64-character lowercase hex digest.</p>
 </li><li><p><code><span class="tok-fn">sha512</span>(data)</code> — SHA-512 of <code>data</code> as a 128-character lowercase hex digest.</p>
 </li><li><p><code><span class="tok-fn">sha256_digest</span>(data)</code> — the raw 32-byte SHA-256 (not hex).</p>
 </li><li><p><code><span class="tok-fn">sha512_digest</span>(data)</code> — the raw 64-byte SHA-512 (not hex); backs the <code>ed25519</code> module, which uses SHA-512 internally per RFC 8032.</p>

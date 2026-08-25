@@ -4,7 +4,7 @@
 #
 # Began as the 1:1 port of docs/gen/generate.py. That file is now a historical
 # reference only — it has diverged (no package switcher, no Biome Standard page,
-# no extension subsites; 252 pages to this file's 292, every shared page different)
+# no extension subsites; 252 pages to this file's 297, every shared page different)
 # and nothing checks the two against each other. THIS file is the authority, and
 # the only generator anything runs. Reads the Doxygen XML in
 # docs/xml/ and renders the site into docs/html/. Extensions render as their own
@@ -118,6 +118,10 @@ struct Gen {
     app_usage: dict<str, str>      # "module <US> func" -> <US>-joined sorted test names
     readme_key: dict<str, str>     # module short -> the README page's doc key (refid)
     readme_node: dict<str, int>    # module short -> detaileddescription node id
+    bench_key: dict<str, str>      # module short -> its BENCHMARKS.md page's refid (the benchmark subpage)
+    bench_node: dict<str, int>     # module short -> that page's detaileddescription node id
+    bench_title: dict<str, str>    # module short -> that page's Doxygen title ("regex benchmarks")
+    page_href: dict<str, str>      # page refid -> output file, when it is not <refid>.html
     classes_of: dict<str, str>     # owning module short -> <US>-joined class refids (sorted)
     perf: list<PerfEntry>
     perf_i: dict<str, int>         # "module.name" -> index into perf
@@ -825,6 +829,11 @@ fn find_test_in_line(line) {
     return ""
 }
 
+# The benchmark subpage of a module. stdlib/<mod>/BENCHMARKS.md renders as its own page and
+# the module page links to it: the generated tables (a hundred rows and more for regex,
+# fixarray and linalg) used to be folded into the reference and swamped it.
+fn bench_page_name(mod) { return "benchmarks-" + string.replace(mod, "::", ".") + ".html" }
+
 fn src_page_name(rel_path) {
     let out = "src_"
     let i = 0
@@ -987,7 +996,13 @@ fn perf_row(g, refid, mname) {
             body = body + " <span class=\"perf-dims\">(" + esc(e.dims) + ")</span>"
         }
     } elif e.kind == "numpy" {
-        body = "numeric — the honest baseline is NumPy/LAPACK, not a pure-Python loop; " + "see the vs-NumPy table on this page"
+        body = "numeric — the honest baseline is NumPy/LAPACK, not a pure-Python loop; "
+        let mod = g.mod_short[refid]
+        if mod in g.bench_key {
+            body = body + "see the <a href=\"" + bench_page_name(mod) + "\">vs-NumPy table</a> on the " + esc(mod) + " benchmarks page"
+        } else {
+            body = body + "see the vs-NumPy table on the module's benchmarks page"
+        }
     } elif e.kind == "note" {
         body = esc(e.note)
     } elif e.kind == "compared" or e.kind == "cheatah_only" {
@@ -1262,7 +1277,10 @@ fn render_node(g, doc, id) -> str {
         let inner = ""
         for c in parsers.xml.children(doc, id) { inner = inner + render_node(g, doc, c) }
         if not (target in g.valid) and not (refid in g.valid) { return inner }
+        # Markdown pages that render somewhere other than <refid>.html (a module README folds
+        # into the module page; a BENCHMARKS.md is the module's benchmark subpage).
         let href = refid + ".html"
+        if refid in g.page_href { href = g.page_href[refid] }
         if kindref != "compound" {
             let compound = target
             if compound == "" {
@@ -1271,6 +1289,7 @@ fn render_node(g, doc, id) -> str {
                 if cut >= 0 { compound = refid[:cut] }
             }
             href = compound + ".html#" + refid
+            if compound in g.page_href { href = g.page_href[compound] + "#" + refid }
         }
         return "<a href=\"" + href + "\">" + inner + "</a>"
     }
@@ -1769,7 +1788,7 @@ fn ext_badge_of(extname) {
 # Doxygen's own brief is the best sentence we have — it is what the author wrote to describe
 # the thing, and it is already on the page — so it is the first choice, reduced to plain text.
 # The fallback is templated by KIND rather than one generic string: "cheatah standard library
-# reference" under every one of 292 pages would be a duplicate-description warning in Search
+# reference" under every one of 297 pages would be a duplicate-description warning in Search
 # Console and, worse, gives a searcher no reason to prefer one result over another.
 # @param g the generator state.
 # @param ci the compound index.
@@ -1811,6 +1830,10 @@ fn render_compound_page(g, ci, sidebar) {
         detail = render_desc(g, rdoc, g.readme_node[c.short])
     }
     detail = detail + render_desc(g, cdoc, c.detail_id)
+    # A module with a benchmark subpage says so up front: the tables used to be folded in here.
+    if c.kind == "namespace" and c.short in g.bench_key {
+        detail = "<div class=\"admon bench\"><div class=\"admon-h\">Benchmarks</div><div class=\"admon-b\">Every measured table for <code>" + esc(c.short) + "</code> — with its stamp (commit, host, harness) and the commands that reproduce it — is on the <a href=\"" + bench_page_name(c.short) + "\">" + esc(c.short) + " benchmarks</a> page.</div></div>" + detail
+    }
     # group members: functions (overload-consolidated), variables, types
     let sections = ""
     let fn_names: list<str> = []
@@ -1912,6 +1935,40 @@ fn render_compound_page(g, ci, sidebar) {
     if c.ext != "" { page_title = c.short + " — " + c.ext }
     if is_page { page_title = c.title }
     return page_shell_in(g, c.ext, page_title, sidebar, content, build_toc(c.members))
+}
+
+# "On this page" for a markdown page: its top-level sections. "" when there are none, so
+# page_shell_in omits the rail instead of emitting an empty landmark.
+fn sect_toc(doc, id) {
+    if id < 0 { return "" }
+    let items = ""
+    for c in parsers.xml.children(doc, id) {
+        if parsers.xml.is_element(doc, c) and parsers.xml.tag(doc, c) == "sect1" {
+            let sid = parsers.xml.attr(doc, c, "id")
+            let ti = parsers.xml.find(doc, c, "title")
+            if sid != "" and ti >= 0 {
+                items = items + "<li><a href=\"#" + esc(sid) + "\">" + esc(first_text(doc, ti)) + "</a></li>"
+            }
+        }
+    }
+    if items == "" { return "" }
+    return "<div class=\"toc-h\">On this page</div><ul>" + items + "</ul>"
+}
+
+# A module's benchmark subpage: stdlib/<mod>/BENCHMARKS.md rendered whole, framed as the
+# module's, and linking back to it. The sidebar keeps the MODULE active (see main).
+fn render_bench_page(g, mod, sidebar) {
+    let refid = g.bench_key[mod]
+    let bdoc = doc_of("docs/xml", refid)
+    g.cur_module = mod
+    let title = g.bench_title[mod]
+    if title == "" { title = mod + " benchmarks" }
+    let back = "index.html"
+    if mod in g.modules { back = g.modules[mod] + ".html" }
+    let body = render_desc(g, bdoc, g.bench_node[mod])
+    let lede = "<p class=\"lede\">The generated measurement tables for the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> — every case, its stamp (commit, host, harness) and how to reproduce it.</p>"
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Benchmarks</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
+    return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
 }
 
 fn render_home(g, ci, sidebar) {
@@ -2561,10 +2618,11 @@ fn text_of_child(doc, id, ctag) {
     return first_text(doc, n)
 }
 
-# "…/stdlib/<mod>/README.md"? -> the module name, else "".
-fn readme_module_of(path) {
-    if not string.endswith(path, "/README.md") { return "" }
-    let dirpath = path[:len(path) - 10]
+# "…/stdlib/<mod>/<leaf>"? -> the module name, else "". `leaf` is "/README.md" (folded into
+# the module page) or "/BENCHMARKS.md" (the module's benchmark subpage).
+fn md_module_of(path, leaf) {
+    if not string.endswith(path, leaf) { return "" }
+    let dirpath = path[:len(path) - len(leaf)]
     let cut = string.rfind(dirpath, "/")
     if cut < 0 { return "" }
     let mod = dirpath[cut + 1:]
@@ -2606,10 +2664,19 @@ fn load_all(g) {
             let loc = parsers.xml.find(cdoc, cdef, "location")
             let lfile = ""
             if loc >= 0 { lfile = parsers.xml.attr(cdoc, loc, "file") }
-            let mod = readme_module_of(lfile)
+            let mod = md_module_of(lfile, "/README.md")
             if mod != "" {
                 g.readme_key[mod] = refid
                 g.readme_node[mod] = parsers.xml.find(cdoc, cdef, "detaileddescription")
+                continue
+            }
+            let bmod = md_module_of(lfile, "/BENCHMARKS.md")
+            if bmod != "" {
+                # not a compound: it is neither a Guide in the sidebar nor a page of its own
+                # in the generic loop — main() renders it as the module's benchmark subpage
+                g.bench_key[bmod] = refid
+                g.bench_node[bmod] = parsers.xml.find(cdoc, cdef, "detaileddescription")
+                g.bench_title[bmod] = text_of_child(cdoc, cdef, "title")
                 continue
             }
         }
@@ -2919,6 +2986,19 @@ fn main() {
         g.valid[c.refid] = true
         ci = ci + 1
     }
+    # A markdown link to a module's README.md or BENCHMARKS.md arrives as a <ref> to that
+    # page's refid: both are valid targets, resolved to where they actually render.
+    for kv in g.bench_key {
+        g.valid[kv.second] = true
+        g.page_href[kv.second] = bench_page_name(kv.first)
+        register_anchors(g, doc_of("docs/xml", kv.second), g.bench_node[kv.first])
+    }
+    for kv in g.readme_key {
+        if kv.first in g.modules {
+            g.valid[kv.second] = true
+            g.page_href[kv.second] = g.modules[kv.first] + ".html"
+        }
+    }
     # section anchors in details/briefs/READMEs are valid link targets too
     ci = 0
     while ci < len(g.comps) {
@@ -3103,6 +3183,20 @@ fn main() {
                with_seo(mark_active(render_standard_page(g, sidebar), "standard.html"), g, "standard.html",
                         "The Biome Standard: one semantic version naming the set of cheatah toolchain and package releases that are known to work together.", false))
     pages = pages + 2
+
+    # benchmark subpages: one per stdlib/<mod>/BENCHMARKS.md, with the MODULE's sidebar
+    # entry marked active (the page is the module's, not a guide of its own)
+    let bench_mods: list<str> = []
+    for kv in g.bench_key { bench_mods.append(kv.first) }
+    for mod in sorted_strs(bench_mods) {
+        let fname = bench_page_name(mod)
+        let active = fname
+        if mod in g.modules { active = g.modules[mod] + ".html" }
+        write_file("docs/html/" + fname,
+                   with_seo(mark_active(render_bench_page(g, mod, sidebar), active), g, fname,
+                            mod + " benchmarks — the generated measurement tables for the cheatah " + mod + " module: every case, its stamp (commit, host, harness) and how to reproduce it.", false))
+        pages = pages + 1
+    }
 
     # extension subsites: docs/html/<ext>/ — landing + releases + this
     # extension's own pages (the shared css/logo stay in the parent;

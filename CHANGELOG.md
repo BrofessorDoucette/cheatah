@@ -5,6 +5,18 @@ changes between releases.
 
 ## Unreleased
 
+### Changed — benchmark tables move to per-module pages
+
+The generated benchmark tables no longer render inline on a module's reference page. Each
+module that publishes them (`regex`, `fixarray`, `linalg`, `ndarray`, `p256`) now keeps them in
+`stdlib/<mod>/BENCHMARKS.md`, which the docs site renders as the module's own benchmark page
+(`benchmarks-<mod>.html`) — linked from a callout at the top of the reference and from its
+Performance section, and linking back. The reference keeps a short performance summary; the
+tables, their stamps, the honest-reading prose and the reproduce commands move verbatim (the
+`BENCH` regions byte-for-byte, so `bench_table` keeps validating them against `docs/bench/`).
+The Performance guide keeps its own compact tables. Along the way the generator learned to
+resolve markdown links between `stdlib/*/README.md` files, which it used to drop silently.
+
 ### Added — clang-tidy joins the QA gate
 
 `scripts/clang_tidy.sh` runs clang-tidy over every first-party translation unit with the broad

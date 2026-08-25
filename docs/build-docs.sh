@@ -4,7 +4,7 @@
 # (docs/gen-cheatah/gen.purr) renders the modern site into docs/html. The original
 # Python generator (docs/gen/generate.py) is kept as a historical reference ONLY.
 # It is NOT byte-identical and has not been for some time: it writes 252 pages to
-# gen.purr's 292, knows nothing about the package switcher, the Biome Standard page,
+# gen.purr's 297, knows nothing about the package switcher, the Biome Standard page,
 # or the extension subsites, and every shared page differs. Nothing here runs it, and
 # no gate compares them — do not cite the pair as a like-for-like benchmark. The
 # like-for-like doc-render comparison is docs/gen-cheatah/gen_bench.{purr,py}, two

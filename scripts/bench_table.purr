@@ -78,7 +78,15 @@ fn doc_files() -> list<str> {
         }
         return out
     }
+    # A module's tables live in its BENCHMARKS.md (rendered as the module's benchmark subpage
+    # on the docs site); the READMEs stay listed so check_unstamped keeps a table from
+    # creeping back into a reference page.
     return ["docs/performance.md",
+            "stdlib/fixarray/BENCHMARKS.md",
+            "stdlib/linalg/BENCHMARKS.md",
+            "stdlib/ndarray/BENCHMARKS.md",
+            "stdlib/regex/BENCHMARKS.md",
+            "stdlib/p256/BENCHMARKS.md",
             "stdlib/fixarray/README.md",
             "stdlib/linalg/README.md",
             "stdlib/ndarray/README.md",

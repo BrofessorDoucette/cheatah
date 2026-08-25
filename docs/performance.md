@@ -119,7 +119,7 @@ A different shape of workload — real tooling, not a compute kernel. This very 
 **The two generators are no longer equivalent, so there is no full-site comparison here.**
 This page used to claim they were held byte-identical — `diff -r` empty across all 213
 generated files — and to publish a 389 ms vs 152 ms (2.6×) whole-site table on that basis.
-Re-checked by running both: `gen.purr` writes **292** pages and `generate.py` writes
+Re-checked by running both: `gen.purr` writes **297** pages and `generate.py` writes
 **252**, and *every one of the 252 shared pages differs*. The Python twin was never updated
 for the package switcher, the Biome Standard page, or the extension **subsites** — it still
 renders `cheatah-gpu`, `cheatah-plot` and the rest as flat namespaces in the main sidebar.
@@ -298,10 +298,10 @@ same op many times, answers cross-checked.
   **BLAS-3** kernels (`qr`, `cholesky`).
 
 The full op-by-op table — methodology, the exact NumPy/Eigen versions, and the µs-per-op
-numbers — lives on the [linalg reference](@ref cheatah::linalg), beside the functions it
-measures (and the element-wise array math on the [ndarray reference](@ref cheatah::ndarray));
-each linalg **Performance** row carries its own vs-NumPy number, and the reference table
-its **vs-Eigen** column.
+numbers — lives on the [linalg benchmarks](../stdlib/linalg/BENCHMARKS.md) page (and the
+element-wise array math on the [ndarray benchmarks](../stdlib/ndarray/BENCHMARKS.md) page);
+each linalg **Performance** row on the [linalg reference](@ref cheatah::linalg) carries its
+own vs-NumPy number, and the benchmarks page its **vs-Eigen** table.
 
 And cheatah does it on **one core, by design.** Its linear algebra is deliberately
 **single-threaded** — a feature, not a shortfall: no hidden worker threads, no surprise
@@ -388,7 +388,7 @@ and, at width ≥ 4, packs the products into one SIMD multiply (which also lower
 error to O(log n)); `min`/`max`/`abs`/`clamp` are branchless always-writes that lower to
 `minps`/`maxps`; and every elementwise op builds its result in **one pass**, never zeroing a
 buffer only to overwrite it. The full op-by-op table lives on the
-[fixarray reference](@ref cheatah::fixarray), and a
+[fixarray benchmarks](../stdlib/fixarray/BENCHMARKS.md) page, and a
 [hard gate](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/bench_gate.sh)
 fails the build if any pair ever regresses past GLM.
 
@@ -617,8 +617,8 @@ margin, not to widen the threshold until it stops. Representative rows:Represent
 | **ReDoS at 16 MB** `(a|a)*c` |     3.927 ms | — | — |    19.393 ms | 4.9× |
 <!-- BENCH:regex-representative end -->
 
-The complete per-case table (all four engines, every benchmarked case) lives in
-[the regex module's README](../stdlib/regex/README.md); regenerate it any time with
+The complete per-case table (all four engines, every benchmarked case) lives on
+[the regex benchmarks page](../stdlib/regex/BENCHMARKS.md); regenerate it any time with
 `RXBENCH_TABLE=<path> ./build/regexbench/rxbench`, and the standing claim is machine-checked —
 `RXBENCH_ASSERT=1` makes the run exit non-zero if any case falls behind RE2. As everywhere on
 this page: we report whatever the measurement says, losses included.

@@ -118,7 +118,7 @@ REPORTER='<script>(function(){function s(){parent.postMessage({a11y:"reflow",scr
 PAGES="${A11Y_PAGES:-}"
 if [ -z "$PAGES" ]; then
     for cand in index.html namespacecheatah_1_1math.html classcheatah_1_1memory_1_1Owner.html \
-                performance.html biome.html; do
+                performance.html biome.html benchmarks-regex.html; do
         [ -f "$DOCS_HTML/$cand" ] && PAGES="$PAGES $cand"
     done
     for extra in "$DOCS_HTML"/src_stdlib_*.html; do
