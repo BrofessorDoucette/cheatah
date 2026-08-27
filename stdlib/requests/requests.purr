@@ -209,7 +209,7 @@ struct Response {
 # @return true when `text` carries CR or LF and must not be sent.
 # @complexity O(n) over the input length.
 # @alloc none.
-# @systest CheatahRequests.CrlfInjectionRefused
+# @test CheatahRequests.CrlfInjectionRefused
 fn has_control_bytes(text) {
     return string.find(text, "\r") >= 0 or string.find(text, "\n") >= 0
 }
@@ -840,16 +840,26 @@ fn post(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
     return request("POST", url, o)
 }
 
-# HTTP PUT. @param url the URL. @param o per-request options (body via json_body/data/body).
-# @return the final Response. @complexity one request plus any redirects.
-# @alloc request/response buffers. @systest RequestsSys.PostJson
+# HTTP PUT.
+#
+# @param url the URL.
+# @param o per-request options (body via json_body/data/body).
+# @return the final Response.
+# @complexity one request plus any redirects.
+# @alloc request/response buffers.
+# @test CheatahRequests.VerbMethods
 fn put(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
     return request("PUT", url, o)
 }
 
-# HTTP PATCH. @param url the URL. @param o per-request options (body via json_body/data/body).
-# @return the final Response. @complexity one request plus any redirects.
-# @alloc request/response buffers. @systest RequestsSys.PostJson
+# HTTP PATCH.
+#
+# @param url the URL.
+# @param o per-request options (body via json_body/data/body).
+# @return the final Response.
+# @complexity one request plus any redirects.
+# @alloc request/response buffers.
+# @test CheatahRequests.VerbMethods
 fn patch(url, o = Options({.timeout_ms = 30000, .max_redirects = 5})) {
     return request("PATCH", url, o)
 }

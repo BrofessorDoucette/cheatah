@@ -61,7 +61,7 @@ struct Document {
  * matching open element is ignored rather than aborting the parse.
  * @param xml the document text.
  * @return the parsed document (root-only for empty/blank input).
- * @complexity O(n) time in the length of @p xml.
+ * @complexity O(n) in the length of @p xml for well-formed input; a run of `&` with no `;` after it, or repeated unmatched end tags under deep nesting, degrade to O(n²).
  * @alloc the node slab and its strings on the heap (owned by the returned Document).
  * @test ParsersXml.ParsesElementsAttrsAndText
  * @test ParsersXml.LenientOnMalformedInput
@@ -70,56 +70,56 @@ Document parse(std::string_view xml);
 
 /**
  * The document root's node id (its children are the top-level nodes).
- * @complexity O(1).
- * @alloc none.
  * @param doc the document.
  * @return the root node id (its children are the top-level nodes).
+ * @complexity O(1).
+ * @alloc none.
  * @test ParsersXml.IgnorableVsSignificantWhitespace
  */
 int root(const Document& doc);
 
 /**
  * Whether @p id is a valid element node in @p doc.
- * @complexity O(1).
- * @alloc none.
  * @param doc the document.
  * @param id the node id to test.
  * @return true iff @p id is a valid element node.
+ * @complexity O(1).
+ * @alloc none.
  * @test ParsersXml.OutOfRangeAndTypeMismatchedIdsAreSafe
  */
 bool is_element(const Document& doc, int id);
 
 /**
  * The tag name of element @p id, or "" if @p id is not an element.
- * @complexity O(1).
- * @alloc one result string.
  * @param doc the document.
  * @param id the element node id.
  * @return the tag name, or "" if @p id is not an element.
+ * @complexity O(1).
+ * @alloc one result string.
  * @test ParsersXml.ParsesElementsAttrsAndText
  */
 std::string tag(const Document& doc, int id);
 
 /**
  * Value of attribute @p name on element @p id, or "" if absent (or @p id is not an element).
- * @complexity O(k) in the attribute count of @p id.
- * @alloc one result string.
  * @param doc the document.
  * @param id the element node id.
  * @param name the attribute name.
  * @return the attribute value, or "" if absent.
+ * @complexity O(k) in the attribute count of @p id.
+ * @alloc one result string.
  * @test ParsersXml.AttributeQuotingForms
  */
 std::string attr(const Document& doc, int id, std::string_view name);
 
 /**
  * Whether element @p id carries an attribute named @p name.
- * @complexity O(k) in the attribute count of @p id.
- * @alloc none.
  * @param doc the document.
  * @param id the element node id.
  * @param name the attribute name.
  * @return whether @p id carries attribute @p name.
+ * @complexity O(k) in the attribute count of @p id.
+ * @alloc none.
  * @test ParsersXml.ParsesElementsAttrsAndText
  */
 bool has_attr(const Document& doc, int id, std::string_view name);
@@ -127,22 +127,22 @@ bool has_attr(const Document& doc, int id, std::string_view name);
 /**
  * The concatenated text of node @p id: for a text node, its own text; for an element, all
  * descendant text in document order (like an XML `.textContent`).
- * @complexity O(m) in the number of descendants of @p id.
- * @alloc one result string.
  * @param doc the document.
  * @param id the node id.
  * @return the concatenated descendant text.
+ * @complexity O(m) in the number of descendants of @p id.
+ * @alloc the result string and a transient walk stack.
  * @test ParsersXml.NestedTextIsCollectedRecursively
  */
 std::string text(const Document& doc, int id);
 
 /**
  * The child node ids of @p id, in document order (elements and text).
- * @complexity O(1) (returns a copy of the id list).
- * @alloc the id list.
  * @param doc the document.
  * @param id the node id.
  * @return the child node ids in document order.
+ * @complexity O(c) in the child count of @p id (the id list is copied).
+ * @alloc the id list.
  * @test ParsersXml.FindFindallIterChildren
  */
 std::vector<int> children(const Document& doc, int id);
@@ -150,24 +150,24 @@ std::vector<int> children(const Document& doc, int id);
 /**
  * The id of the **first child element** of @p id whose tag equals @p tag, or -1 if none.
  * (Direct children only — not descendants; use @ref iter for the whole subtree.)
- * @complexity O(c) in the direct-child count of @p id.
- * @alloc none.
  * @param doc the document.
  * @param id the parent node id.
  * @param tag the child tag to match.
  * @return the first matching child element id, or -1.
+ * @complexity O(c) in the direct-child count of @p id.
+ * @alloc none.
  * @test ParsersXml.FindFindallIterChildren
  */
 int find(const Document& doc, int id, std::string_view tag);
 
 /**
  * The ids of **all direct child elements** of @p id whose tag equals @p tag, in order.
- * @complexity O(c) in the direct-child count of @p id.
- * @alloc the result id list.
  * @param doc the document.
  * @param id the parent node id.
  * @param tag the child tag to match.
  * @return the matching direct-child element ids.
+ * @complexity O(c) in the direct-child count of @p id.
+ * @alloc the result id list.
  * @test ParsersXml.FindFindallIterChildren
  */
 std::vector<int> findall(const Document& doc, int id, std::string_view tag);
@@ -175,12 +175,12 @@ std::vector<int> findall(const Document& doc, int id, std::string_view tag);
 /**
  * The ids of **every element in the subtree** rooted at @p id (including @p id itself) whose
  * tag equals @p tag, in document order — the analogue of an XML tree `.iter(tag)`.
- * @complexity O(m) in the subtree size of @p id.
- * @alloc the result id list (and a transient walk stack).
  * @param doc the document.
  * @param id the subtree root node id.
  * @param tag the tag to match.
  * @return the matching element ids in the subtree, in document order.
+ * @complexity O(m) in the subtree size of @p id.
+ * @alloc the result id list (and a transient walk stack).
  * @test ParsersXml.FindFindallIterChildren
  */
 std::vector<int> iter(const Document& doc, int id, std::string_view tag);

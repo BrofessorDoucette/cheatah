@@ -60,21 +60,22 @@ namespace cheatah::linalg {
 
 /**
  * Instruction sets this build targets, e.g. "AVX2;FMA" (x86-64), "NEON" (ARM), or "scalar".
+ *
+ * Reflects compile-time target flags (e.g. -march=native), not a runtime CPUID probe.
  * @return `;`-separated feature list.
- * @note O(1); reflects compile-time target flags (e.g. -march=native), not a runtime CPUID
- *   probe. Allocates the returned std::string.
  * @complexity O(1).
- * @alloc the returned feature string.
+ * @alloc allocates the result string.
  * @test LinalgSmoke.SimdFeaturesReported
  */
 std::string simd_features();
 
 /**
- * Width, in `double`s, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4
- *   = AVX, 8 = AVX-512).
+ * Width, in `double`s, of the widest SIMD lane this build targets.
+ *
+ * 1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512; useful for sizing blocked kernels.
  * @return lane width.
  * @complexity O(1).
- * @alloc none. Useful for sizing blocked kernels.
+ * @alloc none.
  * @test LinalgSmoke.SimdFeaturesReported
  */
 int simd_lane_doubles() noexcept;

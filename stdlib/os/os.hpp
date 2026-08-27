@@ -52,7 +52,7 @@ std::string getcwd();
  * against it. Throws if @p path does not exist or is not a directory.
  * @param path the target directory.
  * @complexity O(1) + a syscall.
- * @alloc none.
+ * @alloc allocates a path temporary.
  * @test CheatahOs.MakedirsAndChdir
  * @crtest OsCompileRun.Chdir
  * @systest StdlibE2E.Os
@@ -137,7 +137,7 @@ bool remove(const std::string& path);  // true if a file was removed
  * @param src source path.
  * @param dst destination path.
  * @complexity O(1) + a syscall.
- * @alloc none.
+ * @alloc allocates two path temporaries.
  * @test CheatahOs.ListdirAndRename
  * @crtest OsCompileRun.Rename
  * @systest StdlibE2E.Os
@@ -155,6 +155,7 @@ void rename(const std::string& src, const std::string& dst);
  * @complexity O(environment size) — `std::getenv` is a linear scan of the C library's
  *   environment table (no syscall).
  * @alloc allocates the returned string.
+ * @concurrency reads the process-wide environment; a concurrent setenv() on another thread is a data race.
  * @test CheatahOs.GetenvFallback, CheatahOs.SetenvThenGetenv
  * @crtest OsCompileRun.Getenv
  * @systest StdlibE2E.Os
@@ -172,6 +173,7 @@ std::string getenv(const std::string& name, const std::string& fallback = "");
  * @complexity O(environment size) — the C library scans and updates its environment
  *   table (no syscall).
  * @alloc may allocate inside the C library's environment table.
+ * @concurrency mutates the process-wide environment; unsafe alongside a concurrent getenv()/setenv() on any thread.
  * @test CheatahOs.SetenvThenGetenv
  * @crtest OsCompileRun.Setenv
  * @systest StdlibE2E.Os

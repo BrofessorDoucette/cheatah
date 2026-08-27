@@ -65,7 +65,7 @@ double random();
  * Scales a uniform real distribution to span the given bounds; the caller is
  * expected to pass @p a ≤ @p b (the bounds are not reordered or validated).
  * @param a,b the bounds.
- * @return a value in [@p a, @p b) — the upper bound is excluded, like `random()`.
+ * @return a value between @p a and @p b; @p b itself can appear through floating-point rounding of `a + (b - a) * random()`.
  * @complexity O(1) time.
  * @alloc none.
  * @concurrency thread-safe — draws from the per-thread (`thread_local`) engine, so concurrent draws never race.
@@ -81,7 +81,7 @@ double uniform(double a, double b);
  * @p b are attainable, and @p a == @p b always yields that value.
  * @param a,b inclusive bounds.
  * @return an integer in [@p a, @p b].
- * @complexity O(1) time.
+ * @complexity O(1) expected — rejection redraws with probability under 1/2.
  * @alloc none.
  * @concurrency thread-safe — draws from the per-thread (`thread_local`) engine, so concurrent draws never race.
  * @test CheatahRandom.RandintInclusiveRange
@@ -93,7 +93,7 @@ long long randint(long long a, long long b);
  * Normal (Gaussian) deviate.
  *
  * Samples the normal distribution N(@p mu, @p sigma²) from the calling thread's
- * engine; the result is unbounded and can fall on either side of the mean.
+ * engine by Box-Muller; the result can fall on either side of the mean.
  * @param mu mean.
  * @param sigma standard deviation.
  * @return a normal sample.
@@ -111,13 +111,13 @@ double gauss(double mu, double sigma);
  *
  * Picks a uniformly random index in [0, size) via @ref randint and returns a copy
  * of that element.
- * @warning The sequence must be non-empty — an empty @p seq passes an inverted
- *          range to @ref randint, which is undefined.
  * @param seq the sequence to pick from (must be non-empty).
  * @return a copy of a uniformly chosen element.
  * @complexity O(1) time.
  * @alloc copies the chosen element — none unless the element's copy itself allocates (e.g. `str`).
  * @concurrency thread-safe — draws its index from the per-thread engine via @ref randint.
+ * @warning The sequence must be non-empty — for an empty @p seq @ref randint returns 0
+ *          and `seq[0]` reads past the end (undefined behavior).
  * @test CheatahRandom.Choice
  * @crtest RandomCompileRun.Choice
  * @systest StdlibE2E.Random

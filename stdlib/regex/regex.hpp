@@ -91,8 +91,9 @@ bool search(const Pattern& re, std::string_view text);
  * @return true iff all of @p text matches.
  * @complexity O(n) amortized in the length of @p text (a single anchored DFA pass); O(n·m) worst
  *             case while new DFA states are still being built (m = pattern size).
- * @alloc never copies the input; allocates only DFA machinery — a start-state closure scratch (and
- *        its intern key) per call, plus new states/transition rows while the shared cache is cold.
+ * @alloc never copies the input; allocates only DFA machinery — new states/transition rows while
+ *        the shared cache is cold (start states are cached in the Pattern after the first call; a
+ *        warm pattern allocates nothing).
  * @warning a pathological pattern whose lazy DFA exceeds the state budget (100k states) throws
  *          `std::runtime_error` rather than exhausting memory.
  * @systest RegexE2E.FullMatchIsAnchoredBothEnds
@@ -120,9 +121,10 @@ struct Match {
  *             finds the leftmost begin directly. Otherwise candidate starts are tried from
  *             the left (leftmost-longest is decided per start), with the `memchr`/required-
  *             literal/first-set skip jumping between plausible candidates — so sparse-
- *             candidate input is effectively O(n), while a late or absent match over
- *             candidate-dense input is O(n²) worst case — always polynomial, never
- *             exponential (no backtracking). Add O(m) per uncached transition while new DFA
+ *             candidate input is effectively O(n), while a late match over candidate-dense
+ *             input is O(n²) worst case — always polynomial, never exponential (no
+ *             backtracking). Absent input stays O(n): after a budget of failed candidates one
+ *             unanchored pass settles existence. Add O(m) per uncached transition while new DFA
  *             states are built.
  * @alloc the matching itself never copies the input — it allocates only DFA machinery (new
  *        states while the shared cache is cold; start states are cached in the Pattern, so a

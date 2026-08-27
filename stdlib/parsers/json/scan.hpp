@@ -202,7 +202,7 @@ inline constexpr double kPow10[23] = {1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  
  * @complexity O(digits).
  * @alloc none — the token is bounded and copied to the stack; an absurdly long literal is refused
  *        rather than allocated for.
- * @test JsonRead.Scalars / JsonRead.BigAndSmallDoubles
+ * @test CheatahParsersJson.ScanNumbersAndEscapes
  */
 template <class T>
 inline bool from_chars_fp(const char* first, const char* last, T& out, const char*& next) {

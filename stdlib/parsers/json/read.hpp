@@ -368,8 +368,11 @@ bool read_object(Cursor& c, T& out, const ObjectSchema<Fields...>& sch) {
  * std::string fields OWN their characters (safe to outlive `text`); std::string_view fields VIEW
  * `text` (which must then outlive `out`) and reject escaped strings.
  *
- * @complexity O(n) in the input length
- * @alloc only the owned std::string fields / vector growth in `out` — no DOM, no Node tree
+ * @param text the JSON source to parse.
+ * @param out the value filled in place.
+ * @return true on success; false when Validate is true and @p text is malformed or has trailing junk.
+ * @complexity O(n) in the input length.
+ * @alloc only the owned std::string fields / vector growth in `out`, plus a temporary key string when a key is escaped — no DOM, no Node tree.
  * @test CheatahParsersJson.TypedReadWithUnknownKeys
  * @test CheatahParsersJson.TypedReadOptionalAndReject
  * @test CheatahParsersJson.TypedReadEscapesAndKeyOrder

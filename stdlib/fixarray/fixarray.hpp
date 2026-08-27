@@ -52,9 +52,9 @@
  * **Performance.** Benchmarked against [GLM](https://github.com/g-truc/glm) over the complete overlap
  * of the two APIs — 160 pairs, every operation, sizes 2/3/4, `float` and `double`, with the outputs
  * verified identical before either is timed — `Fixed` is **faster than or at parity with GLM on every
- * one** (19 faster, 141 at parity, none slower; medians over 9 interleaved repetitions, a win counting
+ * one** (20 faster, 140 at parity, none slower; medians over 9 interleaved repetitions, a win counting
  * only above both 1.15x and 0.25 ns). It wins where structure pays: `mat4f::identity()`
- * 2.67×, `mat4f * mat4f` 1.72×, `mat4f + mat4f` 1.96×, `inverse(mat4d)` 1.38×. No intrinsics — the code is
+ * 2.69×, `mat4f * mat4f` 1.70×, `mat4f + mat4f` 2.03×, `inverse(mat4d)` 1.38×. No intrinsics — the code is
  * shaped so the compiler vectorizes it. A regression gate (`scripts/bench_gate.sh`) keeps it true.
  * See the @ref performance "Small fixed-size math vs GLM" section for the how and the numbers.
  */
@@ -113,7 +113,8 @@ class Fixed {
     static constexpr std::size_t cols = rank == 2 ? shape[1] : 1;
 
     /// Every element zero — the additive identity, and what a default-constructed value holds.
-    /// @complexity O(size). @alloc none.
+    /// @complexity O(size).
+    /// @alloc none.
     /// @test Fixarray.DefaultIsZero
     constexpr Fixed() = default;
 
@@ -322,8 +323,8 @@ class Fixed {
     constexpr const T* data() const { return data_.data(); }
 
     /**
-     * Elementwise equality. Exact, as `==` on the elements is exact — floating-point values compare
-     * only if they are bit-for-bit equal.
+     * Elementwise equality. Exact, as `==` on the elements is exact — no tolerance is applied to
+     * floating-point values.
      * @param other the array to compare with.
      * @return true iff every element matches.
      * @complexity O(size).
@@ -986,8 +987,9 @@ Vec<T, N> refract(const Vec<T, N>& incident, const Vec<T, N>& normal, T eta) {
 }
 
 /**
- * Orient a normal to face a viewer — the GLSL `faceforward`: return @p n when it already points
- * against the incident direction, `-n` otherwise. Used to keep a surface normal on the camera's side.
+ * Orient a normal to face a viewer — the GLSL `faceforward`: return @p n when @p reference points
+ * against the incident direction (`dot(reference, incident) < 0`), `-n` otherwise. Used to keep a
+ * surface normal on the camera's side.
  * @tparam T the element type. @tparam N the dimension.
  * @param n the normal to orient.
  * @param incident the incident vector.
@@ -1061,7 +1063,7 @@ constexpr Fixed<T, Dims...> min(const Fixed<T, Dims...>& a, const Fixed<T, Dims.
 }
 
 /**
- * Each element floored at the scalar @p s — `min(xᵢ, s)`.
+ * Each element capped at the scalar @p s — `min(xᵢ, s)`.
  * @tparam T the element type; a real number.
  * @tparam Dims the extents.
  * @param x the array. @param s the ceiling applied to every element.
@@ -1315,7 +1317,8 @@ constexpr Vec<T, R> column(const Mat<T, R, C>& m, Ix j) {
  * order — regardless of the column-major storage. This is what `io.print`/`io.str`/`str()` show.
  * @param v the value to format.
  * @return the bracketed text.
- * @complexity O(@ref Fixed::size). @alloc the result string.
+ * @complexity O(@ref Fixed::size).
+ * @alloc allocates the result string and a formatting stream per element.
  * @test Fixarray.ToStringMatchesTheNDArrayRendering
  */
 template <ndarray::Field T, std::size_t... Dims>
@@ -1346,7 +1349,8 @@ std::string to_string(const Fixed<T, Dims...>& v) {
  * cheatah `io.print(v)` / `io.str(v)` finds this by ADL, exactly as it does for an `NDArray` or a
  * primitive.
  * @param os the stream. @param v the value. @return @p os.
- * @complexity O(@ref Fixed::size). @alloc the intermediate string.
+ * @complexity O(@ref Fixed::size).
+ * @alloc allocates the intermediate string and a formatting stream per element.
  * @test Fixarray.StreamInsertionUsesTheToStringForm
  */
 template <ndarray::Field T, std::size_t... Dims>

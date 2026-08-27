@@ -428,6 +428,8 @@ fn check_links(errors : list<str>, warns : list<str>) -> int {
                 let tok = seg[:b]
                 seg = seg[b + 1:]
                 if not looks_like_repo_path(tok) { continue }
+                # `path`](https://…) — link text for a file in another repository
+                if string.startswith(seg, "](http") { continue }
                 let p = string.rstrip(tok, "/")
                 let hh = string.find(p, "#")
                 if hh >= 0 { p = p[:hh] }
@@ -594,7 +596,7 @@ fn check_flags(errors : list<str>) -> int {
         if not string.startswith(name, "-") { subs[name] = true }
     }
     for s in dict_keys_sorted(subs) {
-        if not string.contains(bdoc, "`biome " + s) and not string.contains(bdoc, "`" + s + "`") {
+        if not string.contains(bdoc, "biome " + s) and not string.contains(bdoc, "`" + s + "`") {
             errors.append("docs/biome.md: biome has a `" + s + "` subcommand (pkg-manager/biome.purr) the page never mentions")
         }
     }

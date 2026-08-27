@@ -11,8 +11,8 @@
 //   "abc"-> the one-block vector,
 //   the 56-byte message -> the two-block vector.
 //
-// Coverage — every function in stdlib/hashlib/hashlib.hpp:
-//   sha256.
+// Coverage — the hashlib functions this program drives:
+//   sha256, sha256_digest, sha512, sha512_digest.
 #include "e2e_harness.hpp"
 
 TEST(StdlibE2E, Hashlib) {

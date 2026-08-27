@@ -168,7 +168,8 @@ long long send_frame(Session* s, unsigned char opcode, const std::string& payloa
 
 }  // namespace
 
-/// @cond INTERNAL — the C++-only low-level session API (websocket_lowlevel.hpp); cheatah uses the Client guard
+/// @cond INTERNAL
+/// the C++-only low-level session API (websocket_lowlevel.hpp); cheatah uses the Client guard
 // Whether @p host names this machine. Plaintext is permitted ONLY here: a cleartext WebSocket
 // that cannot leave the loopback interface is a local control plane (Chrome's DevTools port is
 // the motivating one), not a network protocol.

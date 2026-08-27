@@ -41,7 +41,7 @@ namespace cheatah::socket {
  * @param port TCP port (0 = let the OS pick — read it back with local_port()).
  * @param backlog pending-connection queue length.
  * @return the listening fd, or -1 on error.
- * @complexity O(1) (a few syscalls).
+ * @complexity O(1) + resolution (a few syscalls).
  * @alloc none (the resolver's transient `getaddrinfo` list is freed before returning).
  * @test CheatahSocket.Loopback
  * @crtest SocketCompileRun.TcpListen
@@ -432,7 +432,7 @@ public:
     long long shutdown() const;
     /**
      * Close the fd now (idempotent — the destructor will not close it again).
-     * @return 0 on success, -1 if already closed.
+     * @return 0 on success, -1 if already closed or on error.
      * @complexity O(1) syscall.
      * @alloc none.
      * @test CheatahSocket.ConnGuardClosesOnScopeExit
@@ -516,7 +516,7 @@ public:
      * @complexity O(1) syscall (blocks until a client arrives).
      * @alloc none.
      * @concurrency blocks the calling thread until a client connects.
-     * @test CheatahSocket.ListenerLoopback
+     * @test CheatahSocket.ConnLoopback
      */
     Conn accept() const;
     /**
@@ -529,7 +529,7 @@ public:
     long long local_port() const;
     /**
      * Close the listening fd now (idempotent — the destructor will not close it again).
-     * @return 0 on success, -1 if already closed.
+     * @return 0 on success, -1 if already closed or on error.
      * @complexity O(1) syscall.
      * @alloc none.
      * @test CheatahSocket.ListenerLoopback
@@ -560,7 +560,7 @@ Conn open(const std::string& host, long long port);
  * @param port TCP port (0 = let the OS pick — read it back with Listener::local_port()).
  * @param backlog pending-connection queue length.
  * @return an owning Listener; on failure its is_open() is false (see last_error()).
- * @complexity O(1) (a few syscalls).
+ * @complexity O(1) + resolution (a few syscalls).
  * @alloc none beyond the Listener itself.
  * @test CheatahSocket.ListenerLoopback
  */

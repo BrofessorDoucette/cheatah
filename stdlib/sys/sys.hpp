@@ -44,7 +44,8 @@ namespace cheatah::sys {
  */
 extern std::vector<std::string> argv;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables): `sys.argv` IS a process-wide variable by contract — programs read it directly
 
-/// @cond INTERNAL — a runtime hook, not cheatah surface (programs read `sys.argv`)
+/// @cond INTERNAL
+/// a runtime hook, not cheatah surface (programs read `sys.argv`)
 /**
  * Capture the process arguments into `argv`.
  *

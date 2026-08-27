@@ -41,7 +41,7 @@ namespace cheatah::p256 {
  * @return true iff the signature is valid for @p pubkey_xy over @p msg_hash.
  * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
  * @alloc a temporary raw r||s signature string.
- * @test CheatahP256.VerifyKnownVector
+ * @test CheatahP256.VerifyDerWithLeadingZeroIntegers, CheatahP256.RsToDerRoundTripsAndRejects
  */
 [[nodiscard]] bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
                               const std::string& sig_der);
@@ -65,8 +65,8 @@ namespace cheatah::p256 {
  * raw 64-byte r||s signature — the form an ES256 JWT carries.
  * @param privkey the private scalar d as 32 big-endian bytes.
  * @param msg_hash the digest to sign (truncated to 256 bits if longer).
- * @return the signature as 64 bytes r||s, or "" if @p privkey is not a valid scalar
- *         (wrong length, zero, or >= the group order n).
+ * @return the signature as 64 bytes r||s, or "" if @p privkey is not a valid scalar (wrong
+ *         length, zero, or >= the group order n), or if all 64 RFC 6979 nonce candidates fail.
  * @complexity O(1) — one fixed-base scalar multiplication per RFC 6979 candidate (almost always one).
  * @alloc the returned signature plus RFC 6979 HMAC scratch strings.
  * @test CheatahP256.SignKnownVector
@@ -82,7 +82,7 @@ namespace cheatah::p256 {
  * @param sig_raw the 64-byte r||s signature.
  * @return the DER bytes, or "" if @p sig_raw has the wrong length or a zero integer.
  * @complexity O(1).
- * @alloc the returned string.
+ * @alloc the returned string plus the two integer temporaries.
  * @test CheatahP256.RsToDerRoundTripsAndRejects
  */
 [[nodiscard]] std::string rs_to_der(const std::string& sig_raw);
@@ -99,9 +99,9 @@ namespace cheatah::p256 {
 
 /**
  * Extract the P-256 public key point from a certificate / SubjectPublicKeyInfo
- * DER: finds the `id-ecPublicKey` + `prime256v1` AlgorithmIdentifier and returns
- * the uncompressed point's 64 bytes (X||Y). Returns "" if the SPKI is not a
- * P-256 uncompressed EC key.
+ * DER: finds the uncompressed EC point BIT STRING (`03 42 00 04 X Y`, the 66-byte
+ * length only a P-256 point has) and returns its 64 bytes (X||Y); the
+ * AlgorithmIdentifier OIDs are not inspected. Returns "" if no such point is present.
  * @param spki_or_cert_der the certificate or SPKI DER bytes.
  * @return the 64-byte X||Y point, or "" if not a P-256 EC key.
  * @complexity O(der length).

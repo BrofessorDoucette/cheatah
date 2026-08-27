@@ -123,9 +123,8 @@ std::remove_cvref_t<A>& unhold(held_t<A>& h) {
  * (`cheatah thread: unhandled exception in thread: ...`) — the honest fallback, since a
  * destructor must not throw.
  *
- * @concurrency the handle itself is not internally synchronized — drive a given `Thread` from one
- * thread at a time (the worker it owns is, of course, another thread; `join()` is the
- * synchronization point with it).
+ * @concurrency the handle itself is not internally synchronized — drive a given `Thread` from one thread
+ * at a time; the worker it owns is another thread, and `join()` is the synchronization point with it.
  *
  * @test CheatahThread.MoveTransfersOwnership
  * @test CheatahThread.DestructorJoinsARunningThread
@@ -155,7 +154,8 @@ public:
     /// error), then adopts the source's.
     /// @param other the handle to take the thread from (left non-joinable).
     /// @return this handle, now owning @p other's thread.
-    /// @complexity O(join). @alloc none.
+    /// @complexity O(join).
+    /// @alloc none on the fast path; reporting an unobserved worker error copies its message into a string.
     /// @concurrency may block: the destination joins its old worker before adopting the new one.
     /// @test CheatahThread.MoveAssignSettlesTheOldThread
     Thread& operator=(Thread&& other) noexcept;
@@ -164,7 +164,8 @@ public:
     Thread& operator=(const Thread&) = delete;
 
     /// Joins if still joinable; reports an unobserved worker exception on stderr (one line).
-    /// @complexity O(join) — blocks until the worker finishes. @alloc none.
+    /// @complexity O(join) — blocks until the worker finishes.
+    /// @alloc none on the fast path; reporting an unobserved worker error copies its message into a string.
     /// @concurrency blocks the destroying thread until the worker finishes — on every exit path,
     /// including unwinding.
     /// @test CheatahThread.DestructorJoinsARunningThread
@@ -228,10 +229,9 @@ private:
  * @complexity O(1) plus copying the arguments and the OS thread start.
  * @alloc one shared error slot + the thread's start-state block (the closure holding the argument
  * copies — `std::thread` puts it on the heap) + the OS thread stack.
- * @concurrency the worker may already be running before `spawn` returns. Copyable arguments are
- * captured before the thread starts, so the caller may immediately mutate or destroy its originals;
- * a by-reference argument (a pinned `memory.Owner`) is shared with the running worker from that
- * moment on.
+ * @concurrency the worker may already be running before `spawn` returns. Copyable arguments are captured
+ * before the thread starts, so the caller may immediately mutate or destroy its originals; a by-reference
+ * argument (a pinned `memory.Owner`) is shared with the running worker from that moment on.
  * @warning cheatah does not detect data races: mutable state shared any way other than through a
  * `memory.Owner`'s leases is at your own risk.
  * @test CheatahThread.SpawnRunsTheWorker

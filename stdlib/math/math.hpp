@@ -434,7 +434,7 @@ double fmod(double x, double y);
  * Takes the magnitude from @p x and the sign bit from @p y; because it copies
  * the IEEE sign bit, it distinguishes `+0.0` from `-0.0` and works even when
  * @p x is NaN.
- * @param x magnitude source,
+ * @param x magnitude source.
  * @param y sign source.
  * @return |@p x| with @p y's sign.
  * @complexity O(1).

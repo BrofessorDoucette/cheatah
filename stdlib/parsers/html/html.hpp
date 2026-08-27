@@ -54,7 +54,7 @@ std::string escape(std::string_view s, bool quote = true);
  * left verbatim. Inverse of @ref escape for the characters it covers.
  * @param s text that may contain character references.
  * @return a newly allocated decoded copy.
- * @complexity O(n) time in the length of @p s.
+ * @complexity O(n) in the length of @p s; a run of `&` with no `;` after it degrades to O(n²), since each `&` scans to the next `;` before the 32-byte window is applied.
  * @alloc one result string on the heap.
  * @test ParsersHtml.UnescapeNamedAndNumericForms
  * @crtest ParsersCompileRun.HtmlEscapeUnescape
@@ -96,7 +96,7 @@ struct Token {
  * input never throws: unterminated constructs consume to end-of-input.
  * @param html the document text.
  * @return the token list (empty for empty input).
- * @complexity O(n) time in the length of @p html.
+ * @complexity O(n) in the length of @p html; text runs and attribute values inherit @ref unescape's O(n²) on a run of `&` with no `;`.
  * @alloc the token vector and its strings on the heap.
  * @test ParsersHtml.ParsesStartDataEndInDocumentOrder
  * @crtest ParsersCompileRun.HtmlParseWalk
@@ -109,7 +109,7 @@ std::vector<Token> parse(std::string_view html);
  * @param name attribute name (matched case-insensitively).
  * @return the attribute value, or "".
  * @complexity O(k) in the attribute count of @p t.
- * @alloc one result string on the heap.
+ * @alloc allocates the lowercased key and the result string.
  * @test ParsersHtml.GetAttrHasAttrLookup
  * @crtest ParsersCompileRun.HtmlAttrHelpers
  */
@@ -121,7 +121,7 @@ std::string get_attr(const Token& t, std::string_view name);
  * @param name attribute name.
  * @return true if present (even if valueless).
  * @complexity O(k) in the attribute count of @p t.
- * @alloc none.
+ * @alloc allocates the lowercased key.
  * @test ParsersHtml.GetAttrHasAttrLookup
  * @crtest ParsersCompileRun.HtmlAttrHelpers
  */

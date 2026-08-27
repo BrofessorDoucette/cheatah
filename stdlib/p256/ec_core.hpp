@@ -656,7 +656,7 @@ const Jac<C>& base_point() {
  * the per-message signing path. Selector at step j is bit j of each 64-bit limb.
  * @tparam C the curve traits.
  * @return the comb table.
- * @complexity O(1) after the one-time static build (kLimbs*64 doublings plus the subset sums).
+ * @complexity O(1) after the one-time static build ((kLimbs-1)*64 doublings plus the subset sums).
  * @alloc none — the table is a function-local static std::array.
  * @test CheatahP256.SignKnownVector
  */

@@ -14,7 +14,7 @@
  *   - `w.write(index, v)`   → set element `index` (Indexed sequences: vector/array/string/ndarray).
  *   - `w.write(key, v)`     → set `key`           (Mapping containers: map/unordered_map/dict).
  * `valid()`/`expired()` track a shared `Gate` the owner flips to ask the holder to yield (drain, or an
- * immediate-write preempt); `on_interrupt(fn)` fires `fn` once when that first happens.
+ * immediate-write preempt); `on_interrupt(fn)` fires `fn` once per stop, when the holder observes it.
  */
 
 #include <atomic>
@@ -30,11 +30,10 @@
 namespace cheatah::memory {
 
 namespace detail {
-/// Shared signal between the owner and a lease. The owner flips `valid` false to ask the holder to
-/// yield; the holder sets `acked` when it observes that (so the owner knows it has paused) and calls
-/// `wake` so the owner's condition variable re-checks. `wake` (owner-provided) synchronizes on the
-/// owner's mutex before notifying — the ack is one-shot, so an unsynchronized notify racing a waiter
-/// mid-predicate would be lost and the waiter would sleep forever.
+/// Shared signal between the owner and a lease. The owner flips `valid` false to ask the holder to yield;
+/// the holder sets `acked` when it observes that and calls `wake` so the owner's cv re-checks. `wake`
+/// (owner-provided) synchronizes on the owner's mutex before notifying — the ack is one-shot, so an
+/// unsynchronized notify racing a waiter mid-predicate would be lost and the waiter would sleep forever.
 struct Gate {
     std::atomic<bool>     valid{true};
     std::atomic<bool>     acked{false};
@@ -59,12 +58,14 @@ public:
      * @param release callback fired once on destruction to tell the owner this lease is done.
      * @concurrency called by the owner with its coordinator mutex held — never construct one yourself.
      * @test Memory.EveryAccessorReturnsARequestNotABareLease
+     * @test Memory.ReadLeasesCoexist
      */
     Lease(T* obj, std::shared_ptr<detail::Gate> gate, std::function<void()> release) noexcept
         : obj_(obj), gate_(std::move(gate)), release_(std::move(release)) {}
 
     /// Move-construct, taking over @p o's grant (it is left released). @param o the lease to move from.
     /// @complexity O(1). @alloc none. @test Memory.EveryAccessorReturnsARequestNotABareLease
+    /// @test Memory.ReadLeasesCoexist
     Lease(Lease&& o) noexcept { steal(o); }
     /// Move-assign: release ours, then take over @p o's grant. @param o source. @return `*this`.
     /// @complexity O(1). @alloc none. @test Memory.EveryAccessorReturnsARequestNotABareLease
@@ -96,7 +97,8 @@ public:
     /// Read the value at @p key of a Mapping: `r.read(k)`. Mirrors `w.write(k, v)`. Throws if absent
     /// (reading a missing key never inserts). @tparam K a type convertible to the key type.
     /// @param key the key to look up. @return a const reference to the mapped value.
-    /// @complexity `T::at`. @alloc none.
+    /// @complexity `T::at`. @alloc none when @p key already has the key type; a key that needs
+    /// converting (`const char*` to a `std::string` key) builds a temporary.
     /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     template <class K>
         requires (Mapping<T> && std::convertible_to<K, typename T::key_type>)
@@ -120,9 +122,8 @@ public:
     /// Replace the whole object: `w.write(value)`. The primary write form. Write / write_renewable only.
     /// @param value the new value (moved in). @complexity O(1) plus assigning @p value.
     /// @alloc whatever `T`'s assignment allocates.
-    /// @concurrency exclusive: no reader or other writer coexists while this lease is valid. A
-    /// writer that observed `!valid()` (an immediate-write preempted it) must wait for `valid()` to
-    /// flip back before writing again — writing while suspended races with the immediate-write.
+    /// @concurrency exclusive: no reader or other writer coexists while this lease is valid. A writer that
+    /// observed `!valid()` must wait for it to flip back — writing while suspended races with the preempter.
     /// @test Memory.WriteWaitsForReadersToDrain
     /// @test Memory.LeasesModifyTheCorrectItemsOfComplexObjects
     /// @systest MemoryCheatah.ScalarWriteReadModifyWrite
@@ -152,11 +153,10 @@ public:
 
     /// Still ours? `true` until the owner asks us to yield (a writer waiting; an immediate-write). The
     /// holder observing `!valid()` is how the owner learns it has paused. @return whether the lease is
-    /// still valid. @complexity O(1). @alloc none.
+    /// still valid. @complexity O(1) plus the interrupt handler on first observing a stop. @alloc none.
     /// @concurrency an atomic acquire load; the first observation of a stop acks and wakes the owner
-    /// (that one call briefly takes the owner's mutex) — polling this from the holding thread is what
-    /// lets a drain/preempt make progress. The lease handle itself is not internally synchronized:
-    /// poll from the thread that holds the lease.
+    /// (that one call briefly takes the owner's mutex) — polling from the holding thread is what lets a
+    /// drain/preempt make progress. The handle is not internally synchronized: poll from that thread.
     /// @test Memory.ReadLeaseValidUntilAWriterNeedsIn
     bool valid() const noexcept {
         const bool v = gate_->valid.load(std::memory_order_acquire);
@@ -175,12 +175,12 @@ public:
     /// @systest MemoryCheatah.ReadLeaseValidState
     bool expired() const noexcept { return !valid(); }
 
-    /// Register the "what to do if the owner interrupts me" handler; fires once, in the holder's thread,
-    /// the first time `valid()` observes the stop. Replaces any previous handler. @complexity O(1).
+    /// Register the "what to do if the owner interrupts me" handler; fires once per stop, in the holder's
+    /// thread, the first time `valid()` observes it — and again after a resume and a second preempt.
+    /// Replaces any previous handler. @complexity O(1).
     /// @alloc one callback holder (the @p handler `std::function`, moved in — nothing beyond its own state).
     /// @param handler the callback to run when the owner asks this lease to yield.
-    /// @concurrency the handler never fires asynchronously — only from inside a `valid()` call, on
-    /// the thread that polls it.
+    /// @concurrency never fires asynchronously — only from inside a `valid()` call, on the polling thread.
     /// @test Memory.InterruptCallbackFiresWhenTheOwnerNeedsTheLeaseBack
     void on_interrupt(std::function<void()> handler) { on_interrupt_ = std::move(handler); }
 

@@ -76,8 +76,8 @@ unsigned get24(std::string_view s, std::size_t i) {
  * @param sha384 selects the SHA-384 HKDF (for the TLS_AES_256_GCM_SHA384 key schedule);
  *        default is the SHA-256 schedule.
  * @return the expanded key material, @p length bytes.
- * @complexity O(length) — HKDF-Expand emits ceil(length/hash) HMAC blocks.
- * @alloc the returned key material plus the HkdfLabel info string.
+ * @complexity O(⌈length/hash⌉ · (|secret| + |label| + |context| + hash)) — one HMAC per output block.
+ * @alloc the returned key material, the HkdfLabel info string, and HKDF's per-block HMAC scratch.
  * @test CheatahTls.ExpandLabel
  */
 std::string expand_label_impl(std::string_view secret, std::string_view label,
@@ -1217,7 +1217,8 @@ long long handshake(long long fd, const std::string& server_name, bool insecure,
 
 } // namespace
 
-/// @cond INTERNAL — the C++-only low-level session API (tls_lowlevel.hpp); cheatah uses the Conn guard
+/// @cond INTERNAL
+/// the C++-only low-level session API (tls_lowlevel.hpp); cheatah uses the Conn guard
 long long client_connect(long long fd, const std::string& server_name, bool insecure,
                          const std::string& ca_file) {
     return handshake(fd, server_name, insecure, ca_file);

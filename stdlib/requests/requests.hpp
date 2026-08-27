@@ -287,7 +287,7 @@ namespace cheatah::requests {
  * @return true when `text` carries CR or LF and must not be sent.
  * @complexity O(n) over the input length.
  * @alloc none.
- * @systest CheatahRequests.CrlfInjectionRefused
+ * @test CheatahRequests.CrlfInjectionRefused
  */
 inline auto has_control_bytes(builtins::Value auto&& text) {
     return ((string::find(text, std::string("\r")) >= 0LL) || (string::find(text, std::string("\n")) >= 0LL));
@@ -988,9 +988,14 @@ inline auto post(builtins::Value auto&& url, builtins::Value auto&& o) {
 static auto post(builtins::Value auto&& url) { return post(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
- * HTTP PUT. @param url the URL. @param o per-request options (body via json_body/data/body).
- * @return the final Response. @complexity one request plus any redirects.
- * @alloc request/response buffers. @systest RequestsSys.PostJson
+ * HTTP PUT.
+ *
+ * @param url the URL.
+ * @param o per-request options (body via json_body/data/body).
+ * @return the final Response.
+ * @complexity one request plus any redirects.
+ * @alloc request/response buffers.
+ * @test CheatahRequests.VerbMethods
  */
 inline auto put(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("PUT"), url, o);
@@ -1004,9 +1009,14 @@ inline auto put(builtins::Value auto&& url, builtins::Value auto&& o) {
 static auto put(builtins::Value auto&& url) { return put(url, Options{.timeout_ms = 30000LL, .max_redirects = 5LL}); }
 
 /**
- * HTTP PATCH. @param url the URL. @param o per-request options (body via json_body/data/body).
- * @return the final Response. @complexity one request plus any redirects.
- * @alloc request/response buffers. @systest RequestsSys.PostJson
+ * HTTP PATCH.
+ *
+ * @param url the URL.
+ * @param o per-request options (body via json_body/data/body).
+ * @return the final Response.
+ * @complexity one request plus any redirects.
+ * @alloc request/response buffers.
+ * @test CheatahRequests.VerbMethods
  */
 inline auto patch(builtins::Value auto&& url, builtins::Value auto&& o) {
     return request(std::string("PATCH"), url, o);

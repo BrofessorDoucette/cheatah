@@ -29,7 +29,9 @@ namespace cheatah::parsers::json {
 /**
  * Read a Node's characters when it is a string (either backing), else an empty view.
  *
- * @complexity O(1)
+ * @param value the node to read.
+ * @return the characters when @p value is a string (either backing), else an empty view.
+ * @complexity O(1).
  * @alloc none
  * @test ParsersJsonDom.ToViewReadsBothBackingsAndRejectsNonStrings
  */
@@ -37,16 +39,17 @@ namespace cheatah::parsers::json {
 
 /**
  * Parse `text` into a SELF-CONTAINED Document (owning containers AND owned strings — every string
- * is copied, not a view), so the result is safe to return, cache, or outlive `text`. On success
- * *ok is set true; on malformed input *ok is set false and the result is JSON null. For the
+ * is copied, not a view), so the result is safe to return, cache, or outlive `text`. For the
  * zero-copy, source-viewing form (no string copies), reuse a Parser and call Parser::parse.
  *
- * Validate is a COMPILE-TIME switch: the default (true) does full bounds/structure checking and
- * rejects malformed input; parse<false>(...) strips every such check from the binary via
- * `if constexpr` (see the Parser docs) and does not write *ok — for trusted, known-well-formed
- * input only, as feeding it malformed input is undefined behavior.
+ * Validate is a COMPILE-TIME switch: the default (true) checks bounds/structure and rejects
+ * malformed input; parse<false>(...) strips every such check from the binary via `if constexpr` and
+ * does not write *ok — trusted, known-well-formed input only; malformed input is undefined behavior.
  *
- * @complexity O(n) in the input length
+ * @param text the JSON source to parse.
+ * @param ok if non-null, set true on success and false on a parse error (written only when Validate is true).
+ * @return the self-contained Document (JSON null on error when validating).
+ * @complexity O(n) in the input length.
  * @alloc allocates the owned document tree (arrays, objects, and copied strings)
  * @test ParsersJsonDom.ParsesEveryScalarKind
  */
@@ -56,8 +59,10 @@ template <bool Validate = true>
 /**
  * Serialize a Document to compact JSON text (string contents are re-escaped).
  *
- * @complexity O(nodes)
- * @alloc the returned string
+ * @param value the document to serialize.
+ * @return the compact JSON text.
+ * @complexity O(output size).
+ * @alloc allocates the result string and the O(depth) frame stack.
  * @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
  */
 [[nodiscard]] std::string dump(const Document& value);
@@ -68,8 +73,10 @@ template <bool Validate = true>
  * into one growing buffer); it deliberately avoids std::stringstream, which adds formatting,
  * locale, and virtual-streambuf overhead per write. Reserve `out` once and reuse it across calls.
  *
- * @complexity O(nodes)
- * @alloc none of its own (grows `out` only if its capacity is exceeded)
+ * @param value the document to serialize.
+ * @param out the buffer the JSON text is appended to.
+ * @complexity O(output size).
+ * @alloc allocates the O(depth) frame stack; grows @p out only past its capacity.
  * @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
  */
 void dump(const Document& value, std::string& out);
@@ -138,7 +145,7 @@ public:
      * @param value the document to serialize.
      * @return a std::string_view of the serialized JSON (valid until the next dump()).
      * @complexity O(output size)
-     * @alloc none after warm-up (the buffer is reused)
+     * @alloc the O(depth) frame stack per call; the output buffer is reused after warm-up.
      * @test ParsersJsonDom.PooledParserYieldsViewsIntoSource
      */
     [[nodiscard]] std::string_view dump(const Document& value);

@@ -324,7 +324,8 @@ std::string repr(const T& value) { return str(value); }
  * not quoted), so a `list[complex]` renders its elements readably.
  * @param z the complex value.
  * @return the `a±bj` rendering.
- * @complexity O(1). @alloc allocates the result string.
+ * @complexity O(1).
+ * @alloc allocates the result string.
  * @test CheatahIo.StrRendersComplex
  * @systest StdlibE2E.Io
  */
@@ -440,7 +441,7 @@ void format_into(std::ostringstream& os, std::string_view fmt, const T& arg, con
  * @alloc allocates the result string (via an ostringstream).
  * @test CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs
  * @crtest IoCompileRun.Format
- * @systest StdlibE2E.Io
+
  */
 template <Streamable... Args>
 std::string format(std::string_view fmt, const Args&... args) {
@@ -462,7 +463,6 @@ std::string format(std::string_view fmt, const Args&... args) {
  * @test CheatahIo.InputReadsALine
  * @note No compile-run test: io.input reads stdin, which the e2e harness does not
  *       feed, so it is intentionally skipped in tests/purrc/io_cr_test.cpp.
- * @systest StdlibE2E.Io
  */
 std::string input(std::string_view prompt = "");
 
@@ -494,7 +494,7 @@ public:
      * @param path filesystem path.
      * @param mode Python-style mode (`r`/`w`/`a`, optional `+`/`b`).
      * @complexity O(1) plus the OS open.
-     * @alloc none.
+     * @alloc allocates the stream's file buffer on a successful open.
      * @test CheatahIo.FileWriteThenReadWhole
      * @crtest IoCompileRun.OpenWriteRead
      * @systest StdlibE2E.Io

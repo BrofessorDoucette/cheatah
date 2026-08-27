@@ -81,8 +81,8 @@ std::string today();
  * strftime-style formatting of an epoch in local time (e.g. @p fmt = `"%Y-%m-%d"`).
  *
  * Converts @p epoch to local time and expands C `strftime` format codes (`%Y`,
- * `%m`, `%d`, `%H`, etc.); the output is truncated to a 128-byte internal
- * buffer, so very long expansions are cut short.
+ * `%m`, `%d`, `%H`, etc.); an expansion that does not fit the 128-byte internal
+ * buffer yields an empty string.
  * @param epoch epoch seconds.
  * @param fmt a strftime format string.
  * @return the formatted string.

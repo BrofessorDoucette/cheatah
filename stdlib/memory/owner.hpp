@@ -69,7 +69,7 @@ public:
     /// Request a shared READ lease. Blocks — in THIS call: the grant is synchronous, so the returned
     /// request is already fulfilled — only while a write is pending/active or queued; otherwise many
     /// read leases coexist. @return a request for a read lease.
-    /// @complexity O(1) amortized. @alloc the request's promise/future.
+    /// @complexity O(1) plus the blocking wait. @alloc the request's promise/future.
     /// @concurrency callable from any thread; readers share. Writer-preference: this waits while any
     /// write is active, suspended, or queued, so writers cannot starve.
     /// @warning requesting while the SAME thread still holds a lease on this owner can deadlock (a

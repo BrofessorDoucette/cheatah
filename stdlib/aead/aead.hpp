@@ -58,8 +58,8 @@ std::string chacha20poly1305_encrypt(std::string_view key_hex, std::string_view 
  * @param plaintext_len length of @p plaintext in bytes.
  * @param out receives `plaintext_len + 16` bytes: the ciphertext followed by the tag. May alias
  *        @p plaintext to encrypt in place.
- * @return false on a null buffer with a nonzero length, or a message over the 64 GiB
- *         single-message cap; true otherwise.
+ * @return false on a null @p key, @p nonce or @p out, on a null @p aad / @p plaintext with a
+ *         nonzero length, or on a message over the 64 GiB single-message cap; true otherwise.
  * @complexity O(|plaintext| + |aad|).
  * @alloc none.
  * @thread any thread; no shared state. Async-signal-safe (no allocation, no locks, no errno use).
@@ -192,7 +192,8 @@ std::string aes256gcm_encrypt(std::string_view key_hex, std::string_view nonce_h
 std::string aes256gcm_decrypt(std::string_view key_hex, std::string_view nonce_hex,
                               std::string_view aad, std::string_view ciphertext);
 
-/// @cond INTERNAL — a test hook (pins the scalar reference path for cross-checking), not user API
+/// @cond INTERNAL
+/// a test hook (pins the scalar reference path for cross-checking), not user API
 /**
  * Force the portable (non-hardware) AES-GCM path on/off (both AES-128 and AES-256). AES-GCM
  * normally uses the CPU's crypto instructions when present (x86 AES-NI/PCLMULQDQ or ARMv8

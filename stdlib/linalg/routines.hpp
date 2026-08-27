@@ -79,7 +79,8 @@ using CNDArray = ndarray::basic_ndarray<Cplx>;
 // separate symbols. Complex matmul and conj_transpose are likewise the one generic template each
 // in backend.hpp, instantiating the complex element type — no separate complex symbols.
 
-/// @cond INTERNAL — the HOST kernels of the factorization/solver seam. Every routine below is the
+/// @cond INTERNAL
+/// the HOST kernels of the factorization/solver seam. Every routine below is the
 /// backend.hpp pattern: an allocating front (inline in this header, `requires NumericArray`) that
 /// validates metadata, allocates via `Array<T>::uninitialized`, and calls the same-named out-param
 /// (or scalar-out) kernel UNQUALIFIED — so these HostArray kernels (defined + instantiated in
@@ -121,7 +122,7 @@ void cholesky(Array<T>& out, const Array<T>& a);
  * @param q destination for the orthonormal factor; a contiguous m×n matrix, overwritten.
  * @param r destination for the upper-triangular factor; a contiguous n×n matrix, overwritten.
  * @param a m×n matrix.
- * @complexity O(n³).
+ * @complexity O(m²·n).
  * @alloc reuses @p q and @p r (the factors are computed into private scratch, then copied in).
  * @test LinalgRoutines.DecompositionOutReusesBuffer
  */
@@ -346,7 +347,7 @@ struct QR {
  * corresponding R entries zero.
  * @param a m×n matrix.
  * @return @ref QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).
- * @complexity O(n³).
+ * @complexity O(m²·n) — n reflectors each applied to the full m×m Q; O(n³) when square.
  * @alloc allocates both members; the factorization works in O(m²) private scratch
  *        (a full m×m Q workspace), then copies the reduced factors in.
  * @test LinalgRoutines.CholeskyAndQR
@@ -382,7 +383,7 @@ struct SVD {
  * out non-negative.
  * @param a m×n matrix.
  * @return @ref SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).
- * @complexity iterative O(n³).
+ * @complexity iterative O(m·n²); O(n³) when square.
  * @alloc allocates all members; the Golub–Reinsch reduction allocates its own O(m·n) workspace.
  * @test LinalgRoutines.SvdAndEigh
  * @crtest LinalgCompileRun.Svd
@@ -403,9 +404,9 @@ template <ndarray::Field T, template <typename> class Array>
  * Singular values only (≈ `numpy.linalg.svd(a, compute_uv=False)` / `svdvals`).
  *
  * Runs the same Golub–Reinsch reduction as @ref svd but takes the **values-only** fast
- * path — it never accumulates U or V, and skips the (dominant) U/V Givens rotations in
- * the QR sweep — so it is several times faster than the full decomposition. Accepts any
- * shape (singular values of `a` and `aᵀ` coincide).
+ * path — it never accumulates U or V, and skips the U/V Givens rotations in the QR
+ * sweep — so it beats the full decomposition by a margin that grows with n (see the
+ * linalg benchmark page). Accepts any shape (singular values of `a` and `aᵀ` coincide).
  * @param a m×n matrix.
  * @return length-min(m,n) vector of singular values, descending.
  * @complexity iterative O(n³), but a large constant factor below @ref svd.
@@ -526,7 +527,7 @@ template <ndarray::Field T, template <typename> class Array>
  * checking it, so asymmetric input yields meaningless results. Throws on a non-square
  * matrix (or if the QL iteration fails to converge).
  * @param a square symmetric matrix.
- * @return @ref Eig with descending values and matching eigenvectors.
+ * @return @ref Eig (real input) or @ref EighC (complex Hermitian input): descending real values and matching eigenvector columns.
  * @complexity iterative O(n³).
  * @alloc allocates both members; the solver allocates its own O(n²) scratch (a complex
  *        Hermitian input first embeds into a 2n×2n real matrix).
@@ -552,12 +553,13 @@ template <ndarray::Field T, template <typename> class Array>
  * Eigenvalues of a symmetric matrix, descending (tridiagonal QL).
  *
  * Same tridiagonalization + QL as @ref eigh but **skips the eigenvector accumulation
- * entirely** (the bulk of the work), so it is roughly twice as fast as `eigh`; assumes
+ * entirely**, so it runs well under `eigh`'s cost at large n (see the linalg benchmark page); assumes
  * (does not verify) symmetry and throws on a non-square matrix.
  * ONE two-layer template collapsing the former real and complex (Hermitian) overloads: a real
  * element takes the symmetric path, a complex element the Hermitian path (`if constexpr`). The
  * spectrum is always REAL, returned as `Array<real_base_t<T>>`.
- * @tparam T the element type (`double` or `std::complex<double>`); @tparam Array the container.
+ * @tparam T the element type (`double` or `std::complex<double>`).
+ * @tparam Array the container.
  * @param a square symmetric (real) / Hermitian (complex) matrix.
  * @return length-n vector of real eigenvalues.
  * @complexity iterative O(n³).
@@ -678,10 +680,11 @@ template <ndarray::Field T, template <typename> class Array>
 }
 /** Result of slogdet(): det(A) = sign·exp(logabsdet). */
 struct SLogDet {
-    double sign;       ///< Sign of the determinant (−1, 0, or +1).
+    double sign;       ///< Sign of the determinant (−1 or +1; a singular matrix keeps ±1, see logabsdet).
     double logabsdet;  ///< Natural log of |det(A)|, so det(A) = sign·exp(logabsdet).
 };
-/// @cond INTERNAL — the scalar-out HOST kernel of the seam pattern (declared after @ref SLogDet,
+/// @cond INTERNAL
+/// the scalar-out HOST kernel of the seam pattern (declared after @ref SLogDet,
 /// which its out-parameter needs; a device extension supplies its own DeviceArray overload).
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>> && ndarray::FloatingPoint<T>

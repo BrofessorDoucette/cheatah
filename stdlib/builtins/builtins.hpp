@@ -147,7 +147,7 @@ inline bool operator==(const std::string& s, const Error& e) { return e.message(
  *  @param e the error.
  *  @param s the NUL-terminated message to compare against.
  *  @return true when the error's message is exactly @p s.
- *  @complexity O(min(len)). @alloc none.
+ *  @complexity O(len(@p s)). @alloc none.
  *  @test CheatahBuiltins.ErrorComparesAndPrintsAsItsMessage */
 inline bool operator==(const Error& e, const char* s) { return e.message() == s; }
 
@@ -496,7 +496,7 @@ concept Streamable = requires(std::ostream& os, const T& v) {
  * @alloc allocates the result string (via an ostringstream).
  * @test CheatahBuiltins.Str
  * @crtest BuiltinsCompileRun.Str
- * @systest StdlibE2E.Builtins
+ * @systest StdlibE2E.String
  */
 template <Streamable T>
 std::string str(const T& value) {
@@ -566,7 +566,7 @@ inline std::string str(unsigned char v) { return std::to_string(static_cast<unsi
  * @alloc none.
  * @test CheatahBuiltins.Division
  * @crtest BuiltinsCompileRun.TrueDivision
- * @systest StdlibE2E.Builtins
+ * @systest StdlibE2E.Math
  */
 template <typename A, typename B>
     requires std::is_arithmetic_v<A> && std::is_arithmetic_v<B>
@@ -898,7 +898,7 @@ inline bool index(const std::vector<bool>& c, long long i) {
  * @alloc none.
  * @test CheatahBuiltins.IndexDict
  * @crtest LangFeatures.AppendAndDictMutation
- * @systest StdlibE2E.Builtins
+ * @systest Callback.RichTypesThroughStdFunction
  */
 template <typename K, typename V, typename H, typename E, typename A, typename Key>
     requires requires(const std::unordered_map<K, V, H, E, A>& m, const Key& key) { m.find(key); }
@@ -918,7 +918,7 @@ const V& index(const std::unordered_map<K, V, H, E, A>& m, const Key& key) {
  * @alloc the result string.
  * @test CheatahBuiltins.SliceString
  * @crtest LangFeatures.StringSlicingAndIndex
- * @systest StdlibE2E.Builtins
+ * @systest StdlibE2E.Ed25519
  */
 inline std::string slice(const std::string& s, long long lo, long long hi) {
     const auto n = static_cast<long long>(s.size());

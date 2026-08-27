@@ -40,7 +40,7 @@ namespace cheatah::p384 {
  * @return true iff the signature is valid for @p pubkey_xy over @p msg_hash.
  * @complexity O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.
  * @alloc a temporary raw r||s signature string.
- * @test CheatahP384.VerifyKnownVector
+ * @test CheatahP384.VerifyDerWithLeadingZeroIntegers
  */
 [[nodiscard]] bool verify_der(const std::string& pubkey_xy, const std::string& msg_hash,
                               const std::string& sig_der);

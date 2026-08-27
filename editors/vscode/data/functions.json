@@ -311,7 +311,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 2061,
+      "srcline": 2162,
       "module": "",
       "qualified": "index"
     },
@@ -639,7 +639,7 @@
         "alloc": "none.",
         "test": "CheatahBuiltins.Division",
         "crtest": "BuiltinsCompileRun.TrueDivision",
-        "systest": "StdlibE2E.Builtins"
+        "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
       "srcline": 573,
@@ -948,7 +948,7 @@
           "desc": "receives plaintext_len + 16 bytes: the ciphertext followed by the tag. May alias plaintext to encrypt in place."
         }
       ],
-      "returns": "false on a null buffer with a nonzero length, or a message over the 64 GiB single-message cap; true otherwise.",
+      "returns": "false on a null key, nonce or out, on a null aad / plaintext with a nonzero length, or on a message over the 64 GiB single-message cap; true otherwise.",
       "tags": {
         "complexity": "O(|plaintext| + |aad|).",
         "alloc": "none. @thread any thread; no shared state. Async-signal-safe (no allocation, no locks, no errno use).",
@@ -971,7 +971,7 @@
         "test": "CryptoPlatform.Report"
       },
       "srcfile": "stdlib/aead/aead.hpp",
-      "srcline": 222,
+      "srcline": 223,
       "module": "aead",
       "qualified": "aead.crypto_hardware_active"
     },
@@ -1564,7 +1564,7 @@
       "params": [],
       "returns": "the comb table.",
       "tags": {
-        "complexity": "O(1) after the one-time static build (kLimbs*64 doublings plus the subset sums).",
+        "complexity": "O(1) after the one-time static build ((kLimbs-1)*64 doublings plus the subset sums).",
         "alloc": "none — the table is a function-local static std::array.",
         "test": "CheatahP256.SignKnownVector"
       },
@@ -2391,7 +2391,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1021,
+      "srcline": 1023,
       "module": "fixarray",
       "qualified": "fixarray.abs"
     },
@@ -2420,7 +2420,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1145,
+      "srcline": 1147,
       "module": "fixarray",
       "qualified": "fixarray.clamp"
     },
@@ -2445,7 +2445,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1303,
+      "srcline": 1305,
       "module": "fixarray",
       "qualified": "fixarray.column"
     },
@@ -2470,7 +2470,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 593,
+      "srcline": 594,
       "module": "fixarray",
       "qualified": "fixarray.cross"
     },
@@ -2491,7 +2491,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 796,
+      "srcline": 797,
       "module": "fixarray",
       "qualified": "fixarray.determinant"
     },
@@ -2516,7 +2516,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 934,
+      "srcline": 935,
       "module": "fixarray",
       "qualified": "fixarray.distance"
     },
@@ -2541,7 +2541,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 948,
+      "srcline": 949,
       "module": "fixarray",
       "qualified": "fixarray.distance_squared"
     },
@@ -2566,14 +2566,14 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 563,
+      "srcline": 564,
       "module": "fixarray",
       "qualified": "fixarray.dot"
     },
     {
       "name": "faceforward",
       "signature": "faceforward(const Vec< T, N > &n, const Vec< T, N > &incident, const Vec< T, N > &reference)",
-      "brief": "Orient a normal to face a viewer — the GLSL faceforward: return n when it already points against the incident direction, -n otherwise.",
+      "brief": "Orient a normal to face a viewer — the GLSL faceforward: return n when reference points against the incident direction (dot(reference, incident) < 0), -n otherwise.",
       "params": [
         {
           "name": "n",
@@ -2595,7 +2595,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1000,
+      "srcline": 1002,
       "module": "fixarray",
       "qualified": "fixarray.faceforward"
     },
@@ -2616,7 +2616,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 877,
+      "srcline": 878,
       "module": "fixarray",
       "qualified": "fixarray.inverse"
     },
@@ -2637,7 +2637,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1265,
+      "srcline": 1267,
       "module": "fixarray",
       "qualified": "fixarray.inverse_transpose"
     },
@@ -2662,7 +2662,7 @@
         "test": "Fixarray.Matmul"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 698,
+      "srcline": 699,
       "module": "fixarray",
       "qualified": "fixarray.matmul"
     },
@@ -2687,7 +2687,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1233,
+      "srcline": 1235,
       "module": "fixarray",
       "qualified": "fixarray.matrix_comp_mult"
     },
@@ -2712,14 +2712,14 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1108,
+      "srcline": 1110,
       "module": "fixarray",
       "qualified": "fixarray.max"
     },
     {
       "name": "min",
       "signature": "min(const Fixed< T, Dims... > &x, T s)",
-      "brief": "Each element floored at the scalar s — min(xᵢ, s).",
+      "brief": "Each element capped at the scalar s — min(xᵢ, s).",
       "params": [
         {
           "name": "x",
@@ -2737,7 +2737,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1073,
+      "srcline": 1075,
       "module": "fixarray",
       "qualified": "fixarray.min"
     },
@@ -2766,7 +2766,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1181,
+      "srcline": 1183,
       "module": "fixarray",
       "qualified": "fixarray.mix"
     },
@@ -2787,7 +2787,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 627,
+      "srcline": 628,
       "module": "fixarray",
       "qualified": "fixarray.norm"
     },
@@ -2808,7 +2808,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 643,
+      "srcline": 644,
       "module": "fixarray",
       "qualified": "fixarray.normalize"
     },
@@ -2833,7 +2833,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1248,
+      "srcline": 1250,
       "module": "fixarray",
       "qualified": "fixarray.outer_product"
     },
@@ -2858,7 +2858,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 963,
+      "srcline": 964,
       "module": "fixarray",
       "qualified": "fixarray.reflect"
     },
@@ -2887,7 +2887,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 981,
+      "srcline": 982,
       "module": "fixarray",
       "qualified": "fixarray.refract"
     },
@@ -2912,7 +2912,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1285,
+      "srcline": 1287,
       "module": "fixarray",
       "qualified": "fixarray.row"
     },
@@ -2933,7 +2933,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1038,
+      "srcline": 1040,
       "module": "fixarray",
       "qualified": "fixarray.sign"
     },
@@ -2962,7 +2962,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1213,
+      "srcline": 1215,
       "module": "fixarray",
       "qualified": "fixarray.smoothstep"
     },
@@ -2983,7 +2983,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 612,
+      "srcline": 613,
       "module": "fixarray",
       "qualified": "fixarray.squared_norm"
     },
@@ -3008,7 +3008,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1197,
+      "srcline": 1199,
       "module": "fixarray",
       "qualified": "fixarray.step"
     },
@@ -3025,11 +3025,11 @@
       "returns": "the bracketed text.",
       "tags": {
         "complexity": "O(Fixed::size).",
-        "alloc": "the result string.",
+        "alloc": "allocates the result string and a formatting stream per element.",
         "test": "Fixarray.ToStringMatchesTheNDArrayRendering"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1322,
+      "srcline": 1325,
       "module": "fixarray",
       "qualified": "fixarray.to_string"
     },
@@ -3050,7 +3050,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 680,
+      "srcline": 681,
       "module": "fixarray",
       "qualified": "fixarray.trace"
     },
@@ -3071,7 +3071,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 662,
+      "srcline": 663,
       "module": "fixarray",
       "qualified": "fixarray.transpose"
     },
@@ -3094,7 +3094,7 @@
         "complexity": "O(|text|).",
         "alloc": "the returned string.",
         "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip, CheatahHashlib.Base64DecodeStrict",
-        "systest": "StdlibE2E.Hashlib"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 188,
@@ -3115,8 +3115,8 @@
       "tags": {
         "complexity": "O(n).",
         "alloc": "the returned string.",
-        "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip",
-        "systest": "StdlibE2E.Hashlib"
+        "test": "CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip, HashlibVsOpenssl.Base64Encode",
+        "systest": "RequestsSys.BasicAuth"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 170,
@@ -3167,7 +3167,7 @@
         "complexity": "O(⌈length/32⌉ · (|prk| + |info| + 32)) — one HMAC per 32-byte output block.",
         "alloc": "the returned keystream plus HMAC scratch buffers per 32-byte output block.",
         "test": "CheatahHashlib.HkdfRfc5869Case1, CheatahHashlib.HkdfBounds",
-        "systest": "StdlibE2E.Hashlib"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 253,
@@ -3222,7 +3222,7 @@
         "complexity": "O(|salt| + |ikm|).",
         "alloc": "the returned 32-byte PRK plus HMAC scratch buffers (including ikm-sized concatenation/padding temporaries).",
         "test": "CheatahHashlib.HkdfRfc5869Case1",
-        "systest": "StdlibE2E.Hashlib"
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 239,
@@ -3272,8 +3272,8 @@
       "tags": {
         "complexity": "O(|key| + |data|).",
         "alloc": "the returned 32-byte digest plus fixed key/inner/outer scratch buffers and message-sized concatenation/padding temporaries.",
-        "test": "CheatahHashlib.HmacSha256",
-        "systest": "StdlibE2E.Hashlib"
+        "test": "CheatahHashlib.HmacSha256, HashlibVsOpenssl.HmacSha256",
+        "systest": "TlsSys.HandshakeAgainstOpenssl"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 128,
@@ -3299,7 +3299,7 @@
         "complexity": "O(|key| + |data|).",
         "alloc": "the returned 48-byte digest plus fixed key/inner/outer scratch buffers and message-sized concatenation/padding temporaries.",
         "test": "HashlibVsOpenssl.HmacSha384",
-        "systest": "StdlibE2E.Hashlib"
+        "systest": "TlsSys.HandshakeAes256GcmSha384"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 143,
@@ -3324,11 +3324,10 @@
       "tags": {
         "complexity": "O(|key| + |data|).",
         "alloc": "the returned 64-byte digest plus fixed key/inner/outer scratch buffers and message-sized concatenation/padding temporaries.",
-        "test": "CheatahHashlib.HmacSha512",
-        "systest": "StdlibE2E.Hashlib"
+        "test": "CheatahHashlib.HmacSha512, HashlibVsOpenssl.HmacSha512"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
-      "srcline": 158,
+      "srcline": 157,
       "module": "hashlib",
       "qualified": "hashlib.hmac_sha512"
     },
@@ -3392,9 +3391,8 @@
       "tags": {
         "complexity": "O(n) in the input length.",
         "alloc": "allocates the 96-char result string and a padded message buffer internally.",
-        "test": "CheatahHashlib.Sha384KnownVectors, CheatahHashlib.Sha384DigestShape",
-        "crtest": "HashlibCompileRun.Sha384",
-        "systest": "StdlibE2E.Hashlib"
+        "test": "CheatahHashlib.Sha384KnownVectors, CheatahHashlib.Sha384DigestShape, HashlibVsOpenssl.Sha384",
+        "crtest": "HashlibCompileRun.Sha384"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 59,
@@ -3417,7 +3415,7 @@
         "alloc": "allocates the 48-byte result and a padded message buffer.",
         "test": "CheatahHashlib.RawDigestMatchesHex",
         "crtest": "HashlibCompileRun.Sha384Digest",
-        "systest": "StdlibE2E.Hashlib"
+        "systest": "TlsSys.HandshakeAes256GcmSha384"
       },
       "srcfile": "stdlib/hashlib/hashlib.hpp",
       "srcline": 101,
@@ -3537,11 +3535,10 @@
         "complexity": "O(len(fmt) + total arg output).",
         "alloc": "allocates the result string (via an ostringstream).",
         "test": "CheatahIo.FormatSubstitutesBraces, CheatahIo.FormatMultiArgAndExtraArgs",
-        "crtest": "IoCompileRun.Format",
-        "systest": "StdlibE2E.Io"
+        "crtest": "IoCompileRun.Format"
       },
       "srcfile": "stdlib/io/io.hpp",
-      "srcline": 446,
+      "srcline": 447,
       "module": "io",
       "qualified": "io.format"
     },
@@ -3559,8 +3556,7 @@
       "tags": {
         "complexity": "O(line length).",
         "alloc": "allocates the returned string.",
-        "test": "CheatahIo.InputReadsALine",
-        "systest": "StdlibE2E.Io"
+        "test": "CheatahIo.InputReadsALine"
       },
       "srcfile": "stdlib/io/io.hpp",
       "srcline": 467,
@@ -3726,7 +3722,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 324,
+      "srcline": 325,
       "module": "linalg",
       "qualified": "linalg.cholesky"
     },
@@ -3749,7 +3745,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 628,
+      "srcline": 630,
       "module": "linalg",
       "qualified": "linalg.cond"
     },
@@ -3772,7 +3768,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 347,
+      "srcline": 351,
       "module": "linalg",
       "qualified": "linalg.conj_transpose"
     },
@@ -3795,7 +3791,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 650,
+      "srcline": 652,
       "module": "linalg",
       "qualified": "linalg.det"
     },
@@ -3822,7 +3818,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 182,
+      "srcline": 184,
       "module": "linalg",
       "qualified": "linalg.dot"
     },
@@ -3845,7 +3841,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 485,
+      "srcline": 486,
       "module": "linalg",
       "qualified": "linalg.eig"
     },
@@ -3859,7 +3855,7 @@
           "desc": "square symmetric matrix."
         }
       ],
-      "returns": "Eig with descending values and matching eigenvectors.",
+      "returns": "Eig (real input) or EighC (complex Hermitian input): descending real values and matching eigenvector columns.",
       "tags": {
         "complexity": "iterative O(n³).",
         "alloc": "allocates both members; the solver allocates its own O(n²) scratch (a complex Hermitian input first embeds into a 2n×2n real matrix).",
@@ -3868,7 +3864,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 542,
+      "srcline": 543,
       "module": "linalg",
       "qualified": "linalg.eigh"
     },
@@ -3891,7 +3887,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 512,
+      "srcline": 513,
       "module": "linalg",
       "qualified": "linalg.eigvals"
     },
@@ -3914,14 +3910,14 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 575,
+      "srcline": 577,
       "module": "linalg",
       "qualified": "linalg.eigvalsh"
     },
     {
       "name": "inner",
       "signature": "inner(const Array< T > &a, const Array< T > &b)",
-      "brief": "Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's inner; same as dot for flattened vectors).",
+      "brief": "Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's inner; same as dot).",
       "params": [
         {
           "name": "a",
@@ -3941,7 +3937,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 231,
+      "srcline": 233,
       "module": "linalg",
       "qualified": "linalg.inner"
     },
@@ -3964,7 +3960,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 791,
+      "srcline": 794,
       "module": "linalg",
       "qualified": "linalg.inv"
     },
@@ -3985,13 +3981,13 @@
       "returns": "(m·p)×(k·q) block product.",
       "tags": {
         "complexity": "O(n⁴) in the output area.",
-        "alloc": "allocates only the (m·p)×(k·q) result; a non-contiguous operand is packed once into scratch.",
+        "alloc": "allocates only the (m·p)×(k·q) result; a non-contiguous operand packs once into scratch.",
         "test": "LinalgRoutines.VdotInnerOuterKron",
         "crtest": "LinalgCompileRun.Kron",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 372,
+      "srcline": 375,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
@@ -4018,7 +4014,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 765,
+      "srcline": 768,
       "module": "linalg",
       "qualified": "linalg.lstsq"
     },
@@ -4045,7 +4041,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 74,
+      "srcline": 76,
       "module": "linalg",
       "qualified": "linalg.matmul"
     },
@@ -4072,7 +4068,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 298,
+      "srcline": 299,
       "module": "linalg",
       "qualified": "linalg.matrix_power"
     },
@@ -4095,7 +4091,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 673,
+      "srcline": 675,
       "module": "linalg",
       "qualified": "linalg.matrix_rank"
     },
@@ -4118,7 +4114,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 607,
+      "srcline": 609,
       "module": "linalg",
       "qualified": "linalg.norm"
     },
@@ -4145,7 +4141,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 327,
+      "srcline": 331,
       "module": "linalg",
       "qualified": "linalg.outer"
     },
@@ -4168,7 +4164,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 816,
+      "srcline": 819,
       "module": "linalg",
       "qualified": "linalg.pinv"
     },
@@ -4184,14 +4180,14 @@
       ],
       "returns": "QR with q (m×n, orthonormal cols) and r (n×n, upper-triangular).",
       "tags": {
-        "complexity": "O(n³).",
+        "complexity": "O(m²·n) — n reflectors each applied to the full m×m Q; O(n³) when square.",
         "alloc": "allocates both members; the factorization works in O(m²) private scratch (a full m×m Q workspace), then copies the reduced factors in.",
         "test": "LinalgRoutines.CholeskyAndQR",
         "crtest": "LinalgCompileRun.Qr",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 358,
+      "srcline": 359,
       "module": "linalg",
       "qualified": "linalg.qr"
     },
@@ -4203,7 +4199,7 @@
       "returns": ";-separated feature list.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "the returned feature string.",
+        "alloc": "allocates the result string.",
         "test": "LinalgSmoke.SimdFeaturesReported"
       },
       "srcfile": "stdlib/linalg/simd.hpp",
@@ -4214,16 +4210,16 @@
     {
       "name": "simd_lane_doubles",
       "signature": "simd_lane_doubles() noexcept",
-      "brief": "Width, in doubles, of the widest SIMD lane this build targets (1 = scalar, 2 = SSE2/NEON, 4 = AVX, 8 = AVX-512).",
+      "brief": "Width, in doubles, of the widest SIMD lane this build targets.",
       "params": [],
       "returns": "lane width.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "none. Useful for sizing blocked kernels.",
+        "alloc": "none.",
         "test": "LinalgSmoke.SimdFeaturesReported"
       },
       "srcfile": "stdlib/linalg/simd.hpp",
-      "srcline": 80,
+      "srcline": 81,
       "module": "linalg",
       "qualified": "linalg.simd_lane_doubles"
     },
@@ -4246,7 +4242,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 708,
+      "srcline": 711,
       "module": "linalg",
       "qualified": "linalg.slogdet"
     },
@@ -4273,7 +4269,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 738,
+      "srcline": 741,
       "module": "linalg",
       "qualified": "linalg.solve"
     },
@@ -4289,14 +4285,14 @@
       ],
       "returns": "SVD with u (m×n), s (descending singular values), vh (n×n = Vᵀ).",
       "tags": {
-        "complexity": "iterative O(n³).",
+        "complexity": "iterative O(m·n²); O(n³) when square.",
         "alloc": "allocates all members; the Golub–Reinsch reduction allocates its own O(m·n) workspace.",
         "test": "LinalgRoutines.SvdAndEigh",
         "crtest": "LinalgCompileRun.Svd",
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 393,
+      "srcline": 394,
       "module": "linalg",
       "qualified": "linalg.svd"
     },
@@ -4319,7 +4315,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/routines.hpp",
-      "srcline": 421,
+      "srcline": 422,
       "module": "linalg",
       "qualified": "linalg.svdvals"
     },
@@ -4342,7 +4338,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 253,
+      "srcline": 256,
       "module": "linalg",
       "qualified": "linalg.trace"
     },
@@ -4369,7 +4365,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 209,
+      "srcline": 211,
       "module": "linalg",
       "qualified": "linalg.vdot"
     },
@@ -4390,7 +4386,7 @@
         "test": "LinalgRoutines.ProductsAndTrace"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 107,
+      "srcline": 109,
       "module": "linalg",
       "qualified": "linalg.vector_len"
     },
@@ -4566,7 +4562,7 @@
       "params": [
         {
           "name": "x",
-          "desc": "magnitude source,"
+          "desc": "magnitude source."
         },
         {
           "name": "y",
@@ -5213,7 +5209,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1786,
+      "srcline": 1887,
       "module": "ndarray",
       "qualified": "ndarray.abs"
     },
@@ -5240,7 +5236,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1043,
+      "srcline": 1035,
       "module": "ndarray",
       "qualified": "ndarray.add"
     },
@@ -5271,7 +5267,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 810,
+      "srcline": 801,
       "module": "ndarray",
       "qualified": "ndarray.arange"
     },
@@ -5288,12 +5284,11 @@
       "returns": "a contiguous 1-D basic_ndarray<T>.",
       "tags": {
         "complexity": "O(n).",
-        "alloc": "allocates a new buffer.",
-        "test": "CheatahNDArray.ShapeFactoriesAndReductions",
-        "systest": "StdlibE2E.Ndarray"
+        "alloc": "allocates a temporary vector and the result buffer.",
+        "test": "CheatahNDArray.ShapeFactoriesAndReductions"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 697,
+      "srcline": 688,
       "module": "ndarray",
       "qualified": "ndarray.array"
     },
@@ -5316,7 +5311,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 886,
+      "srcline": 877,
       "module": "ndarray",
       "qualified": "ndarray.astype"
     },
@@ -5342,7 +5337,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 552,
+      "srcline": 546,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes"
     },
@@ -5363,12 +5358,12 @@
       "returns": "a VIEW sharing a's buffer (no element copy).",
       "tags": {
         "complexity": "O(rank of target).",
-        "alloc": "no element copy — only the view's stride vector; throws if the shapes are not broadcast-compatible.",
+        "alloc": "allocates the view's shape and stride vectors, no element copy; throws if the shapes are not broadcast-compatible.",
         "test": "CheatahNDArray.BroadcastTo",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 602,
+      "srcline": 596,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to"
     },
@@ -5386,11 +5381,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates the result buffer.",
-        "test": "CheatahNDArray.ElementwiseMath",
-        "systest": "StdlibE2E.NdarrayMath"
+        "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1712,
+      "srcline": 1816,
       "module": "ndarray",
       "qualified": "ndarray.cbrt"
     },
@@ -5417,7 +5411,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1601,
+      "srcline": 1705,
       "module": "ndarray",
       "qualified": "ndarray.complex"
     },
@@ -5440,7 +5434,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1629,
+      "srcline": 1733,
       "module": "ndarray",
       "qualified": "ndarray.conj"
     },
@@ -5458,11 +5452,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates the result buffer.",
-        "test": "CheatahNDArray.ElementwiseMath",
-        "systest": "StdlibE2E.NdarrayMath"
+        "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1762,
+      "srcline": 1864,
       "module": "ndarray",
       "qualified": "ndarray.cos"
     },
@@ -5489,7 +5482,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1085,
+      "srcline": 1077,
       "module": "ndarray",
       "qualified": "ndarray.divide"
     },
@@ -5508,11 +5501,10 @@
         "complexity": "O(size).",
         "alloc": "allocates the result buffer.",
         "test": "CheatahNDArray.ElementwiseMath",
-        "crtest": "NdarrayCompileRun.Exp",
-        "systest": "StdlibE2E.NdarrayMath"
+        "crtest": "NdarrayCompileRun.Exp"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1725,
+      "srcline": 1829,
       "module": "ndarray",
       "qualified": "ndarray.exp"
     },
@@ -5539,7 +5531,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 754,
+      "srcline": 745,
       "module": "ndarray",
       "qualified": "ndarray.full"
     },
@@ -5564,7 +5556,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 768,
+      "srcline": 759,
       "module": "ndarray",
       "qualified": "ndarray.full_like"
     },
@@ -5591,7 +5583,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1868,
+      "srcline": 1969,
       "module": "ndarray",
       "qualified": "ndarray.get"
     },
@@ -5614,7 +5606,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1672,
+      "srcline": 1776,
       "module": "ndarray",
       "qualified": "ndarray.imag"
     },
@@ -5636,7 +5628,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 574,
+      "srcline": 568,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous"
     },
@@ -5654,11 +5646,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates the result buffer.",
-        "test": "CheatahNDArray.ElementwiseMath",
-        "systest": "StdlibE2E.NdarrayMath"
+        "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1737,
+      "srcline": 1840,
       "module": "ndarray",
       "qualified": "ndarray.log"
     },
@@ -5675,13 +5666,13 @@
       "returns": "the average as a double.",
       "tags": {
         "complexity": "O(size).",
-        "alloc": "none.",
+        "alloc": "none on a contiguous array; a strided source allocates sum's index vector.",
         "test": "CheatahNDArray.ShapeFactoriesAndReductions",
         "crtest": "NdarrayCompileRun.Mean",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1851,
+      "srcline": 1952,
       "module": "ndarray",
       "qualified": "ndarray.mean"
     },
@@ -5708,7 +5699,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1071,
+      "srcline": 1063,
       "module": "ndarray",
       "qualified": "ndarray.mul"
     },
@@ -5731,7 +5722,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 739,
+      "srcline": 730,
       "module": "ndarray",
       "qualified": "ndarray.ones"
     },
@@ -5752,7 +5743,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 793,
+      "srcline": 784,
       "module": "ndarray",
       "qualified": "ndarray.ones_like"
     },
@@ -5775,7 +5766,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1650,
+      "srcline": 1754,
       "module": "ndarray",
       "qualified": "ndarray.real"
     },
@@ -5802,7 +5793,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 844,
+      "srcline": 835,
       "module": "ndarray",
       "qualified": "ndarray.reshape"
     },
@@ -5825,7 +5816,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 711,
+      "srcline": 702,
       "module": "ndarray",
       "qualified": "ndarray.scalar"
     },
@@ -5848,7 +5839,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1882,
+      "srcline": 1983,
       "module": "ndarray",
       "qualified": "ndarray.shape_of"
     },
@@ -5871,7 +5862,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1750,
+      "srcline": 1853,
       "module": "ndarray",
       "qualified": "ndarray.sin"
     },
@@ -5890,11 +5881,10 @@
         "complexity": "O(ndim).",
         "alloc": "none.",
         "test": "CheatahNDArray.ShapeFactoriesAndReductions",
-        "crtest": "NdarrayCompileRun.SizeOf",
-        "systest": "StdlibE2E.Ndarray"
+        "crtest": "NdarrayCompileRun.SizeOf NdarrayCompileRun.RprintShowsArrayFull"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1898,
+      "srcline": 1999,
       "module": "ndarray",
       "qualified": "ndarray.size_of"
     },
@@ -5913,11 +5903,10 @@
         "complexity": "O(size).",
         "alloc": "allocates the result buffer.",
         "test": "CheatahNDArray.ElementwiseMath",
-        "crtest": "NdarrayCompileRun.Sqrt",
-        "systest": "StdlibE2E.NdarrayMath"
+        "crtest": "NdarrayCompileRun.Sqrt"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1700,
+      "srcline": 1804,
       "module": "ndarray",
       "qualified": "ndarray.sqrt"
     },
@@ -5944,7 +5933,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1057,
+      "srcline": 1049,
       "module": "ndarray",
       "qualified": "ndarray.sub"
     },
@@ -5982,13 +5971,13 @@
       "returns": "the total, as the element type T.",
       "tags": {
         "complexity": "O(size).",
-        "alloc": "none.",
+        "alloc": "none on the contiguous fast path; the strided walk allocates an index vector.",
         "test": "CheatahNDArray.ShapeFactoriesAndReductions",
         "crtest": "NdarrayCompileRun.Sum",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1826,
+      "srcline": 1927,
       "module": "ndarray",
       "qualified": "ndarray.sum"
     },
@@ -6006,11 +5995,10 @@
       "tags": {
         "complexity": "O(size).",
         "alloc": "allocates the result buffer.",
-        "test": "CheatahNDArray.ElementwiseMath",
-        "systest": "StdlibE2E.NdarrayMath"
+        "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1774,
+      "srcline": 1875,
       "module": "ndarray",
       "qualified": "ndarray.tan"
     },
@@ -6027,13 +6015,13 @@
       "returns": "the textual representation.",
       "tags": {
         "complexity": "O(size).",
-        "alloc": "allocates the result string.",
+        "alloc": "allocates the result string, a formatting stream per element, and an index vector.",
         "test": "CheatahNDArray.ToStringScalar, CheatahNDArray.BroadcastingAdd",
         "crtest": "NdarrayCompileRun.ToString",
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 2004,
+      "srcline": 2105,
       "module": "ndarray",
       "qualified": "ndarray.to_string"
     },
@@ -6056,7 +6044,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 726,
+      "srcline": 717,
       "module": "ndarray",
       "qualified": "ndarray.zeros"
     },
@@ -6077,7 +6065,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 781,
+      "srcline": 772,
       "module": "ndarray",
       "qualified": "ndarray.zeros_like"
     },
@@ -6094,7 +6082,7 @@
       "returns": "",
       "tags": {
         "complexity": "O(1) + a syscall.",
-        "alloc": "none.",
+        "alloc": "allocates a path temporary.",
         "test": "CheatahOs.MakedirsAndChdir",
         "crtest": "OsCompileRun.Chdir",
         "systest": "StdlibE2E.Os"
@@ -6157,7 +6145,6 @@
       "returns": "the value, or fallback.",
       "tags": {
         "complexity": "O(environment size) — std::getenv is a linear scan of the C library's environment table (no syscall).",
-        "alloc": "allocates the returned string.",
         "test": "CheatahOs.GetenvFallback, CheatahOs.SetenvThenGetenv",
         "crtest": "OsCompileRun.Getenv",
         "systest": "StdlibE2E.Os"
@@ -6312,7 +6299,7 @@
       "returns": "",
       "tags": {
         "complexity": "O(1) + a syscall.",
-        "alloc": "none.",
+        "alloc": "allocates two path temporaries.",
         "test": "CheatahOs.ListdirAndRename",
         "crtest": "OsCompileRun.Rename",
         "systest": "StdlibE2E.Os"
@@ -6366,7 +6353,6 @@
       "returns": "",
       "tags": {
         "complexity": "O(environment size) — the C library scans and updates its environment table (no syscall).",
-        "alloc": "may allocate inside the C library's environment table.",
         "test": "CheatahOs.SetenvThenGetenv",
         "crtest": "OsCompileRun.Setenv",
         "systest": "StdlibE2E.Os"
@@ -6690,7 +6676,7 @@
       "returns": "the DER bytes, or \"\" if sig_raw has the wrong length or a zero integer.",
       "tags": {
         "complexity": "O(1).",
-        "alloc": "the returned string.",
+        "alloc": "the returned string plus the two integer temporaries.",
         "test": "CheatahP256.RsToDerRoundTripsAndRejects"
       },
       "srcfile": "stdlib/p256/p256.hpp",
@@ -6712,7 +6698,7 @@
           "desc": "the digest to sign (truncated to 256 bits if longer)."
         }
       ],
-      "returns": "the signature as 64 bytes r||s, or \"\" if privkey is not a valid scalar (wrong length, zero, or >= the group order n).",
+      "returns": "the signature as 64 bytes r||s, or \"\" if privkey is not a valid scalar (wrong length, zero, or >= the group order n), or if all 64 RFC 6979 nonce candidates fail.",
       "tags": {
         "complexity": "O(1) — one fixed-base scalar multiplication per RFC 6979 candidate (almost always one).",
         "alloc": "the returned signature plus RFC 6979 HMAC scratch strings.",
@@ -6726,7 +6712,7 @@
     {
       "name": "spki_ec_point",
       "signature": "spki_ec_point(std::string_view spki_or_cert_der)",
-      "brief": "Extract the P-256 public key point from a certificate / SubjectPublicKeyInfo DER: finds the id-ecPublicKey + prime256v1 AlgorithmIdentifier and returns the uncompressed point's 64 bytes (X||Y).",
+      "brief": "Extract the P-256 public key point from a certificate / SubjectPublicKeyInfo DER: finds the uncompressed EC point BIT STRING (03 42 00 04 X Y, the 66-byte length only a P-256 point has) and returns its 64 bytes (X||Y); the AlgorithmIdentifier OIDs are not inspected.",
       "params": [
         {
           "name": "spki_or_cert_der",
@@ -6766,7 +6752,7 @@
       "tags": {
         "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
         "alloc": "a temporary raw r||s signature string.",
-        "test": "CheatahP256.VerifyKnownVector"
+        "test": "CheatahP256.VerifyDerWithLeadingZeroIntegers, CheatahP256.RsToDerRoundTripsAndRejects"
       },
       "srcfile": "stdlib/p256/p256.hpp",
       "srcline": 46,
@@ -6845,7 +6831,7 @@
       "tags": {
         "complexity": "O(1) — two scalar multiplications, computed as one Strauss-Shamir double chain.",
         "alloc": "a temporary raw r||s signature string.",
-        "test": "CheatahP384.VerifyKnownVector"
+        "test": "CheatahP384.VerifyDerWithLeadingZeroIntegers"
       },
       "srcfile": "stdlib/p384/p384.hpp",
       "srcline": 45,
@@ -6924,7 +6910,7 @@
       "returns": "the attribute value, or \"\".",
       "tags": {
         "complexity": "O(k) in the attribute count of t.",
-        "alloc": "one result string on the heap.",
+        "alloc": "allocates the lowercased key and the result string.",
         "test": "ParsersHtml.GetAttrHasAttrLookup",
         "crtest": "ParsersCompileRun.HtmlAttrHelpers"
       },
@@ -6950,7 +6936,7 @@
       "returns": "true if present (even if valueless).",
       "tags": {
         "complexity": "O(k) in the attribute count of t.",
-        "alloc": "none.",
+        "alloc": "allocates the lowercased key.",
         "test": "ParsersHtml.GetAttrHasAttrLookup",
         "crtest": "ParsersCompileRun.HtmlAttrHelpers"
       },
@@ -6971,7 +6957,7 @@
       ],
       "returns": "the token list (empty for empty input).",
       "tags": {
-        "complexity": "O(n) time in the length of html.",
+        "complexity": "O(n) in the length of html; text runs and attribute values inherit unescape's O(n²) on a run of & with no ;.",
         "alloc": "the token vector and its strings on the heap.",
         "test": "ParsersHtml.ParsesStartDataEndInDocumentOrder",
         "crtest": "ParsersCompileRun.HtmlParseWalk"
@@ -6993,7 +6979,7 @@
       ],
       "returns": "a newly allocated decoded copy.",
       "tags": {
-        "complexity": "O(n) time in the length of s.",
+        "complexity": "O(n) in the length of s; a run of & with no ; after it degrades to O(n²), since each & scans to the next ; before the 32-byte window is applied.",
         "alloc": "one result string on the heap.",
         "test": "ParsersHtml.UnescapeNamedAndNumericForms",
         "crtest": "ParsersCompileRun.HtmlEscapeUnescape"
@@ -7039,15 +7025,20 @@
       "name": "dump",
       "signature": "dump(const Document &value)",
       "brief": "Serialize a Document to compact JSON text (string contents are re-escaped).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the document to serialize."
+        }
+      ],
+      "returns": "the compact JSON text.",
       "tags": {
-        "complexity": "O(nodes)",
-        "alloc": "the returned string",
+        "complexity": "O(output size).",
+        "alloc": "allocates the result string and the O(depth) frame stack.",
         "test": "ParsersJsonDom.OwningContainersAndDumpRoundTrip"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
-      "srcline": 63,
+      "srcline": 68,
       "module": "parsers.json",
       "qualified": "parsers.json.dump"
     },
@@ -7117,15 +7108,24 @@
       "name": "parse",
       "signature": "parse(std::string_view text, bool *ok=nullptr)",
       "brief": "Parse text into a SELF-CONTAINED Document (owning containers AND owned strings — every string is copied, not a view), so the result is safe to return, cache, or outlive text.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "text",
+          "desc": "the JSON source to parse."
+        },
+        {
+          "name": "ok",
+          "desc": "if non-null, set true on success and false on a parse error (written only when Validate is true)."
+        }
+      ],
+      "returns": "the self-contained Document (JSON null on error when validating).",
       "tags": {
-        "complexity": "O(n) in the input length",
+        "complexity": "O(n) in the input length.",
         "alloc": "allocates the owned document tree (arrays, objects, and copied strings)",
         "test": "ParsersJsonDom.ParsesEveryScalarKind"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
-      "srcline": 54,
+      "srcline": 57,
       "module": "parsers.json",
       "qualified": "parsers.json.parse"
     },
@@ -7133,15 +7133,24 @@
       "name": "read",
       "signature": "read(std::string_view text, T &out)",
       "brief": "Parse text directly into out (a struct with a schema<>, a supported scalar, std::vector, std::array, std::optional, or std::string/std::string_view).",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "text",
+          "desc": "the JSON source to parse."
+        },
+        {
+          "name": "out",
+          "desc": "the value filled in place."
+        }
+      ],
+      "returns": "true on success; false when Validate is true and text is malformed or has trailing junk.",
       "tags": {
-        "complexity": "O(n) in the input length",
-        "alloc": "only the owned std::string fields / vector growth in out — no DOM, no Node tree",
+        "complexity": "O(n) in the input length.",
+        "alloc": "only the owned std::string fields / vector growth in out, plus a temporary key string when a key is escaped — no DOM, no Node tree.",
         "test": "CheatahParsersJson.TypedReadWithUnknownKeys CheatahParsersJson.TypedReadOptionalAndReject CheatahParsersJson.TypedReadEscapesAndKeyOrder"
       },
       "srcfile": "stdlib/parsers/json/read.hpp",
-      "srcline": 378,
+      "srcline": 381,
       "module": "parsers.json",
       "qualified": "parsers.json.read"
     },
@@ -7181,15 +7190,20 @@
       "name": "to_view",
       "signature": "to_view(const Node &value) noexcept",
       "brief": "Read a Node's characters when it is a string (either backing), else an empty view.",
-      "params": [],
-      "returns": "",
+      "params": [
+        {
+          "name": "value",
+          "desc": "the node to read."
+        }
+      ],
+      "returns": "the characters when value is a string (either backing), else an empty view.",
       "tags": {
-        "complexity": "O(1)",
+        "complexity": "O(1).",
         "alloc": "none",
         "test": "ParsersJsonDom.ToViewReadsBothBackingsAndRejectsNonStrings"
       },
       "srcfile": "stdlib/parsers/json/json.hpp",
-      "srcline": 36,
+      "srcline": 38,
       "module": "parsers.json",
       "qualified": "parsers.json.to_view"
     },
@@ -7238,7 +7252,7 @@
       ],
       "returns": "the child node ids in document order.",
       "tags": {
-        "complexity": "O(1) (returns a copy of the id list).",
+        "complexity": "O(c) in the child count of id (the id list is copied).",
         "alloc": "the id list.",
         "test": "ParsersXml.FindFindallIterChildren"
       },
@@ -7400,7 +7414,7 @@
       ],
       "returns": "the parsed document (root-only for empty/blank input).",
       "tags": {
-        "complexity": "O(n) time in the length of xml.",
+        "complexity": "O(n) in the length of xml for well-formed input; a run of & with no ; after it, or repeated unmatched end tags under deep nesting, degrade to O(n²).",
         "alloc": "the node slab and its strings on the heap (owned by the returned Document).",
         "test": "ParsersXml.ParsesElementsAttrsAndText ParsersXml.LenientOnMalformedInput"
       },
@@ -7472,7 +7486,7 @@
       "returns": "the concatenated descendant text.",
       "tags": {
         "complexity": "O(m) in the number of descendants of id.",
-        "alloc": "one result string.",
+        "alloc": "the result string and a transient walk stack.",
         "test": "ParsersXml.NestedTextIsCollectedRecursively"
       },
       "srcfile": "stdlib/parsers/xml/xml.hpp",
@@ -7546,7 +7560,7 @@
       ],
       "returns": "an integer in [a, b].",
       "tags": {
-        "complexity": "O(1) time.",
+        "complexity": "O(1) expected — rejection redraws with probability under 1/2.",
         "alloc": "none.",
         "test": "CheatahRandom.RandintInclusiveRange",
         "crtest": "RandomCompileRun.Randint",
@@ -7612,7 +7626,7 @@
           "desc": "the bounds."
         }
       ],
-      "returns": "a value in [a, b) — the upper bound is excluded, like random().",
+      "returns": "a value between a and b; b itself can appear through floating-point rounding of a + (b - a) * random().",
       "tags": {
         "complexity": "O(1) time.",
         "alloc": "none.",
@@ -7662,12 +7676,12 @@
       ],
       "returns": "the match (check .matched); .text owns the matched bytes.",
       "tags": {
-        "complexity": "a $-anchored pattern is O(n): one backward pass of the reversed program finds the leftmost begin directly. Otherwise candidate starts are tried from the left (leftmost-longest is decided per start), with the memchr/required- literal/first-set skip jumping between plausible candidates — so sparse- candidate input is effectively O(n), while a late or absent match over candidate-dense input is O(n²) worst case — always polynomial, never exponential (no backtracking). Add O(m) per uncached transition while new DFA states are built.",
+        "complexity": "a $-anchored pattern is O(n): one backward pass of the reversed program finds the leftmost begin directly. Otherwise candidate starts are tried from the left (leftmost-longest is decided per start), with the memchr/required- literal/first-set skip jumping between plausible candidates — so sparse- candidate input is effectively O(n), while a late match over candidate-dense input is O(n²) worst case — always polynomial, never exponential (no backtracking). Absent input stays O(n): after a budget of failed candidates one unanchored pass settles existence. Add O(m) per uncached transition while new DFA states are built.",
         "alloc": "the matching itself never copies the input — it allocates only DFA machinery (new states while the shared cache is cold; start states are cached in the Pattern, so a warm pattern's scan allocates nothing); on a hit, .text owns one copy of the matched bytes (end - begin). Use .begin/.end to avoid even that.",
         "systest": "RegexE2E.FindOffsetsAndOwnedText RegexE2E.FindIsLeftmostLongest"
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 136,
+      "srcline": 138,
       "module": "regex",
       "qualified": "regex.find"
     },
@@ -7688,11 +7702,11 @@
       "returns": "true iff all of text matches.",
       "tags": {
         "complexity": "O(n) amortized in the length of text (a single anchored DFA pass); O(n·m) worst case while new DFA states are still being built (m = pattern size).",
-        "alloc": "never copies the input; allocates only DFA machinery — a start-state closure scratch (and its intern key) per call, plus new states/transition rows while the shared cache is cold.",
+        "alloc": "never copies the input; allocates only DFA machinery — new states/transition rows while the shared cache is cold (start states are cached in the Pattern after the first call; a warm pattern allocates nothing).",
         "systest": "RegexE2E.FullMatchIsAnchoredBothEnds"
       },
       "srcfile": "stdlib/regex/regex.hpp",
-      "srcline": 100,
+      "srcline": 101,
       "module": "regex",
       "qualified": "regex.full_match"
     },
@@ -7734,7 +7748,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1036,
+      "srcline": 1046,
       "module": "requests",
       "qualified": "requests.delete_"
     },
@@ -7769,7 +7783,7 @@
       "tags": {
         "complexity": "O(n) over the input length.",
         "alloc": "none.",
-        "systest": "CheatahRequests.CrlfInjectionRefused"
+        "test": "CheatahRequests.CrlfInjectionRefused"
       },
       "srcfile": "stdlib/requests/requests.hpp",
       "srcline": 292,
@@ -7789,7 +7803,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1052,
+      "srcline": 1062,
       "module": "requests",
       "qualified": "requests.head"
     },
@@ -7806,7 +7820,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1068,
+      "srcline": 1078,
       "module": "requests",
       "qualified": "requests.options"
     },
@@ -7823,7 +7837,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1020,
+      "srcline": 1030,
       "module": "requests",
       "qualified": "requests.patch"
     },
@@ -7857,7 +7871,7 @@
       "returns": "as the primary overload.",
       "tags": {},
       "srcfile": "stdlib/requests/requests.hpp",
-      "srcline": 1004,
+      "srcline": 1009,
       "module": "requests",
       "qualified": "requests.put"
     },
@@ -8205,7 +8219,7 @@
       ],
       "returns": "an owning Listener; on failure its is_open() is false (see last_error()).",
       "tags": {
-        "complexity": "O(1) (a few syscalls).",
+        "complexity": "O(1) + resolution (a few syscalls).",
         "alloc": "none beyond the Listener itself.",
         "test": "CheatahSocket.ListenerLoopback"
       },
@@ -8348,7 +8362,7 @@
       ],
       "returns": "the listening fd, or -1 on error.",
       "tags": {
-        "complexity": "O(1) (a few syscalls).",
+        "complexity": "O(1) + resolution (a few syscalls).",
         "alloc": "none (the resolver's transient getaddrinfo list is freed before returning).",
         "test": "CheatahSocket.Loopback",
         "crtest": "SocketCompileRun.TcpListen",
@@ -8585,7 +8599,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 351,
+      "srcline": 354,
       "module": "string",
       "qualified": "string.capwords"
     },
@@ -8616,7 +8630,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 437,
+      "srcline": 440,
       "module": "string",
       "qualified": "string.center"
     },
@@ -8639,11 +8653,10 @@
         "complexity": "O(n).",
         "alloc": "none.",
         "test": "CheatahString.ContainsChar",
-        "crtest": "StringCompileRun.Contains",
-        "systest": "StdlibE2E.String"
+        "systest": "RequestsSys.QueryParams"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 210,
+      "srcline": 214,
       "module": "string",
       "qualified": "string.contains"
     },
@@ -8670,7 +8683,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 273,
+      "srcline": 276,
       "module": "string",
       "qualified": "string.count"
     },
@@ -8724,11 +8737,10 @@
         "complexity": "O(n·m).",
         "alloc": "none.",
         "test": "CheatahString.SearchAndTest",
-        "crtest": "StringCompileRun.Find",
-        "systest": "StdlibE2E.String"
+        "systest": "RequestsSys.HeaderLookup"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 243,
+      "srcline": 246,
       "module": "string",
       "qualified": "string.find"
     },
@@ -8751,7 +8763,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 497,
+      "srcline": 500,
       "module": "string",
       "qualified": "string.isalnum"
     },
@@ -8774,7 +8786,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 483,
+      "srcline": 486,
       "module": "string",
       "qualified": "string.isalpha"
     },
@@ -8797,7 +8809,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 469,
+      "srcline": 472,
       "module": "string",
       "qualified": "string.isdigit"
     },
@@ -8820,7 +8832,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 542,
+      "srcline": 545,
       "module": "string",
       "qualified": "string.islower"
     },
@@ -8843,7 +8855,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 512,
+      "srcline": 515,
       "module": "string",
       "qualified": "string.isspace"
     },
@@ -8866,7 +8878,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 527,
+      "srcline": 530,
       "module": "string",
       "qualified": "string.isupper"
     },
@@ -8893,7 +8905,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 373,
+      "srcline": 376,
       "module": "string",
       "qualified": "string.join"
     },
@@ -8924,7 +8936,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 403,
+      "srcline": 406,
       "module": "string",
       "qualified": "string.ljust"
     },
@@ -9005,7 +9017,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 290,
+      "srcline": 293,
       "module": "string",
       "qualified": "string.replace"
     },
@@ -9032,7 +9044,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 258,
+      "srcline": 261,
       "module": "string",
       "qualified": "string.rfind"
     },
@@ -9063,7 +9075,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 420,
+      "srcline": 423,
       "module": "string",
       "qualified": "string.rjust"
     },
@@ -9113,7 +9125,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 321,
+      "srcline": 324,
       "module": "string",
       "qualified": "string.split"
     },
@@ -9136,7 +9148,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 336,
+      "srcline": 339,
       "module": "string",
       "qualified": "string.splitlines"
     },
@@ -9286,7 +9298,7 @@
         "systest": "StdlibE2E.String"
       },
       "srcfile": "stdlib/string/string.hpp",
-      "srcline": 453,
+      "srcline": 456,
       "module": "string",
       "qualified": "string.zfill"
     },
@@ -9556,8 +9568,8 @@
       ],
       "returns": "the expanded key material, length bytes.",
       "tags": {
-        "complexity": "O(length) — HKDF-Expand emits ceil(length/hash) HMAC blocks.",
-        "alloc": "the returned key material plus the HkdfLabel info string.",
+        "complexity": "O(⌈length/hash⌉ · (|secret| + |label| + |context| + hash)) — one HMAC per output block.",
+        "alloc": "the returned key material, the HkdfLabel info string, and HKDF's per-block HMAC scratch.",
         "test": "CheatahTls.ExpandLabel"
       },
       "srcfile": "stdlib/tls/tls.cpp",

@@ -201,11 +201,15 @@ bool contains(std::string_view s, std::string_view sub);
 
 /**
  * contains() with a single-char needle — what iterating a string yields (`for ch in s`).
- * @param s input. @param c the character. @return true when present.
- * @complexity O(n). @alloc none.
+ *
+ * Case-sensitive byte search for @p c anywhere in @p s; an empty @p s returns false.
+ * @param s input.
+ * @param c the character.
+ * @return true when present.
+ * @complexity O(n).
+ * @alloc none.
  * @test CheatahString.ContainsChar
- * @crtest StringCompileRun.Contains
- * @systest StdlibE2E.String
+ * @systest RequestsSys.QueryParams
  */
 inline bool contains(std::string_view s, char c) { return s.find(c) != std::string_view::npos; }
 /**
@@ -237,8 +241,7 @@ long find(std::string_view s, std::string_view sub);
  * @complexity O(n·m).
  * @alloc none.
  * @test CheatahString.SearchAndTest
- * @crtest StringCompileRun.Find
- * @systest StdlibE2E.String
+ * @systest RequestsSys.HeaderLookup
  */
 long find(std::string_view s, std::string_view sub, long start);
 /**

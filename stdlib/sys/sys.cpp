@@ -10,7 +10,8 @@ namespace cheatah::sys {
 // cheatah runtime forwards the program's arguments via cheatah_set_argv().
 std::vector<std::string> argv;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables): `sys.argv` IS a process-wide variable by contract — programs read it directly
 
-/// @cond INTERNAL — the runtime hook's definition; programs read `sys.argv`
+/// @cond INTERNAL
+/// the runtime hook's definition; programs read `sys.argv`
 void set_argv(int argc, char** argv_) {
     argv.clear();
     if (argc < 0 || argv_ == nullptr) return;
@@ -36,7 +37,8 @@ void set_argv(int argc, char** argv_) {
 #define CHEATAH_SYS_EXPORT extern "C" __attribute__((visibility("default")))
 #endif
 
-/// @cond INTERNAL — the exported C hook the runtime dlsym()s; never cheatah-visible
+/// @cond INTERNAL
+/// the exported C hook the runtime dlsym()s; never cheatah-visible
 CHEATAH_SYS_EXPORT void cheatah_set_argv(int argc, char** argv) {
     cheatah::sys::set_argv(argc, argv);
 }

@@ -124,7 +124,7 @@ public:
      * Encrypt and send @p data as TLS application data (see the free send()).
      * @param data plaintext to send.
      * @return 0 on success, -1 on error.
-     * @complexity O(|data|).
+     * @complexity O(log n) lookup + O(|data|) sealing.
      * @alloc the ciphertext record(s).
      * @concurrency a session is single-owner — never send on one session from two
      *              threads at once (the record sequence would race). Separate sessions
@@ -136,7 +136,7 @@ public:
      * Receive and decrypt up to @p bufsize bytes of application data (see the free recv()).
      * @param bufsize maximum plaintext bytes to return.
      * @return the plaintext, or "" on clean close/EOF/error.
-     * @complexity O(bytes drained) — it decrypts every record already buffered, up to @p bufsize.
+     * @complexity O(log n) lookup + O(bytes drained) — it decrypts every record already buffered, up to @p bufsize.
      * @alloc the returned plaintext (plus per-record decryption buffers while draining).
      * @concurrency blocks (bounded by the fd's socket.set_timeout()) only while nothing is
      *              ready; a session has ONE reader — shutdown() is the cross-thread wake-up.

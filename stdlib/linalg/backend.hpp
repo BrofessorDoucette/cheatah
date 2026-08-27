@@ -28,14 +28,15 @@
 
 namespace cheatah::linalg {
 
-/// @cond INTERNAL — the allocation-free out-parameter kernel (HOST overload; a device
+/// @cond INTERNAL
+/// the allocation-free out-parameter kernel (HOST overload; a device
 /// extension adds its own `requires DeviceArray<Array<T>>` overload). Declared here so the
 /// allocating front below can call it; defined + explicitly instantiated in routines.cpp.
 /**
  * Matmul into the CALLER'S buffer @p out (out FIRST) — no result allocation (a hot loop hands
- * the same scratch every call). ONE two-layer overload over `Array<T>` unifying the former real
- * and complex, host `NDArray`/`CNDArray` out-param functions.
- * @tparam T the element type; @tparam Array the (host) container template.
+ * the same scratch every call).
+ * @tparam T the element type.
+ * @tparam Array the (host) container template.
  * @param out contiguous [a.rows, b.cols] destination, overwritten; must NOT alias @p a or @p b.
  * @param a,b the operands.
  * @complexity O(n³) (× B for a batch).
@@ -53,10 +54,11 @@ void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b);
  * Matrix multiply — the allocating front. Both operands are `Array<T>` (so host⊗device / element
  * mixes fail to deduce and are compile errors); requires both to be 2-D with matching inner
  * dimensions — or both 3-D for the BATCHED product `[B,M,K] @ [B,K,N] → [B,M,N]` (equal batch
- * counts, strict: no broadcast batching). Allocates the result via `Array<T>::uninitialized` (no
- * throwaway zero-fill) and fills it through the out-parameter kernel — the host SIMD path, or a
- * device shader when `Array` is a device container (selected by concept at compile time).
- * @tparam T the element type (`double` / `std::complex<double>`), @tparam Array the container template.
+ * counts, strict: no broadcast batching). Allocates the result via `Array<T>::uninitialized` and
+ * fills it through the out-parameter kernel — the host SIMD path, or a device shader when
+ * `Array` is a device container.
+ * @tparam T the element type (`double` / `std::complex<double>`).
+ * @tparam Array the container template.
  * @param a m×k matrix, or a B×m×k batch of matrices.
  * @param b k×p matrix, or a B×k×p batch.
  * @return m×p product (or the B×m×p batch), an `Array<T>` of the same container and element.
@@ -115,7 +117,8 @@ template <NumericArray A>
 // unqualified `op(out, …)`, which resolves to the HOST kernel below (routines.cpp) or a device
 // extension's `requires DeviceArray<Array<T>>` overload via ADL.
 
-/// @cond INTERNAL — the scalar-out reduction kernels (HOST overloads; a device extension adds its
+/// @cond INTERNAL
+/// the scalar-out reduction kernels (HOST overloads; a device extension adds its
 /// own `requires DeviceArray<Array<T>>` overloads). Declared here so the allocating fronts below
 /// can call them; defined + explicitly instantiated in routines.cpp.
 /**
@@ -160,12 +163,11 @@ void trace(T& out, const Array<T>& a);
 /// @endcond
 
 /**
- * Dot product: 1-D inner product (vectors flattened) — the bilinear Σ aᵢbᵢ. ONE two-layer
- * template over the element `T` and container `Array` serving real, complex, host and — via a
- * device extension — device operands. Flattens each operand to a vector (1-D, or 2-D with a
- * size-1 row/column) and throws if either is not vector-shaped or the lengths differ. Both
- * operands are `Array<T>` (the deduction firewall).
- * @tparam T the element type; @tparam Array the container template.
+ * Dot product: 1-D inner product (vectors flattened) — the bilinear Σ aᵢbᵢ. Flattens each
+ * operand to a vector (1-D, or 2-D with a size-1 row/column) and throws if either is not
+ * vector-shaped or the lengths differ. Both operands are `Array<T>` (the deduction firewall).
+ * @tparam T the element type.
+ * @tparam Array the container template.
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ as the scalar `T`.
  * @complexity O(n).
@@ -190,9 +192,9 @@ template <ndarray::Field T, template <typename> class Array>
 /**
  * Vector dot product. For a REAL element this is the bilinear Σ aᵢbᵢ (identical to @ref dot and
  * @ref inner); for a **complex** element it is the conjugate-linear Hermitian inner product
- * ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ (numpy's `vdot`, conjugating the first argument) — one two-layer template,
- * the conjugation chosen at compile time by `if constexpr`. `vdot(a, a)` is the real ‖a‖².
- * @tparam T the element type; @tparam Array the container template.
+ * ⟨a, b⟩ = Σ conj(aᵢ)·bᵢ (numpy's `vdot`, conjugating the first argument); `vdot(a, a)` is ‖a‖².
+ * @tparam T the element type.
+ * @tparam Array the container template.
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ (real) or Σ conj(aᵢ)·bᵢ (complex), as the scalar `T`.
  * @complexity O(n).
@@ -215,9 +217,9 @@ template <ndarray::Field T, template <typename> class Array>
 }
 
 /**
- * Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's `inner`; same as @ref dot for
- * flattened vectors). One two-layer template over the element and container.
- * @tparam T the element type; @tparam Array the container template.
+ * Inner product of two vectors — the bilinear Σ aᵢbᵢ (numpy's `inner`; same as @ref dot).
+ * @tparam T the element type.
+ * @tparam Array the container template.
  * @param a,b same-length vectors.
  * @return Σ aᵢbᵢ as the scalar `T`.
  * @complexity O(n).
@@ -239,7 +241,8 @@ template <ndarray::Field T, template <typename> class Array>
 /**
  * Trace: the sum of the matrix diagonal, as the scalar `T`. Requires a 2-D matrix (throws
  * otherwise); rectangular matrices sum min(r, c) diagonal entries.
- * @tparam T the element type; @tparam Array the container template.
+ * @tparam T the element type.
+ * @tparam Array the container template.
  * @param a a 2-D matrix.
  * @return Σ aᵢᵢ as the scalar `T`.
  * @complexity O(min(r, c)).
@@ -259,7 +262,8 @@ template <ndarray::Field T, template <typename> class Array>
 
 // ---- products with array results (outer / conj_transpose / kron): the matmul pattern ----
 
-/// @cond INTERNAL — the allocation-free out-parameter kernels (HOST overloads; a device extension
+/// @cond INTERNAL
+/// the allocation-free out-parameter kernels (HOST overloads; a device extension
 /// adds its own `requires DeviceArray<Array<T>>` overloads). Declared here so the allocating
 /// fronts below can call them; defined + explicitly instantiated in routines.cpp.
 /**
@@ -361,8 +365,7 @@ template <ndarray::Field T, template <typename> class Array>
  * @param b p×q matrix.
  * @return (m·p)×(k·q) block product.
  * @complexity O(n⁴) in the output area.
- * @alloc allocates only the (m·p)×(k·q) result; a non-contiguous operand is packed once
- *        into scratch.
+ * @alloc allocates only the (m·p)×(k·q) result; a non-contiguous operand packs once into scratch.
  * @test LinalgRoutines.VdotInnerOuterKron
  * @crtest LinalgCompileRun.Kron
  * @systest StdlibE2E.Linalg

@@ -48,7 +48,7 @@ public:
      * @tparam T one of the variant alternative types.
      * @param value the token value to store (forwarded into the variant).
      * @complexity O(1) — one move/copy of the token into the variant.
-     * @alloc none of its own (whatever the moved-in token owns comes along).
+     * @alloc none for a moved-in token; a copied String<std::string> allocates its characters.
      * @test CheatahParsersJson.TokenClassesAndNodeVariant
      */
     template <class T>

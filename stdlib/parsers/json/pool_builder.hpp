@@ -46,7 +46,7 @@ public:
      * @param text_size the byte length of the source about to be parsed (sizes the pool reserve).
      * @complexity O(1) amortized (no realloc after warm-up)
      * @alloc grows the pools once (~text_size/2 nodes + text_size/4 members); reused thereafter
-     * @test Json.ParseObject
+     * @test CheatahParsersJson.PoolBuilderStackMachine
      */
     void reset(std::size_t text_size) {
         node_pool_.clear();

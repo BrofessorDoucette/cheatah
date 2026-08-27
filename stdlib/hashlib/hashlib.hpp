@@ -52,9 +52,9 @@ std::string sha256(std::string_view data);  // 64-char lowercase hex digest
  * @return a 96-char lowercase hex digest.
  * @complexity O(n) in the input length.
  * @alloc allocates the 96-char result string and a padded message buffer internally.
- * @test CheatahHashlib.Sha384KnownVectors, CheatahHashlib.Sha384DigestShape
+ * @test CheatahHashlib.Sha384KnownVectors, CheatahHashlib.Sha384DigestShape,
+ *   HashlibVsOpenssl.Sha384
  * @crtest HashlibCompileRun.Sha384
- * @systest StdlibE2E.Hashlib
  */
 std::string sha384(std::string_view data);  // 96-char lowercase hex digest
 
@@ -63,7 +63,7 @@ std::string sha384(std::string_view data);  // 96-char lowercase hex digest
  *
  * The full SHA-512 (128-byte blocks, 80 rounds, 128-bit length field) of the byte
  * view, formatted as hex. The empty string hashes to the canonical
- * `cf83e1357eefb8bd…3e85` (128 hex chars).
+ * `cf83e1357eefb8bd…927da3e` (128 hex chars).
  * @param data the bytes to hash (an embedded NUL is part of the input).
  * @return a 128-char lowercase hex digest.
  * @complexity O(n) in the input length.
@@ -96,7 +96,7 @@ std::string sha256_digest(std::string_view data);  // 32 raw bytes
  * @alloc allocates the 48-byte result and a padded message buffer.
  * @test CheatahHashlib.RawDigestMatchesHex
  * @crtest HashlibCompileRun.Sha384Digest
- * @systest StdlibE2E.Hashlib
+ * @systest TlsSys.HandshakeAes256GcmSha384
  */
 std::string sha384_digest(std::string_view data);  // 48 raw bytes
 
@@ -122,8 +122,8 @@ std::string sha512_digest(std::string_view data);  // 64 raw bytes
  * @complexity O(|key| + |data|).
  * @alloc the returned 32-byte digest plus fixed key/inner/outer scratch buffers and
  *        message-sized concatenation/padding temporaries.
- * @test CheatahHashlib.HmacSha256
- * @systest StdlibE2E.Hashlib
+ * @test CheatahHashlib.HmacSha256, HashlibVsOpenssl.HmacSha256
+ * @systest TlsSys.HandshakeAgainstOpenssl
  */
 std::string hmac_sha256(std::string_view key, std::string_view data);
 
@@ -138,7 +138,7 @@ std::string hmac_sha256(std::string_view key, std::string_view data);
  * @alloc the returned 48-byte digest plus fixed key/inner/outer scratch buffers and
  *        message-sized concatenation/padding temporaries.
  * @test HashlibVsOpenssl.HmacSha384
- * @systest StdlibE2E.Hashlib
+ * @systest TlsSys.HandshakeAes256GcmSha384
  */
 std::string hmac_sha384(std::string_view key, std::string_view data);
 
@@ -152,8 +152,7 @@ std::string hmac_sha384(std::string_view key, std::string_view data);
  * @complexity O(|key| + |data|).
  * @alloc the returned 64-byte digest plus fixed key/inner/outer scratch buffers and
  *        message-sized concatenation/padding temporaries.
- * @test CheatahHashlib.HmacSha512
- * @systest StdlibE2E.Hashlib
+ * @test CheatahHashlib.HmacSha512, HashlibVsOpenssl.HmacSha512
  */
 std::string hmac_sha512(std::string_view key, std::string_view data);
 
@@ -164,8 +163,9 @@ std::string hmac_sha512(std::string_view key, std::string_view data);
  * @return the base64 text (length `4*ceil(n/3)`).
  * @complexity O(n).
  * @alloc the returned string.
- * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip
- * @systest StdlibE2E.Hashlib
+ * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip,
+ *   HashlibVsOpenssl.Base64Encode
+ * @systest RequestsSys.BasicAuth
  */
 std::string base64_encode(std::string_view data);
 
@@ -183,7 +183,7 @@ std::string base64_encode(std::string_view data);
  * @alloc the returned string.
  * @test CheatahHashlib.Base64KnownVectors, CheatahHashlib.Base64RoundTrip,
  *   CheatahHashlib.Base64DecodeStrict
- * @systest StdlibE2E.Hashlib
+ * @systest TlsSys.HandshakeAgainstOpenssl
  */
 std::string base64_decode(std::string_view text, bool strict = false);
 
@@ -234,7 +234,7 @@ std::string from_hex(std::string_view hex);
  * @alloc the returned 32-byte PRK plus HMAC scratch buffers (including ikm-sized
  *        concatenation/padding temporaries).
  * @test CheatahHashlib.HkdfRfc5869Case1
- * @systest StdlibE2E.Hashlib
+ * @systest TlsSys.HandshakeAgainstOpenssl
  */
 std::string hkdf_extract(std::string_view salt, std::string_view ikm);
 
@@ -248,7 +248,7 @@ std::string hkdf_extract(std::string_view salt, std::string_view ikm);
  * @complexity O(⌈length/32⌉ · (|prk| + |info| + 32)) — one HMAC per 32-byte output block.
  * @alloc the returned keystream plus HMAC scratch buffers per 32-byte output block.
  * @test CheatahHashlib.HkdfRfc5869Case1, CheatahHashlib.HkdfBounds
- * @systest StdlibE2E.Hashlib
+ * @systest TlsSys.HandshakeAgainstOpenssl
  */
 std::string hkdf_expand(std::string_view prk, std::string_view info, long long length);
 
