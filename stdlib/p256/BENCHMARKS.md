@@ -8,8 +8,8 @@ Measured by [`tests/benchmarks/p256_bench.cpp`](../../tests/benchmarks/p256_benc
 <!-- BENCH:p256 begin -->
 <!-- cheatah-bench-stamp v1
      suite:        p256
-     generated:    2026-08-20
-     commit:       2b3a0b8
+     generated:    2026-08-27
+     commit:       f1ea22f
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -31,9 +31,16 @@ Measured by [`tests/benchmarks/p256_bench.cpp`](../../tests/benchmarks/p256_benc
 
 | Op | median | spread | throughput |
 |---|--:|--:|--:|
-| `BM_P256_Sign` | 58.34 µs | ±770.07 ns IQR | 17.1 k/s |
-| `BM_P256_Verify` | 88.69 µs | ±588.83 ns IQR | 11.3 k/s |
+| `BM_P256_Sign` | 69.45 µs | ±116.48 ns IQR | 14.4 k/s |
+| `BM_P256_Verify` | 109.44 µs | ±474.81 ns IQR | 9.1 k/s |
 <!-- BENCH:p256 end -->
 
 Verification runs once per P-256 chain link plus once for CertificateVerify —
 negligible next to a network round trip; signing is the per-message JWT path.
+
+Both figures rose about a fifth when the field arithmetic became constant-time: each modular
+reduction now computes its result whether or not it is needed and selects with a mask, and the
+multi-limb compare always reads every limb instead of stopping at the first difference. That
+cost buys a signing path whose timing does not depend on the private key. Verification moved
+too, sharing the same arithmetic, even though it handles only public data and gains nothing
+from the change.

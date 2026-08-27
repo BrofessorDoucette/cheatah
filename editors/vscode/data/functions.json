@@ -23,7 +23,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 678,
+      "srcline": 681,
       "module": "",
       "qualified": "append"
     },
@@ -46,7 +46,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 383,
+      "srcline": 386,
       "module": "",
       "qualified": "ascii"
     },
@@ -69,7 +69,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 367,
+      "srcline": 370,
       "module": "",
       "qualified": "bin"
     },
@@ -92,7 +92,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 411,
+      "srcline": 414,
       "module": "",
       "qualified": "bool"
     },
@@ -115,7 +115,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 324,
+      "srcline": 327,
       "module": "",
       "qualified": "chr"
     },
@@ -140,7 +140,7 @@
         "crtest": "LangFeatures.InOperator"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 752,
+      "srcline": 755,
       "module": "",
       "qualified": "contains"
     },
@@ -157,7 +157,7 @@
         "crtest": "PurrcPipeline.CompilesAndRunsTryExceptRaise"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 186,
+      "srcline": 189,
       "module": "",
       "qualified": "current_error"
     },
@@ -184,7 +184,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 708,
+      "srcline": 711,
       "module": "",
       "qualified": "endswith"
     },
@@ -207,7 +207,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 477,
+      "srcline": 480,
       "module": "",
       "qualified": "float"
     },
@@ -234,7 +234,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 617,
+      "srcline": 620,
       "module": "",
       "qualified": "floordiv"
     },
@@ -257,7 +257,7 @@
         "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 654,
+      "srcline": 657,
       "module": "",
       "qualified": "hash"
     },
@@ -280,7 +280,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 339,
+      "srcline": 342,
       "module": "",
       "qualified": "hex"
     },
@@ -311,7 +311,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 2162,
+      "srcline": 2197,
       "module": "",
       "qualified": "index"
     },
@@ -334,7 +334,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 442,
+      "srcline": 445,
       "module": "",
       "qualified": "int"
     },
@@ -357,7 +357,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 270,
+      "srcline": 273,
       "module": "",
       "qualified": "len"
     },
@@ -378,7 +378,7 @@
         "test": "CheatahBuiltins.FinallyRunsOnEveryExitPath"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 252,
+      "srcline": 255,
       "module": "",
       "qualified": "make_finally"
     },
@@ -404,7 +404,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 795,
+      "srcline": 798,
       "module": "",
       "qualified": "mod"
     },
@@ -427,7 +427,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 353,
+      "srcline": 356,
       "module": "",
       "qualified": "oct"
     },
@@ -449,7 +449,7 @@
         "crtest": "LangFeatures.Modulo"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 309,
+      "srcline": 312,
       "module": "",
       "qualified": "ord"
     },
@@ -473,34 +473,69 @@
     },
     {
       "name": "slice",
-      "signature": "slice(const C &c, long long lo, long long hi)",
-      "brief": "Sub-list xs[lo:hi] (Python slice semantics), returned as a new list.",
+      "signature": "slice(const ::cheatah::ndarray::basic_ndarray< T > &a, long long lo, long long hi)",
+      "brief": "A view of a[lo:hi] along axis 0 — the rows lo up to hi, sharing a's buffer.",
       "params": [
         {
-          "name": "c",
-          "desc": "the sequence."
+          "name": "a",
+          "desc": "the array to view."
         },
         {
           "name": "lo",
-          "desc": "start index."
+          "desc": "first row (negative counts from the end)."
         },
         {
           "name": "hi",
-          "desc": "end index, or slice_end for \"to the end\"."
+          "desc": "one past the last row, or slice_end for \"to the end\"."
         }
       ],
-      "returns": "the slice as a std::vector of the element type.",
+      "returns": "a view sharing a's storage.",
       "tags": {
-        "complexity": "O(hi-lo).",
-        "alloc": "the result vector.",
-        "test": "CheatahBuiltins.SliceList",
-        "crtest": "LangFeatures.ListSlicingAndIndex",
-        "systest": "StdlibE2E.Builtins"
+        "complexity": "O(ndim) — shape and stride vectors are copied, never the elements.",
+        "alloc": "the shape/stride vectors of the view; no element copy.",
+        "test": "CheatahNDArray.SliceIsAView",
+        "crtest": "LangFeatures.NdarraySliceAssignment",
+        "systest": "StdlibE2E.Ndarray"
       },
-      "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 947,
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 2223,
       "module": "",
       "qualified": "slice"
+    },
+    {
+      "name": "slice_assign",
+      "signature": "slice_assign(::cheatah::ndarray::basic_ndarray< T > &a, long long lo, long long hi, const R &rhs)",
+      "brief": "Write rhs into the elements a[lo:hi] addresses — an array assignment COPIES, it never rebinds or resizes.",
+      "params": [
+        {
+          "name": "a",
+          "desc": "the array to write into."
+        },
+        {
+          "name": "lo",
+          "desc": "first row (negative counts from the end)."
+        },
+        {
+          "name": "hi",
+          "desc": "one past the last row, or slice_end for \"to the end\"."
+        },
+        {
+          "name": "rhs",
+          "desc": "the value(s) to copy in."
+        }
+      ],
+      "returns": "",
+      "tags": {
+        "complexity": "O(size of the slice).",
+        "alloc": "the view's shape/stride vectors, plus a broadcast view of rhs when it is an array.",
+        "test": "CheatahNDArray.SliceAssignCopiesIn",
+        "crtest": "LangFeatures.NdarraySliceAssignment",
+        "systest": "StdlibE2E.Ndarray"
+      },
+      "srcfile": "stdlib/ndarray/ndarray.hpp",
+      "srcline": 2260,
+      "module": "",
+      "qualified": "slice_assign"
     },
     {
       "name": "startswith",
@@ -525,7 +560,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 693,
+      "srcline": 696,
       "module": "",
       "qualified": "startswith"
     },
@@ -546,7 +581,7 @@
         "test": "CheatahBuiltins.StrByteWidthIntsAreNumbers"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 556,
+      "srcline": 559,
       "module": "",
       "qualified": "str"
     },
@@ -569,7 +604,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 411,
+      "srcline": 414,
       "module": "",
       "qualified": "to_bool"
     },
@@ -592,7 +627,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 477,
+      "srcline": 480,
       "module": "",
       "qualified": "to_float"
     },
@@ -615,7 +650,7 @@
         "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 442,
+      "srcline": 445,
       "module": "",
       "qualified": "to_int"
     },
@@ -642,7 +677,7 @@
         "systest": "StdlibE2E.Math"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
-      "srcline": 573,
+      "srcline": 576,
       "module": "",
       "qualified": "truediv"
     },
@@ -1268,7 +1303,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 364,
+      "srcline": 394,
       "module": "ec",
       "qualified": "ec.Fn"
     },
@@ -1284,7 +1319,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 350,
+      "srcline": 380,
       "module": "ec",
       "qualified": "ec.Fp"
     },
@@ -1313,7 +1348,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 119,
+      "srcline": 128,
       "module": "ec",
       "qualified": "ec.add_carry"
     },
@@ -1338,7 +1373,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 629,
+      "srcline": 659,
       "module": "ec",
       "qualified": "ec.affine_to_jac"
     },
@@ -1354,7 +1389,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 647,
+      "srcline": 677,
       "module": "ec",
       "qualified": "ec.base_point"
     },
@@ -1375,7 +1410,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 380,
+      "srcline": 410,
       "module": "ec",
       "qualified": "ec.be_to_fe"
     },
@@ -1391,9 +1426,25 @@
         "test": "CheatahP256.ConstantTimePointOpsMatchReference"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 917,
+      "srcline": 1015,
       "module": "ec",
       "qualified": "ec.ct_add_selfcheck"
+    },
+    {
+      "name": "ct_field_selfcheck",
+      "signature": "ct_field_selfcheck()",
+      "brief": "Differentially validate the branch-free FIELD arithmetic against an independent reference.",
+      "params": [],
+      "returns": "true iff every case agrees.",
+      "tags": {
+        "complexity": "O(1) — a fixed number of fixed-width operations.",
+        "alloc": "none.",
+        "test": "CheatahP256.ConstantTimeFieldOpsMatchReference"
+      },
+      "srcfile": "stdlib/p256/ec_core.hpp",
+      "srcline": 928,
+      "module": "ec",
+      "qualified": "ec.ct_field_selfcheck"
     },
     {
       "name": "ct_mask",
@@ -1412,7 +1463,7 @@
         "test": "CheatahP256.ConstantTimePointOpsMatchReference"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 710,
+      "srcline": 78,
       "module": "ec",
       "qualified": "ec.ct_mask"
     },
@@ -1441,7 +1492,7 @@
         "test": "CheatahP256.SignKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 868,
+      "srcline": 874,
       "module": "ec",
       "qualified": "ec.ct_select"
     },
@@ -1470,7 +1521,7 @@
         "test": "CheatahP256.VerifyDerWithLeadingZeroIntegers"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1020,
+      "srcline": 1118,
       "module": "ec",
       "qualified": "ec.der_to_rs"
     },
@@ -1499,7 +1550,7 @@
         "test": "CheatahP256.ConstantTimePointOpsMatchReference"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 723,
+      "srcline": 91,
       "module": "ec",
       "qualified": "ec.fe_cmov"
     },
@@ -1524,7 +1575,7 @@
         "test": "CheatahP256.SignKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 400,
+      "srcline": 430,
       "module": "ec",
       "qualified": "ec.fe_to_be"
     },
@@ -1553,7 +1604,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 260,
+      "srcline": 290,
       "module": "ec",
       "qualified": "ec.from_mont"
     },
@@ -1569,14 +1620,14 @@
         "test": "CheatahP256.SignKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 664,
+      "srcline": 694,
       "module": "ec",
       "qualified": "ec.g_comb"
     },
     {
       "name": "geq",
       "signature": "geq(const fe< C > &a, const fe< C > &b)",
-      "brief": "Multi-limb unsigned compare, most-significant limb first.",
+      "brief": "Multi-limb unsigned compare, in constant time.",
       "params": [
         {
           "name": "a",
@@ -1589,12 +1640,12 @@
       ],
       "returns": "true iff a >= b.",
       "tags": {
-        "complexity": "O(1) — at most kLimbs limb compares.",
+        "complexity": "O(1) — one full-width subtract, always every limb.",
         "alloc": "none.",
         "test": "CheatahP256.VerifyRejectsOutOfRangeAndInfinity"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 81,
+      "srcline": 149,
       "module": "ec",
       "qualified": "ec.geq"
     },
@@ -1615,7 +1666,7 @@
         "test": "CheatahP256.HashToScalarReducesWhenGreaterThanOrder CheatahP384.HashToScalarReducesWhenGreaterThanOrder"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 996,
+      "srcline": 1094,
       "module": "ec",
       "qualified": "ec.hash_to_scalar"
     },
@@ -1636,7 +1687,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 298,
+      "srcline": 328,
       "module": "ec",
       "qualified": "ec.inv64"
     },
@@ -1686,7 +1737,7 @@
         "test": "CheatahP256.VerifyHitsGroupLawSpecialCases"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 501,
+      "srcline": 531,
       "module": "ec",
       "qualified": "ec.jac_add"
     },
@@ -1715,7 +1766,7 @@
         "test": "CheatahP256.ConstantTimePointOpsMatchReference"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 806,
+      "srcline": 812,
       "module": "ec",
       "qualified": "ec.jac_add_ct"
     },
@@ -1736,7 +1787,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 607,
+      "srcline": 637,
       "module": "ec",
       "qualified": "ec.jac_affine_x"
     },
@@ -1765,7 +1816,7 @@
         "test": "CheatahP256.ConstantTimePointOpsMatchReference"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 738,
+      "srcline": 744,
       "module": "ec",
       "qualified": "ec.jac_cmov"
     },
@@ -1790,7 +1841,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 444,
+      "srcline": 474,
       "module": "ec",
       "qualified": "ec.jac_double"
     },
@@ -1815,7 +1866,7 @@
         "test": "CheatahP256.ConstantTimePointOpsMatchReference"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 757,
+      "srcline": 763,
       "module": "ec",
       "qualified": "ec.jac_double_ct"
     },
@@ -1852,7 +1903,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 568,
+      "srcline": 598,
       "module": "ec",
       "qualified": "ec.jac_double_mul"
     },
@@ -1868,7 +1919,7 @@
         "test": "CheatahP256.VerifyHitsGroupLawSpecialCases"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 429,
+      "srcline": 459,
       "module": "ec",
       "qualified": "ec.jac_infinity"
     },
@@ -1893,7 +1944,7 @@
         "test": "CheatahP256.SignKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 887,
+      "srcline": 895,
       "module": "ec",
       "qualified": "ec.jac_mul_base"
     },
@@ -1914,7 +1965,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 314,
+      "srcline": 344,
       "module": "ec",
       "qualified": "ec.make_mont"
     },
@@ -1947,7 +1998,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 203,
+      "srcline": 234,
       "module": "ec",
       "qualified": "ec.mont_add"
     },
@@ -1976,7 +2027,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 276,
+      "srcline": 306,
       "module": "ec",
       "qualified": "ec.mont_inv"
     },
@@ -2009,7 +2060,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 151,
+      "srcline": 180,
       "module": "ec",
       "qualified": "ec.mont_mul"
     },
@@ -2042,7 +2093,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 225,
+      "srcline": 256,
       "module": "ec",
       "qualified": "ec.mont_sub"
     },
@@ -2067,7 +2118,7 @@
         "test": "CheatahP256.RejectsOffCurvePublicKey CheatahP384.RejectsOffCurvePublicKey"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1067,
+      "srcline": 1165,
       "module": "ec",
       "qualified": "ec.on_curve"
     },
@@ -2088,7 +2139,7 @@
         "test": "CheatahP256.ReduceModNBoundary"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 974,
+      "srcline": 1072,
       "module": "ec",
       "qualified": "ec.reduce_mod_n"
     },
@@ -2109,7 +2160,7 @@
         "test": "CheatahP256.RsToDerRoundTripsAndRejects"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1169,
+      "srcline": 1267,
       "module": "ec",
       "qualified": "ec.rs_to_der"
     },
@@ -2138,7 +2189,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 98,
+      "srcline": 107,
       "module": "ec",
       "qualified": "ec.sub_borrow"
     },
@@ -2167,7 +2218,7 @@
         "test": "CheatahP256.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 246,
+      "srcline": 276,
       "module": "ec",
       "qualified": "ec.to_mont"
     },
@@ -2196,7 +2247,7 @@
         "test": "CheatahP256.VerifyDerWithLeadingZeroIntegers CheatahP384.VerifyDerWithLeadingZeroIntegers"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1142,
+      "srcline": 1240,
       "module": "ec",
       "qualified": "ec.verify_der"
     },
@@ -2225,7 +2276,7 @@
         "test": "CheatahP256.VerifyKnownVector CheatahP384.VerifyKnownVector"
       },
       "srcfile": "stdlib/p256/ec_core.hpp",
-      "srcline": 1096,
+      "srcline": 1194,
       "module": "ec",
       "qualified": "ec.verify_raw"
     },
@@ -2391,7 +2442,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1023,
+      "srcline": 1026,
       "module": "fixarray",
       "qualified": "fixarray.abs"
     },
@@ -2420,7 +2471,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1147,
+      "srcline": 1150,
       "module": "fixarray",
       "qualified": "fixarray.clamp"
     },
@@ -2445,7 +2496,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1305,
+      "srcline": 1308,
       "module": "fixarray",
       "qualified": "fixarray.column"
     },
@@ -2470,7 +2521,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 594,
+      "srcline": 597,
       "module": "fixarray",
       "qualified": "fixarray.cross"
     },
@@ -2491,7 +2542,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 797,
+      "srcline": 800,
       "module": "fixarray",
       "qualified": "fixarray.determinant"
     },
@@ -2516,7 +2567,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 935,
+      "srcline": 938,
       "module": "fixarray",
       "qualified": "fixarray.distance"
     },
@@ -2541,7 +2592,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 949,
+      "srcline": 952,
       "module": "fixarray",
       "qualified": "fixarray.distance_squared"
     },
@@ -2566,7 +2617,7 @@
         "test": "Fixarray.DotAndCross"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 564,
+      "srcline": 567,
       "module": "fixarray",
       "qualified": "fixarray.dot"
     },
@@ -2595,7 +2646,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1002,
+      "srcline": 1005,
       "module": "fixarray",
       "qualified": "fixarray.faceforward"
     },
@@ -2616,7 +2667,7 @@
         "test": "Fixarray.DeterminantAndInverse"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 878,
+      "srcline": 881,
       "module": "fixarray",
       "qualified": "fixarray.inverse"
     },
@@ -2637,7 +2688,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1267,
+      "srcline": 1270,
       "module": "fixarray",
       "qualified": "fixarray.inverse_transpose"
     },
@@ -2662,7 +2713,7 @@
         "test": "Fixarray.Matmul"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 699,
+      "srcline": 702,
       "module": "fixarray",
       "qualified": "fixarray.matmul"
     },
@@ -2687,7 +2738,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1235,
+      "srcline": 1238,
       "module": "fixarray",
       "qualified": "fixarray.matrix_comp_mult"
     },
@@ -2712,7 +2763,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1110,
+      "srcline": 1113,
       "module": "fixarray",
       "qualified": "fixarray.max"
     },
@@ -2737,7 +2788,7 @@
         "test": "Fixarray.MinMaxClamp"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1075,
+      "srcline": 1078,
       "module": "fixarray",
       "qualified": "fixarray.min"
     },
@@ -2766,7 +2817,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1183,
+      "srcline": 1186,
       "module": "fixarray",
       "qualified": "fixarray.mix"
     },
@@ -2787,7 +2838,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 628,
+      "srcline": 631,
       "module": "fixarray",
       "qualified": "fixarray.norm"
     },
@@ -2808,7 +2859,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 644,
+      "srcline": 647,
       "module": "fixarray",
       "qualified": "fixarray.normalize"
     },
@@ -2833,7 +2884,7 @@
         "test": "Fixarray.MatrixExtras"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1250,
+      "srcline": 1253,
       "module": "fixarray",
       "qualified": "fixarray.outer_product"
     },
@@ -2858,7 +2909,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 964,
+      "srcline": 967,
       "module": "fixarray",
       "qualified": "fixarray.reflect"
     },
@@ -2887,7 +2938,7 @@
         "test": "Fixarray.Geometry"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 982,
+      "srcline": 985,
       "module": "fixarray",
       "qualified": "fixarray.refract"
     },
@@ -2912,7 +2963,7 @@
         "test": "Fixarray.NamedRowsAndColumns"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1287,
+      "srcline": 1290,
       "module": "fixarray",
       "qualified": "fixarray.row"
     },
@@ -2933,7 +2984,7 @@
         "test": "Fixarray.CommonUnary"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1040,
+      "srcline": 1043,
       "module": "fixarray",
       "qualified": "fixarray.sign"
     },
@@ -2962,7 +3013,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1215,
+      "srcline": 1218,
       "module": "fixarray",
       "qualified": "fixarray.smoothstep"
     },
@@ -2983,7 +3034,7 @@
         "test": "Fixarray.NormAndNormalize"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 613,
+      "srcline": 616,
       "module": "fixarray",
       "qualified": "fixarray.squared_norm"
     },
@@ -3008,7 +3059,7 @@
         "test": "Fixarray.MixStep"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1199,
+      "srcline": 1202,
       "module": "fixarray",
       "qualified": "fixarray.step"
     },
@@ -3029,7 +3080,7 @@
         "test": "Fixarray.ToStringMatchesTheNDArrayRendering"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 1325,
+      "srcline": 1328,
       "module": "fixarray",
       "qualified": "fixarray.to_string"
     },
@@ -3050,7 +3101,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 681,
+      "srcline": 684,
       "module": "fixarray",
       "qualified": "fixarray.trace"
     },
@@ -3071,7 +3122,7 @@
         "test": "Fixarray.TransposeAndTrace"
       },
       "srcfile": "stdlib/fixarray/fixarray.hpp",
-      "srcline": 663,
+      "srcline": 666,
       "module": "fixarray",
       "qualified": "fixarray.transpose"
     },
@@ -3768,7 +3819,7 @@
         "systest": "StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 351,
+      "srcline": 363,
       "module": "linalg",
       "qualified": "linalg.conj_transpose"
     },
@@ -3818,7 +3869,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 184,
+      "srcline": 196,
       "module": "linalg",
       "qualified": "linalg.dot"
     },
@@ -3937,7 +3988,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 233,
+      "srcline": 245,
       "module": "linalg",
       "qualified": "linalg.inner"
     },
@@ -3987,7 +4038,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 375,
+      "srcline": 387,
       "module": "linalg",
       "qualified": "linalg.kron"
     },
@@ -4041,7 +4092,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 76,
+      "srcline": 93,
       "module": "linalg",
       "qualified": "linalg.matmul"
     },
@@ -4141,7 +4192,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 331,
+      "srcline": 343,
       "module": "linalg",
       "qualified": "linalg.outer"
     },
@@ -4338,7 +4389,7 @@
         "systest": "StdlibE2E.Linalg"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 256,
+      "srcline": 268,
       "module": "linalg",
       "qualified": "linalg.trace"
     },
@@ -4365,7 +4416,7 @@
         "systest": "StdlibE2E.Linalg StdlibE2E.LinalgComplex"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 211,
+      "srcline": 223,
       "module": "linalg",
       "qualified": "linalg.vdot"
     },
@@ -4386,7 +4437,7 @@
         "test": "LinalgRoutines.ProductsAndTrace"
       },
       "srcfile": "stdlib/linalg/backend.hpp",
-      "srcline": 109,
+      "srcline": 121,
       "module": "linalg",
       "qualified": "linalg.vector_len"
     },
@@ -5209,7 +5260,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1887,
+      "srcline": 1908,
       "module": "ndarray",
       "qualified": "ndarray.abs"
     },
@@ -5236,7 +5287,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1035,
+      "srcline": 1056,
       "module": "ndarray",
       "qualified": "ndarray.add"
     },
@@ -5267,7 +5318,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 801,
+      "srcline": 822,
       "module": "ndarray",
       "qualified": "ndarray.arange"
     },
@@ -5288,7 +5339,7 @@
         "test": "CheatahNDArray.ShapeFactoriesAndReductions"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 688,
+      "srcline": 709,
       "module": "ndarray",
       "qualified": "ndarray.array"
     },
@@ -5311,7 +5362,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 877,
+      "srcline": 898,
       "module": "ndarray",
       "qualified": "ndarray.astype"
     },
@@ -5337,7 +5388,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 546,
+      "srcline": 567,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_shapes"
     },
@@ -5363,7 +5414,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 596,
+      "srcline": 617,
       "module": "ndarray",
       "qualified": "ndarray.broadcast_to"
     },
@@ -5384,7 +5435,7 @@
         "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1816,
+      "srcline": 1837,
       "module": "ndarray",
       "qualified": "ndarray.cbrt"
     },
@@ -5411,7 +5462,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1705,
+      "srcline": 1726,
       "module": "ndarray",
       "qualified": "ndarray.complex"
     },
@@ -5434,7 +5485,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1733,
+      "srcline": 1754,
       "module": "ndarray",
       "qualified": "ndarray.conj"
     },
@@ -5455,7 +5506,7 @@
         "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1864,
+      "srcline": 1885,
       "module": "ndarray",
       "qualified": "ndarray.cos"
     },
@@ -5482,7 +5533,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1077,
+      "srcline": 1098,
       "module": "ndarray",
       "qualified": "ndarray.divide"
     },
@@ -5504,7 +5555,7 @@
         "crtest": "NdarrayCompileRun.Exp"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1829,
+      "srcline": 1850,
       "module": "ndarray",
       "qualified": "ndarray.exp"
     },
@@ -5531,7 +5582,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 745,
+      "srcline": 766,
       "module": "ndarray",
       "qualified": "ndarray.full"
     },
@@ -5556,7 +5607,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 759,
+      "srcline": 780,
       "module": "ndarray",
       "qualified": "ndarray.full_like"
     },
@@ -5583,7 +5634,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1969,
+      "srcline": 1990,
       "module": "ndarray",
       "qualified": "ndarray.get"
     },
@@ -5606,7 +5657,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1776,
+      "srcline": 1797,
       "module": "ndarray",
       "qualified": "ndarray.imag"
     },
@@ -5628,7 +5679,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 568,
+      "srcline": 589,
       "module": "ndarray",
       "qualified": "ndarray.is_contiguous"
     },
@@ -5649,7 +5700,7 @@
         "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1840,
+      "srcline": 1861,
       "module": "ndarray",
       "qualified": "ndarray.log"
     },
@@ -5672,7 +5723,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1952,
+      "srcline": 1973,
       "module": "ndarray",
       "qualified": "ndarray.mean"
     },
@@ -5699,7 +5750,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1063,
+      "srcline": 1084,
       "module": "ndarray",
       "qualified": "ndarray.mul"
     },
@@ -5722,7 +5773,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 730,
+      "srcline": 751,
       "module": "ndarray",
       "qualified": "ndarray.ones"
     },
@@ -5743,7 +5794,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 784,
+      "srcline": 805,
       "module": "ndarray",
       "qualified": "ndarray.ones_like"
     },
@@ -5766,7 +5817,7 @@
         "systest": "StdlibE2E.NdarrayComplex"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1754,
+      "srcline": 1775,
       "module": "ndarray",
       "qualified": "ndarray.real"
     },
@@ -5793,7 +5844,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 835,
+      "srcline": 856,
       "module": "ndarray",
       "qualified": "ndarray.reshape"
     },
@@ -5816,7 +5867,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 702,
+      "srcline": 723,
       "module": "ndarray",
       "qualified": "ndarray.scalar"
     },
@@ -5839,7 +5890,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1983,
+      "srcline": 2004,
       "module": "ndarray",
       "qualified": "ndarray.shape_of"
     },
@@ -5862,7 +5913,7 @@
         "systest": "StdlibE2E.NdarrayMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1853,
+      "srcline": 1874,
       "module": "ndarray",
       "qualified": "ndarray.sin"
     },
@@ -5884,7 +5935,7 @@
         "crtest": "NdarrayCompileRun.SizeOf NdarrayCompileRun.RprintShowsArrayFull"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1999,
+      "srcline": 2020,
       "module": "ndarray",
       "qualified": "ndarray.size_of"
     },
@@ -5906,7 +5957,7 @@
         "crtest": "NdarrayCompileRun.Sqrt"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1804,
+      "srcline": 1825,
       "module": "ndarray",
       "qualified": "ndarray.sqrt"
     },
@@ -5933,7 +5984,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1049,
+      "srcline": 1070,
       "module": "ndarray",
       "qualified": "ndarray.sub"
     },
@@ -5977,7 +6028,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1927,
+      "srcline": 1948,
       "module": "ndarray",
       "qualified": "ndarray.sum"
     },
@@ -5998,7 +6049,7 @@
         "test": "CheatahNDArray.ElementwiseMath"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 1875,
+      "srcline": 1896,
       "module": "ndarray",
       "qualified": "ndarray.tan"
     },
@@ -6021,7 +6072,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 2105,
+      "srcline": 2126,
       "module": "ndarray",
       "qualified": "ndarray.to_string"
     },
@@ -6044,7 +6095,7 @@
         "systest": "StdlibE2E.Ndarray"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 717,
+      "srcline": 738,
       "module": "ndarray",
       "qualified": "ndarray.zeros"
     },
@@ -6065,7 +6116,7 @@
         "test": "CheatahNDArray.LikeFactories"
       },
       "srcfile": "stdlib/ndarray/ndarray.hpp",
-      "srcline": 772,
+      "srcline": 793,
       "module": "ndarray",
       "qualified": "ndarray.zeros_like"
     },
