@@ -1,0 +1,22 @@
+# Slice reads and slice ASSIGNMENT, so the emitted forms are linted like every other fixture.
+# A list slice assignment resizes; an array one copies into a fixed extent.
+import io
+import ndarray
+
+fn main() {
+    let xs = [1, 2, 3, 4, 5]
+    io.print(xs[1:4], xs[-2:])
+
+    xs[1:3] = [9, 9]          # same length, written in place
+    io.print(xs)
+    xs[1:3] = [7, 7, 7]       # grows
+    io.print(xs)
+    xs[0:2] = []              # deletes
+    io.print(xs)
+
+    let a = ndarray.array([1.0, 2.0, 3.0, 4.0])
+    a[1:3] = 5.0              # an array is filled, never resized
+    io.print(ndarray.to_string(a))
+}
+
+main()

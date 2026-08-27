@@ -92,6 +92,26 @@ TEST(Fixarray, DefaultIsZero) {
     EXPECT_EQ(m(1, 1), 0.0);
 }
 
+// A fixed-size array is FILLED by a slice assignment — the extent is part of the type, so the
+// values are copied in and nothing is resized.
+TEST(Fixarray, SliceAssignCopiesIn) {
+    using V = fa::Fixed<float, 4>;
+    V v{1.0F, 2.0F, 3.0F, 4.0F};
+    cheatah::builtins::slice_assign(v, 1, 3, std::vector<float>{9.0F, 9.0F});
+    EXPECT_FLOAT_EQ(v[0], 1.0F);           // outside the slice: untouched
+    EXPECT_FLOAT_EQ(v[1], 9.0F);
+    EXPECT_FLOAT_EQ(v[2], 9.0F);
+    EXPECT_FLOAT_EQ(v[3], 4.0F);
+    EXPECT_EQ(V::size, 4U);                // the extent is compile-time and cannot move
+    // negatives count from the end, exactly as for a list
+    cheatah::builtins::slice_assign(v, -2, -1, std::vector<float>{5.0F});
+    EXPECT_FLOAT_EQ(v[2], 5.0F);
+    // a source of the wrong length is an error, never a partial write
+    EXPECT_THROW(cheatah::builtins::slice_assign(v, 0, 2, std::vector<float>{1.0F}),
+                 std::runtime_error);
+    EXPECT_FLOAT_EQ(v[0], 1.0F);           // and it really did not write
+}
+
 TEST(Fixarray, VectorIndexing) {
     fa::vec3f v{1.0F, 2.0F, 3.0F};
     EXPECT_EQ(v[0], 1.0F);

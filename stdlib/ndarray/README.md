@@ -14,8 +14,10 @@ element-wise Python-style, e.g. `[0+1j, 0-1j]`. (Ordering-dependent ops like
 `arange`, and `mean` which returns a `double`, stay real-only.)
 
 Elements live in a shared buffer (`shared_ptr<vector<T>>`); an array is a VIEW
-into it — `{shape, strides, offset}` — so reshape and broadcast are zero-copy
-(a stretched dimension just gets stride 0). Shared ownership keeps it memory-safe.
+into it — `{shape, strides, offset}` — so broadcasting and slicing are zero-copy
+(a stretched dimension just gets stride 0; a slice moves the offset). `reshape`
+reads in C-order, so it returns a fresh contiguous buffer rather than a view.
+Shared ownership keeps it memory-safe.
 
 Element-wise ops vectorize declaratively: a contiguous fast path uses
 `std::transform(std::execution::unseq, …)` (and `sum` runs eight independent accumulators so the adds vectorize too),
@@ -101,6 +103,11 @@ io.print(ndarray.to_string(ndarray.conj(z)))   # [0-1j, 2+3j]
 ### Reductions, access, display
 - `sum(a)` / `mean(a)` — reduce all elements.
 - `get(a, index)` — read one element (bounds-checked).
+- `a[lo:hi]` — a **view** of rows `lo` to `hi`, sharing the buffer; writing through it
+  writes into the parent.
+- `a[lo:hi] = x` — **copies** `x` into the elements the slice addresses (a scalar
+  broadcasts). An array assignment fills the array; it never rebinds or resizes it, so
+  a shape that cannot broadcast is an error rather than a partial write.
 - `shape_of(a)` / `size_of(a)` — query dimensions / element count.
 - `to_string(a)` — nested-bracket text, e.g. `"[[1, 2], [3, 4]]"`.
 

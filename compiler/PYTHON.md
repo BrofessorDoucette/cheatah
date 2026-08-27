@@ -176,7 +176,9 @@ cheatah code therefore always runs under the runtime, never standalone.
    `std::unordered_map<K,V>`, `array<T,N>` → `std::array<T,N>` (static). List/dict
    **literals** infer element types via C++ CTAD, so they must be **non-empty**
    (an empty `[]`/`{}` needs a type annotation). Iterating a `dict` yields
-   key/value **pairs** (not keys like Python).
+   key/value **pairs** (not keys like Python). `xs[lo:hi] = ys` follows Python for a
+   list — the range is replaced and the list resizes — while an array (`ndarray`,
+   `fixarray`, `array<T,N>`) copies the values in and keeps its shape.
 
 9. **Statically typed under the hood (type inference).** `let`/params use C++
    `auto`, so a variable's type is fixed by its initializer. No dynamic re-typing
@@ -210,7 +212,7 @@ cheatah code therefore always runs under the runtime, never standalone.
 Comprehensions; **interface refinement** (one
 interface building on another — interfaces are flat for now); <b>custom constructors /
 `__init__`</b> (construction is positional for now); f-strings & rich string formatting
-(use `io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);
+(use `io.format`); step slices (`a[::2]`);
 tuples/unpacking; generators/`yield`; `lambda`.
 
 All tracked toward frictionless Python → cheatah porting.

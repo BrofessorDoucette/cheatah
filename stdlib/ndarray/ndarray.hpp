@@ -448,6 +448,27 @@ public:
     }
 
     /**
+     * Writable element at @p index — the mutable companion to @ref at, used to write through a
+     * view (a slice assignment addresses elements it does not own outright).
+     * @param index one coordinate per dimension.
+     * @return a reference to the element.
+     * @complexity O(ndim).
+     * @alloc none.
+     * @test CheatahNDArray.SliceAssignCopiesIn
+     * @systest StdlibE2E.Ndarray
+     */
+    T& at_ref(const std::vector<std::size_t>& index) {
+        if (index.size() != shape_.size()) {
+            throw std::runtime_error("ndarray: index has the wrong number of dimensions");
+        }
+        auto off = static_cast<std::ptrdiff_t>(offset_);
+        for (std::size_t i = 0; i < index.size(); ++i) {
+            if (index[i] >= shape_[i]) throw std::runtime_error("ndarray: index out of range");
+            off += static_cast<std::ptrdiff_t>(index[i]) * strides_[i];
+        }
+        return (*data_)[static_cast<std::size_t>(off)];
+    }
+    /**
      * Read one element by a full multidimensional index (one component per axis), resolved via
      * the array's strides. Computes the flat buffer position as
      * `offset + sum(index[i] * strides[i])`, so it correctly resolves views (including
@@ -2147,6 +2168,20 @@ inline void basic_ndarray<T>::cheatah_pretty_print(std::ostream& os, long long /
 // one coordinate per dimension.
 namespace cheatah::builtins {
 
+/// @cond INTERNAL
+/// This header deliberately includes no project header — it only REOPENS the builtins namespace to
+/// add ndarray overloads, exactly as `index` below does. So the two names the slice-assignment
+/// vocabulary needs are spelled locally: `empty_seq` is forward-declared (a reference to an
+/// incomplete type is all an overload declaration needs, and builtins.hpp completes it wherever
+/// both headers are in play), and the "to the end" sentinel is the same value builtins::slice_end
+/// holds. A static_assert in builtins.hpp keeps the two from drifting.
+struct empty_seq;
+inline constexpr long long nd_slice_end = std::numeric_limits<long long>::max();
+/// A slice bound, with a negative counting back from the end (builtins::detail::norm_index).
+inline long long nd_norm_index(long long i, long long n) { return i < 0 ? i + n : i; }
+/// @endcond
+
+
 /**
  * Element read `a[i, j, ...]` (negative indices count from the dimension end).
  * @param a the array to read from.
@@ -2164,5 +2199,94 @@ T index(const ::cheatah::ndarray::basic_ndarray<T>& a, First first, Ix... rest) 
     // (ndarray::Subscript); the const overload reads, and the value is copied out.
     return a.item_ref(first, rest...);
 }
+
+
+/**
+ * A view of `a[lo:hi]` along axis 0 — the rows `lo` up to `hi`, sharing @p a's buffer.
+ *
+ * Zero-copy, like every other ndarray view: only shape and offset change, the strides are @p a's,
+ * and the shared buffer keeps the elements alive for as long as either array refers to them.
+ * Writing through the view therefore writes into @p a. Bounds follow the list rules — negatives
+ * count from the end, out-of-range values clamp, a reversed range yields an empty leading axis.
+ * @tparam T the element type.
+ * @param a the array to view.
+ * @param lo first row (negative counts from the end).
+ * @param hi one past the last row, or `slice_end` for "to the end".
+ * @return a view sharing @p a's storage.
+ * @complexity O(ndim) — shape and stride vectors are copied, never the elements.
+ * @alloc the shape/stride vectors of the view; no element copy.
+ * @test CheatahNDArray.SliceIsAView
+ * @crtest LangFeatures.NdarraySliceAssignment
+ * @systest StdlibE2E.Ndarray
+ */
+template <typename T>
+::cheatah::ndarray::basic_ndarray<T> slice(const ::cheatah::ndarray::basic_ndarray<T>& a,
+                                           long long lo, long long hi) {
+    if (a.ndim() == 0) throw std::runtime_error("ndarray: cannot slice a 0-d array");
+    const auto n = static_cast<long long>(a.shape()[0]);
+    lo = nd_norm_index(lo, n);
+    hi = (hi == nd_slice_end) ? n : nd_norm_index(hi, n);
+    if (lo < 0) lo = 0;
+    if (lo > n) lo = n;
+    if (hi > n) hi = n;
+    if (hi < lo) hi = lo;
+    std::vector<std::size_t> shape = a.shape();
+    shape[0] = static_cast<std::size_t>(hi - lo);
+    const std::size_t off = a.offset() + static_cast<std::size_t>(lo * a.strides()[0]);
+    return ::cheatah::ndarray::basic_ndarray<T>(a.buffer(), shape, a.strides(), off);
+}
+
+/**
+ * Write @p rhs into the elements `a[lo:hi]` addresses — an array assignment COPIES, it never
+ * rebinds or resizes.
+ *
+ * @p rhs may be a scalar (filling every addressed element) or an array broadcastable to the
+ * slice's shape, matching numpy. The destination keeps its shape, so an extent that does not
+ * broadcast is an error rather than a silent truncation. Strides are honoured, so writing
+ * through a non-contiguous view lands on the right elements.
+ * @tparam T the element type.
+ * @tparam R the source: a scalar or an ndarray.
+ * @param a the array to write into.
+ * @param lo first row (negative counts from the end).
+ * @param hi one past the last row, or `slice_end` for "to the end".
+ * @param rhs the value(s) to copy in.
+ * @complexity O(size of the slice).
+ * @alloc the view's shape/stride vectors, plus a broadcast view of @p rhs when it is an array.
+ * @test CheatahNDArray.SliceAssignCopiesIn
+ * @crtest LangFeatures.NdarraySliceAssignment
+ * @systest StdlibE2E.Ndarray
+ */
+template <typename T, typename R>
+void slice_assign(::cheatah::ndarray::basic_ndarray<T>& a, long long lo, long long hi,
+                  const R& rhs) {
+    ::cheatah::ndarray::basic_ndarray<T> dst = slice(a, lo, hi);
+    if (dst.size() == 0) return;
+    std::vector<std::size_t> idx(dst.ndim(), 0);
+    if constexpr (std::is_convertible_v<R, T>) {          // scalar fill
+        const T v = static_cast<T>(rhs);
+        for (;;) {
+            dst.at_ref(idx) = v;
+            if (!::cheatah::ndarray::detail::next_index(idx, dst.shape())) break;
+        }
+    } else {                                              // array source, broadcast to the slice
+        const ::cheatah::ndarray::basic_ndarray<T> src =
+            ::cheatah::ndarray::broadcast_to(rhs, dst.shape());
+        for (;;) {
+            dst.at_ref(idx) = src.at(idx);
+            if (!::cheatah::ndarray::detail::next_index(idx, dst.shape())) break;
+        }
+    }
+}
+
+/// @cond INTERNAL
+/// An ndarray has a fixed shape, so there is nothing for `a[lo:hi] = []` to delete.
+template <typename T>
+void slice_assign(::cheatah::ndarray::basic_ndarray<T>& a, long long lo, long long hi, const empty_seq&) {
+    (void)a; (void)lo; (void)hi;
+    throw std::runtime_error(
+        "ndarray: a[lo:hi] = [] has no meaning — an array assignment fills the slice, it cannot "
+        "remove elements (its shape is fixed)");
+}
+/// @endcond
 
 }  // namespace cheatah::builtins

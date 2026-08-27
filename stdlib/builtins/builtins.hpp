@@ -13,7 +13,10 @@
  * suite runs under AddressSanitizer (the `asan` preset) and Valgrind
  * (`security/run-valgrind.sh`) on every QA-gate run.
  */
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <iterator>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -961,5 +964,171 @@ auto slice(const C& c, long long lo, long long hi) -> std::vector<std::decay_t<d
     out.assign(c.begin() + static_cast<std::size_t>(lo), c.begin() + static_cast<std::size_t>(stop));
     return out;
 }
+
+// ---- slice ASSIGNMENT ------------------------------------------------------------------
+// `seq[lo:hi] = rhs` lowers to `slice_assign(seq, lo, hi, rhs)`. Bounds are normalised exactly as
+// @ref slice does, so the write addresses the elements the matching read would have returned.
+//
+// Each container decides what an assignment MEANS, by overload resolution — the compiler has no
+// type information to decide with. A list REPLACES the range and resizes (Python); ndarray and
+// fixarray COPY the values into storage they already own (they are arrays: an assignment fills
+// them, it never rebinds or resizes them); a string refuses, being immutable.
+
+/**
+ * The empty sequence on the right of a slice assignment (`xs[a:b] = []`).
+ *
+ * An empty list literal carries no element type, so it cannot be spelled as a `std::vector`
+ * without one. The compiler emits this tag instead and each container decides what it means:
+ * a list DELETES the range, while a fixed-extent array refuses, having nothing to shrink.
+ */
+struct empty_seq {};
+
+// ndarray.hpp reopens this namespace without including this header, so it spells the same
+// sentinel locally. If either value ever moves, this fails rather than silently disagreeing.
+static_assert(slice_end == std::numeric_limits<long long>::max(),
+              "builtins::slice_end and ndarray's nd_slice_end must hold the same value");
+
+/**
+ * Delete `v[lo:hi]` — the `xs[a:b] = []` form.
+ * @tparam T the element type.
+ * @param v the list to modify in place.
+ * @param lo start index (negative counts from the end).
+ * @param hi end index, or @ref slice_end for "to the end".
+ * @complexity O(size) — the tail shifts down.
+ * @alloc none — erasing never reallocates.
+ * @test CheatahBuiltins.SliceAssignList
+ * @crtest LangFeatures.ListSliceAssignment
+ * @systest StdlibE2E.Builtins
+ */
+template <typename T>
+void slice_assign(std::vector<T>& v, long long lo, long long hi, empty_seq) {
+    const auto n = static_cast<long long>(v.size());
+    lo = detail::norm_index(lo, n);
+    hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
+    if (lo < 0) lo = 0;
+    if (lo > n) lo = n;
+    if (hi > n) hi = n;
+    if (hi < lo) hi = lo;
+    v.erase(v.begin() + static_cast<std::size_t>(lo), v.begin() + static_cast<std::size_t>(hi));
+}
+
+/**
+ * Write @p rhs into `v[lo:hi]` of a fixed-size `array<T, N>` — it is FILLED, never resized.
+ *
+ * The extent is part of the type, so a source of the wrong length is an error rather than a
+ * partial write. Bounds follow @ref slice. This is the same contract `fixarray` and `ndarray`
+ * keep: an assignment into an array copies values into storage the array already owns.
+ * @tparam T the element type.
+ * @tparam N the extent.
+ * @tparam R the source range type.
+ * @param v the array to write into.
+ * @param lo start index (negative counts from the end).
+ * @param hi end index, or @ref slice_end for "to the end".
+ * @param rhs the elements to copy in.
+ * @complexity O(hi - lo).
+ * @alloc none — the destination already owns its storage.
+ * @test CheatahBuiltins.SliceAssignFixedArray
+ * @crtest LangFeatures.ListSliceAssignment
+ * @systest StdlibE2E.Builtins
+ */
+template <typename T, std::size_t N, typename R>
+    requires requires(const R& r) { r.begin(); r.end(); }
+void slice_assign(std::array<T, N>& v, long long lo, long long hi, const R& rhs) {
+    constexpr auto n = static_cast<long long>(N);
+    lo = detail::norm_index(lo, n);
+    hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
+    if (lo < 0) lo = 0;
+    if (lo > n) lo = n;
+    if (hi > n) hi = n;
+    if (hi < lo) hi = lo;
+    const auto want = static_cast<std::size_t>(hi - lo);
+    const auto got = static_cast<std::size_t>(std::distance(rhs.begin(), rhs.end()));
+    if (got != want) {
+        throw std::runtime_error("array: a slice assignment fills a fixed extent — the source has " +
+                                 std::to_string(got) + " element(s) for " + std::to_string(want) +
+                                 " slot(s)");
+    }
+    std::copy(rhs.begin(), rhs.end(), v.begin() + static_cast<std::size_t>(lo));
+}
+
+/// @cond INTERNAL
+/// A fixed-size array has nothing to delete — its extent is part of its type.
+template <typename T, std::size_t N>
+void slice_assign(std::array<T, N>& v, long long lo, long long hi, empty_seq) {
+    (void)v; (void)lo; (void)hi;
+    throw std::runtime_error(
+        "array: a[lo:hi] = [] has no meaning — a fixed-size array is filled, not resized");
+}
+/// @endcond
+
+/// @cond INTERNAL
+/// A string is immutable, exactly as in Python, so `s[a:b] = …` has no meaning. Declared (rather
+/// than left to fail on overload resolution) so the error is a sentence instead of a page of
+/// candidate templates.
+template <typename R>
+void slice_assign(std::string& s, long long lo, long long hi, const R& rhs) {
+    static_assert(sizeof(R) == 0,
+                  "cheatah: a str is immutable — s[a:b] = ... is not allowed (as in Python). "
+                  "Build a new string, e.g. s = s[:a] + replacement + s[b:].");
+    (void)s; (void)lo; (void)hi; (void)rhs;
+}
+/// @endcond
+
+/**
+ * Replace `v[lo:hi]` with the elements of @p rhs, resizing the list (Python list semantics).
+ *
+ * Bounds follow @ref slice: negatives count from the end, out-of-range values clamp, and a
+ * reversed range is an insertion point. The list GROWS or SHRINKS to fit @p rhs, so
+ * `xs[1:3] = []` deletes those elements and `xs[1:1] = ys` inserts without removing any.
+ *
+ * @p rhs is copied into a temporary before the list is touched. That is what makes
+ * `xs[1:3] = xs` and an overlapping source well defined instead of undefined: `erase` would
+ * otherwise invalidate the very range `insert` is reading from.
+ * @tparam T the element type.
+ * @tparam R the source range type.
+ * @param v the list to modify in place.
+ * @param lo start index (negative counts from the end).
+ * @param hi end index, or @ref slice_end for "to the end".
+ * @param rhs the elements to write.
+ * @complexity O(size + |rhs|) — the tail shifts when the length changes.
+ * @alloc one temporary holding @p rhs, plus a reallocation when the list grows.
+ * @test CheatahBuiltins.SliceAssignList
+ * @test CheatahBuiltins.SliceAssignAliasing
+ * @crtest LangFeatures.ListSliceAssignment
+ * @systest StdlibE2E.Builtins
+ */
+template <typename T, typename R>
+    requires requires(const R& r) { r.begin(); r.end(); }
+void slice_assign(std::vector<T>& v, long long lo, long long hi, const R& rhs) {
+    const auto n = static_cast<long long>(v.size());
+    lo = detail::norm_index(lo, n);
+    hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
+    if (lo < 0) lo = 0;
+    if (lo > n) lo = n;
+    if (hi > n) hi = n;
+    if (hi < lo) hi = lo;
+    // Materialise FIRST — @p rhs may be `v` itself, or a range into it.
+    std::vector<T> tmp(rhs.begin(), rhs.end());
+    const auto ulo = static_cast<std::size_t>(lo);
+    if (static_cast<long long>(tmp.size()) == hi - lo) {
+        std::copy(tmp.begin(), tmp.end(), v.begin() + ulo);  // same length: no resize
+        return;
+    }
+    v.erase(v.begin() + ulo, v.begin() + static_cast<std::size_t>(hi));
+    v.insert(v.begin() + ulo, tmp.begin(), tmp.end());
+}
+
+/// @cond INTERNAL
+/// A list slice is filled from a sequence, never from a bare element — `xs[1:3] = 9` is the
+/// mistake this catches, with a sentence rather than a missing-begin() error.
+template <typename T, typename R>
+    requires(!requires(const R& r) { r.begin(); r.end(); })
+void slice_assign(std::vector<T>& v, long long lo, long long hi, const R& rhs) {
+    static_assert(sizeof(R) == 0,
+                  "cheatah: a list slice is assigned from a list — write xs[a:b] = [value], "
+                  "not xs[a:b] = value.");
+    (void)v; (void)lo; (void)hi; (void)rhs;
+}
+/// @endcond
 
 } // namespace cheatah::builtins

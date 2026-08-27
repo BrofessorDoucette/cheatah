@@ -64,6 +64,9 @@
 #include <concepts>
 #include <cstddef>
 #include <ostream>
+#include <algorithm>
+#include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -1377,6 +1380,45 @@ template <::cheatah::ndarray::Field T, std::size_t... Dims,
           ::cheatah::ndarray::Subscript I, ::cheatah::ndarray::Subscript J>
 T index(const ::cheatah::fixarray::Fixed<T, Dims...>& m, I i, J j) {
     return m(i, j);
+}
+
+/**
+ * Write @p rhs into `v[lo:hi]` — a fixed-size array is FILLED by an assignment, never resized.
+ *
+ * Restricted to `rank == 1`, the same constraint @ref Fixed::operator[] carries: a vector has one
+ * obvious axis to slice, a matrix does not. Bounds follow the list rules (negatives count from the
+ * end, out-of-range clamps, a reversed range is empty). Because the extent is part of the type,
+ * a source of the wrong length is an error rather than a partial write.
+ * @tparam T the element type.
+ * @tparam N the vector's extent.
+ * @tparam R the source range type.
+ * @param v the vector to write into.
+ * @param lo first element (negative counts from the end).
+ * @param hi one past the last, or the "to the end" sentinel.
+ * @param rhs the elements to copy in.
+ * @complexity O(hi - lo).
+ * @alloc none — the destination already owns its storage.
+ * @test Fixarray.SliceAssignCopiesIn
+ * @crtest LangFeatures.FixarraySliceAssignment
+ */
+template <::cheatah::ndarray::Field T, std::size_t N, typename R>
+    requires requires(const R& r) { r.begin(); r.end(); }
+void slice_assign(::cheatah::fixarray::Fixed<T, N>& v, long long lo, long long hi, const R& rhs) {
+    constexpr auto n = static_cast<long long>(N);
+    lo = lo < 0 ? lo + n : lo;
+    hi = (hi == std::numeric_limits<long long>::max()) ? n : (hi < 0 ? hi + n : hi);
+    if (lo < 0) lo = 0;
+    if (lo > n) lo = n;
+    if (hi > n) hi = n;
+    if (hi < lo) hi = lo;
+    const auto want = static_cast<std::size_t>(hi - lo);
+    const auto got = static_cast<std::size_t>(std::distance(rhs.begin(), rhs.end()));
+    if (got != want) {
+        throw std::runtime_error(
+            "fixarray: a slice assignment fills a fixed extent — the source has " +
+            std::to_string(got) + " element(s) for " + std::to_string(want) + " slot(s)");
+    }
+    std::copy(rhs.begin(), rhs.end(), v.data() + static_cast<std::size_t>(lo));
 }
 
 }  // namespace cheatah::builtins

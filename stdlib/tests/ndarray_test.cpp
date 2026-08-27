@@ -1,5 +1,6 @@
 // Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
 // Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+#include "builtins.hpp"
 #include "ndarray.hpp"
 
 #include <cmath>
@@ -335,6 +336,51 @@ TEST(CheatahNDArray, ComplexConstructAndParts) {
     // A strided (non-contiguous) view exercises map_array's odometer fallback.
     const nd::basic_ndarray<C> zb = nd::broadcast_to(nd::scalar(C(1, 2)), {3});
     EXPECT_EQ(nd::to_string(nd::conj(zb)), "[1-2j, 1-2j, 1-2j]");
+}
+
+// A slice is a VIEW: it shares the parent's buffer, so writing through it writes into the parent,
+// and the parent's shape is untouched.
+TEST(CheatahNDArray, SliceIsAView) {
+    nd::NDArray a = nd::array({1.0, 2.0, 3.0, 4.0});
+    nd::NDArray v = cheatah::builtins::slice(a, 1, 3);
+    EXPECT_EQ(v.size(), 2U);
+    EXPECT_EQ(v.buffer(), a.buffer());              // shared storage, no copy
+    v.at_ref({0}) = 99.0;
+    EXPECT_DOUBLE_EQ(nd::get(a, {1}), 99.0);        // the parent saw it
+    EXPECT_EQ(a.size(), 4U);                        // and did not resize
+    // the view outlives the name it came from: the shared buffer keeps the elements alive
+    nd::NDArray kept = cheatah::builtins::slice(nd::array({5.0, 6.0, 7.0}), 1, 3);
+    EXPECT_DOUBLE_EQ(kept.at({0}), 6.0);
+}
+
+// An array assignment COPIES into the elements the slice addresses. It never rebinds and never
+// resizes — that is what separates it from a list slice assignment.
+TEST(CheatahNDArray, SliceAssignCopiesIn) {
+    nd::NDArray a = nd::array({1.0, 2.0, 3.0, 4.0});
+    cheatah::builtins::slice_assign(a, 1, 3, nd::array({9.0, 9.0}));
+    EXPECT_DOUBLE_EQ(nd::get(a, {1}), 9.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {2}), 9.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {0}), 1.0);         // outside the slice: untouched
+    EXPECT_EQ(a.size(), 4U);                        // shape fixed
+    // a scalar broadcasts across the slice
+    cheatah::builtins::slice_assign(a, 0, 2, 7.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {0}), 7.0);
+    EXPECT_DOUBLE_EQ(nd::get(a, {1}), 7.0);
+    // an extent that cannot broadcast is refused rather than partially written
+    EXPECT_THROW(cheatah::builtins::slice_assign(a, 0, 2, nd::array({1.0, 2.0, 3.0})),
+                 std::runtime_error);
+    // and there is nothing for an empty right-hand side to delete
+    EXPECT_THROW(cheatah::builtins::slice_assign(a, 0, 2, cheatah::builtins::empty_seq{}),
+                 std::runtime_error);
+    // writing through a NON-CONTIGUOUS destination lands on the right elements: take a 2-D array,
+    // slice its rows, and check the untouched row survives.
+    nd::NDArray m = nd::array({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+    m = nd::reshape(m, {3, 2});
+    cheatah::builtins::slice_assign(m, 1, 2, 0.0);
+    EXPECT_DOUBLE_EQ(nd::get(m, {0, 0}), 1.0);
+    EXPECT_DOUBLE_EQ(nd::get(m, {1, 0}), 0.0);
+    EXPECT_DOUBLE_EQ(nd::get(m, {1, 1}), 0.0);
+    EXPECT_DOUBLE_EQ(nd::get(m, {2, 0}), 5.0);
 }
 
 TEST(CheatahNDArray, BroadcastTo) {

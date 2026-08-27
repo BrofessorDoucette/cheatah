@@ -1,0 +1,44 @@
+# Bug: `xs[1:3] = [9, 9]` compiled clean and silently did NOTHING. The assignment target went
+# through value-position codegen, so it emitted `builtins::slice(xs, 1, 3) = ...` — an assignment
+# into the by-value temporary the slice returned, which was then discarded. The program printed the
+# untouched list. Every line here prints, so a silent no-op cannot pass this file.
+import io
+import ndarray
+import fixarray
+
+# the exact program from the report
+let xs = [1, 2, 3, 4]
+xs[1:3] = [9, 9]
+io.print(xs)
+
+# resizing forms: grow, shrink, delete
+let grow = [1, 2, 3, 4]
+grow[1:3] = [7, 7, 7]
+io.print(grow)
+let shrink = [1, 2, 3, 4]
+shrink[1:3] = [5]
+io.print(shrink)
+let gone = [1, 2, 3, 4]
+gone[1:3] = []
+io.print(gone)
+
+# aliasing: the source IS the destination, and a range inside it
+let a = [1, 2, 3, 4]
+a[1:3] = a
+io.print(a)
+let b = [1, 2, 3, 4]
+b[1:3] = b[0:2]
+io.print(b)
+
+# an array assignment copies in and never resizes; a slice read is a view
+let nd = ndarray.array([1.0, 2.0, 3.0, 4.0])
+nd[1:3] = ndarray.array([9.0, 9.0])
+io.print(ndarray.to_string(nd), ndarray.size_of(nd))
+let view = nd[1:3]
+view[0] = 99.0
+io.print(ndarray.to_string(nd))
+
+# the fixed-size array fills, and its extent cannot move
+let v = fixarray.vec3f(1.0, 2.0, 3.0)
+v[0:2] = [8.0, 8.0]
+io.print(v[0], v[1], v[2])

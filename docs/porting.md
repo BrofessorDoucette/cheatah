@@ -34,7 +34,7 @@ No rethinking needed — just the syntax shell above:
 |---------|---------|--------|
 | Lists & growth | `let xs = [1, 2, 3]`, `xs.append(4)` | `xs.append(4)` |
 | Dicts | `{"k": 1}`, `d[k] = v` | same |
-| Indexing & slicing | `s[0]`, `s[1:3]`, `xs[i] = v` | same (no step/`a[1:3]=…` yet) |
+| Indexing & slicing | `s[0]`, `s[1:3]`, `xs[i] = v`, `xs[1:3] = ys` | same (no step slices) |
 | Strings | `"a" + "b"`, `s.startswith(p)`, `s.contains(x)` | `+`, `.startswith`, `in` |
 | Loops | `for x in xs { … }`, `while c { … }` | same logic |
 | Control flow | `if/elif/else`, `break`, `continue`, `match` | same |
@@ -286,7 +286,7 @@ print(ages["ada"])
 ## Not yet supported (roadmap)
 
 Comprehensions; **interface refinement** (one interface inheriting another) and **custom
-constructors**; f-strings (use `io.format`); slice **assignment** and **step** slices;
+constructors**; f-strings (use `io.format`); **step** slices;
 tuples/unpacking; generators/`yield`; `lambda`. All tracked toward frictionless Python →
 cheatah porting.
 

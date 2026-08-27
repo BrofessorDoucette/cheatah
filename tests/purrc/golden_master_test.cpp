@@ -63,6 +63,7 @@ const CorpusEntry kCorpus[] = {
     {"gen/numerics.purr", Mode::Program},
     {"gen/palette.purr", Mode::Program},
     {"gen/shapes.purr", Mode::Program},
+    {"gen/slices.purr", Mode::Program},   // slice reads + slice ASSIGNMENT (list resize, array fill)
     {"gen/vectors.purr", Mode::Program},
     {"scripts/bench/integral.purr", Mode::Program},
     {"scripts/bench/integral_threads.purr", Mode::Program},

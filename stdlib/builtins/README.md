@@ -25,6 +25,14 @@ io.print(int("42") + 1)      # 43
 - **Indexing & slicing** — `index(seq, i)` (`seq[i]`; negative indices; a string
   index yields a length-1 string) and `slice(seq, lo, hi)` (`seq[lo:hi]`); the
   compiler lowers `seq[i]`/`seq[i:j]` to these.
+- **Slice assignment** — `slice_assign(seq, lo, hi, rhs)` (`seq[lo:hi] = rhs`), with the
+  same bounds rules as `slice`. What it *means* depends on the container, and each one
+  decides by overload: a **list** replaces the range and resizes, so `xs[1:3] = []`
+  deletes and a longer right-hand side grows the list; an **array** — `ndarray`,
+  `fixarray` or `array<T, N>` — copies the values into storage it already owns, keeping
+  its shape, because an assignment fills an array rather than rebinding it. A **str** is
+  immutable and refuses. The source is copied before the target is touched, so
+  `xs[1:3] = xs` is well defined.
 - **String predicates** — `startswith`, `endswith`, `contains` (usable as methods:
   `s.startswith("…")`).
 

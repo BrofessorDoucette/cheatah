@@ -846,8 +846,8 @@ private:
         if (base == "ndarray")  // ndarray[int]-><long long>, ndarray[float]-><double>, ndarray[i16]-><std::int16_t>
             return "::cheatah::ndarray::basic_ndarray<" + map_type_string(args) + ">";
         if (base == "list") return "std::vector<" + map_type_args(args) + ">";
-        if (base == "dict") return "std::unordered_map<" + map_type_args(args) + ">";
         if (base == "array") return "std::array<" + map_type_args(args) + ">";
+        if (base == "dict") return "std::unordered_map<" + map_type_args(args) + ">";
         return map_qualified_type(base) + "<" + map_type_args(args) + ">";
     }
 
@@ -1497,7 +1497,13 @@ private:
                         // declared type so CTAD can't mis-deduce vector<long long>. A plain int/float
                         // element deduces correctly, so it is left on the CTAD path (no output churn).
                         const std::string decl = map_type(l.type);
-                        const std::string* hint = type_uses_width(l.type) ? &decl : nullptr;
+                        // `array<T, N>` needs the hint for the same reason a width type does:
+                        // CTAD on a list literal deduces std::vector, which does not convert to
+                        // std::array. Without it `let a: array<int, 3> = [1, 2, 3]` failed to
+                        // compile while `array<i16, 3>` worked, purely because the width path
+                        // happened to force the declared type.
+                        const bool needs_decl = type_uses_width(l.type) || l.type.name == "array";
+                        const std::string* hint = needs_decl ? &decl : nullptr;
                         os << indent << cx << decl << " " << cpp_ident(l.name) << " = "
                            << gen_expr(*l.value, indent, hint) << ";\n";
                     }
@@ -1562,6 +1568,37 @@ private:
                         os << indent << expr << ";\n";
                         return;
                     }
+                }
+                // `seq[lo:hi] = rhs` is a CALL, not an lvalue assignment: for a list it changes
+                // the container's length, which no reference can express. Emitting a call also
+                // keeps it visible to the compiler's only side-effect test (`has_call`), and the
+                // statement stays an `Assign` with a non-Ident target so `stmt_reads_var` still
+                // counts it as a read of the target — without that, dead-local elimination would
+                // drop the `let` this statement writes to.
+                if (a.target->kind == ExprKind::Slice) {
+                    const auto& sl = static_cast<const Slice&>(*a.target);
+                    // A slice assignment splices into a value that already exists; it cannot be
+                    // what first gives a deferred `let x` its value. Caught here so the error
+                    // names the .purr line instead of an undeclared identifier in the emitted C++.
+                    if (sl.object->kind == ExprKind::Ident) {
+                        const std::string& oname = static_cast<const Ident&>(*sl.object).name;
+                        if (deferred_lets_.count(oname) != 0) {
+                            diags_.emplace_back("codegen: `" + oname + "` has no value yet — a "
+                                                "slice assignment writes into an existing list, so "
+                                                "give `" + oname + "` one first");
+                        }
+                    }
+                    const std::string lo = sl.start ? gen_expr(*sl.start) : "0LL";
+                    const std::string hi = sl.stop ? gen_expr(*sl.stop) : builtins_ns_ + "slice_end";
+                    // `xs[a:b] = []` — an empty literal has no element type to deduce, so the
+                    // container is handed a tag and decides for itself what emptiness means.
+                    const bool empty_rhs = a.value->kind == ExprKind::ListLit &&
+                                           static_cast<const ListLit&>(*a.value).elements.empty();
+                    const std::string rhs = empty_rhs ? builtins_ns_ + "empty_seq{}"
+                                                      : gen_expr(*a.value, indent);
+                    os << indent << builtins_ns_ << "slice_assign(" << gen_expr(*sl.object) << ", "
+                       << lo << ", " << hi << ", " << rhs << ");\n";
+                    return;
                 }
                 os << indent << gen_lvalue(*a.target) << " " << a.op << " "
                    << gen_expr(*a.value, indent) << ";\n";

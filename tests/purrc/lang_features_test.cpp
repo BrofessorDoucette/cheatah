@@ -197,6 +197,113 @@ io.print(len(mid), mid[0], mid[2])
                     "50 20\n3 20 40\n");
 }
 
+// `xs[lo:hi] = rhs` replaces the range and resizes, as in Python. Every expected value here was
+// cross-checked against CPython.
+TEST(LangFeatures, ListSliceAssignment) {
+    e2e::expect_e2e("lang_slice_assign", R"PURR(import io
+let same = [1, 2, 3, 4]
+same[1:3] = [9, 9]
+io.print(same)
+let grow = [1, 2, 3, 4]
+grow[1:3] = [7, 7, 7]
+io.print(grow)
+let shrink = [1, 2, 3, 4]
+shrink[1:3] = [5]
+io.print(shrink)
+let gone = [1, 2, 3, 4]
+gone[1:3] = []
+io.print(gone)
+let neg = [1, 2, 3, 4]
+neg[-3:-1] = [8]
+io.print(neg)
+let tail = [1, 2, 3, 4]
+tail[2:] = [6, 6]
+io.print(tail)
+let head = [1, 2, 3, 4]
+head[:2] = [0]
+io.print(head)
+)PURR",
+                    "[1, 9, 9, 4]\n[1, 7, 7, 7, 4]\n[1, 5, 4]\n[1, 4]\n[1, 8, 4]\n"
+                    "[1, 2, 6, 6]\n[0, 3, 4]\n");
+}
+
+// The source may be the destination itself, or a range inside it. Both are defined, and both
+// match CPython — the implementation copies the source before it disturbs the target.
+TEST(LangFeatures, ListSliceAssignmentAliasing) {
+    e2e::expect_e2e("lang_slice_assign_alias", R"PURR(import io
+let a = [1, 2, 3, 4]
+a[1:3] = a
+io.print(a)
+let b = [1, 2, 3, 4]
+b[1:3] = b[0:2]
+io.print(b)
+)PURR",
+                    "[1, 1, 2, 3, 4, 4]\n[1, 1, 2, 4]\n");
+}
+
+// An ndarray assignment COPIES into the elements the slice addresses: the shape never changes,
+// a scalar broadcasts, and a slice read is a view onto the parent's storage.
+TEST(LangFeatures, NdarraySliceAssignment) {
+    e2e::expect_e2e("lang_nd_slice_assign", R"PURR(import io
+import ndarray
+let a = ndarray.array([1.0, 2.0, 3.0, 4.0])
+a[1:3] = ndarray.array([9.0, 9.0])
+io.print(ndarray.to_string(a), ndarray.size_of(a))
+let b = ndarray.array([1.0, 2.0, 3.0, 4.0])
+b[1:3] = 7.0
+io.print(ndarray.to_string(b))
+let c = ndarray.array([1.0, 2.0, 3.0, 4.0])
+let v = c[1:3]
+v[0] = 99.0
+io.print(ndarray.to_string(c), ndarray.to_string(v))
+)PURR",
+                    "[1, 9, 9, 4] 4\n[1, 7, 7, 4]\n[1, 99, 3, 4] [99, 3]\n");
+}
+
+// A fixarray is the fixed-size array: a slice assignment fills it, and its extent cannot move.
+TEST(LangFeatures, FixarraySliceAssignment) {
+    e2e::expect_e2e("lang_fx_slice_assign", R"PURR(import io
+import fixarray
+let v = fixarray.vec3f(1.0, 2.0, 3.0)
+v[0:2] = [9.0, 9.0]
+io.print(v[0], v[1], v[2])
+)PURR",
+                    "9 9 3\n");
+}
+
+// The optimizer must not be able to make a slice assignment disappear. Dead-local elimination
+// drops a `let` whose variable is never READ afterwards, and a slice assignment is the whole
+// reason a list may be written but never read again — so the same program is compiled with the
+// pass on and off, and both must print the same thing. docs/optimizations.md promises exactly
+// this: no transform changes observable behaviour.
+TEST(LangFeatures, SliceAssignmentSurvivesOptimization) {
+    const std::string src = R"PURR(import io
+let xs = [1, 2, 3, 4]
+xs[1:3] = [9, 9]
+io.print(xs)
+)PURR";
+    const std::string tmp = PURR_TEST_TMP;
+    const std::string purr = tmp + "/lang_slice_opt.purr";
+    { std::ofstream f(purr); f << src; }
+    for (const char* flags : {"", "--no-remove-variables", "--no-optimize-cpp"}) {
+        const std::string mod = tmp + "/lang_slice_opt" + std::string(flags).substr(0, 6) + ".so";
+        const std::string compile = std::string(PURRC_PATH) + " " + flags + " \"" + purr +
+                                    "\" -o \"" + mod + "\"";
+        ASSERT_EQ(std::system(compile.c_str()), 0) << "purrc failed with flags: " << flags;
+        int rc = -1;
+        const std::string out =
+            e2e::run_capture("\"" + std::string(CHEATAH_RUNTIME_PATH) + "\" \"" + mod + "\"", rc);
+        EXPECT_EQ(rc, 0) << flags;
+        EXPECT_EQ(out, "[1, 9, 9, 4]\n") << "output changed with flags: " << flags;
+    }
+    // A list written ONLY through a slice assignment and never read must still compile: the
+    // statement counts as a read of its target, so the binding it writes to survives.
+    const std::string dead = tmp + "/lang_slice_dead.purr";
+    { std::ofstream f(dead); f << "let only = [1, 2, 3, 4]\nonly[1:3] = [9, 9]\n"; }
+    const std::string mod = tmp + "/lang_slice_dead.so";
+    EXPECT_EQ(std::system((std::string(PURRC_PATH) + " \"" + dead + "\" -o \"" + mod + "\"").c_str()), 0);
+}
+
 TEST(LangFeatures, ReturnTypeHints) {
     // Optional Python-style `-> Type` return hints. When present the function lowers with
     // that concrete C++ return type (the backend enforces it); when absent the return stays

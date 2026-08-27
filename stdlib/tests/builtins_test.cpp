@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <array>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -157,6 +158,69 @@ TEST(CheatahBuiltins, SliceList) {
     EXPECT_EQ(b::slice(xs, 1, 4), (std::vector<long long>{2, 3, 4}));
     EXPECT_EQ(b::slice(xs, -2, b::slice_end), (std::vector<long long>{4, 5}));
     EXPECT_TRUE(b::slice(xs, 3, 1).empty());
+}
+
+// `xs[lo:hi] = rhs` replaces the range and RESIZES the list, exactly as Python does. Every
+// expectation below was cross-checked against CPython.
+TEST(CheatahBuiltins, SliceAssignList) {
+    auto v = [] { return std::vector<long long>{1, 2, 3, 4}; };
+    std::vector<long long> xs = v();
+    b::slice_assign(xs, 1, 3, std::vector<long long>{9, 9});          // same length: in place
+    EXPECT_EQ(xs, (std::vector<long long>{1, 9, 9, 4}));
+    xs = v();
+    b::slice_assign(xs, 1, 3, std::vector<long long>{7, 7, 7});       // grows
+    EXPECT_EQ(xs, (std::vector<long long>{1, 7, 7, 7, 4}));
+    xs = v();
+    b::slice_assign(xs, 1, 3, std::vector<long long>{5});             // shrinks
+    EXPECT_EQ(xs, (std::vector<long long>{1, 5, 4}));
+    xs = v();
+    b::slice_assign(xs, 1, 3, b::empty_seq{});                        // deletes
+    EXPECT_EQ(xs, (std::vector<long long>{1, 4}));
+    xs = v();
+    b::slice_assign(xs, -3, -1, std::vector<long long>{8});           // negatives from the end
+    EXPECT_EQ(xs, (std::vector<long long>{1, 8, 4}));
+    xs = v();
+    b::slice_assign(xs, 0, 2, std::vector<long long>{0});             // leading range
+    EXPECT_EQ(xs, (std::vector<long long>{0, 3, 4}));
+    xs = v();
+    b::slice_assign(xs, 2, b::slice_end, std::vector<long long>{6, 6});  // to the end
+    EXPECT_EQ(xs, (std::vector<long long>{1, 2, 6, 6}));
+    xs = v();
+    b::slice_assign(xs, 10, 20, std::vector<long long>{5});           // out of range clamps: append
+    EXPECT_EQ(xs, (std::vector<long long>{1, 2, 3, 4, 5}));
+    xs = v();
+    b::slice_assign(xs, 3, 1, std::vector<long long>{9});             // reversed: insert at lo
+    EXPECT_EQ(xs, (std::vector<long long>{1, 2, 3, 9, 4}));
+    std::vector<long long> empty;
+    b::slice_assign(empty, 0, 0, std::vector<long long>{1, 2});       // into an empty list
+    EXPECT_EQ(empty, (std::vector<long long>{1, 2}));
+}
+
+// The source may BE the destination, or a range inside it. The implementation copies the source
+// into a temporary before erasing, so these are defined rather than reading through iterators the
+// erase has just invalidated. Both results match CPython.
+TEST(CheatahBuiltins, SliceAssignAliasing) {
+    std::vector<long long> a{1, 2, 3, 4};
+    b::slice_assign(a, 1, 3, a);                                      // xs[1:3] = xs
+    EXPECT_EQ(a, (std::vector<long long>{1, 1, 2, 3, 4, 4}));
+    std::vector<long long> c{1, 2, 3, 4};
+    b::slice_assign(c, 1, 3, b::slice(c, 0, 2));                      // overlapping source
+    EXPECT_EQ(c, (std::vector<long long>{1, 1, 2, 4}));
+}
+
+// A fixed-size `array<T, N>` is FILLED by a slice assignment, exactly as fixarray and ndarray are:
+// the values are copied into storage it already owns and the extent never moves.
+TEST(CheatahBuiltins, SliceAssignFixedArray) {
+    std::array<long long, 4> v{1, 2, 3, 4};
+    b::slice_assign(v, 1, 3, std::vector<long long>{9, 9});
+    EXPECT_EQ(v, (std::array<long long, 4>{1, 9, 9, 4}));
+    b::slice_assign(v, -2, -1, std::vector<long long>{7});   // negatives count from the end
+    EXPECT_EQ(v[2], 7);
+    // a wrong-length source is refused rather than partially written
+    EXPECT_THROW(b::slice_assign(v, 0, 2, std::vector<long long>{1}), std::runtime_error);
+    EXPECT_EQ(v[0], 1);
+    // and a fixed extent has nothing to delete
+    EXPECT_THROW(b::slice_assign(v, 0, 2, b::empty_seq{}), std::runtime_error);
 }
 
 TEST(CheatahBuiltins, Division) {

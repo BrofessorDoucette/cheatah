@@ -825,6 +825,13 @@ private:
             check(TokenKind::SlashAssign)) {
             auto a = std::make_unique<Assign>();
             a->op = advance().text;  // "=", "+=", "-=", "*=", "/="
+            // A compound operator needs to READ the target before writing it, and a slice read
+            // yields a fresh sequence — so `xs[a:b] += ys` would update a copy and throw it away.
+            // Plain `=` is supported; this refuses rather than repeating that class of bug.
+            if (a->op != "=" && e->kind == ExprKind::Slice) {
+                error("cannot use `" + a->op + "` on a slice: write `xs[a:b] = xs[a:b] " +
+                      a->op.substr(0, 1) + " ...` instead");
+            }
             a->target = std::move(e);
             a->value = parse_expr();
             if (!a->value) {
@@ -1128,9 +1135,21 @@ private:
                 if (check(TokenKind::Colon)) {
                     advance();
                     ExprPtr last;
+                    // A second colon is a STEP (`a[::2]`, `a[1:9:2]`). Caught here so it reads as
+                    // the unsupported feature it is, rather than as "expected an expression".
+                    if (check(TokenKind::Colon)) {
+                        error("step slices (a[::2]) are not supported; slice with a[lo:hi] and "
+                              "step separately");
+                        return nullptr;
+                    }
                     if (!check(TokenKind::RBracket)) {
                         last = parse_expr();
                         if (!last) return nullptr;
+                    }
+                    if (check(TokenKind::Colon)) {
+                        error("step slices (a[lo:hi:step]) are not supported; slice with a[lo:hi] "
+                              "and step separately");
+                        return nullptr;
                     }
                     if (!check(TokenKind::RBracket)) {
                         error("expected ']' after slice");

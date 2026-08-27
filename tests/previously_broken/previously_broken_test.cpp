@@ -496,3 +496,50 @@ TEST(PreviouslyBroken, TlsLinksWhenEd25519IsAlsoImported) {
                     "main()\n",
                     "tls-linked\n\n");
 }
+
+// Bug: a slice assignment compiled clean and did NOTHING. `xs[1:3] = [9, 9]` reached value-position
+// codegen, emitting `builtins::slice(xs, 1, 3) = ...` — a write into the temporary the slice
+// returned — so the list came back unchanged and the program still exited 0. Silence was the
+// defect, so this asserts the OUTPUT of every form, not merely a successful compile.
+TEST(PreviouslyBroken, SliceAssignmentActuallyWrites) {
+    int rc = -1;
+    const std::string out = e2e::run_purr_file(
+        "prevbroken_slice_assign", std::string(PREVBROKEN_DIR) + "/slice_assign.purr", rc);
+    EXPECT_EQ(rc, 0) << "slice_assign.purr failed to compile or run";
+    EXPECT_EQ(out,
+              "[1, 9, 9, 4]\n"            // the exact program from the report
+              "[1, 7, 7, 7, 4]\n"         // grows
+              "[1, 5, 4]\n"               // shrinks
+              "[1, 4]\n"                  // deletes
+              "[1, 1, 2, 3, 4, 4]\n"      // xs[1:3] = xs
+              "[1, 1, 2, 4]\n"            // overlapping source
+              "[1, 9, 9, 4] 4\n"          // ndarray copies in, shape unchanged
+              "[1, 99, 9, 4]\n"           // and a slice read is a view onto the parent
+              "8 8 3\n");                 // fixarray fills its fixed extent
+}
+
+// The other half of the same bug: the forms that CANNOT work must fail loudly, at compile time,
+// rather than quietly doing something else. A wrong error would be as bad as no error, so the
+// message is checked where the diagnostic is ours.
+TEST(PreviouslyBroken, SliceAssignmentRejectsWhatItCannotDo) {
+    // a str is immutable, exactly as in Python
+    e2e::expect_compile_fail("prevbroken_slice_str", R"PURR(import io
+let s = "hello"
+s[1:3] = "xy"
+)PURR");
+    // a compound operator would read the slice, update the copy, and throw it away
+    e2e::expect_compile_fail("prevbroken_slice_compound", R"PURR(import io
+let xs = [1, 2, 3]
+xs[1:3] += [9]
+)PURR");
+    // step slices are not supported in either position
+    e2e::expect_compile_fail("prevbroken_slice_step", R"PURR(import io
+let xs = [1, 2, 3]
+let y = xs[::2]
+)PURR");
+    // a list slice is filled from a list, not from a bare element
+    e2e::expect_compile_fail("prevbroken_slice_scalar", R"PURR(import io
+let xs = [1, 2, 3]
+xs[1:3] = 9
+)PURR");
+}

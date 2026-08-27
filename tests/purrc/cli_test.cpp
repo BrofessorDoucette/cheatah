@@ -74,6 +74,36 @@ TEST(CliCheck, ReassignConstexprLetRejected) {
     EXPECT_NE(r.out.find(":3:"), std::string::npos) << "should point at the reassignment line: " << r.out;
 }
 
+// The slice forms cheatah refuses each say WHY, and point at the line. A wrong message would pass
+// an exit-code-only check, so the text is asserted here.
+TEST(CliCheck, StepSliceRejectedWithItsOwnMessage) {
+    const std::string p = write_purr("chk_step_slice",
+        "import io\nlet xs = [1, 2, 3]\nlet y = xs[::2]\nio.print(y)\n");
+    const Proc r = run(PURRC + " --check \"" + p + "\" 2>&1");
+    EXPECT_NE(r.code, 0) << r.out;
+    EXPECT_NE(r.out.find("step slices"), std::string::npos) << r.out;
+    EXPECT_NE(r.out.find(":3:"), std::string::npos) << "should point at the slice line: " << r.out;
+}
+
+TEST(CliCheck, CompoundSliceAssignRejectedWithItsOwnMessage) {
+    const std::string p = write_purr("chk_compound_slice",
+        "import io\nlet xs = [1, 2, 3]\nxs[1:3] += [9]\nio.print(xs)\n");
+    const Proc r = run(PURRC + " --check \"" + p + "\" 2>&1");
+    EXPECT_NE(r.code, 0) << r.out;
+    EXPECT_NE(r.out.find("on a slice"), std::string::npos) << r.out;
+    EXPECT_NE(r.out.find(":3:"), std::string::npos) << "should point at the assignment line: " << r.out;
+}
+
+// A slice assignment cannot be what first gives a variable its value — it splices into a list that
+// already exists. Without this the emitted C++ referenced an undeclared name.
+TEST(CliCheck, SliceAssignIntoDeferredLetRejected) {
+    const std::string p = write_purr("chk_defer_slice",
+        "import io\nlet xs\nxs[1:3] = [9, 9]\nio.print(xs)\n");
+    const Proc r = run(PURRC + " --check \"" + p + "\" 2>&1");
+    EXPECT_NE(r.code, 0) << r.out;
+    EXPECT_NE(r.out.find("has no value yet"), std::string::npos) << r.out;
+}
+
 TEST(CliCheck, ConstexprLetNeedsInitializer) {
     const std::string p = write_purr("chk_noinit", "import io\nconstexpr let X\nio.print(1)\n");
     const Proc r = run(PURRC + " --check \"" + p + "\" 2>&1");

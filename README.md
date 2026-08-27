@@ -149,7 +149,7 @@ built-ins (`len`, `ord`, `chr`, `hex`/`oct`/`bin`, …).
 
 Most Python scripts port with light edits. The full feature mapping, the remaining
 deviations, and the roadmap (comprehensions, f-strings, `__init__` constructors,
-slice assignment, …) live in [compiler/PYTHON.md](compiler/PYTHON.md).
+step slices, …) live in [compiler/PYTHON.md](compiler/PYTHON.md).
 
 ### Escape hatch: raw C++
 
