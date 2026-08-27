@@ -6106,7 +6106,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 204,
+      "srcline": 206,
       "module": "os",
       "qualified": "os.cpu_count"
     },
@@ -6145,12 +6145,13 @@
       "returns": "the value, or fallback.",
       "tags": {
         "complexity": "O(environment size) — std::getenv is a linear scan of the C library's environment table (no syscall).",
+        "alloc": "allocates the returned string.",
         "test": "CheatahOs.GetenvFallback, CheatahOs.SetenvThenGetenv",
         "crtest": "OsCompileRun.Getenv",
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 162,
+      "srcline": 163,
       "module": "os",
       "qualified": "os.getenv"
     },
@@ -6168,7 +6169,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 190,
+      "srcline": 192,
       "module": "os",
       "qualified": "os.getpid"
     },
@@ -6255,7 +6256,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 257,
+      "srcline": 259,
       "module": "os",
       "qualified": "os.module_ext"
     },
@@ -6353,12 +6354,13 @@
       "returns": "",
       "tags": {
         "complexity": "O(environment size) — the C library scans and updates its environment table (no syscall).",
+        "alloc": "may allocate inside the C library's environment table.",
         "test": "CheatahOs.SetenvThenGetenv",
         "crtest": "OsCompileRun.Setenv",
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 179,
+      "srcline": 181,
       "module": "os",
       "qualified": "os.setenv"
     },
@@ -6381,7 +6383,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 221,
+      "srcline": 223,
       "module": "os",
       "qualified": "os.system"
     },
@@ -6404,7 +6406,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 240,
+      "srcline": 242,
       "module": "os",
       "qualified": "os.urandom"
     },
@@ -6427,7 +6429,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 372,
+      "srcline": 374,
       "module": "os.path",
       "qualified": "os.path.abspath"
     },
@@ -6450,7 +6452,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 342,
+      "srcline": 344,
       "module": "os.path",
       "qualified": "os.path.basename"
     },
@@ -6473,7 +6475,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 357,
+      "srcline": 359,
       "module": "os.path",
       "qualified": "os.path.dirname"
     },
@@ -6496,7 +6498,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 299,
+      "srcline": 301,
       "module": "os.path",
       "qualified": "os.path.exists"
     },
@@ -6519,7 +6521,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 397,
+      "srcline": 399,
       "module": "os.path",
       "qualified": "os.path.getsize"
     },
@@ -6542,7 +6544,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 327,
+      "srcline": 329,
       "module": "os.path",
       "qualified": "os.path.isdir"
     },
@@ -6565,7 +6567,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 313,
+      "srcline": 315,
       "module": "os.path",
       "qualified": "os.path.isfile"
     },
@@ -6592,7 +6594,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 278,
+      "srcline": 280,
       "module": "os.path",
       "qualified": "os.path.join"
     },
@@ -6615,7 +6617,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 383,
+      "srcline": 385,
       "module": "os.path",
       "qualified": "os.path.normpath"
     },
@@ -6638,7 +6640,7 @@
         "systest": "StdlibE2E.Os"
       },
       "srcfile": "stdlib/os/os.hpp",
-      "srcline": 415,
+      "srcline": 417,
       "module": "os.path",
       "qualified": "os.path.splitext"
     },
