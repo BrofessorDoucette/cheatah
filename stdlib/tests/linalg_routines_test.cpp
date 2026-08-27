@@ -71,6 +71,17 @@ TEST(LinalgRoutines, MatmulIntoReusesBuffer) {
     nd::NDArray vec = nd::array({1.0, 2.0, 3.0});  // 1-D
     nd::NDArray out2 = nd::zeros({2, 2});
     EXPECT_THROW(static_cast<void>(la::matmul(out2, vec, b)), std::runtime_error);
+    // A 3-D `a` against a 2-D `b` took the BATCHED branch and read b.shape()[2] — past the end of
+    // a two-element shape vector — because the rank checks lived only in the allocating front.
+    // The out-form is public, so it validates for itself.
+    nd::NDArray batch = nd::zeros({2, 2, 3});
+    nd::NDArray out3 = nd::zeros({2, 2, 2});
+    EXPECT_THROW(static_cast<void>(la::matmul(out3, batch, b)), std::runtime_error);
+    // and the batched checks the front used to own are enforced here too
+    nd::NDArray batch_b = nd::zeros({3, 3, 2});  // mismatched batch count
+    EXPECT_THROW(static_cast<void>(la::matmul(out3, batch, batch_b)), std::runtime_error);
+    nd::NDArray batch_k = nd::zeros({2, 4, 2});  // mismatched contracted dimension
+    EXPECT_THROW(static_cast<void>(la::matmul(out3, batch, batch_k)), std::runtime_error);
 }
 
 // Every product/least-squares front validates its operand dimensions and throws on a mismatch —

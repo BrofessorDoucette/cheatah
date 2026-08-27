@@ -29,6 +29,23 @@
 namespace cheatah::linalg {
 
 /// @cond INTERNAL
+/// Shared BATCHED shape validation. Both the allocating front and the out-parameter kernel run
+/// it, because either can be called directly: the kernel is declared in this header, documented,
+/// and explicitly instantiated, so "the front already checked" is an assumption it cannot make.
+/// It once did, and a 3-D @p a with a 2-D @p b read b.shape()[2] off the end of a 2-element
+/// shape vector before any check ran.
+template <ndarray::Field T, template <typename> class Array>
+inline void check_matmul_batched(const Array<T>& a, const Array<T>& b) {
+    if (a.ndim() != 3 || b.ndim() != 3)
+        throw std::runtime_error("linalg: batched matmul expects two 3-D operands");
+    if (a.shape()[0] != b.shape()[0])
+        throw std::runtime_error("linalg: batched matmul batch-count mismatch");
+    if (a.shape()[2] != b.shape()[1])
+        throw std::runtime_error("linalg: matmul inner dimension mismatch");
+}
+/// @endcond
+
+/// @cond INTERNAL
 /// the allocation-free out-parameter kernel (HOST overload; a device
 /// extension adds its own `requires DeviceArray<Array<T>>` overload). Declared here so the
 /// allocating front below can call it; defined + explicitly instantiated in routines.cpp.
@@ -75,12 +92,7 @@ template <ndarray::Field T, template <typename> class Array>
     requires NumericArray<Array<T>>
 [[nodiscard]] Array<T> matmul(const Array<T>& a, const Array<T>& b) {
     if (a.ndim() == 3 || b.ndim() == 3) {
-        if (a.ndim() != 3 || b.ndim() != 3)
-            throw std::runtime_error("linalg: batched matmul expects two 3-D operands");
-        if (a.shape()[0] != b.shape()[0])
-            throw std::runtime_error("linalg: batched matmul batch-count mismatch");
-        if (a.shape()[2] != b.shape()[1])
-            throw std::runtime_error("linalg: matmul inner dimension mismatch");
+        check_matmul_batched<T, Array>(a, b);
         Array<T> out = Array<T>::uninitialized({a.shape()[0], a.shape()[1], b.shape()[2]});
         matmul(out, a, b);
         return out;

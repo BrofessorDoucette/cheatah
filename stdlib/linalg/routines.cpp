@@ -1021,10 +1021,12 @@ void check_matmul(const ndarray::basic_ndarray<T>& a, const ndarray::basic_ndarr
 template <ndarray::Field T, template <typename> class Array>
     requires HostArray<Array<T>>
 void matmul(Array<T>& out, const Array<T>& a, const Array<T>& b) {
-    if (a.ndim() == 3) {
-        // Batched [B,M,K] @ [B,K,N]: the same single-matrix kernel per contiguous batch slice
-        // (validated by the front — equal batch counts, matching inner dims). The 2-D control
-        // flow below is untouched.
+    if (a.ndim() == 3 || b.ndim() == 3) {
+        // Batched [B,M,K] @ [B,K,N]: the same single-matrix kernel per contiguous batch slice.
+        // Validated HERE, not left to the caller: this kernel is public (declared in backend.hpp,
+        // documented and explicitly instantiated), so it is reachable without the allocating
+        // front. The 2-D control flow below is untouched.
+        check_matmul_batched<T, Array>(a, b);
         const std::size_t B = a.shape()[0], M = a.shape()[1], K = a.shape()[2];
         const std::size_t N = b.shape()[2];
         reject_alias(out, a);
