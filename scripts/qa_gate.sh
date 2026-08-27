@@ -50,8 +50,8 @@
 #       QA_GATE_SKIP_TSAN=1       skip only the ThreadSanitizer stage (faster local runs)
 #       QA_GATE_SKIP_VALGRIND=1   skip only the Valgrind stage (faster local runs)
 #       QA_GATE_SKIP_EDITOR=1     skip only the (non-fatal) editor refresh
-#       QA_GATE_FULL_CR=1         ALSO run the full per-function compile-run battery
-#                                 (~200 tests; off by default — opt in when needed)
+#       QA_GATE_FULL_CR=0         skip the per-function compile-run battery (on by default)
+#                                 (~290 tests, each forks purrc + cheatah; a push never sets this)
 #       QA_GATE_JOBS              ctest parallelism (default nproc; =1 to serialize)
 #       QA_BENCH_MIN_TIME         benchmark min time per case (default 0.05s)
 #       BENCH_SMOKE_JOBS          smoke-pass shards (default nproc; =1 = serial)
