@@ -31,9 +31,9 @@
 </div>
 <div class="overview"><p>High-accuracy timing built on C++ <code>&lt;chrono&gt;</code> clocks (<code>system_clock</code> for wall-clock, <code>steady_clock</code> for monotonic counters).</p><pre class="code"><code><span class="tok-kw">import</span> time
 
-start = time.<span class="tok-fn">perf_counter</span>()
+<span class="tok-kw">let</span> start = time.<span class="tok-fn">perf_counter</span>()
 time.<span class="tok-fn">sleep</span>(<span class="tok-num">0.5</span>)
-elapsed = time.<span class="tok-fn">perf_counter</span>() - start</code></pre><h2 id="md_stdlib_2time_2README_1autotoc_md118">Functions</h2><p>Wall-clock (since the Unix epoch):</p><ul><li><p><code><span class="tok-fn">time</span>()</code> — seconds as a <code>double</code>.</p>
+<span class="tok-kw">let</span> elapsed = time.<span class="tok-fn">perf_counter</span>() - start</code></pre><h2 id="md_stdlib_2time_2README_1autotoc_md116">Functions</h2><p>Wall-clock (since the Unix epoch):</p><ul><li><p><code><span class="tok-fn">time</span>()</code> — seconds as a <code>double</code>.</p>
 </li><li><p><code><span class="tok-fn">time_ns</span>()</code> — nanoseconds as a <code>long long</code>.</p>
 </li></ul><p>Monotonic (never runs backwards):</p><ul><li><p><code><span class="tok-fn">monotonic</span>()</code> / <code><span class="tok-fn">monotonic_ns</span>()</code> — monotonic seconds / nanoseconds.</p>
 </li><li><p><code><span class="tok-fn">perf_counter</span>()</code> / <code><span class="tok-fn">perf_counter_ns</span>()</code> — highest-resolution monotonic counter.</p>

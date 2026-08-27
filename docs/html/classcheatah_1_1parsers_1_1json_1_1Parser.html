@@ -54,7 +54,7 @@
     <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_cpp.html#L473" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1a4ddc78bb61e102d23434dc73c965a6d0" aria-label="permalink">#</a></span>
   </div>
   <p class="member-brief">Serialize <code>value</code> into the <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html">Parser</a>&#x27;s own REUSED buffer and return a view of it — no per-call allocation after warm-up. </p>
-  <div class="member-body"><p>The view is valid until the next <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html#classcheatah_1_1parsers_1_1json_1_1Parser_1a4ddc78bb61e102d23434dc73c965a6d0">dump()</a> on this <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html">Parser</a>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the document to serialize.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a std::string_view of the serialized JSON (valid until the next <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html#classcheatah_1_1parsers_1_1json_1_1Parser_1a4ddc78bb61e102d23434dc73c965a6d0">dump()</a>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(output size)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none after warm-up (the buffer is reused)</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_dom_test_cpp.html#L93"><code><span class="tn-suite">ParsersJsonDom</span>.<span class="tn-case">PooledParserYieldsViewsIntoSource</span></code></a></span></div></div>
+  <div class="member-body"><p>The view is valid until the next <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html#classcheatah_1_1parsers_1_1json_1_1Parser_1a4ddc78bb61e102d23434dc73c965a6d0">dump()</a> on this <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html">Parser</a>.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>value</code></td><td class="pdesc"><p>the document to serialize.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a std::string_view of the serialized JSON (valid until the next <a href="classcheatah_1_1parsers_1_1json_1_1Parser.html#classcheatah_1_1parsers_1_1json_1_1Parser_1a4ddc78bb61e102d23434dc73c965a6d0">dump()</a>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(output size)</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the O(depth) frame stack per call; the output buffer is reused after warm-up.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><a href="src_stdlib_tests_parsers_json_dom_test_cpp.html#L93"><code><span class="tn-suite">ParsersJsonDom</span>.<span class="tn-case">PooledParserYieldsViewsIntoSource</span></code></a></span></div></div>
 </section><section class="member" id="classcheatah_1_1parsers_1_1json_1_1Parser_1af6423991da304d9484d06b6c1b7191a4">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>
@@ -67,7 +67,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">PoolBuilder</span> <span class="mname">pool_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_hpp.html#L165" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1ad6faedf372d69dd2e80a7790a3978b38" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_hpp.html#L172" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1ad6faedf372d69dd2e80a7790a3978b38" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -75,7 +75,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::vector&lt; Frame &gt;</span> <span class="mname">frame_stack_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_hpp.html#L166" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1acf55994b8d4c924ee55b8147276c605f" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_hpp.html#L173" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1acf55994b8d4c924ee55b8147276c605f" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
@@ -83,7 +83,7 @@
   <div class="member-head">
     <span class="badge badge-var">var</span>
     <code class="sig"><span class="mtype">std::string</span> <span class="mname">dump_buf_</span></code>
-    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_hpp.html#L167" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1a5ef3df33a51765c5551cfa195856b013" aria-label="permalink">#</a></span>
+    <span class="member-actions"><a class="src-link" href="src_stdlib_parsers_json_json_hpp.html#L174" title="View source">source</a><a class="anchor" href="#classcheatah_1_1parsers_1_1json_1_1Parser_1a5ef3df33a51765c5551cfa195856b013" aria-label="permalink">#</a></span>
   </div>
   
   <div class="member-body"></div>
