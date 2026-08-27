@@ -302,9 +302,15 @@ ctest --preset debug --output-on-failure --parallel "$JOBS" -LE previously_broke
 bg_poll
 
 # 5b-prep. TSan configure+build overlaps the ASan stage (it is needed only at 5b).
+#
+# BUILD EVERY TARGET THE LANE RUNS. The Memory.* cases live in their own executable
+# (cheatah_memory_tests, stdlib/memory/CMakeLists.txt) — building only cheatah_tests left
+# ctest to run whatever stale binary an earlier build had dropped in build/tsan/bin, and it
+# did: a six-day-old memory-test binary passed this lane while its sources had moved on. A
+# green run against yesterday's code is worse than no run, because it reads as coverage.
 if [ "${QA_GATE_SKIP_TSAN:-0}" != "1" ]; then
     bg_launch PID_TSANBUILD "$LOG_TSANBUILD" bash -c \
-        'cmake --preset tsan 2>&1 && cmake --build --preset tsan --target cheatah_tests'
+        'cmake --preset tsan 2>&1 && cmake --build --preset tsan --target cheatah_tests cheatah_memory_tests'
 fi
 
 # 5. Sanitizers: build + run the suite under ASan + UBSan (hard gate) ---------
@@ -332,8 +338,10 @@ if [ "${QA_GATE_SKIP_TSAN:-0}" = "1" ]; then
 else
     bg_join PID_TSANBUILD "$LOG_TSANBUILD" "tsan build"
     bold "Running concurrency-relevant suites under ThreadSanitizer…"
+    # `memory:` is anchored: a bare `Memory` also matched Regex.StateBudgetThrowsInsteadOf-
+    # ExhaustingMemory, a single-threaded test that told this lane nothing.
     TSAN_OPTIONS="halt_on_error=1 second_deadlock_stack=1" \
-        ctest --preset tsan --output-on-failure --parallel "$JOBS" -R 'CheatahThread|CheatahRandom|Memory' \
+        ctest --preset tsan --output-on-failure --parallel "$JOBS" -R 'CheatahThread|CheatahRandom|^memory:' \
         || fail "ThreadSanitizer tests"
 fi
 bg_poll
