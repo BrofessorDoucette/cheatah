@@ -59,9 +59,9 @@ for it. The rules:
   is a stop latch, `memory.own(list)` is a queue — there is no second synchronization
   vocabulary to learn. How the leases work is on the [memory](../memory/README.md)
   module page.
-- **stdout interleaves.** `io.print` from two threads at once is safe (no corruption)
-  but the lines can interleave. Funnel output through one thread, or print only after
-  joining the workers.
+- **stdout interleaves.** `io.print` from two threads at once never corrupts the
+  stream, but one thread's line can land piece by piece between another's. Funnel
+  output through one thread, or print only after joining the workers.
 - <b>`random` is per-thread.</b> Each thread has its own engine, self-seeded on first use;
   `random.seed(s)` seeds the *calling* thread only. Concurrent draws never race — but a
   worker that wants a reproducible stream must seed itself.

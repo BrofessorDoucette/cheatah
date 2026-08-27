@@ -6,11 +6,12 @@ calendar (local time, except `utcnow`).
 
 ```purr
 import datetime
+import io
 
-stamp = datetime.timestamp()
-print(datetime.now())                    # "YYYY-MM-DD HH:MM:SS"
-print(datetime.format(stamp, "%Y-%m-%d"))
-print(datetime.year(stamp), datetime.weekday(stamp))
+let stamp = datetime.timestamp()
+io.print(datetime.now())                    # "YYYY-MM-DD HH:MM:SS"
+io.print(datetime.format(stamp, "%Y-%m-%d"))
+io.print(datetime.year(stamp), datetime.weekday(stamp))
 ```
 
 ## Functions

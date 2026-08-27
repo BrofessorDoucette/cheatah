@@ -9,15 +9,15 @@ import os
 os.getcwd()
 os.makedirs("build/cache")
 os.path.join("a", "b", "c")          # "a/b/c"
-os.path.splitext("dir/file.purr")    # {"dir/file", ".purr"}
+os.path.splitext("dir/file.purr")    # .first "dir/file", .second ".purr"
 ```
 
 ## Functions
 
 Working directory & process:
 - `getcwd()`, `chdir(path)` — read / change the cwd.
-- `getpid()`, `cpu_count()`, `system(command)` — process id, logical CPU count,
-  run a shell command.
+- `getpid()`, `cpu_count()`, `system(command)`, `module_ext()` — process id, logical
+  CPU count, run a shell command, this platform's module extension (`.so`/`.dylib`/`.dll`).
 - `urandom(n)` — `n` cryptographically secure random bytes (from the OS CSPRNG).
 
 Directories & files:

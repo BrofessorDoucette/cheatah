@@ -2,10 +2,9 @@
 
 <div class="cheetah-slogan">🐱 <em>Bring your Python; leave the interpreter behind.</em> 🐆</div>
 
-cheatah is **Python-shaped**: most scripts port with light, mechanical edits. This
-is the practical checklist for moving a `.py` file to a `.purr` — what maps
-one-to-one, the deliberate syntax deviations, and the gotchas worth knowing. (For
-*why* the compiled result is fast, see @ref performance.)
+cheatah is **Python-shaped**: most scripts port with light, mechanical edits. This is the
+practical checklist for moving a `.py` file to a `.purr` — what maps one-to-one, the
+deliberate syntax deviations, and the gotchas worth knowing.
 
 The canonical, always-current feature matrix lives in
 [`compiler/PYTHON.md`](https://github.com/BrofessorDoucette/cheatah/blob/main/compiler/PYTHON.md);
@@ -51,12 +50,14 @@ routines).
 
 ## Structs: more than a dataclass
 
-A cheatah `struct` started as a `@dataclass`, but now carries **typed fields**,
-**methods**, and **interfaces** — so most small Python classes port directly.
+A cheatah `struct` carries **typed fields**, **methods**, and **interfaces**, so most
+small Python classes port directly.
 
 SIDEBYSIDE: cheatah | Python
 
 ```purr
+import io
+
 interface Shape {
     fn area(self)
 }
@@ -125,7 +126,7 @@ print(c.area())
 5. **Numeric operators.** `**` is power (`std::pow`); `^` is bitwise-xor. Division
    matches Python 3: `/` is **true division** (always a float, even `int / int`),
    and `//` is **floor division** (floors toward −∞).
-6. **Containers are STL types.** `list[T]` → `std::vector<T>`, `dict[K,V]` →
+6. **Containers are STL types.** `list<T>` → `std::vector<T>`, `dict<K,V>` →
    `std::unordered_map<K,V>`. Literals use type inference, so an **empty** `[]`/`{}`
    needs a type annotation. Iterating a `dict` yields **key/value pairs**.
 7. **Exceptions select on a KIND, not a type.** `except e of "index" { … }` matches an
@@ -178,8 +179,9 @@ print("sum:", total)
 print("fib(10):", fib(10))
 ```
 
-**Z-scores** — two edits beyond syntax: the comprehension becomes an explicit loop
-(not supported yet), and the empty list literal needs a type annotation:
+**Z-scores** — two edits beyond syntax: the comprehension becomes an explicit loop (not
+supported yet), and the empty list literal needs a type annotation, since an empty `[]`
+gives the compiler nothing to infer an element type from:
 
 SIDEBYSIDE: cheatah | Python
 
@@ -190,7 +192,7 @@ import statistics
 fn zscores(xs) {
     let m = statistics.mean(xs)
     let sd = statistics.pstdev(xs)
-    let out: list[float] = []
+    let out: list<float> = []
     for x in xs {
         out.append((x - m) / sd)
     }
@@ -210,9 +212,6 @@ def zscores(xs):
 
 print(zscores([1, 2, 3, 4]))
 ```
-
-(cheatah infers a list's element type from its elements, so an empty `[]` has nothing to
-infer from — hence the annotation.)
 
 **Error handling** — `try` / `except` work as you'd expect; the name binds the error,
 which prints and compares as its message and also carries `.kind()`. Add `of "kind"` to
@@ -286,11 +285,10 @@ print(ages["ada"])
 
 ## Not yet supported (roadmap)
 
-Comprehensions; **interface refinement** (one
-interface inheriting another) and **custom constructors**; f-strings (use
-`io.format`); slice **assignment** and **step** slices; tuples/unpacking;
-generators/`yield`; `lambda`. All tracked toward frictionless Python → cheatah
-porting.
+Comprehensions; **interface refinement** (one interface inheriting another) and **custom
+constructors**; f-strings (use `io.format`); slice **assignment** and **step** slices;
+tuples/unpacking; generators/`yield`; `lambda`. All tracked toward frictionless Python →
+cheatah porting.
 
 **Struct inheritance is a non-goal**, by design — structs stay simple and only
 *implement* interfaces; any "is-a" hierarchy lives in the interface graph (see
@@ -309,6 +307,8 @@ with `constexpr let` and an `if` over it is resolved *while compiling* — the l
 isn't just skipped at runtime, it is **never compiled into the program at all**:
 
 ```purr
+import io
+
 fn log(msg) {
     constexpr let DEBUG = false      # a compile-time constant
     if DEBUG {                       # decided at COMPILE time, not run time
@@ -334,4 +334,4 @@ the same instinct as choosing the right data structure, one level earlier: you a
 ---
 
 Once it compiles, it runs as optimized native code — see @ref performance for the
-compile-time-for-run-time bargain and how the `@perf` numbers are measured.
+compile-time-for-run-time bargain and how the Performance numbers are measured.

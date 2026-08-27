@@ -6,7 +6,7 @@
 |---|---|---|
 | `sys.argv` | `sys.argv` | the argument list: `argv[0]` is the program name, `argv[1:]` the user arguments |
 
-```python
+```purr
 import io
 import sys
 
@@ -36,4 +36,4 @@ everything else is unaffected.
 
 To run a program as its own command (`myprog one two three`), build a launcher
 with `cheatah_add_program()` — it invokes the runtime on the module for you. The
-package manager [`biome`](../../pkg-manager/) is built exactly that way.
+package manager [`biome`](https://github.com/BrofessorDoucette/cheatah/blob/main/pkg-manager/CMakeLists.txt) is built exactly that way.

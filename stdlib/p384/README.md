@@ -11,13 +11,14 @@ Adding it lets cheatah's [`tls`](../tls/) client validate those real chains
 (api.github.com, Fastly-fronted hosts, …) and P-384 leaf certificates
 (`ecdsa_secp384r1_sha384` CertificateVerify).
 
-```python
+<!-- purr: fragment -->
+```purr
 import io
 import hashlib
 import p384
 
 let h = hashlib.sha384_digest("the message")
-io.print(p384.verify_raw(pubkey_xy, h, sig))   # true
+io.print(p384.verify_raw(pubkey_xy, h, sig))   # True
 ```
 
 ## What's inside

@@ -18,7 +18,7 @@ into it — `{shape, strides, offset}` — so reshape and broadcast are zero-cop
 (a stretched dimension just gets stride 0). Shared ownership keeps it memory-safe.
 
 Element-wise ops vectorize declaratively: a contiguous fast path uses
-`std::transform(std::execution::unseq, …)` (and `sum` uses `std::reduce(unseq)`),
+`std::transform(std::execution::unseq, …)` (and `sum` runs eight independent accumulators so the adds vectorize too),
 so the compiler emits SIMD for any `T`; broadcast/strided views fall back to a
 correct C-order walk.
 
@@ -60,8 +60,8 @@ work at every rank — `reshape` is the other way to set a shape.
   drives it too — `let a: ndarray<i8> = array([…])` converts for you.
 
 ### Broadcasting
-- `broadcast_shapes(a, b)` — the NumPy result shape of two shapes.
-- `broadcast_to(a, target)` — a zero-copy view of `a` stretched to `target`.
+- `broadcast_shapes(a, b)` — the NumPy result shape of two shapes (C++ only: `vector<size_t>`).
+- `broadcast_to(a, target)` — a zero-copy view of `a` stretched to `target` (C++ only).
 
 ### Element-wise ops (broadcasting)
 - `add` / `sub` / `mul` / `divide` — `a` op `b` over the common shape.
@@ -80,6 +80,8 @@ on the contiguous fast path:
 - `abs` — absolute value.
 
 ```purr
+import io
+import ndarray
 io.print(ndarray.to_string(ndarray.sqrt(ndarray.array([1.0, 4.0, 9.0]))))   # [1, 2, 3]
 ```
 
@@ -89,6 +91,8 @@ io.print(ndarray.to_string(ndarray.sqrt(ndarray.array([1.0, 4.0, 9.0]))))   # [1
 - `conj(a)` — element-wise complex conjugate (identity on a real array).
 
 ```purr
+import io
+import ndarray
 let z = ndarray.complex(ndarray.array([0.0, 2.0]), ndarray.array([1.0, -3.0]))
 io.print(ndarray.to_string(z))            # [0+1j, 2-3j]
 io.print(ndarray.to_string(ndarray.conj(z)))   # [0-1j, 2+3j]
@@ -111,13 +115,13 @@ memory.
 The element-wise math ufuncs are benchmarked against NumPy's vectorized equivalents
 (same fixed-seed array to both, op run many times, results cross-checked) by
 [`scripts/numpy_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/numpy_compare.py).
-Each function's **Performance** row on this page carries its own number; the generated
-size-by-size table, with its stamp and the command that reproduces it, is on the
+Each function's **Performance** row on this page points at the generated size-by-size
+table, with its stamp and the command that reproduces it, on the
 [ndarray benchmarks](BENCHMARKS.md) page.
 
 `exp`/`sin` route their contiguous-`double` case through glibc's **libmvec** vector math
 (`_ZGVdN4v_exp`, …) compiled with `-fveclib=libmvec -fno-math-errno` — *without*
-`-ffast-math`, so results stay strictly IEEE — and so beat NumPy ≈4–7× at 16384 elements.
+`-ffast-math`, so results stay strictly IEEE — and so beat NumPy by [4.4× and 8.5×](BENCHMARKS.md) at 16384 elements.
 `sqrt` is memory-bandwidth-bound (wins small, ties large). The plain element-wise ops like
 `add` are bandwidth-bound too: their result buffer is allocated **uninitialized** (no
 throwaway zero-fill before the overwrite), so they read once and write once — matching or

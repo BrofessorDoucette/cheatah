@@ -31,7 +31,8 @@ connection is refused, never accepted unverified.
 band, pass `insecure = true` to skip validation (leaf-key possession only), or `ca_file` to
 trust a specific PEM bundle (e.g. a private CA or a pinned self-signed cert):
 
-```python
+<!-- purr: fragment -->
+```purr
 with tls.open(sock.fd(), "example.com") as conn { … }                 # validate (default)
 with tls.open(sock.fd(), "10.0.0.5", true) as conn { … }              # insecure: skip validation
 with tls.open(sock.fd(), "internal.host", false, "/etc/my-ca.pem") { … }  # trust a private CA
@@ -41,10 +42,10 @@ with tls.open(sock.fd(), "internal.host", false, "/etc/my-ca.pem") { … }  # tr
 `websocket.open_url("wss://…")` validate the certificate by default (with the same
 `insecure` / `ca_file` options).
 
-```python
+```purr
+import io
 import socket
 import tls
-
 # tls rides an already-connected TCP socket. Both are owning guards, so nothing leaks.
 with socket.open("example.com", 443) as sock {
     with tls.open(sock.fd(), "example.com") as conn {
@@ -70,8 +71,7 @@ with socket.open("example.com", 443) as sock {
   held as a plain `let` or in a `with`, it cannot leak.
 - <b>`tls.last_error()`</b> — the last error message on this thread.
 
-> The underlying TCP fd is **not** owned by the TLS session — guard it with a `socket.Conn`
-> (as above) or close it yourself.
+> The TLS session does **not** own the TCP fd — guard it with a `socket.Conn` or close it yourself.
 
 ## Note for C++ callers
 
@@ -79,12 +79,12 @@ The flat, handle-based API (`client_connect`/`send`/`recv`/`close`, keyed by an 
 session id) is **C++-only** and lives in `tls_lowlevel.hpp`. It is intentionally not reachable
 from cheatah, so cheatah code cannot leak a session — it uses the `tls.Conn` guard instead.
 
-**Scope (v1):** TLS 1.3 only, cipher suites TLS_CHACHA20_POLY1305_SHA256 and
-TLS_AES_128_GCM_SHA256, X25519 key share, SNI, and X.509 chain + hostname + expiry validation
-(RSA-PKCS1 SHA-256/384, ECDSA SHA-256/384 under P-256/P-384 keys, and Ed25519 chain
-signatures). The **server** side presents an **Ed25519 or ECDSA P-256** leaf (P-256 is what
-public CAs issue, so a CA-trusted HTTPS server needs no other software; full-chain PEMs are
-sent whole), signs per RFC 8446 §4.4.3 only with an algorithm the client offered, and refuses
-a cert/key mismatch at startup with a precise error; the client picks the record cipher.
+**Scope (v1):** TLS 1.3 only; the client offers TLS_AES_256_GCM_SHA384, TLS_AES_128_GCM_SHA256
+and TLS_CHACHA20_POLY1305_SHA256 (AES first with AES-NI, ChaCha20 first without), X25519 key
+share, SNI, and the X.509 chain + hostname + expiry validation above. The **server** side
+presents an **Ed25519 or ECDSA P-256** leaf (P-256 is what public CAs issue, so a CA-trusted
+HTTPS server needs no other software; full-chain PEMs are sent whole), signs per RFC 8446
+§4.4.3 only with an algorithm the client offered, refuses a cert/key mismatch at startup with
+a precise error, and speaks ChaCha20-Poly1305 when the client offers it, else AES-128-GCM.
 Not yet: RSA or P-384 **server** certificates, SHA-512 chain signatures (refused, not
 accepted), certificate revocation (OCSP/CRL), and client certificates.

@@ -15,7 +15,8 @@ import memory
 let scores = memory.own([90, 84, 77])   # the list now has ONE owner
 ```
 
-`memory.own(value)` **consumes** the value — it is moved in, never copied. The
+`memory.own(value)` takes the value — a temporary moves straight in, a named value is
+copied once and the original is left alone. The
 `Owner` it returns is pinned (it never relocates) and non-copyable (there is never a
 second owner). When the `Owner` goes out of scope, the value is destroyed. Nothing to
 free, nothing to leak, no garbage collector.
@@ -26,13 +27,17 @@ You never touch the owned value directly. You *request* access, *acquire* a leas
 the owner grants it, and use the value only through that lease:
 
 ```purr
+import io
+import memory
+
+let scores = memory.own([90, 84, 77])
 with scores.rread().acquire() as r {     # a shared READ lease — many can coexist
     io.print(r.read(0))                  # 90
 }
 
 with scores.rwrite().acquire() as w {    # an exclusive WRITE lease
     w.write(0, 95)                       # set one element (deduced setter)
-    w.write(w.read() + [70])             # or read-modify-write the whole value
+    w.write([95, 84, 77, 70])            # or replace the whole value
 }                                        # released here — on every exit path
 ```
 
@@ -60,9 +65,9 @@ module pages.
 ## Urgency, when you need it
 
 Queued writes are served highest-priority first (`o.rwrite<10>()` beats `o.rwrite()`),
-and `o.rwrite<memory.immediate>()` can *briefly preempt* a cooperating writer for one
-emergency write — the paused writer then resumes exactly where it was, its lease valid
-again. Bounded, visible, and the only queue-bypass in the module.
+and a negative priority — `memory::immediate` in the C++ API — *briefly preempts* a
+cooperating writer for one emergency write; the paused writer then resumes exactly where
+it was, its lease valid again. Bounded, visible, and the only queue-bypass in the module.
 
 ## The C++ underneath
 
@@ -83,4 +88,4 @@ gates for the yield handshake. If you want to see exactly what runs:
 Behaviour is pinned by
 [stdlib/memory/tests/memory_test.cpp](../stdlib/memory/tests/memory_test.cpp) and
 [stdlib/memory/tests/memory_concurrency_test.cpp](../stdlib/memory/tests/memory_concurrency_test.cpp),
-run under ASan/UBSan, ThreadSanitizer, and Valgrind on every QA-gate push.
+run under ASan/UBSan and ThreadSanitizer on every QA-gate push.

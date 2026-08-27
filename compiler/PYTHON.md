@@ -1,9 +1,8 @@
 # cheatah ↔ Python
 
-A living document of **what Python features cheatah supports** and the **small
-set of deliberate deviations** from Python syntax (chosen for simplicity and a
-clean, fast compile to C++). Goal: **most Python scripts port to cheatah with
-light edits.** Update this as the language grows.
+**What Python features cheatah supports**, and the **small set of deliberate
+deviations** from Python syntax (chosen for simplicity and a clean, fast compile
+to C++). The goal: **most Python scripts port to cheatah with light edits.**
 
 > TL;DR of the deviations: <b>blocks use `{ }` not indentation</b>; <b>`let`</b> declares
 > a variable; <b>`fn`</b> not `def`; <b>`struct`</b> not `class`; **everything is
@@ -30,13 +29,13 @@ light edits.** Update this as the language grows.
 | `break` / `continue` | `break`, `continue` | same |
 | `for` over a range | `for i in range(a, b) { … }` | `for i in range(a, b):` |
 | Function def | `fn f(a, b) { return a + b }` | `def f(a, b):` |
-| Exceptions | `try { … } except e { … }`, `raise "msg"` | `try/except`, `raise` |
+| Exceptions | `try { … } except e of "kind" { … } finally { … }`, `raise "msg"` | `try/except/finally`, `raise` |
 | Recursion | works | works |
 | Function call | `f(1, 2)` | same |
 | Indexing | `a[i]` (negative OK; `s[i]` → 1-char str) | same |
 | Slicing | `a[i:j]`, `a[i:]`, `a[:j]`, `a[-3:]` | same |
 | List literal | `[1, 2, 3]` → `std::vector` | `[1, 2, 3]` |
-| Empty typed list/dict | `let xs: list[int] = []`, `let d: dict[str,int] = {}` | `xs = []`, `d = {}` |
+| Empty typed list/dict | `let xs: list<int> = []`, `let d: dict<str,int> = {}` | `xs = []`, `d = {}` |
 | Growable list | `xs.append(v)` / `append(xs, v)` | `xs.append(v)` |
 | Dict literal | `{"k": 1}` → `std::unordered_map` | `{"k": 1}` |
 | Index assignment | `xs[i] = v`, `d[k] = v` | same |
@@ -85,7 +84,7 @@ enum Status { OK = 0, WARN = 1, FAIL = 2 }    # members reached as Color.RED
 
 ### Command-line programs
 
-`import sys` exposes `sys.argv` (a `list[str]` — `sys.argv[0]` is the program
+`import sys` exposes `sys.argv` (a `list<str>` — `sys.argv[0]` is the program
 name, `sys.argv[1:]` the arguments), just like Python. `purrc` always compiles a
 program to a loadable **module** (`.so`/`.dylib`/`.dll`); the `cheatah` runtime
 runs it and forwards the command-line arguments into `sys.argv`:
@@ -162,10 +161,10 @@ cheatah code therefore always runs under the runtime, never standalone.
    compiler links exactly what you use. **Porting:** add the relevant `import` and
    qualify (`print` → `io.print`, `sqrt` → `math.sqrt`).
    *(Truly global built-ins like `len`/`hex`/`ord` need no import.)*
-   *Resolution* is Python-like: `import a.b.c` is found first **next to the source**
-   (`a/b/c.purr` / `.hpp`), then in any `--import-root <dir>` (a package manager passes one
-   per dependency — see biome's `[dependencies]`), else the compiler errors telling you how
-   to point it at the module.
+   *Resolution* keys on the **first segment**: `import a.b.c` resolves the module `a`
+   (`a/a.hpp` or `a.hpp`), and `b.c` are namespaces inside it. purrc searches next to the
+   source and any `--import-root <dir>` first (a package manager passes one per dependency),
+   then the module path, else it errors. The [imports](imports.html) page has the full order.
 
 6. <b>`^` is bitwise-xor (C++), not power.</b> Use `**` for exponentiation (it maps
    to `std::pow`), e.g. `2 ** 10`.
@@ -173,8 +172,8 @@ cheatah code therefore always runs under the runtime, never standalone.
 7. <b>`/` is true division; `//` floors.</b> Like Python 3, `/` always yields a float
    (even `int / int`), and `//` floor-divides toward −∞.
 
-8. **Containers map to STL types.** `list[T]` → `std::vector<T>`, `dict[K,V]` →
-   `std::unordered_map<K,V>`, `array[T,N]` → `std::array<T,N>` (static). List/dict
+8. **Containers map to STL types.** `list<T>` → `std::vector<T>`, `dict<K,V>` →
+   `std::unordered_map<K,V>`, `array<T,N>` → `std::array<T,N>` (static). List/dict
    **literals** infer element types via C++ CTAD, so they must be **non-empty**
    (an empty `[]`/`{}` needs a type annotation). Iterating a `dict` yields
    key/value **pairs** (not keys like Python).
@@ -189,10 +188,10 @@ cheatah code therefore always runs under the runtime, never standalone.
     separate `struct` fields) — handy if you're used to Python's `;` or C++'s, but
     never required.
 
-11. **Exceptions are message-based & catch-all.** `try { … } except e { … }`
-    catches any error and binds `e` to the **message string** (not an exception
-    object); `raise "msg"` throws a generic error. No typed `except ValueError`,
-    `as`, or `finally` yet.
+11. **Exceptions select on a KIND, not a type.** `except e of "index" { … }` matches an
+    error's kind string; a bare `except e { … }` catches the rest and belongs last.
+    `raise "msg"` raises kind `"error"`, `raise Error("kind", "msg")` names one, and a bare
+    `raise` re-raises. `finally { … }` runs on every exit path; there is no class hierarchy.
 
 12. <b>`with` for resources — RAII, not a context-manager protocol.</b> `with expr [as
     name] { … }` binds `expr` for the block and lowers to a plain C++ scope, so the
@@ -208,7 +207,7 @@ cheatah code therefore always runs under the runtime, never standalone.
 
 ## 🚧 Not yet supported (roadmap)
 
-Comprehensions; typed exceptions & `finally`; **interface refinement** (one
+Comprehensions; **interface refinement** (one
 interface building on another — interfaces are flat for now); <b>custom constructors /
 `__init__`</b> (construction is positional for now); f-strings & rich string formatting
 (use `io.format`); slice **assignment** (`a[1:3] = …`) and step slices (`a[::2]`);

@@ -1,39 +1,18 @@
 # linalg benchmarks
 
 `linalg` goes head-to-head with NumPy, whose array ops dispatch to **BLAS/LAPACK** —
-hand-tuned, vectorized, often multi-threaded Fortran. The
-[`scripts/numpy_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/numpy_compare.py)
-harness feeds the **same** fixed-seed, well-conditioned matrix to both, runs the **same**
-op many times with the result consumed, and checks the answers agree. Each function's
-**Performance** row on the [linalg reference](README.md) carries its own measurement; the full size-dependence:
+hand-tuned, vectorized, often multi-threaded Fortran. [`numpy_compare.py`](../../scripts/numpy_compare.py)
+feeds the **same** fixed-seed, well-conditioned matrix to both sides, runs the **same** op
+many times with the result consumed, and flags any disagreement in the answers.
 
-> **What we compared against — read this before the numbers.** NumPy's absolute speed, and
-> where every crossover lands, depends far more on which **BLAS** it links than on which NumPy
-> version it is. The generated stamp below records the resolved library rather than the version
-> string, because "NumPy 1.26.4" does not identify a measurement and the library does.
->
-> On this machine that resolves to **`libblas.so.3` → the reference implementation**, not
-> OpenBLAS and not MKL. That matters for how much these wins are worth: reference BLAS is the
-> unoptimized baseline, so a cheatah win over it is a win over *untuned* Fortran, not over the
-> tuned kernels most NumPy installs actually use. A tuned BLAS would narrow the large-`n` rows
-> and push the crossovers lower. The small-`n` wins are a different claim and survive either
-> way — they come from cheatah having no per-call Python and dispatch overhead to pay, which no
-> choice of BLAS changes.
-
-The **Eigen** comparison is a *separate* measurement, in the native Google Benchmark harness
-([`tests/benchmarks/eigen_compare_bench.cpp`](https://github.com/BrofessorDoucette/cheatah/blob/main/tests/benchmarks/eigen_compare_bench.cpp)),
-where cheatah and **Eigen 3.4** are both compiled C++ timed identically on **one thread** — an
-apples-to-apples per-core comparison.
-
-**Two harnesses, two tables — deliberately.** These numbers used to share one table, with the
-cheatah column measured by `numpy_compare.py` (separate processes) sitting beside an Eigen
-column measured by Google Benchmark (compiled C++, one process), and a prose warning not to
-read across. A warning is a weaker fix than a structure: a reader who divides two adjacent
-columns gets a wrong answer no matter how the caption is worded. Each harness now publishes
-only what it measured, and neither table contains a column it did not produce.
-
-Both are generated — see [docs/performance.md](../../docs/performance.md#reference-machine) for
-the methodology (striated, interleaved, medians with dispersion) and the reference machine.
+Read the stamp before the numbers: NumPy's speed depends on which **BLAS** it links, so the
+stamp records the resolved library, not the NumPy version. Here that is `libblas.so.3` → the
+**reference** implementation, not OpenBLAS or MKL — a tuned BLAS would narrow the large-`n`
+rows. The small-`n` wins come from paying no per-call Python and dispatch overhead, which no
+choice of BLAS changes. The **Eigen** comparison is a separate Google Benchmark harness
+([`eigen_compare_bench.cpp`](../../tests/benchmarks/eigen_compare_bench.cpp)) with both sides
+compiled C++ on **one thread**; the two tables never share a column. Methodology and the
+reference machine: [docs/performance.md](../../docs/performance.md#reference-machine).
 
 ## vs NumPy
 
@@ -177,19 +156,13 @@ Measured by [`tests/benchmarks/eigen_compare_bench.cpp`](../../tests/benchmarks/
 - Loss vs eigen: `BM_dot/64` — cheatah 10.18 ns vs 6.69 ns (1.52x slower)
 <!-- BENCH:linalg-vs-eigen end -->
 
-## After the optimization round
+## What the two tables say
 
-After a focused optimization round (hunting a few recurring mistakes across every
-routine — a heap allocation in a hot predicate, single-accumulator reductions, a
-column-stride QR walk, and a result buffer that was zero-filled and then thrown away):
-
-- **vs NumPy/LAPACK, cheatah now wins across nearly the whole library** — products, the
-  LU family, the SVD, the symmetric eigensolver, `outer`, `qr`, `kron`, and large `norm`
-  (the last four previously *lost*). The handful still behind (`svdvals`/`cond`/
-  `matrix_rank` ~1.1×) are SVD-threshold queries where LAPACK's bidiagonal solver edges it.
-- **vs Eigen 3.4 on one core, cheatah matches or beats it on the bulk** — `inv` (≈1.7×),
-  `svd` (≈1.6×), `det`/`matmul`/`trace` (≈1.3–1.4×), `outer` (≈1.2–1.3×, now that the
-  result buffer is built uninitialized and moved in zero-copy), `solve`/`eigvalsh`/`eigh`/
-  `norm` (≈1.1–1.2×). Eigen still leads on its **blocked BLAS-3** kernels — `qr`
-  (1.3–1.8×), `cholesky` (1.2×), and the `eigh` eigenvector path (1.1×) — which we flag
-  honestly rather than hide.
+- **vs NumPy/LAPACK** cheatah wins across nearly the whole library — the products, the LU
+  family, the full SVD, the symmetric eigensolver, `outer`, `qr`, `kron` and `norm`. The
+  rows still behind are the SVD-threshold queries — `svdvals` and `cond` at 32 and 64, and
+  `matrix_rank` at 64 — where LAPACK's bidiagonal solver edges it, and one elementwise tie.
+- **vs Eigen 3.4 on one core** cheatah leads `inv`, `matmul`, `solve` and the large `dot`,
+  and loses the 64-element `dot`, where Eigen's kernel is the tighter one. Those four
+  routines are the whole published Eigen suite, and its tally is its own — the two tables
+  never divide into each other.

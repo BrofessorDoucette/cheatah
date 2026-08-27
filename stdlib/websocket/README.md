@@ -1,10 +1,10 @@
 # cheatah `websocket` 🐆
 
 A from-scratch, low-latency **WebSocket client** (RFC 6455) over the cheatah
-`tls` 1.3 client and `socket`. **wss:// only** — the transport is always
-encrypted, like the rest of cheatah's network stack. No external libraries.
+`tls` 1.3 client and `socket`. **wss:// by default**; plaintext `ws://` is accepted only
+to a loopback host (a local control plane such as a DevTools port). No external libraries.
 
-```python
+```purr
 import io
 import websocket
 
@@ -68,5 +68,5 @@ connection resists an active MITM. For a pinned/controlled peer, `open`/`open_ur
 `insecure` flag (skip validation) and a `ca_file` (trust a specific PEM CA) — see the
 [`tls` README](../tls/README.md).
 
-Built on [`tls`](../tls/) (TLS 1.3, now verifying Ed25519 **and ECDSA P-256**
-server certificates), [`socket`](../socket/), and [`os`](../os/) (`urandom`).
+Built on [`tls`](../tls/) (TLS 1.3 with Ed25519, ECDSA P-256/P-384 and RSA server
+certificates, chain-validated), [`socket`](../socket/), and [`os`](../os/) (`urandom`).

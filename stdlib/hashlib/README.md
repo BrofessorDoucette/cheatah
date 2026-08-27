@@ -1,7 +1,7 @@
 # cheatah `hashlib`
 
-Cryptographic hashing and keyed primitives — self-contained SHA-256/SHA-512, HMAC,
-HKDF, and Base64, with no external crypto dependency. Each hash comes in a hex form
+Cryptographic hashing and keyed primitives — self-contained SHA-256/384/512, HMAC,
+HKDF, hex and Base64, with no external crypto dependency. Each hash comes in a hex form
 and a raw-bytes form (like a digest vs hexdigest). These primitives back the `tls`
 and `ed25519` modules and are equally usable directly.
 
@@ -14,15 +14,15 @@ hashlib.sha256("abc")
 
 ## Functions
 
-- `sha256(data)` — SHA-256 of `data` as a 64-character lowercase hex digest.
-- `sha512(data)` — SHA-512 of `data` as a 128-character lowercase hex digest.
-- `sha256_digest(data)` — the raw 32-byte SHA-256 (not hex).
-- `sha512_digest(data)` — the raw 64-byte SHA-512 (not hex); backs the `ed25519`
-  module, which uses SHA-512 internally per RFC 8032.
-- `hmac_sha256(key, data)` / `hmac_sha512(key, data)` — RFC 2104 keyed MAC, raw bytes.
-- `hkdf_extract(salt, ikm)` / `hkdf_expand(prk, info, length)` — RFC 5869 key
-  derivation (the TLS 1.3 key schedule is built on these).
-- `base64_encode(data)` / `base64_decode(text)` — standard Base64 (RFC 4648).
+- `sha256(data)`, `sha384(data)`, `sha512(data)` — lowercase hex digests of 64, 96
+  and 128 characters.
+- `sha256_digest`, `sha384_digest`, `sha512_digest` — the raw 32 / 48 / 64 bytes;
+  `sha512_digest` backs the `ed25519` module (RFC 8032).
+- `hmac_sha256` / `hmac_sha384` / `hmac_sha512(key, data)` — RFC 2104 keyed MAC, raw bytes.
+- `hkdf_extract(salt, ikm)` / `hkdf_expand(prk, info, length)`, plus the `_sha384`
+  pair — RFC 5869 key derivation (the TLS 1.3 key schedule is built on these).
+- `base64_encode(data)` / `base64_decode(text, strict=false)` — Base64 (RFC 4648);
+  `to_hex(bytes)` / `from_hex(hex)` — lowercase hex.
 
 The input length is carried, so an embedded NUL byte is hashed as part of the data.
 The implementation follows FIPS-180 and is checked against the standard NIST SHA-256

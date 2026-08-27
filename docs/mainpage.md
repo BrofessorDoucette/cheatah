@@ -30,9 +30,8 @@ contract, so you always know what a call costs:
 > constant factors can shift with the **C runtime / standard library** linked at
 > run time. Treat Big-O as the contract; benchmark for absolute numbers.
 
-> **Examples in the docs:** function pages are gaining a consistent
-> <b>`@par Example`</b> block with runnable code — every `plot` function page
-> carries one today, and the same convention is arriving across the extensions.
+> **Examples in the docs:** every `plot` function page carries a runnable
+> <b>`@par Example`</b> block; the other extensions are adopting the same convention.
 
 The entire library is verified on every QA-gate run under **AddressSanitizer**
 (the `asan` preset) and **Valgrind** (`security/run-valgrind.sh`), with **100% line
@@ -49,7 +48,9 @@ automatic string-concatenation optimization — at the cost of compile time.
 | `aead`      | Authenticated encryption — ChaCha20-Poly1305 and AES-GCM (hardware-accelerated), from scratch. |
 | `builtins`  | Always-available built-ins: `len`, `ord`/`chr`, `hex`/`oct`/`bin`, conversions, `hash`. |
 | `datetime`  | Civil date & time values and formatting. |
-| `ed25519`   | Ed25519 public-key signatures (RFC 8032), from scratch — sign, verify, keygen. Backs cheatah's [module-integrity](security.html) check. |
+| `fixarray`  | Fixed-extent arrays — `Fixed<T, N>`, exactly like an `ndarray` whose shape is known at compile time, only faster; header-only. |
+| `fixarray`  | Fixed-extent vectors and matrices (`vec3f`, `mat4f`) — the shape lives in the type, header-only, for the small-and-hot regime. |
+| `fixarray`  | Fixed-extent vectors and matrices (`vec3f`, `mat4f`) — the shape lives in the type, the elements inline, and nothing allocates. |
 | `hashlib`   | SHA-256/SHA-512 digests (hex and raw), HMAC, HKDF (RFC 5869), and Base64. |
 | `io`        | `print`, `str`/`repr`/`format`, `input`, file I/O. |
 | `linalg`    | numpy-style linear algebra on `ndarray`, SIMD-accelerated. |
@@ -57,10 +58,10 @@ automatic string-concatenation optimization — at the cost of compile time.
 | `memory`    | Ownership for shared state — `Owner<T>` with the request → acquire → lease flow (drain-before-write, write priorities, `memory.immediate`). The blessed way to share across threads. |
 | `ndarray`   | N-dimensional arrays **generic over the numeric element type** (deduced from the literals), with broadcasting + declarative SIMD. |
 | `os`        | Environment, process, and filesystem (`os.path`) helpers, plus `os.urandom` (CSPRNG). |
-| `p256`      | NIST P-256 ECDSA signatures, from scratch — used to verify server certificates in `tls`. |
+| `p384`      | NIST P-384 ECDSA signatures, from scratch — verifies the `ecdsa-with-SHA384` certificate chains CDN-fronted hosts present to `tls`. |
 | `parsers`   | From-scratch input parsers — `parsers.json` (SIMD-accelerated JSON), `parsers.xml` (slab-DOM), `parsers.url`, and `parsers.html`. |
 | `random`    | Pseudo-random numbers and selection (per-thread engine — draws never race). |
-| `regex`     | From-scratch **linear-time** regular expressions (lazy DFA) — immune to ReDoS by construction. |
+| `regex`     | From-scratch regular expressions on a **lazy DFA** — no backtracking, so immune to ReDoS by construction. |
 | `requests`  | A pure-cheatah HTTP client (the first `.purr` stdlib module). |
 | `socket`    | TCP sockets — a small BSD-socket wrapper (Python-`socket`-flavored); owning `Conn`/`Listener` guards for `with`. |
 | `statistics`| Mean, median, variance, standard deviation. |
@@ -68,7 +69,7 @@ automatic string-concatenation optimization — at the cost of compile time.
 | `sys`       | Command-line arguments (`sys.argv`), Python-style. |
 | `thread`    | Real OS threads — `thread.spawn(f, args...)` → a join-on-destroy `Thread` guard; share mutable state through `memory.Owner` ([the contract](threading.html)). |
 | `time`      | Monotonic / wall clocks and sleeping. |
-| `tls`       | A from-scratch **TLS 1.3 client** (no OpenSSL); owning `Conn` guard for `with`. |
+| `tls`       | A from-scratch **TLS 1.3 client and server** (no OpenSSL); owning `Conn` guard for `with`. |
 | `websocket` | A from-scratch <b>WebSocket (RFC 6455) `wss://` client</b> over `tls`; owning `Client` guard for `with`. |
 | `x25519`    | X25519 Diffie–Hellman key agreement (RFC 7748), from scratch. |
 

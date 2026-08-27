@@ -35,5 +35,5 @@ Measured by [`tests/benchmarks/p256_bench.cpp`](../../tests/benchmarks/p256_benc
 | `BM_P256_Verify` | 88.69 µs | ±588.83 ns IQR | 11.3 k/s |
 <!-- BENCH:p256 end -->
 
-Verification runs once per TLS handshake (negligible next to a network round
-trip); signing is the per-message JWT path.
+Verification runs once per P-256 chain link plus once for CertificateVerify —
+negligible next to a network round trip; signing is the per-message JWT path.

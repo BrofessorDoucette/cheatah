@@ -2,7 +2,7 @@
 
 The generated benchmark tables for the [`fixarray`](README.md) module against
 [GLM](https://github.com/g-truc/glm), across the complete overlap of the two APIs — every
-vector and matrix operation at sizes 2/3/4 in `float` and `double`
+vector and matrix operation at sizes 2/3/4 (the GLSL common functions and the extra matrix builtins at 3 and 4) in `float` and `double`
 ([`fixed_glm_bench.cpp`](../../tests/benchmarks/fixed_glm_bench.cpp)). Both sides compile in
 the same translation unit with the same flags, and the benchmark verifies the two produce
 identical results before it times either; the module page describes the setup, this page
@@ -55,11 +55,8 @@ Read the verdict column, not the ratio. A row can be ahead on ratio and still be
 **parity**, because a difference counts here only when it clears *both* 1.15× and an absolute
 0.25 ns — about one cycle. Below that floor the harness's own `DoNotOptimize` scaffolding is a
 larger effect than the code being measured, and on 4-element vectors most operations live
-there. That floor is also why this tally is smaller than it once was: the earlier
-**37 faster / 123 parity** count came from a best-of-N minimum with each library's cases timed
-in one consecutive block. Re-measured with interleaved repetitions and medians, a batch of
-operations moved from "faster" to "parity". None moved to "slower" — the claim that matters
-survived the stricter method.
+there. Each row is a median over interleaved repetitions, so drift between a pair's two sides
+is zero-mean noise the median absorbs rather than a ratio.
 
 The [`bench_gate.sh`](../../scripts/bench_gate.sh) hard gate keeps it that way: it fails the
 build if any pair regresses past GLM (tolerant by ratio *and* an absolute floor, with a

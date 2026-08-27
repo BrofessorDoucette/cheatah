@@ -13,7 +13,7 @@ statistics.stdev([1, 2, 3, 4, 5])            # sample std-dev
 
 This is a **header-only** module: every function is a template constrained by the
 `NumericRange` concept, so it accepts any iterable of arithmetic values
-(`list[float]`, `array[int]`, …).
+(`list<float>`, `array<int, 4>`, …).
 
 ## Functions
 

@@ -4,7 +4,7 @@ Scalar math: Python's `math` module plus the math-flavored built-ins
 (`abs`/`min`/`max`/`pow`). Every function is **pure and allocation-free** — it
 operates on `double` / `long long` by value and never touches the heap.
 
-```python
+```purr
 import io
 import math
 

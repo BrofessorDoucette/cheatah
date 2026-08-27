@@ -5,7 +5,7 @@ module written in pure cheatah** (`requests.purr`, compiled by `purrc` into an i
 module). All the protocol logic is cheatah source; it rides on the C++-authored stdlib
 underneath (`socket` for TCP, `tls` for HTTPS, `parsers` for URL/JSON parsing).
 
-```python
+```purr
 import io
 import requests
 
@@ -109,4 +109,4 @@ connection even on an error path.
 ## Not yet supported
 
 `Session`/keep-alive/connection reuse, retries, multipart/`files=`, streaming/`iter_content`,
-proxies, and explicit TLS/certificate configuration.
+and proxies.

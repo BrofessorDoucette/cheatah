@@ -70,7 +70,7 @@ These you get for free — the compiler and runtime enforce them so you don't ha
   check a **SHA-512 checksum** (corruption), an **Ed25519 signature** (tampering), and a
   **build-runtime manifest** (an incompatible C runtime) — see *Verifying a binary before
   it loads* below. Off by default, so it costs nothing unless you opt in.
-- **Every template is concept-constrained.** Misuse surfaces as an **early, named
+- **Concept-constrained templates.** Misuse surfaces as an **early, named
   compile error** ("`Point` does not satisfy `Printable`"), not undefined behavior or
   a pages-long instantiation backtrace.
 - **A QA gate that runs on every push** (a local pre-push hook), under
@@ -100,8 +100,8 @@ You sign an artifact once with the secret key. Anyone holding the public key can
 confirm the artifact came from you and hasn't changed — but **cannot forge** a new
 signature, because they don't have the secret key. That's identical to RSA. Ed25519 is
 simply a modern signature scheme (elliptic-curve EdDSA) that does it with **32-byte keys**
-and **sub-millisecond** verification instead of RSA's multi-kilobit keys — which is why a
-small runtime can ship its own implementation.
+instead of RSA's multi-kilobit keys — which is why a small runtime can ship its own
+implementation.
 
 `purrc --keygen <name>` writes the pair (and prints the public key):
 
@@ -159,7 +159,7 @@ purrc app.purr -o app.so --sign release.key   # writes app.so.sig (+ app.so.sha5
 cp release.pub ~/.config/cheatah/trusted.pub
 export CHEATAH_VERIFY=strict
 cheatah app.so                                # refuses unless app.so.sig verifies
-#   …or per run:  cheatah --verify --trust release.pub app.so
+#   …or per run, with CHEATAH_VERIFY unset:  cheatah --verify --trust release.pub app.so
 ```
 
 **Strict mode is fail-closed and non-downgradable.** A missing, invalid, non-canonical, or
@@ -180,7 +180,7 @@ with a readable reason.
 
 ```sh
 purrc app.purr -o app.so --runtime    # writes app.so.rt  (the runtime manifest)
-cheatah app.so                        # refuses e.g. "needs glibc >= 2.39, host has 2.31"
+cheatah app.so                        # refuses: "module needs glibc >= 2.39, but this host has glibc 2.31"
 ```
 
 On its own, `app.so.rt` is plain text — anyone could edit it. To vouch for it, sign it too,
@@ -274,7 +274,7 @@ you sign **many** modules in one short-lived process this is the cost to weigh. 
 header (`runtime/integrity.hpp`) documents the per-call `@complexity` and `@alloc` too.
 
 The default stays **zero-overhead**: with no sidecars and no strict flag, the runtime never
-reads the module to hash it (~1.6 µs is just the path canonicalization it already did).
+reads the module to hash it (~1.6 µs is the three sidecar existence probes).
 
 ## What you still have to worry about (for now)
 

@@ -3,12 +3,13 @@
 Text operations plus Python's `string` constants, exposed as free functions so a
 `.purr` program writes `string.upper("x")`.
 
-```python
+```purr
+import io
 import string
 
-print(string.upper("purr"))            # PURR
-print(string.split("a,b,c", ","))      # ['a', 'b', 'c']
-print(string.join("-", ["a", "b"]))    # a-b
+io.print(string.upper("purr"))            # PURR
+io.print(string.split("a,b,c", ","))      # ['a', 'b', 'c']
+io.print(string.join("-", ["a", "b"]))    # a-b
 ```
 
 ## What's here

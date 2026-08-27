@@ -12,17 +12,17 @@ only — a worker that wants a reproducible stream calls `seed` itself.
 ```purr
 import random
 
-random.seed(42)          # reproducible stream
-x = random.random()      # double in [0, 1)
-d = random.randint(1, 6) # dice roll
-pick = random.choice([1, 2, 3, 4, 5])
+random.seed(42)              # reproducible stream
+let x = random.random()      # double in [0, 1)
+let d = random.randint(1, 6) # dice roll
+let pick = random.choice([1, 2, 3, 4, 5])
 ```
 
 ## Functions
 
 - `seed(s)` — seed the calling thread's engine, making its stream reproducible.
 - `random()` — uniform double in [0, 1).
-- `uniform(a, b)` — uniform double in [a, b].
+- `uniform(a, b)` — uniform double in [a, b).
 - `randint(a, b)` — uniform integer in [a, b] (inclusive).
 - `gauss(mu, sigma)` — normal (Gaussian) deviate.
 - `choice(seq)` — a random element of a random-access sequence (list/array).

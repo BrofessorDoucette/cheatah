@@ -9,7 +9,7 @@ when you compile — and what "statically linked" and "dynamically loaded" mean 
 
 ## Hello, cheatah
 
-```
+```purr
 import io
 
 io.print("meow")
@@ -101,7 +101,7 @@ dynamism without an interpreter.)
 
 - @ref porting — bring an existing Python script over with light edits.
 - @ref performance — why the compile-time cost buys run-time speed, and how the
-  `@perf` numbers are measured.
+  Performance numbers are measured.
 - @ref security — what the language protects you from, and what you still own today.
 - Browse the **Modules** in the sidebar (`io`, `ndarray`, `linalg`, `string`, …) for
   the full standard-library reference.

@@ -9,8 +9,7 @@
 machine code — **Python for people who care about performance**. You write `.purr` source files,
 compile them with `purrc`, and run them on the headless `cheatah` host. Because
 cheatah transpiles to modern C++ and is built at `-O3 -march=native`, your
-programs run at **optimized native speed** — a recursive `fib(35)` runs at parity
-with hand-written C++.
+programs run at **optimized native speed**.
 
 > ⚠️ **Status: alpha (v1.11.7-alpha).** cheatah runs and is heavily tested
 > (the QA gate runs the suite under **ASan + UBSan + Valgrind** at 100% coverage), but the
@@ -18,7 +17,7 @@ with hand-written C++.
 > *fully trusted* by default (you can optionally sign modules and have the runtime verify
 > them — see below) — read [SECURITY.md](SECURITY.md) before running code you didn't write.
 
-```python
+```purr
 # hello.purr
 import io
 
@@ -53,8 +52,8 @@ cheatah hello.so          # run it
   no raw `new`/`delete`, no manual pointer arithmetic. (The sole exception is whatever
   you write inside a raw `cpp { … }` escape hatch — that's on you.)
 - **Headless and dependency-free.** The language core and runtime have **no
-  external dependencies**; the only third-party code is GoogleTest/Google
-  Benchmark, used by the test suite alone.
+  external dependencies**; the only third-party code is GoogleTest, Google
+  Benchmark and Eigen, fetched for the tests and benchmarks alone.
 - **Batteries included.** A standard library spanning `io`, `os`, `sys`, `string`,
   `math`, `time`, `datetime`, `random`, `statistics`, `hashlib` (SHA-256/512),
   `ed25519` (from-scratch public-key signatures), `socket` (a small BSD-socket
@@ -67,7 +66,7 @@ cheatah hello.so          # run it
 cheatah reads like Python, with a C-style `{ }` structure instead of indentation.
 A quick tour — this compiles and runs as-is:
 
-```python
+```purr
 import io
 import math
 
@@ -149,8 +148,8 @@ built-ins (`len`, `ord`, `chr`, `hex`/`oct`/`bin`, …).
 | Types | inferred but **static** (`auto`) | dynamic |
 
 Most Python scripts port with light edits. The full feature mapping, the remaining
-deviations, and the roadmap (comprehensions, classes-with-methods, f-strings,
-slicing, …) live in [compiler/PYTHON.md](compiler/PYTHON.md).
+deviations, and the roadmap (comprehensions, f-strings, `__init__` constructors,
+slice assignment, …) live in [compiler/PYTHON.md](compiler/PYTHON.md).
 
 ### Escape hatch: raw C++
 
@@ -159,7 +158,7 @@ directly, a <b>`cpp { … }`</b> block drops to raw C++ (file scope at the top l
 for `#include`s/helpers/types; inline inside a function, where it can read and
 write cheatah locals):
 
-```python
+```purr
 import io
 cpp { static long long triple(long long n) { return n * 3; } }   # file scope
 fn demo() {
@@ -175,9 +174,6 @@ io.print(demo())                                                  # 16
 > `new`/`delete`), but a raw-C++ block bypasses those guarantees and is **not**
 > sandboxed or checked. Raw pointers, unchecked indexing, lifetimes, and undefined
 > behavior are your responsibility there — exactly as in C++.
-
-It's optional and out of the way — see **Python for people who care about
-performance** below for why this stays "all native."
 
 ## How it works
 
@@ -227,12 +223,13 @@ your `.purr`.
 **Compile time over runtime — no RTTI.** Because the host is C++, cheatah resolves
 as much as it can at *compile time* and avoids runtime type machinery:
 
-- The compiler, the runtime, and the C++ it generates use <b>no `dynamic_cast`,
-  `typeid`, or virtual dispatch</b>. The AST is walked with a kind-tag `enum` +
+- The compiler, the runtime, and the C++ it generates use <b>no `dynamic_cast`
+  or `typeid`</b>, and the only virtual functions are the AST base destructors that
+  `unique_ptr` deletes through. The AST is walked with a kind-tag `enum` +
   `static_cast`, so dispatch is a branch on a tag — not a vtable lookup.
 - The standard library leans on **C++20 concepts** (`requires`) and **templates**
   rather than inheritance; untyped cheatah functions lower to **abbreviated
-  function templates** (`static auto f(auto a, …)`) that monomorphize and inline
+  function templates** (`static auto f(Value auto&& a, …)`) that monomorphize and inline
   at each call site.
 - **Compile-time conditionals** — concepts and preprocessor `#ifdef` — select
   implementations during compilation, so the hot path carries no dispatch cost.
@@ -316,12 +313,14 @@ bash docs/build-docs.sh   # Doxygen XML -> generator -> docs/html/
 cheatah's standard library is extended by separate, installable packages — each its own
 public repository, built on the `purrc` toolchain and this stdlib:
 
+- **[cheatah-gpu-linalg](https://github.com/BrofessorDoucette/cheatah-gpu-linalg)** — a GPU
+  device backend for `linalg` (the `gpulinalg` package, built on cheatah-gpu).
+- **[cheatah-gpu-linalg](https://github.com/BrofessorDoucette/cheatah-gpu-linalg)** — the
+  device backend for `linalg` (the `gpulinalg` package, built on cheatah-gpu).
 - **[cheatah-space](https://github.com/BrofessorDoucette/cheatah-space)** — astronomy and
   space-physics (the `space` package).
-- **[cheatah-gpu](https://github.com/BrofessorDoucette/cheatah-gpu)** — one simple GPU
-  interface over Vulkan and Metal (the `gpu` package).
 - **[cheatah-plot](https://github.com/BrofessorDoucette/cheatah-plot)** — dead-simple
-  cross-platform plotting on the GPU (the `plot` package, built on cheatah-gpu).
+  cross-platform plotting on the GPU (the `plot` package, built on cheatah-gpu-linalg).
 
 Install extensions with `biome`, the package manager — see [pkg-manager/](pkg-manager/).
 
@@ -357,10 +356,10 @@ stack. That is the argument.
 | [runtime/](runtime/) | `cheatah`, the headless host |
 | [pkg-manager/](pkg-manager/) | `biome`, the package manager (cheatah logic compiled by purrc, run via a native launcher → the cheatah runtime) — scaffolds projects and pulls in optional stdlib extensions via CMake/CPM |
 | [tests/](tests/) | unit, integration (purrc → runtime), and benchmark suites |
-| [cmake/](cmake/) | the `add_cheatah_library` helper |
+| [cmake/](cmake/) | the `add_cheatah_library` / `cheatah_add_module` / `cheatah_add_program` helpers and the native launcher source |
 | [editors/](editors/) | editor support — a VS Code extension + TextMate grammar (highlights `.purr`, incl. embedded C++ in `cpp { … }`) |
 | [scripts/](scripts/) | the QA gate and git-hook setup |
-| [docs/](docs/) | the generated Doxygen API site ([Doxyfile](Doxyfile)) + the dark cheetah theme ([docs/theme/](docs/theme/)) |
+| [docs/](docs/) | the generated API site (Doxygen XML → [gen.purr](docs/gen-cheatah/gen.purr)) + the dark cheetah theme ([docs/theme/](docs/theme/)) |
 
 ## Security
 

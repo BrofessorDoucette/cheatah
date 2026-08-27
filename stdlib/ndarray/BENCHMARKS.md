@@ -3,12 +3,12 @@
 The element-wise math ufuncs are benchmarked against NumPy's vectorized equivalents
 (same fixed-seed array to both, op run many times, results cross-checked) by
 [`scripts/numpy_compare.py`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/numpy_compare.py).
-Each function's **Performance** row on the [ndarray reference](README.md) carries its own number. The table below is
+Each function's **Performance** row on the [ndarray reference](README.md) points here. The table below is
 **generated** by that harness — see [docs/performance.md](../../docs/performance.md#reference-machine)
 for the methodology (striated rounds, medians, paired ratios) and the reference machine. The
 `band` column is the range of the per-round ratios, which on the large-array rows is wide
-enough to matter: a bare headline would hide that `sqrt` at 16384 lands anywhere from 0.6× to
-1.1× depending on the round.
+enough to matter: a bare headline would hide that `sqrt` at 16384 lands anywhere from 0.8× to
+1.0× depending on the round.
 
 Measured by [`scripts/numpy_compare.py`](../../scripts/numpy_compare.py); reproduce with `python3 scripts/numpy_compare.py --suite ndarray --md docs/bench/ndarray-vs-numpy.md`.
 

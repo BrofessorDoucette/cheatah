@@ -6,8 +6,8 @@ Fast, safe, from-scratch input parsers — a **C++-authored** stdlib module (lik
 
 - <b>`parsers.json`</b> — a fast, SIMD-accelerated JSON parser:
   - `import parsers.json.Parser as Parser` — the reusable DOM parser: pooled zero-copy views or a
-    self-contained owning Document; iterative grammar (no stack overflow at any nesting depth);
-    a compile-time `Validate` switch; SIMD whitespace/string scanning.
+    self-contained owning Document; iterative grammar with a 1000-level depth cap (heap
+    frames, never C++ recursion); a compile-time `Validate` switch; SIMD whitespace/string scanning.
   - the typed reader `read<T>()` parses straight into schema'd structs — purrc synthesizes the
     schema for `.purr` structs, so `json.read(text, q)` works on any struct you define.
 - <b>`parsers.url`</b> — `import parsers.url.Parser as Parser` — the `http(s)` URL parser
@@ -20,5 +20,5 @@ Fast, safe, from-scratch input parsers — a **C++-authored** stdlib module (lik
   `find`/`findall`/`iter` + `attr`/`text`. Iterative (no stack overflow at any depth) and
   lenient. Built to feed cheatah's own tooling (e.g. reading Doxygen XML).
 
-The module runs clean under ASan + UBSan and Valgrind against adversarial corpora (every prefix
-truncation, byte corruptions, escape/number edge cases, 100k-deep nesting).
+The module runs clean under ASan + UBSan and Valgrind against malformed input: truncated
+literals and containers, wrong closers, bad escapes and numbers, nesting past the depth cap.

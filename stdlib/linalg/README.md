@@ -4,32 +4,33 @@ NumPy-style linear algebra on `ndarray`, with SIMD-accelerated contiguous kernel
 
 For the small-and-hot regime — a 3-D direction, a 4×4 transform built and consumed millions of
 times a second — reach for the sibling [`fixarray`](../fixarray/README.md) module: the same
-mathematics with the shape moved into the type (`vec3f`/`mat4f`, allocation-free, and faster than
-GLM across their whole overlap). `linalg` is the home of the heavy, shape-generic numerics below.
+mathematics with the shape moved into the type (`vec3f`/`mat4f`, allocation-free, and never slower
+than GLM anywhere the two overlap). `linalg` is the home of the heavy, shape-generic numerics below.
 
 The routines mirror [numpy.linalg](https://numpy.org/doc/stable/reference/routines.linalg.html)
-and operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). The general
-eigensolvers `eig`/`eigvals` return a **complex** spectrum (`CNDArray`) — a real
-matrix can have complex conjugate eigenvalue pairs, e.g. a rotation has ±i — while
-the Hermitian solvers `eigh`/`eigvalsh` return a guaranteed-real spectrum (the same
-split as numpy). Kernels are compiled at `-O3 -march=native` so the hot loops
-auto-vectorize.
+and operate on `ndarray::NDArray` (2-D = matrix, 1-D = vector). The general eigensolvers
+`eig`/`eigvals` return a **complex** spectrum (`CNDArray`) — a real matrix can have complex
+conjugate eigenvalue pairs, e.g. a rotation has ±i — while the Hermitian solvers
+`eigh`/`eigvalsh` return a guaranteed-real spectrum, the same split as numpy.
 
 ## Usage
 
 ```purr
-import linalg              # auto-links ndarray
+import ndarray
+import linalg              # links ndarray for you
 
+let A = ndarray.reshape(ndarray.array([4.0, 1.0, 1.0, 3.0]), [2, 2])
+let b = ndarray.array([1.0, 2.0])
 let x = linalg.solve(A, b) # A·x = b
 let d = linalg.det(A)
 ```
 
 ## Functions
 
-Every routine below returns a fresh array. Each also has an allocation-free
-**out-parameter overload** (`solve(out, A, b)`, `svd(u, s, vh, A)`, …) in
-[routines.hpp](routines.hpp) for hot loops that reuse one scratch buffer per call —
-same math, caller-owned storage.
+Every routine below returns a fresh result. Each also has an **out-parameter
+overload** (`solve(out, A, b)`, `svd(u, s, vh, A)`, …) in [routines.hpp](routines.hpp)
+that writes into caller-owned storage: the products and reductions stay off the heap on
+contiguous operands, and the factorizations keep their private scratch.
 
 ### Products
 - `dot` / `vdot` / `inner` — vector dot product (Σ aᵢbᵢ).
@@ -51,10 +52,14 @@ same math, caller-owned storage.
   real eigenvectors for a real symmetric matrix, complex eigenvectors for a Hermitian
   one; Householder tridiagonalization + QL, via a real 2n embedding for Hermitian input).
 
-All eigenvalue routines return the spectrum **descending** (note: numpy's `eigvalsh`
-returns ascending), with eigenvector columns reordered to match.
+All eigenvalue routines return the spectrum **descending** — numpy's `eigvalsh` returns
+ascending — with eigenvector columns reordered to match.
 
 ```purr
+import io
+import ndarray
+import linalg
+
 # A real rotation matrix has complex eigenvalues ±i:
 let r = ndarray.reshape(ndarray.array([0.0, -1.0, 1.0, 0.0]), [2, 2])
 io.print(ndarray.to_string(linalg.eigvals(r)))   # [0+1j, 0-1j]
@@ -99,30 +104,25 @@ io.print(linalg.vdot(a, a))                        # 15+0j
 - `pinv` — Moore–Penrose pseudo-inverse (SVD, any shape).
 
 ### SIMD
-SIMD here is **pure compiler auto-vectorization** (no intrinsics): the kernels are
-contiguous, unit-stride loops compiled at `-O3 -march=native`. These functions only
-*report* the build's capability:
+SIMD here is **pure compiler auto-vectorization** (no intrinsics): contiguous, unit-stride
+loops compiled at `-O3 -march=native`. These functions only *report* the build's capability:
 - `simd_features` — instruction sets this build targets (e.g. `AVX2;FMA`, `NEON`, `scalar`).
 - `simd_lane_doubles` — widest SIMD lane width in `double`s.
 
-On a build with **no SIMD** every routine returns identical results, just scalar /
-slower — SIMD is never a correctness dependency. The full model (and the
-compile-time-dispatch limitation) is documented in [simd.hpp](simd.hpp).
+A build with **no SIMD** returns identical results, just slower — SIMD is never a correctness
+dependency. The model, and its compile-time-dispatch limitation, is in [simd.hpp](simd.hpp).
 
 ## Performance
 
 `linalg` goes head-to-head with NumPy, whose array ops dispatch to **BLAS/LAPACK** —
 hand-tuned, vectorized, often multi-threaded Fortran — and, in a separate single-core
-harness, with **Eigen 3.4**. Each function's **Performance** row on this page carries its
-own vs-NumPy measurement; the full size-dependence — both generated tables, the BLAS caveat
-that governs how to read them, and the summary of the last optimization round — is on the
-[linalg benchmarks](BENCHMARKS.md) page.
+harness, with **Eigen 3.4**. Each function's **Performance** row on this page points at
+the generated tables; the full size-dependence, and the BLAS caveat that governs how to
+read it, is on the [linalg benchmarks](BENCHMARKS.md) page.
 
-cheatah does all of this on **one core, by design** — single-threaded is a feature, not a
-shortfall (no hidden threads, no contention, nothing to tune). Both NumPy's and Eigen's
-remaining edges are the very large or blocked dense problems where threaded/BLAS-3 kernels
-spread the work — a different operating point. See the [Performance guide](@ref performance)
-for the full rationale.
+cheatah does all of this on **one core, by design** — no hidden threads, nothing to tune.
+NumPy's and Eigen's remaining edges are the large blocked problems where threaded BLAS-3
+kernels spread the work; the [Performance guide](@ref performance) has the rationale.
 
 ---
 

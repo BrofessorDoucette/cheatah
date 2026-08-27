@@ -33,8 +33,8 @@ surfaces).
 
 **Depends on: the standard library only — no other extension.** Its only extra
 requirements are *system* packages (the userspace Vulkan loader + validation layers on
-Linux, or Metal on macOS, plus the Slang shader compiler), which biome's
-`scripts/install-deps.sh` provisions. It does **not** build on any other extension — the
+Linux, or Metal on macOS, plus the Slang shader compiler), which cheatah-gpu's
+[`scripts/install-deps.sh`](https://github.com/BrofessorDoucette/cheatah-gpu/blob/main/scripts/install-deps.sh) provisions. It does **not** build on any other extension — the
 dependency arrows point the other way.
 
 ## cheatah-gpu-linalg — GPU linear algebra
@@ -83,7 +83,7 @@ Each extension is an ordinary cheatah project with a `cheatah.toml` manifest, an
 dependency **version-coherent** is the [Biome Standard](biome.html#biome-standard): when an
 extension that depends on another joins a standard, the standard carries **both** members at
 tags tested together, so there is never a "which cheatah-gpu does this cheatah-plot need?"
-question — your standard answers it. (cheatah-plot has not yet joined a standard; it becomes
-addable the release it passes the cross-member gate.) See [biome](biome.html) for how the
+question — your standard answers it. cheatah-plot is a member of the current standard, at
+the cheatah-gpu tags it was tested against. See [biome](biome.html) for how the
 manifest drives the build, and [Imports & module resolution](imports.html) for how each
 `import` is then resolved to a module on disk.

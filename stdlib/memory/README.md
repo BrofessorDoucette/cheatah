@@ -25,32 +25,36 @@ fn main() {
 There is deliberately **no** way to get a bare reference out: the lease is the only
 handle, `read()` returns the value and `write(...)` is a **setter** — so a raw handle
 that outlives its grant is unrepresentable. For fine-grained updates a write lease has
-deduced element setters: `w.write(index, v)` for sequences (`list`, `str`, `ndarray`),
+deduced element setters: `w.write(index, v)` for sequences (`list`, `ndarray`),
 `w.write(key, v)` for dicts.
 
 ## Reads coexist; a write drains them first
 
 Any number of read leases are served at once. A write request flips every outstanding
 read lease to `expired()` (readers poll `valid()` and release), waits for the **drain**
-to finish, then writes — possibly relocating the object. A reader that re-requests
-after the write gets a lease at the object's *current* location, so a renewed reader
+to finish, then writes — possibly reallocating the value's buffer. A reader that
+re-requests after the write reads the value's *current* bytes, so a renewed reader
 never holds a stale pointer. The requesting thread's own read lease expires too, so
 "upgrade my read to a write" can never self-deadlock.
 
 ## Priorities, policies, and the immediate-write
 
 - `o.rwrite()` is priority `0`; `o.rwrite<10>()` jumps ahead of it (higher = served
-  first, ties FIFO). Spell levels with your own enum for readability.
-- The **policy** is fixed when ownership starts: `memory.own(v)` interleaves readers
-  fairly between writes; `memory.own(v, memory.writes_first)` drains the whole write
-  queue first (deliberate, visible starvation — a choice, never a safety hole).
-- `o.rwrite<memory.immediate>()` (any negative priority) is the one queue-bypass: it
+  first, ties FIFO). The level is an integer literal.
+- The **policy** is fixed when ownership starts. Both values schedule alike: the owner is
+  writer-preferring, so while a write is queued, active or paused a renewing reader waits —
+  deliberate, visible reader starvation, a choice and never a safety hole. `memory.interleave`
+  is the default; `memory.own(v, memory.writes_first)` names the intent.
+- An **immediate-write** — `rwrite` at a negative priority, `memory::immediate` from
+  C++ (cheatah's template argument takes a non-negative literal) — is the one queue-bypass: it
   **preempts a cooperating active writer** — that writer's lease reads `valid() ==
   false`, it pauses, the immediate write runs, and the paused writer **resumes
   transparently** with its lease valid again, pointed at the object's current location.
   Bounded by construction: one borrowed write, handed straight back.
 
 ```purr
+import memory
+
 fn writer(o : memory.Owner<str>) {
     with o.rwrite().acquire() as w {
         for i in range(0, 3) {
@@ -59,7 +63,7 @@ fn writer(o : memory.Owner<str>) {
         }
     }
 }
-# elsewhere, mid-writer:  with o.rwrite<memory.immediate>().acquire() as w { w.write(w.read() + "!") }
+# elsewhere, from C++, mid-writer:  o.rwrite<memory::immediate>().acquire().write(...)
 ```
 
 `.acquire(on_interrupt)` optionally carries a callback that fires (once, in the
@@ -75,12 +79,6 @@ leases, and the drain-before-write engine makes results exact under any interlea
 `memory.own(false)` is a stop latch; `memory.own(list)` is a queue. There is no
 mutex/channel/event vocabulary to learn.
 
-## Renewing writers declare themselves
-
-A write lease is one-shot. A writer that intends to write *repeatedly* must say so in
-its type — `write_renewable`, a distinct compile-time lease — which makes "I keep
-writing this shared thing" legible at the call site instead of a runtime flag.
-
 ## Under the hood
 
 A hand-rolled priority reader/writer engine — one `std::mutex` + condition variable
@@ -95,4 +93,4 @@ sees: cheatah's whole vocabulary is `own`, `rread`/`rwrite`, `acquire`, `read`/`
 `stdlib/memory/DESIGN.md`; the behaviour is pinned by
 [tests/memory_test.cpp](tests/memory_test.cpp) and
 [tests/memory_concurrency_test.cpp](tests/memory_concurrency_test.cpp), run under
-ASan/UBSan, **ThreadSanitizer**, and Valgrind on every QA-gate push.
+ASan/UBSan and **ThreadSanitizer** on every QA-gate push.

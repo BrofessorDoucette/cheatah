@@ -8,7 +8,7 @@ that return `Conn`/`Listener` values whose destructors close the fd — use them
 `with` so a connection or listener can't leak (see below). IPv4 + TCP only; hosts are
 resolved with `getaddrinfo`, so `"localhost"`, `"127.0.0.1"`, and DNS names all work.
 
-```python
+```purr
 import io
 import socket
 
@@ -16,8 +16,7 @@ let lfd = socket.tcp_listen("127.0.0.1", 8080, 16)   # create + bind + listen
 io.print("listening on", socket.local_port(lfd))
 let conn = socket.accept(lfd)                         # wait for a client
 let request = socket.recv(conn, 8192)
-let nl = chr(13) + chr(10)                            # CRLF (no `\r` string escape)
-socket.sendall(conn, "HTTP/1.1 200 OK" + nl + "Content-Length: 2" + nl + nl + "hi")
+socket.sendall(conn, "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi")
 socket.close(conn)
 socket.close(lfd)
 ```
@@ -32,7 +31,7 @@ socket.close(lfd)
 - **Low-level BSD** — `socket`, `set_reuseaddr`, `bind`, `listen`, `connect`,
   `local_port`, and `last_error` (the current `errno` text).
 
-```python
+```purr
 import io
 import socket
 
@@ -40,8 +39,7 @@ with socket.serve("127.0.0.1", 8080, 16) as server {   # a Listener guard
     io.print("listening on", server.local_port())
     with server.accept() as conn {                     # a Conn guard for the client
         let request = conn.recv(8192)
-        let nl = chr(13) + chr(10)
-        conn.sendall("HTTP/1.1 200 OK" + nl + "Content-Length: 2" + nl + nl + "hi")
+        conn.sendall("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi")
     }                                                  # conn closed here, on every path
 }                                                      # server closed here
 ```
@@ -59,18 +57,16 @@ download sits in delayed-ACK slow start — one segment per round-trip — which
 CPU is idle. Guarded so `getsockopt` proves the options on both ends
 (`socket_test.cpp` `ConnectedSocketsAreTunedByDefault`).
 
-**Measured against known-fast references** (2026-07-18; `scripts/net_bench_compare.sh`,
-`scripts/tls_loopback_bench.sh`):
-- On a throttled WAN link, a cheatah HTTPS GET reaches **0.90× curl** on the identical URL
-  (parity — both pinned by the throttle; the download path itself is not the limiter).
-- Throttle-free over loopback vs a real `openssl s_server`, cheatah TLS sustains <b>~210 MB/s</b>
-  (byte-identity verified) — far above any real link. curl hits ~1500 MB/s there; the remaining gap
-  is per-record TLS framing (copies + per-record key re-expansion), **not** the cipher: cheatah
-  AES-128-GCM benches at **3.56 GiB/s against OpenSSL's 3.41 — a tie**, not a win (1.04× is well
-  inside the 1.15× band we require before calling anything faster; see
-  [the crypto table](../../docs/performance.md#vs-openssl), re-measured 2026-08-19 over 9
-  interleaved repetitions). Closing the framing gap only matters above ~200 MB/s links and is
-  tracked as evidence-gated follow-up.
+**Measured against known-fast references** with
+[`scripts/net_bench_compare.sh`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/net_bench_compare.sh)
+and [`scripts/tls_loopback_bench.sh`](https://github.com/BrofessorDoucette/cheatah/blob/main/scripts/tls_loopback_bench.sh):
+- On a throttled WAN link a cheatah HTTPS GET ties curl on the identical URL — both are pinned
+  by the throttle, so the download path is not the limiter.
+- Throttle-free over loopback against a real `openssl s_server` (byte-identity verified) curl
+  is still ahead; the gap is per-record TLS framing (copies + per-record key re-expansion),
+  **not** the cipher — cheatah AES-128-GCM sits at parity with OpenSSL in
+  [the crypto table](../../docs/performance.md#vs-openssl). Closing the framing gap only
+  matters on links faster than any real one and is tracked as evidence-gated follow-up.
 
 > Secure clients are built on this: the from-scratch [`tls`](../tls/) 1.3 client rides a
 > connected socket, and [`requests`](../requests/) (pure cheatah) and

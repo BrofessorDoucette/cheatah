@@ -102,7 +102,7 @@ Consequences worth internalizing:
 - **Dotted names resolve by their *first* segment.** `import a.b.c` looks up <b>`a`</b> as
   the module; `b.c` are nested namespaces *inside* `a`'s header — purrc never looks for a
   file at `a/b/c`. (`import os.path` → the `os` module; `os.path.join(…)` reaches inside it.)
-- A co-located <b>`libcheatah_<m>.a`</b> is linked if present but never required (branches 1 & 3).
+- A co-located <b>`libcheatah_<m>.a`</b> is linked if present but never required (branches 1 & 2); branch 3 links the module's archive from the baked lib dir when one exists.
 - Resolve nowhere → a clear error naming the unresolved import and telling you to place it
   beside the source, pass `--import-root <dir>`, or declare it in `cheatah.toml`.
 

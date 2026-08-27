@@ -9,14 +9,16 @@ are signed with. Adding it lets cheatah's [`tls`](../tls/) client verify a real
 server's `ecdsa_secp256r1_sha256` certificate (most of the public web), and lets
 applications sign an ES256 JWT.
 
-```python
+```purr
 import io
 import hashlib
 import p256
 
+let privkey = hashlib.from_hex("c9afa9d845ba75166b5c215767b1d6934e50c3db36e89b127b8a622b120f6721")
+let pubkey_xy = p256.public_from_private(privkey)
 let h = hashlib.sha256_digest("the message")
 let sig = p256.sign_raw(privkey, h)        # 64-byte r||s (RFC 6979, deterministic)
-io.print(p256.verify_raw(pubkey_xy, h, sig))   # true
+io.print(p256.verify_raw(pubkey_xy, h, sig))   # True
 ```
 
 ## What's inside
@@ -40,13 +42,13 @@ Verified against the **RFC 6979 Appendix A.2.5** P-256/SHA-256 test vector — t
 deterministic signature matches bit-for-bit, and verification round-trips it
 (`stdlib/tests/p256_test.cpp`). Micro-benchmarks (`tests/benchmarks/p256_bench.cpp`,
 release build, one core) are on the [p256 benchmarks](BENCHMARKS.md) page — verification
-runs once per TLS handshake (negligible next to a network round trip); signing is the
-per-message JWT path.
+runs once per P-256 link in the certificate chain plus once for CertificateVerify —
+negligible next to a network round trip; signing is the per-message JWT path.
 
 ## Security notes
 
-ECDSA **verification** here handles public data. **Signing** uses a deterministic
-nonce (RFC 6979), which removes the catastrophic "repeated/biased `k`" failure
-mode. The scalar routines are written straightforwardly for correctness; they are
-not yet hardened to be fully constant-time against a local timing attacker, which
-matters only when signing with a long-lived private key on a shared host.
+ECDSA **verification** handles public data and stays branchy. **Signing** uses a deterministic
+nonce (RFC 6979), which removes the "repeated/biased `k`" failure mode, and multiplies the
+secret scalar with branch-free point ops and masked table selection. The limb arithmetic
+underneath still ends in a data-dependent conditional subtraction, so the path is not fully
+constant-time against a local timing attacker on a shared host.

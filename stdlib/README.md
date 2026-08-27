@@ -39,8 +39,8 @@ loadable module that the runtime executable loads and runs.
 ```
 
 - <b>`purrc`</b> ([`purrc.cpp`](../compiler/purrc.cpp)) drives lexer → parser → codegen, then
-  invokes the system C++ compiler (`c++ -std=c++20 -O2 -fPIC -shared`) to build a
-  loadable `.so`. The generated translation unit exports
+  invokes the C++ compiler cheatah was built with (`-std=c++20 -O3 -march=native -fPIC -shared`,
+  the full list in [`cmake/Portability.cmake`](../cmake/Portability.cmake)) to build a loadable `.so`. The generated translation unit exports
   `extern "C" void purr_main()` — no `main()`.
 - <b>`cheatah`</b> ([`../runtime/`](../runtime/)) validates the module path,
   `dlopen`s the module, resolves `purr_main`, and calls it. The module statically
@@ -55,7 +55,7 @@ cheatah hello.so          # run
 ```
 
 ### Performance — native, zero-overhead
-cheatah **transpiles to C++** and is compiled by clang at full optimization, so
+cheatah **transpiles to C++** and is compiled by the host C++ compiler at full optimization, so
 there is **no interpreter, VM, or boxing** — the machine code is exactly what the
 C++ compiler emits for equivalent code. Measured: a recursive `fib(35)` in
 cheatah runs **at parity with hand-written C++** compiled by the same compiler.
@@ -86,23 +86,24 @@ imports, not by the language core.
 ## Language
 
 ### Literals & types
-`int` (`42`), `float` (`3.14`, `1e-3`), `str` (`"meow"`, escapes `\" \\ \n \t`),
+`int` (`42`), `float` (`3.14`, `1e-3`), `str` (`"meow"`, escapes `\n \t \r \0 \" \\`),
 `bool` (`true` / `false`). Number/strings/bools compile to C++ `long long` /
 `double` / `std::string` / `bool`.
 
 ### Variables
 ```python
-let total = 0        # new binding  -> auto total = 0;
-total = total + 1    # reassignment -> total = total + 1;
+let total = 0        # new binding  -> auto total = 0LL;
+total = total + 1    # reassignment -> total += 1LL;
 ```
 
 ### Operators
-Arithmetic `+ - * /` (`^` maps to C++ `^`), comparison `== != < <= > >=`, logical
-`and` / `or` / `not`, unary `-`. Standard precedence (`*` binds tighter than `+`;
-comparisons below arithmetic; `and`/`or` lowest). Indexing `a[i]`.
+Arithmetic `+ - * / % // **` (`//` floors, `**` lowers to `std::pow`, `^` is C++ `^`), augmented
+assignment `+= -= *= /=`, comparison `== != < <= > >=`, logical `and` / `or` / `not`, unary `-`.
+Standard precedence (`*` binds tighter than `+`; comparisons below arithmetic; `and`/`or` lowest). Indexing `a[i]`.
 
 ### Control flow (brace blocks — the C-style vibe)
-```python
+<!-- purr: fragment -->
+```purr
 if x > 0 {
     io.print("positive")
 } else if x < 0 {
@@ -144,8 +145,8 @@ let p = Point("origin", 0.0, 0.0, 0.0)   # construction
 io.print(p.z)                            # field access
 ```
 Each `struct` compiles to a C++ `struct` (aggregate); construction uses
-brace-init under the hood (`Point{...}`). Field types: `int float str bool`,
-other struct names, and the containers below.
+brace-init under the hood (`Point{...}`). Field types: `int float str bool`, sized
+numbers (`i8`…`u64`, `f32`), other struct and enum names, `ndarray<T>`, and the containers below.
 
 ### Collections (STL-backed, memory-safe)
 ```python
@@ -156,14 +157,14 @@ for v in values { total = total + v }    # iteration -> range-based for
 
 struct Series {
     label: str
-    points: list[float]                  # list[T]  -> std::vector<T>
-    table: dict[str, float]              # dict[K,V] -> std::unordered_map<K,V>
-    window: array[float, 20]             # array[T,N] -> std::array<T,N> (static)
+    points: list<float>                  # list<T>  -> std::vector<T>
+    table: dict<str, float>              # dict<K,V> -> std::unordered_map<K,V>
+    window: array<float, 20>             # array<T,N> -> std::array<T,N> (static)
 }
 ```
 Strings are `std::string`, so `"a" + "b"` concatenates. List/dict literals infer
-their element types (so must be non-empty). All collections are RAII — no manual
-memory management.
+their element types; an empty literal needs an annotation (`let xs: list<int> = []`).
+All collections are RAII — no manual memory management.
 
 ---
 
@@ -171,7 +172,7 @@ memory management.
 `import` is the dependency declaration — a wrapper over C++ `#include` **plus
 linking** the corresponding library. Nothing is available unless imported (even
 `print` lives in the `io` module); a library is linked into a program **only if it
-imported it** (static for production, shared for fast iteration).
+imported it**, as its static archive `libcheatah_<m>.a`.
 
 ```python
 import io                  # include <io.hpp> + link libcheatah_io
@@ -199,8 +200,10 @@ in headers; non-template symbols compile into the library.
 - <b>`linalg`</b> — the SIMD linear-algebra core: `matmul`/`solve`/`inv`/`det`/`qr`/
   `svd`/`eig`/`norm`/… over `ndarray`.
 - <b>`datetime`</b>, <b>`random`</b>, <b>`statistics`</b>, <b>`hashlib`</b>, <b>`ed25519`</b> —
-  dates/epochs, Mersenne-Twister RNG, summary statistics, self-contained SHA-256/512,
-  and from-scratch Ed25519 public-key signatures.
+- <b>`aead`</b>, <b>`x25519`</b>, <b>`p256`</b>/<b>`p384`</b>, <b>`tls`</b>, <b>`socket`</b>, <b>`websocket`</b>, <b>`requests`</b>,
+  <b>`parsers`</b>, <b>`regex`</b>, <b>`memory`</b>, <b>`thread`</b>, <b>`sys`</b>, <b>`fixarray`</b> — the from-scratch crypto and
+  networking stack, input parsers, the lazy-DFA regex engine, ownership and threads, `sys.argv`, and
+  fixed-extent arrays; one line on each in [`docs/mainpage.md`](../docs/mainpage.md).
 
 ## Escape hatch: raw C++ (`cpp { … }`)
 By default cheatah looks like Python. When you need the full power of the host
@@ -209,8 +212,8 @@ language, a <b>`cpp { … }`</b> block drops to **raw C++**, emitted verbatim:
 ```python
 import io
 
-cpp {                                  # TOP LEVEL → file scope
-    #include <numeric>                 # add headers, helper functions, types
+cpp {                                  // TOP LEVEL → file scope
+    #include <numeric>                 // add headers, helper functions, types
     static long long sum_to(long long n) {
         long long s = 0;
         for (long long i = 1; i <= n; ++i) s += i;
@@ -220,8 +223,8 @@ cpp {                                  # TOP LEVEL → file scope
 
 fn run() {
     let total = 0
-    cpp {                              # INSIDE a function → emitted inline
-        total = sum_to(100);           # raw C++ can read/write cheatah locals
+    cpp {                              // INSIDE a function → emitted inline
+        total = sum_to(100);           // raw C++ can read/write cheatah locals
     }
     return total
 }
@@ -250,12 +253,12 @@ The standard library already includes `<array> <cmath> <memory> <stdexcept>
 you `import`, so a lot of raw C++ needs no extra `#include` at all.
 
 ## Lexical structure
-- **Comments:** `# …` or `// …` to end of line.
+- **Comments:** `# …` to end of line (`//` is floor division, not a comment).
 - **Keywords:** `and as break case continue elif else enum except false fn for from
   if import in interface let match not or raise return struct true try while with`.
   `of` and `finally` are **contextual** — recognised after `except` / a try block, but
   still usable as ordinary names anywhere else.
-- **Operators/punctuation:** `+ - * / ^ = == != < <= > >= ( ) { } [ ] , : ; .`
+- **Operators/punctuation:** `+ - * / % // ** ^ & = += -= *= /= == != < <= > >= ( ) { } [ ] , : ; .`
 - **Newlines** separate statements; brace `{ }` blocks group them. A <b>`;`</b> is an
   *optional* statement separator/terminator — `let a = 1; let b = 2` or a trailing
   `x = x + 1;` both work (and `;` may separate `struct` fields). It's never required.

@@ -29,7 +29,7 @@ Which artifact you get is chosen by mode flags. Everything else on this page tun
 | You want | Command | Output |
 |---|---|---|
 | A runnable **program** | `purrc app.purr -o app.so` | a loadable module the runtime runs |
-| An **importable library** (a `.purr` others `import`) | `purrc --emit-library [--transparent] app.purr -o app.hpp` | a signed `<m>.hpp` (+ `libcheatah_<m>.a` when opaque) |
+| An **importable library** (a `.purr` others `import`) | `purrc --emit-library [--transparent] app.purr -o app.hpp` | a checksummed `<m>.hpp`, Ed25519-signed with `--sign` (+ `libcheatah_<m>.a` when opaque) |
 | A fast **type-check** (editors; no output) | `purrc --check app.purr` | nothing — just diagnostics |
 
 How a built module is then *found* by an `import` is the
@@ -53,10 +53,13 @@ purrc takes exactly one `.purr` input (the first non-flag argument). All flags:
 
 | Flag | Effect |
 |---|---|
-| `-o <path>` | Output path. Defaults to `<input>.so` for a program, or a computed `<m>.hpp` for `--emit-library`. |
+| `-o <path>` | Output path. Defaults to the input's stem plus the platform module extension (`hello.purr` → `hello.so`) for a program, or `<m>.hpp` for `--emit-library`. |
 | `--transparent` | *(with `--emit-library`)* Inline the full generated C++ **into** the header — header-only, no archive. This is what the first-party stdlib uses so the true source is always visible. Without it, the header carries only the public API and the implementation is hidden in a compiled `libcheatah_<m>.a` (an *opaque* module). |
 | `--split` | *(with `--emit-library`)* Transpile to a portable `<m>.hpp` + `<m>.cpp` pair and **stop** — no C++ compile, no archive. The host build compiles the `.cpp` with its own compiler/flags. |
 | `--reexport <ns>` | *(with `--emit-library`)* Also expose the module under a second namespace `<ns>::<m>`, so a host writes `<ns>::<m>::…` — a namespace alias appended to the header, no hand-written shim. |
+| `--base-header <f>` | Fold a hand-written C++ header into the module, inside `namespace cheatah::<m>`, ahead of the transpiled body, so the `.purr` calls it by bare name. The output becomes `<m>.gen.hpp`. Set automatically from a same-stem sibling `.hpp`. |
+| `--base-source <f>` | Likewise fold a C++ source (program mode / opaque libraries). Set automatically from a same-stem sibling `.cpp`. |
+| `--no-adjacent` | Do not auto-detect the same-stem sibling `.hpp`/`.cpp`; an explicit `--base-header`/`--base-source` still applies. |
 
 ### Resolution & linking
 

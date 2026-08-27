@@ -1,26 +1,23 @@
 # regex benchmarks
 
-The generated benchmark tables for the [`regex`](README.md) module — a from-scratch,
-linear-time lazy DFA — against `std::regex`, Boost.Regex and **Google RE2**. How the race is
-set up (the standalone `stdlib/regex/bench/` project, output verification across all four
-engines before anything is timed, the `rxdiff` differential suite) is on the module page;
-this page holds the numbers, their stamps, and the commands that reproduce them.
+The generated benchmark tables for the [`regex`](README.md) module — a from-scratch lazy
+DFA with linear-time search — against `std::regex`, Boost.Regex and **Google RE2**. How the race
+is set up (the standalone `stdlib/regex/bench/` project, output verification across every engine
+that can finish the case before anything is timed, the `rxdiff` differential suite) is on the
+module page; this page holds the numbers, their stamps, and the commands that reproduce them.
 
-Representative medians below; the full table follows, and **carries its own tally** — a count
-restated in prose is a count that drifts the moment anyone re-measures, and this one already
-had. Pinned P-core, medians over interleaved repetitions. Boost's single win is compiling a
-64-byte pure literal: analysis Boost skips and match time repays.
+Representative medians below; the full table follows and **carries its own tally**. Pinned P-core,
+medians over interleaved repetitions. Boost's single win is compiling a 64-byte pure literal:
+analysis Boost skips and match time repays.
 
-Two 16 MB literal scans — `run_padded_literal_16M` and `sweep_16M` — sit close enough to the
-1.15× threshold that they change verdict between runs: one measurement had them losing to RE2
-at 1.18× and 1.27×, the next had them at parity. They are memcmp-bound rather than
-automaton-bound, so the comparison is really between two prefilters doing almost identical
-work. `RXBENCH_ASSERT=1` fails on any RE2 loss and will therefore go red on these
-occasionally; the response to that is to read the margin, not to widen the threshold.
+Two 16 MB literal scans — `run_padded_literal_16M` and `sweep_16M` — score as parity with RE2 in
+the table below. They are memcmp-bound rather than automaton-bound, so the comparison is between
+two prefilters doing almost identical work, and the margin is thin enough that `RXBENCH_ASSERT=1`
+can go red on them; the response is to read the margin, not to widen the threshold.
 
 ## Representative cases
 
-Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_REP_TABLE=docs/bench/regex-representative.md ./build/regexbench/rxbench`.
+Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_REP_TABLE=docs/bench/regex-representative.md RXBENCH_ROWS='pat_literal_present=`status=200` on a 4 MB log;pat_digits=`[0-9]+` (search);pat_anchor_end=`1274$` (end-anchored, 4 MB);findall_digits=find-all `[0-9]+` (256 KB);hugescan=64 MB absent-pattern scan;compile_class_email=compile `[a-z]+@[a-z.]+`;redos2_alt2_N28=**ReDoS** `(a|aa)+$`, N=28;xl_redos_altstar_16M=**ReDoS at 16 MB** `(a|a)*c`' ./build/regexbench/rxbench --benchmark_repetitions=7 --benchmark_enable_random_interleaving=true`.
 
 <!-- BENCH:regex-representative begin -->
 <!-- cheatah-bench-stamp v1
@@ -54,7 +51,7 @@ Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.
 
 ## The complete comparison — every benchmarked case, all four engines
 
-Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_TABLE=docs/bench/regex-vs-engines.md ./build/regexbench/rxbench`.
+Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_ASSERT=1 RXBENCH_TABLE=docs/bench/regex-vs-engines.md ./build/regexbench/rxbench --benchmark_repetitions=7 --benchmark_enable_random_interleaving=true --benchmark_report_aggregates_only=true`.
 
 <!-- BENCH:regex-vs-engines begin -->
 <!-- cheatah-bench-stamp v1

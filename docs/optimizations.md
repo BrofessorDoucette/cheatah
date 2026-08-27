@@ -7,9 +7,9 @@ resolves at **compile time** anything it can prove is constant. The result is th
 idiomatic, readable cheatah lowers to the same code you would have hand-written in C++,
 without you thinking about it.
 
-Every "generated C++" block below is <b>real `purrc` output</b> — you can reproduce it by
-running `purrc your.purr -o your.so` and reading the `your.so.gen.cpp` it writes next to
-the module. None of these transforms change observable behaviour (side effects, ordering,
+Every "generated C++" block below is `purrc` output, trimmed only of the block scope
+`purrc` wraps around a `match` — reproduce it with `purrc your.purr -o your.so` and read
+the `your.so.gen.cpp` it writes next to the module. None of these transforms change observable behaviour (side effects, ordering,
 and results are preserved); they only remove cost.
 
 ## Dead-variable elimination {#dead-variables}
@@ -18,7 +18,7 @@ A `let` whose variable is never read is **not emitted** — the binding disappea
 Crucially this is *not* a blunt deletion: if the initializer has a side effect (a call), the
 **side effect is kept** and only the unused variable is dropped, so semantics never change.
 
-```purr
+import io
 fn describe(x) {
     let logged = io.str(x)   # a call — its effect is kept
     let scratch = 42          # pure, never read — removed
@@ -91,8 +91,9 @@ length**, the allocations a careful C++ programmer would write by hand.
 
 ## Everything passes by reference — no hidden copies {#pass-by-reference}
 
-Every function parameter lowers to a **forwarding reference** (`auto&&`), so an argument
-binds *without copying*: strings, structs, lists, dicts, and ndarrays are never duplicated
+A function parameter lowers to a **forwarding reference** (`auto&&`) — or, for an `ndarray`
+or a module-qualified struct, a plain mutable reference — so an argument binds *without
+copying*: strings, structs, lists, dicts, and ndarrays are never duplicated
 at a call boundary. In the examples above, every signature is
 `f(builtins::Value auto&& …)` — that `auto&&` is the no-copy binding. A temporary still
 binds and lives for the duration of the call, so you never reason about lifetimes; in-place
@@ -108,7 +109,7 @@ updates reach the caller in place.
 backend will accept, trying three lowerings **in order**:
 
 <b>1 — Provably constant? → `if constexpr` (the branch is chosen at compile time).</b> When the
-condition is built from `constexpr` values (`constexpr let`, `constexpr fn`), purrc detects it
+condition is built from literals and `constexpr let` names, purrc detects it
 and lowers the whole `if`/`elif`/`else` to <b>`if constexpr`</b> — no keyword needed at the call
 site. The winning arm is selected *while compiling*, and **the dead arms are never compiled
 into the binary at all**:
@@ -127,10 +128,12 @@ static auto f() {
     constexpr auto MODE = 2LL;
     if constexpr (MODE == 1LL) {
         io::print("one");
-    } else if constexpr (MODE == 2LL) {
-        io::print("two");
     } else {
-        io::print("other");
+        if constexpr (MODE == 2LL) {
+            io::print("two");
+        } else {
+            io::print("other");
+        }
     }
 }
 ```
@@ -174,12 +177,12 @@ requires.
 
 ## Numeric speed: zero-cost generics + SIMD {#numeric-simd}
 
-- <b>`ndarray` is generic over its element type</b> (`basic_ndarray<T>`, constrained to a
-  `Field` concept — real or complex), monomorphized per type: an `int` array, a `double`
+- <b>`ndarray` is generic over its element type</b> (`basic_ndarray<T>`, constrained to an
+  `Element` concept; arithmetic needs a `Field` — real or complex), monomorphized per type: an `int` array, a `double`
   array, and a `complex<double>` array are each as tight as a hand-rolled `std::vector<T>`
   loop, with no shared dynamic base.
 - **Element-wise kernels vectorize declaratively** via `std::transform(std::execution::unseq, …)`
-  and `std::reduce(std::execution::unseq, …)` — we write the *intent to vectorize* in the
+  — we write the *intent to vectorize* in the
   source and the compiler emits SIMD for whatever the target supports. It is feature-test
   guarded (`__cpp_lib_execution`), so a toolchain without `<execution>` (e.g. Apple libc++)
   falls back to the policy-less overloads — same results, and `-O3 -march=native` still
@@ -196,9 +199,10 @@ for a million-element column that only ever holds small values. So a **width is 
 declaration**: annotate a type with an explicit-width integer and the *storage* shrinks with
 no change to speed.
 
-```
+```purr
+import io
 let ages: list<u8> = [31, 44, 27]     # 1 byte / element (std::uint8_t), not 8
-let ids:  list<i32> = load_ids()      # 4 bytes / element
+let ids:  list<i32> = [1001, 1002]    # 4 bytes / element
 struct Cell { x: u8, y: u8 }          # sizeof(Cell) == 2, not 16
 io.print(sizeof(i16), sizeof(Cell))   # -> 2 2   (proven in-language)
 ```
@@ -212,13 +216,13 @@ io.print(sizeof(i16), sizeof(Cell))   # -> 2 2   (proven in-language)
   trivially copyable, SIMD-friendly, no tag and no box. In arithmetic, narrow operands **promote
   to 64-bit for free** (ordinary C++ integer promotion) and only truncate back on store — so the
   compute is exactly as fast as `int`, and only the *stored* value is small.
-- <b>`int` never changes.</b> It stays 64-bit, so standalone integers — loop counters, `++`/`--`,
+- <b>`int` never changes.</b> It stays 64-bit, so standalone integers — loop counters and
   literals — keep their speed and range. Narrowing is opt-in and never happens implicitly.
-- **Semantics, all at compile time.** Narrow storage wraps at its width and a wide result
-  truncates on store (as in C / NumPy fixed-width types). A literal that does not fit its width
-  is a **compile-time error** (`300` into an `i8` will not build) — the only bounds check, and it
-  costs nothing at runtime. This is `pandas`-style downcasting decided by the *type* up front,
-  not a runtime re-encoding: no bit-packing, no per-value metadata, nothing to decode on read.
+- **Semantics, all at compile time.** A scalar store truncates at its width (`let w: u8 = 300`
+  holds 44, as in C / NumPy fixed-width types), and a container literal with an element that
+  does not fit (`[1, 300, 3]` into a `list<u8>`) is a **compile-time error** — the only bounds
+  check, and it costs nothing at runtime. This is `pandas`-style downcasting decided by the
+  *type* up front, not a runtime re-encoding: no bit-packing, no per-value metadata, nothing to decode on read.
 
 ## A shape the backend can fully optimize {#backend-friendly}
 
@@ -229,9 +233,8 @@ io.print(sizeof(i16), sizeof(Cell))   # -> 2 2   (proven in-language)
   function templates constrained by a concept (`builtins::Value auto&&`), so each call site
   compiles to a concrete, fully-typed, individually-optimized instantiation — generic
   source, specialized code.
-- **String views, not copies, across module calls.** Where a stdlib entry point accepts a
-  string view, `purrc` threads the argument through directly with no intermediate
-  `std::string` materialized.
+- **Literals pass bare.** A string literal handed to `io.print` or `io.format` goes through as
+  a `const char*` — no throwaway `std::string` built just to print it.
 
 ## Why constrained templates, given the compile-time cost {#constrain-all-templates}
 

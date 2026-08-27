@@ -6,9 +6,9 @@ High-accuracy timing built on C++ `<chrono>` clocks (`system_clock` for wall-clo
 ```purr
 import time
 
-start = time.perf_counter()
+let start = time.perf_counter()
 time.sleep(0.5)
-elapsed = time.perf_counter() - start
+let elapsed = time.perf_counter() - start
 ```
 
 ## Functions

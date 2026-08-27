@@ -19,7 +19,7 @@ is the map of what you get natively, and where the escape hatch is still the doo
 | Concepts (interfaces) | `interface Drawable { fn draw(self) }` + `struct S: Drawable` | a C++20 **concept** + a `static_assert` |
 | `constexpr` | `constexpr fn f() { … }`, `constexpr let x = …` | `constexpr` functions/values; `if`/`match` over them become `if constexpr` |
 | Value semantics + RAII | `let s = "hi"`, `with io.open(p) as f { … }` | `std::string`/containers + owning guards that free by scope |
-| Generics | `list[T]`, `dict[K, V]`, `ndarray[T]`, interface-constrained params | template instantiations, concept-constrained |
+| Generics | `list<T>`, `dict<K, V>`, `ndarray<T>`, interface-constrained params | template instantiations, concept-constrained |
 | Operators | `+ - * / // ** and or not ==` … | the matching C++ operators (`**` = power, `//` = floor-div) |
 | Slicing / indexing | `xs[i]`, `xs[i:j]`, negative indices | bounds-checked element/subrange access |
 | The whole standard library | `import ndarray`, `import tls`, … | linking real C++ modules and calling them with method syntax |
@@ -50,7 +50,7 @@ For genuine C++ that has **no cheatah surface**, drop into a raw block — file 
 `#include`s/helpers/types, inline inside a function where it can read and write cheatah
 locals:
 
-```python
+```purr
 import io
 cpp { static long long triple(long long n) { return n * 3; } }   # file scope
 fn demo() {

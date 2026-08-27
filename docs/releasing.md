@@ -1,9 +1,7 @@
 # Releasing {#releasing}
 
-How a cheatah release is cut. Every rule here exists because its absence once produced a
-broken release page: v1.9.0-alpha shipped its commit but never its tag, three title
-formats accumulated across twenty releases, and a stray prerelease flag pinned GitHub's
-"Latest" badge to an old version.
+How a cheatah release is cut: one headline in four places, no prerelease flag, one push,
+the page in the same session, the source bundle attached, and the standard proven end to end.
 
 ## The one headline, four places
 
@@ -17,9 +15,8 @@ releases page already says whose releases these are), no `(experimental)` suffix
 ## Flags
 
 Every release is created **without** the prerelease flag. The maturity signal lives in the
-version string; the flag's only observed effect has been to strand the "Latest" badge on
-whichever release accidentally omitted it. With no prereleases, GitHub points "Latest" at
-the newest release automatically. Pass `--latest` anyway — determinism beats defaults.
+version string, and with no prereleases GitHub points "Latest" at the newest release on its
+own. Pass `--latest` anyway — determinism beats defaults.
 
 ## The checklist
 

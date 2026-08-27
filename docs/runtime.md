@@ -27,11 +27,11 @@ file, **refuses a world-writable** module, and checks the ELF/Mach-O magic), the
 | `app.so.sha512` | **always** (auto) | accidental corruption |
 | `app.so.rt` | **always** (auto) | a module built for a *newer* C runtime than this host |
 | `app.so.sig` | only under `--verify` / `CHEATAH_VERIFY=strict` | tampering — an Ed25519 signature from a **trusted key** |
-| `app.so.rt.sig` | when a separate runtime trust is set | tampering of the runtime manifest |
+| `app.so.rt.sig` | under strict verification with a separate runtime trust set | tampering of the runtime manifest |
 
 ```sh
 cheatah app.so                                  # auto-checks the .sha512 and .rt, then runs
-CHEATAH_VERIFY=strict cheatah --trust rel.pub app.so   # ALSO require a valid .sig from rel.pub
+cheatah --verify --trust rel.pub app.so         # ALSO require a valid .sig from rel.pub
 ```
 
 Trust is chosen by the host, not the module: `--trust <keyfile>` / `CHEATAH_TRUST` pins the
@@ -47,8 +47,8 @@ verbatim. The full set:
 | Flag | Effect |
 |---|---|
 | `--verify`, `--verify=strict` | Turn on **strict** verification: a valid `.sig` from a trusted key is required. Verification only ever **escalates** — there is no flag to turn it *off*, so a strict deployment can't be silently downgraded from the command line. |
-| `--trust <keyfile>`, `--trust=<keyfile>` | Trust list of authorized **code-signing** Ed25519 keys (one 64-hex key per non-comment line). Overrides `CHEATAH_TRUST`. |
-| `--trust-runtime <keyfile>`, `--trust-runtime=<keyfile>` | A **separate** trust list for the `.rt` runtime manifest; when set, a valid `.rt.sig` is required too. Overrides `CHEATAH_RT_TRUST`. |
+| `--trust <keyfile>`, `--trust=<keyfile>` | Trust list of authorized **code-signing** Ed25519 keys (one 64-hex key per non-comment line). Overrides `CHEATAH_TRUST` — unless `CHEATAH_VERIFY` turned strict mode on, in which case the flag is refused (exit 2): the environment fixes the trust anchor. |
+| `--trust-runtime <keyfile>`, `--trust-runtime=<keyfile>` | A **separate** trust list for the `.rt` runtime manifest; under strict verification a valid `.rt.sig` is then required too. Overrides `CHEATAH_RT_TRUST`, with the same refusal under an environment-enforced `CHEATAH_VERIFY`. |
 | `--version`, `-v` | Print the runtime version and exit. |
 | `--help`, `-h` | Print usage and exit. |
 
@@ -60,8 +60,8 @@ further arguments become `sys.argv[1:]`.
 | Variable | Effect |
 |---|---|
 | `CHEATAH_VERIFY` | `strict` / `1` / `on` / `yes` / `true` turns on strict verification (same as `--verify`). |
-| `CHEATAH_TRUST` | Default path to the code-signing trust list (a leading `--trust` overrides it). |
-| `CHEATAH_RT_TRUST` | Default path to the runtime-manifest trust list (a leading `--trust-runtime` overrides it). |
+| `CHEATAH_TRUST` | Default path to the code-signing trust list; a leading `--trust` overrides it unless `CHEATAH_VERIFY` set strict mode. |
+| `CHEATAH_RT_TRUST` | Default path to the runtime-manifest trust list; a leading `--trust-runtime` overrides it under the same rule. |
 
 When a trust variable is unset, the runtime falls back to a default file under the config dir
 (`$XDG_CONFIG_HOME/cheatah/` or `~/.config/cheatah/`): `trusted.pub` for code signing and

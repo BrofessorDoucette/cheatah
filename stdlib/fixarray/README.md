@@ -34,7 +34,7 @@ Aliases: `vec2f`…`vec4f`, `vec2d`…`vec4d`, `mat2f`…`mat4f`, `mat2d`…`mat
 `import fixarray` and use it from a `.purr` program — construct with the call form and operate
 with the free functions:
 
-```
+```purr
 import io
 import fixarray
 
@@ -69,7 +69,8 @@ Benchmarked against [GLM](https://github.com/g-truc/glm) across the **complete o
 of the two APIs** — 160 pairs: every vector and matrix operation (arithmetic, `dot`,
 `cross`, `length`, `normalize`, `distance`, `reflect`, `min`/`max`/`clamp`, `mix`,
 `step`/`smoothstep`, `matmul`, `transpose`, `determinant`, `inverse`, `matrixCompMult`,
-`outerProduct`, `inverseTranspose`), at sizes 2/3/4, in both `float` and `double`
+`outerProduct`, `inverseTranspose`), at sizes 2/3/4 — the GLSL common functions and the
+extra matrix builtins at 3 and 4 — in both `float` and `double`
 ([`fixed_glm_bench.cpp`](../../tests/benchmarks/fixed_glm_bench.cpp)). Both sides compile in
 the same translation unit with the same flags, so neither gets an instruction set the other
 lacks — and the benchmark **verifies the two produce identical results before it times
