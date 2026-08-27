@@ -68,21 +68,30 @@ bool is_zero(const fe<C>& a) {
     return acc == 0;
 }
 /**
- * Multi-limb unsigned compare, most-significant limb first.
- * @tparam C the curve traits.
- * @param a left operand.
- * @param b right operand.
- * @return true iff a >= b.
- * @complexity O(1) — at most kLimbs limb compares.
+ * Branch-free boolean-to-mask: false -> 0, true -> all-ones.
+ * @param c the condition.
+ * @return the 64-bit mask.
+ * @complexity O(1).
  * @alloc none.
- * @test CheatahP256.VerifyRejectsOutOfRangeAndInfinity
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
+ */
+inline u64 ct_mask(bool c) { return u64(0) - static_cast<u64>(c); }
+
+/**
+ * Constant-time conditional move over a field element: r = m ? a : r, per limb, no branch.
+ * @tparam C the curve traits.
+ * @param r the destination (kept when @p m is 0).
+ * @param a the source (copied when @p m is all-ones).
+ * @param m the ct_mask (0 or all-ones).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahP256.ConstantTimePointOpsMatchReference
  */
 template <WeierstrassCurve C>
-bool geq(const fe<C>& a, const fe<C>& b) {  // a >= b
-    for (int i = static_cast<int>(C::kLimbs) - 1; i >= 0; --i)
-        if (a[i] != b[i]) return a[i] > b[i];
-    return true;
+inline void fe_cmov(fe<C>& r, const fe<C>& a, u64 m) {
+    for (std::size_t i = 0; i < C::kLimbs; ++i) r[i] = (r[i] & ~m) | (a[i] & m);
 }
+
 /**
  * r = a - b (mod 2^kBits), returns the borrow.
  * @tparam C the curve traits.
@@ -124,6 +133,26 @@ u64 add_carry(fe<C>& r, const fe<C>& a, const fe<C>& b) {
         c = s >> 64;
     }
     return (u64)c;
+}
+
+/**
+ * Multi-limb unsigned compare, in constant time.
+ * @tparam C the curve traits.
+ * @param a left operand.
+ * @param b right operand.
+ * @return true iff a >= b.
+ * @complexity O(1) — one full-width subtract, always every limb.
+ * @alloc none.
+ * @test CheatahP256.VerifyRejectsOutOfRangeAndInfinity
+ */
+template <WeierstrassCurve C>
+bool geq(const fe<C>& a, const fe<C>& b) {  // a >= b
+    // A full-width subtract, not a most-significant-limb-first scan. The scan returned at the
+    // FIRST differing limb, so its running time revealed how many high limbs the two shared —
+    // and this is called directly on the private key and on the RFC 6979 nonce. `a >= b` is
+    // exactly "the subtraction did not borrow", and sub_borrow is already branch-free.
+    fe<C> scratch{};
+    return sub_borrow<C>(scratch, a, b) == 0;
 }
 
 // ---- Montgomery context for one modulus (R = 2^kBits) ------------------------------------------
@@ -180,12 +209,14 @@ void mont_mul(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     }
     fe<C> res;
     for (std::size_t i = 0; i < L; ++i) res[i] = t[i];
-    // final conditional subtraction (t may be in [0, 2m))
-    if (t[L] != 0 || geq<C>(res, M.m)) {
-        fe<C> tmp;
-        sub_borrow<C>(tmp, res, M.m);
-        res = tmp;
-    }
+    // Final conditional subtraction (t may be in [0, 2m)) — computed ALWAYS and selected with a
+    // mask. The subtraction's own borrow is the comparison: no borrow means res >= m. The old
+    // form branched, and its `||` short-circuited, so the top-word case skipped the compare
+    // entirely — two data-dependent timing signals in the hot loop of every secret-scalar
+    // multiply.
+    fe<C> reduced;
+    const u64 borrow = sub_borrow<C>(reduced, res, M.m);
+    fe_cmov<C>(res, reduced, ~ct_mask(borrow != 0) | ct_mask(t[L] != 0));
     r = res;
 }
 /**
@@ -202,12 +233,12 @@ void mont_mul(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
 template <WeierstrassCurve C>
 void mont_add(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     fe<C> s;
-    u64 c = add_carry<C>(s, a, b);
-    if (c || geq<C>(s, M.m)) {
-        fe<C> t;
-        sub_borrow<C>(t, s, M.m);
-        s = t;
-    }
+    const u64 c = add_carry<C>(s, a, b);
+    // Subtract m when the sum overflowed (c) or when it is already >= m — the latter being
+    // exactly "the subtraction did not borrow". Both branches computed, one selected.
+    fe<C> reduced;
+    const u64 borrow = sub_borrow<C>(reduced, s, M.m);
+    fe_cmov<C>(s, reduced, ct_mask(c != 0) | ~ct_mask(borrow != 0));
     r = s;
 }
 /**
@@ -224,12 +255,11 @@ void mont_add(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
 template <WeierstrassCurve C>
 void mont_sub(fe<C>& r, const fe<C>& a, const fe<C>& b, const Mont<C>& M) {
     fe<C> d;
-    u64 br = sub_borrow<C>(d, a, b);
-    if (br) {
-        fe<C> t;
-        add_carry<C>(t, d, M.m);
-        d = t;
-    }
+    const u64 br = sub_borrow<C>(d, a, b);
+    // Add m back on a borrow — computed unconditionally, selected by the borrow's mask.
+    fe<C> wrapped;
+    add_carry<C>(wrapped, d, M.m);
+    fe_cmov<C>(d, wrapped, ct_mask(br != 0));
     r = d;
 }
 /**
@@ -700,30 +730,6 @@ const std::array<Jac<C>, (1u << C::kLimbs)>& g_comb() {
 // (CheatahP256.ConstantTimePointOpsMatchReference).
 
 /**
- * Branch-free boolean-to-mask: false -> 0, true -> all-ones.
- * @param c the condition.
- * @return the 64-bit mask.
- * @complexity O(1).
- * @alloc none.
- * @test CheatahP256.ConstantTimePointOpsMatchReference
- */
-inline u64 ct_mask(bool c) { return u64(0) - static_cast<u64>(c); }
-
-/**
- * Constant-time conditional move over a field element: r = m ? a : r, per limb, no branch.
- * @tparam C the curve traits.
- * @param r the destination (kept when @p m is 0).
- * @param a the source (copied when @p m is all-ones).
- * @param m the ct_mask (0 or all-ones).
- * @complexity O(1).
- * @alloc none.
- * @test CheatahP256.ConstantTimePointOpsMatchReference
- */
-template <WeierstrassCurve C>
-inline void fe_cmov(fe<C>& r, const fe<C>& a, u64 m) {
-    for (std::size_t i = 0; i < C::kLimbs; ++i) r[i] = (r[i] & ~m) | (a[i] & m);
-}
-/**
  * Constant-time conditional move over a Jacobian point (all three coordinates via fe_cmov;
  * the inf flag is recomputed from Z, which encodes infinity throughout the CT path).
  * @tparam C the curve traits.
@@ -875,7 +881,9 @@ void ct_select(Jac<C>& out, const std::array<Jac<C>, N>& tbl, unsigned sel) {
  * fixed-base comb table. The old form skipped the add when the window was zero and indexed the
  * table by the secret selector — both leaked bits of k. Here every step does the same work
  * (branch-free double, masked table select, unconditional branch-free add — add of the T[0]=infinity
- * entry when the window is zero is a no-op via the CT add's masks).
+ * entry when the window is zero is a no-op via the CT add's masks). The field arithmetic beneath is
+ * branch-free as well: every modular reduction is computed and then selected with a mask, so no
+ * step's timing depends on the values flowing through it.
  * @tparam C the curve traits.
  * @param r receives k*G.
  * @param k the secret scalar.
@@ -899,6 +907,96 @@ void jac_mul_base(Jac<C>& r, const fe<C>& k) {
         acc = t;
     }
     r = acc;
+}
+
+/**
+ * Differentially validate the branch-free FIELD arithmetic against an independent reference.
+ *
+ * mont_add, mont_sub and mont_mul each end in a conditional reduction that is now computed
+ * unconditionally and selected with a mask. @ref ct_add_selfcheck cannot police that: both sides
+ * of its comparison call the same field ops, so an error there cancels. This checks the reductions
+ * directly — the boundaries (0, 1, m-1) and a deterministic sweep whose intermediate sums and
+ * differences land in `[m, 2m)`, the band the RFC 6979 vector never reaches — against a reference
+ * written the obvious way.
+ * @tparam C the curve traits.
+ * @return true iff every case agrees.
+ * @complexity O(1) — a fixed number of fixed-width operations.
+ * @alloc none.
+ * @test CheatahP256.ConstantTimeFieldOpsMatchReference
+ */
+template <WeierstrassCurve C>
+bool ct_field_selfcheck() {
+    const Mont<C>& F = Fp<C>();
+    // Reference add/sub: the same mathematics, written with branches. Correctness here is easy to
+    // see by eye, which is the point — it is the oracle, not the fast path.
+    auto ref_add = [&](const fe<C>& a, const fe<C>& b) {
+        fe<C> s{};
+        const u64 c = add_carry<C>(s, a, b);
+        fe<C> t{};
+        const u64 br = sub_borrow<C>(t, s, F.m);
+        if (c != 0 || br == 0) return t;   // overflowed, or already >= m
+        return s;
+    };
+    auto ref_sub = [&](const fe<C>& a, const fe<C>& b) {
+        fe<C> d{};
+        const u64 br = sub_borrow<C>(d, a, b);
+        if (br != 0) {
+            fe<C> t{};
+            add_carry<C>(t, d, F.m);
+            return t;
+        }
+        return d;
+    };
+
+    fe<C> zero{};
+    fe<C> one{};
+    one[0] = 1;
+    fe<C> mm1{};                            // m - 1: the top of the field, where a sum must reduce
+    sub_borrow<C>(mm1, F.m, one);
+
+    std::array<fe<C>, 5> seeds{zero, one, mm1, F.m, F.rr};
+    for (const fe<C>& a : seeds) {
+        for (const fe<C>& b : seeds) {
+            fe<C> got{};
+            mont_add<C>(got, a, b, F);
+            if (got != ref_add(a, b)) return false;
+            mont_sub<C>(got, a, b, F);
+            if (got != ref_sub(a, b)) return false;
+        }
+    }
+
+    // A deterministic sweep (a 64-bit xorshift, so the case list is identical on every run and on
+    // every machine) driving operands across the whole range rather than the few the vectors hit.
+    u64 st = 0x9E3779B97F4A7C15ULL;
+    auto next = [&]() {
+        st ^= st << 13;
+        st ^= st >> 7;
+        st ^= st << 17;
+        return st;
+    };
+    for (int iter = 0; iter < 512; ++iter) {
+        fe<C> a{};
+        fe<C> b{};
+        for (std::size_t i = 0; i < C::kLimbs; ++i) {
+            a[i] = next();
+            b[i] = next();
+        }
+        // Bring both into the field first, so the operands are the shape the real path sees.
+        fe<C> ar{};
+        fe<C> br2{};
+        mont_mul<C>(ar, a, F.one, F);
+        mont_mul<C>(br2, b, F.one, F);
+        fe<C> got{};
+        mont_add<C>(got, ar, br2, F);
+        if (got != ref_add(ar, br2)) return false;
+        mont_sub<C>(got, ar, br2, F);
+        if (got != ref_sub(ar, br2)) return false;
+        // A product must land in [0, m): the reduction is what this is really testing.
+        fe<C> prod{};
+        mont_mul<C>(prod, ar, br2, F);
+        if (geq<C>(prod, F.m)) return false;
+    }
+    return true;
 }
 
 /**

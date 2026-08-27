@@ -264,6 +264,15 @@ TEST(CheatahP256, ReduceModNBoundary) {
 // Its branch-free point ops must agree with the branchy reference ops on EVERY case — including
 // a==b, a==-b and infinity operands that real nonces almost never produce — or a subtle CT bug
 // would silently corrupt signatures. The seam drives all of those directly.
+// The field arithmetic under the point ops. ConstantTimePointOpsMatchReference cannot cover this:
+// both sides of its differential call the same mont_add/mont_sub/mont_mul, so an error in the
+// masked conditional reduction cancels out and the comparison still passes. This drives the
+// reductions against an independent reference over the boundaries and a deterministic sweep,
+// including the [m, 2m) band the RFC 6979 vector never reaches.
+TEST(CheatahP256, ConstantTimeFieldOpsMatchReference) {
+    EXPECT_TRUE(cheatah::p256::testonly::ct_field_selfcheck());
+}
+
 TEST(CheatahP256, ConstantTimePointOpsMatchReference) {
     EXPECT_TRUE(p256::testonly::ct_point_selfcheck());
 }

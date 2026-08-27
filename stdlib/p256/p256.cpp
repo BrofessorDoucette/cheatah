@@ -64,6 +64,10 @@ std::string reduce_mod_n_be(const std::string& be32) {
 // arithmetic matches the reference on every case. Drives the special-case branches the signing path
 // doesn't reach with real nonces.
 bool ct_point_selfcheck() { return ec::ct_add_selfcheck<P256Curve>(); }
+// Test seam: the FIELD-arithmetic differential. ct_point_selfcheck runs both of its sides through
+// the same mont_*, so it cannot see an error there; this compares the real reductions against an
+// independent reference over the boundaries and a deterministic sweep.
+bool ct_field_selfcheck() { return ec::ct_field_selfcheck<P256Curve>(); }
 }  // namespace testonly
 #endif
 

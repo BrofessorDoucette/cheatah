@@ -16,7 +16,7 @@
  * Field/scalar arithmetic is Montgomery form over the two P-256 moduli (the
  * field prime p and the group order n); points use Jacobian coordinates — a
  * branchy Strauss-Shamir double chain for verification (public data) and a
- * constant-time fixed-base comb (branch-free point ops, masked table selection)
+ * constant-time fixed-base comb (branch-free point ops and field arithmetic, masked selection)
  * for the secret-scalar signing/keygen path. Signing uses an RFC 6979
  * deterministic nonce (HMAC-SHA256), so it needs no entropy source and never
  * repeats a nonce.
@@ -137,6 +137,17 @@ namespace testonly {
  * agree everywhere. Not part of the public P-256 API.
  */
 [[nodiscard]] bool ct_point_selfcheck();
+
+/**
+ * TEST-ONLY seam. Differentially validate the branch-free FIELD arithmetic (mont_add / mont_sub /
+ * mont_mul's conditional reduction) against an independent reference, over boundary values and a
+ * deterministic pseudo-random sweep including operands in `[m, 2m)`.
+ *
+ * ct_point_selfcheck cannot cover this: both sides of its comparison call the same `mont_*`, so a
+ * field-arithmetic error cancels out. Returns true iff every case agrees.
+ * Not part of the public P-256 API.
+ */
+[[nodiscard]] bool ct_field_selfcheck();
 }  // namespace testonly
 #endif  // CHEATAH_P256_TESTING
 

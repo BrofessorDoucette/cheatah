@@ -50,5 +50,11 @@ negligible next to a network round trip; signing is the per-message JWT path.
 ECDSA **verification** handles public data and stays branchy. **Signing** uses a deterministic
 nonce (RFC 6979), which removes the "repeated/biased `k`" failure mode, and multiplies the
 secret scalar with branch-free point ops and masked table selection. The limb arithmetic
-underneath still ends in a data-dependent conditional subtraction, so the path is not fully
-constant-time against a local timing attacker on a shared host.
+underneath is branch-free too: each modular add, subtract and multiply computes its conditional
+reduction unconditionally and selects the result with a mask, and the multi-limb compare is one
+full-width subtract rather than a scan that stops at the first differing limb — the scan's
+running time revealed how much of the private key matched the group order.
+
+The differential in `CheatahP256.ConstantTimeFieldOpsMatchReference` checks that arithmetic
+against a plainly written reference, because the point-op self-check runs both of its sides
+through the same field operations and so cannot see an error in them.
