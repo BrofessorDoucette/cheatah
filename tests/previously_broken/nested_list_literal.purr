@@ -1,0 +1,17 @@
+# Bug: a ONE-element list of lists collapsed. `[[1, 2]]` emitted
+# `std::vector{std::vector{1LL, 2LL}}`, which CTAD resolves through the COPY deduction
+# candidate — a copy of the inner vector — so the value became `[1, 2]`. Two or more elements
+# were unaffected, which is why it went unnoticed. Silent, like every worst bug.
+import io
+
+let one = [[1, 2]]
+io.print(one)
+let two = [[1, 2], [3, 4]]
+io.print(two)
+let deep = [[[1]]]
+io.print(deep)
+
+# it also reached slice assignment, whose right-hand side is usually a one-element literal
+let rows = [[1, 2], [3, 4], [5, 6]]
+rows[1:2] = [[9, 9]]
+io.print(rows)

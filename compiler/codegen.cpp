@@ -2129,6 +2129,16 @@ private:
                     }
                     return out + indent + "}";
                 }
+                // A ONE-element literal whose element is itself a list must not go through bare
+                // CTAD: `std::vector{std::vector{1,2}}` picks the copy deduction candidate and
+                // collapses to a COPY of the inner vector, so `[[1, 2]]` silently became `[1, 2]`.
+                // Naming the element type defeats that; decltype is unevaluated, so the element
+                // is spelled twice but computed once.
+                if (!typed && lst.elements.size() == 1 &&
+                    lst.elements[0]->kind == ExprKind::ListLit) {
+                    const std::string inner = gen_expr(*lst.elements[0], indent);
+                    return "std::vector<std::decay_t<decltype(" + inner + ")>>{" + inner + "}";
+                }
                 return ctor + "{" + gen_args(lst.elements) + "}";  // typed -> declared vector; else CTAD
             }
             case ExprKind::DictLit: {

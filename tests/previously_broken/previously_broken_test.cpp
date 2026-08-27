@@ -543,3 +543,20 @@ let xs = [1, 2, 3]
 xs[1:3] = 9
 )PURR");
 }
+
+// Bug: a ONE-element list of lists collapsed to its inner list. `[[1, 2]]` emitted
+// `std::vector{std::vector{1LL, 2LL}}`, and CTAD resolves that through the COPY deduction
+// candidate — so the literal became a copy of the inner vector and the value was `[1, 2]`.
+// Two or more elements deduced correctly, which is why it hid. Naming the element type
+// defeats the copy candidate.
+TEST(PreviouslyBroken, SingleElementNestedListLiteral) {
+    int rc = -1;
+    const std::string out = e2e::run_purr_file(
+        "prevbroken_nested_literal", std::string(PREVBROKEN_DIR) + "/nested_list_literal.purr", rc);
+    EXPECT_EQ(rc, 0) << "nested_list_literal.purr failed to compile or run";
+    EXPECT_EQ(out,
+              "[[1, 2]]\n"                    // the collapsing case
+              "[[1, 2], [3, 4]]\n"            // two elements always worked
+              "[[[1]]]\n"                     // and it nests
+              "[[1, 2], [9, 9], [5, 6]]\n");  // it reached slice assignment's usual right-hand side
+}
