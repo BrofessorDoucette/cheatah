@@ -2281,7 +2281,8 @@ void slice_assign(::cheatah::ndarray::basic_ndarray<T>& a, long long lo, long lo
 /// @cond INTERNAL
 /// An ndarray has a fixed shape, so there is nothing for `a[lo:hi] = []` to delete.
 template <typename T>
-void slice_assign(::cheatah::ndarray::basic_ndarray<T>& a, long long lo, long long hi, const empty_seq&) {
+void slice_assign(::cheatah::ndarray::basic_ndarray<T>& a, long long lo, long long hi,
+                  const empty_seq& /*empty*/) {
     (void)a; (void)lo; (void)hi;
     throw std::runtime_error(
         "ndarray: a[lo:hi] = [] has no meaning — an array assignment fills the slice, it cannot "

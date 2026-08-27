@@ -1582,7 +1582,7 @@ private:
                     // names the .purr line instead of an undeclared identifier in the emitted C++.
                     if (sl.object->kind == ExprKind::Ident) {
                         const std::string& oname = static_cast<const Ident&>(*sl.object).name;
-                        if (deferred_lets_.count(oname) != 0) {
+                        if (deferred_lets_.contains(oname)) {
                             diags_.emplace_back("codegen: `" + oname + "` has no value yet — a "
                                                 "slice assignment writes into an existing list, so "
                                                 "give `" + oname + "` one first");

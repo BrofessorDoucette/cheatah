@@ -1406,7 +1406,11 @@ template <::cheatah::ndarray::Field T, std::size_t N, typename R>
 void slice_assign(::cheatah::fixarray::Fixed<T, N>& v, long long lo, long long hi, const R& rhs) {
     constexpr auto n = static_cast<long long>(N);
     lo = lo < 0 ? lo + n : lo;
-    hi = (hi == std::numeric_limits<long long>::max()) ? n : (hi < 0 ? hi + n : hi);
+    if (hi == std::numeric_limits<long long>::max()) {
+        hi = n;                       // the "to the end" sentinel
+    } else if (hi < 0) {
+        hi += n;                      // negative counts back from the end
+    }
     if (lo < 0) lo = 0;
     if (lo > n) lo = n;
     if (hi > n) hi = n;

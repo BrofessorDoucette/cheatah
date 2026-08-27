@@ -1001,7 +1001,7 @@ static_assert(slice_end == std::numeric_limits<long long>::max(),
  * @systest StdlibE2E.Builtins
  */
 template <typename T>
-void slice_assign(std::vector<T>& v, long long lo, long long hi, empty_seq) {
+void slice_assign(std::vector<T>& v, long long lo, long long hi, empty_seq /*empty*/) {
     const auto n = static_cast<long long>(v.size());
     lo = detail::norm_index(lo, n);
     hi = (hi == slice_end) ? n : detail::norm_index(hi, n);
@@ -1054,7 +1054,7 @@ void slice_assign(std::array<T, N>& v, long long lo, long long hi, const R& rhs)
 /// @cond INTERNAL
 /// A fixed-size array has nothing to delete — its extent is part of its type.
 template <typename T, std::size_t N>
-void slice_assign(std::array<T, N>& v, long long lo, long long hi, empty_seq) {
+void slice_assign(std::array<T, N>& v, long long lo, long long hi, empty_seq /*empty*/) {
     (void)v; (void)lo; (void)hi;
     throw std::runtime_error(
         "array: a[lo:hi] = [] has no meaning — a fixed-size array is filled, not resized");
