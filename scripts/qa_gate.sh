@@ -78,11 +78,11 @@ MIN_TIME="${QA_BENCH_MIN_TIME:-0.05s}"
 # with QA_GATE_JOBS (e.g. =1 to serialize when debugging a flaky interaction).
 JOBS="${QA_GATE_JOBS:-$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)}"
 
-# The per-function compile-run battery (~200 tests, each forks the compiler+runtime)
-# is OPT-IN: set QA_GATE_FULL_CR=1 to include it. By default the gate runs everything
-# else — unit tests, the pipeline tests, and the multi-module system apps — and
-# excludes the *CompileRun.* tests (in ctest and under Valgrind) to stay fast.
-export QA_GATE_FULL_CR="${QA_GATE_FULL_CR:-0}"
+# The per-function compile-run battery (~290 tests, each forks the compiler+runtime)
+# RUNS BY DEFAULT: every test the repo has is part of the gate. QA_GATE_FULL_CR=0 leaves
+# the *CompileRun.* tests out (in ctest and under Valgrind) for a faster local iteration
+# — a push never sets it.
+export QA_GATE_FULL_CR="${QA_GATE_FULL_CR:-1}"
 if [ "$QA_GATE_FULL_CR" = "1" ]; then
     CR_EXCLUDE=()
 else
@@ -242,12 +242,9 @@ fi
 #     scan (sibling-project names must not reach the public tree — see
 #     scripts/check_no_private_refs.sh; the commit-msg / pre-push hooks cover messages).
 bold "Running cppcheck + private-reference scan + benchmark-stamp lint (background lane)…"
-# The benchmark-stamp lint rides along here because it is pure text work — it reads Markdown
-# and measures nothing, so it costs the gate nothing and belongs with the other doc lints.
-# It is what stops a published table from drifting back to being unattributed: every
-# <!-- BENCH:… --> region must carry a stamp saying when it was measured, on what, and
-# whether the run was rigorous enough to publish.
-bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh && bash scripts/bench_table_lint.sh'
+# The benchmark-stamp and documentation lints run later, once the release toolchain exists
+# (they are cheatah programs): see "Documentation lints" after the benchmark-build join.
+bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh'
 
 # 2. Configure ---------------------------------------------------------------
 bold "Configuring (debug + release)…"
@@ -281,6 +278,11 @@ fi
 bold "Checking frontend golden-master (emitted C++ is byte-identical)…"
 ctest --preset debug --output-on-failure --parallel "$JOBS" -R 'golden-master' || fail "frontend golden-master drifted — the transpiler changed its emitted C++"
 bg_poll
+
+# 3c'. Every test source is built by some CMakeLists (a *_test.cpp nothing names never runs —
+#     the worst gap, because it reads as coverage that is not there).
+bold "Checking that every test source is referenced by a CMakeLists…"
+bash scripts/check_test_orphans.sh || fail "orphaned test source(s) — add them to a CMake target"
 
 # 3d. Biome Standard drift (hard gate) — the append-only standards/*.toml files must be
 #     byte-identical to biome's in-source table (each side is meaningless without the other).
@@ -370,6 +372,16 @@ bg_join PID_EXT "$LOG_EXT" "VS Code extension hover-DB check"
 bg_join PID_CPPCHECK "$LOG_CPPCHECK" "cppcheck (performance/security findings)"
 bold "cppcheck lane: OK."
 bg_join PID_BENCHBUILD "$LOG_BENCHBUILD" "release benchmark build"
+
+# 8d. Documentation lints (cheatah programs; need the release toolchain, hence after the join):
+#     bench_table — every published table is a generated region with a stamp, a provenance
+#     link to its harness, and watched sources that have not moved; doc_lint — every @test
+#     names a real test, every path/link in the docs resolves on the site, every ```purr
+#     sample type-checks, the CLI flag tables match the binaries, and no revision-history
+#     narration ("this page used to say…") is left in the prose.
+bold "Documentation lints (bench_table + doc_lint)…"
+bash scripts/bench_table_lint.sh || fail "benchmark table lint — see scripts/bench_table.purr"
+bash scripts/doc_lint.sh all || fail "documentation lint — see scripts/doc_lint.purr"
 
 # 8c. clang-tidy: the broad first-party check set (.clang-tidy; cert-* fatal, ratchet via
 #     TIDY_WERROR, at "*" here: every check in .clang-tidy is fatal, the tree is clean under

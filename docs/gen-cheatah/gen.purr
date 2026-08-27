@@ -122,6 +122,10 @@ struct Gen {
     bench_node: dict<str, int>     # module short -> that page's detaileddescription node id
     bench_title: dict<str, str>    # module short -> that page's Doxygen title ("regex benchmarks")
     page_href: dict<str, str>      # page refid -> output file, when it is not <refid>.html
+    missing_tests: dict<str, bool> # @test names no test source defines (reported at the end)
+    page_by_file: dict<str, str>   # repo-relative markdown path -> its Doxygen page refid
+    decl_files: dict<str, bool>    # every header that declares a documented member
+    in_ext: bool                   # rendering an extension subsite page (their @test tags differ)
     classes_of: dict<str, str>     # owning module short -> <US>-joined class refids (sorted)
     perf: list<PerfEntry>
     perf_i: dict<str, int>         # "module.name" -> index into perf
@@ -904,6 +908,8 @@ fn link_test(g, tname) {
             if lline != "" { href = href + "#L" + lline }
             return "<a href=\"" + href + "\"><code>" + inner + "</code></a>"
         }
+    } elif not g.in_ext and string.contains(tname, ".") {
+        g.missing_tests[tname] = true
     }
     return "<code>" + inner + "</code>"
 }
@@ -1031,6 +1037,9 @@ fn perf_row(g, refid, mname) {
         }
     } else {
         return ""
+    }
+    if "scripts/perf_suite.py" in g.src_map {
+        body = body + " · <a class=\"perf-src\" href=\"" + g.src_map["scripts/perf_suite.py"] + "\">how measured</a>"
     }
     return "<div class=\"tag tag-perf\"><span class=\"tag-k\">Performance</span>" + "<span class=\"tag-v\">" + body + "</span></div>"
 }
@@ -1300,15 +1309,29 @@ fn render_node(g, doc, id) -> str {
         if string.contains(url, "://") or string.startswith(url, "mailto:") {
             return "<a href=\"" + esc(url) + "\" target=\"_blank\" rel=\"noopener\">" + inner + "</a>"
         }
+        # A relative link resolves to where the target renders (a module page, a source
+        # listing); a `#fragment` rides along, so `foo.cpp#L12` lands on the line.
         let key = url
+        let frag = ""
+        let hash = string.find(key, "#")
+        if hash >= 0 {
+            frag = key[hash:]
+            key = key[:hash]
+        }
         while string.startswith(key, "../") { key = key[3:] }
         while string.startswith(key, "./") { key = key[2:] }
         key = string.rstrip(key, "/")
         if key in g.modules {
-            return "<a href=\"" + g.modules[key] + ".html\">" + inner + "</a>"
+            return "<a href=\"" + g.modules[key] + ".html" + esc(frag) + "\">" + inner + "</a>"
+        }
+        if key in g.page_by_file {
+            let pr = g.page_by_file[key]
+            let href = pr + ".html"
+            if pr in g.page_href { href = g.page_href[pr] }
+            return "<a href=\"" + href + esc(frag) + "\">" + inner + "</a>"
         }
         if key in g.src_map {
-            return "<a href=\"" + g.src_map[key] + "\">" + inner + "</a>"
+            return "<a href=\"" + g.src_map[key] + esc(frag) + "\">" + inner + "</a>"
         }
         return inner
     }
@@ -1822,6 +1845,7 @@ fn render_compound_page(g, ci, sidebar) {
     elif c.kind == "struct" { kind_label = "Struct" }
     elif c.kind == "concept" { kind_label = "Concept" }
     g.cur_module = c.short
+    g.in_ext = c.ext != ""
     let cdoc = doc_of(xdir_of(c), doc_key)
     let brief = render_brief(g, cdoc, c.brief_id)
     let detail = ""
@@ -1966,7 +1990,7 @@ fn render_bench_page(g, mod, sidebar) {
     let back = "index.html"
     if mod in g.modules { back = g.modules[mod] + ".html" }
     let body = render_desc(g, bdoc, g.bench_node[mod])
-    let lede = "<p class=\"lede\">The generated measurement tables for the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> — every case, its stamp (commit, host, harness) and how to reproduce it.</p>"
+    let lede = "<p class=\"lede\">The generated measurement tables for the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> — every case, the harness that measured it, and how to reproduce it.</p>"
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Benchmarks</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
     return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
 }
@@ -1993,6 +2017,8 @@ fn render_source_page(g, rel_path, sidebar) {
         let hl = ""
         if is_cpp {
             hl = highlight_cpp_line(g, line)
+        } elif string.endswith(rel_path, ".sh") {
+            hl = esc(line)
         } else {
             hl = highlight_code(g, line)
         }
@@ -2664,6 +2690,14 @@ fn load_all(g) {
             let loc = parsers.xml.find(cdoc, cdef, "location")
             let lfile = ""
             if loc >= 0 { lfile = parsers.xml.attr(cdoc, loc, "file") }
+            if lfile != "" {
+                # Doxygen records the path it was given (repo-relative) or an absolute one;
+                # either way a relative link from another document resolves to this page.
+                let relf = lfile
+                let here = os.getcwd() + "/"
+                if string.startswith(relf, here) { relf = relf[len(here):] }
+                g.page_by_file[relf] = refid
+            }
             let mod = md_module_of(lfile, "/README.md")
             if mod != "" {
                 g.readme_key[mod] = refid
@@ -2715,6 +2749,11 @@ fn load_all(g) {
                 m.srcline = parsers.xml.attr(cdoc, loc, "bodystart")
                 if m.srcline == "" { m.srcline = parsers.xml.attr(cdoc, loc, "declline") }
                 if m.srcline == "" { m.srcline = parsers.xml.attr(cdoc, loc, "line") }
+                # the declaring header gets a listing too: a README's `[foo.hpp](foo.hpp)`
+                # link lands on the doc comments, not only on the body in foo.cpp
+                let decl = parsers.xml.attr(cdoc, loc, "declfile")
+                if decl == "" { decl = parsers.xml.attr(cdoc, loc, "file") }
+                if decl != "" { g.decl_files[decl] = true }
             }
             comp.members.append(m)
             g.mi[mid] = refid
@@ -2780,13 +2819,30 @@ fn load_ext_tree(g, extname) {
     }
 }
 
-fn cpp_files_sorted(dirpath) {
+fn files_sorted(dirpath, exts) {
     let out: list<str> = []
     if not os.path.isdir(dirpath) { return out }
     for f in os.listdir(dirpath) {
-        if string.endswith(f, ".cpp") { out.append(f) }
+        for e in exts {
+            if string.endswith(f, e) { out.append(f) }
+        }
     }
     return sorted_strs(out)
+}
+
+fn cpp_files_sorted(dirpath) { return files_sorted(dirpath, [".cpp"]) }
+
+# The programs that measured every published table get a source page, so a benchmark
+# page can link the harness beside the numbers and the link resolves on the site.
+fn harness_sources() {
+    let out: list<str> = []
+    for d in ["tests/benchmarks", "stdlib/regex/bench", "scripts/bench"] {
+        for f in files_sorted(d, [".cpp", ".hpp", ".purr", ".py", ".sh"]) { out.append(d + "/" + f) }
+    }
+    for f in ["scripts/numpy_compare.py", "scripts/perf_suite.py", "scripts/app_compare.purr", "scripts/bench_run.sh", "scripts/bench_gate.sh", "docs/gen-cheatah/gen_bench.purr", "docs/gen-cheatah/gen_bench_parallel.purr", "docs/gen-cheatah/gen_bench_compare.purr", "docs/gen-cheatah/gen_bench.py"] {
+        out.append(f)
+    }
+    return out
 }
 
 fn build_test_index(g) {
@@ -2949,7 +3005,7 @@ fn main() {
         io.print("generate: docs/xml not found — run Doxygen with GENERATE_XML=YES first")
         return
     }
-    let g = Gen({.cur_module = ""})
+    let g = Gen({.cur_module = "", .in_ext = false})
     # Where this tree is served. The ONLY absolute-URL knob in the generator — everything
     # else is bare-relative on purpose — and it exists so the pages can carry an absolute
     # rel="canonical" (see seo_head). Slash-terminated; canon_url appends to it directly.
@@ -3025,6 +3081,8 @@ fn main() {
     for tdir in ["stdlib/tests", "stdlib/memory/tests", "tests/purrc"] {
         for f in cpp_files_sorted(tdir) { src_set[tdir + "/" + f] = true }
     }
+    for h in harness_sources() { src_set[h] = true }
+    for kv in g.decl_files { src_set[kv.first] = true }
     let src_paths: list<str> = []
     for kv in src_set { src_paths.append(kv.first) }
     src_paths = sorted_strs(src_paths)
@@ -3194,7 +3252,7 @@ fn main() {
         if mod in g.modules { active = g.modules[mod] + ".html" }
         write_file("docs/html/" + fname,
                    with_seo(mark_active(render_bench_page(g, mod, sidebar), active), g, fname,
-                            mod + " benchmarks — the generated measurement tables for the cheatah " + mod + " module: every case, its stamp (commit, host, harness) and how to reproduce it.", false))
+                            mod + " benchmarks — the generated measurement tables for the cheatah " + mod + " module: every case, the harness that measured it, and how to reproduce it.", false))
         pages = pages + 1
     }
 
@@ -3228,6 +3286,14 @@ fn main() {
         write_file("docs/html/cheatah-logo.png", io.read_file("docs/theme/cheatah-logo.png"))
     }
     io.print("generate: wrote " + str(pages) + " pages -> " + os.path.join(os.getcwd(), "docs/html"))
+    if len(g.missing_tests) > 0 {
+        let names: list<str> = []
+        for kv in g.missing_tests { names.append(kv.first) }
+        io.print("generate: " + str(len(names)) + " @test name(s) resolve to no test source (scripts/doc_lint.sh tests lists them)")
+        if os.getenv("DOCS_LIST_MISSING_TESTS", "") != "" {
+            for n in sorted_strs(names) { io.print("  " + n) }
+        }
+    }
 }
 
 main()

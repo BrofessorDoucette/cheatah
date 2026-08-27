@@ -3,6 +3,8 @@
 Micro-benchmarks of the [`p256`](README.md) module (`tests/benchmarks/p256_bench.cpp`,
 release build, one core):
 
+Measured by [`tests/benchmarks/p256_bench.cpp`](../../tests/benchmarks/p256_bench.cpp); reproduce with `scripts/bench_run.sh publish p256`.
+
 <!-- BENCH:p256 begin -->
 <!-- cheatah-bench-stamp v1
      suite:        p256

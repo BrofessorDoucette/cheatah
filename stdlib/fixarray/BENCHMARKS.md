@@ -12,6 +12,8 @@ holds the numbers.
 the exact tally is in the generated table below, because a count restated in prose is a count
 that drifts the moment someone re-measures. A representative sample:
 
+Measured by [`tests/benchmarks/fixed_glm_bench.cpp`](../../tests/benchmarks/fixed_glm_bench.cpp); reproduce with `scripts/bench_run.sh publish fixarray-vs-glm-highlights`.
+
 <!-- BENCH:fixarray-vs-glm-highlights begin -->
 <!-- cheatah-bench-stamp v1
      suite:        fixarray-vs-glm-highlights
@@ -64,6 +66,8 @@ build if any pair regresses past GLM (tolerant by ratio *and* an absolute floor,
 confirmation re-run so sub-nanosecond noise never flakes it).
 
 ## The complete comparison — every vector and matrix operation
+
+Measured by [`tests/benchmarks/fixed_glm_bench.cpp`](../../tests/benchmarks/fixed_glm_bench.cpp); reproduce with `scripts/bench_run.sh publish fixarray-vs-glm`.
 
 <!-- BENCH:fixarray-vs-glm begin -->
 <!-- cheatah-bench-stamp v1

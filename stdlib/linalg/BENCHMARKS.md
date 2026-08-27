@@ -37,6 +37,8 @@ the methodology (striated, interleaved, medians with dispersion) and the referen
 
 ## vs NumPy
 
+Measured by [`scripts/numpy_compare.py`](../../scripts/numpy_compare.py); reproduce with `python3 scripts/numpy_compare.py --suite linalg --md docs/bench/linalg-vs-numpy.md`.
+
 <!-- BENCH:linalg-vs-numpy begin -->
 <!-- cheatah-bench-stamp v1
      suite:        linalg-vs-numpy
@@ -139,6 +141,8 @@ the methodology (striated, interleaved, medians with dispersion) and the referen
 <!-- BENCH:linalg-vs-numpy end -->
 
 ## vs Eigen
+
+Measured by [`tests/benchmarks/eigen_compare_bench.cpp`](../../tests/benchmarks/eigen_compare_bench.cpp); reproduce with `scripts/bench_run.sh publish linalg-vs-eigen`.
 
 <!-- BENCH:linalg-vs-eigen begin -->
 <!-- cheatah-bench-stamp v1

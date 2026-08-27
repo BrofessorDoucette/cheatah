@@ -20,6 +20,8 @@ occasionally; the response to that is to read the margin, not to widen the thres
 
 ## Representative cases
 
+Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_REP_TABLE=docs/bench/regex-representative.md ./build/regexbench/rxbench`.
+
 <!-- BENCH:regex-representative begin -->
 <!-- cheatah-bench-stamp v1
      suite:        regex-representative
@@ -51,6 +53,8 @@ occasionally; the response to that is to read the margin, not to widen the thres
 <!-- BENCH:regex-representative end -->
 
 ## The complete comparison — every benchmarked case, all four engines
+
+Measured by [`stdlib/regex/bench/rxbench.cpp`](../../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_TABLE=docs/bench/regex-vs-engines.md ./build/regexbench/rxbench`.
 
 <!-- BENCH:regex-vs-engines begin -->
 <!-- cheatah-bench-stamp v1

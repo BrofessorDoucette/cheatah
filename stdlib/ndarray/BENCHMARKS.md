@@ -10,6 +10,8 @@ for the methodology (striated rounds, medians, paired ratios) and the reference 
 enough to matter: a bare headline would hide that `sqrt` at 16384 lands anywhere from 0.6× to
 1.1× depending on the round.
 
+Measured by [`scripts/numpy_compare.py`](../../scripts/numpy_compare.py); reproduce with `python3 scripts/numpy_compare.py --suite ndarray --md docs/bench/ndarray-vs-numpy.md`.
+
 <!-- BENCH:ndarray-vs-numpy begin -->
 <!-- cheatah-bench-stamp v1
      suite:        ndarray-vs-numpy

@@ -66,6 +66,8 @@ rounds** — one round times the cheatah build and then the CPython build before
 repeated — so drift over the session cannot favour one side. Every row reports the
 **median of the per-round ratios**, with the full spread of those ratios in brackets:
 
+Measured by [`scripts/app_compare.purr`](../scripts/app_compare.purr); reproduce with `bash scripts/bench/build-harness.sh scripts/app_compare.purr /tmp/ac.so && cheatah /tmp/ac.so docs/bench/whole-programs.md`.
+
 <!-- BENCH:whole-programs begin -->
 <!-- cheatah-bench-stamp v1
      suite:        whole-programs
@@ -145,6 +147,8 @@ renders every module's members to HTML, compute-only. The three are driven by
 [`gen_bench_compare.purr`](https://github.com/BrofessorDoucette/cheatah/blob/main/docs/gen-cheatah/gen_bench_compare.purr),
 which runs **all three inside each of 9 rounds** so none of them is measured as its own
 consecutive block:
+
+Measured by [`docs/gen-cheatah/gen_bench_compare.purr`](../docs/gen-cheatah/gen_bench_compare.purr); reproduce with `bash scripts/bench/build-harness.sh docs/gen-cheatah/gen_bench_compare.purr /tmp/gbc.so && cheatah /tmp/gbc.so docs/bench/render-kernel.md`.
 
 <!-- BENCH:render-kernel begin -->
 <!-- cheatah-bench-stamp v1
@@ -334,6 +338,8 @@ win.
 <b>`Fixed` is faster than or at parity with GLM on every one — 19 faster, 141 at parity,
 none slower.</b> It wins where structure pays:
 
+Measured by [`tests/benchmarks/fixed_glm_bench.cpp`](../tests/benchmarks/fixed_glm_bench.cpp); reproduce with `scripts/bench_run.sh publish fixarray-vs-glm-highlights`.
+
 <!-- BENCH:fixarray-vs-glm-highlights begin -->
 <!-- cheatah-bench-stamp v1
      suite:        fixarray-vs-glm-highlights
@@ -401,6 +407,8 @@ integral from the table above, split into per-worker chunks — each worker inte
 into a **local** sum and makes **one** lease write at the end (coordinate at the edges,
 never inside the hot loop):
 
+Measured by [`scripts/bench/integral_threads.purr`](../scripts/bench/integral_threads.purr); reproduce with `purrc scripts/bench/integral_threads.purr -o /tmp/it.so --import-root scripts && cheatah /tmp/it.so docs/bench/thread-scaling.md`.
+
 <!-- BENCH:thread-scaling begin -->
 <!-- cheatah-bench-stamp v1
      suite:        thread-scaling
@@ -466,6 +474,8 @@ portable scalar fallback. The accelerated paths live in a dedicated header
 (`stdlib/aead/aes_gcm_ni.hpp`) so the clear, readable algorithm stays visible in `aead.cpp`;
 both are validated to produce bit-identical output. On a 4 KiB record
 (`tests/benchmarks/crypto_openssl_bench.cpp`, release build):
+
+Measured by [`tests/benchmarks/crypto_openssl_bench.cpp`](../tests/benchmarks/crypto_openssl_bench.cpp); reproduce with `scripts/bench_run.sh publish crypto-vs-openssl`.
 
 <!-- BENCH:crypto-vs-openssl begin -->
 <!-- cheatah-bench-stamp v1
@@ -586,6 +596,8 @@ count of wins and losses is a summary of thresholded comparisons, and any case s
 threshold will move between runs. `RXBENCH_ASSERT=1` fails the build on any RE2 loss, so it
 will occasionally go red on these two — and when it does, the right response is to look at the
 margin, not to widen the threshold until it stops. Representative rows:Representative rows:
+
+Measured by [`stdlib/regex/bench/rxbench.cpp`](../stdlib/regex/bench/rxbench.cpp); reproduce with `RXBENCH_REP_TABLE=docs/bench/regex-representative.md ./build/regexbench/rxbench`.
 
 <!-- BENCH:regex-representative begin -->
 <!-- cheatah-bench-stamp v1

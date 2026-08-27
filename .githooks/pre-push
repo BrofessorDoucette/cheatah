@@ -52,10 +52,11 @@ done
 # 1. QA gate — blocks the push on failure.
 #
 #    Unless this push is DOCS-ONLY: every changed file across every pushed range under
-#    docs/ or ending in .md, and no version tag in the push. Then the doc lint stands in
-#    for the full gate — the docs build in step 2 is the real validation for the change,
-#    and it still runs. An empty or unresolvable change list runs the full gate: when in
-#    doubt, gate.
+#    docs/ or ending in .md, and no version tag in the push. Then the doc lints stand in
+#    for the full gate (tag contract, dead @test names, paths and links, sample code,
+#    flag tables, benchmark provenance) — the docs build in step 2 is the real validation
+#    for the change, and it still runs. An empty or unresolvable change list runs the full
+#    gate: when in doubt, gate.
 docs_only=""
 if [ -z "$pushed_tag" ] && [ "${#push_ranges[@]}" -gt 0 ]; then
     changed="$(for _range in "${push_ranges[@]}"; do git log --format= --name-only $_range; done \
@@ -74,6 +75,8 @@ if [ -n "$docs_only" ]; then
     printf '\033[1m[pre-push] docs-only push (%s files, all docs/ or *.md) — skipping the full QA gate; doc lint + docs build gate this one.\033[0m\n' \
         "$(wc -l <<<"$changed")"
     bash "$repo_root/scripts/doc_tag_lint.sh" || exit 1
+    bash "$repo_root/scripts/doc_lint.sh" all || exit 1
+    bash "$repo_root/scripts/bench_table_lint.sh" || exit 1
 else
     bash "$repo_root/scripts/qa_gate.sh" || exit 1
 fi

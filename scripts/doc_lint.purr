@@ -1,0 +1,714 @@
+# Copyright (c) 2026 BigBrain LLC. MIT-licensed (see LICENSE).
+# Original work; see ACKNOWLEDGMENTS.md for the open-source ideas we build upon.
+# doc_lint.purr — the documentation says only what the repository can back.
+#
+# doc_coverage.sh proves every public entity is documented and doc_tag_lint.sh proves the
+# contract tags are present. Neither reads the prose. This program checks the parts of the
+# prose that can be checked mechanically:
+#
+#   tests     every @test / @crtest / @systest name in the stdlib headers (and requests.purr)
+#             is a TEST(Suite, Name) that exists — the site renders a dead name as plain
+#             text, silently, so nothing else notices
+#   links     every repo path named in backticks or linked from a document exists, and a
+#             relative link resolves on the generated site (the generator drops a link it
+#             cannot resolve and keeps only the text)
+#   examples  every ```purr fence type-checks with `purrc --check`; a deliberately partial
+#             snippet says so with `<!-- purr: fragment -->` on the line above the fence
+#   flags     the purrc / cheatah flag tables in docs/purrc.md and docs/runtime.md name
+#             exactly the flags the binaries' usage text names; biome's subcommands and
+#             flags appear in docs/biome.md; every CHEATAH_* name docs/purrc.md documents
+#             is read by the compiler
+#   phrases   no revision-history narration in the prose ("this page used to say…"): git
+#             holds the history, the reader gets the fact
+#
+#     doc_lint.so [tests|links|examples|flags|phrases|all]      (default: all)
+#
+# Run from the repo root. Exits non-zero with every problem listed.
+import io
+import os
+import string
+import sys
+
+fn no_strings() -> list<str> {
+    let e: list<str> = []
+    return e
+}
+
+fn word_chars() -> str { return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" }
+fn is_word(ch : str) -> bool { return ch != "" and string.contains(word_chars(), ch) }
+fn is_space(ch : str) -> bool { return ch == " " or ch == "\t" }
+fn char_at(s : str, i : int) -> str {
+    if i < 0 or i >= len(s) { return "" }
+    return s[i:i + 1]
+}
+
+# ---- the documents ------------------------------------------------------------------------
+# The Doxygen INPUT markdown (docs/*.md, compiler/PYTHON.md), the top-level README, and every
+# module README / BENCHMARKS page. CHANGELOG.md is history and is not prose to lint.
+fn guide_files() -> list<str> {
+    return ["README.md", "docs/mainpage.md", "docs/why.md", "docs/getting_started.md",
+            "docs/performance.md", "docs/optimizations.md", "docs/porting.md",
+            "docs/security.md", "docs/releasing.md", "docs/cpp.md", "docs/runtime.md",
+            "docs/purrc.md", "docs/biome.md", "docs/extensions.md", "docs/imports.md",
+            "docs/ownership.md", "compiler/PYTHON.md", "stdlib/README.md"]
+}
+
+fn sorted_strs(xs : list<str>) -> list<str> {
+    let out: list<str> = []
+    for x in xs { out.append(x) }
+    let i = 1
+    while i < len(out) {
+        let j = i
+        while j > 0 and out[j - 1] > out[j] {
+            let t = out[j - 1]
+            out[j - 1] = out[j]
+            out[j] = t
+            j = j - 1
+        }
+        i = i + 1
+    }
+    return out
+}
+
+fn module_docs() -> list<str> {
+    let out: list<str> = []
+    for d in sorted_strs(os.listdir("stdlib")) {
+        let dir = "stdlib/" + d
+        if not os.path.isdir(dir) { continue }
+        for leaf in ["README.md", "BENCHMARKS.md"] {
+            if os.path.isfile(dir + "/" + leaf) { out.append(dir + "/" + leaf) }
+        }
+    }
+    return out
+}
+
+fn doc_files() -> list<str> {
+    let out: list<str> = []
+    for f in guide_files() { if os.path.isfile(f) { out.append(f) } }
+    for f in module_docs() { out.append(f) }
+    return out
+}
+
+# Every file under `root` with one of the extensions, recursively (sorted for stable output).
+fn walk(root : str, exts : list<str>) -> list<str> {
+    let out: list<str> = []
+    let queue = [root]
+    let qi = 0
+    while qi < len(queue) {
+        let dir = queue[qi]
+        qi = qi + 1
+        if not os.path.isdir(dir) { continue }
+        for name in sorted_strs(os.listdir(dir)) {
+            let p = dir + "/" + name
+            if os.path.isdir(p) {
+                queue.append(p)
+                continue
+            }
+            for e in exts {
+                if string.endswith(name, e) { out.append(p) }
+            }
+        }
+    }
+    return out
+}
+
+# ---- shelling out (bench_table.purr's idiom: redirect, read back) --------------------------
+fn shq(s : str) -> str { return "'" + string.replace(s, "'", "'\\''") + "'" }
+
+fn sh_capture(cmd : str) -> str {
+    let tmp = "/tmp/cheatah_doc_lint_capture.out"
+    os.system(cmd + " > " + tmp + " 2>&1")
+    let out = ""
+    if os.path.exists(tmp) {
+        out = string.strip(io.read_file(tmp))
+        os.remove(tmp)
+    }
+    return out
+}
+
+# ---- tests: every @test name is a real test ------------------------------------------------
+# First `TEST(Suite, Name)` / `TEST_F` / `TEST_P` in a line -> "Suite.Name", else "".
+fn test_in_line(line : str) -> str {
+    let pos = 0
+    while true {
+        let m = string.find(line[pos:], "TEST")
+        if m < 0 { return "" }
+        let i = pos + m
+        pos = i + 4
+        if is_word(char_at(line, i - 1)) { continue }
+        let j = i + 4
+        if line[j:j + 2] == "_F" or line[j:j + 2] == "_P" { j = j + 2 }
+        if is_word(char_at(line, j)) { continue }
+        let k = j
+        while is_space(char_at(line, k)) { k = k + 1 }
+        if char_at(line, k) != "(" { continue }
+        k = k + 1
+        while is_space(char_at(line, k)) { k = k + 1 }
+        let s0 = k
+        while is_word(char_at(line, k)) { k = k + 1 }
+        if k == s0 { continue }
+        let suite = line[s0:k]
+        while is_space(char_at(line, k)) { k = k + 1 }
+        if char_at(line, k) != "," { continue }
+        k = k + 1
+        while is_space(char_at(line, k)) { k = k + 1 }
+        let n0 = k
+        while is_word(char_at(line, k)) { k = k + 1 }
+        if k == n0 { continue }
+        let cname = line[n0:k]
+        while is_space(char_at(line, k)) { k = k + 1 }
+        if char_at(line, k) != ")" { continue }
+        return suite + "." + cname
+    }
+    return ""
+}
+
+fn test_dirs() -> list<str> {
+    return ["stdlib/tests", "stdlib/memory/tests", "tests/purrc", "tests/previously_broken"]
+}
+
+fn build_test_index(idx) {
+    for d in test_dirs() {
+        for f in walk(d, [".cpp"]) {
+            for line in string.splitlines(io.read_file(f)) {
+                let hit = test_in_line(line)
+                if hit != "" { idx[hit] = true }
+            }
+        }
+    }
+}
+
+# "Suite.Name" tokens out of tag text: split on commas/whitespace, keep what looks like one.
+fn names_in(text : str) -> list<str> {
+    let out: list<str> = []
+    let cur = ""
+    let i = 0
+    while i <= len(text) {
+        let ch = char_at(text, i)
+        if is_word(ch) or ch == "." {
+            cur = cur + ch
+        } else {
+            if cur != "" {
+                let dot = string.find(cur, ".")
+                if dot > 0 and dot < len(cur) - 1 { out.append(cur) }
+                cur = ""
+            }
+        }
+        i = i + 1
+    }
+    return out
+}
+
+# The text of one @test/@crtest/@systest tag: the rest of its line plus continuation lines
+# (a comment line holding nothing but more Suite.Name tokens).
+fn is_comment_line(line : str) -> bool {
+    let t = string.strip(line)
+    return string.startswith(t, "*") or string.startswith(t, "///") or string.startswith(t, "#")
+}
+
+fn strip_comment_lead(line : str) -> str {
+    let t = string.strip(line)
+    if string.startswith(t, "* ") { t = string.strip(t[2:]) }
+    elif t == "*" { t = "" }
+    elif string.startswith(t, "///") { t = string.strip(t[3:]) }
+    elif string.startswith(t, "#") { t = string.strip(t[1:]) }
+    return t
+}
+
+# "Suite.Name, Other.Name" and nothing else?
+fn only_test_names(text : str) -> bool {
+    let any = false
+    for tok in string.split(string.replace(text, ",", " "), " ") {
+        let w = string.strip(tok)
+        if w == "" { continue }
+        any = true
+        let dot = string.find(w, ".")
+        if dot <= 0 or dot >= len(w) - 1 { return false }
+        let i = 0
+        while i < len(w) {
+            let ch = w[i:i + 1]
+            if not (is_word(ch) or ch == ".") { return false }
+            i = i + 1
+        }
+    }
+    return any
+}
+
+fn check_tests(errors : list<str>) -> int {
+    let idx: dict<str, bool> = {}
+    build_test_index(idx)
+    let files = walk("stdlib", [".hpp", ".cpp"])
+    files.append("stdlib/requests/requests.purr")
+    let seen = 0
+    for f in files {
+        if string.contains(f, "/tests/") { continue }
+        if string.contains(f, "/bench/") { continue }
+        if f == "stdlib/requests/requests.hpp" { continue }   # generated from requests.purr
+        let lines = string.splitlines(io.read_file(f))
+        let i = 0
+        while i < len(lines) {
+            let t = strip_comment_lead(lines[i])
+            let tag = ""
+            for cand in ["@test ", "@crtest ", "@systest "] {
+                if string.startswith(t, cand) { tag = cand }
+            }
+            if tag == "" {
+                i = i + 1
+                continue
+            }
+            let text = t[len(tag):]
+            let start = i + 1
+            let j = i + 1
+            while j < len(lines) {
+                if not is_comment_line(lines[j]) { break }
+                let c = strip_comment_lead(lines[j])
+                if c == "" or string.startswith(c, "@") or string.contains(lines[j], "*/") { break }
+                if not only_test_names(c) { break }
+                text = text + " " + c
+                j = j + 1
+            }
+            for name in names_in(text) {
+                seen = seen + 1
+                if not (name in idx) {
+                    errors.append(f + ":" + str(start) + ": " + string.strip(tag) + " " + name +
+                                  " — no TEST(...) with that name under " + "stdlib/tests, stdlib/memory/tests, tests/purrc, tests/previously_broken")
+                }
+            }
+            i = j
+            if j == start - 1 { i = i + 1 }
+        }
+    }
+    return seen
+}
+
+# ---- links: paths exist and resolve on the site -------------------------------------------
+fn repo_dirs() -> list<str> {
+    return ["stdlib/", "scripts/", "tests/", "docs/", "compiler/", "runtime/", "pkg-manager/",
+            "editors/", "standards/", "cmake/", "security/", "gen/"]
+}
+
+fn looks_like_repo_path(tok : str) -> bool {
+    if string.contains(tok, " ") or string.contains(tok, "<") or string.contains(tok, "*") { return false }
+    if string.contains(tok, "{") or string.contains(tok, "$") { return false }
+    for d in repo_dirs() {
+        if string.startswith(tok, d) { return true }
+    }
+    return false
+}
+
+# Collapse `a/../b` and `./` in a repo-relative path.
+fn normalize(path : str) -> str {
+    let parts: list<str> = []
+    for seg in string.split(path, "/") {
+        if seg == "" or seg == "." { continue }
+        if seg == ".." {
+            let keep: list<str> = []
+            let k = 0
+            while k + 1 < len(parts) {
+                keep.append(parts[k])
+                k = k + 1
+            }
+            parts = keep
+            continue
+        }
+        parts.append(seg)
+    }
+    let out = ""
+    for p in parts {
+        if out != "" { out = out + "/" }
+        out = out + p
+    }
+    return out
+}
+
+fn doc_dir(doc : str) -> str {
+    let cut = string.rfind(doc, "/")
+    if cut < 0 { return "" }
+    return doc[:cut]
+}
+
+# The generator's source-page name for a repo path (gen.purr src_page_name).
+fn src_page_name(rel : str) -> str {
+    let out = "src_"
+    let i = 0
+    while i < len(rel) {
+        let ch = rel[i:i + 1]
+        if is_word(ch) and ch != "_" { out = out + ch } else { out = out + "_" }
+        i = i + 1
+    }
+    return out + ".html"
+}
+
+# Does a repo-relative target render as a page on the site? Markdown pages Doxygen ingests do;
+# source files do when the generator wrote a listing for them (docs/html tells us exactly).
+fn resolves_on_site(target : str, have_html : bool) -> bool {
+    if string.endswith(target, ".md") {
+        if string.startswith(target, "docs/") { return true }
+        if target == "compiler/PYTHON.md" or target == "CHANGELOG.md" { return true }
+        if string.startswith(target, "stdlib/") and (string.endswith(target, "/README.md") or string.endswith(target, "/BENCHMARKS.md")) {
+            return target != "stdlib/README.md"
+        }
+        return false
+    }
+    if not have_html { return true }
+    return os.path.isfile("docs/html/" + src_page_name(target))
+}
+
+# Does this document render on the site? README.md and stdlib/README.md are GitHub-only
+# (the site's front page is docs/mainpage.md), so their relative links only need to exist.
+fn on_site(doc : str) -> bool {
+    return doc != "README.md" and doc != "stdlib/README.md"
+}
+
+fn check_links(errors : list<str>, warns : list<str>) -> int {
+    let have_html = os.path.isdir("docs/html")
+    let checked = 0
+    for doc in doc_files() {
+        let base = doc_dir(doc)
+        let site = on_site(doc)
+        let n = 0
+        let in_fence = false
+        for line in string.splitlines(io.read_file(doc)) {
+            n = n + 1
+            let t = string.strip(line)
+            if string.startswith(t, "```") { in_fence = not in_fence }
+            if in_fence { continue }
+            # markdown links: [text](target)
+            let rest = line
+            while true {
+                let a = string.find(rest, "](")
+                if a < 0 { break }
+                rest = rest[a + 2:]
+                let b = string.find(rest, ")")
+                if b < 0 { break }
+                let target = string.strip(rest[:b])
+                rest = rest[b + 1:]
+                if target == "" or string.startswith(target, "#") or string.startswith(target, "mailto:") { continue }
+                if string.startswith(target, "@ref") { continue }   # Doxygen resolves these itself
+                let gh = "https://github.com/BrofessorDoucette/cheatah/blob/main/"
+                if string.startswith(target, gh) {
+                    let p = target[len(gh):]
+                    let hh = string.find(p, "#")
+                    if hh >= 0 { p = p[:hh] }
+                    checked = checked + 1
+                    if not os.path.exists(p) {
+                        errors.append(doc + ":" + str(n) + ": GitHub link to a path that does not exist: " + p)
+                    }
+                    continue
+                }
+                if string.contains(target, "://") { continue }
+                let hash = string.find(target, "#")
+                if hash >= 0 { target = target[:hash] }
+                if string.endswith(target, ".html") { continue }   # a generated page, checked by a11y
+                let full = normalize(target)
+                if base != "" { full = normalize(base + "/" + target) }
+                checked = checked + 1
+                # `../tls/` from a module page: the generator resolves it by MODULE NAME
+                let bare = target
+                while string.startswith(bare, "../") { bare = bare[3:] }
+                while string.startswith(bare, "./") { bare = bare[2:] }
+                bare = string.rstrip(bare, "/")
+                if not string.contains(bare, "/") and os.path.isdir("stdlib/" + bare) { continue }
+                if not os.path.exists(full) {
+                    errors.append(doc + ":" + str(n) + ": link target does not exist: " + target + " (" + full + ")")
+                    continue
+                }
+                if site and not resolves_on_site(full, have_html) {
+                    errors.append(doc + ":" + str(n) + ": link to " + target + " drops on the site — " + full + " has no page there (link the GitHub URL, or give the file a source listing)")
+                }
+            }
+            # backtick paths: `stdlib/foo/bar.hpp`
+            let seg = line
+            while true {
+                let a = string.find(seg, "`")
+                if a < 0 { break }
+                seg = seg[a + 1:]
+                let b = string.find(seg, "`")
+                if b < 0 { break }
+                let tok = seg[:b]
+                seg = seg[b + 1:]
+                if not looks_like_repo_path(tok) { continue }
+                let p = string.rstrip(tok, "/")
+                let hh = string.find(p, "#")
+                if hh >= 0 { p = p[:hh] }
+                let colon = string.find(p, ":")
+                if colon >= 0 { p = p[:colon] }
+                checked = checked + 1
+                if not os.path.exists(p) {
+                    errors.append(doc + ":" + str(n) + ": names a path that does not exist: " + tok)
+                }
+            }
+        }
+    }
+    return checked
+}
+
+# ---- examples: every ```purr fence type-checks --------------------------------------------
+fn purrc_path() -> str {
+    for p in ["build/release/bin/purrc", "build/debug/bin/purrc"] {
+        if os.path.exists(p) { return p }
+    }
+    return ""
+}
+
+fn is_cheatah_line(t : str) -> bool {
+    for lead in ["let ", "import ", "fn "] {
+        if string.startswith(t, lead) { return true }
+    }
+    return false
+}
+
+fn check_examples(errors : list<str>, warns : list<str>) -> int {
+    let purrc = purrc_path()
+    if purrc == "" {
+        warns.append("examples: no purrc build (build/release or build/debug) — sample code unchecked")
+        return 0
+    }
+    let checked = 0
+    let tmp = "/tmp/cheatah_doc_lint_sample.purr"
+    for doc in doc_files() {
+        let lines = string.splitlines(io.read_file(doc))
+        let i = 0
+        while i < len(lines) {
+            let t = string.strip(lines[i])
+            if not string.startswith(t, "```") {
+                i = i + 1
+                continue
+            }
+            let lang = string.strip(t[3:])
+            let start = i + 1
+            let body = ""
+            let has_code = false
+            let j = i + 1
+            while j < len(lines) and not string.startswith(string.strip(lines[j]), "```") {
+                body = body + lines[j] + "\n"
+                if is_cheatah_line(string.strip(lines[j])) { has_code = true }
+                j = j + 1
+            }
+            i = j + 1
+            if lang == "" and has_code {
+                warns.append(doc + ":" + str(start) + ": untagged code fence that looks like cheatah — tag it ```purr so it is type-checked")
+                continue
+            }
+            if lang != "purr" and lang != "cheatah" { continue }
+            let fragment = false
+            if start >= 2 and string.strip(lines[start - 2]) == "<!-- purr: fragment -->" { fragment = true }
+            if fragment { continue }
+            checked = checked + 1
+            with io.open(tmp, "w") as f { f.write(body) }
+            let out = sh_capture(shq(purrc) + " --check " + tmp)
+            let ok = os.system(shq(purrc) + " --check " + tmp + " >/dev/null 2>&1") == 0
+            if not ok {
+                let first = ""
+                for l in string.splitlines(out) {
+                    if string.contains(l, "error") { first = string.strip(l); break }
+                }
+                if first == "" and len(string.splitlines(out)) > 0 { first = string.strip(string.splitlines(out)[0]) }
+                first = string.replace(first, tmp, doc + ":" + str(start))
+                errors.append(doc + ":" + str(start) + ": ```purr sample does not type-check — " + first + " (a deliberately partial snippet needs `<!-- purr: fragment -->` on the line above the fence)")
+            }
+        }
+    }
+    if os.path.exists(tmp) { os.remove(tmp) }
+    return checked
+}
+
+# ---- flags: the CLI tables match the binaries --------------------------------------------
+# `--flag` tokens in a piece of text.
+fn flags_in(text : str, out) {
+    let i = 0
+    while i + 2 < len(text) {
+        if text[i:i + 2] == "--" and not is_word(char_at(text, i - 1)) and char_at(text, i - 1) != "-" {
+            let j = i + 2
+            while is_word(char_at(text, j)) or char_at(text, j) == "-" { j = j + 1 }
+            let tok = text[i:j]
+            if len(tok) > 2 and is_word(char_at(tok, 2)) and not string.endswith(tok, "-") { out[tok] = true }
+            i = j
+        } else {
+            i = i + 1
+        }
+    }
+}
+
+# The usage text of a binary: the print_usage function body in its source.
+fn usage_text(src : str) -> str {
+    let text = io.read_file(src)
+    let a = string.find(text, "void print_usage(")
+    if a < 0 { return "" }
+    let b = string.find(text[a:], "\n}\n")
+    if b < 0 { return text[a:] }
+    return text[a:a + b]
+}
+
+# The flag tokens the document's flag TABLE rows name (`| `--x` | …`).
+fn doc_table_flags(doc : str, out) {
+    for line in string.splitlines(io.read_file(doc)) {
+        let t = string.strip(line)
+        if not string.startswith(t, "| `-") { continue }
+        let cell = t[1:]
+        let cut = string.find(cell, "|")
+        if cut >= 0 { cell = cell[:cut] }
+        flags_in(cell, out)
+    }
+}
+
+fn dict_keys_sorted(d : dict<str, bool>) -> list<str> {
+    let ks: list<str> = []
+    for kv in d { ks.append(kv.first) }
+    return sorted_strs(ks)
+}
+
+fn compare_flags(label : str, src : str, doc : str, errors : list<str>) {
+    let usage: dict<str, bool> = {}
+    flags_in(usage_text(src), usage)
+    let documented: dict<str, bool> = {}
+    doc_table_flags(doc, documented)
+    for f in dict_keys_sorted(usage) {
+        if not (f in documented) {
+            errors.append(doc + ": " + label + " accepts " + f + " (" + src + " print_usage) but the flag table does not list it")
+        }
+    }
+    for f in dict_keys_sorted(documented) {
+        if not (f in usage) {
+            errors.append(doc + ": the flag table lists " + f + " but " + label + "'s usage text (" + src + ") does not")
+        }
+    }
+}
+
+fn check_flags(errors : list<str>) -> int {
+    compare_flags("purrc", "compiler/purrc.cpp", "docs/purrc.md", errors)
+    compare_flags("cheatah", "runtime/main.cpp", "docs/runtime.md", errors)
+    # biome: every `cmd == "x"` subcommand and every --flag the program tests for must appear
+    # somewhere in docs/biome.md.
+    let biome = io.read_file("pkg-manager/biome.purr")
+    let bdoc = io.read_file("docs/biome.md")
+    let subs: dict<str, bool> = {}
+    let rest = biome
+    while true {
+        let a = string.find(rest, "cmd == \"")
+        if a < 0 { break }
+        rest = rest[a + 8:]
+        let b = string.find(rest, "\"")
+        if b < 0 { break }
+        let name = rest[:b]
+        if not string.startswith(name, "-") { subs[name] = true }
+    }
+    for s in dict_keys_sorted(subs) {
+        if not string.contains(bdoc, "`biome " + s) and not string.contains(bdoc, "`" + s + "`") {
+            errors.append("docs/biome.md: biome has a `" + s + "` subcommand (pkg-manager/biome.purr) the page never mentions")
+        }
+    }
+    let bflags: dict<str, bool> = {}
+    flags_in(biome, bflags)
+    for f in dict_keys_sorted(bflags) {
+        if f == "--" { continue }
+        if not string.contains(bdoc, f) {
+            errors.append("docs/biome.md: biome accepts " + f + " (pkg-manager/biome.purr) but the page never mentions it")
+        }
+    }
+    # env vars docs/purrc.md documents must be ones the compiler reads
+    let compiler_src = ""
+    for f in walk("compiler", [".cpp", ".hpp"]) { compiler_src = compiler_src + io.read_file(f) }
+    let pdoc = io.read_file("docs/purrc.md")
+    let i = 0
+    let seen: dict<str, bool> = {}
+    while i + 8 < len(pdoc) {
+        if pdoc[i:i + 8] == "CHEATAH_" {
+            let j = i + 8
+            while is_word(char_at(pdoc, j)) { j = j + 1 }
+            let name = pdoc[i:j]
+            if not (name in seen) {
+                seen[name] = true
+                if not string.contains(compiler_src, name) {
+                    errors.append("docs/purrc.md: documents " + name + " but nothing under compiler/ reads it")
+                }
+            }
+            i = j
+        } else {
+            i = i + 1
+        }
+    }
+    return 3
+}
+
+# ---- phrases: no revision-history narration -----------------------------------------------
+fn banned_phrases() -> list<str> {
+    return ["used to say", "used to claim", "used to read", "earlier pass", "previously read",
+            "previously published", "this page got it wrong", "re-checked by", "an earlier version",
+            "correction worth stating", "we can now see", "no longer says", "this table previously"]
+}
+
+fn check_phrases(errors : list<str>) -> int {
+    let checked = 0
+    for doc in doc_files() {
+        let n = 0
+        let in_comment = false
+        for line in string.splitlines(io.read_file(doc)) {
+            n = n + 1
+            let t = string.strip(line)
+            if string.startswith(t, "<!--") and not string.contains(t, "-->") { in_comment = true }
+            if in_comment {
+                if string.contains(t, "-->") { in_comment = false }
+                continue
+            }
+            if string.startswith(t, "<!--") { continue }
+            checked = checked + 1
+            let low = string.lower(line)
+            for p in banned_phrases() {
+                if string.contains(low, p) {
+                    errors.append(doc + ":" + str(n) + ": revision-history narration (\"" + p + "\") — state the fact; git keeps the history")
+                }
+            }
+        }
+    }
+    return checked
+}
+
+# ---- main --------------------------------------------------------------------------------
+fn main() {
+    let mode = "all"
+    if len(sys.argv) > 1 { mode = sys.argv[1] }
+    let known = ["tests", "links", "examples", "flags", "phrases", "all"]
+    let ok_mode = false
+    for k in known { if k == mode { ok_mode = true } }
+    if not ok_mode {
+        io.print("usage: doc_lint.so [tests|links|examples|flags|phrases|all]")
+        raise "doc-lint: unknown mode " + mode
+    }
+    let errors: list<str> = []
+    let warns: list<str> = []
+    if mode == "tests" or mode == "all" {
+        let n = check_tests(errors)
+        io.print("[doc-lint] tests:    " + str(n) + " test tag name(s) checked")
+    }
+    if mode == "links" or mode == "all" {
+        let n = check_links(errors, warns)
+        io.print("[doc-lint] links:    " + str(n) + " path(s)/link(s) checked")
+    }
+    if mode == "examples" or mode == "all" {
+        let n = check_examples(errors, warns)
+        io.print("[doc-lint] examples: " + str(n) + " ```purr sample(s) type-checked")
+    }
+    if mode == "flags" or mode == "all" {
+        check_flags(errors)
+        io.print("[doc-lint] flags:    purrc, cheatah and biome tables compared with the binaries")
+    }
+    if mode == "phrases" or mode == "all" {
+        let n = check_phrases(errors)
+        io.print("[doc-lint] phrases:  " + str(n) + " prose line(s) scanned")
+    }
+    if len(warns) > 0 {
+        io.print("")
+        io.print("[doc-lint] WARNINGS -", len(warns))
+        for w in warns { io.print("  " + w) }
+    }
+    if len(errors) > 0 {
+        io.print("")
+        io.print("[doc-lint] FAILED -", len(errors), "problem(s):")
+        for e in errors { io.print("  " + e) }
+        raise "doc-lint: " + str(len(errors)) + " problem(s)"
+    }
+    io.print("[doc-lint] OK")
+}
+
+main()
