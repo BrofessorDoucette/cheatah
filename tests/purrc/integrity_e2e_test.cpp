@@ -54,7 +54,7 @@ void flip_a_byte(const std::string& path) {
 }
 
 bool exists(const std::string& p) { std::ifstream f(p); return f.good(); }
-void remove_file(const std::string& p) { std::remove(p.c_str()); }
+void remove_file(const std::string& p) { static_cast<void>(std::remove(p.c_str())); }
 
 // Build a module at <name>.so from @p src; returns its path. Optionally sign/checksum it
 // via @p extra (e.g. "--sign key.key", "--checksum").

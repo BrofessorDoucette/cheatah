@@ -100,8 +100,8 @@ inline bool same_scalar(double a, double b) { return std::fabs(a - b) < 1e-4; }
 
 void abort_if(bool ok, const char* op) {
     if (!ok) {
-        std::fprintf(stderr, "\nfixed_glm_bench: OUTPUT MISMATCH in '%s' — Fixed and GLM disagree.\n",
-                     op);
+        static_cast<void>(std::fprintf(stderr, "\nfixed_glm_bench: OUTPUT MISMATCH in '%s' — Fixed and GLM disagree.\n",
+                     op));
         std::abort();
     }
 }
@@ -175,7 +175,7 @@ const bool kOutputsVerified = [] {
     abort_if(same_buffer(fa::cross(lfill<fa::vec3f>(1.0), lfill<fa::vec3f>(2.0)),
                          glm::cross(gvfill<glm::vec3>(1.0), gvfill<glm::vec3>(2.0))),
              "cross");
-    std::fprintf(stderr, "fixed_glm_bench: outputs verified against GLM on all benchmarked ops.\n");
+    static_cast<void>(std::fprintf(stderr, "fixed_glm_bench: outputs verified against GLM on all benchmarked ops.\n"));
     return true;
 }();
 

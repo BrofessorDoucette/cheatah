@@ -447,7 +447,7 @@ std::string slurp(const std::string& path) {
     char buf[4096];
     std::size_t n;
     while ((n = std::fread(buf, 1, sizeof buf, f)) > 0) out.append(buf, n);
-    std::fclose(f);
+    static_cast<void>(std::fclose(f));
     return out;
 }
 
@@ -578,8 +578,8 @@ TEST(TlsSys, ServerHandshakeFullChainAgainstOpenssl) {
     {
         std::FILE* f = std::fopen(ext.c_str(), "w");
         ASSERT_NE(f, nullptr);
-        std::fputs("subjectAltName=DNS:localhost\n", f);
-        std::fclose(f);
+        static_cast<void>(std::fputs("subjectAltName=DNS:localhost\n", f));
+        static_cast<void>(std::fclose(f));
     }
     ASSERT_EQ(std::system(("openssl x509 -req -in '" + leaf_csr + "' -CA '" + ca_cert +
                            "' -CAkey '" + ca_key + "' -CAcreateserial -days 2 -extfile '" + ext +

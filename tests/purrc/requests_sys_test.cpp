@@ -298,7 +298,7 @@ static void serve_capture(long long listen_fd, std::string* captured, std::strin
     const std::size_t he = captured->find("\r\n\r\n");
     const std::size_t clp = captured->find("Content-Length:");
     if (he != std::string::npos && clp != std::string::npos && clp < he) {
-        const long long want = std::atoll(captured->c_str() + clp + 15);
+        const long long want = std::strtoll(captured->c_str() + clp + 15, nullptr, 10);
         while (want > 0 && static_cast<long long>(captured->size() - (he + 4)) < want) {
             const std::string chunk = sock::recv(client, 4096);
             if (chunk.empty()) break;

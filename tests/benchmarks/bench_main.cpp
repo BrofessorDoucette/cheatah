@@ -83,7 +83,7 @@ RunSettings scan_settings(int argc, char** argv) {
     for (int i = 1; i < argc; ++i) {
         const char* a = argv[i];
         if (std::strncmp(a, "--benchmark_repetitions=", 24) == 0) {
-            s.reps = std::atoi(a + 24);
+            s.reps = std::atoi(a + 24);  // NOLINT(cert-err34-c): a benchmark flag we control, not untrusted input
         } else if (std::strncmp(a, "--benchmark_min_time=", 21) == 0) {
             s.min_time_sec = std::strtod(a + 21, nullptr);  // "0.2s" -> 0.2; "10x" -> 10
             if (std::strchr(a + 21, 'x') != nullptr) s.min_time_sec = 0.0;  // iteration form
@@ -153,14 +153,14 @@ std::string competitor_versions() {
 std::string today() {
     const std::time_t now = std::time(nullptr);
     char buf[32] = "unknown";
-    if (const std::tm* tm = std::localtime(&now)) std::strftime(buf, sizeof buf, "%Y-%m-%d", tm);
+    if (const std::tm* tm = std::localtime(&now)) static_cast<void>(std::strftime(buf, sizeof buf, "%Y-%m-%d", tm));
     return buf;
 }
 
 std::string harness_line(const RunSettings& s) {
     char buf[192];
-    std::snprintf(buf, sizeof buf, "reps=%d, min_time=%.3gs, random-interleaving=%s", s.reps,
-                  s.min_time_sec, s.interleaved ? "on" : "off");
+    static_cast<void>(std::snprintf(buf, sizeof buf, "reps=%d, min_time=%.3gs, random-interleaving=%s", s.reps,
+                  s.min_time_sec, s.interleaved ? "on" : "off"));
     return buf;
 }
 
@@ -254,7 +254,7 @@ class PairTally : public benchmark::BenchmarkReporter {
     const std::map<std::string, CaseTimes>& cases() const { return cases_; }
     std::string host_line() const {
         char buf[256];
-        std::snprintf(buf, sizeof buf, "%s, %d CPUs @ %.0f MHz", host_.c_str(), num_cpus_, mhz_);
+        static_cast<void>(std::snprintf(buf, sizeof buf, "%s, %d CPUs @ %.0f MHz", host_.c_str(), num_cpus_, mhz_));
         return buf;
     }
     const std::string& scaling() const { return scaling_; }
@@ -270,9 +270,9 @@ class PairTally : public benchmark::BenchmarkReporter {
 
 std::string fmt_ns(double ns) {
     char buf[32];
-    if (ns >= 1e6) std::snprintf(buf, sizeof buf, "%.2f ms", ns / 1e6);
-    else if (ns >= 1e3) std::snprintf(buf, sizeof buf, "%.2f µs", ns / 1e3);
-    else std::snprintf(buf, sizeof buf, "%.2f ns", ns);
+    if (ns >= 1e6) static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f ms", ns / 1e6));
+    else if (ns >= 1e3) static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f µs", ns / 1e3));
+    else static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f ns", ns));
     return buf;
 }
 
@@ -322,8 +322,8 @@ Layout layout_from_env() {
     if (v == "highlights") return Layout::Highlights;
     // Never silently fall back to a different shape than asked for: that would publish a
     // table nobody reviewed under a stamp claiming it was the one they did.
-    std::fprintf(stderr, "bench_main: unknown CHEATAH_BENCH_LAYOUT '%s' — using `pairs`\n",
-                 v.c_str());
+    static_cast<void>(std::fprintf(stderr, "bench_main: unknown CHEATAH_BENCH_LAYOUT '%s' — using `pairs`\n",
+                 v.c_str()));
     return Layout::Pairs;
 }
 
@@ -357,20 +357,20 @@ std::string reproduction_command() {
 // the summary line, so fmt_ns/fmt_disp (which carry both inline) cannot be reused there.
 std::string fmt_num2(double ns) {
     char buf[32];
-    std::snprintf(buf, sizeof buf, "%.2f", ns);
+    static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f", ns));
     return buf;
 }
 
 std::string fmt_pm2(const Spread& s) {
     if (s.value < 0.0) return "—";
     char buf[32];
-    std::snprintf(buf, sizeof buf, "±%.2f", s.value);
+    static_cast<void>(std::snprintf(buf, sizeof buf, "±%.2f", s.value));
     return buf;
 }
 
 std::string fmt_ratio(double r) {
     char buf[32];
-    std::snprintf(buf, sizeof buf, "%.2f\u00d7", r);  // U+00D7 MULTIPLICATION SIGN, not 'x'
+    static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f\u00d7", r));  // U+00D7 MULTIPLICATION SIGN, not 'x'
     return buf;
 }
 
@@ -378,10 +378,10 @@ std::string fmt_ratio(double r) {
 std::string fmt_rate(double bps, double ips) {
     char buf[48];
     if (bps > 0.0) {
-        std::snprintf(buf, sizeof buf, "%.2f GiB/s", bps / (1024.0 * 1024.0 * 1024.0));
+        static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f GiB/s", bps / (1024.0 * 1024.0 * 1024.0)));
     } else if (ips > 0.0) {
-        if (ips >= 1000.0) std::snprintf(buf, sizeof buf, "%.1f k/s", ips / 1000.0);
-        else std::snprintf(buf, sizeof buf, "%.0f /s", ips);
+        if (ips >= 1000.0) static_cast<void>(std::snprintf(buf, sizeof buf, "%.1f k/s", ips / 1000.0));
+        else static_cast<void>(std::snprintf(buf, sizeof buf, "%.0f /s", ips));
     } else {
         return "—";
     }
@@ -415,12 +415,12 @@ std::string prose_gap(double ours_bps, double rival_bps) {
     if (ours_bps <= 0.0 || rival_bps <= 0.0) return "—";
     char buf[64];
     if (ours_bps > rival_bps * kThreshold) {
-        std::snprintf(buf, sizeof buf, "**%.2f\u00d7 faster**", ours_bps / rival_bps);
+        static_cast<void>(std::snprintf(buf, sizeof buf, "**%.2f\u00d7 faster**", ours_bps / rival_bps));
     } else if (rival_bps > ours_bps * kThreshold) {
-        std::snprintf(buf, sizeof buf, "%.2f\u00d7 slower", rival_bps / ours_bps);
+        static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f\u00d7 slower", rival_bps / ours_bps));
     } else {
-        std::snprintf(buf, sizeof buf, "**parity** (%.2f\u00d7)",
-                      ours_bps > rival_bps ? ours_bps / rival_bps : rival_bps / ours_bps);
+        static_cast<void>(std::snprintf(buf, sizeof buf, "**parity** (%.2f\u00d7)",
+                      ours_bps > rival_bps ? ours_bps / rival_bps : rival_bps / ours_bps));
     }
     return buf;
 }
@@ -456,7 +456,7 @@ struct PairedRow {
 
 std::string fmt_gibs(double bytes_per_sec) {
     char buf[32];
-    std::snprintf(buf, sizeof buf, "%.2f GiB/s", bytes_per_sec / (1024.0 * 1024.0 * 1024.0));
+    static_cast<void>(std::snprintf(buf, sizeof buf, "%.2f GiB/s", bytes_per_sec / (1024.0 * 1024.0 * 1024.0)));
     return buf;
 }
 
@@ -538,7 +538,7 @@ std::vector<PairedRow> collect_pairs(const Resolved& res) {
 void emit_stamp(std::FILE* f, const PairTally& tally, const RunSettings& settings,
                 const std::string& note) {
     const bool ok = publishable(settings);
-    std::fprintf(f,
+    static_cast<void>(std::fprintf(f,
                  "<!-- cheatah-bench-stamp v1\n"
                  "     suite:        %s\n"
                  "     generated:    %s\n"
@@ -557,33 +557,33 @@ void emit_stamp(std::FILE* f, const PairTally& tally, const RunSettings& setting
                  tally.scaling().c_str(), compiler_id().c_str(),
                  benchmark::GetBenchmarkVersion().c_str(),
                  competitor_versions().c_str(), harness_line(settings).c_str(),
-                 ok ? "true" : "false");
+                 ok ? "true" : "false"));
 
     const std::string layout = env_or("CHEATAH_BENCH_LAYOUT", "");
-    if (!layout.empty()) std::fprintf(f, "     layout:       %s\n", layout.c_str());
+    if (!layout.empty()) static_cast<void>(std::fprintf(f, "     layout:       %s\n", layout.c_str()));
     // `watch:` is what scripts/bench_table.purr uses to decide whether this table has gone
     // stale: it names the source paths whose change invalidates the measurement.
     const std::string watch = env_or("CHEATAH_BENCH_WATCH", "");
-    if (!watch.empty()) std::fprintf(f, "     watch:        %s\n", watch.c_str());
-    if (!note.empty()) std::fprintf(f, "%s", note.c_str());
-    std::fprintf(f, "-->\n\n");
+    if (!watch.empty()) static_cast<void>(std::fprintf(f, "     watch:        %s\n", watch.c_str()));
+    if (!note.empty()) static_cast<void>(std::fprintf(f, "%s", note.c_str()));
+    static_cast<void>(std::fprintf(f, "-->\n\n"));
 }
 
 void emit_pairs(std::FILE* f, const std::vector<PairedRow>& rows) {
     if (rows.empty()) {
-        std::fprintf(f, "_No paired cases in this run._\n");
+        static_cast<void>(std::fprintf(f, "_No paired cases in this run._\n"));
         return;
     }
 
-    std::fprintf(f, "| case | cheatah | spread | vs | rival | spread | ratio | verdict |\n");
-    std::fprintf(f, "|---|--:|--:|---|--:|--:|--:|---|\n");
+    static_cast<void>(std::fprintf(f, "| case | cheatah | spread | vs | rival | spread | ratio | verdict |\n"));
+    static_cast<void>(std::fprintf(f, "|---|--:|--:|---|--:|--:|--:|---|\n"));
     for (const PairedRow& r : rows) {
-        std::fprintf(f, "| %s | %s | %s | %s | %s | %s | %.2fx | %s |\n", r.key.c_str(),
+        static_cast<void>(std::fprintf(f, "| %s | %s | %s | %s | %s | %s | %.2fx | %s |\n", r.key.c_str(),
                      fmt_ns(r.ours_ns).c_str(), fmt_disp(r.ours_spread).c_str(),
                      r.rival_label.c_str(), fmt_ns(r.rival_ns).c_str(),
                      fmt_disp(r.rival_spread).c_str(),
                      (r.ours_ns > 0.0) ? r.rival_ns / r.ours_ns : 0.0,
-                     verdict(r.ours_ns, r.rival_ns).c_str());
+                     verdict(r.ours_ns, r.rival_ns).c_str()));
     }
 
     // Throughput rows, when the benchmark set bytes_per_second. Reported separately rather
@@ -593,12 +593,12 @@ void emit_pairs(std::FILE* f, const std::vector<PairedRow>& rows) {
         return r.ours_bps > 0.0 && r.rival_bps > 0.0;
     });
     if (any_bps) {
-        std::fprintf(f, "\n| case | cheatah | vs | rival | ratio |\n|---|--:|---|--:|--:|\n");
+        static_cast<void>(std::fprintf(f, "\n| case | cheatah | vs | rival | ratio |\n|---|--:|---|--:|--:|\n"));
         for (const PairedRow& r : rows) {
             if (r.ours_bps <= 0.0 || r.rival_bps <= 0.0) continue;
-            std::fprintf(f, "| %s | %s | %s | %s | %.2fx |\n", r.key.c_str(),
+            static_cast<void>(std::fprintf(f, "| %s | %s | %s | %s | %.2fx |\n", r.key.c_str(),
                          fmt_gibs(r.ours_bps).c_str(), r.rival_label.c_str(),
-                         fmt_gibs(r.rival_bps).c_str(), r.ours_bps / r.rival_bps);
+                         fmt_gibs(r.rival_bps).c_str(), r.ours_bps / r.rival_bps));
         }
     }
 
@@ -611,21 +611,21 @@ void emit_pairs(std::FILE* f, const std::vector<PairedRow>& rows) {
         else if (v == "parity") ++t[1];
         else ++t[2];
     }
-    std::fprintf(f, "\n**Tally** (a difference counts only above %.2fx AND %.2f ns) — ", kThreshold,
-                 kMinGapNs);
+    static_cast<void>(std::fprintf(f, "\n**Tally** (a difference counts only above %.2fx AND %.2f ns) — ", kThreshold,
+                 kMinGapNs));
     bool first = true;
     for (const auto& [label, t] : tally_by_rival) {
-        std::fprintf(f, "%svs %s: **%d faster / %d parity / %d slower**", first ? "" : "; ",
-                     label.c_str(), t[0], t[1], t[2]);
+        static_cast<void>(std::fprintf(f, "%svs %s: **%d faster / %d parity / %d slower**", first ? "" : "; ",
+                     label.c_str(), t[0], t[1], t[2]));
         first = false;
     }
-    std::fprintf(f, ".\n");
+    static_cast<void>(std::fprintf(f, ".\n"));
 
     for (const PairedRow& r : rows) {
         if (verdict(r.ours_ns, r.rival_ns) == "**slower**")
-            std::fprintf(f, "- Loss vs %s: `%s` — cheatah %s vs %s (%.2fx slower)\n",
+            static_cast<void>(std::fprintf(f, "- Loss vs %s: `%s` — cheatah %s vs %s (%.2fx slower)\n",
                          r.rival_label.c_str(), r.key.c_str(), fmt_ns(r.ours_ns).c_str(),
-                         fmt_ns(r.rival_ns).c_str(), r.ours_ns / r.rival_ns);
+                         fmt_ns(r.rival_ns).c_str(), r.ours_ns / r.rival_ns));
     }
 
 }
@@ -638,7 +638,7 @@ void emit_pairs(std::FILE* f, const std::vector<PairedRow>& rows) {
 // one of the three, check the other two.
 void emit_opstype(std::FILE* f, const std::vector<PairedRow>& rows, const RunSettings& settings) {
     if (rows.empty()) {
-        std::fprintf(f, "_No paired cases in this run._\n");
+        static_cast<void>(std::fprintf(f, "_No paired cases in this run._\n"));
         return;
     }
     const char* kind = rows.front().ours_spread.kind;
@@ -646,12 +646,12 @@ void emit_opstype(std::FILE* f, const std::vector<PairedRow>& rows, const RunSet
         (std::strcmp(kind, "IQR") == 0) ? "IQR" : "sample standard deviation";
 
     // No blank line between --> and <details>: the rendered page reads as one block.
-    std::fprintf(f,
+    static_cast<void>(std::fprintf(f,
                  "<details><summary><b>Full %s comparison — all %zu operations</b> "
                  "(ns, lower is better; ± is the %s over %d interleaved repetitions)"
                  "</summary>\n\n",
                  cheatah::bench::display_label(rows.front().rival_label).c_str(), rows.size(),
-                 spread_word.c_str(), settings.reps);
+                 spread_word.c_str(), settings.reps));
 
     struct Group {
         const char* heading;
@@ -667,18 +667,18 @@ void emit_opstype(std::FILE* f, const std::vector<PairedRow>& rows, const RunSet
 
     for (const Group* g : {&vectors, &matrices, &other}) {
         if (g->rows.empty()) continue;  // no stray heading over an empty section
-        std::fprintf(f, "\n#### %s\n\n", g->heading);
-        std::fprintf(f, "| operation | type | `Fixed` | %s | ratio | |\n",
-                     cheatah::bench::display_label(g->rows.front()->rival_label).c_str());
-        std::fprintf(f, "|---|---|--:|--:|:--:|---|\n");
+        static_cast<void>(std::fprintf(f, "\n#### %s\n\n", g->heading));
+        static_cast<void>(std::fprintf(f, "| operation | type | `Fixed` | %s | ratio | |\n",
+                     cheatah::bench::display_label(g->rows.front()->rival_label).c_str()));
+        static_cast<void>(std::fprintf(f, "|---|---|--:|--:|:--:|---|\n"));
         for (const PairedRow* r : g->rows) {
             const OpType ot = split_op_type(r->key);
-            std::fprintf(f, "| `%s` | %s | %s %s | %s %s | %s | %s |\n", ot.op.c_str(),
+            static_cast<void>(std::fprintf(f, "| `%s` | %s | %s %s | %s %s | %s | %s |\n", ot.op.c_str(),
                          ot.type.c_str(), fmt_num2(r->ours_ns).c_str(),
                          fmt_pm2(r->ours_spread).c_str(), fmt_num2(r->rival_ns).c_str(),
                          fmt_pm2(r->rival_spread).c_str(),
                          fmt_ratio(r->rival_ns > 0.0 ? r->ours_ns / r->rival_ns : 0.0).c_str(),
-                         emoji_verdict(r->ours_ns, r->rival_ns));
+                         emoji_verdict(r->ours_ns, r->rival_ns)));
         }
     }
 
@@ -689,9 +689,9 @@ void emit_opstype(std::FILE* f, const std::vector<PairedRow>& rows, const RunSet
         else if (v == "parity") ++parity;
         else ++slower;
     }
-    std::fprintf(f, "\n**%d faster, %d at parity, %d slower** across %zu operations.\n\n",
-                 faster, parity, slower, rows.size());
-    std::fprintf(f, "</details>\n");
+    static_cast<void>(std::fprintf(f, "\n**%d faster, %d at parity, %d slower** across %zu operations.\n\n",
+                 faster, parity, slower, rows.size()));
+    static_cast<void>(std::fprintf(f, "</details>\n"));
 }
 
 // ---- throughput: the crypto-vs-OpenSSL shape -----------------------------------------
@@ -707,7 +707,7 @@ void emit_throughput(std::FILE* f, std::vector<PairedRow> rows) {
                               }),
                rows.end());
     if (rows.empty()) {
-        std::fprintf(f, "_No throughput pairs in this run._\n");
+        static_cast<void>(std::fprintf(f, "_No throughput pairs in this run._\n"));
         return;
     }
     // Best standing first: the reader should meet the honest headline, then the gaps.
@@ -715,28 +715,28 @@ void emit_throughput(std::FILE* f, std::vector<PairedRow> rows) {
         return (a.rival_bps / a.ours_bps) < (b.rival_bps / b.ours_bps);
     });
 
-    std::fprintf(f, "| Primitive | cheatah | %s | gap |\n|-----------|--------:|--------:|----:|\n",
-                 cheatah::bench::display_label(rows.front().rival_label).c_str());
+    static_cast<void>(std::fprintf(f, "| Primitive | cheatah | %s | gap |\n|-----------|--------:|--------:|----:|\n",
+                 cheatah::bench::display_label(rows.front().rival_label).c_str()));
     for (const PairedRow& r : rows) {
         const std::string gap = prose_gap(r.ours_bps, r.rival_bps);
         const bool losing = gap.find("slower") != std::string::npos;
         const std::string ours = fmt_rate(r.ours_bps, 0.0);
-        std::fprintf(f, "| %s | %s%s%s | %s | %s |\n",
+        static_cast<void>(std::fprintf(f, "| %s | %s%s%s | %s | %s |\n",
                      cheatah::bench::label_for(r.key).c_str(), losing ? "" : "**", ours.c_str(),
-                     losing ? "" : "**", fmt_rate(r.rival_bps, 0.0).c_str(), gap.c_str());
+                     losing ? "" : "**", fmt_rate(r.rival_bps, 0.0).c_str(), gap.c_str()));
     }
 }
 
 // ---- solo: a suite with no rival (p256) ----------------------------------------------
 void emit_solo(std::FILE* f, const std::vector<SoloRow>& rows) {
     if (rows.empty()) {
-        std::fprintf(f, "_No cases in this run._\n");
+        static_cast<void>(std::fprintf(f, "_No cases in this run._\n"));
         return;
     }
-    std::fprintf(f, "| Op | median | spread | throughput |\n|---|--:|--:|--:|\n");
+    static_cast<void>(std::fprintf(f, "| Op | median | spread | throughput |\n|---|--:|--:|--:|\n"));
     for (const SoloRow& r : rows)
-        std::fprintf(f, "| `%s` | %s | %s | %s |\n", r.key.c_str(), fmt_ns(r.ns).c_str(),
-                     fmt_disp(r.spread).c_str(), fmt_rate(r.bps, r.ips).c_str());
+        static_cast<void>(std::fprintf(f, "| `%s` | %s | %s | %s |\n", r.key.c_str(), fmt_ns(r.ns).c_str(),
+                     fmt_disp(r.spread).c_str(), fmt_rate(r.bps, r.ips).c_str()));
 }
 
 // ---- highlights: a curated subset, curated in the INVOCATION --------------------------
@@ -746,24 +746,24 @@ void emit_solo(std::FILE* f, const std::vector<SoloRow>& rows) {
 bool emit_highlights(std::FILE* f, const std::vector<PairedRow>& rows, const std::string& spec) {
     const auto wanted = parse_row_spec(spec);
     if (wanted.empty()) {
-        std::fprintf(f, "_CHEATAH_BENCH_ROWS was empty — nothing to highlight._\n");
+        static_cast<void>(std::fprintf(f, "_CHEATAH_BENCH_ROWS was empty — nothing to highlight._\n"));
         return false;
     }
     std::map<std::string, const PairedRow*> by_key;
     for (const PairedRow& r : rows) by_key[r.key] = &r;
 
-    std::fprintf(f, "| operation | `Fixed` | %s | | |\n|-----------|--------:|----:|---|---|\n",
+    static_cast<void>(std::fprintf(f, "| operation | `Fixed` | %s | | |\n|-----------|--------:|----:|---|---|\n",
                  rows.empty() ? "rival"
-                              : cheatah::bench::display_label(rows.front().rival_label).c_str());
+                              : cheatah::bench::display_label(rows.front().rival_label).c_str()));
     bool complete = true;
     for (const auto& [key, label] : wanted) {
         const auto it = by_key.find(key);
         if (it == by_key.end()) {
             // Do NOT silently drop it: a curation spec naming a case that did not run is a
             // broken table, and the em-dashes plus publishable:false make the gate say so.
-            std::fprintf(f, "| `%s` | — | — | — | not measured |\n", label.c_str());
-            std::fprintf(stderr, "bench_main: CHEATAH_BENCH_ROWS names '%s', which produced no "
-                                 "measurement\n", key.c_str());
+            static_cast<void>(std::fprintf(f, "| `%s` | — | — | — | not measured |\n", label.c_str()));
+            static_cast<void>(std::fprintf(stderr, "bench_main: CHEATAH_BENCH_ROWS names '%s', which produced no "
+                                 "measurement\n", key.c_str()));
             complete = false;
             continue;
         }
@@ -772,18 +772,18 @@ bool emit_highlights(std::FILE* f, const std::vector<PairedRow>& rows, const std
         std::string note = v;
         if (v == "parity") {
             char buf[64];
-            std::snprintf(buf, sizeof buf, "parity — gap %.2f ns",
+            static_cast<void>(std::snprintf(buf, sizeof buf, "parity — gap %.2f ns",
                           r->rival_ns > r->ours_ns ? r->rival_ns - r->ours_ns
-                                                   : r->ours_ns - r->rival_ns);
+                                                   : r->ours_ns - r->rival_ns));
             note = buf;
         }
         const bool win = (v == "faster");
-        std::fprintf(f, "| `%s` | %s%s%s %s | %s %s | %s | %s |\n", label.c_str(),
+        static_cast<void>(std::fprintf(f, "| `%s` | %s%s%s %s | %s %s | %s | %s |\n", label.c_str(),
                      win ? "**" : "", fmt_ns(r->ours_ns).c_str(), win ? "**" : "",
                      fmt_pm2(r->ours_spread).c_str(), fmt_ns(r->rival_ns).c_str(),
                      fmt_pm2(r->rival_spread).c_str(),
                      fmt_ratio(r->ours_ns > 0.0 ? r->rival_ns / r->ours_ns : 0.0).c_str(),
-                     note.c_str());
+                     note.c_str()));
     }
     return complete;
 }
@@ -795,7 +795,7 @@ void write_table(const char* path, const PairTally& tally, const RunSettings& se
 
     std::FILE* f = std::fopen(path, "w");
     if (f == nullptr) {
-        std::fprintf(stderr, "bench_main: cannot write table to %s\n", path);
+        static_cast<void>(std::fprintf(stderr, "bench_main: cannot write table to %s\n", path));
         return;
     }
 
@@ -817,8 +817,8 @@ void write_table(const char* path, const PairTally& tally, const RunSettings& se
             break;
     }
 
-    std::fclose(f);
-    std::fprintf(stderr, "bench_main: table written to %s\n", path);
+    static_cast<void>(std::fclose(f));
+    static_cast<void>(std::fprintf(stderr, "bench_main: table written to %s\n", path));
 }
 
 }  // namespace
@@ -842,14 +842,14 @@ int main(int argc, char** argv) {
     // (that is exactly what the QA gate's smoke pass is). What is not legitimate is reading
     // its numbers as a benchmark result, so say so where a human will see it.
     if (!ok && !settings.listing_only && std::getenv("CHEATAH_BENCH_SMOKE") == nullptr) {
-        std::fprintf(stderr,
+        static_cast<void>(std::fprintf(stderr,
                      "\n[bench_main] NOT PUBLISHABLE — %s.\n"
                      "             These timings are indicative only. For numbers that may be "
                      "published,\n"
                      "             run through scripts/bench_run.sh publish (>=%d repetitions, "
                      ">=%.1fs min_time,\n"
                      "             random interleaving on).\n\n",
-                     harness_line(settings).c_str(), kMinPublishReps, kMinPublishMinTimeSec);
+                     harness_line(settings).c_str(), kMinPublishReps, kMinPublishMinTimeSec));
     }
 
     // CreateDefaultDisplayReporter returns a leaked singleton — do NOT take ownership.

@@ -67,7 +67,7 @@ const Source& source(std::size_t i) {
     if (s.text.empty()) {
         s.text = read_file(s.path);
         if (s.text.empty()) {
-            std::fprintf(stderr, "compiler_bench: corpus source missing: %s\n", s.path);
+            static_cast<void>(std::fprintf(stderr, "compiler_bench: corpus source missing: %s\n", s.path));
             std::abort();
         }
     }

@@ -51,7 +51,7 @@ public:
         cert_ = tmp + "/ws_test_cert_" + tag + ".pem";
         key_ = tmp + "/ws_test_key_" + tag + ".pem";
         ready_ = tmp + "/ws_test_ready_" + tag + ".log";
-        std::remove(ready_.c_str());
+        static_cast<void>(std::remove(ready_.c_str()));
         // Self-signed with a SAN so the cheatah client can authenticate it as its own trust
         // anchor (passed as ca_file) — the TLS client now validates the certificate by default.
         const std::string gen = "openssl req -x509 -newkey " + newkey + " -keyout '" + key_ +
@@ -93,7 +93,7 @@ private:
         if (f == nullptr) return false;
         char buf[256];
         const std::size_t n = std::fread(buf, 1, sizeof(buf) - 1, f);
-        std::fclose(f);
+        static_cast<void>(std::fclose(f));
         buf[n] = '\0';
         return std::string(buf).find("READY") != std::string::npos;
     }
