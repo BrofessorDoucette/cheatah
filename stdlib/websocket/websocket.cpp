@@ -396,6 +396,15 @@ void send_upgrade_on_closed_fd() {
     send_upgrade(s, std::string("GET / HTTP/1.1\r\n\r\n"));
     destroy(s);    // unreachable: send_upgrade throws, having destroyed it
 }
+
+// Test seam: a plaintext (ws://) session over an already-connected socket — the transport a
+// loopback connection uses, and the one whose shutdown/close branches had no coverage.
+long long plaintext_session_on_fd(long long fd) {
+    auto* s = new Session();
+    s->fd = fd;
+    s->tls = -1;   // plaintext: sess_send/sess_recv take the socket:: branch
+    return as_handle(s);
+}
 }  // namespace testonly
 #endif  // CHEATAH_WEBSOCKET_TESTING
 
@@ -405,15 +414,19 @@ long long shutdown(long long session) {
     // has joined the reader. Safe to call from another thread concurrently with the
     // reader's recv (that is exactly what ::shutdown is for).
     Session* s = as_session(session);
-    if (s == nullptr || s->tls < 0) return -1;
-    if (s->tls < 0) return socket::shutdown(s->fd);
+    if (s == nullptr) return -1;
+    if (s->tls < 0) return socket::shutdown(s->fd);   // plaintext ws:// (loopback only)
     return tls::shutdown(s->tls);
 }
 
 long long close(long long session) {
     Session* s = as_session(session);
     if (s == nullptr) return 0;
-    if (!s->closed && s->tls >= 0) {
+    // Send the close frame over whichever transport this session actually has. Guarding on
+    // `tls >= 0` skipped it for a plaintext ws:// session, though send_frame handles the socket
+    // branch fine. The test seam builds a session with NEITHER (fd = -1, tls = -1), which is what
+    // this condition excludes.
+    if (!s->closed && (s->tls >= 0 || s->fd >= 0)) {
         try {
             send_frame(s, 0x8, std::string());
         } catch (...) {}  // NOLINT(bugprone-empty-catch): a best-effort close frame — the peer may already be gone, and the session is torn down regardless

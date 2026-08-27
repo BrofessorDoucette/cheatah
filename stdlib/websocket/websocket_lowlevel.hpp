@@ -164,6 +164,18 @@ long long session_from_bytes(const std::string& frames, std::uint64_t max_frame,
  * @test WebSocketPlaintext.UpgradeSendFailureIsReported
  */
 void send_upgrade_on_closed_fd();
+
+/**
+ * White-box seam (test builds only): wrap an already-connected socket as a PLAINTEXT (`ws://`)
+ * session, the transport a loopback connection uses. Lets shutdown()/close() be exercised on the
+ * plaintext branch without standing up a TLS peer.
+ * @param fd a connected socket the session takes ownership of.
+ * @return a session handle usable with shutdown()/close().
+ * @complexity O(1).
+ * @alloc one Session.
+ * @test CheatahWebSocket.PlaintextShutdownAndCloseUseTheSocket
+ */
+long long plaintext_session_on_fd(long long fd);
 }  // namespace testonly
 #endif  // CHEATAH_WEBSOCKET_TESTING
 

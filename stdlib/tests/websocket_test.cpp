@@ -243,3 +243,46 @@ TEST(WebSocketPlaintext, UpgradeSendFailureIsReported) {
             << "a plaintext session must not report a TLS error: " << msg;
     }
 }
+
+// The plaintext (ws://) transport had two defects, both invisible to the wss:// tests:
+//   * shutdown() returned -1 for ANY plaintext session — its own socket::shutdown branch was
+//     unreachable behind a `tls < 0` guard that had already returned — so a reader blocked in
+//     recv() could never be woken, and a valid session reported an error.
+//   * close() skipped the RFC 6455 close frame unless the session was TLS.
+// Both are exercised here over a real loopback socket.
+TEST(CheatahWebSocket, PlaintextShutdownAndCloseUseTheSocket) {
+    namespace sock = cheatah::socket;
+    const long long listen_fd = sock::tcp_listen("127.0.0.1", 0, 4);
+    ASSERT_GE(listen_fd, 0);
+    const long long port = sock::local_port(listen_fd);
+
+    long long peer = -1;
+    std::thread accepter([&] { peer = sock::accept(listen_fd); });
+    const long long client = sock::tcp_connect("127.0.0.1", port);
+    accepter.join();
+    ASSERT_GE(client, 0);
+    ASSERT_GE(peer, 0);
+
+    // shutdown() must reach socket::shutdown and SUCCEED — it used to return -1 unconditionally.
+    const long long s = ws::testonly::plaintext_session_on_fd(client);
+    EXPECT_EQ(ws::shutdown(s), 0) << "a plaintext session must be wakeable";
+    EXPECT_EQ(ws::close(s), 0);
+
+    // close() on a live plaintext session writes the close frame (opcode 0x8, client-masked,
+    // so the 2-byte header carries the mask bit and a zero-length payload).
+    long long peer2 = -1;
+    std::thread accepter2([&] { peer2 = sock::accept(listen_fd); });
+    const long long client2 = sock::tcp_connect("127.0.0.1", port);
+    accepter2.join();
+    ASSERT_GE(client2, 0);
+    ASSERT_GE(peer2, 0);
+    const long long s2 = ws::testonly::plaintext_session_on_fd(client2);
+    EXPECT_EQ(ws::close(s2), 0);
+    const std::string frame = sock::recv(peer2, 8);
+    ASSERT_GE(frame.size(), 2U) << "close() sent no frame over the plaintext transport";
+    EXPECT_EQ(static_cast<unsigned char>(frame[0]) & 0x0FU, 0x08U) << "not a close frame";
+
+    sock::close(peer);
+    sock::close(peer2);
+    sock::close(listen_fd);
+}
