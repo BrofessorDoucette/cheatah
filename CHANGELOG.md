@@ -5,6 +5,53 @@ changes between releases.
 
 ## Unreleased
 
+## v1.11.8-alpha (2026-08-28) — the docs get audited, and the gate that checks them gets tested
+
+Biome Standard <b>0.6.4-alpha</b> — a PATCH: the only member that changes is this toolchain
+release. Nothing in the stdlib API moves; the work is a documentation audit, the repair of the
+gate that was supposed to catch what the audit found, and two published tables that stop being
+typed by hand.
+
+### Fixed — the documentation gate stops skipping its own input
+
+`doc_lint.sh tests` only recognised `@test` when the tag began a stripped comment line, but
+cheatah's house style puts `@complexity` and `@alloc` on that line first. A trailing `@test`
+was therefore never read: **103 tags went unchecked, and 31 of them named tests that do not
+exist**. The dead names were all in the JSON internals, where the real suites are
+`CheatahParsersJson.*` and `ParsersJsonDom.*`; each was repointed by reading the test rather
+than by matching the name. One, `read_fixed_array`, had never had a test at all — no test read
+a `std::array` field, so the template was never instantiated and the coverage surface never
+counted it (`CheatahParsersJson.TypedReadFixedArray` adds 9 lines and 1 function, both at 100%).
+
+The same two helpers did not recognise a plain `//` comment either, which is the form those
+headers use; nothing wrapped onto a continuation line yet, so it had cost nothing.
+
+A lint with no test of its own cannot report that it has gone blind, which is why this lasted.
+`scripts/doc_lint_selftest.sh` plants five known-dead tags in a throwaway tree and asserts the
+lint names every one and stays quiet about a valid one; it runs in the gate ahead of `doc_lint`,
+and reverting either fix turns it red on exactly the case it belongs to. The test-directory list
+had drifted too — `gen.purr` listed three, `doc_lint.purr` four — so a name the lint accepted
+could still render as dead text; there is now one `test_dirs()` and the self-test compares the
+two programs' lists.
+
+`builtins.hpp` also wrote `@note No @crtest: …` in prose. Doxygen read that as a real tag,
+swallowed the sentence, and parsed the word `stdout.` as a test name — which is how the VS Code
+hover database came to ship a `crtest` entry whose body was that sentence.
+
+### Changed — two published tables stop being hand-typed
+
+`docs/security.md`'s load-time integrity costs were typed by hand and had drifted (the signature
+tier read ~2.4 ms against a measured 2.00 ms). It is now a stamped `BENCH:integrity` region with
+a provenance line, tracked by `bench_table_lint`. `linalg-vs-eigen` was the one suite whose stamp
+carried no reproduction command; re-measured, `matmul/96` crossed from parity to faster, so the
+tally now reads 7 faster / 0 parity / 1 slower.
+
+### Added — the withheld audit findings, adjudicated
+
+The documentation audit withheld 54 findings on an adversarial reviewer's dissent. All are now
+decided — 49 rejected, 3 already applied by a neighbouring fix, 2 code defects fixed earlier —
+with file:line evidence in `docs/audits/`.
+
 ### Changed — benchmark tables move to per-module pages
 
 The generated benchmark tables no longer render inline on a module's reference page. Each

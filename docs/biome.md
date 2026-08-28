@@ -111,7 +111,7 @@ manifest looks like this:
 name = "hello"
 
 [cheatah]
-standard = "0.6.3-alpha"    # the Biome Standard — ONE version pinning the whole tested set
+standard = "0.6.4-alpha"    # the Biome Standard — ONE version pinning the whole tested set
 
 [extensions]
 cheatah-gpu = "v0.5.1-alpha"      # one line per opted-in extension; the value is the
@@ -151,12 +151,12 @@ Each standard is a short, append-only definition — the canonical files live in
 
 ```toml
 [standard]
-version = "0.6.3-alpha"
+version = "0.6.4-alpha"
 released = "2026-08-16"
 status = "current"          # current | supported | deprecated (security-only)
 
 [components]
-cheatah = "v1.11.7-alpha"
+cheatah = "v1.11.8-alpha"
 cheatah-gpu = "v0.5.1-alpha"
 cheatah-gpu-linalg = "v0.4.4-alpha"
 cheatah-plot = "v0.1.0-alpha"
@@ -276,7 +276,7 @@ The two steps map exactly onto CMake's own two phases:
   `cmake -S . -B build` (the CMake *configure*). During that configure, the generated
   `CMakeLists.txt`:
   1. `include(cmake/CPM.cmake)` — bootstraps CPM (downloaded once into the build tree);
-  2. `CPMAddPackage(NAME cheatah … GIT_TAG v1.11.7-alpha)` — **fetches** the cheatah toolchain
+  2. `CPMAddPackage(NAME cheatah … GIT_TAG v1.11.8-alpha)` — **fetches** the cheatah toolchain
      (`purrc`, the runtime, and the stdlib), pinned to the tag your Biome Standard resolves;
   3. one `CPMAddPackage(NAME cheatah-… …)` per extension you opted into;
   4. `include(${cheatah_SOURCE_DIR}/cmake/CheatahProgram.cmake)` then
@@ -345,8 +345,8 @@ an `import` into a file on disk are on the
 
 Every subcommand works end to end: manifest round-tripping, `CMakeLists.txt` generation
 with every tag resolved from the Biome Standard, and configure → `purrc` module → `cheatah`
-runtime, driven entirely by CMake/CPM. Biome Standard 0.6.3-alpha is the current one and has
-**five members**, each at a published release tag: the cheatah toolchain (`v1.11.7-alpha`),
+runtime, driven entirely by CMake/CPM. Biome Standard 0.6.4-alpha is the current one and has
+**five members**, each at a published release tag: the cheatah toolchain (`v1.11.8-alpha`),
 `cheatah-gpu` (`v0.5.1-alpha`), `cheatah-gpu-linalg` (`v0.4.4-alpha`), `cheatah-plot`
 (`v0.1.0-alpha`) and `cheatah-space` (`v0.1.0-alpha`). Every standard is a working
 combination of all five; `scripts/test-standard-e2e.sh` proves the current one from an empty

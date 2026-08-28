@@ -247,7 +247,22 @@ fn known_standards() {
     c11.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
     c11.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
     c11.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
-    xs.append(Standard("0.6.3-alpha", "2026-08-16", "current", c11))
+    xs.append(Standard("0.6.3-alpha", "2026-08-16", "supported", c11))
+
+    # Biome Standard 0.6.4-alpha — a PATCH: the only member change is the cheatah
+    # toolchain release. It audits the documentation against the code and repairs the
+    # gate that was meant to catch what the audit found: the @test check skipped every
+    # tag that did not begin its line, which is the house style, so 103 tags went
+    # unchecked and 31 named tests that do not exist. No language, library, compiler or
+    # runtime API changes shape — every program written against 0.6.3-alpha compiles and
+    # behaves identically.
+    let c12: list<StandardComponent> = []
+    c12.append(StandardComponent("cheatah", "v1.11.8-alpha"))
+    c12.append(StandardComponent("cheatah-gpu", "v0.5.1-alpha"))
+    c12.append(StandardComponent("cheatah-gpu-linalg", "v0.4.4-alpha"))
+    c12.append(StandardComponent("cheatah-plot", "v0.1.0-alpha"))
+    c12.append(StandardComponent("cheatah-space", "v0.1.0-alpha"))
+    xs.append(Standard("0.6.4-alpha", "2026-08-28", "current", c12))
 
     return xs
 }
