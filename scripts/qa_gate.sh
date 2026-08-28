@@ -387,7 +387,11 @@ bg_join PID_BENCHBUILD "$LOG_BENCHBUILD" "release benchmark build"
 #     names a real test, every path/link in the docs resolves on the site, every ```purr
 #     sample type-checks, the CLI flag tables match the binaries, and no revision-history
 #     narration ("this page used to say…") is left in the prose.
+#     doc_lint_selftest runs FIRST: it plants known-dead tags in a throwaway tree and asserts
+#     the lint names every one. doc_lint reported OK for months while skipping 103 inputs it
+#     could not see, so a green doc_lint means nothing until this proves it can still go red.
 bold "Documentation lints (bench_table + doc_lint)…"
+bash scripts/doc_lint_selftest.sh || fail "doc-lint self-test — the lint cannot detect a dead tag (scripts/doc_lint_selftest.sh)"
 bash scripts/bench_table_lint.sh || fail "benchmark table lint — see scripts/bench_table.purr"
 bash scripts/doc_lint.sh all || fail "documentation lint — see scripts/doc_lint.purr"
 

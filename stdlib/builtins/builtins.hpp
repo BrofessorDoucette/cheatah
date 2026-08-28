@@ -633,7 +633,7 @@ double floordiv(A a, B b) {
  * @alloc none.
  * @test CheatahBuiltins.Hash
  * @systest StdlibE2E.Builtins
- * @note No @crtest: compile-run coverage is intentionally skipped because the
+ * @note No `@crtest`: compile-run coverage is intentionally skipped because the
  *       hash value is implementation-defined and has no portable expected stdout.
  */
 std::size_t hash(std::string_view s);
@@ -649,7 +649,7 @@ std::size_t hash(std::string_view s);
  * @alloc none.
  * @test CheatahBuiltins.Hash
  * @systest StdlibE2E.Builtins
- * @note No @crtest: compile-run coverage is intentionally skipped because the
+ * @note No `@crtest`: compile-run coverage is intentionally skipped because the
  *       hash value is implementation-defined and has no portable expected stdout.
  */
 template <typename T>

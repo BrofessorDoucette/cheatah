@@ -62,7 +62,7 @@ struct is_optional<std::optional<E>> : std::true_type {};
 // itself), so this is safe, and it matters — the optimizer's size heuristic otherwise outlines the
 // scalar instantiations (read_value<long>, read_value<string_view>), adding a function-call round
 // trip to every scalar member; inlining the whole hot path removes it.
-// @complexity O(value size)  @alloc only what the field type owns  @test JsonRead.Scalars
+// @complexity O(value size)  @alloc only what the field type owns  @test CheatahParsersJson.TypedReadWithUnknownKeys
 template <bool Validate, class T>
 [[gnu::always_inline]] inline bool read_value(Cursor& c, T& out);
 template <bool Validate, class Vec>
@@ -74,7 +74,7 @@ bool read_object(Cursor& c, T& out, const ObjectSchema<Fields...>& sch);
 
 // Read a JSON string body into an owned std::string (decoding escapes) or a zero-copy view (only
 // when unescaped — an escaped string has no contiguous source to view).
-// @complexity O(|string|)  @alloc only for an owned std::string  @test JsonRead.ViewVsOwned
+// @complexity O(|string|)  @alloc only for an owned std::string  @test CheatahParsersJson.TypedReadEscapesAndKeyOrder
 template <bool Validate, class Str>
 bool read_string(Cursor& c, Str& out) {
     if constexpr (Validate) {
@@ -145,7 +145,7 @@ inline bool read_value(Cursor& c, T& out) {
 }
 
 // Read a variable-length JSON array into a std::vector, element by element, in place.
-// @complexity O(array size)  @alloc vector growth (capacity reused via clear)  @test JsonRead.Vectors
+// @complexity O(array size)  @alloc vector growth (capacity reused via clear)  @test CheatahParsersJson.TypedReadWithUnknownKeys
 template <bool Validate, class Vec>
 bool read_array(Cursor& c, Vec& out) {
     if constexpr (Validate) {
@@ -188,7 +188,7 @@ bool read_array(Cursor& c, Vec& out) {
 
 // Read a JSON array of EXACTLY N elements into a std::array<E, N> — fixed size, stored inline, so
 // it never allocates. A wrong element count (too few / too many) is a parse error under Validate.
-// @complexity O(N)  @alloc none  @test JsonRead.FixedArrays
+// @complexity O(N)  @alloc none  @test CheatahParsersJson.TypedReadFixedArray
 template <bool Validate, class Arr>
 bool read_fixed_array(Cursor& c, Arr& out) {
     constexpr std::size_t kSize = std::tuple_size_v<Arr>;
@@ -234,7 +234,7 @@ bool read_fixed_array(Cursor& c, Arr& out) {
 // whole key pipeline (quote scan, key compare, colon handling). In-order compact input takes this
 // path for every member. Anything else — whitespace inside the member syntax, out-of-order,
 // unknown, or escaped keys — leaves the cursor untouched and falls back to the general scan.
-// @complexity O(|key| + value)  @alloc only a temp std::string when the key itself is escaped (rare); otherwise none of its own  @test JsonRead.OutOfOrderKeys
+// @complexity O(|key| + value)  @alloc only a temp std::string when the key itself is escaped (rare); otherwise none of its own  @test CheatahParsersJson.TypedReadEscapesAndKeyOrder
 template <bool Validate, class T, class... Fields>
 bool read_one_member(Cursor& c, T& out, const ObjectSchema<Fields...>& sch, std::size_t& hint) {
     constexpr std::size_t kCount = sizeof...(Fields);
@@ -315,7 +315,7 @@ bool read_one_member(Cursor& c, T& out, const ObjectSchema<Fields...>& sch, std:
 }
 
 // Read a JSON object member-by-member into the schema'd struct `out`.
-// @complexity O(object size)  @alloc only what the field types own  @test JsonRead.NestedStructs
+// @complexity O(object size)  @alloc only what the field types own  @test CheatahParsersJson.TypedReadWithUnknownKeys
 template <bool Validate, class T, class... Fields>
 bool read_object(Cursor& c, T& out, const ObjectSchema<Fields...>& sch) {
     if constexpr (Validate) {

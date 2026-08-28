@@ -9,6 +9,7 @@
 // keeps covering the header surface directly.
 
 #include <cstdint>
+#include <array>
 #include <optional>
 #include <span>
 #include <string>
@@ -354,6 +355,12 @@ struct Trade {
     std::vector<long long> tags;
 };
 
+// A std::array field takes read_fixed_array: exactly N elements, stored inline, never allocating.
+struct Swatch {
+    std::array<long long, 3> rgb;
+    std::string name;
+};
+
 }  // namespace
 
 // schema<T> is a variable template; a struct opts in by specializing it with an object(field...)
@@ -366,6 +373,11 @@ inline constexpr auto schema<Trade> = object(
     field("sym", &Trade::sym),
     field("lot", &Trade::lot),
     field("tags", &Trade::tags));
+
+template <>
+inline constexpr auto schema<Swatch> = object(
+    field("rgb", &Swatch::rgb),
+    field("name", &Swatch::name));
 }  // namespace cheatah::parsers::json
 
 namespace {
@@ -412,6 +424,21 @@ TEST(CheatahParsersJson, TypedReadEscapesAndKeyOrder) {
     ASSERT_EQ(t.tags.size(), 2u);
     EXPECT_EQ(t.tags[0], 1);
     EXPECT_FALSE(t.lot.has_value());
+}
+
+// A std::array field: exactly N elements fills it, and a wrong count is a parse error rather
+// than a short read — the count check is the only thing standing between the two.
+TEST(CheatahParsersJson, TypedReadFixedArray) {
+    Swatch s{};
+    ASSERT_TRUE(json::read(R"({"rgb":[12,34,56],"name":"teal"})", s));
+    EXPECT_EQ(s.rgb[0], 12);
+    EXPECT_EQ(s.rgb[2], 56);
+    EXPECT_EQ(s.name, "teal");
+
+    Swatch few{};
+    EXPECT_FALSE(json::read(R"({"rgb":[1,2],"name":"x"})", few));      // too few
+    Swatch many{};
+    EXPECT_FALSE(json::read(R"({"rgb":[1,2,3,4],"name":"x"})", many));  // too many
 }
 
 }  // namespace

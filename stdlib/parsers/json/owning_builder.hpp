@@ -32,24 +32,24 @@ public:
     static constexpr bool owns_strings = true;
 
     /// Open an array by pushing a fresh, empty backing vector onto the array stack.
-    /// @complexity O(1)  @alloc the stack slot (amortized)  @test Json.OwningForms
+    /// @complexity O(1)  @alloc the stack slot (amortized)  @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
     void begin_array() { array_stack_.emplace_back(); }
     /// Open an object by pushing a fresh, empty backing vector onto the object stack.
-    /// @complexity O(1)  @alloc the stack slot (amortized)  @test Json.OwningForms
+    /// @complexity O(1)  @alloc the stack slot (amortized)  @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
     void begin_object() { object_stack_.emplace_back(); }
 
     /// Append an element to the innermost open array.
     /// @param n the element node to append (moved in).
-    /// @complexity O(1) amortized  @alloc vector growth  @test Json.OwningForms
+    /// @complexity O(1) amortized  @alloc vector growth  @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
     void add_element(Node&& n) { array_stack_.back().push_back(std::move(n)); }
     /// Append a member to the innermost open object.
     /// @param m the key/value member to append (moved in).
-    /// @complexity O(1) amortized  @alloc vector growth  @test Json.OwningForms
+    /// @complexity O(1) amortized  @alloc vector growth  @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
     void add_member(Member&& m) { object_stack_.back().push_back(std::move(m)); }
 
     /// Close the innermost open array: move its whole backing vector into an owned Node.
     /// @return a Node holding the closed array as an OwnedArray.
-    /// @complexity O(1) (whole-vector move)  @alloc none  @test Json.OwningForms
+    /// @complexity O(1) (whole-vector move)  @alloc none  @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
     Node finish_array() {
         Node n;
         n.variant().emplace<OwnedArray>(std::move(array_stack_.back()));
@@ -58,7 +58,7 @@ public:
     }
     /// Close the innermost open object: move its whole backing vector into an owned Node.
     /// @return a Node holding the closed object as an OwnedObject.
-    /// @complexity O(1) (whole-vector move)  @alloc none  @test Json.OwningForms
+    /// @complexity O(1) (whole-vector move)  @alloc none  @test ParsersJsonDom.OwningContainersAndDumpRoundTrip
     Node finish_object() {
         Node n;
         n.variant().emplace<OwnedObject>(std::move(object_stack_.back()));

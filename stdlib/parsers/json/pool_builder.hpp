@@ -59,26 +59,26 @@ public:
     }
 
     /// Open an array: remember where its elements start on the node scratch stack.
-    /// @complexity O(1)  @alloc amortized open_bases_ growth  @test Json.PooledForms
+    /// @complexity O(1)  @alloc amortized open_bases_ growth  @test CheatahParsersJson.PoolBuilderStackMachine
     void begin_array() { open_bases_.push_back(node_scratch_.size()); }
     /// Open an object: remember where its members start on the member scratch stack.
-    /// @complexity O(1)  @alloc amortized open_bases_ growth  @test Json.PooledForms
+    /// @complexity O(1)  @alloc amortized open_bases_ growth  @test CheatahParsersJson.PoolBuilderStackMachine
     void begin_object() { open_bases_.push_back(member_scratch_.size()); }
 
     /// Append an element to the innermost open array.
     /// @param n the element node to append (moved in).
-    /// @complexity O(1)  @alloc amortized scratch growth  @test Json.PooledForms
+    /// @complexity O(1)  @alloc amortized scratch growth  @test CheatahParsersJson.PoolBuilderStackMachine
     void add_element(Node&& n) { node_scratch_.push_back(std::move(n)); }
     /// Append a member to the innermost open object.
     /// @param m the key/value member to append (moved in).
-    /// @complexity O(1)  @alloc amortized scratch growth  @test Json.PooledForms
+    /// @complexity O(1)  @alloc amortized scratch growth  @test CheatahParsersJson.PoolBuilderStackMachine
     void add_member(Member&& m) { member_scratch_.push_back(std::move(m)); }
 
     /**
      * Close the innermost open array: commit its children into the pool and wrap them in an
      * ArrayView span.
      * @return a Node holding the closed array as an ArrayView into the pool.
-     * @complexity O(children) @alloc none (pool is pre-reserved) @test Json.ParseObject
+     * @complexity O(children) @alloc none (pool is pre-reserved) @test CheatahParsersJson.PoolBuilderStackMachine
      */
     Node finish_array() {
         const std::size_t base = open_bases_.back();
@@ -91,7 +91,7 @@ public:
      * Close the innermost open object: commit its members into the pool and wrap them in an
      * ObjectView span.
      * @return a Node holding the closed object as an ObjectView into the pool.
-     * @complexity O(members) @alloc none @test Json.ParseObject
+     * @complexity O(members) @alloc none @test CheatahParsersJson.PoolBuilderStackMachine
      */
     Node finish_object() {
         const std::size_t base = open_bases_.back();
@@ -104,7 +104,7 @@ public:
 private:
     // Move the scratch-stack tail [base, size) contiguously into the pool, pop it off the stack,
     // and return a stable span view of it. The pool is reserved, so push_back never reallocates.
-    // @complexity O(children)  @alloc none (pool pre-reserved)  @test Json.PooledForms
+    // @complexity O(children)  @alloc none (pool pre-reserved)  @test CheatahParsersJson.PoolBuilderStackMachine
     std::span<const Node> commit_nodes(std::size_t base) {
         const std::size_t count = node_scratch_.size() - base;
         const std::size_t offset = node_pool_.size();

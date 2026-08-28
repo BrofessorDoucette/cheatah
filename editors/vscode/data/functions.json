@@ -253,8 +253,7 @@
         "complexity": "O(1) for scalars.",
         "alloc": "none.",
         "test": "CheatahBuiltins.Hash",
-        "systest": "StdlibE2E.Builtins",
-        "crtest": ": compile-run coverage is intentionally skipped because the hash value is implementation-defined and has no portable expected stdout."
+        "systest": "StdlibE2E.Builtins"
       },
       "srcfile": "stdlib/builtins/builtins.hpp",
       "srcline": 657,

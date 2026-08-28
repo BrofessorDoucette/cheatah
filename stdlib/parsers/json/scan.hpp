@@ -25,13 +25,13 @@
 namespace cheatah::parsers::json::detail {
 
 // Advance the cursor past JSON whitespace (SIMD-accelerated; see simd.hpp).
-// @complexity O(whitespace run)  @alloc none  @test Json.ParseObject
+// @complexity O(whitespace run)  @alloc none  @test CheatahParsersJson.TypedReadWithUnknownKeys
 inline void skip_ws(Cursor& c) noexcept {
     c.it = simd::skip_whitespace(c.it, c.end);
 }
 
 // Consume the exact literal `lit` (e.g. "true") if present, else leave the cursor put.
-// @complexity O(|lit|)  @alloc none  @test Json.ParseObject
+// @complexity O(|lit|)  @alloc none  @test CheatahParsersJson.ScanNumbersAndEscapes
 inline bool match(Cursor& c, std::string_view lit) noexcept {
     if (static_cast<std::size_t>(c.end - c.it) < lit.size()) {
         return false;
@@ -46,7 +46,7 @@ inline bool match(Cursor& c, std::string_view lit) noexcept {
 // ---- string scanning + escape decoding --------------------------------------
 
 // Append the UTF-8 encoding of code point `cp` (1..4 bytes) to `out`.
-// @complexity O(1)  @alloc amortized growth of `out`  @test JsonRead.Strings
+// @complexity O(1)  @alloc amortized growth of `out`  @test CheatahParsersJson.ScanNumbersAndEscapes
 inline void append_utf8(std::uint32_t cp, std::string& out) {
     if (cp <= 0x7F) {
         out.push_back(static_cast<char>(cp));
@@ -66,7 +66,7 @@ inline void append_utf8(std::uint32_t cp, std::string& out) {
 }
 
 // Read 4 hex digits at raw[i..i+4) into cp.
-// @complexity O(1)  @alloc none  @test JsonRead.Strings
+// @complexity O(1)  @alloc none  @test CheatahParsersJson.ScanNumbersAndEscapes
 inline bool hex4(std::string_view raw, std::size_t i, std::uint32_t& cp) {
     if (i + 4 > raw.size()) {
         return false;
@@ -92,7 +92,7 @@ inline bool hex4(std::string_view raw, std::size_t i, std::uint32_t& cp) {
 // Decode the raw (escaped) inner bytes of a JSON string into `out`. Ordinary bytes between escapes
 // are copied in BULK (find the next backslash, append the whole run) rather than one at a time —
 // most of a string is non-escape, so this is a few memcpy-sized appends instead of N push_backs.
-// @complexity O(|raw|)  @alloc `out` growth (reserved once up front)  @test JsonRead.Strings
+// @complexity O(|raw|)  @alloc `out` growth (reserved once up front)  @test CheatahParsersJson.ScanNumbersAndEscapes
 inline bool decode_escapes(std::string_view raw, std::string& out) {
     out.clear();
     out.reserve(raw.size());
@@ -144,7 +144,7 @@ inline bool decode_escapes(std::string_view raw, std::string& out) {
 
 // Scan a "..." string: set `raw` to its inner bytes and `esc` to whether it had escapes;
 // on entry c.it is at the opening quote, on success c.it is past the closing quote.
-// @complexity O(|string|) (SIMD 32 bytes/step)  @alloc none (raw is a view)  @test Json.Strings
+// @complexity O(|string|) (SIMD 32 bytes/step)  @alloc none (raw is a view)  @test CheatahParsersJson.ScanNumbersAndEscapes
 inline bool scan_string(Cursor& c, std::string_view& raw, bool& esc) {
     ++c.it;  // skip opening quote
     const char* const start = c.it;
@@ -255,7 +255,7 @@ inline bool from_chars_fp(const char* first, const char* last, T& out, const cha
 // but without its general-format machinery. Anything outside that window (20+ digits, huge
 // exponents) falls back to std::from_chars for full correctness. Typical JSON numbers — prices,
 // quantities, timestamps — live entirely in the fast window.
-// @complexity O(digits)  @alloc none  @test JsonRead.NumbersEdge
+// @complexity O(digits)  @alloc none  @test CheatahParsersJson.ScanNumbersAndEscapes
 inline bool parse_double_fast(Cursor& c, double& out) {
     const char* p = c.it;
     const char* const end = c.end;
@@ -337,7 +337,7 @@ inline bool parse_double_fast(Cursor& c, double& out) {
 // std::from_chars. The integral loop is overflow-safe: a literal with more digits than the type can
 // ever hold exactly is re-parsed by std::from_chars, which detects out-of-range exactly; a negative
 // literal is rejected for unsigned fields rather than wrapped.
-// @complexity O(digits)  @alloc none  @test JsonRead.Scalars
+// @complexity O(digits)  @alloc none  @test CheatahParsersJson.ScanNumbersAndEscapes
 template <class T>
 inline bool parse_arithmetic(Cursor& c, T& out) {
     if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
@@ -388,7 +388,7 @@ inline bool parse_arithmetic(Cursor& c, T& out) {
 // reader to discard keys not present in the schema. Strings are skipped whole (so braces inside
 // them never miscount); containers are balanced with a depth counter rather than recursion, so an
 // adversarially deep unknown value costs O(depth) iterations and O(1) stack.
-// @complexity O(skipped bytes)  @alloc none  @test JsonRead.UnknownKeys
+// @complexity O(skipped bytes)  @alloc none  @test CheatahParsersJson.TypedReadWithUnknownKeys
 inline bool skip_value(Cursor& c) {
     std::size_t depth = 0;
     for (;;) {  // one full value: a scalar is one step; a container runs until its depth returns to 0

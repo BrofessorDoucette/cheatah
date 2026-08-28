@@ -15,7 +15,7 @@
 namespace cheatah::parsers::json::simd {
 
 // Is `ch` one of the four JSON whitespace bytes (space, tab, newline, carriage return)?
-// @complexity O(1)  @alloc none  @test Json.ParseObject
+// @complexity O(1)  @alloc none  @test CheatahParsersJson.SimdScanPrimitives
 [[nodiscard]] constexpr bool is_whitespace(char ch) noexcept {
     return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
 }
@@ -23,7 +23,7 @@ namespace cheatah::parsers::json::simd {
 // Return the first non-whitespace byte at or after `it`, or `end` if the rest is all whitespace.
 // AVX2 scans 32 bytes per step — mark the whitespace lanes, then jump to the first non-whitespace;
 // the scalar loop handles the < 32-byte tail (and the whole scan without AVX2). Identical result.
-// @complexity O(run length) (32 bytes/step under AVX2)  @alloc none  @test Json.ParseObject
+// @complexity O(run length) (32 bytes/step under AVX2)  @alloc none  @test CheatahParsersJson.SimdScanPrimitives
 [[nodiscard]] inline const char* skip_whitespace(const char* it, const char* end) noexcept {
     // Fast path: compact JSON (the common case) has no whitespace between tokens, so the first byte
     // is already non-whitespace — one test and return, with no SIMD setup. Only a genuine run of
@@ -59,7 +59,7 @@ namespace cheatah::parsers::json::simd {
 // that matter while scanning a JSON string body (a closing quote ends it; a backslash starts an
 // escape) — or `end` if neither occurs. AVX2 tests 32 bytes per step; the scalar loop handles the
 // < 32-byte tail (and the whole scan without AVX2). The caller decides which byte it found.
-// @complexity O(distance to hit) (32 bytes/step under AVX2)  @alloc none  @test Json.Strings
+// @complexity O(distance to hit) (32 bytes/step under AVX2)  @alloc none  @test CheatahParsersJson.SimdScanPrimitives
 [[nodiscard]] inline const char* find_quote_or_backslash(const char* it, const char* end) noexcept {
 #if defined(__AVX2__)
     const __m256i kQuote = _mm256_set1_epi8('"');

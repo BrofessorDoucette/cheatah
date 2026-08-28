@@ -201,9 +201,11 @@ fn names_in(text : str) -> list<str> {
 
 # The text of one @test/@crtest/@systest tag: the rest of its line plus continuation lines
 # (a comment line holding nothing but more Suite.Name tokens).
+# `//` counts too: the JSON internals document free functions in plain double-slash comments,
+# and leaving that form out meant a wrapped name list lost everything after its first line.
 fn is_comment_line(line : str) -> bool {
     let t = string.strip(line)
-    return string.startswith(t, "*") or string.startswith(t, "///") or string.startswith(t, "#")
+    return string.startswith(t, "*") or string.startswith(t, "//") or string.startswith(t, "#")
 }
 
 fn strip_comment_lead(line : str) -> str {
@@ -211,6 +213,7 @@ fn strip_comment_lead(line : str) -> str {
     if string.startswith(t, "* ") { t = string.strip(t[2:]) }
     elif t == "*" { t = "" }
     elif string.startswith(t, "///") { t = string.strip(t[3:]) }
+    elif string.startswith(t, "//") { t = string.strip(t[2:]) }
     elif string.startswith(t, "#") { t = string.strip(t[1:]) }
     return t
 }
@@ -248,15 +251,23 @@ fn check_tests(errors : list<str>) -> int {
         let i = 0
         while i < len(lines) {
             let t = strip_comment_lead(lines[i])
+            # The tag is not always first on the line: cheatah's house style puts @complexity
+            # and @alloc on one line, and a @test can ride along behind them. Anchoring on the
+            # line start hid 103 tags from this check, 31 of which named no test at all.
             let tag = ""
+            let tpos = -1
             for cand in ["@test ", "@crtest ", "@systest "] {
-                if string.startswith(t, cand) { tag = cand }
+                let at = string.find(t, cand, 0)
+                if at >= 0 and (tpos < 0 or at < tpos) {
+                    tag = cand
+                    tpos = at
+                }
             }
             if tag == "" {
                 i = i + 1
                 continue
             }
-            let text = t[len(tag):]
+            let text = t[tpos + len(tag):]
             let start = i + 1
             let j = i + 1
             while j < len(lines) {

@@ -2845,8 +2845,16 @@ fn harness_sources() {
     return out
 }
 
+# The directories a @test/@crtest/@systest name can be defined in. MUST stay identical to
+# test_dirs() in scripts/doc_lint.purr — the lint decides whether a name is VALID, this decides
+# whether the site can LINK it, and a name accepted by one but unknown to the other renders as
+# dead text. scripts/doc_lint_selftest.sh asserts the two lists match.
+fn test_dirs() -> list<str> {
+    return ["stdlib/tests", "stdlib/memory/tests", "tests/purrc", "tests/previously_broken"]
+}
+
 fn build_test_index(g) {
-    for tdir in ["stdlib/tests", "stdlib/memory/tests", "tests/purrc"] {
+    for tdir in test_dirs() {
         for f in cpp_files_sorted(tdir) {
             let rel = tdir + "/" + f
             let lineno = 1
@@ -3078,7 +3086,7 @@ fn main() {
         }
         ci = ci + 1
     }
-    for tdir in ["stdlib/tests", "stdlib/memory/tests", "tests/purrc"] {
+    for tdir in test_dirs() {
         for f in cpp_files_sorted(tdir) { src_set[tdir + "/" + f] = true }
     }
     for h in harness_sources() { src_set[h] = true }
