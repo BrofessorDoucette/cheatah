@@ -313,8 +313,8 @@ bash docs/build-docs.sh   # Doxygen XML -> generator -> docs/html/
 cheatah's standard library is extended by separate, installable packages — each its own
 public repository, built on the `purrc` toolchain and this stdlib:
 
-- **[cheatah-gpu-linalg](https://github.com/BrofessorDoucette/cheatah-gpu-linalg)** — a GPU
-  device backend for `linalg` (the `gpulinalg` package, built on cheatah-gpu).
+- **[cheatah-gpu](https://github.com/BrofessorDoucette/cheatah-gpu)** — GPU arrays and
+  compute kernels (the `gpu` package).
 - **[cheatah-gpu-linalg](https://github.com/BrofessorDoucette/cheatah-gpu-linalg)** — the
   device backend for `linalg` (the `gpulinalg` package, built on cheatah-gpu).
 - **[cheatah-space](https://github.com/BrofessorDoucette/cheatah-space)** — astronomy and
