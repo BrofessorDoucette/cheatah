@@ -138,6 +138,14 @@ publish)
         CHEATAH_BENCH_LAYOUT=pairs
         CHEATAH_BENCH_WATCH='stdlib/linalg/, tests/benchmarks/eigen_compare_bench.cpp'
         ;;
+    integrity)
+        # The load-time integrity cost the security page publishes: four tiers (off, checksum,
+        # signature, + runtime manifest) at two module sizes, driven through verify_module itself
+        # rather than a process spawn.
+        SUITE_FILTER='^BM_Integrity'
+        CHEATAH_BENCH_LAYOUT=solo
+        CHEATAH_BENCH_WATCH='runtime/, stdlib/hashlib/, stdlib/ed25519/, tests/benchmarks/integrity_bench.cpp'
+        ;;
     p256)
         SUITE_FILTER='^BM_P256_'
         CHEATAH_BENCH_LAYOUT=solo

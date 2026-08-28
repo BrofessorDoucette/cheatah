@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The cheatah `@perf` benchmark suite — regenerates per-function speed numbers.
+"""The cheatah Performance-row suite — regenerates per-function speed numbers.
 
 This is the PERIODIC suite (NOT part of the QA gate — benchmarks are slow, noisy, and
 machine-specific). Run it now and then on a fixed reference machine — after a codegen/

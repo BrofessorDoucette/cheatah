@@ -799,12 +799,11 @@ void write_table(const char* path, const PairTally& tally, const RunSettings& se
         return;
     }
 
-    // A layout other than `pairs` carries its reproduction command into the stamp, so the
-    // published table says exactly how to regenerate itself — including the curation spec.
-    std::string note;
-    if (layout != Layout::Pairs) {
-        note = "\n     PRODUCED BY:\n       " + reproduction_command() + "\n";
-    }
+    // Every published table carries its reproduction command into the stamp, so it says exactly
+    // how to regenerate itself — including the curation spec where a layout has one. This used to
+    // skip the `pairs` layout, which left linalg-vs-eigen as the one table a reader could not
+    // reproduce from what it printed.
+    const std::string note = "\n     PRODUCED BY:\n       " + reproduction_command() + "\n";
     emit_stamp(f, tally, settings, note);
 
     switch (layout) {
