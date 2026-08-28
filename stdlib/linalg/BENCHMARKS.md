@@ -126,8 +126,8 @@ Measured by [`tests/benchmarks/eigen_compare_bench.cpp`](../../tests/benchmarks/
 <!-- BENCH:linalg-vs-eigen begin -->
 <!-- cheatah-bench-stamp v1
      suite:        linalg-vs-eigen
-     generated:    2026-08-20
-     commit:       2b3a0b8
+     generated:    2026-08-27
+     commit:       5891b8a
      host:         pop-os, 20 CPUs @ 4600 MHz
      cpu-scaling:  enabled
      build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
@@ -139,21 +139,27 @@ Measured by [`tests/benchmarks/eigen_compare_bench.cpp`](../../tests/benchmarks/
      publishable:  true
      layout:       pairs
      watch:        stdlib/linalg/, tests/benchmarks/eigen_compare_bench.cpp
+
+     PRODUCED BY:
+       CHEATAH_BENCH_SUITE='linalg-vs-eigen' \
+           CHEATAH_BENCH_LAYOUT='pairs' \
+           CHEATAH_BENCH_WATCH='stdlib/linalg/, tests/benchmarks/eigen_compare_bench.cpp' \
+           build/release/bin/cheatah_benchmarks --benchmark_filter=^BM_(dot|matmul|solve|inv)_(cheatah|eigen) --benchmark_repetitions=9 --benchmark_min_time=0.3s --benchmark_enable_random_interleaving=true --benchmark_out_format=json --benchmark_out=docs/bench/linalg-vs-eigen.json --benchmark_format=console
 -->
 
 | case | cheatah | spread | vs | rival | spread | ratio | verdict |
 |---|--:|--:|---|--:|--:|--:|---|
-| BM_dot/16384 | 1.76 µs | ±140.45 ns IQR | eigen | 2.54 µs | ±29.23 ns IQR | 1.44x | faster |
-| BM_dot/64 | 10.18 ns | ±0.71 ns IQR | eigen | 6.69 ns | ±0.17 ns IQR | 0.66x | **slower** |
-| BM_inv/32 | 6.76 µs | ±1.35 µs IQR | eigen | 11.21 µs | ±438.60 ns IQR | 1.66x | faster |
-| BM_inv/64 | 38.55 µs | ±8.55 µs IQR | eigen | 67.44 µs | ±2.07 µs IQR | 1.75x | faster |
-| BM_matmul/32 | 3.17 µs | ±137.63 ns IQR | eigen | 3.80 µs | ±49.86 ns IQR | 1.20x | faster |
-| BM_matmul/96 | 87.96 µs | ±879.72 ns IQR | eigen | 94.93 µs | ±3.32 µs IQR | 1.08x | parity |
-| BM_solve/32 | 3.56 µs | ±118.70 ns IQR | eigen | 4.17 µs | ±151.63 ns IQR | 1.17x | faster |
-| BM_solve/64 | 16.47 µs | ±372.73 ns IQR | eigen | 19.97 µs | ±426.11 ns IQR | 1.21x | faster |
+| BM_dot/16384 | 1.96 µs | ±249.61 ns IQR | eigen | 2.58 µs | ±71.26 ns IQR | 1.32x | faster |
+| BM_dot/64 | 11.66 ns | ±1.57 ns IQR | eigen | 9.08 ns | ±0.37 ns IQR | 0.78x | **slower** |
+| BM_inv/32 | 6.82 µs | ±1.34 µs IQR | eigen | 11.86 µs | ±133.38 ns IQR | 1.74x | faster |
+| BM_inv/64 | 40.48 µs | ±8.56 µs IQR | eigen | 67.73 µs | ±1.32 µs IQR | 1.67x | faster |
+| BM_matmul/32 | 3.23 µs | ±1.23 µs IQR | eigen | 3.90 µs | ±115.58 ns IQR | 1.21x | faster |
+| BM_matmul/96 | 58.11 µs | ±32.71 µs IQR | eigen | 94.56 µs | ±2.47 µs IQR | 1.63x | faster |
+| BM_solve/32 | 3.59 µs | ±175.70 ns IQR | eigen | 4.49 µs | ±71.85 ns IQR | 1.25x | faster |
+| BM_solve/64 | 16.73 µs | ±1.91 µs IQR | eigen | 20.77 µs | ±525.30 ns IQR | 1.24x | faster |
 
-**Tally** (a difference counts only above 1.15x AND 0.25 ns) — vs eigen: **6 faster / 1 parity / 1 slower**.
-- Loss vs eigen: `BM_dot/64` — cheatah 10.18 ns vs 6.69 ns (1.52x slower)
+**Tally** (a difference counts only above 1.15x AND 0.25 ns) — vs eigen: **7 faster / 0 parity / 1 slower**.
+- Loss vs eigen: `BM_dot/64` — cheatah 11.66 ns vs 9.08 ns (1.28x slower)
 <!-- BENCH:linalg-vs-eigen end -->
 
 ## What the two tables say

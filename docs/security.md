@@ -254,24 +254,56 @@ Verification is **paid once, when the module loads** — *before* `dlopen`, neve
 program's execution. So it's a fixed startup cost, not a per-call tax; for anything that
 runs longer than a handful of milliseconds it disappears into the noise.
 
-Measured with [`tests/benchmarks/integrity_bench.cpp`](https://github.com/BrofessorDoucette/cheatah/blob/main/tests/benchmarks/integrity_bench.cpp)
-(Google Benchmark, calling `verify_module` directly — no process spawn), on `x86_64`; your
-hardware will differ. Each row is the **total** load-time check, not just the increment:
+Measured by [`tests/benchmarks/integrity_bench.cpp`](../tests/benchmarks/integrity_bench.cpp); reproduce with `scripts/bench_run.sh publish integrity`.
 
-| Tier enabled | 64 KiB module | 1 MiB module | what it adds |
-|--------------|--------------:|-------------:|--------------|
-| **Off** (no sidecars) | ~1.6 µs | ~1.6 µs | nothing — the module isn't even read |
-| **+ checksum** (`.sha512`) | ~0.16 ms | ~2.8 ms | one **SHA-512** pass over the bytes (~400 MiB/s, scales with size) |
-| **+ signature** (`.sig`, strict) | ~2.4 ms | ~7.4 ms | an **Ed25519 verify** (~2 ms, ~fixed) + the signature's own SHA-512 pass |
-| **+ runtime manifest** (`.rt` + `.rt.sig`) | ~4.4 ms | ~9.2 ms | a **second Ed25519 verify** over the small manifest (~2 ms) |
+<!-- BENCH:integrity begin -->
+<!-- cheatah-bench-stamp v1
+     suite:        integrity
+     generated:    2026-08-27
+     commit:       5891b8a
+     host:         pop-os, 20 CPUs @ 4600 MHz
+     cpu-scaling:  enabled
+     build:        Clang 18.1.3 (1ubuntu1), Google Benchmark v1.9.5
+     competitors:  Eigen 3.4.0, GLM GLM: version 0.9.9.8, OpenSSL 3.0.13 30 Jan 2024
+     harness:      reps=9, min_time=0.3s, random-interleaving=on
+     statistic:    median real time per case; spread = IQR over
+                   repetitions, or `sd` where
+                   --benchmark_report_aggregates_only hid the raw runs
+     publishable:  true
+     layout:       solo
+     watch:        runtime/, stdlib/hashlib/, stdlib/ed25519/, tests/benchmarks/integrity_bench.cpp
 
-Two things drive the numbers: the **SHA-512** pass scales with module size (cheatah's
-from-scratch SHA-512 runs ~400 MiB/s — there's no SHA-512 CPU instruction on x86 the way
-there is for SHA-256), and each **Ed25519 verification** is a roughly **fixed ~2 ms**.
-cheatah's Ed25519 is implemented from scratch for **auditability and zero dependencies**,
-not for raw throughput — an optimized library would verify in tens of microseconds, so if
-you sign **many** modules in one short-lived process this is the cost to weigh. The runtime
-header (`runtime/integrity.hpp`) documents the per-call `@complexity` and `@alloc` too.
+     PRODUCED BY:
+       CHEATAH_BENCH_SUITE='integrity' \
+           CHEATAH_BENCH_LAYOUT='solo' \
+           CHEATAH_BENCH_WATCH='runtime/, stdlib/hashlib/, stdlib/ed25519/, tests/benchmarks/integrity_bench.cpp' \
+           build/release/bin/cheatah_benchmarks --benchmark_filter=^BM_Integrity --benchmark_repetitions=9 --benchmark_min_time=0.3s --benchmark_enable_random_interleaving=true --benchmark_out_format=json --benchmark_out=docs/bench/integrity.json --benchmark_format=console
+-->
+
+| Op | median | spread | throughput |
+|---|--:|--:|--:|
+| `BM_Integrity/Checksum/1M` | 2.87 ms | ±103.41 µs IQR | 0.34 GiB/s |
+| `BM_Integrity/Checksum/64K` | 157.05 µs | ±4.32 µs IQR | 0.39 GiB/s |
+| `BM_Integrity/Full/1M` | 9.55 ms | ±143.26 µs IQR | 0.10 GiB/s |
+| `BM_Integrity/Full/64K` | 4.65 ms | ±94.96 µs IQR | 0.01 GiB/s |
+| `BM_Integrity/Off/1M` | 1.53 µs | ±203.42 ns IQR | 638.54 GiB/s |
+| `BM_Integrity/Off/64K` | 1.48 µs | ±19.83 ns IQR | 41.11 GiB/s |
+| `BM_Integrity/Signed/1M` | 7.88 ms | ±215.73 µs IQR | 0.12 GiB/s |
+| `BM_Integrity/Signed/64K` | 2.00 ms | ±38.51 µs IQR | 0.03 GiB/s |
+<!-- BENCH:integrity end -->
+
+Each case is the **total** load-time check, not the increment over the tier below. `Off` is
+the three sidecar existence probes — the module is never read. `Checksum` adds one SHA-512
+pass over the module bytes. `Signed` adds an Ed25519 verify plus the signature's own SHA-512
+pass, and `Full` a second Ed25519 verify over the small runtime manifest.
+
+Two things shape the table. The SHA-512 passes scale with module size — cheatah's is
+from-scratch, and x86 has no SHA-512 instruction the way it has one for SHA-256 — while an
+Ed25519 verification costs the same whatever the module weighs. cheatah's Ed25519 is written
+for auditability and zero dependencies rather than raw throughput; an optimized library
+verifies in tens of microseconds, so if you sign **many** modules in one short-lived process,
+that is the cost to weigh. The runtime header (`runtime/integrity.hpp`) documents the
+per-call `@complexity` and `@alloc` too.
 
 The default stays **zero-overhead**: with no sidecars and no strict flag, the runtime never
 reads the module to hash it (~1.6 µs is the three sidecar existence probes).
