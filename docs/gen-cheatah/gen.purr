@@ -123,6 +123,10 @@ struct Gen {
     bench_title: dict<str, str>    # module short -> that page's Doxygen title ("regex benchmarks")
     bench_ext: dict<str, str>      # module short -> the extension owning it ("" / absent = stdlib)
     ext_ns: dict<str, str>         # extension namespace short -> its refid (the bench back-link)
+    verif_key: dict<str, str>      # module short -> its VERIFICATION.md page's refid
+    verif_node: dict<str, int>     # module short -> that page's detaileddescription node id
+    verif_title: dict<str, str>    # module short -> that page's Doxygen title
+    verif_ext: dict<str, str>      # module short -> the extension owning it
     page_href: dict<str, str>      # page refid -> output file, when it is not <refid>.html
     missing_tests: dict<str, bool> # @test names no test source defines (reported at the end)
     page_by_file: dict<str, str>   # repo-relative markdown path -> its Doxygen page refid
@@ -839,6 +843,12 @@ fn find_test_in_line(line) {
 # the module page links to it: the generated tables (a hundred rows and more for regex,
 # fixarray and linalg) used to be folded into the reference and swamped it.
 fn bench_page_name(mod) { return "benchmarks-" + string.replace(mod, "::", ".") + ".html" }
+
+# The verification subpage of a module: what is implemented, what was measured against the
+# reference implementation, and over which part of the domain. It is a separate page rather than a
+# section of the reference for the same reason the benchmark tables are — it is long, and a reader
+# checking whether a routine is trustworthy is not the same reader as one looking up its signature.
+fn verif_page_name(mod) { return "verification-" + string.replace(mod, "::", ".") + ".html" }
 
 fn src_page_name(rel_path) {
     let out = "src_"
@@ -1857,6 +1867,9 @@ fn render_compound_page(g, ci, sidebar) {
     }
     detail = detail + render_desc(g, cdoc, c.detail_id)
     # A module with a benchmark subpage says so up front: the tables used to be folded in here.
+    if c.kind == "namespace" and c.short in g.verif_key {
+        detail = "<div class=\"admon bench\"><div class=\"admon-h\">Verification status</div><div class=\"admon-b\">What <code>" + esc(c.short) + "</code> implements, what has been verified against the reference implementation it reimplements, and over which part of the domain, is on the <a href=\"" + verif_page_name(c.short) + "\">" + esc(c.short) + " verification</a> page. Implemented and verified are not the same claim, and that page keeps them apart.</div></div>" + detail
+    }
     if c.kind == "namespace" and c.short in g.bench_key {
         detail = "<div class=\"admon bench\"><div class=\"admon-h\">Benchmarks</div><div class=\"admon-b\">Every measured table for <code>" + esc(c.short) + "</code> — with its stamp (commit, host, harness) and the commands that reproduce it — is on the <a href=\"" + bench_page_name(c.short) + "\">" + esc(c.short) + " benchmarks</a> page.</div></div>" + detail
     }
@@ -1998,6 +2011,26 @@ fn render_bench_page(g, mod, sidebar) {
     let lede = "<p class=\"lede\">The generated measurement tables for the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> — every case, the harness that measured it, and how to reproduce it.</p>"
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Benchmarks</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
     return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
+}
+
+# The verification subpage: what a module implements, what was measured against the reference it
+# reimplements, and over which part of the domain. Rendered from the module's own
+# docs/VERIFICATION.md so the published page and the repo's cannot drift apart.
+fn render_verif_page(g, mod, sidebar) {
+    let refid = g.verif_key[mod]
+    let xdir = "docs/xml"
+    if mod in g.verif_ext { xdir = "docs/xml-ext/" + g.verif_ext[mod] }
+    let vdoc = doc_of(xdir, refid)
+    g.cur_module = mod
+    let title = g.verif_title[mod]
+    if title == "" { title = mod + " verification" }
+    let back = "index.html"
+    if mod in g.modules { back = g.modules[mod] + ".html" }
+    if mod in g.ext_ns { back = g.ext_ns[mod] + ".html" }
+    let body = render_desc(g, vdoc, g.verif_node[mod])
+    let lede = "<p class=\"lede\">What the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> implements, what has actually been verified against the reference implementation, and over which part of the domain — stated so a reader can tell the difference.</p>"
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Verification</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
+    return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(vdoc, g.verif_node[mod]))
 }
 
 fn render_home(g, ci, sidebar) {
@@ -2676,10 +2709,14 @@ fn md_module_of(path, leaf) {
 # the module page's existing benchmark admonition links to it with no further wiring.
 fn ext_md_module_of(path, leaf) {
     if not string.endswith(path, leaf) { return "" }
-    let segs = string.split(path, "/")
-    if len(segs) < 3 { return "" }
-    let mod = segs[len(segs) - 2]
-    let pkg = segs[len(segs) - 3]
+    # take the two segments immediately before the leaf, whatever its depth: BENCHMARKS.md sits at
+    # <pkg>/<mod>/ and VERIFICATION.md at <pkg>/<mod>/docs/, so the leaf must be stripped first
+    # rather than counted back from the end of the path.
+    let head = path[:len(path) - len(leaf)]
+    let segs = string.split(head, "/")
+    if len(segs) < 2 { return "" }
+    let mod = segs[len(segs) - 1]
+    let pkg = segs[len(segs) - 2]
     for seg in [pkg, mod] {
         if seg == "" { return "" }
         let i = 0
@@ -2822,6 +2859,15 @@ fn load_ext_tree(g, extname) {
                 g.bench_node[bmod] = parsers.xml.find(cdoc, cdef, "detaileddescription")
                 g.bench_title[bmod] = text_of_child(cdoc, cdef, "title")
                 g.bench_ext[bmod] = extname
+            }
+            # docs/VERIFICATION.md sits one level deeper than BENCHMARKS.md, so it is matched on
+            # the /docs/ leaf and the module taken from the directory above it.
+            let vmod = ext_md_module_of(lfile, "/docs/VERIFICATION.md")
+            if vmod != "" {
+                g.verif_key[vmod] = refid
+                g.verif_node[vmod] = parsers.xml.find(cdoc, cdef, "detaileddescription")
+                g.verif_title[vmod] = text_of_child(cdoc, cdef, "title")
+                g.verif_ext[vmod] = extname
             }
             continue
         }
@@ -3330,6 +3376,19 @@ fn main() {
             write_file("docs/html/" + extname + "/" + bfname,
                        with_seo(mark_active(render_bench_page(g, mod, esb), bactive), g, extname + "/" + bfname,
                                 mod + " benchmarks — the generated measurement tables for the " + mod + " module: every case, the harness that measured it, and how to reproduce it.", false))
+            pages = pages + 1
+        }
+        let verif_mods: list<str> = []
+        for kv in g.verif_key { verif_mods.append(kv.first) }
+        for mod in sorted_strs(verif_mods) {
+            if not (mod in g.verif_ext) { continue }
+            if g.verif_ext[mod] != extname { continue }
+            let vfname = verif_page_name(mod)
+            let vactive = vfname
+            if mod in g.ext_ns { vactive = g.ext_ns[mod] + ".html" }
+            write_file("docs/html/" + extname + "/" + vfname,
+                       with_seo(mark_active(render_verif_page(g, mod, esb), vactive), g, extname + "/" + vfname,
+                                mod + " verification status — what is implemented, what has been verified against the reference implementation, and how the domain was sampled.", false))
             pages = pages + 1
         }
         ci = 0
