@@ -118,6 +118,7 @@ struct Gen {
     app_usage: dict<str, str>      # "module <US> func" -> <US>-joined sorted test names
     readme_key: dict<str, str>     # module short -> the README page's doc key (refid)
     readme_node: dict<str, int>    # module short -> detaileddescription node id
+    readme_ext: dict<str, str>     # module short -> the extension owning it (absent = stdlib)
     bench_key: dict<str, str>      # module short -> its BENCHMARKS.md page's refid (the benchmark subpage)
     bench_node: dict<str, int>     # module short -> that page's detaileddescription node id
     bench_title: dict<str, str>    # module short -> that page's Doxygen title ("regex benchmarks")
@@ -1864,6 +1865,39 @@ fn page_desc(g, ci) {
     return desc_or(brief, fallback)
 }
 
+# Doxygen's Markdown leaves a **bold** span literal when the marker is followed by a character it
+# does not count as word-starting — `**~50 %**` is the case a member's VERIFICATION.md hit — so the
+# rendered prose carried the asterisks and the accessibility gate refused the site. Pair whatever
+# markers survive in the rendered HTML, the same rule md_inline applies to changelog prose: an odd
+# marker out stays literal. Tags between a pair are left as they are (a span may wrap a <code>).
+fn repair_bold(html) {
+    if len(string.split(html, "**")) < 3 { return html }
+    # Pair within each paragraph, never across one: a marker Doxygen left in one <para> must not
+    # be closed by a marker from the next list item.
+    let paras = string.split(html, "</p>")
+    let out = ""
+    let pi = 0
+    while pi < len(paras) {
+        let parts = string.split(paras[pi], "**")
+        let usable = len(parts) - 1
+        usable = usable - (usable % 2)
+        let seg = parts[0]
+        let i = 1
+        while i < len(parts) {
+            if i <= usable {
+                if i % 2 == 1 { seg = seg + "<strong>" + parts[i] } else { seg = seg + "</strong>" + parts[i] }
+            } else {
+                seg = seg + "**" + parts[i]
+            }
+            i = i + 1
+        }
+        out = out + seg
+        if pi + 1 < len(paras) { out = out + "</p>" }
+        pi = pi + 1
+    }
+    return out
+}
+
 fn render_compound_page(g, ci, sidebar) {
     let c = g.comps[ci]
     let doc_key = c.refid
@@ -1879,8 +1913,13 @@ fn render_compound_page(g, ci, sidebar) {
     let brief = render_brief(g, cdoc, c.brief_id)
     let detail = ""
     if c.kind == "namespace" and c.short in g.readme_key {
-        let rdoc = doc_of("docs/xml", g.readme_key[c.short])
-        detail = render_desc(g, rdoc, g.readme_node[c.short])
+        let rxdir = "docs/xml"
+        if c.short in g.readme_ext { rxdir = "docs/xml-ext/" + g.readme_ext[c.short] }
+        let rdoc = doc_of(rxdir, g.readme_key[c.short])
+        # Same Doxygen quirk the verification page hit: a bold span whose content opens with a
+        # special character (`**~10⁵ …**`) is left literal, and the a11y gate rightly refuses raw
+        # markdown in prose.
+        detail = repair_bold(render_desc(g, rdoc, g.readme_node[c.short]))
     }
     detail = detail + render_desc(g, cdoc, c.detail_id)
     # A module with a benchmark subpage says so up front: the tables used to be folded in here.
@@ -2036,38 +2075,6 @@ fn render_bench_page(g, mod, sidebar) {
     return page_shell_in(g, pkg, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
 }
 
-# Doxygen's Markdown leaves a **bold** span literal when the marker is followed by a character it
-# does not count as word-starting — `**~50 %**` is the case a member's VERIFICATION.md hit — so the
-# rendered prose carried the asterisks and the accessibility gate refused the site. Pair whatever
-# markers survive in the rendered HTML, the same rule md_inline applies to changelog prose: an odd
-# marker out stays literal. Tags between a pair are left as they are (a span may wrap a <code>).
-fn repair_bold(html) {
-    if len(string.split(html, "**")) < 3 { return html }
-    # Pair within each paragraph, never across one: a marker Doxygen left in one <para> must not
-    # be closed by a marker from the next list item.
-    let paras = string.split(html, "</p>")
-    let out = ""
-    let pi = 0
-    while pi < len(paras) {
-        let parts = string.split(paras[pi], "**")
-        let usable = len(parts) - 1
-        usable = usable - (usable % 2)
-        let seg = parts[0]
-        let i = 1
-        while i < len(parts) {
-            if i <= usable {
-                if i % 2 == 1 { seg = seg + "<strong>" + parts[i] } else { seg = seg + "</strong>" + parts[i] }
-            } else {
-                seg = seg + "**" + parts[i]
-            }
-            i = i + 1
-        }
-        out = out + seg
-        if pi + 1 < len(paras) { out = out + "</p>" }
-        pi = pi + 1
-    }
-    return out
-}
 
 # The verification subpage: what a module implements, what was measured against the reference it
 # reimplements, and over which part of the domain. Rendered from the module's own
@@ -2262,6 +2269,40 @@ fn count_bold(s) {
 # marker land in different segments and both survive as literal asterisks. So pair them
 # across the whole line, carrying the open/closed state through the code spans, which are
 # emitted verbatim and never affect it. An odd marker out stays literal, as before.
+# Escape a plain-text run, converting markdown links on the way.
+#
+# ONLY http(s) targets become anchors. A markdown link in a README usually points at a path in ITS
+# OWN repo (`[space/time](space/time/)`), which is not a route on this site — emitting it as an
+# anchor would dangle, and the deploy's link gate checks every relative ref on every page and fails
+# on a missing target. So a non-http link renders as its text: the reader loses nothing they could
+# have followed anyway. `![alt](…)` renders as its alt text; images are published deliberately, not
+# by whatever a README happens to reference.
+fn md_links(t) {
+    let out = ""
+    let rest = t
+    while true {
+        let ob = string.find(rest, "[", 0)
+        if ob < 0 { out = out + esc(rest); break }
+        let mid = string.find(rest, "](", ob)
+        if mid < 0 { out = out + esc(rest); break }
+        let close = string.find(rest, ")", mid + 2)
+        if close < 0 { out = out + esc(rest); break }
+        let label = rest[ob + 1:mid]
+        let url = rest[mid + 2:close]
+        let head = rest[:ob]
+        let is_img = ob > 0 and rest[ob - 1:ob] == "!"
+        if is_img { head = rest[:ob - 1] }
+        out = out + esc(head)
+        if not is_img and (string.startswith(url, "http://") or string.startswith(url, "https://")) {
+            out = out + "<a href=\"" + esc(url) + "\">" + esc(label) + "</a>"
+        } else {
+            out = out + esc(label)
+        }
+        rest = rest[close + 1:]
+    }
+    return out
+}
+
 fn md_inline(s) {
     let parts = string.split(s, "`")
     let kinds = [""]
@@ -2297,7 +2338,7 @@ fn md_inline(s) {
             out = out + "<code>" + esc(texts[k]) + "</code>"
         } else {
             let segs = string.split(texts[k], "**")
-            out = out + esc(segs[0])
+            out = out + md_links(segs[0])
             let j = 1
             while j < len(segs) {
                 if seen < usable {
@@ -2307,7 +2348,7 @@ fn md_inline(s) {
                 } else {
                     out = out + "**"
                 }
-                out = out + esc(segs[j])
+                out = out + md_links(segs[j])
                 j = j + 1
             }
         }
@@ -2548,7 +2589,14 @@ fn render_ext_home(g, extname, sidebar) {
     }
     let desc_html = ""
     if desc != "" { desc_html = "\n  <p class=\"lede\">" + esc(desc) + "</p>" }
-    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Extension</div>\n" + "  <h1><code>" + esc(extname) + "</code></h1>\n" + "  <p class=\"ext-badge\">" + esc(badge) + "</p>" + desc_html + "\n" + "</div>\n" + "<p class=\"ext-deps\">Depends on: " + dep_html + "</p>\n" + table + "\n" + "<p><a href=\"releases.html\">Release history</a> · <a href=\"../standard.html\">The Biome Standard</a></p>"
+    # The one-line blurb says what the package IS; it cannot show what using it LOOKS like, and a
+    # reader who lands here should not have to open a module page to find that out. Every extension
+    # already opens its README with a lede and a runnable example, so render it — the same way
+    # render_ext_releases renders the sibling CHANGELOG, straight from the checkout.
+    let overview = render_changelog_body(g, "../" + extname + "/README.md")
+    let overview_html = ""
+    if overview != "" { overview_html = "<div class=\"overview\">" + overview + "</div>\n" }
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Extension</div>\n" + "  <h1><code>" + esc(extname) + "</code></h1>\n" + "  <p class=\"ext-badge\">" + esc(badge) + "</p>" + desc_html + "\n" + "</div>\n" + "<p class=\"ext-deps\">Depends on: " + dep_html + "</p>\n" + overview_html + table + "\n" + "<p><a href=\"releases.html\">Release history</a> · <a href=\"../standard.html\">The Biome Standard</a></p>"
     return page_shell_in(g, extname, extname, sidebar, content, "")
 }
 
@@ -2921,6 +2969,31 @@ fn load_ext_tree(g, extname) {
             }
             # docs/VERIFICATION.md sits one level deeper than BENCHMARKS.md, so it is matched on
             # the /docs/ leaf and the module taken from the directory above it.
+            # An extension module's README folds into its module page exactly as a stdlib
+            # module's does. Without this the page opens on a bare function signature: these
+            # READMEs were already parsed into the extension's XML and then thrown away, so the
+            # lede and first example every extension already ships never reached a reader.
+            let rmod = ext_md_module_of(lfile, "/README.md")
+            if rmod != "" {
+                let rnode = parsers.xml.find(cdoc, cdef, "detaileddescription")
+                g.readme_key[rmod] = refid
+                g.readme_node[rmod] = rnode
+                g.readme_ext[rmod] = extname
+                # An extension's directory layout need not match its namespace nesting.
+                # cheatah-space puts space/irbem/ under `cheatah::space::irbem`, so the
+                # `pkg::mod` key matches the namespace's short name directly — but cheatah-plot
+                # puts plot/color/ under a FLAT `cheatah::color`, whose short is just `color`.
+                # Register the bare module name too, and only when nothing claims it: load_all
+                # runs first (main:3206), so a stdlib module of the same name always wins.
+                let bare = rmod
+                let cut = string.rfind(rmod, "::")
+                if cut >= 0 { bare = rmod[cut + 2:] }
+                if bare != rmod and not (bare in g.readme_key) {
+                    g.readme_key[bare] = refid
+                    g.readme_node[bare] = rnode
+                    g.readme_ext[bare] = extname
+                }
+            }
             let vmod = ext_md_module_of(lfile, "/docs/VERIFICATION.md")
             if vmod != "" {
                 g.verif_key[vmod] = refid
@@ -3209,6 +3282,9 @@ fn main() {
         if kv.first in g.modules {
             g.valid[kv.second] = true
             g.page_href[kv.second] = g.modules[kv.first] + ".html"
+        } elif kv.first in g.ext_ns {
+            g.valid[kv.second] = true
+            g.page_href[kv.second] = g.ext_ns[kv.first] + ".html"
         }
     }
     # section anchors in details/briefs/READMEs are valid link targets too
@@ -3219,7 +3295,9 @@ fn main() {
         register_anchors(g, adoc, c.detail_id)
         register_anchors(g, adoc, c.brief_id)
         if c.short in g.readme_key {
-            let ardoc = doc_of("docs/xml", g.readme_key[c.short])
+            let axdir = "docs/xml"
+            if c.short in g.readme_ext { axdir = "docs/xml-ext/" + g.readme_ext[c.short] }
+            let ardoc = doc_of(axdir, g.readme_key[c.short])
             register_anchors(g, ardoc, g.readme_node[c.short])
         }
         ci = ci + 1

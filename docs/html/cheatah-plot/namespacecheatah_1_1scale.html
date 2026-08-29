@@ -29,7 +29,13 @@
   <h1><code>scale</code></h1>
   <p class="ext-badge">cheatah-plot v0.1.1-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
-<div class="overview"></div>
+<div class="overview"><p>Axis geometry: turn a range of data into tick positions and pixel coordinates. Pure cheatah on <code>ndarray</code> — no device, no figure, nothing to set up.</p><pre class="code"><code><span class="tok-kw">import</span> plot.scale <span class="tok-kw">as</span> scale
+<span class="tok-kw">import</span> ndarray
+
+<span class="tok-kw">let</span> values = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">3.2</span>, <span class="tok-num">7.9</span>, <span class="tok-num">5.1</span>, <span class="tok-num">4.4</span>])
+<span class="tok-kw">let</span> r      = scale.<span class="tok-fn">data_range</span>(values)      <span class="tok-com"># Range 3.2 .. 7.9</span>
+<span class="tok-kw">let</span> ticks  = scale.<span class="tok-fn">ticks</span>(r, <span class="tok-num">5</span>)             <span class="tok-com"># round tick values inside that range</span>
+<span class="tok-kw">let</span> px     = scale.<span class="tok-fn">to_pixel</span>(<span class="tok-num">5.1</span>, r, <span class="tok-num">640</span>)   <span class="tok-com"># where 5.1 lands on a 640px axis</span></code></pre><p><p><strong>Status:</strong> working</p></p><p>Log axes are the same shape: <code>log_ticks</code> produces decade ticks with 1-2-5 subdivision, and <code>to_pixel_log</code> places a value on them. A range whose data is empty or degenerate falls back to <code><span class="tok-num">0</span> .. <span class="tok-num">1</span></code> rather than producing a division by zero, so an axis over no data still draws.</p></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1scale_1_1Range.html"><code>Range</code></a> — A closed data interval [lo, hi] on one axis. </li></ul>
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1scale_1a6ecaed831201f222ba28fe3b9423c04d">
   <div class="member-head">

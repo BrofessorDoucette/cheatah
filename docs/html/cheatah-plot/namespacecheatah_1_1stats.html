@@ -29,7 +29,12 @@
   <h1><code>stats</code></h1>
   <p class="ext-badge">cheatah-plot v0.1.1-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
-<div class="overview"></div>
+<div class="overview"><p>The statistics a plot needs before it can draw: histogram binning, least-squares fit lines, and standard error. Built on <code>ndarray</code>, <code>linalg</code> and <code>statistics</code> rather than reimplementing them.</p><pre class="code"><code><span class="tok-kw">import</span> plot.stats <span class="tok-kw">as</span> stats
+<span class="tok-kw">import</span> ndarray
+
+<span class="tok-kw">let</span> samples = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">1.0</span>, <span class="tok-num">1.4</span>, <span class="tok-num">2.2</span>, <span class="tok-num">2.3</span>, <span class="tok-num">2.9</span>, <span class="tok-num">3.1</span>, <span class="tok-num">3.4</span>])
+<span class="tok-kw">let</span> h       = stats.<span class="tok-fn">histogram</span>(samples, <span class="tok-num">5</span>)    <span class="tok-com"># 5 bins: edges and counts</span>
+<span class="tok-kw">let</span> trend   = stats.<span class="tok-fn">fit</span>(xs, ys)              <span class="tok-com"># least-squares trend line, via linalg.lstsq</span></code></pre><p><p><strong>Status:</strong> working</p></p><p>The fit is a real least-squares solve through <code>linalg.lstsq</code>, not a hand-rolled normal equation, so it degrades the way the rest of the numeric stack does on ill-conditioned input.</p></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1stats_1_1Hist.html"><code>Hist</code></a> — A binned histogram: everything a bar mark needs to draw it. </li></ul>
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1stats_1a86c3adbc9ff2d32396604478ed71584d">
   <div class="member-head">

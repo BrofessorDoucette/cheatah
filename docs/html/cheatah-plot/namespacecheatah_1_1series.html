@@ -29,7 +29,13 @@
   <h1><code>series</code></h1>
   <p class="ext-badge">cheatah-plot v0.1.1-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
-<div class="overview"></div>
+<div class="overview"><p>The marks a figure draws — lines, points, bars, areas, steps, error bars, heatmaps, glyphs. A series is a value: build it, hand it to a figure, and it renders.</p><pre class="code"><code><span class="tok-kw">import</span> plot.series <span class="tok-kw">as</span> series
+<span class="tok-kw">import</span> ndarray
+
+<span class="tok-kw">let</span> xs = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> ys = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">4.0</span>, <span class="tok-num">9.0</span>])
+<span class="tok-kw">let</span> s  = series.<span class="tok-fn">line</span>(xs, ys)            <span class="tok-com"># a line mark over those points</span>
+<span class="tok-kw">let</span> p  = series.<span class="tok-fn">scatter</span>(xs, ys)         <span class="tok-com"># the same data as points</span></code></pre><p><p><strong>Status:</strong> working</p></p><p>Every mark kind has a two-argument constructor and a fuller one, rather than default arguments: the short form is what you reach for, the long form carries style. Both return a new value, so a series is never mutated behind your back.</p></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1series_1_1Series.html"><code>Series</code></a> — One drawable mark set: the data arrays and the style that draws them. </li></ul>
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1series_1ab82bf0f25ca768afa5acfdc59fbaaf71">
   <div class="member-head">

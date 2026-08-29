@@ -29,7 +29,13 @@
   <h1><code>figure</code></h1>
   <p class="ext-badge">cheatah-plot v0.1.1-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
-<div class="overview"></div>
+<div class="overview"><p>The figure itself: axes, subplot grids, titles, legends — the container the marks live in, and what you hand to <code>plot.save</code>.</p><pre class="code"><code><span class="tok-kw">import</span> plot
+<span class="tok-kw">import</span> ndarray
+
+<span class="tok-kw">let</span> xs  = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">3.0</span>])
+<span class="tok-kw">let</span> ys  = ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">4.0</span>, <span class="tok-num">9.0</span>])
+<span class="tok-kw">let</span> fig = plot.<span class="tok-fn">line</span>(plot.<span class="tok-fn">new_figure</span>(), xs, ys)
+plot.<span class="tok-fn">save</span>(plot.<span class="tok-fn">title</span>(fig, <span class="tok-str">&quot;y = x²&quot;</span>), <span class="tok-str">&quot;parabola.png&quot;</span>)</code></pre><p><p><strong>Status:</strong> working</p></p><p>The builders are free functions returning a modified copy, so a figure is composed by chaining rather than by mutating a handle — <code>plot.<span class="tok-fn">title</span>(plot.<span class="tok-fn">line</span>(fig, xs, ys), <span class="tok-str">&quot;…&quot;</span>)</code> is the whole idiom, and an intermediate figure stays valid if you keep it.</p></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1figure_1_1Axis.html"><code>Axis</code></a> — One axis: label, transform, limits, and a target tick count. </li><li><a href="structcheatah_1_1figure_1_1Figure.html"><code>Figure</code></a> — The whole figure: a rows×cols grid of subplots, pixel size, the categorical palette, and the index fluent calls currently target. </li><li><a href="structcheatah_1_1figure_1_1Scale.html"><code>Scale</code></a> — An axis transform choice (&quot;linear&quot; or &quot;log&quot;) — a tiny struct instead of an enum, per the house style; make one with <code><a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1a7b06c2c7c9447d824c5bc05ebe3fb8e8">linear()</a></code> / <code><a href="namespacecheatah_1_1figure.html#namespacecheatah_1_1figure_1afe113e447b7ed65b149d4411e8f31732">log_scale()</a></code>. </li><li><a href="structcheatah_1_1figure_1_1Subplot.html"><code>Subplot</code></a> — One cell of the figure grid: a title, two axes, the series drawn in it, and a legend flag. </li></ul>
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1figure_1adce91300cd23e0a52dbb99d7ac3da30d">
   <div class="member-head">

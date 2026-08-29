@@ -29,7 +29,11 @@
   <h1><code>color</code></h1>
   <p class="ext-badge">cheatah-plot v0.1.1-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
-<div class="overview"></div>
+<div class="overview"><p>Colours and palettes: named CSS-style colours, the perceptually-uniform colormaps (<code>viridis</code>, <code>magma</code>, <code>coolwarm</code>), and the interpolation that samples them.</p><pre class="code"><code><span class="tok-kw">import</span> plot.color <span class="tok-kw">as</span> color
+
+<span class="tok-kw">let</span> c    = color.<span class="tok-fn">named</span>(<span class="tok-str">&quot;steelblue&quot;</span>)     <span class="tok-com"># a Color, by the name you already know</span>
+<span class="tok-kw">let</span> warm = color.<span class="tok-fn">viridis</span>(<span class="tok-num">0.75</span>)          <span class="tok-com"># sample a colormap at t in [0, 1]</span>
+<span class="tok-kw">let</span> pal  = color.<span class="tok-fn">palette</span>(<span class="tok-num">6</span>)             <span class="tok-com"># 6 distinguishable series colours</span></code></pre><p><p><strong>Status:</strong> working</p></p><p>Colours are plain values, so a series colour, a heatmap sample and a background are the same type — there is no separate &quot;colormap object&quot; to construct and thread through a call chain.</p></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1color_1_1Color.html"><code>Color</code></a> — One RGBA colour, channels in [0, 1]. </li></ul>
 <h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1color_1aa055f0115f5a4e04a2ca9e778740f392">
   <div class="member-head">
