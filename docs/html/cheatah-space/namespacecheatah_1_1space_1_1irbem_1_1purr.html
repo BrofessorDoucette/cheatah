@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::purr — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=55cb5905">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/namespacecheatah_1_1space_1_1irbem_1_1purr">
+<meta name="description" content="space.irbem.purr — the space.irbem.purr module of the cheatah cheatah-space package: every function, type and constant, with signatures and examples.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="getting-started.html" data-ref="getting-started">Getting started</a></li><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub" open><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a class="active" href="namespacecheatah_1_1space_1_1irbem_1_1purr.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1purr">purr</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>space::irbem::purr</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch.html"><code>Epoch</code></a> — An epoch: the internal field model and the frame rotations for one instant. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1a79274822f8fda01db6d2b1f6193a3c49">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch.html">Epoch</a></span> <span class="mname">epoch_at</span>(int year, int doy, double ut_seconds)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a79274822f8fda01db6d2b1f6193a3c49" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The epoch for a date and time. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>year</code></td><td class="pdesc"><p>the calendar year.</p></td></tr><tr><td class="pname"><code>doy</code></td><td class="pdesc"><p>the day of year, 1-366.</p></td></tr><tr><td class="pname"><code>ut_seconds</code></td><td class="pdesc"><p>seconds since midnight UT.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the epoch; <a href="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ad520140f51d9db5355c4545ed791fb9f">Epoch::ok</a> is false when the date lies outside IGRF&#x27;s published range, in which case every routine taking it returns Status::OutOfValidityRange rather than a plausible wrong number.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(NMAX²) once, then reused by every call that takes it.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemPurr</span>.<span class="tn-case">EpochMatchesTheTypedCore</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_irbem</span>.<span class="tn-case">purr</span></code></span></div><pre class="code"><code><span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+<span class="tok-kw">let</span> e = irbem.<span class="tok-fn">epoch_at</span>(<span class="tok-num">2015</span>, <span class="tok-num">182</span>, <span class="tok-num">43200.0</span>)</code></pre></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1a1b87f22e19c69056cd9c9d027c558240">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">epoch_ok</span>(const Epoch &amp;e)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a1b87f22e19c69056cd9c9d027c558240" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether <code>e</code> names an instant this model can evaluate. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>e</code></td><td class="pdesc"><p>the epoch.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><a href="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ad520140f51d9db5355c4545ed791fb9f">Epoch::ok</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemPurr</span>.<span class="tn-case">EpochMatchesTheTypedCore</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_irbem</span>.<span class="tn-case">purr</span></code></span></div><pre class="code"><code><span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+<span class="tok-kw">let</span> e = irbem.<span class="tok-fn">epoch_at</span>(<span class="tok-num">1750</span>, <span class="tok-num">1</span>, <span class="tok-num">0.0</span>)
+<span class="tok-kw">let</span> usable = irbem.<span class="tok-fn">epoch_ok</span>(e)          <span class="tok-com"># false — before IGRF begins</span></code></pre></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1a5434776b982ff92b7ebfa9221ed13875">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">status_name</span>(int code)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a5434776b982ff92b7ebfa9221ed13875" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The name of a <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a> code, for a program that wants to report why a call declined. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>code</code></td><td class="pdesc"><p>the status, as returned in a result array&#x27;s status slot.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a short name such as <code><span class="tok-str">&quot;Ok&quot;</span></code> or <code><span class="tok-str">&quot;OutOfValidityRange&quot;</span></code>; <code><span class="tok-str">&quot;Unknown&quot;</span></code> for an unrecognised code, so this never throws on a value from an older build.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the returned string.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemPurr</span>.<span class="tn-case">StatusNamesEveryCode</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_irbem</span>.<span class="tn-case">purr</span></code></span></div><pre class="code"><code><span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+io.<span class="tok-fn">print</span>(irbem.<span class="tok-fn">status_name</span>(<span class="tok-num">0</span>))          <span class="tok-com"># -&gt; Ok</span></code></pre></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1a00084d92efb6ee2f15cddebe991948ad">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">::cheatah::ndarray::NDArray</span> <span class="mname">make_lstar</span>(const Epoch &amp;e, double x1, double x2, double x3, int sysaxes, double pitch_angle_deg)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a00084d92efb6ee2f15cddebe991948ad" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The magnetic coordinates of one point — IRBEM&#x27;s <code>MAKE_LSTAR</code>. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>e</code></td><td class="pdesc"><p>the epoch, from <a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html#namespacecheatah_1_1space_1_1irbem_1_1purr_1a79274822f8fda01db6d2b1f6193a3c49">epoch_at</a>.</p></td></tr><tr><td class="pname"><code>x1</code></td><td class="pdesc"><p>first position component.</p></td></tr><tr><td class="pname"><code>x2</code></td><td class="pdesc"><p>second.</p></td></tr><tr><td class="pname"><code>x3</code></td><td class="pdesc"><p>third — read per <code>sysaxes</code>.</p></td></tr><tr><td class="pname"><code>sysaxes</code></td><td class="pdesc"><p>IRBEM&#x27;s frame code: 0 GDZ, 1 GEO, 2 GSM, 3 GSE, 4 SM, 5 GEI, 6 MAG, 7 SPH, 8 RLL.</p></td></tr><tr><td class="pname"><code>pitch_angle_deg</code></td><td class="pdesc"><p>the local pitch angle; 90 is IRBEM&#x27;s <code>MAKE_LSTAR</code> convention.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an <code>ndarray</code> of <a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab3a4ecde398035acd14daed1b930c725">lstar_slots</a> values: <code>Lm</code>, <code>L*</code>, <code>Blocal</code>, <code>Bmin</code>, <code>I</code>, <code>MLT</code>, and the <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a> code as the last slot. A declined call fills the physical slots with IRBEM&#x27;s <code><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1afbc531e27c2606fb99d576fd95e3ecc1">baddata</a></code> and names the reason in the status slot rather than returning nothing.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>~10⁵ field evaluations — the drift-shell integral.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one array of <a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab3a4ecde398035acd14daed1b930c725">lstar_slots</a> doubles.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemPurr</span>.<span class="tn-case">MakeLstarMatchesTheTypedCore</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_irbem</span>.<span class="tn-case">purr</span></code></span></div><pre class="code"><code><span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+<span class="tok-kw">let</span> e = irbem.<span class="tok-fn">epoch_at</span>(<span class="tok-num">2015</span>, <span class="tok-num">182</span>, <span class="tok-num">43200.0</span>)
+<span class="tok-kw">let</span> c = irbem.<span class="tok-fn">make_lstar</span>(e, <span class="tok-num">6.6</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1</span>, <span class="tok-num">90.0</span>)
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;L* =&quot;</span>, c[<span class="tok-num">1</span>])</code></pre></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1ad30c38f381387de1052388a7dc3145dc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">get_mlt</span>(const Epoch &amp;e, double x1, double x2, double x3, int sysaxes)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1ad30c38f381387de1052388a7dc3145dc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Magnetic local time at a geographic point — IRBEM&#x27;s <code>GET_MLT</code>. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>e</code></td><td class="pdesc"><p>the epoch.</p></td></tr><tr><td class="pname"><code>x1</code></td><td class="pdesc"></td></tr></table></div><p>param x2</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x3</code></td><td class="pdesc"><p>the position.</p></td></tr><tr><td class="pname"><code>sysaxes</code></td><td class="pdesc"><p>its frame code.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>MLT in hours, folded into <code>[<span class="tok-num">0</span>, <span class="tok-num">24</span>)</code>; a negative value signals a declined call, which cannot collide with a real MLT.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) beyond the frame transform.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemPurr</span>.<span class="tn-case">MltMatchesTheTypedCore</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_irbem</span>.<span class="tn-case">purr</span></code></span></div><pre class="code"><code><span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+<span class="tok-kw">let</span> e = irbem.<span class="tok-fn">epoch_at</span>(<span class="tok-num">2015</span>, <span class="tok-num">182</span>, <span class="tok-num">43200.0</span>)
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;MLT =&quot;</span>, irbem.<span class="tok-fn">get_mlt</span>(e, <span class="tok-num">6.6</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1</span>))</code></pre></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1a72a1d457e6f7806641c68613bb8e843a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">::cheatah::ndarray::NDArray</span> <span class="mname">coord_trans</span>(const Epoch &amp;e, double x1, double x2, double x3, int sysaxes_in, int sysaxes_out)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a72a1d457e6f7806641c68613bb8e843a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Convert a position between any two of IRBEM&#x27;s frames — its <code>COORD_TRANS</code>. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>e</code></td><td class="pdesc"><p>the epoch, whose rotations the transform needs.</p></td></tr><tr><td class="pname"><code>x1</code></td><td class="pdesc"></td></tr></table></div><p>param x2</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>x3</code></td><td class="pdesc"><p>the input components, read per <code>sysaxes_in</code>.</p></td></tr><tr><td class="pname"><code>sysaxes_in</code></td><td class="pdesc"><p>the input frame code.</p></td></tr><tr><td class="pname"><code>sysaxes_out</code></td><td class="pdesc"><p>the output frame code.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an <code>ndarray</code> of four values: the three output components, then the <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a> code.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) — at most two 3×3 products.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one array of four doubles.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemPurr</span>.<span class="tn-case">CoordTransRoundTrips</span></code></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_irbem</span>.<span class="tn-case">purr</span></code></span></div><pre class="code"><code><span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+<span class="tok-kw">let</span> e = irbem.<span class="tok-fn">epoch_at</span>(<span class="tok-num">2015</span>, <span class="tok-num">182</span>, <span class="tok-num">43200.0</span>)
+<span class="tok-kw">let</span> gsm = irbem.<span class="tok-fn">coord_trans</span>(e, <span class="tok-num">6.6</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1</span>, <span class="tok-num">2</span>)   <span class="tok-com"># GEO -&gt; GSM</span></code></pre></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1ab3a4ecde398035acd14daed1b930c725">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">lstar_slots</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab3a4ecde398035acd14daed1b930c725" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many values <a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html#namespacecheatah_1_1space_1_1irbem_1_1purr_1a00084d92efb6ee2f15cddebe991948ad">make_lstar</a> returns, and the slot each occupies. </p>
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1purr_1ab48fe057cfe482b02cdfb32c26e42fd2">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&lt; <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1af69d15efc6af6343858a05e48ae65448">tables::igrf14_max_degree</a>, <a href="structcheatah_1_1space_1_1irbem_1_1Exact.html">Exact</a> &gt;</span> <span class="mname">Model</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab48fe057cfe482b02cdfb32c26e42fd2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal-field truncation the facade pins. </p>
+  <div class="member-body"><p>Degree 13 is IGRF-14 as IAGA publishes it, and fixing it here is what removes <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&#x27;s non-type template parameter from the surface.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a79274822f8fda01db6d2b1f6193a3c49">epoch_at</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a1b87f22e19c69056cd9c9d027c558240">epoch_ok</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a5434776b982ff92b7ebfa9221ed13875">status_name</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a00084d92efb6ee2f15cddebe991948ad">make_lstar</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1ad30c38f381387de1052388a7dc3145dc">get_mlt</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1a72a1d457e6f7806641c68613bb8e843a">coord_trans</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab48fe057cfe482b02cdfb32c26e42fd2">Model</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab3a4ecde398035acd14daed1b930c725">lstar_slots</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::purr::Epoch — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=55cb5905">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch">
+<meta name="description" content="An epoch: the internal field model and the frame rotations for one instant.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="getting-started.html" data-ref="getting-started">Getting started</a></li><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1purr">purr</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::purr::Epoch</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">An epoch: the internal field model and the frame rotations for one instant. </p>
+</div>
+<div class="overview"><p>A cheatah program cannot call <code><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&lt;13&gt;::at</code> — a static member on a class template, returning <code>std::optional</code> — so this absorbs it. Build one, hand it to everything else. It is a plain aggregate, so a <code>.<a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html">purr</a></code> program reads <a href="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ad520140f51d9db5355c4545ed791fb9f">ok</a> directly.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1af791e28f744c731f8186df2c7720ac37">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::optional&lt; <a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html#namespacecheatah_1_1space_1_1irbem_1_1purr_1ab48fe057cfe482b02cdfb32c26e42fd2">Model</a> &gt;</span> <span class="mname">model</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1af791e28f744c731f8186df2c7720ac37" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">IGRF at this instant. </p>
+  <div class="member-body"><p>Held in an <code>optional</code> because <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&#x27;s constructor is PRIVATE — only its static factory builds one — so a default-constructible aggregate cannot hold it directly. That privacy is exactly what a cheatah program cannot work around, and absorbing it is this type&#x27;s whole reason to exist.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ab046c2d6eea92e704ba7c09706280c43">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a></span> <span class="mname">rotations</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ab046c2d6eea92e704ba7c09706280c43" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The frame rotations for it. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ad520140f51d9db5355c4545ed791fb9f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">ok</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ad520140f51d9db5355c4545ed791fb9f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the epoch was inside IGRF&#x27;s definition; see <a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html#namespacecheatah_1_1space_1_1irbem_1_1purr_1a79274822f8fda01db6d2b1f6193a3c49">epoch_at</a>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1af791e28f744c731f8186df2c7720ac37">model</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ab046c2d6eea92e704ba7c09706280c43">rotations</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1purr_1_1Epoch_1ad520140f51d9db5355c4545ed791fb9f">ok</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

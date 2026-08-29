@@ -468,3 +468,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
   color: var(--accent); text-decoration: none; font-weight: 600; white-space: nowrap;
 }
 .sitefoot .donate:hover { background: var(--accent-soft); color: var(--accent-2); }
+
+/* Extension example renders (cheatah-plot's gallery): a responsive grid of figures. Sized by the
+   grid rather than by the image so a 900x600 plot and a 900x360 one sit on the same baseline. */
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin: 1rem 0; }
+.shots .shot { margin: 0; }
+.shots .shot img { width: 100%; height: auto; display: block; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+.shots .shot figcaption { font-size: 0.85rem; color: var(--dim); margin-top: 0.35rem; }

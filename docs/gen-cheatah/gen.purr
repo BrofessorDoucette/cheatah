@@ -119,6 +119,7 @@ struct Gen {
     readme_key: dict<str, str>     # module short -> the README page's doc key (refid)
     readme_node: dict<str, int>    # module short -> detaileddescription node id
     readme_ext: dict<str, str>     # module short -> the extension owning it (absent = stdlib)
+    start_seen: dict<str, bool>    # extension name -> it ships a docs/GETTING_STARTED.md
     bench_key: dict<str, str>      # module short -> its BENCHMARKS.md page's refid (the benchmark subpage)
     bench_node: dict<str, int>     # module short -> that page's detaileddescription node id
     bench_title: dict<str, str>    # module short -> that page's Doxygen title ("regex benchmarks")
@@ -2079,6 +2080,58 @@ fn render_bench_page(g, mod, sidebar) {
 # The verification subpage: what a module implements, what was measured against the reference it
 # reimplements, and over which part of the domain. Rendered from the module's own
 # docs/VERIFICATION.md so the published page and the repo's cannot drift apart.
+# The package's front door: what it is for, and how its modules and the extensions it composes
+# with are used together. A module reference cannot carry this — the workflow spans packages, and
+# putting another package's imports on a module page is exactly the clutter this page prevents.
+#
+# Read straight from the sibling checkout rather than through Doxygen: an extension's Doxyfile
+# scopes INPUT to its package directory (cheatah-space's is `space`), so a file under docs/ is
+# never parsed into XML at all. render_ext_releases reads CHANGELOG.md the same way.
+fn write_file(path, content) {
+    # extension subsites live in subdirectories (docs/html/<ext>/…)
+    let cut = string.rfind(path, "/")
+    if cut > 0 {
+        let dir = path[:cut]
+        if not os.path.isdir(dir) { os.makedirs(dir) }
+    }
+    with io.open(path, "w") as f {
+        f.write(content)
+    }
+}
+
+# An extension's rendered example output, published beside its pages. cheatah-plot's whole point is
+# that it produces pictures, and a plotting library documented without one is asking the reader to
+# take the output on faith. Files come from the sibling checkout's docs/gallery/ (build-docs.sh does
+# `rm -rf docs/html`, so the copy has to happen here rather than being dropped in by hand).
+fn copy_gallery(g, extname) -> list<str> {
+    let names: list<str> = []
+    let dir = "../" + extname + "/docs/gallery"
+    if not os.path.isdir(dir) { return names }
+    for f in sorted_strs(os.listdir(dir)) {
+        if not string.endswith(f, ".png") { continue }
+        write_file("docs/html/" + extname + "/gallery/" + f, io.read_file(dir + "/" + f))
+        names.append(f)
+    }
+    return names
+}
+
+# A caption from the file name: "08_gallery_2x2_subplots.png" -> "gallery 2x2 subplots". It doubles
+# as the alt text, which the a11y gate requires on every image.
+fn gallery_caption(fname) -> str {
+    let base = fname[:len(fname) - 4]
+    let cut = string.find(base, "_", 0)
+    if cut >= 0 { base = base[cut + 1:] }
+    return string.replace(base, "_", " ")
+}
+
+fn render_start_page(g, extname, sidebar) {
+    let body = render_changelog_body(g, "../" + extname + "/docs/GETTING_STARTED.md")
+    let title = "Getting started with " + extname
+    let lede = "<p class=\"lede\">Install it, then read a real file, compute something, and plot the result — <code>" + esc(extname) + "</code>'s modules working as one.</p>"
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Getting started</div>\n" + "  <h1>" + esc(title) + "</h1>\n  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>"
+    return page_shell_in(g, extname, title, sidebar, content, "")
+}
+
 fn render_verif_page(g, mod, sidebar) {
     let refid = g.verif_key[mod]
     let xdir = "docs/xml"
@@ -2493,7 +2546,9 @@ fn ext_side_node(g, kids, present, idx) -> str {
 # module tree (nested exactly like the core Modules group).
 fn build_ext_sidebar(g, extname) {
     let parts = "<a class=\"side-home\" href=\"index.html\">Overview</a>"
-    parts = parts + "<div class=\"side-group\"><ul>" + "<li><a href=\"releases.html\" data-ref=\"releases\">Releases</a></li>" + "<li><a href=\"../index.html\">cheatah docs</a></li>" + "</ul></div>"
+    let start_li = ""
+    if extname in g.start_seen { start_li = "<li><a href=\"getting-started.html\" data-ref=\"getting-started\">Getting started</a></li>" }
+    parts = parts + "<div class=\"side-group\"><ul>" + start_li + "<li><a href=\"releases.html\" data-ref=\"releases\">Releases</a></li>" + "<li><a href=\"../index.html\">cheatah docs</a></li>" + "</ul></div>"
     let present: dict<str, bool> = {}
     let ci = 0
     while ci < len(g.comps) {
@@ -2596,7 +2651,21 @@ fn render_ext_home(g, extname, sidebar) {
     let overview = render_changelog_body(g, "../" + extname + "/README.md")
     let overview_html = ""
     if overview != "" { overview_html = "<div class=\"overview\">" + overview + "</div>\n" }
-    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Extension</div>\n" + "  <h1><code>" + esc(extname) + "</code></h1>\n" + "  <p class=\"ext-badge\">" + esc(badge) + "</p>" + desc_html + "\n" + "</div>\n" + "<p class=\"ext-deps\">Depends on: " + dep_html + "</p>\n" + overview_html + table + "\n" + "<p><a href=\"releases.html\">Release history</a> · <a href=\"../standard.html\">The Biome Standard</a></p>"
+    let start_html = ""
+    if extname in g.start_seen {
+        start_html = "<p class=\"ext-start\"><a href=\"getting-started.html\">Getting started</a> — the modules, and the extensions they compose with, used together on a real file.</p>\n"
+    }
+    let shots = copy_gallery(g, extname)
+    let gallery_html = ""
+    if len(shots) > 0 {
+        let figs = ""
+        for f in shots {
+            let cap = gallery_caption(f)
+            figs = figs + "<figure class=\"shot\"><img src=\"gallery/" + esc(f) + "\" alt=\"" + esc(cap) + "\" loading=\"lazy\"><figcaption>" + esc(cap) + "</figcaption></figure>"
+        }
+        gallery_html = "<h2 class=\"group\">What it produces</h2><div class=\"shots\">" + figs + "</div>\n"
+    }
+    let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Extension</div>\n" + "  <h1><code>" + esc(extname) + "</code></h1>\n" + "  <p class=\"ext-badge\">" + esc(badge) + "</p>" + desc_html + "\n" + "</div>\n" + "<p class=\"ext-deps\">Depends on: " + dep_html + "</p>\n" + start_html + overview_html + gallery_html + table + "\n" + "<p><a href=\"releases.html\">Release history</a> · <a href=\"../standard.html\">The Biome Standard</a></p>"
     return page_shell_in(g, extname, extname, sidebar, content, "")
 }
 
@@ -3187,17 +3256,6 @@ fn add_kw(d, words) {
     for w in string.split(words, " ") { d[w] = true }
 }
 
-fn write_file(path, content) {
-    # extension subsites live in subdirectories (docs/html/<ext>/…)
-    let cut = string.rfind(path, "/")
-    if cut > 0 {
-        let dir = path[:cut]
-        if not os.path.isdir(dir) { os.makedirs(dir) }
-    }
-    with io.open(path, "w") as f {
-        f.write(content)
-    }
-}
 
 # Walk a description subtree registering section/anchor ids as valid link targets.
 fn register_anchors(g, doc, id) {
@@ -3398,6 +3456,9 @@ fn main() {
         }
         g.ext_names = sorted_strs(ext_dirs)
         for extname in g.ext_names {
+            # The getting-started page is a plain file in the sibling checkout, not a Doxygen
+            # compound, so its presence is a filesystem question.
+            if os.path.isfile("../" + extname + "/docs/GETTING_STARTED.md") { g.start_seen[extname] = true }
             load_ext_tree(g, extname)
             load_ext_manifest(g, extname)
         }
@@ -3513,6 +3574,13 @@ fn main() {
             write_file("docs/html/" + extname + "/" + bfname,
                        with_seo(mark_active(render_bench_page(g, mod, esb), bactive), g, extname + "/" + bfname,
                                 mod + " benchmarks — the generated measurement tables for the " + mod + " module: every case, the harness that measured it, and how to reproduce it.", false))
+            pages = pages + 1
+        }
+        if extname in g.start_seen {
+            write_file("docs/html/" + extname + "/getting-started.html",
+                       with_seo(mark_active(render_start_page(g, extname, esb), "getting-started.html"), g,
+                                extname + "/getting-started.html",
+                                "Getting started with " + extname + " — install it, read a real file, compute something, and plot the result.", false))
             pages = pages + 1
         }
         let verif_mods: list<str> = []

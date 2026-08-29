@@ -6,7 +6,7 @@
 <meta name="generator" content="cheatah">
 <title>gpu::dispatch — cheatah-gpu</title>
 <link rel="icon" href="../cheatah-logo.png" type="image/png">
-<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="stylesheet" href="../cheatah-docs.css?v=55cb5905">
 <link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-gpu/namespacecheatah_1_1gpu_1_1dispatch">
 <meta name="description" content="gpu.dispatch — the gpu.dispatch module of the cheatah cheatah-gpu package: every function, type and constant, with signatures and examples.">
 </head>
@@ -29,7 +29,7 @@
   <h1><code>gpu::dispatch</code></h1>
   <p class="ext-badge">cheatah-gpu v0.5.1-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
-<div class="overview"><p>The backend-agnostic core every GPU compute path needs: turn a problem size into a workgroup launch. Pure C++20 integer arithmetic — header-only, allocation-free, <strong>zero dependencies, no platform headers</strong> — so it builds, tests, and documents to 100% on a machine with no GPU. It is the CPU-side math both shipped backends consume: the Vulkan surface (see <code>../vulkan</code>) feeds it straight into <code>vkCmdDispatch</code>, the Metal backend (see <code>../metal</code>) into <code>MTLComputeCommandEncoder</code> dispatches.</p><pre class="code"><code><span class="tok-kw">import</span> gpu.dispatch <span class="tok-kw">as</span> dispatch
+<div class="overview"><p>The backend-agnostic core every GPU compute path needs: turn a problem size into a workgroup launch. Pure C++20 integer arithmetic — header-only, allocation-free, <strong>zero dependencies, no platform headers</strong> — so it builds, tests, and documents to 100% on a machine with no GPU. It is the CPU-side math both shipped backends consume: the Vulkan surface (see <code>../vulkan</code>) feeds it straight into <code>vkCmdDispatch</code>, the Metal backend (see <code>../metal</code>) into <code>MTLComputeCommandEncoder</code> dispatches.</p><p><p><strong>Status:</strong> working — workgroup-count arithmetic and the device-limit clamp, pure cheatah with no device required.</p></p><pre class="code"><code><span class="tok-kw">import</span> gpu.dispatch <span class="tok-kw">as</span> dispatch
 
 <span class="tok-com"># cover 1,000,000 items at local_size_x = 256</span>
 <span class="tok-kw">let</span> groups = dispatch.<span class="tok-fn">group_count_1d</span>(<span class="tok-num">1000000</span>, <span class="tok-num">256</span>)        <span class="tok-com"># 3907</span>

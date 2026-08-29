@@ -484,6 +484,30 @@ fn check_structure(errors : list<str>) -> int {
                           + "the document parses as its own opposite")
         }
     }
+    # Every extension module the site publishes must state, at the top of its page, whether it is
+    # usable and what is missing — and it must keep stating it as the code changes, which is only
+    # true if something checks. The line lives in the module README the page folds in, so a reader
+    # and the repo cannot disagree.
+    for ext in ["cheatah-space", "cheatah-plot", "cheatah-gpu"] {
+        let pkg = "../" + ext + "/" + string.replace(ext, "cheatah-", "")
+        if not os.path.isdir(pkg) { continue }
+        for mod in os.listdir(pkg) {
+            let rd = pkg + "/" + mod + "/README.md"
+            if not os.path.isfile(rd) { continue }
+            checked = checked + 1
+            let n = 0
+            for line in string.splitlines(io.read_file(rd)) {
+                if string.startswith(string.strip(line), "> **Status:**") { n = n + 1 }
+            }
+            if n == 0 {
+                errors.append(rd + " — no `> **Status:**` line. Every published module says whether "
+                              + "it is usable and what is missing, at the top of its page.")
+            } elif n > 1 {
+                errors.append(rd + " — " + str(n) + " status lines; exactly one is the contract")
+            }
+        }
+    }
+
     # The rendered signature of a heading the parser refused to take: its `{#anchor}` survives into
     # the page as literal text. Cheap to scan, and it catches breakage this file cannot see.
     let html_dir = "docs/html"

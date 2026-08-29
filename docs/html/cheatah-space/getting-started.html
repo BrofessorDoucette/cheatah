@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>Getting started with cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=55cb5905">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/getting-started">
+<meta name="description" content="Getting started with cheatah-space — install it, read a real file, compute something, and plot the result.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout no-toc">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a class="active" href="getting-started.html" data-ref="getting-started">Getting started</a></li><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1purr.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1purr">purr</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Getting started</div>
+  <h1>Getting started with cheatah-space</h1>
+  <p class="lede">Install it, then read a real file, compute something, and plot the result — <code>cheatah-space</code>'s modules working as one.</p>
+</div>
+<div class="overview"><p>Install the package, then read a real mission file, compute a magnetic coordinate, and plot the result — the three modules and cheatah-plot working as one.</p><p><code>space.time</code>, <code>space.cdf</code> and <code>space.irbem</code> are useful on their own, but the reason they ship together is the workflow below: a file of spacecraft data goes in, and a figure of something physical comes out. Nothing here is pseudocode — every block is taken from a program in this repository that runs.</p><pre class="code"><code>biome add cheatah-space
+biome add cheatah-plot     <span class="tok-com"># only for the plotting step</span></code></pre><h2 class="group" id="rel-1">1. Open a real file and get arrays back</h2><p><code>space.cdf</code> reads NASA&#x27;s Common Data Format — the format essentially all space-physics data ships in — from scratch, with NASA&#x27;s own library neither linked nor required. Variables come back as cheatah <code>ndarray</code>s, so they go straight into the rest of the numeric stack.</p><pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">var_names</span>(f))                  <span class="tok-com"># every variable in the file</span>
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">record_count</span>(f, <span class="tok-str">&quot;F&quot;</span>))          <span class="tok-com"># 44640 — a month of one-minute samples</span>
+
+<span class="tok-kw">let</span> b = cdf.<span class="tok-fn">values</span>(f, <span class="tok-str">&quot;F&quot;</span>)                  <span class="tok-com"># ndarray[float64], IMF magnitude in nT</span></code></pre><p>GZIP-compressed variables — nearly everything in the archive — decode transparently. <code>values</code> is lossless for every type a double holds exactly; for <code>CDF_INT8</code> and <code>CDF_TIME_TT2000</code> it refuses and names <code>values_i64</code> rather than rounding quietly.</p><h2 class="group" id="rel-2">2. Put the timestamps on a scale you can reason about</h2><p><code>space.time</code> is the bridge between CDF&#x27;s epochs and the Julian dates the rest of astronomy uses.</p><pre class="code"><code><span class="tok-kw">import</span> space.time <span class="tok-kw">as</span> st
+<span class="tok-kw">import</span> ndarray
+
+<span class="tok-kw">let</span> jd  = st.<span class="tok-fn">unix_to_jd</span>(<span class="tok-num">1420070400.0</span>)                   <span class="tok-com"># one timestamp -&gt; Julian Date</span>
+<span class="tok-kw">let</span> jds = st.<span class="tok-fn">unix_to_jd</span>(ndarray.<span class="tok-fn">array</span>([<span class="tok-num">0.0</span>, <span class="tok-num">86400.0</span>]))  <span class="tok-com"># or a whole array, vectorized</span></code></pre><h2 class="group" id="rel-3">3. Compute a magnetic coordinate</h2><p><code>space.irbem</code> is a from-scratch reimplementation of the radiation-belt library <a href="https://github.com/PRBEM/IRBEM">PRBEM/IRBEM</a>, written to the published papers. It gives you the coordinates the belts are actually organised by — L\*, McIlwain&#x27;s L, the mirror field — against IGRF-14.</p><p>Build the epoch once and reuse it; it carries the internal field model and the frame rotations for that instant.</p><pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> fixarray
+<span class="tok-kw">import</span> space.irbem.purr <span class="tok-kw">as</span> irbem
+
+<span class="tok-kw">let</span> e = irbem.<span class="tok-fn">epoch_at</span>(<span class="tok-num">2015</span>, <span class="tok-num">182</span>, <span class="tok-num">43200.0</span>)      <span class="tok-com"># 2015 day 182, 12:00 UT</span>
+
+<span class="tok-com"># 6.6 Rₑ on the GEO x-axis — geosynchronous — for a 90° (equatorially mirroring) particle.</span>
+<span class="tok-com"># sysaxes is IRBEM&#x27;s frame code: 0 GDZ, 1 GEO, 2 GSM, 3 GSE, 4 SM, 5 GEI, 6 MAG, 7 SPH, 8 RLL.</span>
+<span class="tok-kw">let</span> c = irbem.<span class="tok-fn">make_lstar</span>(e, <span class="tok-num">6.6</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1</span>, <span class="tok-num">90.0</span>)
+
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;Lm      =&quot;</span>, c[<span class="tok-num">0</span>])        <span class="tok-com"># 6.66772</span>
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;L*      =&quot;</span>, c[<span class="tok-num">1</span>])        <span class="tok-com"># 6.66194</span>
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;Blocal  =&quot;</span>, c[<span class="tok-num">2</span>], <span class="tok-str">&quot;nT&quot;</span>)
+io.<span class="tok-fn">print</span>(<span class="tok-str">&quot;status  =&quot;</span>, irbem.<span class="tok-fn">status_name</span>(<span class="tok-fn">int</span>(c[<span class="tok-num">6</span>])))</code></pre><p>Frames convert by the same integer codes, and the transform is exact both ways:</p><pre class="code"><code><span class="tok-kw">let</span> gsm = irbem.<span class="tok-fn">coord_trans</span>(e, <span class="tok-num">6.6</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1</span>, <span class="tok-num">2</span>)     <span class="tok-com"># GEO -&gt; GSM</span>
+<span class="tok-kw">let</span> mlt = irbem.<span class="tok-fn">get_mlt</span>(e, <span class="tok-num">6.6</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1</span>)            <span class="tok-com"># magnetic local time, hours</span></code></pre><p>Nothing here returns a sentinel. The status slot names why a call declined — an open field line, a point outside a model&#x27;s fitted envelope, a shell that would not close — so you branch on a reason rather than recognising <code>-1e31</code>.</p><h2 class="group" id="rel-4">4. Plot it</h2><p>The arrays go straight into <a href="https://github.com/BrofessorDoucette/cheatah-plot">cheatah-plot</a>. This is <code>examples/purr_space/03_plot_omni_imf.purr</code> in full — a month of interplanetary magnetic field, read from the CDF and rendered to a PNG:</p><pre class="code"><code><span class="tok-kw">import</span> plot
+<span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+
+<span class="tok-kw">let</span> fig = figure.<span class="tok-fn">line</span>(figure.<span class="tok-fn">new_figure</span>(), x, y)
+fig = figure.<span class="tok-fn">title</span>(fig, <span class="tok-str">&quot;OMNI interplanetary magnetic field, January 2015&quot;</span>)
+fig = figure.<span class="tok-fn">xlabel</span>(fig, <span class="tok-str">&quot;hours since 2015-01-01T00:00:00Z&quot;</span>)
+fig = figure.<span class="tok-fn">ylabel</span>(fig, <span class="tok-str">&quot;|B| (nT)&quot;</span>)
+fig = figure.<span class="tok-fn">size</span>(fig, <span class="tok-num">1280</span>, <span class="tok-num">720</span>)
+plot.<span class="tok-fn">save</span>(fig, <span class="tok-str">&quot;out/03_plot_omni_imf.png&quot;</span>)</code></pre><p>Two things in that program are worth copying. Time is rebased to hours since the first sample, because the plotter has no time axis and a raw <code>CDF_EPOCH</code> of 6.3587e13 ms would render as one indistinguishable label repeated across the axis. And the fill values are dropped rather than plotted: OMNI marks a missing sample as ~1e31, which would flatten every real variation into a line at the bottom of the frame.</p><h2 class="group" id="rel-5">Where to go next</h2><p>| you want | read | | --- | --- | | what each module does | the module pages in the sidebar | | which models are verified, and over what part of the domain | <code>space.irbem</code>&#x27;s verification page | | how fast it is, and against what | <code>space.irbem</code>&#x27;s benchmarks page | | the runnable programs | <code>examples/purr_space/</code> in the repository |</p><p>The OMNI file the examples use is fetched on demand — <code>scripts/cdf-corpus.sh fetch --tier 1</code> — and never committed; each example prints what to run if it is absent rather than failing obscurely.</p></div></main>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>
