@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::PathPoint</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">One sample along a traced field line: where it is, and how strong the field is there. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">One sample along a traced field line: where it is, and how strong the field is there. </p>
 </div>
 <div class="overview"><p><a href="structcheatah_1_1space_1_1irbem_1_1Position.html">Position</a> and magnitude together, rather than IRBEM&#x27;s two parallel arrays (<code><span class="tok-fn">posit</span>(<span class="tok-num">3</span>,N)</code> and <code><span class="tok-fn">Blocal</span>(N)</code>), because every consumer of a path — a plot, a bounce-period quadrature, a loss-cone test — reads both at the same index. Interleaving halves the number of cache lines that walk touches, which for a bandwidth-bound routine is the whole game.</p></div>
 

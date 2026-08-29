@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Module</div>
   <h1><code>space::cdf</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p>
 </div>
 <div class="overview"></div>
 <h2 class="group">Classes</h2><ul class="class-list"><li><a href="classcheatah_1_1space_1_1cdf_1_1CdfError.html"><code>CdfError</code></a> — The exception every malformed-file path raises. </li><li><a href="classcheatah_1_1space_1_1cdf_1_1File.html"><code>File</code></a> — An opened CDF. </li><li><a href="structcheatah_1_1space_1_1cdf_1_1LeapSecondEntry.html"><code>LeapSecondEntry</code></a> — One row of NASA&#x27;s <code>CDFLeapSeconds.txt</code>, held as exact scaled integers. </li></ul>
@@ -247,7 +247,24 @@ io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">shape</span>(f, <s
 
 <span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
 <span class="tok-kw">let</span> b = cdf.<span class="tok-fn">values</span>(f, <span class="tok-str">&quot;F&quot;</span>)            <span class="tok-com"># IMF magnitude, nT, one value per minute</span>
-io.<span class="tok-fn">print</span>(b[<span class="tok-num">0</span>], b[<span class="tok-num">1</span>], b[<span class="tok-num">2</span>])            <span class="tok-com"># 6.92 5.84 5.71</span></code></pre></div></div></div>
+io.<span class="tok-fn">print</span>(b[<span class="tok-num">0</span>], b[<span class="tok-num">1</span>], b[<span class="tok-num">2</span>])            <span class="tok-com"># 6.92 5.84 5.71</span></code></pre></div></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<p>The whole point of returning an ndarray: it goes straight into cheatah-plot.</p><pre class="code"><code><span class="tok-kw">import</span> ndarray
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+<span class="tok-kw">import</span> plot
+<span class="tok-kw">import</span> plot.figure <span class="tok-kw">as</span> figure
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+<span class="tok-kw">let</span> t = cdf.<span class="tok-fn">values</span>(f, <span class="tok-str">&quot;Epoch&quot;</span>)
+<span class="tok-kw">let</span> b = cdf.<span class="tok-fn">values</span>(f, <span class="tok-str">&quot;F&quot;</span>)
+
+<span class="tok-com"># Rebase onto hours: cheatah-plot has no time axis, and a raw CDF_EPOCH of 6.3e13 ms would</span>
+<span class="tok-com"># render as one repeated tick label.</span>
+<span class="tok-kw">let</span> n = ndarray.<span class="tok-fn">size_of</span>(b)
+<span class="tok-kw">let</span> hours = ndarray.<span class="tok-fn">zeros</span>([n])
+<span class="tok-kw">for</span> i <span class="tok-kw">in</span> <span class="tok-fn">range</span>(n) { hours[i] = (t[i] - t[<span class="tok-num">0</span>]) / <span class="tok-num">3600000.0</span> }
+
+<span class="tok-kw">let</span> fig = figure.<span class="tok-fn">line</span>(figure.<span class="tok-fn">new_figure</span>(), hours, b)
+fig = figure.<span class="tok-fn">ylabel</span>(fig, <span class="tok-str">&quot;|B| (nT)&quot;</span>)
+plot.<span class="tok-fn">save</span>(fig, <span class="tok-str">&quot;omni_imf.png&quot;</span>)</code></pre></div></div></div>
 </section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a21f53fbc0c3c1eaa55fdea8e739c528d">
   <div class="member-head">
     <span class="badge badge-fn">fn</span>

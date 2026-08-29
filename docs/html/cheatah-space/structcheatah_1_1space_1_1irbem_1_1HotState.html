@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::HotState</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">What the inner loop touches — the field call and the GEO&lt;-&gt;GSM hop, on every one of the ~10^5 evaluations a single L* costs. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">What the inner loop touches — the field call and the GEO&lt;-&gt;GSM hop, on every one of the ~10^5 evaluations a single L* costs. </p>
 </div>
 <div class="overview"><p>The first eight doubles are exactly one 64-byte cache line, and they are the ones a Tsyganenko external field call needs: the tilt with its precomputed trigonometry, and the five drivers the published models read (Kp for Mead &amp; Fairfield 1975, Tsyganenko 1987/1989 and Mead-Tsyganenko; Dst, Pdyn, By and Bz for Tsyganenko 1996 onwards). The two matrices follow.</p><p><a href="structcheatah_1_1space_1_1irbem_1_1HotState.html#structcheatah_1_1space_1_1irbem_1_1HotState_1a5832810268dc7719f8fe52f4ac190f88">geo_to_gsm</a> and <a href="structcheatah_1_1space_1_1irbem_1_1HotState.html#structcheatah_1_1space_1_1irbem_1_1HotState_1a34e0a4d2743e7ddf6695fbbdec5b9bbb">gsm_to_geo</a> duplicate what <a href="structcheatah_1_1space_1_1irbem_1_1ColdState.html#structcheatah_1_1space_1_1irbem_1_1ColdState_1adea1fcebf13b1705e6d53d2783e7b8f4">ColdState::to_geo</a> already holds for GSM. That is deliberate: the duplicate keeps the inner loop off the cold block entirely and spares it a transpose per call. A test pins the two copies to each other so the duplicate cannot go stale.</p></div>
 

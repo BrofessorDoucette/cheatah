@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::Om97Normalization</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The means and dispersions that turn a raw driver into the paper&#x27;s normalized parameter, <code>A~ = (A - &lt;A&gt;) / sigma_A</code> — eq. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The means and dispersions that turn a raw driver into the paper&#x27;s normalized parameter, <code>A~ = (A - &lt;A&gt;) / sigma_A</code> — eq. </p>
 </div>
 <div class="overview"><p>(3), with the four rows of Table 2.</p><p>A struct rather than two arrays so that a caller who wants a different set — see <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a0947f392df2cc17745288016d199883f">om97_normalization_measured</a> — passes one object and cannot pair a mean with the wrong dispersion. Kp here is the paper&#x27;s <strong>numeric</strong> Kp (<code><span class="tok-num">0</span>..<span class="tok-num">9</span></code>, with <code><span class="tok-num">3</span>-</code> as 2.7), not the <code>Kp x <span class="tok-num">10</span></code> of IRBEM&#x27;s driver vector; the entry points do that division.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemOm97</span>.<span class="tn-case">PublishedNormalizationIsTable2</span></code></span></div></div>
 

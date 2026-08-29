@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::T89FixedParameters</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The T89 parameters that are the same in every Kp bin. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The T89 parameters that are the same in every Kp bin. </p>
 </div>
 <div class="overview"><p>Tsyganenko (1989) §3 and §4 name these explicitly as held constant during the fit, &quot;from a priori
 considerations and preliminary test runs&quot;: the §3 group because the data cannot separate them from the free parameters they trade against (the paper&#x27;s own example is that <code><a href="structcheatah_1_1space_1_1irbem_1_1T89FixedParameters.html#structcheatah_1_1space_1_1irbem_1_1T89FixedParameters_1a6fe1972ec082b1b239eaceca018f3c13">gamma_t</a></code> and <code>gamma_rc</code> &quot;yield nearly the same effects&quot; on the dayside, so one of the two had to be pinned), the §4 group because the closure sheets contribute too little of the total field to constrain their geometry.</p><p>They are gathered into one <code><span class="tok-kw">constexpr</span></code> object rather than scattered as literals so that the evaluator below reads as the paper&#x27;s equations and every magic number has a name and a citation.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT89</span>.<span class="tn-case">FixedParametersAreThePublishedOnes</span></code></span></div></div>

@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Concept</div>
   <h1><code>space::irbem::GeoFieldModel</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">A magnetic field model that can be asked for <code>B</code> at a geographic Cartesian point. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">A magnetic field model that can be asked for <code>B</code> at a geographic Cartesian point. </p>
 </div>
 <div class="overview"><p>Igrf satisfies it, and so will an internal-plus-external superposition when the external models land — which is the point of naming the requirement rather than hard-coding Igrf into the single-point routines. The batch routines are <em>not</em> written against this concept, because the device lane has to upload a specific model&#x27;s coefficients and cannot dispatch on a callable.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>M</code></td><td class="pdesc"><p>the candidate model type.</p></td></tr></table></div></div>
 

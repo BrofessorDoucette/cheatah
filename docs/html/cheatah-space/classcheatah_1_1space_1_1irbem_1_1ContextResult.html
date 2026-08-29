@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Class</div>
   <h1><code>space::irbem::ContextResult</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The outcome of a context build: a context, or the named reason there is none. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The outcome of a context build: a context, or the named reason there is none. </p>
 </div>
 <div class="overview"><p>There is deliberately no default state and no public constructor. A struct of <code>{optional&lt;<a href="classcheatah_1_1space_1_1irbem_1_1FieldContext.html">FieldContext</a>&gt;, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1ad8fcf57b0053f0812e55e0c5cbc176ed">ContextError</a>}</code> would have a value-initialized form carrying no context and no error — a success with nothing in it, which is exactly the sort of half-valid state this file exists to make unrepresentable. Both constructors here are private and each establishes the invariant that a context is present if and only if <a href="classcheatah_1_1space_1_1irbem_1_1ContextResult.html#classcheatah_1_1space_1_1irbem_1_1ContextResult_1a7d3d335acb2db7050d82ca6790dd17b0">error</a> is ContextError::None, so <a href="classcheatah_1_1space_1_1irbem_1_1ContextResult.html#classcheatah_1_1space_1_1irbem_1_1ContextResult_1a95c4046c3377034e615a991f4e886757">make_field_context</a> is the only source of either half.</p></div>
 

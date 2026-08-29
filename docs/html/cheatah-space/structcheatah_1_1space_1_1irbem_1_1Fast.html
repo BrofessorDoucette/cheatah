@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::Fast</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The GPU lane: fp32 integrand, fp64 accumulator. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The GPU lane: fp32 integrand, fp64 accumulator. </p>
 </div>
 <div class="overview"><p>fp32 is not merely faster here, it is <em>required</em>: SPIR-V&#x27;s <code>GLSL.std.<span class="tok-num">450</span></code> transcendentals are defined only for 16- and 32-bit floats, so a kernel that calls <code>exp</code> — which every Tsyganenko external field model does — cannot be compiled in fp64 at all. ERROR_BUDGET §3 shows that constraint and the error budget point the same way, with the one exception this policy encodes: the reduction stays in <code>double</code>.</p></div>
 

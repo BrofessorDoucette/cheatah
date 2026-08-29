@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Concept</div>
   <h1><code>space::irbem::SoundPrecision</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">A precision policy that may actually be used: a <code>Precision</code> whose accumulator is <code>double</code>. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">A precision policy that may actually be used: a <code>Precision</code> whose accumulator is <code>double</code>. </p>
 </div>
 <div class="overview"><p>The integrand type is free — that choice is bounded by <code>unit_roundoff</code>, which does not grow with the size of the problem. The accumulator type is not free, because <code>naive_sum_bound</code> does grow with it, and at the ~10³ terms of one field-line quadrature an fp32 accumulator lands on the discretization floor itself (ERROR_BUDGET §3). Anything constrained on this concept cannot be instantiated with such a policy.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>P</code></td><td class="pdesc"><p>the candidate policy type.</p></td></tr></table></div></div>
 

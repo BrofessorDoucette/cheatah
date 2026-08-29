@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::Om97PositionFold</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The batch&#x27;s position caveat, accumulated one point at a time. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The batch&#x27;s position caveat, accumulated one point at a time. </p>
 </div>
 <div class="overview"><p>One <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a> for N points can only be the worst of them, and computing it must not cost a second pass over the positions. The fitted box is three monotone bounds — a minimum radius, a maximum SM cylindrical radius, a maximum <code>|z_SM|</code> — so the extremes decide the batch, and they are folded as SQUARES (radius and cylindrical radius) so there is no per-point <code>sqrt</code>. The SM <code>z</code> is one fused multiply-add from the tilt&#x27;s sine and cosine, and <code>rho_SM^<span class="tok-num">2</span> = r^<span class="tok-num">2</span> - z_SM^<span class="tok-num">2</span></code> because a rotation preserves <code>r</code>.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemOm97</span>.<span class="tn-case">BatchReportsTheSameEnvelopeTheScalarLaneDoes</span></code></span></div></div>
 

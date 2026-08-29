@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::OpdParameters</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Everything the evaluator needs for one epoch and one driver triple, in the lane&#x27;s scalar type. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">Everything the evaluator needs for one epoch and one driver triple, in the lane&#x27;s scalar type. </p>
 </div>
 <div class="overview"><p>As with <a href="structcheatah_1_1space_1_1irbem_1_1T89Parameters.html">T89Parameters</a>, the <code>float</code> instantiation is not a convenience: the device kernel receives these as <code>float</code>, so the host lane verified against it must round them FIRST — the scale, the ring coefficient and the quiet set alike — and then evaluate, or a disagreement between the two lanes cannot be attributed to the device. <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a6026cde996a2e818c514ee5b3675fcbd">opd_parameters</a> builds both.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>T</code></td><td class="pdesc"><p>the scalar type; <code>double</code> for the reference lane, <code>float</code> for the device-mirroring one.</p></td></tr></table></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemOpd</span>.<span class="tn-case">ParametersRoundTripThroughFloat</span></code></span></div></div>
 

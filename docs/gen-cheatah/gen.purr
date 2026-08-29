@@ -2013,6 +2013,39 @@ fn render_bench_page(g, mod, sidebar) {
     return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
 }
 
+# Doxygen's Markdown leaves a **bold** span literal when the marker is followed by a character it
+# does not count as word-starting — `**~50 %**` is the case a member's VERIFICATION.md hit — so the
+# rendered prose carried the asterisks and the accessibility gate refused the site. Pair whatever
+# markers survive in the rendered HTML, the same rule md_inline applies to changelog prose: an odd
+# marker out stays literal. Tags between a pair are left as they are (a span may wrap a <code>).
+fn repair_bold(html) {
+    if len(string.split(html, "**")) < 3 { return html }
+    # Pair within each paragraph, never across one: a marker Doxygen left in one <para> must not
+    # be closed by a marker from the next list item.
+    let paras = string.split(html, "</p>")
+    let out = ""
+    let pi = 0
+    while pi < len(paras) {
+        let parts = string.split(paras[pi], "**")
+        let usable = len(parts) - 1
+        usable = usable - (usable % 2)
+        let seg = parts[0]
+        let i = 1
+        while i < len(parts) {
+            if i <= usable {
+                if i % 2 == 1 { seg = seg + "<strong>" + parts[i] } else { seg = seg + "</strong>" + parts[i] }
+            } else {
+                seg = seg + "**" + parts[i]
+            }
+            i = i + 1
+        }
+        out = out + seg
+        if pi + 1 < len(paras) { out = out + "</p>" }
+        pi = pi + 1
+    }
+    return out
+}
+
 # The verification subpage: what a module implements, what was measured against the reference it
 # reimplements, and over which part of the domain. Rendered from the module's own
 # docs/VERIFICATION.md so the published page and the repo's cannot drift apart.
@@ -2027,7 +2060,7 @@ fn render_verif_page(g, mod, sidebar) {
     let back = "index.html"
     if mod in g.modules { back = g.modules[mod] + ".html" }
     if mod in g.ext_ns { back = g.ext_ns[mod] + ".html" }
-    let body = render_desc(g, vdoc, g.verif_node[mod])
+    let body = repair_bold(render_desc(g, vdoc, g.verif_node[mod]))
     let lede = "<p class=\"lede\">What the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> implements, what has actually been verified against the reference implementation, and over which part of the domain — stated so a reader can tell the difference.</p>"
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Verification</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
     return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(vdoc, g.verif_node[mod]))

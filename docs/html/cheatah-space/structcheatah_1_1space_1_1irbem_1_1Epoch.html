@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::Epoch</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The instant an evaluation is for. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The instant an evaluation is for. </p>
 </div>
 <div class="overview"><p>Both spellings are carried on purpose. <code><a href="structcheatah_1_1space_1_1irbem_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1Epoch_1aa6bcb99abfa31184ca57ccb5f3536499">year</a></code>/<code><a href="structcheatah_1_1space_1_1irbem_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1Epoch_1ab8996372e79d98bcc7b0e3855b2cdcd6">day_of_year</a></code>/<code><a href="structcheatah_1_1space_1_1irbem_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1Epoch_1a13571b9a8bf3cd78de534a97287967f5">seconds_ut</a></code> is what IRBEM&#x27;s C API takes and what a CDF ephemeris stores; <code><a href="structcheatah_1_1space_1_1irbem_1_1Epoch.html#structcheatah_1_1space_1_1irbem_1_1Epoch_1abd8cc39c6cdb7b02e2730b3f544ebe6d">decimal_year</a></code> is what IGRF&#x27;s coefficient interpolation consumes, and deriving it per point would be arithmetic repeated ~10^5 times for one L*. They are checked against each other at construction rather than trusted (see <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1ad8fcf57b0053f0812e55e0c5cbc176ed">ContextError</a>).</p></div>
 

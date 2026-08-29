@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Class</div>
   <h1><code>space::irbem::FieldContext</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Everything a field evaluation needs to know about <em>when</em> it is, and nothing about <em>where</em>. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">Everything a field evaluation needs to know about <em>when</em> it is, and nothing about <em>where</em>. </p>
 </div>
 <div class="overview"><p>Immutable by construction: the data are private, every accessor is <code>const</code>, there are no setters and the constructor is private, so the only way to obtain one is <a href="classcheatah_1_1space_1_1irbem_1_1FieldContext.html#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a95c4046c3377034e615a991f4e886757">make_field_context</a> and the only contexts that exist are validated ones. Nothing in it can record what the previous evaluation found, which is precisely the affordance IRBEM&#x27;s <code>COMMON</code> blocks provide and precisely why they cannot be threaded.</p><p>Immutability is spelled &quot;private data plus const accessors&quot; rather than <code>const</code> data members on purpose: <code>const</code> members would delete copy assignment and make the type useless in an ephemeris buffer, while preventing nothing that is not already prevented.</p><p>Trivially copyable and standard layout, so <code>memcpy</code> into a mapped uniform buffer is a valid way to hand it to a GPU, and passing it by value between CPU workers costs a copy of about a kilobyte and no indirection.</p></div>
 

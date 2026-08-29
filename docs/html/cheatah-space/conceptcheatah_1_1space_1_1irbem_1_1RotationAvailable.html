@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Concept</div>
   <h1><code>space::irbem::RotationAvailable</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Whether a rotation exists between two frames at all: both Cartesian, and either the same frame or one of the eight pairs Rotations stores, in either direction. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">Whether a rotation exists between two frames at all: both Cartesian, and either the same frame or one of the eight pairs Rotations stores, in either direction. </p>
 </div>
 <div class="overview"><p>The <code>transform</code> function template is constrained on this rather than left to fail inside its body, so an unsupported pair is reported as an unsatisfied constraint at the call site — and so a <code>requires</code> test for transformability answers correctly, which a body-level failure would not.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>To</code></td><td class="pdesc"><p>the destination frame.</p></td></tr><tr><td class="pname"><code>From</code></td><td class="pdesc"><p>the source frame.</p></td></tr></table></div></div>
 

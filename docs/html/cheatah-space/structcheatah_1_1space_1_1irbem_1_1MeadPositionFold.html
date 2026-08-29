@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::MeadPositionFold</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The batch&#x27;s position caveat, accumulated one point at a time. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">The batch&#x27;s position caveat, accumulated one point at a time. </p>
 </div>
 <div class="overview"><p>The same device as <a href="structcheatah_1_1space_1_1irbem_1_1T89PositionFold.html">T89PositionFold</a> and for the same reason: one <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a> for N points can only be the worst of them, and computing that honestly must not cost a second pass over 100 MB of positions. The Mead-Fairfield envelope is a radius band, monotone, so the smallest and largest <code>r^<span class="tok-num">2</span></code> decide the batch and no per-point <code>sqrt</code> is paid.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">BatchReportsTheSameEnvelopeTheScalarLaneDoes</span></code></span></div></div>
 

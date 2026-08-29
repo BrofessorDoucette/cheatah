@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Struct</div>
   <h1><code>space::irbem::T89Parameters</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">One Kp bin&#x27;s fitted parameters — Tsyganenko (1989) Table 1, one column. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">One Kp bin&#x27;s fitted parameters — Tsyganenko (1989) Table 1, one column. </p>
 </div>
 <div class="overview"><p>Templated on the scalar type for one reason and it is not generality: the device kernel receives these as <code>float</code>, so the host lane that the kernel is verified against must round them to <code>float</code> FIRST and then evaluate, or the two lanes are not running the same arithmetic and a disagreement cannot be attributed. <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a165676c55ec675f4bad85f7790975a65">t89_parameters</a> is the converter, and the fp64 and fp32 instantiations are the only two that exist.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>T</code></td><td class="pdesc"><p>the scalar type; <code>double</code> for the reference lane, <code>float</code> for the device-mirroring one.</p></td></tr></table></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT89</span>.<span class="tn-case">PublishedCoefficientsAreDivergenceFree</span></code></span></div></div>
 

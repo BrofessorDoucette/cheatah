@@ -27,7 +27,7 @@
   <main id="main" class="content"><div class="page-head">
   <div class="eyebrow">Concept</div>
   <h1><code>space::irbem::Compat</code></h1>
-  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">A compatibility policy: four independent switches saying, for each place where IRBEM&#x27;s algorithm and the improved one differ, which is taken. </p>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.5-alpha</p><p class="lede">A compatibility policy: four independent switches saying, for each place where IRBEM&#x27;s algorithm and the improved one differ, which is taken. </p>
 </div>
 <div class="overview"><p>Each is a <code>static <span class="tok-kw">constexpr</span> bool</code> so downstream code reads <code><span class="tok-kw">if</span> <span class="tok-kw">constexpr</span> (C::carry_k1)</code> and neither branch survives into the binary. Requiring them through <code>std::bool_constant</code> is what makes &quot;is a constant expression&quot; part of the concept rather than a convention.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>C</code></td><td class="pdesc"><p>the candidate policy type.</p></td></tr></table></div></div>
 
