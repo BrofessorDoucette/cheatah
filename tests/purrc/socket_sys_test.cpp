@@ -62,6 +62,18 @@ let hl_peer = socket.accept(hl_srv)
 let hl_s = socket.sendall(hl_cli, "hi")
 let hl_got = socket.recv(hl_peer, 16)
 
+# ---- the datagram face: udp_socket / sendto / recvfrom (unreliable by contract, loopback here) ----
+let urx = socket.udp_socket()
+socket.bind(urx, "127.0.0.1", 0)
+socket.set_timeout(urx, 500)
+let utx = socket.udp_socket()
+let usent = socket.sendto(utx, "127.0.0.1", socket.local_port(urx), "pose")
+let uhost = ""
+let uport = 0
+let ugot = socket.recvfrom(urx, 64, uhost, uport)
+socket.close(utx)
+socket.close(urx)
+
 # ---- deliberate failure + last_error ----
 let fail = socket.connect(-1, "127.0.0.1", 1)
 let err = socket.last_error()
@@ -81,6 +93,7 @@ io.print("recv2_ok", got2 == "PONG")
 io.print("tcp_listen_ok", hl_srv >= 0)
 io.print("tcp_connect_ok", hl_cli >= 0)
 io.print("hl_roundtrip_ok", hl_got == "hi")
+io.print("udp_ok", usent == 4, ugot == "pose", uhost == "127.0.0.1", uport > 0)
 io.print("fail_ok", fail < 0)
 io.print("last_error_ok", err != "")
 
@@ -106,6 +119,7 @@ io.print("close_ok", c1 == 0, c2 == 0, c3 == 0)
                "tcp_listen_ok True\n"
                "tcp_connect_ok True\n"
                "hl_roundtrip_ok True\n"
+               "udp_ok True True True True\n"
                "fail_ok True\n"
                "last_error_ok True\n"
                "close_ok True True True\n");

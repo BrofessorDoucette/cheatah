@@ -178,6 +178,34 @@ TEST(CheatahSocket, ListenLowLevel) {
 }
 
 // Connecting to a port nobody is listening on fails, and last_error() is set.
+// A datagram round trip on loopback: a bound receiver, an unbound sender, the sender's address
+// reported back, a receive window that expires empty, and a packet larger than the buffer truncated
+// — every property the datagram contract promises, none of the stream's.
+TEST(CheatahSocket, UdpLoopback) {
+    const long long rx = sk::udp_socket();
+    ASSERT_GE(rx, 0) << sk::last_error();
+    ASSERT_EQ(sk::bind(rx, "127.0.0.1", 0), 0) << sk::last_error();
+    const long long port = sk::local_port(rx);
+    ASSERT_GT(port, 0);
+    ASSERT_EQ(sk::set_timeout(rx, 500), 0);
+    const long long tx = sk::udp_socket();
+    ASSERT_GE(tx, 0);
+    EXPECT_EQ(sk::sendto(tx, "127.0.0.1", port, "presence 1"), 10);
+    std::string from;
+    long long from_port = 0;
+    EXPECT_EQ(sk::recvfrom(rx, 64, from, from_port), "presence 1");
+    EXPECT_EQ(from, "127.0.0.1");
+    EXPECT_GT(from_port, 0);
+    // Nothing sent: the window passes and the receive is empty, not an error.
+    EXPECT_EQ(sk::recvfrom(rx, 64, from, from_port), "");
+    EXPECT_EQ(from_port, 0);
+    // A packet larger than the buffer is truncated to it — the datagram contract, stated in the doc.
+    EXPECT_EQ(sk::sendto(tx, "127.0.0.1", port, std::string(100, 'x')), 100);
+    EXPECT_EQ(sk::recvfrom(rx, 16, from, from_port).size(), 16u);
+    EXPECT_EQ(sk::close(tx), 0);
+    EXPECT_EQ(sk::close(rx), 0);
+}
+
 TEST(CheatahSocket, ConnectRefused) {
     // Bind+listen to grab a free port, then close it so the port is free again.
     const long long probe = sk::tcp_listen("127.0.0.1", 0, 1);

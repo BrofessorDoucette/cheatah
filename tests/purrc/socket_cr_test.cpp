@@ -62,6 +62,25 @@ socket.close(fd)
 }
 
 // set_reuseaddr: enabling SO_REUSEADDR on a fresh socket succeeds (returns 0).
+// udp_socket / sendto / recvfrom: a datagram round trip from purr, the sender's address reported.
+TEST(SocketCompileRun, UdpLoopback) {
+    e2e::expect_e2e("socket_udp_loopback", R"PURR(import io
+import socket
+let rx = socket.udp_socket()
+socket.bind(rx, "127.0.0.1", 0)
+socket.set_timeout(rx, 500)
+let port = socket.local_port(rx)
+let tx = socket.udp_socket()
+let sent = socket.sendto(tx, "127.0.0.1", port, "pose 7")
+let host = ""
+let from_port = 0
+let got = socket.recvfrom(rx, 64, host, from_port)
+io.print(sent == 6 and got == "pose 7" and host == "127.0.0.1" and from_port > 0)
+socket.close(tx)
+socket.close(rx)
+)PURR", "True\n");
+}
+
 TEST(SocketCompileRun, SetReuseaddr) {
     e2e::expect_e2e("socket_set_reuseaddr", R"PURR(import io
 import socket

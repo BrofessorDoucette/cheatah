@@ -289,6 +289,59 @@ long long local_port(long long fd);
 long long set_timeout(long long fd, long long timeout_ms);
 
 /**
+ * @brief A UDP socket — the DATAGRAM face beside the stream one. Unbound until @ref bind; a
+ *        client that only sends needs no bind (the kernel picks a port on the first @ref sendto).
+ *
+ * What a datagram is for: data whose NEXT packet supersedes this one — a presence pose, a live
+ * drag, a simulation snapshot. It may be dropped, duplicated or reordered by the network and the
+ * receiver must be written for that (newest-wins by stamp); nothing here acks, retries or orders.
+ * Everything that must arrive rides TCP (@ref tcp_connect).
+ *
+ * @return the socket fd, or -1 (@ref last_error says why).
+ * @complexity O(1).
+ * @alloc none.
+ * @test CheatahSocket.UdpLoopback
+ * @crtest SocketCompileRun.UdpLoopback
+ * @systest StdlibE2E.Socket
+ */
+long long udp_socket();
+
+/**
+ * @brief Send one datagram to @p host:@p port (an IPv4 literal or a name; resolved per call, so
+ *        cache the address yourself on a hot path). The whole of @p data is one packet: keep it
+ *        under the path MTU (1200 bytes is safe on the public internet, 65507 the absolute cap).
+ * @param fd a socket from @ref udp_socket.
+ * @param host destination host.
+ * @param port destination port.
+ * @param data the packet.
+ * @return bytes sent (== data.size()), or -1.
+ * @complexity O(len) + the kernel's copy.
+ * @alloc none (the resolve is on the stack).
+ * @test CheatahSocket.UdpLoopback
+ * @crtest SocketCompileRun.UdpLoopback
+ * @systest StdlibE2E.Socket
+ */
+long long sendto(long long fd, const std::string& host, long long port, const std::string& data);
+
+/**
+ * @brief Receive one datagram: at most @p bufsize bytes of it (the rest of a larger packet is
+ *        DISCARDED — the datagram contract), with the sender's address in @p out_host / @p out_port.
+ *        Blocks until a packet arrives, or until @ref set_timeout's window passes (an empty string,
+ *        @p out_port 0).
+ * @param fd a socket from @ref udp_socket, bound with @ref bind.
+ * @param bufsize the most bytes to take.
+ * @param out_host the sender's address, dotted (empty on timeout/error).
+ * @param out_port the sender's port (0 on timeout/error).
+ * @return the packet's bytes, or empty.
+ * @complexity O(bufsize) worst case.
+ * @alloc the returned string (the receive buffer is a reused per-thread scratch).
+ * @test CheatahSocket.UdpLoopback
+ * @crtest SocketCompileRun.UdpLoopback
+ * @systest StdlibE2E.Socket
+ */
+std::string recvfrom(long long fd, long long bufsize, std::string& out_host, long long& out_port);
+
+/**
  * The message for the current `errno`.
  *
  * Returns the human-readable text for the thread's current `errno`; call it right after a function

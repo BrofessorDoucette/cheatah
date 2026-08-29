@@ -8091,7 +8091,7 @@
         "systest": "StdlibE2E.Socket"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 303,
+      "srcline": 356,
       "module": "socket",
       "qualified": "socket.last_error"
     },
@@ -8166,7 +8166,7 @@
         "test": "CheatahSocket.ConnLoopback"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 554,
+      "srcline": 607,
       "module": "socket",
       "qualified": "socket.open"
     },
@@ -8196,6 +8196,41 @@
       "srcline": 108,
       "module": "socket",
       "qualified": "socket.recv"
+    },
+    {
+      "name": "recvfrom",
+      "signature": "recvfrom(long long fd, long long bufsize, std::string &out_host, long long &out_port)",
+      "brief": "Receive one datagram: at most bufsize bytes of it (the rest of a larger packet is DISCARDED — the datagram contract), with the sender's address in out_host / out_port.",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a socket from udp_socket, bound with bind."
+        },
+        {
+          "name": "bufsize",
+          "desc": "the most bytes to take."
+        },
+        {
+          "name": "out_host",
+          "desc": "the sender's address, dotted (empty on timeout/error)."
+        },
+        {
+          "name": "out_port",
+          "desc": "the sender's port (0 on timeout/error)."
+        }
+      ],
+      "returns": "the packet's bytes, or empty.",
+      "tags": {
+        "complexity": "O(bufsize) worst case.",
+        "alloc": "the returned string (the receive buffer is a reused per-thread scratch).",
+        "test": "CheatahSocket.UdpLoopback",
+        "crtest": "SocketCompileRun.UdpLoopback",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 342,
+      "module": "socket",
+      "qualified": "socket.recvfrom"
     },
     {
       "name": "send",
@@ -8252,6 +8287,41 @@
       "qualified": "socket.sendall"
     },
     {
+      "name": "sendto",
+      "signature": "sendto(long long fd, const std::string &host, long long port, const std::string &data)",
+      "brief": "Send one datagram to host:port (an IPv4 literal or a name; resolved per call, so cache the address yourself on a hot path).",
+      "params": [
+        {
+          "name": "fd",
+          "desc": "a socket from udp_socket."
+        },
+        {
+          "name": "host",
+          "desc": "destination host."
+        },
+        {
+          "name": "port",
+          "desc": "destination port."
+        },
+        {
+          "name": "data",
+          "desc": "the packet."
+        }
+      ],
+      "returns": "bytes sent (== data.size()), or -1.",
+      "tags": {
+        "complexity": "O(len) + the kernel's copy.",
+        "alloc": "none (the resolve is on the stack).",
+        "test": "CheatahSocket.UdpLoopback",
+        "crtest": "SocketCompileRun.UdpLoopback",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 324,
+      "module": "socket",
+      "qualified": "socket.sendto"
+    },
+    {
       "name": "serve",
       "signature": "serve(const std::string &host, long long port, long long backlog)",
       "brief": "Create a listening server socket bound to host:port and return it as an owning Listener (the RAII, with-friendly form of tcp_listen()).",
@@ -8276,7 +8346,7 @@
         "test": "CheatahSocket.ListenerLoopback"
       },
       "srcfile": "stdlib/socket/socket.hpp",
-      "srcline": 567,
+      "srcline": 620,
       "module": "socket",
       "qualified": "socket.serve"
     },
@@ -8424,6 +8494,24 @@
       "srcline": 50,
       "module": "socket",
       "qualified": "socket.tcp_listen"
+    },
+    {
+      "name": "udp_socket",
+      "signature": "udp_socket()",
+      "brief": "A UDP socket — the DATAGRAM face beside the stream one.",
+      "params": [],
+      "returns": "the socket fd, or -1 (last_error says why).",
+      "tags": {
+        "complexity": "O(1).",
+        "alloc": "none.",
+        "test": "CheatahSocket.UdpLoopback",
+        "crtest": "SocketCompileRun.UdpLoopback",
+        "systest": "StdlibE2E.Socket"
+      },
+      "srcfile": "stdlib/socket/socket.hpp",
+      "srcline": 307,
+      "module": "socket",
+      "qualified": "socket.udp_socket"
     },
     {
       "name": "count",

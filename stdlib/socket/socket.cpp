@@ -3,6 +3,7 @@
 #include "socket.hpp"
 
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <system_error>
@@ -252,6 +253,60 @@ long long tcp_connect(const std::string& host, long long port) {
         return -1;
     }
     return fd;
+}
+
+long long udp_socket() {
+    ensure_winsock();
+    const auto fd = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#if defined(_WIN32)
+    if (fd == INVALID_SOCKET) return -1;
+#else
+    if (fd < 0) return -1;
+#endif
+    return static_cast<long long>(fd);
+}
+
+long long sendto(long long fd, const std::string& host, long long port, const std::string& data) {
+    sockaddr_storage addr{};
+    socklen_t len = 0;
+    if (!resolve(host, port, addr, len)) return -1;
+#if defined(_WIN32)
+    const int flags = 0;
+#else
+#ifdef MSG_NOSIGNAL
+    const int flags = MSG_NOSIGNAL;
+#else
+    const int flags = 0;
+#endif
+#endif
+    const auto n = ::sendto(as_fd(fd), data.data(), static_cast<int>(data.size()), flags,
+                            reinterpret_cast<const sockaddr*>(&addr), len);
+    return n < 0 ? -1 : static_cast<long long>(n);
+}
+
+std::string recvfrom(long long fd, long long bufsize, std::string& out_host, long long& out_port) {
+    out_host.clear();
+    out_port = 0;
+    if (bufsize <= 0) return {};
+    static thread_local std::vector<char> scratch;
+    if (scratch.size() < static_cast<std::size_t>(bufsize)) {
+        scratch.resize(static_cast<std::size_t>(bufsize));
+    }
+    sockaddr_storage from{};
+    socklen_t from_len = sizeof from;
+    const auto n = ::recvfrom(as_fd(fd), scratch.data(), static_cast<int>(bufsize), 0,
+                              reinterpret_cast<sockaddr*>(&from), &from_len);
+    if (n <= 0) return {};
+    char host[NI_MAXHOST] = {0};
+    char serv[NI_MAXSERV] = {0};
+    if (::getnameinfo(reinterpret_cast<const sockaddr*>(&from), from_len, host, sizeof host, serv,
+                      sizeof serv, NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
+        out_host = host;
+        char* end = nullptr;
+        const long long port = std::strtoll(serv, &end, 10);
+        out_port = (end != nullptr && *end == '\0') ? port : 0;   // NI_NUMERICSERV is digits; be sure
+    }
+    return {scratch.data(), static_cast<std::size_t>(n)};
 }
 
 long long set_timeout(long long fd, long long timeout_ms) {
