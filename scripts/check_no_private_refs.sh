@@ -32,10 +32,23 @@
 #   check_no_private_refs.sh              scan the tracked tree (the QA-gate default)
 #   check_no_private_refs.sh --message F  scan one commit-message file (commit-msg hook)
 #   check_no_private_refs.sh --range A..B scan commit messages in a range (pre-push)
+#   check_no_private_refs.sh --release [TAG]  scan a PUBLISHED GitHub release's title and body
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 PATTERN='bigbrain|atomizer|godspeed|sherlock|conjure|looking-glass|lookingglass|scribe|zebra|glgan|alice'
+
+# Private project NAMES are not the only way to leak. A release note once described "exactly two
+# compute layers across the ecosystem" and attributed the second to a product this repo does not
+# name — no private name anywhere in it, so the scan above passed and it published. Architecture
+# INTENT is the second leak class, and it needs its own phrases.
+#
+# Kept deliberately narrow, and the narrowness is the point. "game engine" is NOT here: README
+# links the product page in its ecosystem list on purpose. Neither is the SINGULAR "compute layer" —
+# cheatah-plot's own docs say "the compute layer the renderer dispatches on", which names the one it
+# uses and discloses nothing. What leaks is a claim about how MANY exist, so the plural is the
+# signal, plus the ordinal form that implies a second without pluralising.
+PATTERN="$PATTERN|compute layers|second compute layer"
 ALLOW='BigBrain|(https://)?bigbrain-technology\.com[^ "<)]*'
 
 # Keep only the lines that still match PATTERN once the allowlisted phrases are removed.
@@ -74,6 +87,26 @@ case "${1:-}" in
     # Ignore comment lines git strips from the final message.
     hits="$(grep -nIwiE "$PATTERN" "$file" 2>/dev/null | grep -v '^[0-9]*:#' | filter_allowed || true)"
     [ -z "$hits" ] || { report "this commit message" "$hits"; exit 1; }
+    exit 0
+    ;;
+--release)
+    # A release's notes are generated from CHANGELOG.md at release time and then live on GitHub as
+    # their OWN artifact. Fixing the changelog afterwards does not touch them — which is exactly how
+    # a published release came to describe private architecture long after the tree was clean. The
+    # tree scan cannot see them, so this mode reads them back from the API and applies the same
+    # pattern. Skips (rather than fails) when gh is absent or unauthenticated, so an offline gate
+    # run does not block on it; the release procedure is where it must actually pass.
+    command -v gh >/dev/null 2>&1 || { echo "private-refs: gh not installed — release scan SKIPPED"; exit 0; }
+    tag="${2:-}"
+    if [ -z "$tag" ]; then
+        tag="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
+    fi
+    [ -n "$tag" ] || { echo "private-refs: no release to scan — SKIPPED"; exit 0; }
+    notes="$(gh release view "$tag" --json name,body -q '.name + "\n" + .body' 2>/dev/null || true)"
+    [ -n "$notes" ] || { echo "private-refs: could not read release $tag — SKIPPED"; exit 0; }
+    hits="$(printf '%s\n' "$notes" | grep -nIwiE "$PATTERN" | filter_allowed || true)"
+    [ -z "$hits" ] || { report "the published release $tag" "$hits"; exit 1; }
+    echo "private-refs: clean — no sibling-project names in the published release $tag."
     exit 0
     ;;
 --range)

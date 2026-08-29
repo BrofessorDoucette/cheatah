@@ -56,7 +56,7 @@ cheatah build/hello.so         <span class="tok-com"># run it — always with th
 │   └── CPM.cmake           <span class="tok-com"># CPM bootstrap (auto-downloads CPM at configure time)</span>
 ├── src/
 │   └── main.purr           <span class="tok-com"># your program</span>
-└── .gitignore</code></pre><p>You edit <code>src/main.purr</code> (and, occasionally, <code>cheatah.toml</code>). You never edit the generated <code>CMakeLists.txt</code> — <code>biome configure</code>, <code>biome add</code> and <code>biome remove</code> rewrite it from the manifest, so the manifest is the single source of truth and the two never drift apart.</p><h2 id="biome_1autotoc_md192">The manifest — </h2><p>TOML is just a simple <code>key = value</code> text format grouped into <code>[sections]</code>. A project manifest looks like this:</p><pre class="code"><code>[project]
+└── .gitignore</code></pre><p>You edit <code>src/main.purr</code> (and, occasionally, <code>cheatah.toml</code>). You never edit the generated <code>CMakeLists.txt</code> — <code>biome configure</code>, <code>biome add</code> and <code>biome remove</code> rewrite it from the manifest, so the manifest is the single source of truth and the two never drift apart.</p><h2 id="biome_1autotoc_md192">The manifest — cheatah.toml</h2><p>TOML is just a simple <code>key = value</code> text format grouped into <code>[sections]</code>. A project manifest looks like this:</p><pre class="code"><code>[project]
 name = <span class="tok-str">&quot;hello&quot;</span>
 
 [cheatah]

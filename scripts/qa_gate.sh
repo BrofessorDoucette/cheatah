@@ -244,7 +244,7 @@ fi
 bold "Running cppcheck + private-reference scan + benchmark-stamp lint (background lane)…"
 # The benchmark-stamp and documentation lints run later, once the release toolchain exists
 # (they are cheatah programs): see "Documentation lints" after the benchmark-build join.
-bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh'
+bg_launch PID_CPPCHECK "$LOG_CPPCHECK" bash -c 'bash scripts/cppcheck.sh && bash scripts/check_no_private_refs.sh && bash scripts/check_no_private_refs.sh --release'
 
 # 2. Configure ---------------------------------------------------------------
 bold "Configuring (debug + release)…"

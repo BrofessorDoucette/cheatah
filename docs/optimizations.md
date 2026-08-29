@@ -18,6 +18,7 @@ A `let` whose variable is never read is **not emitted** — the binding disappea
 Crucially this is *not* a blunt deletion: if the initializer has a side effect (a call), the
 **side effect is kept** and only the unused variable is dropped, so semantics never change.
 
+```purr
 import io
 fn describe(x) {
     let logged = io.str(x)   # a call — its effect is kept
@@ -115,6 +116,7 @@ site. The winning arm is selected *while compiling*, and **the dead arms are nev
 into the binary at all**:
 
 ```purr
+import io
 fn f() {
     constexpr let MODE = 2
     if MODE == 1 { io.print("one") }

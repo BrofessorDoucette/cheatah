@@ -871,6 +871,21 @@ fn src_page_name(rel_path) {
 
 # ElementTree `findtext(tag)` semantics: the child's text BEFORE its first
 # element child (its leading text node), not the full descendant text.
+# Every descendant's text, concatenated. `first_text` deliberately stops at the first child and
+# returns nothing at all when that child is an element — fine for a plain title, wrong for one that
+# contains markup. A markdown heading like `## Request bodies (`Options`)` becomes
+# `<title>Request bodies (<computeroutput>Options</computeroutput>)</title>`, where first_text
+# yields the truncated "Request bodies (", and `## `Options`` — a title that is ONLY inline code —
+# yields "" and had its heading dropped entirely, since the renderer skips an empty title.
+fn node_text(doc, id) -> str {
+    let out = ""
+    for c in parsers.xml.children(doc, id) {
+        if parsers.xml.is_element(doc, c) { out = out + node_text(doc, c) }
+        else { out = out + parsers.xml.text(doc, c) }
+    }
+    return out
+}
+
 fn first_text(doc, id) {
     for c in parsers.xml.children(doc, id) {
         if parsers.xml.is_element(doc, c) { return "" }
@@ -1246,7 +1261,7 @@ fn render_node(g, doc, id) -> str {
     if t == "sect1" or t == "sect2" or t == "sect3" {
         let ti = parsers.xml.find(doc, id, "title")
         let title = ""
-        if ti >= 0 { title = first_text(doc, ti) }
+        if ti >= 0 { title = node_text(doc, ti) }
         let body = ""
         for c in parsers.xml.children(doc, id) {
             if parsers.xml.is_element(doc, c) and parsers.xml.tag(doc, c) != "title" {
@@ -1342,7 +1357,9 @@ fn render_node(g, doc, id) -> str {
             if pr in g.page_href { href = g.page_href[pr] }
             return "<a href=\"" + href + esc(frag) + "\">" + inner + "</a>"
         }
-        if key in g.src_map {
+        # An extension's markdown path names a file in ITS repo, not this one — `scripts/bench_run.sh`
+        # exists in both — and extension sources are not published at all, so plain text is honest.
+        if key in g.src_map and not g.in_ext {
             return "<a href=\"" + g.src_map[key] + esc(frag) + "\">" + inner + "</a>"
         }
         return inner
@@ -1986,7 +2003,7 @@ fn sect_toc(doc, id) {
             let sid = parsers.xml.attr(doc, c, "id")
             let ti = parsers.xml.find(doc, c, "title")
             if sid != "" and ti >= 0 {
-                items = items + "<li><a href=\"#" + esc(sid) + "\">" + esc(first_text(doc, ti)) + "</a></li>"
+                items = items + "<li><a href=\"#" + esc(sid) + "\">" + esc(node_text(doc, ti)) + "</a></li>"
             }
         }
     }
@@ -2007,10 +2024,16 @@ fn render_bench_page(g, mod, sidebar) {
     let back = "index.html"
     if mod in g.modules { back = g.modules[mod] + ".html" }
     if mod in g.ext_ns { back = g.ext_ns[mod] + ".html" }
+    # An extension's page lives one level down in its subsite, so it must be shelled as that
+    # package: page_shell_in prefixes the stylesheet, logo, brand link and package switcher with
+    # "../", and g.in_ext keeps the markdown resolver from linking the parent site's source pages.
+    let pkg = ""
+    if mod in g.bench_ext { pkg = g.bench_ext[mod] }
+    g.in_ext = pkg != ""
     let body = render_desc(g, bdoc, g.bench_node[mod])
     let lede = "<p class=\"lede\">The generated measurement tables for the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> — every case, the harness that measured it, and how to reproduce it.</p>"
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Benchmarks</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
-    return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
+    return page_shell_in(g, pkg, title + " — cheatah standard library", sidebar, content, sect_toc(bdoc, g.bench_node[mod]))
 }
 
 # Doxygen's Markdown leaves a **bold** span literal when the marker is followed by a character it
@@ -2060,10 +2083,13 @@ fn render_verif_page(g, mod, sidebar) {
     let back = "index.html"
     if mod in g.modules { back = g.modules[mod] + ".html" }
     if mod in g.ext_ns { back = g.ext_ns[mod] + ".html" }
+    let vpkg = ""
+    if mod in g.verif_ext { vpkg = g.verif_ext[mod] }
+    g.in_ext = vpkg != ""
     let body = repair_bold(render_desc(g, vdoc, g.verif_node[mod]))
     let lede = "<p class=\"lede\">What the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> implements, what has actually been verified against the reference implementation, and over which part of the domain — stated so a reader can tell the difference.</p>"
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Verification</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
-    return page_shell(g, title + " — cheatah standard library", sidebar, content, sect_toc(vdoc, g.verif_node[mod]))
+    return page_shell_in(g, vpkg, title + " — cheatah standard library", sidebar, content, sect_toc(vdoc, g.verif_node[mod]))
 }
 
 fn render_home(g, ci, sidebar) {

@@ -456,6 +456,54 @@ fn check_links(errors : list<str>, warns : list<str>) -> int {
     return checked
 }
 
+# ---- structure: fences balance, and no raw anchor syntax reaches a rendered page ----------
+#
+# WHY THIS EXISTS. A single dropped ``` fence corrupts a whole document silently. It happened:
+# an edit replaced the opening fence of a purr block with the block's first line, leaving
+# docs/optimizations.md with an ODD number of fence markers. Every later fence then paired off by
+# one, so five sections were parsed as code, lost their headings, and published with their raw
+# `{#anchor}` markup visible on the page.
+#
+# Nothing caught it — including this program, which is the instructive part: check_examples tracks
+# fences with a toggle, so a missing fence inverted its view too and it went on type-checking the
+# wrong blocks without complaint. A toggle cannot detect its own desynchronisation; only counting
+# can. Hence the first check. The second catches the same class of damage from the other end, at
+# the rendered output, whatever its cause.
+fn check_structure(errors : list<str>) -> int {
+    let checked = 0
+    for doc in guide_files() {
+        if not os.path.exists(doc) { continue }
+        checked = checked + 1
+        let fences = 0
+        for line in string.splitlines(io.read_file(doc)) {
+            if string.startswith(string.strip(line), "```") { fences = fences + 1 }
+        }
+        if fences % 2 != 0 {
+            errors.append(doc + " — " + str(fences) + " code-fence markers, an ODD number: one fence "
+                          + "is unclosed, so every fence after it pairs off by one and the rest of "
+                          + "the document parses as its own opposite")
+        }
+    }
+    # The rendered signature of a heading the parser refused to take: its `{#anchor}` survives into
+    # the page as literal text. Cheap to scan, and it catches breakage this file cannot see.
+    let html_dir = "docs/html"
+    if os.path.isdir(html_dir) {
+        for f in os.listdir(html_dir) {
+            if not string.endswith(f, ".html") { continue }
+            # src_*.html are VERBATIM source listings, not markdown-derived pages: a shell script's
+            # `${#arr[@]}` puts a literal `{#` on the page as ordinary code, which is not a leaked
+            # anchor. Only documents that went through the markdown parser can exhibit this defect.
+            if string.startswith(f, "src_") { continue }
+            let path = html_dir + "/" + f
+            if string.contains(io.read_file(path), "{#") {
+                errors.append(path + " — rendered page contains literal `{#` anchor markup, so a "
+                              + "heading was not parsed; check the source document's code fences")
+            }
+        }
+    }
+    return checked
+}
+
 # ---- examples: every ```purr fence type-checks --------------------------------------------
 fn purrc_path() -> str {
     for p in ["build/release/bin/purrc", "build/debug/bin/purrc"] {
@@ -681,11 +729,11 @@ fn check_phrases(errors : list<str>) -> int {
 fn main() {
     let mode = "all"
     if len(sys.argv) > 1 { mode = sys.argv[1] }
-    let known = ["tests", "links", "examples", "flags", "phrases", "all"]
+    let known = ["tests", "links", "examples", "flags", "phrases", "structure", "all"]
     let ok_mode = false
     for k in known { if k == mode { ok_mode = true } }
     if not ok_mode {
-        io.print("usage: doc_lint.so [tests|links|examples|flags|phrases|all]")
+        io.print("usage: doc_lint.so [tests|links|examples|flags|phrases|structure|all]")
         raise "doc-lint: unknown mode " + mode
     }
     let errors: list<str> = []
@@ -705,6 +753,10 @@ fn main() {
     if mode == "flags" or mode == "all" {
         check_flags(errors)
         io.print("[doc-lint] flags:    purrc, cheatah and biome tables compared with the binaries")
+    }
+    if mode == "structure" or mode == "all" {
+        let n = check_structure(errors)
+        io.print("[doc-lint] structure: " + str(n) + " document(s) checked for fence balance")
     }
     if mode == "phrases" or mode == "all" {
         let n = check_phrases(errors)

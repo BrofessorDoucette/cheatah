@@ -328,13 +328,8 @@ Install extensions with `biome`, the package manager — see [pkg-manager/](pkg-
 
 cheatah is not a side project — it is the language
 **[BigBrain LLC](https://bigbrain-technology.com/)** writes its own commercial software in.
-A 3D [game engine and editor](https://bigbrain-technology.com/products/godspeed), a
-[machine-learning training workstation](https://bigbrain-technology.com/products/ash), a
-[dataset builder](https://bigbrain-technology.com/products/alice), a
-[text-to-3D generator](https://bigbrain-technology.com/products/conjure) and a
-[version-control module](https://bigbrain-technology.com/products/boltzmann) are all compiled
-by `purrc` and run on this runtime — as does the web server delivering every one of those
-pages.
+Its commercial product line is compiled by `purrc` and runs on this runtime — as does the web
+server delivering every one of those pages.
 
 See [the whole line](https://bigbrain-technology.com/products) and
 [what it costs](https://bigbrain-technology.com/pricing), or start with
