@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::DipoleCoefficients — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients">
+<meta name="description" content="The degree-1 IGRF Gauss coefficients — the centred geomagnetic dipole for one epoch.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::DipoleCoefficients</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The degree-1 IGRF Gauss coefficients — the centred geomagnetic dipole for one epoch. </p>
+</div>
+<div class="overview"><p>The IGRF table itself is owned elsewhere; this is the three numbers the frame definitions actually need, in nanotesla, at the epoch of interest (interpolated or extrapolated by whoever owns the table).</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1ae2cf06dd9b68a7215fc549ae3c952edd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">moment_nt</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1ae2cf06dd9b68a7215fc549ae3c952edd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The dipole moment magnitude <code>B₀ = √(g₁⁰² + g₁¹² + h₁¹²)</code>, the field strength the centred dipole would produce at the magnetic equator on the reference sphere. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code>B₀</code> in nanotesla; ~30 000 nT for the present-day Earth.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a90f1cabecac9b028e75d0e5037c61b48">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">axis_geo</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a90f1cabecac9b028e75d0e5037c61b48" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The dipole axis in GEO, as a unit vector pointing toward the NORTH geomagnetic pole — the +Z axis of both Frame::MAG and Frame::SM. </p>
+  <div class="member-body"><p>Derivation, so the sign is checkable rather than folklore. The geomagnetic scalar potential&#x27;s degree-1 part is V = a·(a/r)²·[ g₁⁰·cos θ + (g₁¹·cos φ + h₁¹·sin φ)·sin θ ]</p><p>and substituting <code>cos θ = z/r</code>, <code>sin θ cos φ = x/r</code>, <code>sin θ sin φ = y/r</code> collapses it to <code>V = a³ (m⃗ · r⃗)/r³</code> with <code>m⃗ = (g₁¹, h₁¹, g₁⁰)</code>. That <code>m⃗</code> is the physical dipole moment, and because <code>g₁⁰</code> is negative it points into the southern hemisphere — which is exactly why the Earth&#x27;s &quot;north magnetic pole&quot; is a magnetic south pole. The geomagnetic frames orient their +Z along the pole in the NORTHERN hemisphere, so the axis is <code>−m⃗</code>, normalized.</p><div class="ret"><span class="ret-h">Returns</span> <p>the unit vector <code>(−g₁¹, −h₁¹, −g₁⁰)/B₀</code> in geographic Cartesian coordinates.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a5a3c3da75216c9dc8aaa76e62f674834">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">north_pole_latitude_deg</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a5a3c3da75216c9dc8aaa76e62f674834" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The GEOCENTRIC geographic latitude of the north geomagnetic pole. </p>
+  <div class="member-body"><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>Published pole positions are usually GEODETIC. At these latitudes the two differ by about 0.066°, which is exactly the gap between the value returned here and the commonly quoted one (80.589° geocentric against 80.65° geodetic for IGRF-13 2020, 80.313° against 80.37° for DGRF 2015). Nothing in this header wants a geodetic angle — the frames are geocentric — so no conversion is done, but the difference is real and must not be mistaken for an error in the coefficients.</p></div></div><div class="ret"><span class="ret-h">Returns</span> <p>degrees, north positive; 80.589° for the IGRF-13 2020 epoch.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a0303c271225c58a0c94073a95f039177">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">north_pole_longitude_deg</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a0303c271225c58a0c94073a95f039177" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The geographic east longitude of the north geomagnetic pole. </p>
+  <div class="member-body"><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>Undefined for an exactly axial dipole (<code>g₁¹ = h₁¹ = <span class="tok-num">0</span></code>), where the pole sits on the rotation axis and has no longitude at all; <code>atan2</code> of two signed zeros then returns −180°. No IGRF epoch has both coefficients exactly zero, so no branch is spent on it.</p></div></div><div class="ret"><span class="ret-h">Returns</span> <p>degrees in <code>(-<span class="tok-num">180</span>, <span class="tok-num">180</span>]</code>, east positive; −72.680° for the IGRF-13 2020 epoch.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1abb94bbc1692ee0aca7f23165a5d3eb36">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g10</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1abb94bbc1692ee0aca7f23165a5d3eb36" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The axial dipole coefficient <code>g₁⁰</code>, in nT. Negative for the present-day Earth. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a85b87ae5215798cb94d247c7c2734726">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g11</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a85b87ae5215798cb94d247c7c2734726" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The equatorial dipole coefficient <code>g₁¹</code>, in nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a4df2243d2ba77f0ba51ff169ddcfd7ec">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">h11</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a4df2243d2ba77f0ba51ff169ddcfd7ec" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The equatorial dipole coefficient <code>h₁¹</code>, in nT. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1ae2cf06dd9b68a7215fc549ae3c952edd">moment_nt</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a90f1cabecac9b028e75d0e5037c61b48">axis_geo</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a5a3c3da75216c9dc8aaa76e62f674834">north_pole_latitude_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a0303c271225c58a0c94073a95f039177">north_pole_longitude_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1abb94bbc1692ee0aca7f23165a5d3eb36">g10</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a85b87ae5215798cb94d247c7c2734726">g11</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DipoleCoefficients_1a4df2243d2ba77f0ba51ff169ddcfd7ec">h11</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::FieldContext — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/classcheatah_1_1space_1_1irbem_1_1FieldContext">
+<meta name="description" content="Everything a field evaluation needs to know about when it is, and nothing about where .">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>space::irbem::FieldContext</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Everything a field evaluation needs to know about <em>when</em> it is, and nothing about <em>where</em>. </p>
+</div>
+<div class="overview"><p>Immutable by construction: the data are private, every accessor is <code>const</code>, there are no setters and the constructor is private, so the only way to obtain one is <a href="classcheatah_1_1space_1_1irbem_1_1FieldContext.html#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a95c4046c3377034e615a991f4e886757">make_field_context</a> and the only contexts that exist are validated ones. Nothing in it can record what the previous evaluation found, which is precisely the affordance IRBEM&#x27;s <code>COMMON</code> blocks provide and precisely why they cannot be threaded.</p><p>Immutability is spelled &quot;private data plus const accessors&quot; rather than <code>const</code> data members on purpose: <code>const</code> members would delete copy assignment and make the type useless in an ephemeris buffer, while preventing nothing that is not already prevented.</p><p>Trivially copyable and standard layout, so <code>memcpy</code> into a mapped uniform buffer is a valid way to hand it to a GPU, and passing it by value between CPU workers costs a copy of about a kilobyte and no indirection.</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1aeec4c7a4592630ba81b00f0b35d2a5ab">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1HotState.html">HotState</a> &amp;</span> <span class="mname">hot</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1aeec4c7a4592630ba81b00f0b35d2a5ab" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The inner loop&#x27;s block — tilt, precomputed trigonometry, the five universal drivers, and the GEO&lt;-&gt;GSM rotation pair. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a reference into this context; it lives exactly as long as the context does.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a44ec7f1fb2806217f9bd2fb8e1e98d51">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1Epoch.html">Epoch</a> &amp;</span> <span class="mname">epoch</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a44ec7f1fb2806217f9bd2fb8e1e98d51" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The instant this context is for. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the validated epoch.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a2a6774cf59f286757ff4509fa748404a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1acf4a3dd928676bcbca808aee25b2c160">DriverSet</a> &amp;</span> <span class="mname">drivers</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a2a6774cf59f286757ff4509fa748404a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The whole <code>maginput</code> vector, in IRBEM&#x27;s order, reserved slots included. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>all 25 drivers.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a1e085cfd707046951b99e047bf8ff578">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">driver</span>(Driver d) const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a1e085cfd707046951b99e047bf8ff578" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">One named driver. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>d</code></td><td class="pdesc"><p>which driver; <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a48933263229ac3f149e30181d4e2c414">Driver</a>&#x27;s enumerators are the zero-based <code>maginput</code> subscripts.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>its value, in the unit <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a48933263229ac3f149e30181d4e2c414">Driver</a> documents.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1ac75f08dedee34182c4434e845e116dd7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const fixarray::mat3d &amp;</span> <span class="mname">rotation_to_geo</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1ac75f08dedee34182c4434e845e116dd7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The stored matrix taking <code>F&#x27;s</code> components to GEO — no arithmetic, just the table entry. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>F</code></td><td class="pdesc"><p>the source frame; Cartesian, since an angular frame is not related to anything by a rotation.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>a reference to the matrix <code>M_F</code> for which <code>v_GEO = M_F * v_F</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1af9cd5575191f0783068eea5db436c725">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">rotation</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1af9cd5575191f0783068eea5db436c725" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The rotation taking <code>From&#x27;s</code> components to <code>To&#x27;s</code>, composed through the GEO hub. </p>
+  <div class="member-body"><p>The three cases that cost nothing — a frame to itself, anything to GEO, GEO to anything — are chosen at compile time, so only a genuine cross pair such as GSE-&gt;SM pays a matrix product. A rotation&#x27;s inverse is its transpose, which is why the GEO-to-anything case is a transpose and not a solve.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>From</code></td><td class="pdesc"><p>the source frame; Cartesian.</p></td></tr><tr><td class="pname"><code>To</code></td><td class="pdesc"><p>the destination frame; Cartesian.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the matrix <code>R</code> for which <code>v_To = R * v_From</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1); at most one 3x3 product.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a87312565bad62170165d39df50052694">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">rotate</span> <span class="overload-count">· 2 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1Position.html">Position</a>&lt; To &gt;</span> <span class="mname">rotate</span>(Position&lt; From &gt; p) const noexcept</code><span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a87312565bad62170165d39df50052694" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a3c04d51b84480cfbcadda44e024391d8"><code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1FieldVector.html">FieldVector</a>&lt; To &gt;</span> <span class="mname">rotate</span>(FieldVector&lt; From &gt; b) const noexcept</code><span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a3c04d51b84480cfbcadda44e024391d8" aria-label="permalink">#</a></span></div></div>
+  <p class="member-brief">Re-express a position in another frame. </p>
+  <div class="member-body"><p>This applies a rotation and only a rotation, so it is defined between Cartesian frames alone. Converting to or from GDZ, SPH or RLL is not a rotation — it involves the reference ellipsoid or a Cartesian-to-angular change of variables — and belongs to the coordinate transform module, not here.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>To</code></td><td class="pdesc"><p>the destination frame; Cartesian.</p></td></tr><tr><td class="pname"><code>From</code></td><td class="pdesc"><p>the source frame; Cartesian, deduced from <code>p</code>.</p></td></tr></table></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the position, in Earth radii.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the same point, tagged with and expressed in <code>To</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a439305ddd59b0f769e994ada58338b79">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">FieldContext</span>(const Epoch &amp;epoch, double tilt_rad, const RotationTable &amp;to_geo, const DriverSet &amp;drivers)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a439305ddd59b0f769e994ada58338b79" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Assemble the state. </p>
+  <div class="member-body"><p>Private: the inputs are assumed already validated by <a href="classcheatah_1_1space_1_1irbem_1_1FieldContext.html#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a95c4046c3377034e615a991f4e886757">make_field_context</a>, which is the only caller.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>epoch</code></td><td class="pdesc"><p>the instant.</p></td></tr><tr><td class="pname"><code>tilt_rad</code></td><td class="pdesc"><p>the geodipole tilt, radians.</p></td></tr><tr><td class="pname"><code>to_geo</code></td><td class="pdesc"><p>the rotations, per RotationTable. drivers all 25 <code>maginput</code> slots.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) — two transcendentals and a fixed number of copies, once per epoch.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1ad7c0e682432c1d44e5893d4d7cef6684">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1HotState.html">HotState</a></span> <span class="mname">hot_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1ad7c0e682432c1d44e5893d4d7cef6684" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The inner loop&#x27;s cache line and rotation pair. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1FieldContext_1a2bf966551479f6e3a16a29761eb8bd73">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1ColdState.html">ColdState</a></span> <span class="mname">cold_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a2bf966551479f6e3a16a29761eb8bd73" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Everything read at most once per evaluation. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1aeec4c7a4592630ba81b00f0b35d2a5ab">hot</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a44ec7f1fb2806217f9bd2fb8e1e98d51">epoch</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a2a6774cf59f286757ff4509fa748404a">drivers</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a1e085cfd707046951b99e047bf8ff578">driver</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1ac75f08dedee34182c4434e845e116dd7">rotation_to_geo</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1af9cd5575191f0783068eea5db436c725">rotation</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a87312565bad62170165d39df50052694">rotate</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a439305ddd59b0f769e994ada58338b79">FieldContext</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1ad7c0e682432c1d44e5893d4d7cef6684">hot_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a2bf966551479f6e3a16a29761eb8bd73">cold_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1FieldContext_1a95c4046c3377034e615a991f4e886757">make_field_context</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

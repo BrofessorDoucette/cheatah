@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::TotalFieldT96 — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/classcheatah_1_1space_1_1irbem_1_1TotalFieldT96">
+<meta name="description" content="IGRF plus Tsyganenko 1996, as a single field a tracer can follow.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>space::irbem::TotalFieldT96</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">IGRF plus Tsyganenko 1996, as a single field a tracer can follow. </p>
+</div>
+<div class="overview"><p>The same shape as <code><a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT89.html">TotalFieldT89</a></code>, for the same reason: <code><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a60e4f17652ac023d7866dbdd97ae88ca">trace_invariant</a></code>, <code><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a913a9916e438c9ccab2d732dea1aa141">make_lstar</a></code> and everything above them take one <a href="conceptcheatah_1_1space_1_1irbem_1_1GeoFieldModel.html">GeoFieldModel</a> and follow the TOTAL field without knowing there are two. The amplitudes are collapsed ONCE, at construction — they are a property of the epoch and the drivers, and a trace evaluates the field ~10^5 times — so a field evaluation is one basis evaluation and one dot product. The external model&#x27;s refusals fall back to the internal field alone (the best available answer there, and never a NaN into an integrator), and <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96.html#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a95987e463b825f56e068714c26ecd852">external_status</a> says when that happened.</p><p>Traces through this field run the host lane: the device tracer is T89&#x27;s, and a T96 tracer is a second kernel this file does not own.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>NMAX</code></td><td class="pdesc"><p>the internal field&#x27;s truncation degree; 10 reproduces IRBEM&#x27;s own choice.</p></td></tr></table></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code> <code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldTracesAndReportsWhenTheExternalModelDeclines</span></code></span></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a6b45a9749f571de9d8bfef77cbcd337d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">TotalFieldT96</span>(const Igrf&lt; NMAX &gt; &amp;internal, const Rotations &amp;rotations, double dst_nt, double pdyn_npa, double by_nt, double bz_nt)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a6b45a9749f571de9d8bfef77cbcd337d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>internal</code></td><td class="pdesc"><p>the internal field, already built for the epoch.</p></td></tr><tr><td class="pname"><code>rotations</code></td><td class="pdesc"><p>the epoch&#x27;s frame rotations — built once, reused for every point.</p></td></tr><tr><td class="pname"><code>dst_nt</code></td><td class="pdesc"><p>Dst, nT.</p></td></tr><tr><td class="pname"><code>pdyn_npa</code></td><td class="pdesc"><p>solar-wind dynamic pressure, nPa.</p></td></tr><tr><td class="pname"><code>by_nt</code></td><td class="pdesc"><p>IMF By, GSM, nT.</p></td></tr><tr><td class="pname"><code>bz_nt</code></td><td class="pdesc"><p>IMF Bz, GSM, nT.</p></td></tr></table></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a5bddf27424ce1d9c8f6f24eccb0b98a6">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1FieldVector.html">FieldVector</a>&lt; Frame::GEO &gt;</span> <span class="mname">evaluate</span>(const Position&lt; Frame::GEO &gt; &amp;p) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a5bddf27424ce1d9c8f6f24eccb0b98a6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The total field at a geographic point. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the position, GEO, Earth radii.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>B_internal + B_external</code> in GEO, nT; the internal field alone when the external model refuses the point (see <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96.html#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a95987e463b825f56e068714c26ecd852">external_status</a>).</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>One IGRF evaluation, one T96 evaluation, two 3x3 rotations.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a95987e463b825f56e068714c26ecd852">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a></span> <span class="mname">external_status</span>(const Position&lt; Frame::GEO &gt; &amp;p) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a95987e463b825f56e068714c26ecd852" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the external model answered at <code>p</code>, and if not, why. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the position, GEO, Earth radii.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the external model&#x27;s status; Status::Ok when it contributed without caveat.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>One radius, two envelope checks.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldTracesAndReportsWhenTheExternalModelDeclines</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a8b3e7db4b676323d67599c423d464565">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a> &amp;</span> <span class="mname">rotations</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a8b3e7db4b676323d67599c423d464565" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The epoch&#x27;s frame rotations. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the rotations this field was built with.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a276882ab45fb7dddeacc27f8af22fffc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1T96Amplitudes.html">T96Amplitudes</a>&lt; double &gt; &amp;</span> <span class="mname">amplitudes</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a276882ab45fb7dddeacc27f8af22fffc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The collapsed amplitudes this field evaluates with. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the amplitudes, computed at construction.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a9e0f0d36cae5b307684f4d8fe1cb521b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g</span>(int n, int m) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a9e0f0d36cae5b307684f4d8fe1cb521b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal part&#x27;s Gauss coefficient <code><span class="tok-fn">g</span>(n, m)</code>, in nT — forwarded, for <code><a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT89.html">TotalFieldT89</a></code>&#x27;s reason: the superposition has no expansion of its own and every caller means the internal one. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the degree.</p></td></tr><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the order.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the internal part&#x27;s coefficient.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a1178d7e0b36b76311b59785073e83134">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">h</span>(int n, int m) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a1178d7e0b36b76311b59785073e83134" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal part&#x27;s <code><span class="tok-fn">h</span>(n, m)</code>, in nT — see <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96.html#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a9e0f0d36cae5b307684f4d8fe1cb521b">g</a>. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the degree.</p></td></tr><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the order.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the internal part&#x27;s coefficient.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a2e7ba739492cd34112dcfa3402dbab31">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&lt; NMAX &gt; &amp;</span> <span class="mname">internal</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a2e7ba739492cd34112dcfa3402dbab31" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal field alone. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the internal model.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a1a7d9529828603a2a6067b18eaccedbe">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">int</span> <span class="mname">degree</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a1a7d9529828603a2a6067b18eaccedbe" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal part&#x27;s truncation degree — what generic staging and buffer sizing read. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1aeb87c0a79202a8b0f77b439ebc6183c4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">const <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&lt; NMAX &gt; *</span> <span class="mname">internal_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1aeb87c0a79202a8b0f77b439ebc6183c4" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1add982ca1319685302a308fade9ab1f84">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a> *</span> <span class="mname">rotations_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1add982ca1319685302a308fade9ab1f84" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1aa1ceb5e3e33b7e15054c14e8a11db998">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">tilt_rad_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1aa1ceb5e3e33b7e15054c14e8a11db998" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a25e28cb68944921d7d0f4ca0489a17db">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst_nt_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a25e28cb68944921d7d0f4ca0489a17db" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a4085281ea70d9e73ea8d805037fc6194">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pdyn_npa_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a4085281ea70d9e73ea8d805037fc6194" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a7768fae0f4d3f7b5582a07065a787226">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">by_nt_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a7768fae0f4d3f7b5582a07065a787226" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a3b87c9bc0a789a2b0129558700f7d587">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bz_nt_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a3b87c9bc0a789a2b0129558700f7d587" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a4f27ab65fa57d96c54451b3d2efd8619">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1T96Amplitudes.html">T96Amplitudes</a>&lt; double &gt;</span> <span class="mname">amplitudes_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a4f27ab65fa57d96c54451b3d2efd8619" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a6b45a9749f571de9d8bfef77cbcd337d">TotalFieldT96</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a5bddf27424ce1d9c8f6f24eccb0b98a6">evaluate</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a95987e463b825f56e068714c26ecd852">external_status</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a8b3e7db4b676323d67599c423d464565">rotations</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a276882ab45fb7dddeacc27f8af22fffc">amplitudes</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a9e0f0d36cae5b307684f4d8fe1cb521b">g</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a1178d7e0b36b76311b59785073e83134">h</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a2e7ba739492cd34112dcfa3402dbab31">internal</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a1a7d9529828603a2a6067b18eaccedbe">degree</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1aeb87c0a79202a8b0f77b439ebc6183c4">internal_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1add982ca1319685302a308fade9ab1f84">rotations_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1aa1ceb5e3e33b7e15054c14e8a11db998">tilt_rad_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a25e28cb68944921d7d0f4ca0489a17db">dst_nt_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a4085281ea70d9e73ea8d805037fc6194">pdyn_npa_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a7768fae0f4d3f7b5582a07065a787226">by_nt_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a3b87c9bc0a789a2b0129558700f7d587">bz_nt_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldT96_1a4f27ab65fa57d96c54451b3d2efd8619">amplitudes_</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::TracedLine — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1TracedLine">
+<meta name="description" content="What trace_field_line produces, alongside the path itself.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::TracedLine</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">What <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1aa6d14452dff6643e8af09cf2c5db7c45">trace_field_line</a> produces, alongside the path itself. </p>
+</div>
+<div class="overview"><p>The scalars are IRBEM&#x27;s <code>Lm</code>, <code>Bmin</code> and <code>XJ</code>, computed on the SAME samples the path is made of rather than by a second trace — which is what makes this one pass over the line instead of two.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1ac9dce04c0928dedff57dfa4f189240f0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">b_local</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1ac9dce04c0928dedff57dfa4f189240f0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>|B|</code> at the input point, nT — IRBEM&#x27;s <code>Blocal</code> at the input index. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1a0abfc1e29cb2a47372e39391862abae6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">b_min</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a0abfc1e29cb2a47372e39391862abae6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The minimum <code>|B|</code> along the line, nT, parabola-refined off the sample grid. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1a7a1eac92de37b46632efb5a61e1c219f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">invariant_i</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a7a1eac92de37b46632efb5a61e1c219f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>I</code> for a particle mirroring at the input point, Earth radii — IRBEM&#x27;s <code>XJ</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1a033ffa7d595bc02fbfa81c4f557260e3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">mcilwain_l</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a033ffa7d595bc02fbfa81c4f557260e3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">McIlwain&#x27;s <code>L</code>, Earth radii — IRBEM&#x27;s <code>Lm</code>, via <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a033ffa7d595bc02fbfa81c4f557260e3">mcilwain_l</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1acd7710eb7dc02ceba3aedbaa620dabe3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1Position.html">Position</a>&lt; Frame::GEO &gt;</span> <span class="mname">equator</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1acd7710eb7dc02ceba3aedbaa620dabe3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The magnetic equator, GEO, Earth radii — the parabola-refined position of <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a0abfc1e29cb2a47372e39391862abae6">b_min</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1aa613248b8fdc6969261bed3938d995ee">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">point_count</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1aa613248b8fdc6969261bed3938d995ee" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many samples were written into the caller&#x27;s span. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1a953e5c52e8c93c23175d5ae32a4c7483">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">start_index</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a953e5c52e8c93c23175d5ae32a4c7483" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The index of the input point within the path. <a href="structcheatah_1_1space_1_1irbem_1_1Exact.html">Exact</a>: the input point is stored verbatim. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1ae303b71d2737ce832c9c082277e59ab3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">equator_index</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1ae303b71d2737ce832c9c082277e59ab3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The index of the sample nearest <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1acd7710eb7dc02ceba3aedbaa620dabe3">equator</a> — the parabola&#x27;s centre, not its vertex. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1TracedLine_1a1b6f70c693412ec5e680ef3f106ed79b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">truncated</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a1b6f70c693412ec5e680ef3f106ed79b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the path ran out of caller-supplied room before the line closed; the status is then Status::NotConverged rather than Status::Ok. </p>
+  <div class="member-body"><p>There are TWO shapes of truncation and they leave different amounts behind, so a caller must not read the scalars without checking start_index:</p><ul><li><p>The BACKWARD half alone filled the buffer. The trace returns before the input point is even stored, so <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a953e5c52e8c93c23175d5ae32a4c7483">start_index</a> is 0 and <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a0abfc1e29cb2a47372e39391862abae6">b_min</a>, <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a7a1eac92de37b46632efb5a61e1c219f">invariant_i</a> and <a href="structcheatah_1_1space_1_1irbem_1_1TracedLine.html#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a033ffa7d595bc02fbfa81c4f557260e3">mcilwain_l</a> are all <strong>exactly zero</strong> — nothing was integrated and nothing is reported. Reading them as a short field line would be reading zeros.</p>
+</li><li><p>The backward half FITTED and the forward one did not. Then the quadrature ran over the partial line and the scalars describe THAT, not the field line.</p>
+</li></ul></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1ac9dce04c0928dedff57dfa4f189240f0">b_local</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a0abfc1e29cb2a47372e39391862abae6">b_min</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a7a1eac92de37b46632efb5a61e1c219f">invariant_i</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a033ffa7d595bc02fbfa81c4f557260e3">mcilwain_l</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1acd7710eb7dc02ceba3aedbaa620dabe3">equator</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1aa613248b8fdc6969261bed3938d995ee">point_count</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a953e5c52e8c93c23175d5ae32a4c7483">start_index</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1ae303b71d2737ce832c9c082277e59ab3">equator_index</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1TracedLine_1a1b6f70c693412ec5e680ef3f106ed79b">truncated</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -21,7 +21,7 @@ on *other extensions*, so adding them pulls in more than themselves.
 |---|---|---|
 | [`cheatah-gpu`](https://github.com/BrofessorDoucette/cheatah-gpu) | `import gpu.dispatch` | the **standard library only** (plus a system Vulkan/Metal userspace stack) |
 | [`cheatah-gpu-linalg`](https://github.com/BrofessorDoucette/cheatah-gpu-linalg) | `import gpulinalg` | <b>`cheatah-gpu`</b> and the standard library (`linalg`/`ndarray`) |
-| [`cheatah-space`](https://github.com/BrofessorDoucette/cheatah-space) | `import space.time` | the **standard library only** (`ndarray`) |
+| [`cheatah-space`](https://github.com/BrofessorDoucette/cheatah-space) | `import space.time` · `space.cdf` · `space.irbem` | the **standard library only** (`ndarray`, and `fixarray` for `space.irbem`) |
 | [`cheatah-plot`](https://github.com/BrofessorDoucette/cheatah-plot) | `import plot` | <b>`cheatah-gpu`</b> + <b>`cheatah-gpu-linalg`</b> and the standard library — headless (no windowing dependency) |
 
 ## cheatah-gpu — the GPU layer
@@ -51,9 +51,13 @@ test device) and the standard library.
 
 ## cheatah-space — astronomy & spatial math
 
-Vectorized astronomy and spatial-math routines. `space.time` (Julian Date, Modified Julian
-Date, J2000, and the NASA CDF_EPOCH bridge) works today; `space.cdf` and `space.irbem` are
-on the roadmap. `biome add cheatah-space`, then `import space.time`.
+Astronomy and space physics. Three modules, all working: `space.time` (Julian Date, Modified
+Julian Date, J2000, and the NASA CDF_EPOCH bridge); `space.cdf` (NASA Common Data Format I/O
+written from scratch — no NASA library linked); and `space.irbem`, a from-scratch reimplementation
+of the radiation-belt library [PRBEM/IRBEM](https://github.com/PRBEM/IRBEM) written to the
+published papers — IGRF-14, external magnetospheric field models, the bounce and drift invariants,
+L\* and drift shells, with the field-line and flux integrals evaluated in parallel on the GPU.
+`biome add cheatah-space`, then `import space.time` (or `space.cdf`, `space.irbem`).
 
 **Depends on: the standard library only — no other extension.** Everything is
 concept-templated and vectorized over `ndarray` (SIMD); there is no GPU, plotting, or

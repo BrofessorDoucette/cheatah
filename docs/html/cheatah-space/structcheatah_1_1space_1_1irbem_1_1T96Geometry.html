@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::T96Geometry — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1T96Geometry">
+<meta name="description" content="The non-linear geometry of the basis — the numbers the linear fit cannot move.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::T96Geometry</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The non-linear geometry of the basis — the numbers the linear fit cannot move. </p>
+</div>
+<div class="overview"><p>Everything the disc modules, the field-aligned-current sheets and the box harmonics need beyond their amplitudes. The sheet geometry (<code><a href="structcheatah_1_1space_1_1irbem_1_1T96Geometry.html#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a659a6ce8e1212f698105d899373ba3eb">r_c</a> .. <a href="structcheatah_1_1space_1_1irbem_1_1T96Geometry.html#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a823924acbe15f9a1a5c234fd57df141d">d_y</a></code>) is T89&#x27;s (eqs. 11 and 13) and takes T89&#x27;s meaning; the scale-length ladders are the disc, shell and box scales the basis is evaluated at. Templated on nothing: the fp32 lane reads these through <code>static_cast&lt;T&gt;</code> exactly as it reads <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a843004dfff1521e96ad9852f82ed9d13">t89_fixed</a>.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT96</span>.<span class="tn-case">GeometryIsTheFrozenFitGeometry</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a659a6ce8e1212f698105d899373ba3eb">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">r_c</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a659a6ce8e1212f698105d899373ba3eb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>R_c</code>, R_E — the hinging distance of the warped sheet, T89 eq. (11). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ac39648019b20ae9290d7d7d46213190e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ac39648019b20ae9290d7d7d46213190e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>G</code>, R_E — the amplitude of the sheet&#x27;s dawn-dusk bending, T89 eq. (11). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a1de336dd0e8124af851beb8acbe53390">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">d_0</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a1de336dd0e8124af851beb8acbe53390" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>D_0</code>, R_E — the sheet half-thickness in the central tail, T89 eq. (13). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ac9ad592f49fafdf59d4e4d71ea3f02d2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">gamma_rc</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ac9ad592f49fafdf59d4e4d71ea3f02d2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>gamma_RC</code>, R_E — the ring sheet&#x27;s dayside thickness increment, T89 eq. (13). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a823924acbe15f9a1a5c234fd57df141d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">d_y</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a823924acbe15f9a1a5c234fd57df141d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>D_y</code>, R_E — the dawn-dusk scale of the tail truncation factor <code>W</code>, T89 eq. (13). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ab4392a1f1de945416d3ecdce52e44365">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a424f00511760086ae76af2b880cf85ce">t96_tail_truncation_count</a> &gt;</span> <span class="mname">x_0</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ab4392a1f1de945416d3ecdce52e44365" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The tail truncation positions <code><a href="structcheatah_1_1space_1_1irbem_1_1T96Geometry.html#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ab4392a1f1de945416d3ecdce52e44365">x_0</a></code>, R_E, T89 eq. (13) — one <code>W</code> per entry. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a63d153dd3375d69f7cd0f854f9c56d02">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a05f2fd85f31d8b80f0f6ba31bd564106">t96_tail_scale_count</a> &gt;</span> <span class="mname">a_t</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a63d153dd3375d69f7cd0f854f9c56d02" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The tail scale lengths <code>a_T</code>, R_E — one <code>A^(<span class="tok-num">1</span>)</code> and one <code>A^(<span class="tok-num">2</span>)</code> per entry per truncation. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a2738387a5fcc8fe9ec201c24a4b07705">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1af38d244fe43d775a04f6b9d0baf552db">t96_ring_scale_count</a> &gt;</span> <span class="mname">a_rc</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a2738387a5fcc8fe9ec201c24a4b07705" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The ring radii <code>a_RC</code>, R_E — one <code>A^(<span class="tok-num">3</span>)</code> per entry. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a79387c149636f6551d51f27c483fc077">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a7d003e34f81295d94524aea9c84806d2">t96_fac_shell_count</a> &gt;</span> <span class="mname">fac_shell</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a79387c149636f6551d51f27c483fc077" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The dipole shells <code>L</code>, R_E, the field-aligned-current sheets follow: <code>sin^<span class="tok-num">2</span> theta_0 = r/L</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ada4ee8e137f338a2bea15b7cb4024578">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a55d7856c8b6fc0643cccaa8e45c07aa2">t96_fac_width_count</a> &gt;</span> <span class="mname">fac_width</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ada4ee8e137f338a2bea15b7cb4024578" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The angular half-widths of those sheets, radians. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a0ab4f48197a6374441bcd89babbff32e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1ab1355ba12c3af6c0fcaf7298a308b063">t96_box_scale_count</a> &gt;</span> <span class="mname">box_p</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a0ab4f48197a6374441bcd89babbff32e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The box <code>y</code> scales <code>p_i</code>, R_E. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a6c9f2c35972c037c0b8615fc5ab10026">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1ab1355ba12c3af6c0fcaf7298a308b063">t96_box_scale_count</a> &gt;</span> <span class="mname">box_r</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a6c9f2c35972c037c0b8615fc5ab10026" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The box <code>z</code> scales <code>r_k</code>, R_E. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a659a6ce8e1212f698105d899373ba3eb">r_c</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ac39648019b20ae9290d7d7d46213190e">g</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a1de336dd0e8124af851beb8acbe53390">d_0</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ac9ad592f49fafdf59d4e4d71ea3f02d2">gamma_rc</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a823924acbe15f9a1a5c234fd57df141d">d_y</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ab4392a1f1de945416d3ecdce52e44365">x_0</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a63d153dd3375d69f7cd0f854f9c56d02">a_t</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a2738387a5fcc8fe9ec201c24a4b07705">a_rc</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a79387c149636f6551d51f27c483fc077">fac_shell</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1ada4ee8e137f338a2bea15b7cb4024578">fac_width</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a0ab4f48197a6374441bcd89babbff32e">box_p</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T96Geometry_1a6c9f2c35972c037c0b8615fc5ab10026">box_r</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::MeadParameters — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1MeadParameters">
+<meta name="description" content="One Kp group&#x27;s coefficients — Mead &amp; Fairfield (1975), one column of Tables 2-3.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::MeadParameters</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">One Kp group&#x27;s coefficients — Mead &amp; Fairfield (1975), one column of Tables 2-3. </p>
+</div>
+<div class="overview"><p>Named rather than indexed so that the evaluator reads as the three equations in the file brief and each divergence identity names the three coefficients it relates. Templated on the scalar type for the same reason <a href="structcheatah_1_1space_1_1irbem_1_1T89Parameters.html">T89Parameters</a> is: the device kernel receives these as <code>float</code>, and the host lane it is verified against must round them FIRST and then evaluate, or a disagreement between the lanes cannot be attributed. <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a8677e7ed7fa613c034708484e8f6082c">mead_parameters</a> is the converter.</p><p>Units: nanotesla, with positions in Earth radii and the tilt in degrees — each coefficient&#x27;s unit is whatever makes its term come out in nT.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>T</code></td><td class="pdesc"><p>the scalar type; <code>double</code> for the reference lane, <code>float</code> for the device-mirroring one.</p></td></tr></table></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">PublishedCoefficientsAreDivergenceFree</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1ac190032ae9775ff5ca8e62a98ae7df66">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_z</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1ac190032ae9775ff5ca8e62a98ae7df66" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_1</code>: the <code>z</code> term of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1acafbc95e4bf85d78237c0252a4ea66e8">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_xz</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1acafbc95e4bf85d78237c0252a4ea66e8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_2</code>: the <code>x_m z</code> term of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a167e964d2978624ad565b774a24d3370">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_t</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a167e964d2978624ad565b774a24d3370" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_3</code>: the tilt-proportional constant of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1abeccddd97f56f4548f29f1cee527a1d5">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_tx</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1abeccddd97f56f4548f29f1cee527a1d5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_4</code>: the <code>psi x_m</code> term of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a1d6734953b5832c122f7c00f83a71b66">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_txx</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a1d6734953b5832c122f7c00f83a71b66" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_5</code>: the <code>psi x_m^<span class="tok-num">2</span></code> term of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a7f5bda0f787e8ebb3d7f8d6f7aadc702">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_tyy</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a7f5bda0f787e8ebb3d7f8d6f7aadc702" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_6</code>: the <code>psi y_m^<span class="tok-num">2</span></code> term of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a7fb883b1f743803595722b8770da9272">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bx_tzz</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a7fb883b1f743803595722b8770da9272" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_7</code>: the <code>psi z^<span class="tok-num">2</span></code> term of <code>B_x</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa2e7dd5fe54a69c5b594cc1319f42312">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">by_yz</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa2e7dd5fe54a69c5b594cc1319f42312" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>b_1</code>: the <code>y_m z</code> term of <code>B_y</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1ae96e6b4f1e2d4a6095f125094a70c24e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">by_ty</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1ae96e6b4f1e2d4a6095f125094a70c24e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>b_2</code>: the <code>psi y_m</code> term of <code>B_y</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1adf589a230b8b4068760aca6254b04c8e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">by_txy</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1adf589a230b8b4068760aca6254b04c8e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>b_3</code>: the <code>psi x_m y_m</code> term of <code>B_y</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a8aa712ade6a44c5fc1bd36049292a5a3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_1</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a8aa712ade6a44c5fc1bd36049292a5a3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_1</code>: the constant of <code>B_z</code> — the ring-current-plus-tail depression at the origin. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a12336a2e0fa4f0ea4abaf4b2b663e3e4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_x</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a12336a2e0fa4f0ea4abaf4b2b663e3e4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_2</code>: the <code>x_m</code> term of <code>B_z</code> — dayside compression, nightside stretching. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa6775ea3ca3c70a0d6883066597df6f3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_xx</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa6775ea3ca3c70a0d6883066597df6f3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_3</code>: the <code>x_m^<span class="tok-num">2</span></code> term of <code>B_z</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a3a3f28c151b19889b5d2eb058ae39fd7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_yy</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a3a3f28c151b19889b5d2eb058ae39fd7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_4</code>: the <code>y_m^<span class="tok-num">2</span></code> term of <code>B_z</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a43c214004bc4c1c6e1d2773c090e11d3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_zz</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a43c214004bc4c1c6e1d2773c090e11d3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_5</code>: the <code>z^<span class="tok-num">2</span></code> term of <code>B_z</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a518bdf7b7851580dc05a1aebf10c9a02">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_tz</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a518bdf7b7851580dc05a1aebf10c9a02" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_6</code>: the <code>psi z</code> term of <code>B_z</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa5cd1e369237fdefe340d311c5574f9a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">bz_txz</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa5cd1e369237fdefe340d311c5574f9a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c_7</code>: the <code>psi x_m z</code> term of <code>B_z</code>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1ac190032ae9775ff5ca8e62a98ae7df66">bx_z</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1acafbc95e4bf85d78237c0252a4ea66e8">bx_xz</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a167e964d2978624ad565b774a24d3370">bx_t</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1abeccddd97f56f4548f29f1cee527a1d5">bx_tx</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a1d6734953b5832c122f7c00f83a71b66">bx_txx</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a7f5bda0f787e8ebb3d7f8d6f7aadc702">bx_tyy</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a7fb883b1f743803595722b8770da9272">bx_tzz</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa2e7dd5fe54a69c5b594cc1319f42312">by_yz</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1ae96e6b4f1e2d4a6095f125094a70c24e">by_ty</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1adf589a230b8b4068760aca6254b04c8e">by_txy</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a8aa712ade6a44c5fc1bd36049292a5a3">bz_1</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a12336a2e0fa4f0ea4abaf4b2b663e3e4">bz_x</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa6775ea3ca3c70a0d6883066597df6f3">bz_xx</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a3a3f28c151b19889b5d2eb058ae39fd7">bz_yy</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a43c214004bc4c1c6e1d2773c090e11d3">bz_zz</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1a518bdf7b7851580dc05a1aebf10c9a02">bz_tz</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1MeadParameters_1aa5cd1e369237fdefe340d311c5574f9a">bz_txz</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

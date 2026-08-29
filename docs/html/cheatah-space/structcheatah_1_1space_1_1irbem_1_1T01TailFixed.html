@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::T01TailFixed — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1T01TailFixed">
+<meta name="description" content="The tail parameters P1 states or uses as fixed constants — the eq.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::T01TailFixed</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The tail parameters P1 states or uses as fixed constants — the eq. </p>
+</div>
+<div class="overview"><p>(6) thickness scales, the eq. (7) warp scale and the eq. (13) hinge coefficient.</p><p><code><a href="structcheatah_1_1space_1_1irbem_1_1T01TailFixed.html#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a19c865743fa1089ca6b7190470a0bf46">delta_x</a></code>, <code><a href="structcheatah_1_1space_1_1irbem_1_1T01TailFixed.html#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1aa3da7a7a3a0624ed5e2cc67a33ec4f22">delta_y</a></code> and <code><a href="structcheatah_1_1space_1_1irbem_1_1T01TailFixed.html#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a5745453a2fa558b4bae6147db62cce39">l</a></code> are used by P1 eqs. (6)-(7) without a stated value (&quot;`Delta Y`
+enters as a factor by `Delta D_y` and hence can be kept fixed&quot;, ¶15; &quot;`G` and `L` were considered
+as constant parameters&quot;, ¶20, but P2 Table 1 fits only <code>G</code>). They were resolved as numeric facts from the vendored IRBEM <code>source/Tsyganenko01.f</code>, lines 802 (<code>XL = <span class="tok-num">20</span></code>), 984 (<code><span class="tok-fn">exp</span>(X / <span class="tok-num">7</span>)</code>) and 985 (<code>(Y / <span class="tok-num">20</span>)^<span class="tok-num">2</span></code>), per rule 1. <code><a href="structcheatah_1_1space_1_1irbem_1_1T01TailFixed.html#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1ace80efda454a332addadd85453b1a852">rh2</a></code> is stated in P1 ¶23.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT01</span>.<span class="tn-case">FixedParametersAreThePublishedOnes</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a19c865743fa1089ca6b7190470a0bf46">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">delta_x</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a19c865743fa1089ca6b7190470a0bf46" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>Delta X</code>, R_E — the sunward e-folding scale of the eq. (6) dayside flaring. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1aa3da7a7a3a0624ed5e2cc67a33ec4f22">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">delta_y</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1aa3da7a7a3a0624ed5e2cc67a33ec4f22" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>Delta Y</code>, R_E — the dawn-dusk scale of the eq. (6) flank thickening. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a5745453a2fa558b4bae6147db62cce39">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">l</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a5745453a2fa558b4bae6147db62cce39" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>L</code>, R_E — the scale of the eq. (7) warping across the tail. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1ace80efda454a332addadd85453b1a852">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">rh2</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1ace80efda454a332addadd85453b1a852" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>R_H2</code>, R_E — the eq. </p>
+  <div class="member-body"><p>(13) coefficient making the hinging distance depend on <code>Z^<span class="tok-num">2</span> / r^<span class="tok-num">2</span></code>; &quot;-5.2 R_E was specified to provide the observed amplitude of the tilt-related shift of the
+magnetotail boundary at `X ~ -30 R_E`&quot; (P1 ¶23).</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a19c865743fa1089ca6b7190470a0bf46">delta_x</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1aa3da7a7a3a0624ed5e2cc67a33ec4f22">delta_y</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1a5745453a2fa558b4bae6147db62cce39">l</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01TailFixed_1ace80efda454a332addadd85453b1a852">rh2</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

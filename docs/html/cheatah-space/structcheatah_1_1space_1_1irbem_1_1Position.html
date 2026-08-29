@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::Position — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1Position">
+<meta name="description" content="A position, in frame F .">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::Position</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">A position, in frame <code>F</code>. </p>
+</div>
+<div class="overview"><p>An aggregate holding exactly one <code>vec3d</code>, so it is the same size, trivially copyable, and passes in registers — the frame tag costs nothing at runtime and everything at compile time.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>F</code></td><td class="pdesc"><p>the frame the components are expressed in; see <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1aae7350c5df7e54b7de3eaf3d793df22d">kind_of</a> for what they mean.</p></td></tr></table></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Position_1a85f116049bb06ea7c30fd7d6f7f891c8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">radius</span> <span class="overload-count">· 2 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype">double</span> <span class="mname">radius</span>() const</code><span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Position_1a85f116049bb06ea7c30fd7d6f7f891c8" aria-label="permalink">#</a></span></div><div class="overload" id="structcheatah_1_1space_1_1irbem_1_1Position_1a29f0e761346c094908fcc7ba0eea7311"><code class="sig"><span class="mtype">double</span> <span class="mname">radius</span>() const</code><span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Position_1a29f0e761346c094908fcc7ba0eea7311" aria-label="permalink">#</a></span></div></div>
+  <p class="member-brief">Geocentric distance, for a Cartesian frame. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p><code>|v|</code> in Earth radii.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>Not <code><span class="tok-kw">constexpr</span></code>: it takes a square root, and <code>fixarray::norm</code> is a runtime function. Use <code>fixarray::<span class="tok-fn">squared_norm</span>(p.v)</code> when a compile-time comparison will do.</p></div></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Position_1a3fa3f424d71135e0b5e872f6710e25c8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">latitude</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Position_1a3fa3f424d71135e0b5e872f6710e25c8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Latitude, for an angular frame. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>degrees, north positive.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Position_1a08f96a8a7d9ee8aae3c66ca1f38e1bef">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">longitude</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Position_1a08f96a8a7d9ee8aae3c66ca1f38e1bef" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">East longitude, for an angular frame. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>degrees, east positive.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Position_1a4006ca0da372ee4662588a382f7c5357">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype"><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1adfe32c4dc5512be29b283f8f2a52879e">Frame</a></span> <span class="mname">frame</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Position_1a4006ca0da372ee4662588a382f7c5357" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The frame these components are expressed in. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Position_1a05a8691617530538d49a7a3df947b484">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">v</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Position_1a05a8691617530538d49a7a3df947b484" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The components — (x, y, z) in Re, or (radius|altitude, latitude, east longitude). </p>
+  <div class="member-body"><p>Zero by default: <code>fixarray::Fixed</code>&#x27;s defaulted constructor value-initializes, which the <code>DefaultsAreZero</code> test pins down.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1Position_1a85f116049bb06ea7c30fd7d6f7f891c8">radius</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Position_1a3fa3f424d71135e0b5e872f6710e25c8">latitude</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Position_1a08f96a8a7d9ee8aae3c66ca1f38e1bef">longitude</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Position_1a4006ca0da372ee4662588a382f7c5357">frame</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Position_1a05a8691617530538d49a7a3df947b484">v</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Position_1ada261f5ec2bfd7f23c16f088a56d4550">operator==</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

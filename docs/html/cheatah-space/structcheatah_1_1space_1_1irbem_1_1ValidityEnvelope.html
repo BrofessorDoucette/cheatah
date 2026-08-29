@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::ValidityEnvelope — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope">
+<meta name="description" content="Everything published about where one model may be believed: which drivers it reads and over what range, how far out in space it was fitted, and whether it…">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::ValidityEnvelope</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Everything published about where one model may be believed: which drivers it reads and over what range, how far out in space it was fitted, and whether it needs coefficient files on disk. </p>
+</div>
+<div class="overview"><p>Aggregate, trivially copyable, and about 300 bytes — it lives in <code>.rodata</code> and is reached by reference (<a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1ae9aad90dc669adf70dde19ec36da6603">envelope_of</a>), never copied into a hot loop.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemStatus</span>.<span class="tn-case">EnvelopeTableMatchesTheIrbemKextTable</span></code></span></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1afc95a10a46366f7fee9735a4d679e0cd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1DriverBound.html">DriverBound</a> *</span> <span class="mname">begin</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1afc95a10a46366f7fee9735a4d679e0cd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The meaningful part of <a href="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope.html#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a17438cc640984a0743683613fb00820e">bound_storage</a>. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>a pointer to the first bound; never null, and valid for <a href="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope.html#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a570b36dbf9aa69321a3f4042b6a8d25f">bound_count</a> entries.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemStatus</span>.<span class="tn-case">EnvelopeTableMatchesTheIrbemKextTable</span></code></span></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ac5347fa94d878587c5a7bec86d417b95">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1DriverBound.html">DriverBound</a> *</span> <span class="mname">end</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ac5347fa94d878587c5a7bec86d417b95" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">One past the meaningful part of <a href="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope.html#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a17438cc640984a0743683613fb00820e">bound_storage</a>, so an envelope is range-<code><span class="tok-kw">for</span></code>-able. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the end iterator.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemStatus</span>.<span class="tn-case">EnvelopeTableMatchesTheIrbemKextTable</span></code></span></div></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1aadc93d0505c9c2c2bf69f4f1380eb607">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::optional&lt; <a href="structcheatah_1_1space_1_1irbem_1_1DriverBound.html">DriverBound</a> &gt;</span> <span class="mname">bound_for</span>(Driver d) const</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1aadc93d0505c9c2c2bf69f4f1380eb607" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The bound this model publishes for <code>d</code>, if it reads <code>d</code> at all. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>d</code></td><td class="pdesc"><p>the driver to look up.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the entry, or <code>std::nullopt</code> when the model does not read that driver.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(<a href="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope.html#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a570b36dbf9aa69321a3f4042b6a8d25f">bound_count</a>) — at most ten compares, over data in one cache line pair.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemStatus</span>.<span class="tn-case">EnvelopeLookupFindsOnlyTheDriversAModelReads</span></code></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a9423f96b85ac54ce26d1c99779b5cc1e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::string_view</span> <span class="mname">citation</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a9423f96b85ac54ce26d1c99779b5cc1e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The source the ranges below are quoted from, so a reader can check them. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a17438cc640984a0743683613fb00820e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; <a href="structcheatah_1_1space_1_1irbem_1_1DriverBound.html">DriverBound</a>, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a667cedc070c93939823f1a71f0072049">max_model_bounds</a> &gt;</span> <span class="mname">bound_storage</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a17438cc640984a0743683613fb00820e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The drivers this model reads; only the first <code><a href="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope.html#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a570b36dbf9aa69321a3f4042b6a8d25f">bound_count</a></code> entries are meaningful. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a570b36dbf9aa69321a3f4042b6a8d25f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">bound_count</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a570b36dbf9aa69321a3f4042b6a8d25f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many entries of <a href="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope.html#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a17438cc640984a0743683613fb00820e">bound_storage</a> are meaningful. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ade41581e0c8f9e2866869cf12cb2d6a9">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">max_r_geo</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ade41581e0c8f9e2866869cf12cb2d6a9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Largest geocentric radius, in Earth radii, the model was fitted out to; <code>+infinity</code> when the published sources state no radial limit. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ad73349a27864a645162248d9500ba409">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">min_x_gsm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ad73349a27864a645162248d9500ba409" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Smallest GSM x, in Earth radii, the model was fitted to; <code>-infinity</code> when none is published. </p>
+  <div class="member-body"><p>The Tsyganenko 2001 and later models state this instead of a radial limit, because their tail current sheet is what runs out.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a2136b996966613e4ba1c1ea14ab61770">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">needs_coefficient_files</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a2136b996966613e4ba1c1ea14ab61770" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the model needs per-interval coefficient files provisioned on disk before it can be evaluated at all; see <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a6d919b2f9ad900979a4e0bd06105661e">check_parameters</a>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1afc95a10a46366f7fee9735a4d679e0cd">begin</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ac5347fa94d878587c5a7bec86d417b95">end</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1aadc93d0505c9c2c2bf69f4f1380eb607">bound_for</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a9423f96b85ac54ce26d1c99779b5cc1e">citation</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a17438cc640984a0743683613fb00820e">bound_storage</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a570b36dbf9aa69321a3f4042b6a8d25f">bound_count</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ade41581e0c8f9e2866869cf12cb2d6a9">max_r_geo</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1ad73349a27864a645162248d9500ba409">min_x_gsm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1ValidityEnvelope_1a2136b996966613e4ba1c1ea14ab61770">needs_coefficient_files</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

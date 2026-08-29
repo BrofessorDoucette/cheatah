@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::IrbemFaithful — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1IrbemFaithful">
+<meta name="description" content="Reproduce IRBEM&#x27;s algorithm, decision for decision — every switch off.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::IrbemFaithful</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Reproduce IRBEM&#x27;s algorithm, decision for decision — every switch off. </p>
+</div>
+<div class="overview"><p>This is the lane the differential suite runs when it compares against the oracle, because a comparison is only informative when both sides discretize the same way: ERROR_BUDGET §2(a) shows the 0.01 L* target is <em>at or below</em> IRBEM&#x27;s own error at its recommended resolution, so a comparison across settings measures resolution rather than correctness. Not the lane to ship.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a09d4a5c9ad0ab7da5baaa9cb648d0291">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">carry_k1</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a09d4a5c9ad0ab7da5baaa9cb648d0291" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Off — the field is evaluated a fifth time at each step&#x27;s arrival point, and that value is discarded rather than reused as the next step&#x27;s first stage. </p>
+  <div class="member-body"><p>The redundancy is arithmetically invisible (the same function of the same bits gives the same bits), so this switch is about the <em>call sequence</em>, not the numbers: a faithful lane calls the field model the same number of times in the same order, which matters while cross-checking against a library whose field models carry mutable <code>COMMON</code> state.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1af8e3b40cae6e0baf6957d00755691812">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">independent_azimuth_seed</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1af8e3b40cae6e0baf6957d00755691812" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Off — the drift shell&#x27;s azimuths are walked in sequence, each seeded from the previous azimuth&#x27;s converged result. </p>
+  <div class="member-body"><p>Correct, and serial: the shell&#x27;s ~25·(options(4)+1) azimuths cannot be evaluated concurrently, and the answer depends on the order they were visited in.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a224cec03ddacd75792ef1c7c792f1cc0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">bracketed_root_find</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a224cec03ddacd75792ef1c7c792f1cc0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Off — the mirror point is the θ-grid point at which the field crosses <code>Bm</code>, on the fixed grid <code>dθ = π/(<span class="tok-num">720</span>·(<span class="tok-fn">options</span>(<span class="tok-num">3</span>)+<span class="tok-num">1</span>))</code>. </p>
+  <div class="member-body"><p>The located root therefore carries O(dθ) error that <em>jitters</em> as the grid changes, which is the non-monotonic convergence measured in ERROR_BUDGET §2(b) (<code>options=<span class="tok-num">4</span></code> repeatedly worse than <code>options=<span class="tok-num">2</span></code>).</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a0c72f1da654b4ea553eb0382fd9941bc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">transformed_quadrature</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a0c72f1da654b4ea553eb0382fd9941bc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Off — the I integral <code>∫ √(<span class="tok-num">1</span> − B/Bm) ds</code> between mirror points (Roederer, <em>Dynamics of Geomagnetically Trapped Radiation</em>, 1970, §2) is summed as first-order rectangles on the θ grid. </p>
+  <div class="member-body"><p>The integrand&#x27;s derivative is singular at both endpoints, where <code>B → Bm</code>, so the rectangle rule converges at O(h) with a large endpoint constant. ERROR_BUDGET §2(b) names this the single largest accuracy lever in the original algorithm.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a8d9cdf0fb6600080e1482d8707f41cc3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">std::string_view</span> <span class="mname">name</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a8d9cdf0fb6600080e1482d8707f41cc3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Human-readable lane name, for the differential suite&#x27;s per-lane report. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a09d4a5c9ad0ab7da5baaa9cb648d0291">carry_k1</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1af8e3b40cae6e0baf6957d00755691812">independent_azimuth_seed</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a224cec03ddacd75792ef1c7c792f1cc0">bracketed_root_find</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a0c72f1da654b4ea553eb0382fd9941bc">transformed_quadrature</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a8d9cdf0fb6600080e1482d8707f41cc3">name</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::Policy — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1Policy">
+<meta name="description" content="A complete lane: one precision policy and one compatibility policy, bound into the single type that gets threaded through the tracer, the quadrature and…">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::Policy</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">A complete lane: one precision policy and one compatibility policy, bound into the single type that gets threaded through the tracer, the quadrature and the L* driver. </p>
+</div>
+<div class="overview"><p>It re-exports the members both concepts require, so a <code><a href="structcheatah_1_1space_1_1irbem_1_1Policy.html">Policy</a></code> satisfies <code><a href="conceptcheatah_1_1space_1_1irbem_1_1SoundPrecision.html">SoundPrecision</a></code> and <code><a href="conceptcheatah_1_1space_1_1irbem_1_1Compat.html">Compat</a></code> itself and a routine may be constrained on whichever it actually uses — a field-model evaluator needs only the precision, a quadrature needs only the compat flags, and neither has to name a whole lane to say so. What it does not re-export is the two halves&#x27; names, which stay where they are: a report labels a row <code>Policy::precision::name</code> / <code>Policy::compat::name</code>.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>P</code></td><td class="pdesc"><p>the precision policy; constrained on <code><a href="conceptcheatah_1_1space_1_1irbem_1_1SoundPrecision.html">SoundPrecision</a></code>, so a policy accumulating in anything but <code>double</code> is a compile error here rather than a quiet loss of the whole error budget (see the file brief).</p></td></tr><tr><td class="pname"><code>C</code></td><td class="pdesc"><p>the compatibility policy.</p></td></tr></table></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1a6ae6a219f122d513460c5aea36f95619">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">carry_k1</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6ae6a219f122d513460c5aea36f95619" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the tracer carries the previous step&#x27;s final derivative into the next step&#x27;s first stage; see <a href="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful.html#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a09d4a5c9ad0ab7da5baaa9cb648d0291">IrbemFaithful::carry_k1</a> and <a href="structcheatah_1_1space_1_1irbem_1_1Improved.html#structcheatah_1_1space_1_1irbem_1_1Improved_1ae0a97360d8fffce497ef2d78bf5b7f58">Improved::carry_k1</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1af0a418892bd6e2d0bf8e5202bb589ed7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">independent_azimuth_seed</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1af0a418892bd6e2d0bf8e5202bb589ed7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether each drift-shell azimuth is seeded independently of its neighbour; see <a href="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful.html#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1af8e3b40cae6e0baf6957d00755691812">IrbemFaithful::independent_azimuth_seed</a> and <a href="structcheatah_1_1space_1_1irbem_1_1Improved.html#structcheatah_1_1space_1_1irbem_1_1Improved_1a65f739542e4d1a58c3d7874a806ba855">Improved::independent_azimuth_seed</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1adeaff0f09187d792ad5401da83e62219">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">bracketed_root_find</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1adeaff0f09187d792ad5401da83e62219" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the mirror point is refined inside the bracket the theta march found; see <a href="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful.html#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a224cec03ddacd75792ef1c7c792f1cc0">IrbemFaithful::bracketed_root_find</a> and <a href="structcheatah_1_1space_1_1irbem_1_1Improved.html#structcheatah_1_1space_1_1irbem_1_1Improved_1af69cbd1c1e25c6142258ded45d2230a1">Improved::bracketed_root_find</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1ac7279bb736e05b9f4b60de64f8c65cbf">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">bool</span> <span class="mname">transformed_quadrature</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1ac7279bb736e05b9f4b60de64f8c65cbf" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the I integral is substituted before quadrature; see <a href="structcheatah_1_1space_1_1irbem_1_1IrbemFaithful.html#structcheatah_1_1space_1_1irbem_1_1IrbemFaithful_1a0c72f1da654b4ea553eb0382fd9941bc">IrbemFaithful::transformed_quadrature</a> and <a href="structcheatah_1_1space_1_1irbem_1_1Improved.html#structcheatah_1_1space_1_1irbem_1_1Improved_1acaa7413525a4e97a9b99ae7f63243e3e">Improved::transformed_quadrature</a>. </p>
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1a6470cae2e9a792b6481206f1a9ca188b">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">P</span> <span class="mname">precision</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6470cae2e9a792b6481206f1a9ca188b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The precision half, for a routine that needs to pass the lane on. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1aa7aa6b0c513b1ca5c07dd61af3080dd9">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">C</span> <span class="mname">compat</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1aa7aa6b0c513b1ca5c07dd61af3080dd9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The compatibility half, likewise. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1a6e6f578f4624511fc3957d73d608d0e9">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">typename P::integrand</span> <span class="mname">integrand</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6e6f578f4624511fc3957d73d608d0e9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The arithmetic type the integrand is evaluated in. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Policy_1a6def03196c55f836db308055000dc621">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">typename P::accum</span> <span class="mname">accum</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6def03196c55f836db308055000dc621" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The arithmetic type every sum accumulates in — <code>double</code>, guaranteed by the constraint. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6470cae2e9a792b6481206f1a9ca188b">precision</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1aa7aa6b0c513b1ca5c07dd61af3080dd9">compat</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6e6f578f4624511fc3957d73d608d0e9">integrand</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6def03196c55f836db308055000dc621">accum</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1a6ae6a219f122d513460c5aea36f95619">carry_k1</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1af0a418892bd6e2d0bf8e5202bb589ed7">independent_azimuth_seed</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1adeaff0f09187d792ad5401da83e62219">bracketed_root_find</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Policy_1ac7279bb736e05b9f4b60de64f8c65cbf">transformed_quadrature</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

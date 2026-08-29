@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::HotState — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1HotState">
+<meta name="description" content="What the inner loop touches — the field call and the GEO&lt;-&gt;GSM hop, on every one of the ~10^5 evaluations a single L* costs.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::HotState</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">What the inner loop touches — the field call and the GEO&lt;-&gt;GSM hop, on every one of the ~10^5 evaluations a single L* costs. </p>
+</div>
+<div class="overview"><p>The first eight doubles are exactly one 64-byte cache line, and they are the ones a Tsyganenko external field call needs: the tilt with its precomputed trigonometry, and the five drivers the published models read (Kp for Mead &amp; Fairfield 1975, Tsyganenko 1987/1989 and Mead-Tsyganenko; Dst, Pdyn, By and Bz for Tsyganenko 1996 onwards). The two matrices follow.</p><p><a href="structcheatah_1_1space_1_1irbem_1_1HotState.html#structcheatah_1_1space_1_1irbem_1_1HotState_1a5832810268dc7719f8fe52f4ac190f88">geo_to_gsm</a> and <a href="structcheatah_1_1space_1_1irbem_1_1HotState.html#structcheatah_1_1space_1_1irbem_1_1HotState_1a34e0a4d2743e7ddf6695fbbdec5b9bbb">gsm_to_geo</a> duplicate what <a href="structcheatah_1_1space_1_1irbem_1_1ColdState.html#structcheatah_1_1space_1_1irbem_1_1ColdState_1adea1fcebf13b1705e6d53d2783e7b8f4">ColdState::to_geo</a> already holds for GSM. That is deliberate: the duplicate keeps the inner loop off the cold block entirely and spares it a transpose per call. A test pins the two copies to each other so the duplicate cannot go stale.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1aac66b5b4eb40dcef443d70f75df58560">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">tilt_rad</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1aac66b5b4eb40dcef443d70f75df58560" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The geodipole tilt angle psi, radians — the angle between the dipole axis and the GSM z axis. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1ae6f130c323b34a8f5d03cf1f2a90e394">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sin_tilt</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1ae6f130c323b34a8f5d03cf1f2a90e394" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><span class="tok-fn">sin</span>(tilt_rad)</code>, computed once per epoch so no field call computes it. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1aeb4b94911107c8fdbcc3e94b54c39dce">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">cos_tilt</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1aeb4b94911107c8fdbcc3e94b54c39dce" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><span class="tok-fn">cos</span>(tilt_rad)</code>, likewise. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1a1a678412b050e86e9d244e888aae6955">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">kp</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a1a678412b050e86e9d244e888aae6955" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Driver::Kp, copied out of the driver vector (OMNI2 scaling: Kp x 10). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1a2180be94ef6a7ffa67060705c374f0c0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a2180be94ef6a7ffa67060705c374f0c0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Driver::Dst, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1a4f603ea7f97f1cda4f5b18d8fe215858">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pdyn</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a4f603ea7f97f1cda4f5b18d8fe215858" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Driver::Pdyn, nPa. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1a7a6bb05158020b09c005aefa78934fc7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">by_imf</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a7a6bb05158020b09c005aefa78934fc7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Driver::ByIMF, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1adc492af6044648664cb1976e4203c1cd">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bz_imf</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1adc492af6044648664cb1976e4203c1cd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Driver::BzIMF, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1a5832810268dc7719f8fe52f4ac190f88">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">geo_to_gsm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a5832810268dc7719f8fe52f4ac190f88" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Takes GEO components to GSM. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HotState_1a34e0a4d2743e7ddf6695fbbdec5b9bbb">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">gsm_to_geo</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a34e0a4d2743e7ddf6695fbbdec5b9bbb" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Takes GSM components to GEO — the transpose of <a href="structcheatah_1_1space_1_1irbem_1_1HotState.html#structcheatah_1_1space_1_1irbem_1_1HotState_1a5832810268dc7719f8fe52f4ac190f88">geo_to_gsm</a>, since a rotation is orthogonal and construction has already checked that this one is. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1aac66b5b4eb40dcef443d70f75df58560">tilt_rad</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1ae6f130c323b34a8f5d03cf1f2a90e394">sin_tilt</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1aeb4b94911107c8fdbcc3e94b54c39dce">cos_tilt</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a1a678412b050e86e9d244e888aae6955">kp</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a2180be94ef6a7ffa67060705c374f0c0">dst</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a4f603ea7f97f1cda4f5b18d8fe215858">pdyn</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a7a6bb05158020b09c005aefa78934fc7">by_imf</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1adc492af6044648664cb1976e4203c1cd">bz_imf</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a5832810268dc7719f8fe52f4ac190f88">geo_to_gsm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HotState_1a34e0a4d2743e7ddf6695fbbdec5b9bbb">gsm_to_geo</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

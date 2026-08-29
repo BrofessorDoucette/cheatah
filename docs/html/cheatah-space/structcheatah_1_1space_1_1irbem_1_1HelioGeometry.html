@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::HelioGeometry — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1HelioGeometry">
+<meta name="description" content="The Sun–Earth geometry at one epoch — everything the six heliospheric transforms need, evaluated once so that no transform pays for trigonometry.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::HelioGeometry</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The Sun–Earth geometry at one epoch — everything the six heliospheric transforms need, evaluated once so that no transform pays for trigonometry. </p>
+</div>
+<div class="overview"><p>A plain aggregate of doubles and two matrices: trivially copyable, nothing allocated, and cheap enough to hold one per ephemeris sample or to rebuild per time step, whichever the caller prefers.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a195d21bf0f70b415724c97fa3d9a57f7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">earth_longitude_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a195d21bf0f70b415724c97fa3d9a57f7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The Earth&#x27;s heliocentric ecliptic longitude λ_geo of date, degrees in <code>[<span class="tok-num">0</span>, <span class="tok-num">360</span>)</code> (F&amp;H eqn. </p>
+  <div class="member-body"><p>36). This is the angle that carries HAE into HEE.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1abad0d406dfd46038d3a4db94194fc8aa">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">apparent_earth_longitude_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1abad0d406dfd46038d3a4db94194fc8aa" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">λ_geo corrected for light aberration, degrees in <code>[<span class="tok-num">0</span>, <span class="tok-num">360</span>)</code> — the longitude of the <em>apparent</em> sub-Earth point on the solar disc, which is what defines the central meridian (F&amp;H §3.2.1). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a758637cd6b340d6003ff0c422892f321">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sun_earth_distance_au</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a758637cd6b340d6003ff0c422892f321" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The Sun–Earth distance r₀ in astronomical units (F&amp;H eqn. 36). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1abb9272f03b0c2d86d5b15371407bb05a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sun_earth_distance_re</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1abb9272f03b0c2d86d5b15371407bb05a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The same distance in Earth radii — the translation between the geocentric and heliocentric origins, in the unit this module&#x27;s positions use. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1acf56e8aa78f9b18f6a0bdf77b34fbed4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">solar_node_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1acf56e8aa78f9b18f6a0bdf77b34fbed4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The ascending node Ω of the solar equator on the ecliptic of date, degrees in <code>[<span class="tok-num">0</span>, <span class="tok-num">360</span>)</code> (F&amp;H eqn. </p>
+  <div class="member-body"><p>14).</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a6dd4e46cd69e13e0a3e4e1c183aeb442">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">solar_central_meridian_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a6dd4e46cd69e13e0a3e4e1c183aeb442" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The central-meridian angle θ: the heliographic longitude of the sub-Earth point measured from Ω, degrees in <code>[<span class="tok-num">0</span>, <span class="tok-num">360</span>)</code> (F&amp;H eqn. </p>
+  <div class="member-body"><p>17).</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a34a6f6a534bb52de582301d4b379eb1c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">hae_to_hee</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a34a6f6a534bb52de582301d4b379eb1c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>&lt;λ_geo, Z&gt;</code> — the rotation carrying HAE components into HEE (F&amp;H §3.2.2). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1ac1a99ed7b1af4bcd7ee6b8d7bfc20a80">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">hae_to_heeq</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1ac1a99ed7b1af4bcd7ee6b8d7bfc20a80" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>&lt;θ, Z&gt;·&lt;i, X&gt;·&lt;Ω, Z&gt;</code> — the rotation carrying HAE components into HEEQ (F&amp;H §3.2.2). </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a195d21bf0f70b415724c97fa3d9a57f7">earth_longitude_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1abad0d406dfd46038d3a4db94194fc8aa">apparent_earth_longitude_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a758637cd6b340d6003ff0c422892f321">sun_earth_distance_au</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1abb9272f03b0c2d86d5b15371407bb05a">sun_earth_distance_re</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1acf56e8aa78f9b18f6a0bdf77b34fbed4">solar_node_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a6dd4e46cd69e13e0a3e4e1c183aeb442">solar_central_meridian_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1a34a6f6a534bb52de582301d4b379eb1c">hae_to_hee</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1HelioGeometry_1ac1a99ed7b1af4bcd7ee6b8d7bfc20a80">hae_to_heeq</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

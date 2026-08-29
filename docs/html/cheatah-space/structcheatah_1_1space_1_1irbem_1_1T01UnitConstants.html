@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::T01UnitConstants — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1T01UnitConstants">
+<meta name="description" content="The two unit constants the papers omit — MEASURED against the oracle, and stated as such.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::T01UnitConstants</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The two unit constants the papers omit — MEASURED against the oracle, and stated as such. </p>
+</div>
+<div class="overview"><p>Both papers print their building blocks without the constant that turns them into nanotesla. P1 ¶35 normalizes the Birkeland currents to &quot;10^6 A per half-wave of each sinusoidal mode&quot; and Table 2 gives <code>B_m</code> of order 0.1-0.7, but eqs. (16)-(17) as printed have no unit factor, and with <code>B_m</code> alone the Region 1 field would be ~0.1 nT where Table 2&#x27;s own <code>&lt;B&gt;</code> column says ~13 nT. The tail disc of eqs. (2)-(5) with Table 1&#x27;s <code>f_i</code> gives ~-30 nT per unit amplitude at the Earth for the short module, while P2 ¶50&#x27;s worked example puts the WHOLE shielded tail at -22.8 nT there with <code>t_1 ~ <span class="tok-num">4.7</span></code>. So each family carries one scalar that P2&#x27;s fitted amplitudes were expressed against and that the text does not state.</p><p>Each is measured ONCE, as a least-squares ratio against the oracle&#x27;s response to the driver that isolates that family in P2 eq. (11) — <code>G1</code> drives only the two tail amplitudes, <code>G2</code> drives the four Birkeland amplitudes and two small geometric factors — over 746 points in <code><span class="tok-num">3</span> &lt;= r &lt;= <span class="tok-num">15</span> R_E</code>, <code>x &gt;= -<span class="tok-num">14</span> R_E</code>, by <code>tools/oracle/t01_diff.cpp</code> (its &quot;response&quot; pass reproduces the numbers):</p><ul><li><p><strong>tail</strong>: fitting <code>a_1 B_T1 + a_2 B_T2</code> to <code>dB/dG1</code> gives <code>a_1 = <span class="tok-num">0.02309</span></code> against the published <code>t_1^(<span class="tok-num">2</span>) = <span class="tok-num">0.319</span></code>, i.e. <code><span class="tok-num">0.0724</span></code> per unit amplitude, with a 37.2% residual; the long module&#x27;s fitted weight is indistinguishable from zero (<code>a_2 = <span class="tok-num">0.0006</span></code>) because its UNSHIELDED field — a current ring stretched to four times the disc, enclosing the entire magnetopause — is not a proxy for the confined field the oracle carries (see the file brief). The one constant is applied to both modules; the differential section says what that costs.</p>
+</li><li><p><strong>Birkeland</strong>: fitting the four modes with the published amplitude ratios of P2 Table 1 to <code>dB/dG2</code> gives a common scale of <code><span class="tok-num">673</span></code> with a 47.1% residual; freeing all four amplitudes lowers it only to 46.4%, with per-mode scales of 695, 480, 734 and 554 — the published ratios are consistent with the oracle to the ~20% the missing shielding leaves unexplained.</p>
+</li></ul><p>A single scalar per family cannot repair a wrong spatial pattern: the pattern agreement in those fits is what validates the implementation, and the scalar is the unit.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT01</span>.<span class="tn-case">UnitConstantsAreTheMeasuredOnes</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01UnitConstants_1a284ef0b8caaab89e00c96134d9bb5b24">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">tail</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01UnitConstants_1a284ef0b8caaab89e00c96134d9bb5b24" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Nanotesla per unit tail-module amplitude, applied to <code>t_1 B_T1 + t_2 B_T2</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01UnitConstants_1a491d7498715e7a2b4e49780bcd7e07c2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">fac</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01UnitConstants_1a491d7498715e7a2b4e49780bcd7e07c2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Nanotesla per unit conical amplitude, applied to every <code>b_l^(m) B_Rl^(m)</code>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01UnitConstants_1a284ef0b8caaab89e00c96134d9bb5b24">tail</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01UnitConstants_1a491d7498715e7a2b4e49780bcd7e07c2">fac</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

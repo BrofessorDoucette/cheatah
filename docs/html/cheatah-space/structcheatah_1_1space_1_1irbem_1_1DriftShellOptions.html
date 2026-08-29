@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::DriftShellOptions — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1DriftShellOptions">
+<meta name="description" content="How finely a drift shell is resolved, and how hard the root-find works.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::DriftShellOptions</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">How finely a drift shell is resolved, and how hard the root-find works. </p>
+</div>
+<div class="overview"><p>The two resolutions carry IRBEM&#x27;s meaning exactly, so <a href="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions.html#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a62364b4eaefd0d6f2ee3955333e5fdd2">from_irbem</a> can translate its <code><span class="tok-fn">options</span>(<span class="tok-num">3</span>)</code> and <code><span class="tok-fn">options</span>(<span class="tok-num">4</span>)</code> and a differential comparison can be made at MATCHED settings — which <code>docs/ERROR_BUDGET.md</code> §2(a) shows is the only setting at which a 0.01 L* target means anything, IRBEM&#x27;s own default-resolution error being 0.010–0.017 at L ≈ 6.</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a62364b4eaefd0d6f2ee3955333e5fdd2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions.html">DriftShellOptions</a></span> <span class="mname">from_irbem</span>(int t_resolution, int r_resolution)</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a62364b4eaefd0d6f2ee3955333e5fdd2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The settings IRBEM&#x27;s <code><span class="tok-fn">options</span>(<span class="tok-num">3</span>)</code> and <code><span class="tok-fn">options</span>(<span class="tok-num">4</span>)</code> select. </p>
+  <div class="member-body"><p><code>dθ = π/(<span class="tok-num">720</span>·(t_resolution+<span class="tok-num">1</span>))</code> and <code>Nder = <span class="tok-num">25</span>·(r_resolution+<span class="tok-num">1</span>)</code>, both from its published option table. Used by the differential suite so the two libraries are compared at the same resolution rather than across resolutions — the distinction <code>ERROR_BUDGET.md</code> §2(a) insists on.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>t_resolution</code></td><td class="pdesc"><p>IRBEM&#x27;s <code><span class="tok-fn">options</span>(<span class="tok-num">3</span>)</code>, 0–9; the colatitude resolution.</p></td></tr><tr><td class="pname"><code>r_resolution</code></td><td class="pdesc"><p>IRBEM&#x27;s <code><span class="tok-fn">options</span>(<span class="tok-num">4</span>)</code>, 0–9; the azimuth count.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the options, with everything else left at its default.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemDriftShell</span>.<span class="tn-case">IrbemOptionsTranslateToTheDocumentedResolutions</span></code></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ad0909259c16f1d988133703b67d2fbe1">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">azimuths</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ad0909259c16f1d988133703b67d2fbe1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many azimuths the shell is sampled at — IRBEM&#x27;s <code>Nder</code>. </p>
+  <div class="member-body"><p>The default 25 is its <code><span class="tok-fn">options</span>(<span class="tok-num">4</span>) = <span class="tok-num">0</span></code>.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a161b17aedb5fe4ffe9e55e2a81694c37">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">colatitude_step_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a161b17aedb5fe4ffe9e55e2a81694c37" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The colatitude step of the polar-cap quadrature, degrees — IRBEM&#x27;s <code>dθ</code>. </p>
+  <div class="member-body"><p>The default 0.25° is its <code><span class="tok-fn">options</span>(<span class="tok-num">3</span>) = <span class="tok-num">0</span></code>, i.e. <code>π/<span class="tok-num">720</span></code>.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1abd98c00ec16fd8328395fa4381534c38">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">bracket_trials</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1abd98c00ec16fd8328395fa4381534c38" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many radii the bracketing sweep tries, spread over <code>[<a href="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions.html#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1aeb6617c61e1d44de905a15f066d0a255">bracket_low</a>, <a href="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions.html#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1af91ca3033d0f0c9409d5c2fe7f7ba305">bracket_high</a>] × L_m</code>. </p>
+  <div class="member-body"><p>These all go into ONE batch, which is what makes the bracketing phase <code>ntime × Nder × trials</code> wide rather than a serial scan.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1aeb6617c61e1d44de905a15f066d0a255">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bracket_low</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1aeb6617c61e1d44de905a15f066d0a255" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The low end of the bracketing sweep, as a fraction of the dipole seed <code>L_m</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1af91ca3033d0f0c9409d5c2fe7f7ba305">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bracket_high</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1af91ca3033d0f0c9409d5c2fe7f7ba305" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The high end of the bracketing sweep, as a fraction of the dipole seed <code>L_m</code>. </p>
+  <div class="member-body"><p>Measured over L = 2…8 with IGRF-14 the true root sits within ±7 % of <code>L_m</code>; the sweep is widened to −18 %/+32 % so a disturbed shell still brackets.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a190fc9618da2d4ffd8a57e5a0038ddd5">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">refine_iterations</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a190fc9618da2d4ffd8a57e5a0038ddd5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many Brent iterations follow the sweep. </p>
+  <div class="member-body"><p>Bounded on purpose: IRBEM&#x27;s θ march has no bound, and an unbounded refinement inside a lock-step batch would make every shell wait for the worst one.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a7d327aff48e99ab9aa1303294602e7c6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">radius_tolerance</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a7d327aff48e99ab9aa1303294602e7c6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The radius the root-find is converged to, Earth radii. </p>
+  <div class="member-body"><p>5 × 10⁻⁴ Re is ~1/20 of a quadrature cell in the footpoint colatitude it feeds, so the root-find is not the error term.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ae512dacc84f2dc7ff6a324582e7ffcc5">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">inaccessible_scale</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ae512dacc84f2dc7ff6a324582e7ffcc5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The scale of the analytic continuation below the shell, Earth radii. </p>
+  <div class="member-body"><p>Positive; it sets how fast an out-of-range bracket closes and cannot move the root. See the file brief.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ac03907b01a5c2492fba135d2dd8f391d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1TraceOptions.html">TraceOptions</a></span> <span class="mname">trace</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ac03907b01a5c2492fba135d2dd8f391d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Tracing options for the invariant <code>I</code> — handed straight to <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a0581f8d8aa45a2ffda8af22d908f0676">trace_invariant_batch</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a7414e72f9239946fe2d7645eafbef604">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1TraceOptions.html">TraceOptions</a></span> <span class="mname">footpoint</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a7414e72f9239946fe2d7645eafbef604" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Tracing options for the footpoint walk. </p>
+  <div class="member-body"><p>Longer than <a href="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions.html#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ac03907b01a5c2492fba135d2dd8f391d">trace</a> — it runs from the magnetic equator all the way to <code>r = <span class="tok-num">1</span></code> rather than stopping at the mirror points — and finer, because its colatitude is what the flux quadrature&#x27;s boundary is. MEASURED at IRBEM&#x27;s default resolution, worst deviation from the converged oracle over 12 points: <code>steps_per_l</code> = 25 → 0.0121, 50 → 0.0101, 100 → 0.0100, 200 → 0.0099. The knee is at 50 and the default sits one doubling past it, which costs ~10 % of a host-lane L* and nothing measurable on the device.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a62364b4eaefd0d6f2ee3955333e5fdd2">from_irbem</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ad0909259c16f1d988133703b67d2fbe1">azimuths</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a161b17aedb5fe4ffe9e55e2a81694c37">colatitude_step_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1abd98c00ec16fd8328395fa4381534c38">bracket_trials</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1aeb6617c61e1d44de905a15f066d0a255">bracket_low</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1af91ca3033d0f0c9409d5c2fe7f7ba305">bracket_high</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a190fc9618da2d4ffd8a57e5a0038ddd5">refine_iterations</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a7d327aff48e99ab9aa1303294602e7c6">radius_tolerance</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ae512dacc84f2dc7ff6a324582e7ffcc5">inaccessible_scale</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ac03907b01a5c2492fba135d2dd8f391d">trace</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1a7414e72f9239946fe2d7645eafbef604">footpoint</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::T01Drivers — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1T01Drivers">
+<meta name="description" content="The six drivers T01 reads, in IRBEM&#x27;s maginput units.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::T01Drivers</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The six drivers T01 reads, in IRBEM&#x27;s <code>maginput</code> units. </p>
+</div>
+<div class="overview"><p><code>G1</code> and <code>G2</code> are the hour averages defined in IRBEM&#x27;s <code>maginput</code> table and P2 eqs. (1) and (4): <code>G1 = &lt;V <span class="tok-fn">h</span>(B_perp) sin^<span class="tok-num">3</span>(theta / <span class="tok-num">2</span>)&gt;</code> with <code>h = (B_perp / <span class="tok-num">40</span>)^<span class="tok-num">2</span> / (<span class="tok-num">1</span> + B_perp / <span class="tok-num">40</span>)</code>, and <code>G2 = <span class="tok-num">0.005</span> &lt;V B_s&gt;</code> with <code>B_s</code> the southward IMF magnitude. They are integrals over history, so they are inputs here, never derived from the instantaneous <code>B_y, B_z</code>.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT01</span>.<span class="tn-case">NearbyDriversGiveNearbyFields</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ac7329bd9e7a63bd7344142b4284bdc92">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ac7329bd9e7a63bd7344142b4284bdc92" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>Dst</code>, nT. The corrected <code>Dst* = <span class="tok-num">0.8</span> Dst - <span class="tok-num">13</span> <span class="tok-fn">sqrt</span>(P_dyn)</code> (P2 ¶30) is formed internally. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01Drivers_1a6334aa55133a324979950a788e73554e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pdyn</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1a6334aa55133a324979950a788e73554e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>P_dyn</code>, nPa; must be positive, since it enters as <code>(P_dyn / P_d0)^alpha</code> and <code><span class="tok-fn">sqrt</span>(P_dyn)</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01Drivers_1a4fa6509257bed6a8486342dd231c2290">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">by_imf</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1a4fa6509257bed6a8486342dd231c2290" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">IMF <code>B_y</code>, GSM, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ad594635bc8fa013b6dd62028f636acfa">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bz_imf</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ad594635bc8fa013b6dd62028f636acfa" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">IMF <code>B_z</code>, GSM, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ae92ead36f9d8ea62996fd1e2bfc02ce0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g1</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ae92ead36f9d8ea62996fd1e2bfc02ce0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>G1</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ac8489a30a8c34143cc0edcc93ed8ba0e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g2</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ac8489a30a8c34143cc0edcc93ed8ba0e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>G2</code>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ac7329bd9e7a63bd7344142b4284bdc92">dst</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1a6334aa55133a324979950a788e73554e">pdyn</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1a4fa6509257bed6a8486342dd231c2290">by_imf</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ad594635bc8fa013b6dd62028f636acfa">bz_imf</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ae92ead36f9d8ea62996fd1e2bfc02ce0">g1</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T01Drivers_1ac8489a30a8c34143cc0edcc93ed8ba0e">g2</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

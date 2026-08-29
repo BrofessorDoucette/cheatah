@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::cdf — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/namespacecheatah_1_1space_1_1cdf">
+<meta name="description" content="space.cdf — the space.cdf module of the cheatah cheatah-space package: every function, type and constant, with signatures and examples.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a class="active" href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>space::cdf</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p>
+</div>
+<div class="overview"></div>
+<h2 class="group">Classes</h2><ul class="class-list"><li><a href="classcheatah_1_1space_1_1cdf_1_1CdfError.html"><code>CdfError</code></a> — The exception every malformed-file path raises. </li><li><a href="classcheatah_1_1space_1_1cdf_1_1File.html"><code>File</code></a> — An opened CDF. </li><li><a href="structcheatah_1_1space_1_1cdf_1_1LeapSecondEntry.html"><code>LeapSecondEntry</code></a> — One row of NASA&#x27;s <code>CDFLeapSeconds.txt</code>, held as exact scaled integers. </li></ul>
+<h2 class="group">Functions</h2><section class="member" id="namespacecheatah_1_1space_1_1cdf_1aa5fa4f9d6cb40bb0a4625c9f4a4c1c52">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">leap_second_count</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1aa5fa4f9d6cb40bb0a4625c9f4a4c1c52" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The number of entries in the leap-second table. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>42 as shipped; grows only when a leap second is added upstream.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_second_count</span>())   <span class="tok-com"># 42</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a54f949a5cc6931b81da00e7407f62453">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">leap_second_drift_rows</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a54f949a5cc6931b81da00e7407f62453" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many leading entries lie in the pre-1972 &quot;rubber second&quot; era, where TAI-UTC drifts continuously with the day rather than stepping by whole seconds. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>14, matching <code>NERA1</code> in NASA&#x27;s own implementation.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_second_drift_rows</span>())   <span class="tok-com"># 14 — entries 0..13 drift</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1aa668da557c4f3cc58420f4603ed545a2">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1cdf_1_1LeapSecondEntry.html">LeapSecondEntry</a></span> <span class="mname">leap_second_entry</span>(long long index) noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1aa668da557c4f3cc58420f4603ed545a2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">One entry of the leap-second table, by index. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>index</code></td><td class="pdesc"><p>0-based; anything outside [0, <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1aa5fa4f9d6cb40bb0a4625c9f4a4c1c52">leap_second_count()</a>) yields a zeroed entry.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the entry, by value.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-com"># The most recent entry: TAI-UTC became 37 s on 2017-01-01.</span>
+<span class="tok-kw">let</span> e = cdf.<span class="tok-fn">leap_second_entry</span>(<span class="tok-num">41</span>)
+io.<span class="tok-fn">print</span>(e.year, e.month, e.day)   <span class="tok-com"># 2017 1 1</span>
+io.<span class="tok-fn">print</span>(e.delta_at_e7)            <span class="tok-com"># 370000000 — 37.0 s, in units of 1e-7 s</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a4f9219fad9842172a0840d15dcd08164">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">tai_minus_utc_ns</span>(int year, int month, int day) noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a4f9219fad9842172a0840d15dcd08164" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">TAI-UTC in EXACT nanoseconds for a UTC calendar date. </p>
+  <div class="member-body"><p>Pure integer arithmetic. Before 1972 the offset drifts with the day, which is what the drift columns encode; the MJD at noon is a half-integer, so the drift term is evaluated at twice scale and halved by folding the 2 into the 1e-7 -&gt; 1e-9 conversion. Nothing rounds.</p><div class="admon warning"><div class="admon-h">Warning</div><div class="admon-b"><p>This is EXACT, and NASA&#x27;s library is not. NASA computes the same quantity in <code>double</code> and truncates toward zero, so on 430 of the 4384 days between 1960-01-01 and 1972-01-01 its answer is 1 ns lower than this one. From 1972-01-01 onward the two agree on every day, because the offset is a whole number of seconds and the drift term vanishes. Use <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1aca198c407f2f0fd1714833d8c42d5112">tai_minus_utc_ns_nasa_compat()</a> when bit-identical agreement with NASA matters more than being right; the divergence is enumerated day by day in tests/space_cdf_leapseconds_test.cpp so it stays a reviewed fact, not a surprise.</p></div></div><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>year</code></td><td class="pdesc"><p>UTC year.</p></td></tr><tr><td class="pname"><code>month</code></td><td class="pdesc"><p>UTC month, 1-12.</p></td></tr><tr><td class="pname"><code>day</code></td><td class="pdesc"><p>UTC day of month.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>TAI-UTC in nanoseconds; 0 before 1960-01-01, where the table does not reach.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(leap_second_count()) — a linear scan of 42 entries.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-com"># Since 2017-01-01, TAI runs 37 seconds ahead of UTC.</span>
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">tai_minus_utc_ns</span>(<span class="tok-num">2026</span>, <span class="tok-num">8</span>, <span class="tok-num">28</span>))   <span class="tok-com"># 37000000000</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1aca198c407f2f0fd1714833d8c42d5112">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">tai_minus_utc_ns_nasa_compat</span>(int year, int month, int day) noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1aca198c407f2f0fd1714833d8c42d5112" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">TAI-UTC in nanoseconds, computed the way NASA&#x27;s CDF library computes it. </p>
+  <div class="member-body"><p>A faithful reproduction of the reference implementation: accumulate in <code>double</code>, then truncate toward zero. It exists so bit-identical agreement with NASA is available when that is what is wanted — and so the difference between the two is a tested, enumerated fact rather than a suspicion.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>year</code></td><td class="pdesc"><p>UTC year.</p></td></tr><tr><td class="pname"><code>month</code></td><td class="pdesc"><p>UTC month, 1-12.</p></td></tr><tr><td class="pname"><code>day</code></td><td class="pdesc"><p>UTC day of month.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>TAI-UTC in nanoseconds as NASA would compute it; 0 before 1960-01-01.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(leap_second_count()) — a linear scan of 42 entries.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-com"># Identical to the exact form from 1972 onward; both are 37 s in 2026.</span>
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">tai_minus_utc_ns_nasa_compat</span>(<span class="tok-num">2026</span>, <span class="tok-num">8</span>, <span class="tok-num">28</span>))   <span class="tok-com"># 37000000000</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1ac598ddef6870a95233f0b62e4ad89c78">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string_view</span> <span class="mname">leap_seconds_url</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1ac598ddef6870a95233f0b62e4ad89c78" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Where the table comes from. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>NASA&#x27;s published leap-second table URL.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_seconds_url</span>())</code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1af3e67b9b901eb621b1b6a309ade0704e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string_view</span> <span class="mname">leap_seconds_upstream_updated</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1af3e67b9b901eb621b1b6a309ade0704e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The <code>Updated:</code> stamp carried inside the upstream file itself. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the upstream stamp, <code>YYYYMMDD</code>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_seconds_upstream_updated</span>())   <span class="tok-com"># 20161025</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a67892416b33249f47315aae7863d59b7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string_view</span> <span class="mname">leap_seconds_sha256</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a67892416b33249f47315aae7863d59b7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">SHA-256 of the NORMALIZED upstream table — comments and blank lines dropped, each remaining line&#x27;s whitespace collapsed and trimmed. </p>
+  <div class="member-body"><p>Normalizing means a reformat or an edited comment raises no false alarm, while any change to the data does.</p><div class="ret"><span class="ret-h">Returns</span> <p>the 64-character lowercase hex digest.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-com"># scripts/check_leapseconds.sh recomputes this from the live file and compares.</span>
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_seconds_sha256</span>())</code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a0069755146f0609e07cf056cda660b76">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1time_1_1CivilDate.html">::cheatah::space::time::CivilDate</a></span> <span class="mname">leap_seconds_verified_on</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a0069755146f0609e07cf056cda660b76" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The date this copy of the table was last checked against upstream. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the verification date.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> d = cdf.<span class="tok-fn">leap_seconds_verified_on</span>()
+io.<span class="tok-fn">print</span>(d.year, d.month, d.day)   <span class="tok-com"># 2026 8 28</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a70dd443ff377876e75bf6a39f139d633">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1time_1_1CivilDate.html">::cheatah::space::time::CivilDate</a></span> <span class="mname">leap_seconds_known_good_through</span>() noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a70dd443ff377876e75bf6a39f139d633" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The date through which this table is guaranteed COMPLETE. </p>
+  <div class="member-body"><p>Derived, not guessed: IERS announces a leap second at least six months ahead in Bulletin C. Upstream carried no entry after 2017-01-01 when we checked on <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a0069755146f0609e07cf056cda660b76">leap_seconds_verified_on()</a>, so none can occur before six months after that date. Past this date the table may be merely current rather than provably complete — ask <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1ae7b0c7624ee52ecf7e7053db22cba9f4">leap_seconds_covers()</a> before trusting a conversion of a future timestamp.</p><div class="ret"><span class="ret-h">Returns</span> <p>the last date the table is provably complete through.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> d = cdf.<span class="tok-fn">leap_seconds_known_good_through</span>()
+io.<span class="tok-fn">print</span>(d.year, d.month, d.day)   <span class="tok-com"># 2027 2 28</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1ae7b0c7624ee52ecf7e7053db22cba9f4">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">leap_seconds_covers</span>(int year, int month, int day) noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1ae7b0c7624ee52ecf7e7053db22cba9f4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether a date falls in the range this table is provably complete for. </p>
+  <div class="member-body"><p>A conversion outside it is not necessarily wrong — it is merely unverifiable, because a leap second announced after <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a0069755146f0609e07cf056cda660b76">leap_seconds_verified_on()</a> would not be in this copy. Callers converting future timestamps should branch on this rather than take a silently stale answer.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>year</code></td><td class="pdesc"><p>UTC year.</p></td></tr><tr><td class="pname"><code>month</code></td><td class="pdesc"><p>UTC month, 1-12.</p></td></tr><tr><td class="pname"><code>day</code></td><td class="pdesc"><p>UTC day of month.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>true when the date is on or before <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a70dd443ff377876e75bf6a39f139d633">leap_seconds_known_good_through()</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_leapseconds</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_seconds_covers</span>(<span class="tok-num">2026</span>, <span class="tok-num">8</span>, <span class="tok-num">28</span>))   <span class="tok-com"># True</span>
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">leap_seconds_covers</span>(<span class="tok-num">2099</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span>))    <span class="tok-com"># False — beyond the guarantee</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a858f943f17d2f30edd4d5940da88be3a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1space_1_1cdf_1_1File.html">File</a></span> <span class="mname">open</span>(const std::string &amp;path)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a858f943f17d2f30edd4d5940da88be3a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open a CDF by path. </p>
+  <div class="member-body"><p>Maps the file and parses every descriptor. Only CDF 3.x single-file, uncompressed-container, IEEE-encoded files are accepted; anything else is refused here with the <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803">ErrorCode</a> that says why, so a later read cannot fail for a reason that was knowable at open.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>path</code></td><td class="pdesc"><p>the <code>.<a href="namespacecheatah_1_1space_1_1cdf.html">cdf</a></code> file.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the opened file.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(v) in the number of variables; no record data is read.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one descriptor list and name index; the file itself is memory-mapped, not read.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(cdf.<span class="tok-fn">var_names</span>(f)))   <span class="tok-com"># 47</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1aff48a22e18a3dd408570028495ad734d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1space_1_1cdf_1_1File.html">File</a></span> <span class="mname">open_from_memory</span>(const std::byte *data, std::uint64_t size)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1aff48a22e18a3dd408570028495ad734d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Open a CDF from bytes already in memory. </p>
+  <div class="member-body"><p>The bytes are copied and owned by the <a href="classcheatah_1_1space_1_1cdf_1_1File.html">File</a>. This is the path every hostile-input test uses: ASan sees each byte of a heap buffer, but cannot see an over-read that stays inside a mapped page, so a bounds bug is only reliably caught here.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>data</code></td><td class="pdesc"><p>the file&#x27;s bytes.</p></td></tr><tr><td class="pname"><code>size</code></td><td class="pdesc"><p>how many.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the opened file.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(size) to copy, then O(v) in the number of variables.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one copy of the bytes, plus the descriptor list and name index.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-com"># From purr, prefer cdf.open(path); this entry point exists for tests and embedders.</span>
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">record_count</span>(f, <span class="tok-str">&quot;Epoch&quot;</span>))   <span class="tok-com"># 44640</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a3ee95eabaa37567b77fd41852512912e">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; std::string &gt;</span> <span class="mname">var_names</span>(const File &amp;f)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a3ee95eabaa37567b77fd41852512912e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The names of every variable in the file, rVariables first, in file order. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>an opened file.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the names.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(v).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one list of v strings.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">var_names</span>(f)[<span class="tok-num">0</span>])   <span class="tok-com"># Epoch</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a8efabc8c31f397bc94ad13a179f17589">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">long long</span> <span class="mname">record_count</span>(const File &amp;f, const std::string &amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a8efabc8c31f397bc94ad13a179f17589" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many records a variable has. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>an opened file.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the variable.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the record count; 0 for a variable with nothing written.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) after the name lookup.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">record_count</span>(f, <span class="tok-str">&quot;F&quot;</span>))   <span class="tok-com"># 44640 — one day at one-minute cadence</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1afc38d402a1925ad5da869cde9218de56">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::string</span> <span class="mname">data_type_name</span>(const File &amp;f, const std::string &amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1afc38d402a1925ad5da869cde9218de56" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The CDF data type of a variable, by its format name. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>an opened file.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the variable.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>e.g. &quot;CDF_REAL4&quot;, &quot;CDF_EPOCH&quot;, &quot;CDF_TIME_TT2000&quot;.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) after the name lookup.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one short string.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">data_type_name</span>(f, <span class="tok-str">&quot;Epoch&quot;</span>))   <span class="tok-com"># CDF_EPOCH</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a63fda381ace2519d29809e011976db0b">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::vector&lt; long long &gt;</span> <span class="mname">shape</span>(const File &amp;f, const std::string &amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a63fda381ace2519d29809e011976db0b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The shape <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1ad07c65a7c2cea92d4b6ca3d485e2d768">values()</a> will return for a variable. </p>
+  <div class="member-body"><p>Records first, then each dimension that varies per record, then one trailing axis when a value is itself several elements — the string length of a CHAR variable, or 2 for EPOCH16.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>an opened file.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the variable.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the shape.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(d) in the number of dimensions.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>one short list.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+io.<span class="tok-fn">print</span>(cdf.<span class="tok-fn">shape</span>(f, <span class="tok-str">&quot;F&quot;</span>))   <span class="tok-com"># [44640] — a scalar per record</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1ad07c65a7c2cea92d4b6ca3d485e2d768">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">inline ::cheatah::ndarray::basic_ndarray&lt; double &gt;</span> <span class="mname">values</span>(const File &amp;f, const std::string &amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1ad07c65a7c2cea92d4b6ca3d485e2d768" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Every record of a variable, as float64. </p>
+  <div class="member-body"><p>Lossless for every CDF type except CDF_INT8 and CDF_TIME_TT2000, which a double cannot hold exactly; those are refused with ErrorCode::LossyConversion — use <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a21f53fbc0c3c1eaa55fdea8e739c528d">values_i64()</a>. CHAR data comes back as byte values with the string length as the last axis; EPOCH16 as a trailing axis of 2. This is the array cheatah-plot draws directly.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>an opened file.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the variable.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an ndarray shaped as <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a63fda381ace2519d29809e011976db0b">shape()</a> describes. A copy of the file&#x27;s data.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the number of values — one decode pass.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the result array, exactly once; nothing intermediate.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;omni_hro2_1min_20150101_v01.cdf&quot;</span>)
+<span class="tok-kw">let</span> b = cdf.<span class="tok-fn">values</span>(f, <span class="tok-str">&quot;F&quot;</span>)            <span class="tok-com"># IMF magnitude, nT, one value per minute</span>
+io.<span class="tok-fn">print</span>(b[<span class="tok-num">0</span>], b[<span class="tok-num">1</span>], b[<span class="tok-num">2</span>])            <span class="tok-com"># 6.92 5.84 5.71</span></code></pre></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a21f53fbc0c3c1eaa55fdea8e739c528d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">inline ::cheatah::ndarray::basic_ndarray&lt; long long &gt;</span> <span class="mname">values_i64</span>(const File &amp;f, const std::string &amp;name)</code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a21f53fbc0c3c1eaa55fdea8e739c528d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Every record of an integer variable, as int64 — the exact path for CDF_INT8 and TT2000. </p>
+  <div class="member-body"><p>Accepts every integer type; refuses REAL4/REAL8/EPOCH/EPOCH16 with ErrorCode::LossyConversion because truncating a float is not a conversion anyone asked for.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>f</code></td><td class="pdesc"><p>an opened file.</p></td></tr><tr><td class="pname"><code>name</code></td><td class="pdesc"><p>the variable.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>an ndarray of int shaped as <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a63fda381ace2519d29809e011976db0b">shape()</a> describes. A copy of the file&#x27;s data.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(n) in the number of values — one decode pass.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>the result array, exactly once; nothing intermediate.</p></span></div><div class="tag tag-systest"><span class="tag-k">System test</span><span class="tag-v"><code><span class="tn-suite">systests/test_cdf_read</span>.<span class="tn-case">purr</span></code></span></div><div class="admon par"><div class="admon-h"></div><div class="admon-b">Example<pre class="code"><code><span class="tok-kw">import</span> io
+<span class="tok-kw">import</span> ndarray
+<span class="tok-kw">import</span> space.cdf <span class="tok-kw">as</span> cdf
+
+<span class="tok-com"># TT2000 is nanoseconds since J2000; an int64 holds it exactly, a double does not.</span>
+<span class="tok-kw">let</span> f = cdf.<span class="tok-fn">open</span>(<span class="tok-str">&quot;rbsp-a_density_emfisis-l4_20130101_v1.5.17.cdf&quot;</span>)
+<span class="tok-kw">let</span> t = cdf.<span class="tok-fn">values_i64</span>(f, <span class="tok-str">&quot;Epoch&quot;</span>)
+io.<span class="tok-fn">print</span>(t[<span class="tok-num">0</span>])</code></pre></div></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a14426fb2e11a93cd7fbd80c76d18f78a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kMagicV3</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a14426fb2e11a93cd7fbd80c76d18f78a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">First magic number of a CDF 3.x file, at byte offset 0. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a0379bbc7ecdcf7e022736e9bc912f03c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kMagicV26</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a0379bbc7ecdcf7e022736e9bc912f03c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">First magic number of a CDF 2.6/2.7 file — the 32-bit-offset generation. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1adde9509b4b2e871461017a61d7c395a7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kMagicPreV26</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1adde9509b4b2e871461017a61d7c395a7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">First magic number of a pre-2.6 file. Not supported; see ErrorCode::UnsupportedPreV26. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1acda4b07732e0ca9ba81df10375c2863d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kMagicUncompressed</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1acda4b07732e0ca9ba81df10375c2863d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Second magic number: the file&#x27;s records are stored uncompressed. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1af9bcc52ab9c1b7f7b6dd34141ed1e515">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kMagicCompressed</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1af9bcc52ab9c1b7f7b6dd34141ed1e515" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Second magic number: the whole file is compressed and a CCR follows the magic. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1ac0ecdccf805638c6945b94c25b48c4e6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">kCdrOffset</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1ac0ecdccf805638c6945b94c25b48c4e6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Byte offset of the CDR, which always follows the two 4-byte magic numbers. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a29347396380189707e36cc416963f8a6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">kChecksumBytes</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a29347396380189707e36cc416963f8a6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Bytes a checksummed file carries past <code>GDR.eof</code> — an MD5 digest, not a CDF record. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1ad63e43a4a6539eb155bbcd0185e5daf8">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">bool</span> <span class="mname">kHostIsLittleEndian</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1ad63e43a4a6539eb155bbcd0185e5daf8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">True when this build targets a little-endian host. </p>
+  <div class="member-body"><p>CDF stores no encoding meaning &quot;native&quot;, so the Host selector has to be resolved against the machine actually doing the reading.</p></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a5494707a334c03ecb962978a26dd3c1a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kCdrFlagRowMajority</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a5494707a334c03ecb962978a26dd3c1a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">CDR flags bit 0: set when the file&#x27;s majority is row-major. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a91d204613571e9b5e5bb308275436a82">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kCdrFlagSingleFile</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a91d204613571e9b5e5bb308275436a82" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">CDR flags bit 1: set when all data lives in this one file rather than <code>.v*</code>/<code>.z*</code> companions. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1acfcb74c4d29a803f6660457123ca2057">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kCdrFlagChecksum</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1acfcb74c4d29a803f6660457123ca2057" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">CDR flags bit 2: set when the file carries a trailing checksum. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a6ce08241f828915e83d4bb4358e2da04">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint32_t</span> <span class="mname">kCdrFlagChecksumMd5</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a6ce08241f828915e83d4bb4358e2da04" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">CDR flags bit 3: set when that checksum is MD5. Meaningful only with kCdrFlagChecksum. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a5f20c18d9f5f5164f7ddb98839523d06">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">kErrorCodeCount</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a5f20c18d9f5f5164f7ddb98839523d06" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many <a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803">ErrorCode</a> enumerators exist, including None. </p>
+  <div class="member-body"><p>The unit tests assert one crafted failure per code against this, so a new code cannot be added without a test that provokes it.</p></div>
+</section><h2 class="group">Types</h2><section class="member" id="namespacecheatah_1_1space_1_1cdf_1af4cf4ca8f951f53ad944245d120a2e74">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::int32_t</span> <span class="mname">RecordType</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1af4cf4ca8f951f53ad944245d120a2e74" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal record types, as written in the 4-byte big-endian field at record offset 8. </p>
+  <div class="member-body"><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>UnusedInternal is -1 and marks a hole left by a rewrite; such records are skipped, never parsed. Every other value is a real record with a defined layout.</p></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a9521df4015e7b08a3d136330280bd793">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::int32_t</span> <span class="mname">DataType</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a9521df4015e7b08a3d136330280bd793" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The CDF data types. </p>
+  <div class="member-body"><p>The numbering is the format&#x27;s, not ours — see the file docs for why REAL4/FLOAT and REAL8/DOUBLE are distinct values with identical layouts.</p></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a8e6e9b8195c1bb0e9686274aac5fb993">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::int32_t</span> <span class="mname">Encoding</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a8e6e9b8195c1bb0e9686274aac5fb993" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The byte orders and floating-point formats a CDF&#x27;s values may be stored in. </p>
+  <div class="member-body"><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>&quot;NETWORK&quot; is not XDR despite the name — it is plain big-endian IEEE-754. That is worth stating because assuming otherwise invents a whole conversion layer that is not needed.</p></div></div></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a0556a43c74c655f0ce6790c18fbfd7f3">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::uint8_t</span> <span class="mname">EncodingClass</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a0556a43c74c655f0ce6790c18fbfd7f3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The four ways a CDF&#x27;s bytes can actually need decoding. </p>
+  <div class="member-body"><p>Twenty-one encodings collapse to four decode behaviours, which is the single simplification that keeps the decoder small: what matters is integer byte order and whether floats are IEEE or one of the two VAX formats.</p></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a50ae92c9d37d80635dc7116b2a188bf9">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::uint8_t</span> <span class="mname">Majority</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a50ae92c9d37d80635dc7116b2a188bf9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How a multi-dimensional variable&#x27;s values are laid out within one record. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1af9898f64e89186e361a40c5782d0b6a3">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::int32_t</span> <span class="mname">SparseRecords</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1af9898f64e89186e361a40c5782d0b6a3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">What a variable&#x27;s unwritten records contain. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a05ff0c3d425b4fa1e1d72a9c3e29381f">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::int32_t</span> <span class="mname">CompressionType</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a05ff0c3d425b4fa1e1d72a9c3e29381f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The compression algorithms CDF defines. Only Gzip occurs in the public archive. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803">
+  <div class="member-head">
+    <span class="badge badge-enum">enum</span>
+    <code class="sig"><span class="mtype">std::uint8_t</span> <span class="mname">ErrorCode</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Everything that can be wrong with a CDF we are asked to read. </p>
+  <div class="member-body"><p>One flat enumeration rather than exception subtypes: a caller almost always wants to report what happened and where, not to branch on the kind, and a closed set can be table-tested for reachability — every code below is provoked by a crafted file in the unit tests, so none of them is aspirational.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1space_1_1cdf_1aa5fa4f9d6cb40bb0a4625c9f4a4c1c52">leap_second_count</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a54f949a5cc6931b81da00e7407f62453">leap_second_drift_rows</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1aa668da557c4f3cc58420f4603ed545a2">leap_second_entry</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a4f9219fad9842172a0840d15dcd08164">tai_minus_utc_ns</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1aca198c407f2f0fd1714833d8c42d5112">tai_minus_utc_ns_nasa_compat</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1ac598ddef6870a95233f0b62e4ad89c78">leap_seconds_url</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1af3e67b9b901eb621b1b6a309ade0704e">leap_seconds_upstream_updated</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a67892416b33249f47315aae7863d59b7">leap_seconds_sha256</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a0069755146f0609e07cf056cda660b76">leap_seconds_verified_on</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a70dd443ff377876e75bf6a39f139d633">leap_seconds_known_good_through</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1ae7b0c7624ee52ecf7e7053db22cba9f4">leap_seconds_covers</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a858f943f17d2f30edd4d5940da88be3a">open</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1aff48a22e18a3dd408570028495ad734d">open_from_memory</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a3ee95eabaa37567b77fd41852512912e">var_names</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a8efabc8c31f397bc94ad13a179f17589">record_count</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1afc38d402a1925ad5da869cde9218de56">data_type_name</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a63fda381ace2519d29809e011976db0b">shape</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1ad07c65a7c2cea92d4b6ca3d485e2d768">values</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a21f53fbc0c3c1eaa55fdea8e739c528d">values_i64</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1af4cf4ca8f951f53ad944245d120a2e74">RecordType</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a9521df4015e7b08a3d136330280bd793">DataType</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a8e6e9b8195c1bb0e9686274aac5fb993">Encoding</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a0556a43c74c655f0ce6790c18fbfd7f3">EncodingClass</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a50ae92c9d37d80635dc7116b2a188bf9">Majority</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1af9898f64e89186e361a40c5782d0b6a3">SparseRecords</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a05ff0c3d425b4fa1e1d72a9c3e29381f">CompressionType</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803">ErrorCode</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a14426fb2e11a93cd7fbd80c76d18f78a">kMagicV3</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a0379bbc7ecdcf7e022736e9bc912f03c">kMagicV26</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1adde9509b4b2e871461017a61d7c395a7">kMagicPreV26</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1acda4b07732e0ca9ba81df10375c2863d">kMagicUncompressed</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1af9bcc52ab9c1b7f7b6dd34141ed1e515">kMagicCompressed</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1ac0ecdccf805638c6945b94c25b48c4e6">kCdrOffset</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a29347396380189707e36cc416963f8a6">kChecksumBytes</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1ad63e43a4a6539eb155bbcd0185e5daf8">kHostIsLittleEndian</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a5494707a334c03ecb962978a26dd3c1a">kCdrFlagRowMajority</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a91d204613571e9b5e5bb308275436a82">kCdrFlagSingleFile</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1acfcb74c4d29a803f6660457123ca2057">kCdrFlagChecksum</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a6ce08241f828915e83d4bb4358e2da04">kCdrFlagChecksumMd5</a></li><li><a href="#namespacecheatah_1_1space_1_1cdf_1a5f20c18d9f5f5164f7ddb98839523d06">kErrorCodeCount</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

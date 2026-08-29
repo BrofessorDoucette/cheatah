@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::tables — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/namespacecheatah_1_1space_1_1irbem_1_1tables">
+<meta name="description" content="space.irbem.tables — the space.irbem.tables module of the cheatah cheatah-space package: every function, type and constant, with signatures and examples.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub" open><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a class="active" href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Module</div>
+  <h1><code>space::irbem::tables</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p>
+</div>
+<div class="overview"></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1af69d15efc6af6343858a05e48ae65448">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">igrf14_max_degree</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1af69d15efc6af6343858a05e48ae65448" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Highest spherical-harmonic degree IGRF-14 publishes. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">igrf14_slots</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Flat coefficient slots: one per (n, m) with <code>n = <span class="tok-num">0</span>..<span class="tok-num">13</span></code>, <code>m = <span class="tok-num">0</span>..n</code>, at index <code>n*(n+<span class="tok-num">1</span>)/<span class="tok-num">2</span> + m</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1aab1583902b9cd272bb9e39afd0e391ad">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::size_t</span> <span class="mname">igrf14_epoch_count</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1aab1583902b9cd272bb9e39afd0e391ad" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Number of tabulated epochs (1900.0 … 2025.0, every 5 years). </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1a2e7ddbb3aec44cac2741e3f7b895025a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1aab1583902b9cd272bb9e39afd0e391ad">igrf14_epoch_count</a> &gt;</span> <span class="mname">igrf14_epochs</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a2e7ddbb3aec44cac2741e3f7b895025a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The tabulated epochs, in decimal years, ascending. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1a1a31c2dea11b41e265a2bde989be4489">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">igrf14_slots</a> &gt;, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1aab1583902b9cd272bb9e39afd0e391ad">igrf14_epoch_count</a> &gt;</span> <span class="mname">igrf14_g</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a1a31c2dea11b41e265a2bde989be4489" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The <code>g</code> Gauss coefficients in nT, <code>[epoch][slot]</code>; see <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1a2e7ddbb3aec44cac2741e3f7b895025a">igrf14_epochs</a> and <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">igrf14_slots</a>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1a71f98a10ebd71930e39c6005c4d1e9a4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">igrf14_slots</a> &gt;, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1aab1583902b9cd272bb9e39afd0e391ad">igrf14_epoch_count</a> &gt;</span> <span class="mname">igrf14_h</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a71f98a10ebd71930e39c6005c4d1e9a4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The <code>h</code> Gauss coefficients in nT, <code>[epoch][slot]</code>. Slots with <code>m = <span class="tok-num">0</span></code> are <code><span class="tok-num">0.0</span></code> by definition. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1aaf9fa809d7762d594d256729ded36956">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">igrf14_slots</a> &gt;</span> <span class="mname">igrf14_g_sv</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1aaf9fa809d7762d594d256729ded36956" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Predicted secular variation of <code>g</code> for 2025.0-2030.0, in nT/year. Zero above degree 8. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="namespacecheatah_1_1space_1_1irbem_1_1tables_1a815724c3323494422f218f9f04e30d4c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; double, <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">igrf14_slots</a> &gt;</span> <span class="mname">igrf14_h_sv</span></code>
+    <span class="member-actions"><a class="anchor" href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a815724c3323494422f218f9f04e30d4c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Predicted secular variation of <code>h</code> for 2025.0-2030.0, in nT/year. Zero above degree 8. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1af69d15efc6af6343858a05e48ae65448">igrf14_max_degree</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1af1eec30b09e21e1ad7acb7045f62b1a6">igrf14_slots</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1aab1583902b9cd272bb9e39afd0e391ad">igrf14_epoch_count</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a2e7ddbb3aec44cac2741e3f7b895025a">igrf14_epochs</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a1a31c2dea11b41e265a2bde989be4489">igrf14_g</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a71f98a10ebd71930e39c6005c4d1e9a4">igrf14_h</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1aaf9fa809d7762d594d256729ded36956">igrf14_g_sv</a></li><li><a href="#namespacecheatah_1_1space_1_1irbem_1_1tables_1a815724c3323494422f218f9f04e30d4c">igrf14_h_sv</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

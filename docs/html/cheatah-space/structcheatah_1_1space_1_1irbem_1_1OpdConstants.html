@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::OpdConstants — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1OpdConstants">
+<meta name="description" content="The constants of the dynamic model that are not the quiet field&#x27;s own, each with its source.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::OpdConstants</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The constants of the dynamic model that are not the quiet field&#x27;s own, each with its source. </p>
+</div>
+<div class="overview"><p>Gathered into one <code><span class="tok-kw">constexpr</span></code> object so that every number in the evaluator has a name, a unit and a citation, and so the two arithmetic lanes read one definition.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemOpd</span>.<span class="tn-case">TheConstantsAreThePublishedOnes</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a849b65427b7e4e34ccf1a5603578579c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pressure_npa_per_cc_km2s2</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a849b65427b7e4e34ccf1a5603578579c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>m_p</code> in the units that make <code>n [cm^-<span class="tok-num">3</span>] V^<span class="tok-num">2</span> [km^<span class="tok-num">2</span> s^-<span class="tok-num">2</span>]</code> come out in nPa: the CODATA 2018 proton mass <code><span class="tok-num">1.67262192369e-27</span> kg</code> times <code><span class="tok-num">1e6</span> m^-<span class="tok-num">3</span> / cm^-<span class="tok-num">3</span></code> times <code><span class="tok-num">1e6</span> m^<span class="tok-num">2</span> s^-<span class="tok-num">2</span> / km^<span class="tok-num">2</span> s^-<span class="tok-num">2</span></code> times <code><span class="tok-num">1e9</span> nPa / Pa</code>. </p>
+  <div class="member-body"><p>The solar wind is treated as protons, which is what the IRBEM driver table calls &quot;solar wind density&quot;.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1OpdConstants_1aaffb119606453eb24a15d35fc4607707">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">reference_density</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1aaffb119606453eb24a15d35fc4607707" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The reference density, cm^-3: the quiet end of the model&#x27;s documented envelope (<code><span class="tok-num">5</span> &lt;= Dsw &lt;= <span class="tok-num">50</span></code>, IRBEM <code>general_information.rst</code>), at which the quiet field is uncompressed. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1OpdConstants_1ace7280f8371f7947cac3f8f434df150d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">reference_velocity</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1ace7280f8371f7947cac3f8f434df150d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The reference speed, km/s: the canonical nominal solar wind, in the middle of the documented <code><span class="tok-num">300</span> &lt;= Vsw &lt;= <span class="tok-num">500</span></code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a2fc9cc1c7f39c3a72d14e7da4dabbc2b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst_pressure_coefficient</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a2fc9cc1c7f39c3a72d14e7da4dabbc2b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>b</code> in <code>Dst* = Dst - b <span class="tok-fn">sqrt</span>(P) + c</code>, nT per sqrt(nPa) — O&#x27;Brien &amp; McPherron, JGR 105, 7707 (2000), the pressure correction that removes the magnetopause-current contribution from the index, which is exactly what the model&#x27;s &quot;modified Dst&quot; is described as. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a50a3ae8d7c200ced8667114cf15f9b8e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst_offset</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a50a3ae8d7c200ced8667114cf15f9b8e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>c</code> in the same relation, nT — the quiet-time offset of the same paper. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a849b65427b7e4e34ccf1a5603578579c">pressure_npa_per_cc_km2s2</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1aaffb119606453eb24a15d35fc4607707">reference_density</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1ace7280f8371f7947cac3f8f434df150d">reference_velocity</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a2fc9cc1c7f39c3a72d14e7da4dabbc2b">dst_pressure_coefficient</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1OpdConstants_1a50a3ae8d7c200ced8667114cf15f9b8e">dst_offset</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

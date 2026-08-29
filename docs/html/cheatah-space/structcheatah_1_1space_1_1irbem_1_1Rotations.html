@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::Rotations — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1Rotations">
+<meta name="description" content="Every rotation among the Cartesian frames, for ONE epoch and one dipole.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::Rotations</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Every rotation among the Cartesian frames, for ONE epoch and one dipole. </p>
+</div>
+<div class="overview"><p>This is the object the whole header exists to produce. Building it costs the sidereal time, the solar ephemeris and about a dozen trigonometric calls; transforming a position afterwards costs a 3×3 matrix–vector product. Build one per epoch, then transform the whole ephemeris against it — never rebuild it per point.</p><p>Only eight matrices are stored, because these are orthogonal: the inverse of each is its transpose, which <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a2a4315c6e39e7ccef1c77887f85711a7">rotation_matrix</a> takes rather than storing a second copy that could drift. Sixteen directed transforms therefore come out of eight stored ones, and <code>R·Rᵀ = I</code> holds to roundoff by construction rather than by arithmetic luck.</p><p>The construction chain, with Hapgood 1992&#x27;s equation numbers:</p><div class="tscroll" tabindex="0"><table class="dtable"><tr><th scope="col"><p>matrix</p></th><th scope="col"><p>Hapgood</p></th><th scope="col"><p>definition</p></th></tr><tr><td><p><code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17c785b59bbf5395bb544637de2c0a05">gei_to_geo</a></code></p></td><td><p>T1, eq. 2</p></td><td><p>rotate about Z by the Greenwich sidereal time</p></td></tr><tr><td><p><code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a790ec9a95e5c5cd655589f26b64d101c">gei_to_gse</a></code></p></td><td><p>T2, eq. 3</p></td><td><p>rotate about X by the obliquity, then about Z by the solar longitude</p></td></tr><tr><td><p><code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17df920fb5c787e8d12cd6652d80d1e6">gse_to_gsm</a></code></p></td><td><p>T3, eq. 6</p></td><td><p>rotate about X until the dipole has no GSE-Y component</p></td></tr><tr><td><p><code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a5b6815c14730ca63378c6a0796a07838">gsm_to_sm</a></code></p></td><td><p>T4, eq. 11</p></td><td><p>rotate about Y by the dipole tilt</p></td></tr><tr><td><p><code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1aa2de9797df82447f84f9b32da749515b">geo_to_mag</a></code></p></td><td><p>T5, eq. 12</p></td><td><p>rotate about Z to the pole&#x27;s longitude, then about Y to its latitude</p></td></tr></table></div><p>The three composites are products of those: <code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2a2d74a11ce9671d81f4ce1eb8e1927c">geo_to_gse</a> = T2·T1ᵀ</code>, <code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2e2a6cbc831f2f914f0beb4c5a6724d2">geo_to_gsm</a> = T3·geo_to_gse</code>, <code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a6ad5052461aa0ee16591e837587127b9">geo_to_sm</a> = T4·geo_to_gsm</code>. They are stored, not recomputed, so that GEO — the frame ephemerides arrive in — reaches every other frame in a single product.</p><div class="admon note"><div class="admon-h">Note</div><div class="admon-b"><p>The pairs that are NOT stored (GEI↔GSM, GEI↔SM, GEI↔MAG, GSE↔SM, GSE↔MAG, GSM↔MAG, SM↔MAG) are a compile error rather than a silent chain through an intermediate frame. Compose them explicitly through GEO if they are needed; making that visible is the point.</p></div></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a73a6fc8dfca814df892c3eedac5b1b89">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a></span> <span class="mname">at</span>(double jd_ut1, const DipoleCoefficients &amp;dipole, GmstModel model=GmstModel::Iau1982)</code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a73a6fc8dfca814df892c3eedac5b1b89" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Build the rotations for one epoch and one dipole. </p>
+  <div class="member-body"><p>This is where every transcendental in the module is spent. The steps, in order: T1 from the sidereal time; T2 from the solar ephemeris; the dipole axis carried from GEO into GSE through <code>T2·T1ᵀ</code>; <code>ψ</code> and T3 as the rotation about X that kills the dipole&#x27;s GSE-Y component (Hapgood eqs. 9–10, which is precisely the statement that GSM&#x27;s Z axis lies in the plane of the dipole and the Sun); <code>μ</code> and T4 as the rotation about Y that carries the remaining tilt onto Z (his eq. 11, so SM&#x27;s Z axis IS the dipole axis); and T5 from the pole&#x27;s own latitude and longitude.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>jd_ut1</code></td><td class="pdesc"><p>the epoch as a UT1 Julian date.</p></td></tr><tr><td class="pname"><code>dipole</code></td><td class="pdesc"><p>the degree-1 IGRF coefficients for the epoch.</p></td></tr><tr><td class="pname"><code>model</code></td><td class="pdesc"><p>which sidereal-time series to use; the IAU 1982 one unless a bit-comparison against a Hapgood-based implementation is wanted.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the fully populated rotation set.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) — a fixed ~14 transcendental calls and four 3×3 products, independent of how many points will later be transformed with it.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none. Every intermediate is an inline-storage <code>fixarray</code> value.</p></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a2c3faf9704696635b601fe29a4a22366">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">jd_ut1</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2c3faf9704696635b601fe29a4a22366" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The epoch these matrices were built for, as a UT1 Julian date. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a1071cf4abb44b7bf98d3519c06a00e17">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">gmst_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a1071cf4abb44b7bf98d3519c06a00e17" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Greenwich Mean Sidereal Time at the epoch, in degrees. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1ad0f28bab41fc1806558dd9aefdb33e53">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">sun_ecliptic_longitude_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1ad0f28bab41fc1806558dd9aefdb33e53" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The Sun&#x27;s apparent ecliptic longitude <code>λ☉</code>, in degrees. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a041f1090ecbc82362542713615caa960">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">obliquity_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a041f1090ecbc82362542713615caa960" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The obliquity of the ecliptic <code>ε</code>, in degrees. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a5ae4d66b1a316cb1d8add6e50c4e6956">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dipole_tilt_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a5ae4d66b1a316cb1d8add6e50c4e6956" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The geodipole tilt <code>μ</code>: the angle of the dipole axis from the GSM Z axis, positive when the north dipole leans sunward. </p>
+  <div class="member-body"><p>Ranges about ±35° over a year.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1ad68cd98b16e07b14530a5afbd71feed6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">gsm_dipole_angle_deg</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1ad68cd98b16e07b14530a5afbd71feed6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hapgood&#x27;s <code>ψ</code>: the angle of the dipole&#x27;s projection in the GSE Y–Z plane, measured from Z toward Y. </p>
+  <div class="member-body"><p>This is the angle <code><a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17df920fb5c787e8d12cd6652d80d1e6">gse_to_gsm</a></code> undoes.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1ac806611e6a85bfc801c73d8a52c6e011">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">dipole_geo</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1ac806611e6a85bfc801c73d8a52c6e011" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The dipole axis (toward the north geomagnetic pole), unit, in GEO. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a708de7c487a0f38b7a988e36cd5dbf48">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">dipole_gse</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a708de7c487a0f38b7a988e36cd5dbf48" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The same axis in GSE — the vector <code>ψ</code> and <code>μ</code> are read off. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a17c785b59bbf5395bb544637de2c0a05">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">gei_to_geo</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17c785b59bbf5395bb544637de2c0a05" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hapgood T1: inertial to Earth-fixed. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a790ec9a95e5c5cd655589f26b64d101c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">gei_to_gse</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a790ec9a95e5c5cd655589f26b64d101c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hapgood T2: inertial to solar-ecliptic. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a17df920fb5c787e8d12cd6652d80d1e6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">gse_to_gsm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17df920fb5c787e8d12cd6652d80d1e6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hapgood T3: solar-ecliptic to solar-magnetospheric. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a5b6815c14730ca63378c6a0796a07838">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">gsm_to_sm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a5b6815c14730ca63378c6a0796a07838" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hapgood T4: solar-magnetospheric to solar-magnetic. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1aa2de9797df82447f84f9b32da749515b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">geo_to_mag</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1aa2de9797df82447f84f9b32da749515b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Hapgood T5: Earth-fixed to centred-dipole geomagnetic. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a2a2d74a11ce9671d81f4ce1eb8e1927c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">geo_to_gse</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2a2d74a11ce9671d81f4ce1eb8e1927c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>T2·T1ᵀ</code>, precomputed: the ephemeris frame to solar-ecliptic. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a2e2a6cbc831f2f914f0beb4c5a6724d2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">geo_to_gsm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2e2a6cbc831f2f914f0beb4c5a6724d2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>T3·T2·T1ᵀ</code>, precomputed: the ephemeris frame to the frame every external field model is defined in. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Rotations_1a6ad5052461aa0ee16591e837587127b9">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::mat3d</span> <span class="mname">geo_to_sm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a6ad5052461aa0ee16591e837587127b9" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>T4·T3·T2·T1ᵀ</code>, precomputed: the ephemeris frame to the frame drift shells are traced in. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a73a6fc8dfca814df892c3eedac5b1b89">at</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2c3faf9704696635b601fe29a4a22366">jd_ut1</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a1071cf4abb44b7bf98d3519c06a00e17">gmst_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1ad0f28bab41fc1806558dd9aefdb33e53">sun_ecliptic_longitude_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a041f1090ecbc82362542713615caa960">obliquity_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a5ae4d66b1a316cb1d8add6e50c4e6956">dipole_tilt_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1ad68cd98b16e07b14530a5afbd71feed6">gsm_dipole_angle_deg</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1ac806611e6a85bfc801c73d8a52c6e011">dipole_geo</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a708de7c487a0f38b7a988e36cd5dbf48">dipole_gse</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17c785b59bbf5395bb544637de2c0a05">gei_to_geo</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a790ec9a95e5c5cd655589f26b64d101c">gei_to_gse</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a17df920fb5c787e8d12cd6652d80d1e6">gse_to_gsm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a5b6815c14730ca63378c6a0796a07838">gsm_to_sm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1aa2de9797df82447f84f9b32da749515b">geo_to_mag</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2a2d74a11ce9671d81f4ce1eb8e1927c">geo_to_gse</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a2e2a6cbc831f2f914f0beb4c5a6724d2">geo_to_gsm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Rotations_1a6ad5052461aa0ee16591e837587127b9">geo_to_sm</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::DriftShell — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1DriftShell">
+<meta name="description" content="Everything one L* evaluation produces.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::DriftShell</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">Everything one L* evaluation produces. </p>
+</div>
+<div class="overview"><p>Fixed size, trivially copyable — the drift shell itself is not returned, because a caller computing an ephemeris wants six scalars per point and not <code>Nder × steps</code> positions.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a3eed3de0625e556d5ecb36cfe03b1456">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">lstar</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a3eed3de0625e556d5ecb36cfe03b1456" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Roederer&#x27;s L*, Earth radii. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1ac3c5daaad1174b0e6b8c7c857a57060f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">phi</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1ac3c5daaad1174b0e6b8c7c857a57060f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The third invariant <code>Φ</code>, nT·Re²; always positive. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a8f3447005b4bf97ad6443f1d2261ea7c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">lm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a8f3447005b4bf97ad6443f1d2261ea7c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">McIlwain&#x27;s L of the starting line, Earth radii. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1ad32eb2496a98025fb98d68e8ae554e87">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">invariant_i</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1ad32eb2496a98025fb98d68e8ae554e87" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>I</code> of the starting line, Earth radii — IRBEM&#x27;s <code>XJ</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a224077c292c5e94af02de9c9021f89d1">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">b_mirror</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a224077c292c5e94af02de9c9021f89d1" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The mirror field the shell conserves, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a29c35059ea8b94210d57a2ff840d350a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">b_min</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a29c35059ea8b94210d57a2ff840d350a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>B_min</code> on the starting line, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a128b39410ffeb4bbf63212fa9ac5b6da">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">b_local</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a128b39410ffeb4bbf63212fa9ac5b6da" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>|B|</code> at the starting point, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a40e11b27e0c9af3f2b25d03b784dde20">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">azimuths</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a40e11b27e0c9af3f2b25d03b784dde20" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">How many azimuths converged; equals <code><a href="structcheatah_1_1space_1_1irbem_1_1DriftShellOptions.html#structcheatah_1_1space_1_1irbem_1_1DriftShellOptions_1ad0909259c16f1d988133703b67d2fbe1">DriftShellOptions::azimuths</a></code> when the status is Status::Ok. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1DriftShell_1a21b40842b78d15e925cf6e0bad2aaa7e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">int</span> <span class="mname">traces</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a21b40842b78d15e925cf6e0bad2aaa7e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Field lines traced for this point — the cost, reported rather than assumed. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a3eed3de0625e556d5ecb36cfe03b1456">lstar</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1ac3c5daaad1174b0e6b8c7c857a57060f">phi</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a8f3447005b4bf97ad6443f1d2261ea7c">lm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1ad32eb2496a98025fb98d68e8ae554e87">invariant_i</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a224077c292c5e94af02de9c9021f89d1">b_mirror</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a29c35059ea8b94210d57a2ff840d350a">b_min</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a128b39410ffeb4bbf63212fa9ac5b6da">b_local</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a40e11b27e0c9af3f2b25d03b784dde20">azimuths</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1DriftShell_1a21b40842b78d15e925cf6e0bad2aaa7e">traces</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

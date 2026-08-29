@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::api::MagneticCoordinates — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates">
+<meta name="description" content="The six per-point outputs of IRBEM&#x27;s MAKE_LSTAR , in one record.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::api::MagneticCoordinates</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The six per-point outputs of IRBEM&#x27;s <code>MAKE_LSTAR</code>, in one record. </p>
+</div>
+<div class="overview"><p>IRBEM returns them as six parallel arrays. They are one array of records here because the six are computed together from one drift shell, and six spans a caller has to keep in step is six chances to hand one of them the wrong length.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1aa4dc1e564e2f492d7e74c70951d29730">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">lm</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1aa4dc1e564e2f492d7e74c70951d29730" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">McIlwain&#x27;s L, Earth radii — IRBEM&#x27;s <code>Lm</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a48dc3ac1ce40e0484e5c04bb8549d346">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">lstar</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a48dc3ac1ce40e0484e5c04bb8549d346" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Roederer&#x27;s L*, Earth radii — IRBEM&#x27;s <code>Lstar</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a4ddba0d0c5d8b3a75ae39effb98db933">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">blocal</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a4ddba0d0c5d8b3a75ae39effb98db933" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>|B|</code> at the point, nT — IRBEM&#x27;s <code>Blocal</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a74ee160990963b08f9b9f64f1d426dc3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bmin</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a74ee160990963b08f9b9f64f1d426dc3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The minimum <code>|B|</code> on the field line, nT — IRBEM&#x27;s <code>Bmin</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1ac34ea1cea90c1fa7ed3ad929a001f3f7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">xj</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1ac34ea1cea90c1fa7ed3ad929a001f3f7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The second invariant <code>I</code>, Earth radii — IRBEM&#x27;s <code>XJ</code>. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1ad91eb360bcf0a6b851a0d4636326088a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">mlt</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1ad91eb360bcf0a6b851a0d4636326088a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Magnetic local time, hours — IRBEM&#x27;s <code>MLT</code>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1aa4dc1e564e2f492d7e74c70951d29730">lm</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a48dc3ac1ce40e0484e5c04bb8549d346">lstar</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a4ddba0d0c5d8b3a75ae39effb98db933">blocal</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1a74ee160990963b08f9b9f64f1d426dc3">bmin</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1ac34ea1cea90c1fa7ed3ad929a001f3f7">xj</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1ad91eb360bcf0a6b851a0d4636326088a">mlt</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1api_1_1MagneticCoordinates_1aeed15963c84af4264ca0341b5c1d0b1c">operator==</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

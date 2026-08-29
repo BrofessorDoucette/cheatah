@@ -61,7 +61,7 @@ fn extension_desc(name) {
     if name == "cheatah-gpu" { return "GPU arrays and compute kernels" }
     elif name == "cheatah-gpu-linalg" { return "GPU linear algebra (the linalg device backend)" }
     elif name == "cheatah-plot" { return "Plotting and charting" }
-    elif name == "cheatah-space" { return "Astronomy and spatial math" }
+    elif name == "cheatah-space" { return "Astronomy, space physics and radiation belts" }
     else { return "(unregistered extension)" }
 }
 

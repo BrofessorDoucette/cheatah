@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::TotalFieldMead — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/classcheatah_1_1space_1_1irbem_1_1TotalFieldMead">
+<meta name="description" content="IGRF plus Mead &amp; Fairfield (1975), as a single field.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>space::irbem::TotalFieldMead</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">IGRF plus Mead &amp; Fairfield (1975), as a single field. </p>
+</div>
+<div class="overview"><p>The same shape as <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT89.html">TotalFieldT89</a>, for the same reason: a particle experiences one field, and <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a60e4f17652ac023d7866dbdd97ae88ca">trace_invariant</a> and <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a913a9916e438c9ccab2d732dea1aa141">make_lstar</a> follow whatever satisfies <a href="conceptcheatah_1_1space_1_1irbem_1_1GeoFieldModel.html">GeoFieldModel</a> without knowing there are two of them. IGRF is defined in GEO and the external model in GSM; the rotation between them depends only on the epoch and is built once in <a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a>.</p><p>There is no device trace lane for this model — traces through it run on the host through the generic <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a60e4f17652ac023d7866dbdd97ae88ca">trace_invariant</a>, which is where a model this cheap belongs: the external term adds ~50 flops to each of ~600 IGRF evaluations of a trace, so a dedicated kernel would buy almost nothing over <code>irbem_trace_i_f32</code>&#x27;s measured curve.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>NMAX</code></td><td class="pdesc"><p>the internal field&#x27;s truncation degree. 10 reproduces IRBEM&#x27;s own choice.</p></td></tr></table></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1aadfd3f4c96227775e396ce72dfe541fd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">constexpr</span> <span class="mname">TotalFieldMead</span>(const Igrf&lt; NMAX &gt; &amp;internal, const Rotations &amp;rotations, double kp_times_ten)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1aadfd3f4c96227775e396ce72dfe541fd" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>internal</code></td><td class="pdesc"><p>the internal field, already built for the epoch.</p></td></tr><tr><td class="pname"><code>rotations</code></td><td class="pdesc"><p>the epoch&#x27;s frame rotations — built once, reused for every point.</p></td></tr><tr><td class="pname"><code>kp_times_ten</code></td><td class="pdesc"><p>Kp in IRBEM&#x27;s slot-1 scaling (Kp x 10, nominally 0..90). Binned by mead_kp_bin: values inside one group give identical fields by construction.</p></td></tr></table></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1) — three pointers and a double.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1abbc1de0ad1e4075e385ae638ee2fb66a">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1FieldVector.html">FieldVector</a>&lt; Frame::GEO &gt;</span> <span class="mname">evaluate</span>(const Position&lt; Frame::GEO &gt; &amp;p) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1abbc1de0ad1e4075e385ae638ee2fb66a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The total field at a geographic point. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the position, GEO, Earth radii.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>B_internal + B_external</code>, in GEO, nT. When the external model refuses the point — a non-finite input or a point inside the Earth — the INTERNAL field is returned alone rather than a zero or a NaN, exactly as <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT89.html">TotalFieldT89</a> does; an out-of-validity external field is still added, because extrapolating the fit is the caller&#x27;s decision and <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead.html#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ad05de85ff9665b83145011a0c70df443">external_status</a> is how they learn it was made.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>One IGRF evaluation, one Mead-Fairfield evaluation, two 3x3 rotations.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ad05de85ff9665b83145011a0c70df443">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a29f72b5b68b1df97b112a67d28f6ccfa">Status</a></span> <span class="mname">external_status</span>(const Position&lt; Frame::GEO &gt; &amp;p) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ad05de85ff9665b83145011a0c70df443" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Whether the external model answered at <code>p</code>, and if not, why. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the position, GEO, Earth radii.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the external model&#x27;s status; Status::Ok when it contributed without caveat.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>One Mead-Fairfield evaluation and one rotation.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldReportsWhenTheExternalModelDeclines</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a90ea9a413f61ebcd99786b5192b85ea7">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">kp_times_ten</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a90ea9a413f61ebcd99786b5192b85ea7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The activity level this field was built for, in IRBEM&#x27;s Kp x 10 scaling. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the value passed to the constructor.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ae0471eb35c5e436ce29ce953cc1cd263">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a> &amp;</span> <span class="mname">rotations</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ae0471eb35c5e436ce29ce953cc1cd263" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The epoch&#x27;s frame rotations. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the rotations this field was built with.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ac087330cafdea163f0f6d3810a167e7d">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">g</span>(int n, int m) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ac087330cafdea163f0f6d3810a167e7d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal part&#x27;s Gauss coefficient <code><span class="tok-fn">g</span>(n, m)</code>, in nT — the INTERNAL field&#x27;s, because a superposition with a non-potential external term has no expansion of its own; see <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldT89.html#classcheatah_1_1space_1_1irbem_1_1TotalFieldT89_1a4ba3bafcf8f1080f724219d82ed837fc">TotalFieldT89::g</a> for the full argument. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the degree.</p></td></tr><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the order.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the internal part&#x27;s coefficient.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a32feb11fe6fa39ea75eb0f10f8aa61aa">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">h</span>(int n, int m) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a32feb11fe6fa39ea75eb0f10f8aa61aa" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal part&#x27;s <code><span class="tok-fn">h</span>(n, m)</code>, in nT — see <a href="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead.html#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ac087330cafdea163f0f6d3810a167e7d">g</a> for why this forwards. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the degree.</p></td></tr><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the order.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the internal part&#x27;s coefficient.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1aa9ea576680610cd13d68966d95ad0b08">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">const <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&lt; NMAX &gt; &amp;</span> <span class="mname">internal</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1aa9ea576680610cd13d68966d95ad0b08" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal field alone — what <code><a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a107b4c5eda53495c2cd63507a024df9f">dipole_moment</a></code> and any staging need. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the internal model.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemMead</span>.<span class="tn-case">TotalFieldSuperposesInternalAndExternal</span></code></span></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a40ab8509656ff64d842ee7784b42696d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">int</span> <span class="mname">degree</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a40ab8509656ff64d842ee7784b42696d" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The internal part&#x27;s truncation degree — what generic staging and buffer sizing read. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a0420460f736f9108208480c548bce8b0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">const <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html">Igrf</a>&lt; NMAX &gt; *</span> <span class="mname">internal_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a0420460f736f9108208480c548bce8b0" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a539ef54aa670296c982363eeb5e269e5">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">const <a href="structcheatah_1_1space_1_1irbem_1_1Rotations.html">Rotations</a> *</span> <span class="mname">rotations_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a539ef54aa670296c982363eeb5e269e5" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a041880e3cee05a9387346266a5e5fc04">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">kp_times_ten_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a041880e3cee05a9387346266a5e5fc04" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1aadfd3f4c96227775e396ce72dfe541fd">TotalFieldMead</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1abbc1de0ad1e4075e385ae638ee2fb66a">evaluate</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ad05de85ff9665b83145011a0c70df443">external_status</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a90ea9a413f61ebcd99786b5192b85ea7">kp_times_ten</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ae0471eb35c5e436ce29ce953cc1cd263">rotations</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1ac087330cafdea163f0f6d3810a167e7d">g</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a32feb11fe6fa39ea75eb0f10f8aa61aa">h</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1aa9ea576680610cd13d68966d95ad0b08">internal</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a40ab8509656ff64d842ee7784b42696d">degree</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a0420460f736f9108208480c548bce8b0">internal_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a539ef54aa670296c982363eeb5e269e5">rotations_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1TotalFieldMead_1a041880e3cee05a9387346266a5e5fc04">kp_times_ten_</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

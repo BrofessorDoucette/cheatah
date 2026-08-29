@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::Om97Normalization — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1Om97Normalization">
+<meta name="description" content="The means and dispersions that turn a raw driver into the paper&#x27;s normalized parameter, A~ = (A - &lt;A&gt;) / sigma_A — eq.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::Om97Normalization</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The means and dispersions that turn a raw driver into the paper&#x27;s normalized parameter, <code>A~ = (A - &lt;A&gt;) / sigma_A</code> — eq. </p>
+</div>
+<div class="overview"><p>(3), with the four rows of Table 2.</p><p>A struct rather than two arrays so that a caller who wants a different set — see <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a0947f392df2cc17745288016d199883f">om97_normalization_measured</a> — passes one object and cannot pair a mean with the wrong dispersion. Kp here is the paper&#x27;s <strong>numeric</strong> Kp (<code><span class="tok-num">0</span>..<span class="tok-num">9</span></code>, with <code><span class="tok-num">3</span>-</code> as 2.7), not the <code>Kp x <span class="tok-num">10</span></code> of IRBEM&#x27;s driver vector; the entry points do that division.</p><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemOm97</span>.<span class="tn-case">PublishedNormalizationIsTable2</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1adb0f0c6b9839ad143dd1aa20deb0e73b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst_mean</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1adb0f0c6b9839ad143dd1aa20deb0e73b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>&lt;Dst&gt;</code>, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a8317a47424617e0e3209ba49fc8b9aa3">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">dst_sigma</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a8317a47424617e0e3209ba49fc8b9aa3" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>sigma_Dst</code>, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a0bdc757a8e6b4c6f313b0886e0e62a61">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pdyn_mean</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a0bdc757a8e6b4c6f313b0886e0e62a61" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>&lt;p&gt;</code>, the solar wind dynamic pressure mean, nPa. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1aacb8b320d9d5ee0eb05557342f959bac">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">pdyn_sigma</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1aacb8b320d9d5ee0eb05557342f959bac" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>sigma_p</code>, nPa. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a88e78f8ae3005e179db0cee5c6ccfe4e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">kp_mean</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a88e78f8ae3005e179db0cee5c6ccfe4e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>&lt;Kp&gt;</code>, numeric. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1ada760d46451b12d73666c86b46fa9421">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">kp_sigma</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1ada760d46451b12d73666c86b46fa9421" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>sigma_Kp</code>, numeric. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a90d99bbbe6a4c6f4fc22c3c8a5c371cc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bz_mean</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a90d99bbbe6a4c6f4fc22c3c8a5c371cc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>&lt;IMF Bz&gt;</code>, nT. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1ae1feb2f7e34f15d2aa93b6a2cd262757">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">bz_sigma</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1ae1feb2f7e34f15d2aa93b6a2cd262757" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>sigma_Bz</code>, nT. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1adb0f0c6b9839ad143dd1aa20deb0e73b">dst_mean</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a8317a47424617e0e3209ba49fc8b9aa3">dst_sigma</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a0bdc757a8e6b4c6f313b0886e0e62a61">pdyn_mean</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1aacb8b320d9d5ee0eb05557342f959bac">pdyn_sigma</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a88e78f8ae3005e179db0cee5c6ccfe4e">kp_mean</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1ada760d46451b12d73666c86b46fa9421">kp_sigma</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1a90d99bbbe6a4c6f4fc22c3c8a5c371cc">bz_mean</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1Om97Normalization_1ae1feb2f7e34f15d2aa93b6a2cd262757">bz_sigma</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

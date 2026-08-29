@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::GradCurvCurl — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1GradCurvCurl">
+<meta name="description" content="The guiding-centre geometry that follows from BDerivatives — IRBEM&#x27;s COMPUTE_GRAD_CURV_CURL outputs, typed.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::GradCurvCurl</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The guiding-centre geometry that follows from <a href="structcheatah_1_1space_1_1irbem_1_1BDerivatives.html">BDerivatives</a> — IRBEM&#x27;s <code>COMPUTE_GRAD_CURV_CURL</code> outputs, typed. </p>
+</div>
+<div class="overview"><p>Every member is a <em>geometric factor</em>, not a velocity: the gradient drift of a particle is <code>(m v⊥²/2qB)·grad_drift</code> and the curvature drift is <code>(m v∥²/qB)·curv_drift</code> (Northrop 1963, §1.3). The <code><span class="tok-num">1</span>/B</code> is not decoration — <code><a href="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl.html#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4ab7f7825fbd927425bbdf2f752663f6">grad_drift</a></code> and <code><a href="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl.html#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a11fe8234c5a032ccbc2b99424d602bfc">curv_drift</a></code> are both <code><span class="tok-num">1</span>/Re</code>, so an energy-over-charge multiplier alone does not make a velocity; it takes <code>m v²/(qB)</code>, which is <code>V/T</code>, i.e. m²/s, over a length. Separating the geometry from the particle is what lets one field evaluation serve every energy and pitch angle at that point, which is exactly the shape a radiation-belt calculation has.</p></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1ad04db38669a7a532375aa205131b3172">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">grad_par</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1ad04db38669a7a532375aa205131b3172" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>∇|B| · B̂</code>, nT/Re — the field&#x27;s rate of change ALONG itself. </p>
+  <div class="member-body"><p>Its sign is the magnetic hemisphere (see <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1ae41ffb62ecd73e5db2b3929fccc97c80">hemisphere</a>) and its zero is the magnetic equator.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a86cc5fb1601919fb174723fa7d2a25dc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">grad_perp</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a86cc5fb1601919fb174723fa7d2a25dc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>∇|B| − grad_par·B̂</code>, nT/Re — the part of the gradient that drives drift. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4ab7f7825fbd927425bbdf2f752663f6">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">grad_drift</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4ab7f7825fbd927425bbdf2f752663f6" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>(B̂ × <a href="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl.html#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a86cc5fb1601919fb174723fa7d2a25dc">grad_perp</a>)/|B|</code>, 1/Re — the geometric factor of the gradient drift. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a60663f71d86c3cf465c7462c16ebcbb8">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">curvature</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a60663f71d86c3cf465c7462c16ebcbb8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>(B̂·∇)B̂</code>, 1/Re — the field-line curvature vector, pointing toward the centre of curvature. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4908ea03447cb3164a1be99d53ae1e10">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">r_curv</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4908ea03447cb3164a1be99d53ae1e10" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><span class="tok-num">1</span>/|curvature|</code>, Re — the radius of curvature; infinite for a straight field line. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a11fe8234c5a032ccbc2b99424d602bfc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">curv_drift</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a11fe8234c5a032ccbc2b99424d602bfc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>B̂ × <a href="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl.html#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a60663f71d86c3cf465c7462c16ebcbb8">curvature</a></code>, 1/Re — the geometric factor of the curvature drift. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a90613425af60cddea1c1114662cf9018">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">fixarray::vec3d</span> <span class="mname">curl_b</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a90613425af60cddea1c1114662cf9018" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>∇ × B</code>, nT/Re — proportional to the local current density through Ampère&#x27;s law, and zero wherever the field is a pure potential field. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1ada42330a3905f0d5c676e899194bdef8">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">div_b</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1ada42330a3905f0d5c676e899194bdef8" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>∇ · B</code>, nT/Re — zero by Maxwell, so a nonzero value measures the differencing error and nothing else. </p>
+  <div class="member-body"><p>That makes it the free residual diagnostic this struct carries.</p></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1ad04db38669a7a532375aa205131b3172">grad_par</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a86cc5fb1601919fb174723fa7d2a25dc">grad_perp</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4ab7f7825fbd927425bbdf2f752663f6">grad_drift</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a60663f71d86c3cf465c7462c16ebcbb8">curvature</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a4908ea03447cb3164a1be99d53ae1e10">r_curv</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a11fe8234c5a032ccbc2b99424d602bfc">curv_drift</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1a90613425af60cddea1c1114662cf9018">curl_b</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1GradCurvCurl_1ada42330a3905f0d5c676e899194bdef8">div_b</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

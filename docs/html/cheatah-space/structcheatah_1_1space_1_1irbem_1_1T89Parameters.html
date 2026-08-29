@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::T89Parameters — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/structcheatah_1_1space_1_1irbem_1_1T89Parameters">
+<meta name="description" content="One Kp bin&#x27;s fitted parameters — Tsyganenko (1989) Table 1, one column.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Struct</div>
+  <h1><code>space::irbem::T89Parameters</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">One Kp bin&#x27;s fitted parameters — Tsyganenko (1989) Table 1, one column. </p>
+</div>
+<div class="overview"><p>Templated on the scalar type for one reason and it is not generality: the device kernel receives these as <code>float</code>, so the host lane that the kernel is verified against must round them to <code>float</code> FIRST and then evaluate, or the two lanes are not running the same arithmetic and a disagreement cannot be attributed. <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a165676c55ec675f4bad85f7790975a65">t89_parameters</a> is the converter, and the fp64 and fp32 instantiations are the only two that exist.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>T</code></td><td class="pdesc"><p>the scalar type; <code>double</code> for the reference lane, <code>float</code> for the device-mirroring one.</p></td></tr></table></div><div class="tag tag-test"><span class="tag-k">Unit test</span><span class="tag-v"><code><span class="tn-suite">IrbemT89</span>.<span class="tn-case">PublishedCoefficientsAreDivergenceFree</span></code></span></div></div>
+
+<h2 class="group">Constants & variables</h2><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a601b7d438eb435cf31ff48628e42c84e">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; T, <a href="namespacecheatah_1_1space_1_1irbem.html#namespacecheatah_1_1space_1_1irbem_1a6abe826e0c6a7e0683f5e57f9569ea01">t89_linear_count</a> &gt;</span> <span class="mname">c</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a601b7d438eb435cf31ff48628e42c84e" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The nineteen linear coefficients, zero-based: element k is the paper&#x27;s C(k+1), so element zero is C_1. </p>
+  <div class="member-body"><p>C_1 and C_2 weight the two tail potentials; C_3 and C_4 the symmetric and tilt-antisymmetric closure currents; C_5 the ring current; the remaining fourteen are the eq. (20) expansion. Units are whatever makes the field come out in nT with positions in Earth radii, which is the paper&#x27;s convention throughout.</p></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1af68e0e763e7de70d28db8a431c6cb491">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">delta_x</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1af68e0e763e7de70d28db8a431c6cb491" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>dx</code>, R_E — the e-folding length of eq. (20)&#x27;s radial envelope. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a885c6a4b83a5b4328c1bf395690c6b81">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">a_rc</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a885c6a4b83a5b4328c1bf395690c6b81" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_RC</code>, R_E — the ring current&#x27;s radial scale length; the radius of its density maximum. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1ad85ae346f80f2b5648c1d64aeff050f2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">d_0</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1ad85ae346f80f2b5648c1d64aeff050f2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>D_0</code>, R_E — the current sheet half-thickness in the central magnetotail. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a37deaccb0f5d1a7076f310a38c13a167">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">gamma_rc</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a37deaccb0f5d1a7076f310a38c13a167" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>gamma_RC</code>, R_E — the ring-current sheet&#x27;s dayside-to-nightside thickness increment. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a8f5f61b0ef9879013012941b4cee37ef">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">r_c</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a8f5f61b0ef9879013012941b4cee37ef" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>R_c</code>, R_E — the &quot;hinging distance&quot;: how far out the sheet leaves the dipole equator. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a50af5d57e365fb3ae9e95f509b8d3615">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">g</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a50af5d57e365fb3ae9e95f509b8d3615" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>G</code>, R_E — the amplitude of the sheet&#x27;s transverse (dawn-dusk) bending. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a948cc3937b6dc768710c85ff13cbacdd">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">a_t</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a948cc3937b6dc768710c85ff13cbacdd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>a_T</code>, R_E — the tail current&#x27;s radial scale length. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a1d999b7b2e51324f91c5537db9353acc">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">d_y</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a1d999b7b2e51324f91c5537db9353acc" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code>D_y</code>, R_E — the dawn-dusk scale over which the truncation factor <code>W</code> falls off. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a34e9292f6b77728d1958a1e7dd287d5b">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">T</span> <span class="mname">x_0</span></code>
+    <span class="member-actions"><a class="anchor" href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a34e9292f6b77728d1958a1e7dd287d5b" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><a href="structcheatah_1_1space_1_1irbem_1_1T89Parameters.html#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a34e9292f6b77728d1958a1e7dd287d5b">x_0</a></code>, R_E — where along the Sun-Earth line <code>W</code> makes its transition. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a601b7d438eb435cf31ff48628e42c84e">c</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1af68e0e763e7de70d28db8a431c6cb491">delta_x</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a885c6a4b83a5b4328c1bf395690c6b81">a_rc</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1ad85ae346f80f2b5648c1d64aeff050f2">d_0</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a37deaccb0f5d1a7076f310a38c13a167">gamma_rc</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a8f5f61b0ef9879013012941b4cee37ef">r_c</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a50af5d57e365fb3ae9e95f509b8d3615">g</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a948cc3937b6dc768710c85ff13cbacdd">a_t</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a1d999b7b2e51324f91c5537db9353acc">d_y</a></li><li><a href="#structcheatah_1_1space_1_1irbem_1_1T89Parameters_1a34e9292f6b77728d1958a1e7dd287d5b">x_0</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

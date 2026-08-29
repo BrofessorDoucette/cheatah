@@ -121,6 +121,8 @@ struct Gen {
     bench_key: dict<str, str>      # module short -> its BENCHMARKS.md page's refid (the benchmark subpage)
     bench_node: dict<str, int>     # module short -> that page's detaileddescription node id
     bench_title: dict<str, str>    # module short -> that page's Doxygen title ("regex benchmarks")
+    bench_ext: dict<str, str>      # module short -> the extension owning it ("" / absent = stdlib)
+    ext_ns: dict<str, str>         # extension namespace short -> its refid (the bench back-link)
     page_href: dict<str, str>      # page refid -> output file, when it is not <refid>.html
     missing_tests: dict<str, bool> # @test names no test source defines (reported at the end)
     page_by_file: dict<str, str>   # repo-relative markdown path -> its Doxygen page refid
@@ -1983,12 +1985,15 @@ fn sect_toc(doc, id) {
 # module's, and linking back to it. The sidebar keeps the MODULE active (see main).
 fn render_bench_page(g, mod, sidebar) {
     let refid = g.bench_key[mod]
-    let bdoc = doc_of("docs/xml", refid)
+    let xdir = "docs/xml"
+    if mod in g.bench_ext { xdir = "docs/xml-ext/" + g.bench_ext[mod] }
+    let bdoc = doc_of(xdir, refid)
     g.cur_module = mod
     let title = g.bench_title[mod]
     if title == "" { title = mod + " benchmarks" }
     let back = "index.html"
     if mod in g.modules { back = g.modules[mod] + ".html" }
+    if mod in g.ext_ns { back = g.ext_ns[mod] + ".html" }
     let body = render_desc(g, bdoc, g.bench_node[mod])
     let lede = "<p class=\"lede\">The generated measurement tables for the <a href=\"" + back + "\"><code>" + esc(mod) + "</code> module</a> — every case, the harness that measured it, and how to reproduce it.</p>"
     let content = "<div class=\"page-head\">\n" + "  <div class=\"eyebrow\">Benchmarks</div>\n" + "  <h1>" + esc(title) + "</h1>\n" + "  " + lede + "\n" + "</div>\n" + "<div class=\"overview\">" + body + "</div>\n" + "<p class=\"bench-back\"><a href=\"" + back + "\">Back to the <code>" + esc(mod) + "</code> reference</a></p>"
@@ -2665,6 +2670,27 @@ fn md_module_of(path, leaf) {
     return ""
 }
 
+# The extension form of md_module_of. An extension's markdown lives at <pkg>/<mod>/<leaf>
+# (`space/irbem/BENCHMARKS.md`), and the site knows that module as `pkg::mod` — which is exactly
+# the `short` of the namespace compound, so the returned key drops straight into g.bench_key and
+# the module page's existing benchmark admonition links to it with no further wiring.
+fn ext_md_module_of(path, leaf) {
+    if not string.endswith(path, leaf) { return "" }
+    let segs = string.split(path, "/")
+    if len(segs) < 3 { return "" }
+    let mod = segs[len(segs) - 2]
+    let pkg = segs[len(segs) - 3]
+    for seg in [pkg, mod] {
+        if seg == "" { return "" }
+        let i = 0
+        while i < len(seg) {
+            if not is_word_b(byte_at(seg, i)) { return "" }
+            i = i + 1
+        }
+    }
+    return pkg + "::" + mod
+}
+
 fn is_internal_namespace(nsname) {
     for seg in string.split(nsname, "::") {
         if seg == "detail" { return true }
@@ -2777,12 +2803,28 @@ fn load_ext_tree(g, extname) {
     let idx_root = parsers.xml.find(idx, parsers.xml.root(idx), "doxygenindex")
     for c in parsers.xml.findall(idx, idx_root, "compound") {
         let kind = parsers.xml.attr(idx, c, "kind")
-        if kind != "namespace" and kind != "class" and kind != "struct" and kind != "concept" { continue }
+        if kind != "namespace" and kind != "class" and kind != "struct" and kind != "concept" and kind != "page" { continue }
         let refid = parsers.xml.attr(idx, c, "refid")
         let cdoc = parsers.xml.parse(io.read_file(xdir + "/" + refid + ".xml"))
         let dox = parsers.xml.find(cdoc, parsers.xml.root(cdoc), "doxygen")
         let cdef = parsers.xml.find(cdoc, dox, "compounddef")
         if cdef < 0 { continue }
+        # An extension's BENCHMARKS.md becomes that module's benchmark subpage inside the
+        # subsite, exactly as a stdlib module's does. Every other page is skipped: an
+        # extension's README is written for a GitHub reader and duplicates its module page.
+        if kind == "page" {
+            let loc = parsers.xml.find(cdoc, cdef, "location")
+            let lfile = ""
+            if loc >= 0 { lfile = parsers.xml.attr(cdoc, loc, "file") }
+            let bmod = ext_md_module_of(lfile, "/BENCHMARKS.md")
+            if bmod != "" {
+                g.bench_key[bmod] = refid
+                g.bench_node[bmod] = parsers.xml.find(cdoc, cdef, "detaileddescription")
+                g.bench_title[bmod] = text_of_child(cdoc, cdef, "title")
+                g.bench_ext[bmod] = extname
+            }
+            continue
+        }
         let cname = text_of_child(cdoc, cdef, "compoundname")
         if cname == "" { cname = text_of_child(idx, c, "name") }
         if cname == "" { cname = refid }
@@ -2814,6 +2856,7 @@ fn load_ext_tree(g, extname) {
         # an empty namespace (e.g. the bare `cheatah` container) has no page;
         # classes/structs/concepts keep theirs even when memberless
         if kind == "namespace" and len(comp.members) == 0 { continue }
+        if kind == "namespace" { g.ext_ns[comp.short] = refid }
         g.comps.append(comp)
         g.valid[refid] = true
     }
@@ -3255,6 +3298,8 @@ fn main() {
     let bench_mods: list<str> = []
     for kv in g.bench_key { bench_mods.append(kv.first) }
     for mod in sorted_strs(bench_mods) {
+        # an extension's benchmark page belongs to its subsite, written in the loop below
+        if mod in g.bench_ext { continue }
         let fname = bench_page_name(mod)
         let active = fname
         if mod in g.modules { active = g.modules[mod] + ".html" }
@@ -3276,6 +3321,17 @@ fn main() {
                    with_seo(mark_active(render_ext_releases(g, extname, esb), "releases.html"), g, extname + "/releases.html",
                             extname + " release history: every published version, what changed, and the Biome Standard it targets.", false))
         pages = pages + 2
+        for mod in sorted_strs(bench_mods) {
+            if not (mod in g.bench_ext) { continue }
+            if g.bench_ext[mod] != extname { continue }
+            let bfname = bench_page_name(mod)
+            let bactive = bfname
+            if mod in g.ext_ns { bactive = g.ext_ns[mod] + ".html" }
+            write_file("docs/html/" + extname + "/" + bfname,
+                       with_seo(mark_active(render_bench_page(g, mod, esb), bactive), g, extname + "/" + bfname,
+                                mod + " benchmarks — the generated measurement tables for the " + mod + " module: every case, the harness that measured it, and how to reproduce it.", false))
+            pages = pages + 1
+        }
         ci = 0
         while ci < len(g.comps) {
             let c = g.comps[ci]

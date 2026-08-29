@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::irbem::Igrf — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/classcheatah_1_1space_1_1irbem_1_1Igrf">
+<meta name="description" content="The IGRF internal geomagnetic field at one instant, ready to evaluate.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>space::irbem::Igrf</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The IGRF internal geomagnetic field at one instant, ready to evaluate. </p>
+</div>
+<div class="overview"><p>The date is bound once, at construction, by <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a> — which is where the two things that <em>can</em> fail live: an out-of-range year, and the choice between interpolating between tabulated epochs and extrapolating with the published secular variation. <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a559554ac9ec5f898dd8de283c9d00955">evaluate</a> is therefore total, branch-free and allocation-free, and an ephemeris of a million points pays the coefficient interpolation once instead of a million times. <code><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a></code> is <code><span class="tok-kw">constexpr</span></code>, so a model for a fixed epoch costs nothing at run time at all.</p><div class="params"><div class="params-h">Template parameters</div><table class="params-t"><tr><td class="pname"><code>NMAX</code></td><td class="pdesc"><p>the truncation degree, <code><span class="tok-num">1</span>..<span class="tok-num">13</span></code>. 13 is IGRF-14 in full; 10 is what IRBEM uses internally. See the file-level note on degree.</p></td></tr><tr><td class="pname"><code>P</code></td><td class="pdesc"><p>the precision policy (<a href="conceptcheatah_1_1space_1_1irbem_1_1SoundPrecision.html">SoundPrecision</a>). <code>P::integrand</code> is what the Legendre and longitude recursions are carried in; <code>P::accum</code> — which the concept pins to <code>double</code> — is what the ~200 harmonic terms are summed in. That split is exactly the one <code>docs/ERROR_BUDGET.md</code> §3 argues for: one fp32 evaluation costs ~6e-8 and is free against the discretization floor, but a naive fp32 sum of 10³ terms costs ~1.2e-4 and lands <em>on</em> it. Roundoff in an evaluation does not grow with the size of the problem; roundoff in a reduction does.</p></td></tr></table></div></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">std::optional&lt; Igrf &gt;</span> <span class="mname">at</span>(double decimal_year)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The model at a decimal year. </p>
+  <div class="member-body"><p>Between tabulated epochs the coefficients are linear in time — the IGRF&#x27;s own defined interpolation, not an approximation to something smoother. From <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac26bdc28c09b64bf0d37610792349800">latest_epoch_year</a> to <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a3c9a81e1a3a769143a50ee5004e98b4f">latest_year</a> they are the last main field plus the published secular variation times the elapsed years. At a tabulated epoch the result is bit-identical to the table.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>decimal_year</code></td><td class="pdesc"><p>the epoch, e.g. <code><span class="tok-num">2007.5</span></code> for mid-2007.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the model, or <code>std::nullopt</code> when <code>decimal_year</code> lies outside <code>[<a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac34f1fbceb217368b1907656de50c72c">earliest_year</a>, <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a3c9a81e1a3a769143a50ee5004e98b4f">latest_year</a>]</code> or is NaN. The empty case is never quietly clamped: a 2035 ephemeris is a question this model cannot answer, and saying so is the answer.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(NMAX²) — one pass over the 105 coefficient slots.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a02a71ecbd7d8b46847ce07026ab49904">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">year</span>() const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a02a71ecbd7d8b46847ce07026ab49904" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The epoch this model was built for. </p>
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the decimal year passed to <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a>.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1afb279e3be9b72cd96fd75c4722456f8c">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0">integrand</a></span> <span class="mname">g</span>(int n, int m) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1afb279e3be9b72cd96fd75c4722456f8c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A time-interpolated <code><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1afb279e3be9b72cd96fd75c4722456f8c">g</a></code> Gauss coefficient. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the degree.</p></td></tr><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the order.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>gⁿₘ</code> in nT, or exactly zero when <code>(n, m)</code> is outside this truncation — the coefficients above <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a427c79cfdcf6e7552a84e17d8f9ce8d7">degree</a>, and every <code>n &lt; <span class="tok-num">1</span></code>, are structurally absent from the model rather than merely unknown.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1ac06478b070582a01d7540f5f90a36170">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0">integrand</a></span> <span class="mname">h</span>(int n, int m) const</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac06478b070582a01d7540f5f90a36170" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">A time-interpolated <code><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac06478b070582a01d7540f5f90a36170">h</a></code> Gauss coefficient. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>n</code></td><td class="pdesc"><p>the degree.</p></td></tr><tr><td class="pname"><code>m</code></td><td class="pdesc"><p>the order.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p><code>hⁿₘ</code> in nT, or exactly zero outside the truncation. <code>hⁿ₀</code> is zero by definition — <code>sin <span class="tok-num">0</span>φ</code> is identically zero, so the coefficient has no meaning.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(1).</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a559554ac9ec5f898dd8de283c9d00955">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mname">evaluate</span> <span class="overload-count">· 2 overloads</span></code>
+  </div>
+  <div class="overload-list"><div class="overload"><code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1FieldVector.html">FieldVector</a>&lt; Frame::GEO &gt;</span> <span class="mname">evaluate</span>(const Position&lt; Frame::GEO &gt; &amp;p) const</code><span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a559554ac9ec5f898dd8de283c9d00955" aria-label="permalink">#</a></span></div><div class="overload" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a918465e2cfed40854b92f55b8f2b5f7f"><code class="sig"><span class="mtype"><a href="structcheatah_1_1space_1_1irbem_1_1FieldVector.html">FieldVector</a>&lt; Frame::GEO &gt;</span> <span class="mname">evaluate</span>(const Position&lt; Frame::SPH &gt; &amp;p) const</code><span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a918465e2cfed40854b92f55b8f2b5f7f" aria-label="permalink">#</a></span></div></div>
+  <p class="member-brief">The internal field at a geocentric Cartesian position — the hot kernel. </p>
+  <div class="member-body"><p>Writing <code>u = z/r</code>, <code>x̂ = x/r</code>, <code>ŷ = y/r</code>, <code>Rₙ = r^-(n+<span class="tok-num">2</span>)</code>, <code>Gⁿₘ = gⁿₘcₘ + hⁿₘsₘ</code>, and summing over the model, T0 = Σ (n+1)Rₙ Gⁿₘ Aⁿₘ            T1 = Σ Rₙ Gⁿₘ A&#x27;ⁿₘ         T2 = Σ m Rₙ Gⁿₘ Aⁿₘ
+U  = Σ m Rₙ Aⁿₘ (gⁿₘcₘ₋₁ + hⁿₘsₘ₋₁)                          V  = Σ m Rₙ Aⁿₘ (hⁿₘcₘ₋₁ - gⁿₘsₘ₋₁)</p><p>the Cartesian field is exactly Bx = x̂(T0 + u·T1 + T2) - U      By = ŷ(T0 + u·T1 + T2) - V      Bz = u·T0 - (1-u²)T1 + u·T2</p><p>The <code><span class="tok-num">1</span>/sin θ</code> of the eastward component and the <code>sinᵐθ</code> of the Legendre functions have both cancelled analytically — <code>cₘcos φ + sₘsin φ = sin θ·cₘ₋₁</code> is the identity that does it — so the pole needs no test and no epsilon. The <code>m = <span class="tok-num">0</span></code> term reads a padded zero slot for <code>cₘ₋₁</code> and is multiplied by <code>m</code>, so it contributes exactly nothing without a branch.</p><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>p</code></td><td class="pdesc"><p>the position, geocentric Cartesian, in units of <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a90b6e187a18f212eb2a4a9f40777487a">reference_radius_km</a>. Inside the Earth is arithmetically fine and physically meaningless — the series diverges below the core; callers that care enforce <code>r &gt;= <span class="tok-num">1</span></code> themselves. <code>r == <span class="tok-num">0</span></code> is the one input with no answer and yields infinities rather than a silent number.</p></td></tr></table></div><div class="ret"><span class="ret-h">Returns</span> <p>the field in nT, in the same geographic frame.</p></div><div class="tag tag-complexity"><span class="tag-k">Complexity</span><span class="tag-v"><p>O(NMAX²) — 105 coefficient slots at degree 13, ~1900 flops, one <code>sqrt</code>, no transcendentals, no branches in the summation.</p></span></div><div class="tag tag-alloc"><span class="tag-k">Allocation</span><span class="tag-v"><p>none — three fixed <code>std::array</code>s on the stack, 2 KiB at degree 13.</p></span></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a418d0e486d737f3e56b5e9ddc7c9ac70">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">constexpr</span> <span class="mname">Igrf</span>()=default</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a418d0e486d737f3e56b5e9ddc7c9ac70" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Only <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a> builds one, because only <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a> can decide whether the date is answerable. </p>
+  <div class="member-body"></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a5ce2cc478afa8dc82545247b38d84c78">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">std::size_t</span> <span class="mname">kSlots</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a5ce2cc478afa8dc82545247b38d84c78" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Flat coefficient slots at this truncation; the packing matches <a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html#namespacecheatah_1_1space_1_1irbem_1_1tables_1a1a31c2dea11b41e265a2bde989be4489">tables::igrf14_g</a>, so truncating the model is a prefix copy rather than a re-index. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1ab05813191da08f953f9fcde10c0aa814">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">auto</span> <span class="mname">kNorm</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ab05813191da08f953f9fcde10c0aa814" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The compile-time normalisation table — 224 square roots that never run. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a427c79cfdcf6e7552a84e17d8f9ce8d7">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">int</span> <span class="mname">degree</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a427c79cfdcf6e7552a84e17d8f9ce8d7" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The truncation degree this instantiation evaluates. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a90b6e187a18f212eb2a4a9f40777487a">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">double</span> <span class="mname">reference_radius_km</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a90b6e187a18f212eb2a4a9f40777487a" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The IGRF reference radius <code>a</code>, in kilometres — and hence the Earth radius that <a href="structcheatah_1_1space_1_1irbem_1_1Position.html">Position</a>&#x27;s Cartesian components are counted in, throughout this module. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1ac34f1fbceb217368b1907656de50c72c">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">double</span> <span class="mname">earliest_year</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac34f1fbceb217368b1907656de50c72c" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The first tabulated epoch. Before this the model is not defined and <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a> reports so. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1ac26bdc28c09b64bf0d37610792349800">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">double</span> <span class="mname">latest_epoch_year</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac26bdc28c09b64bf0d37610792349800" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The last tabulated main-field epoch; beyond it the published secular variation is used. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a3c9a81e1a3a769143a50ee5004e98b4f">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="kw">static</span> <span class="mtype">double</span> <span class="mname">latest_year</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a3c9a81e1a3a769143a50ee5004e98b4f" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The end of the secular-variation prediction. </p>
+  <div class="member-body"><p>Past this the model is not defined; <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a> reports so rather than extrapolating a five-year linear prediction indefinitely.</p></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a9f86c057674cac3c8ccee6909e5a8df2">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0">integrand</a>, kSlots &gt;</span> <span class="mname">g_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a9f86c057674cac3c8ccee6909e5a8df2" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1afb279e3be9b72cd96fd75c4722456f8c">g</a></code> coefficients in nT at year_, triangular packing. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a7f3b95a4beab602ca0b181bfa08498d4">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::array&lt; <a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0">integrand</a>, kSlots &gt;</span> <span class="mname">h_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7f3b95a4beab602ca0b181bfa08498d4" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief"><code><a href="classcheatah_1_1space_1_1irbem_1_1Igrf.html#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac06478b070582a01d7540f5f90a36170">h</a></code> coefficients in nT at year_, triangular packing. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a588aa3a6fa8d5909bdb3ad4d542928ed">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">double</span> <span class="mname">year_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a588aa3a6fa8d5909bdb3ad4d542928ed" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The epoch the coefficients were interpolated to. </p>
+  <div class="member-body"></div>
+</section><h2 class="group">Types</h2><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">typename P::integrand</span> <span class="mname">integrand</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The type the recursions and the stored coefficients are carried in. </p>
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1irbem_1_1Igrf_1a14bcb57780f0378afb295e545b6b8724">
+  <div class="member-head">
+    <span class="badge badge-type">type</span>
+    <code class="sig"><span class="mtype">typename P::accum</span> <span class="mname">accum</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a14bcb57780f0378afb295e545b6b8724" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">The type the harmonic sums are accumulated in — <code>double</code>, by <a href="conceptcheatah_1_1space_1_1irbem_1_1SoundPrecision.html">SoundPrecision</a>. </p>
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7c6390f3612f6769f152d4ffdd5311d5">at</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a02a71ecbd7d8b46847ce07026ab49904">year</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1afb279e3be9b72cd96fd75c4722456f8c">g</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac06478b070582a01d7540f5f90a36170">h</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a559554ac9ec5f898dd8de283c9d00955">evaluate</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a418d0e486d737f3e56b5e9ddc7c9ac70">Igrf</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1aa138e78d5077a96d87c211f3ef5df1d0">integrand</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a14bcb57780f0378afb295e545b6b8724">accum</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a5ce2cc478afa8dc82545247b38d84c78">kSlots</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ab05813191da08f953f9fcde10c0aa814">kNorm</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a427c79cfdcf6e7552a84e17d8f9ce8d7">degree</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a90b6e187a18f212eb2a4a9f40777487a">reference_radius_km</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac34f1fbceb217368b1907656de50c72c">earliest_year</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1ac26bdc28c09b64bf0d37610792349800">latest_epoch_year</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a3c9a81e1a3a769143a50ee5004e98b4f">latest_year</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a9f86c057674cac3c8ccee6909e5a8df2">g_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a7f3b95a4beab602ca0b181bfa08498d4">h_</a></li><li><a href="#classcheatah_1_1space_1_1irbem_1_1Igrf_1a588aa3a6fa8d5909bdb3ad4d542928ed">year_</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>

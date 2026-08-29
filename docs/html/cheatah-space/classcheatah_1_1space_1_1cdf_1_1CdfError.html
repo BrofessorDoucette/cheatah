@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cheatah">
+<title>space::cdf::CdfError — cheatah-space</title>
+<link rel="icon" href="../cheatah-logo.png" type="image/png">
+<link rel="stylesheet" href="../cheatah-docs.css?v=ecd78521">
+<link rel="canonical" href="https://bigbrain-technology.com/docs/cheatah-docs/cheatah-space/classcheatah_1_1space_1_1cdf_1_1CdfError">
+<meta name="description" content="The exception every malformed-file path raises.">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html"><img src="../cheatah-logo.png" alt=""><span>cheatah</span></a>
+    <nav class="pkgs" aria-label="Packages"><a href="../index.html">cheatah</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu/index.html">gpu</a><span class="pkgs-sep">·</span><a href="../cheatah-gpu-linalg/index.html">gpu-linalg</a><span class="pkgs-sep">·</span><a href="../cheatah-plot/index.html">plot</a><span class="pkgs-sep">·</span><a href="../cheatah-space/index.html" class="current" aria-current="page">space</a><span class="pkgs-sep">·</span><a href="../standard.html">standard</a></nav>
+    <div class="topbar-right">
+      <a class="repo" href="https://github.com/BrofessorDoucette/cheatah">Source <span aria-hidden="true">↗</span></a>
+      <a class="bb" href="https://bigbrain-technology.com">BigBrain <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Modules"><a class="side-home" href="index.html">Overview</a><div class="side-group"><ul><li><a href="releases.html" data-ref="releases">Releases</a></li><li><a href="../index.html">cheatah docs</a></li></ul></div><div class="side-group"><div class="side-h">Modules</div><ul><li class="side-mod"><a href="namespacecheatah_1_1space_1_1cdf.html" data-ref="namespacecheatah_1_1space_1_1cdf">space.cdf</a></li><li class="side-mod"><details class="side-sub"><summary><a href="namespacecheatah_1_1space_1_1irbem.html" data-ref="namespacecheatah_1_1space_1_1irbem">space.irbem</a></summary><ul><li><a href="namespacecheatah_1_1space_1_1irbem_1_1api.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1api">api</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1gpu.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1gpu">gpu</a></li><li><a href="namespacecheatah_1_1space_1_1irbem_1_1tables.html" data-ref="namespacecheatah_1_1space_1_1irbem_1_1tables">tables</a></li></ul></details></li><li class="side-mod"><a href="namespacecheatah_1_1space_1_1time.html" data-ref="namespacecheatah_1_1space_1_1time">space.time</a></li></ul></div></nav>
+  <main id="main" class="content"><div class="page-head">
+  <div class="eyebrow">Class</div>
+  <h1><code>space::cdf::CdfError</code></h1>
+  <p class="ext-badge">cheatah-space v0.1.0-alpha — Biome Standard 0.6.4-alpha</p><p class="lede">The exception every malformed-file path raises. </p>
+</div>
+<div class="overview"><p>Carries the byte offset as well as the code, because &quot;bad record type&quot; without a location is not actionable on an 8 MB file.</p></div>
+
+<h2 class="group">Functions</h2><section class="member" id="classcheatah_1_1space_1_1cdf_1_1CdfError_1a93210d6a856dff8eef260daa2272ebdd">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"></span> <span class="mname">CdfError</span>(ErrorCode code, std::uint64_t offset)</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a93210d6a856dff8eef260daa2272ebdd" aria-label="permalink">#</a></span>
+  </div>
+  <p class="member-brief">Construct from a code and the offset the trouble was found at. </p>
+  <div class="member-body"><div class="params"><div class="params-h">Parameters</div><table class="params-t"><tr><td class="pname"><code>code</code></td><td class="pdesc"><p>what went wrong.</p></td></tr><tr><td class="pname"><code>offset</code></td><td class="pdesc"><p>byte offset into the file.</p></td></tr></table></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1cdf_1_1CdfError_1a6748336926d2030532cc9d2e3fd766e8">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803">ErrorCode</a></span> <span class="mname">code</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a6748336926d2030532cc9d2e3fd766e8" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the error code, for programmatic handling.</p></div></div>
+</section><section class="member" id="classcheatah_1_1space_1_1cdf_1_1CdfError_1a6082cc27cb9a6e51831ac3afed3b52dc">
+  <div class="member-head">
+    <span class="badge badge-fn">fn</span>
+    <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">offset</span>() const noexcept</code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a6082cc27cb9a6e51831ac3afed3b52dc" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"><div class="ret"><span class="ret-h">Returns</span> <p>the byte offset the error was detected at.</p></div></div>
+</section><h2 class="group">Constants & variables</h2><section class="member" id="classcheatah_1_1space_1_1cdf_1_1CdfError_1ab96c4361edbe88238a0f34052b087f5d">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype"><a href="namespacecheatah_1_1space_1_1cdf.html#namespacecheatah_1_1space_1_1cdf_1a23add733d73475d60e489931732e8803">ErrorCode</a></span> <span class="mname">code_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1ab96c4361edbe88238a0f34052b087f5d" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section><section class="member" id="classcheatah_1_1space_1_1cdf_1_1CdfError_1a4e06bfada2f4ccab8b8f64153388b8f0">
+  <div class="member-head">
+    <span class="badge badge-var">var</span>
+    <code class="sig"><span class="mtype">std::uint64_t</span> <span class="mname">offset_</span></code>
+    <span class="member-actions"><a class="anchor" href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a4e06bfada2f4ccab8b8f64153388b8f0" aria-label="permalink">#</a></span>
+  </div>
+  
+  <div class="member-body"></div>
+</section></main>
+  <aside class="toc" aria-label="On this page"><div class="toc-h">On this page</div><ul><li><a href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a93210d6a856dff8eef260daa2272ebdd">CdfError</a></li><li><a href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a6748336926d2030532cc9d2e3fd766e8">code</a></li><li><a href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a6082cc27cb9a6e51831ac3afed3b52dc">offset</a></li><li><a href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1ab96c4361edbe88238a0f34052b087f5d">code_</a></li><li><a href="#classcheatah_1_1space_1_1cdf_1_1CdfError_1a4e06bfada2f4ccab8b8f64153388b8f0">offset_</a></li></ul></aside>
+</div>
+<footer class="sitefoot">© 2026 <a href="https://bigbrain-technology.com">BigBrain LLC</a> — cheatah is free software under the MIT License. Lead engineer &amp; producer: Joshua Doucette, on behalf of BigBrain LLC. <a class="donate" href="https://bigbrain-technology.com/cheatah/donate">&hearts; Donate</a></footer>
+</body>
+</html>
