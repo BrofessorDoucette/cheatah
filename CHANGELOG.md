@@ -5,6 +5,22 @@ changes between releases.
 
 ## Unreleased
 
+## v1.11.9-alpha (2026-08-28) — two compute layers, and the extensions stop re-implementing one
+
+Biome Standard <b>0.6.5-alpha</b> — a PATCH: two members move, both additively, and this
+toolchain release carries only the table. `cheatah-gpu-linalg` v0.4.5-alpha lets a kernel name
+carry its directory (`<dir>/<entry>`), so a consumer's own kernels reach the shared device context
+by qualified name instead of by re-pointing an environment variable around every launch.
+`cheatah-plot` v0.1.1-alpha is the first consumer to use it: its hand-rolled device context — the
+third implementation of the same class across the extensions — is gone, and its rasterizer
+dispatches on cheatah-gpu-linalg's. The rendered bytes are unchanged (the emulated-Metal lane is
+still bit-exact with the CPU reference; the Vulkan lane still holds its tolerance). Nothing in the
+stdlib API moves; every program written against 0.6.4-alpha compiles and behaves identically.
+
+The design this settles: exactly **two** compute layers across the ecosystem. cheatah-gpu-linalg's
+`Context` is the small one — linear algebra and plotting for the stdlib extensions, MIT — and the
+game engine's is the other. cheatah-gpu stays the raw ground both stand on.
+
 ## v1.11.8-alpha (2026-08-28) — the docs get audited, and the gate that checks them gets tested
 
 Biome Standard <b>0.6.4-alpha</b> — a PATCH: the only member that changes is this toolchain

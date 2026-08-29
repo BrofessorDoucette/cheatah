@@ -11,7 +11,7 @@ compile them with `purrc`, and run them on the headless `cheatah` host. Because
 cheatah transpiles to modern C++ and is built at `-O3 -march=native`, your
 programs run at **optimized native speed**.
 
-> ⚠️ **Status: alpha (v1.11.8-alpha).** cheatah runs and is heavily tested
+> ⚠️ **Status: alpha (v1.11.9-alpha).** cheatah runs and is heavily tested
 > (the QA gate runs the suite under **ASan + UBSan + Valgrind** at 100% coverage), but the
 > language and APIs may still change. There is **no sandbox**: a `.purr`/`.so` is
 > *fully trusted* by default (you can optionally sign modules and have the runtime verify
