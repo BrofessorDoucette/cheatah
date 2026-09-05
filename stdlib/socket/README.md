@@ -1,11 +1,12 @@
 # cheatah `socket` 🐆
 
-A small wrapper around BSD/POSIX **TCP sockets**, in the spirit of Python's
-`socket` module. Two layers are available: a **flat, file-descriptor API** (like the
+A small wrapper around BSD/POSIX **TCP sockets** — plus a UDP **datagram face** —
+in the spirit of Python's `socket` module. Two layers are available: a **flat, file-descriptor API** (like the
 C layer — you pass the integer `fd` from `socket()` / `tcp_listen()` / `accept()` to
 the other calls), and, on top of it, **owning guards** (`socket.open`, `socket.serve`)
 that return `Conn`/`Listener` values whose destructors close the fd — use them with
-`with` so a connection or listener can't leak (see below). IPv4 + TCP only; hosts are
+`with` so a connection or listener can't leak (see below). IPv4 only (TCP streams and
+UDP datagrams); hosts are
 resolved with `getaddrinfo`, so `"localhost"`, `"127.0.0.1"`, and DNS names all work.
 
 ```purr
@@ -30,6 +31,12 @@ socket.close(lfd)
   `set_timeout(fd, ms)` (recv/send deadlines) and `shutdown(fd)` (half-close).
 - **Low-level BSD** — `socket`, `set_reuseaddr`, `bind`, `listen`, `connect`,
   `local_port`, and `last_error` (the current `errno` text).
+- **Datagrams (UDP)** — `udp_socket()`, `sendto(fd, host, port, data)`,
+  `recvfrom(fd, bufsize, out_host, out_port)`. For data whose NEXT packet supersedes
+  this one (a presence pose, a live drag, a simulation snapshot): packets may be
+  dropped, duplicated or reordered and nothing here acks, retries or orders — the
+  receiver is written newest-wins. Everything that must arrive rides TCP. A
+  send-only client needs no `bind` (the kernel picks a port on the first `sendto`).
 
 ```purr
 import io
